@@ -12,7 +12,7 @@ exports.handler = async (event, context) => {
       };
     }
 
-    // === 🧠 Memorie semantică integrată (direct în fișier) ===
+    // === 🧠 Memorie semantică internă ===
     const memory = {
       data: [
         {
@@ -44,16 +44,27 @@ exports.handler = async (event, context) => {
       ],
     };
 
-    // === Funcție simplă pentru similaritate ===
+    // === 🔠 Normalizare text (fără semne, fără diacritice) ===
+    function normalizeText(t) {
+      return t
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[.,!?;:()"']/g, "")
+        .trim();
+    }
+
+    // === 🔍 Căutare în memorie (similaritate tolerantă) ===
     function findClosestMemoryEntry(inputText) {
+      const normInput = normalizeText(inputText);
       let best = null;
       let maxScore = 0;
       for (const item of memory.data) {
-        const common = item.text
-          .toLowerCase()
+        const normItem = normalizeText(item.text);
+        const common = normItem
           .split(" ")
-          .filter((word) => inputText.toLowerCase().includes(word)).length;
-        const score = common / Math.max(item.text.split(" ").length, 1);
+          .filter((word) => normInput.includes(word)).length;
+        const score = common / Math.max(normItem.split(" ").length, 1);
         if (score > maxScore) {
           maxScore = score;
           best = item;
@@ -62,6 +73,7 @@ exports.handler = async (event, context) => {
       return best && maxScore > 0.3 ? best : null;
     }
 
+    // === 🧩 Analiză principală ===
     const memoryMatch = findClosestMemoryEntry(text);
     let D = 0,
       L = 0,
@@ -72,7 +84,6 @@ exports.handler = async (event, context) => {
       L = memoryMatch.L;
       interpretare = memoryMatch.interpretare;
     } else {
-      // fallback logic
       D = parseFloat((Math.random() * 0.6).toFixed(2));
       L = parseFloat((Math.random() * 0.6).toFixed(2));
 
@@ -83,8 +94,16 @@ exports.handler = async (event, context) => {
       else interpretare = "Textul este parțial coerent, dar cu deviații subtile.";
     }
 
+    // === ⚖️ Calcul al rezonanței (Formula 3.14 + D + L∞) ===
     const rezonanta = parseFloat((3.14 + D + L).toFixed(2));
+    const tip =
+      D < 0.2 && L < 0.2
+        ? "Echilibru coeziv"
+        : D > 0.5 || L > 0.5
+        ? "Deviație extinsă"
+        : "Echilibru fragil";
 
+    // === 🧾 Răspuns final ===
     return {
       statusCode: 200,
       body: JSON.stringify({
@@ -92,10 +111,7 @@ exports.handler = async (event, context) => {
         rezonanta,
         D,
         L,
-        tip:
-          D < 0.2 && L < 0.2
-            ? "Echilibru coeziv"
-            : "Deviație extinsă",
+        tip,
         interpretare,
       }),
     };
