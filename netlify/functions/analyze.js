@@ -4,16 +4,16 @@ const client = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-exports.handler = async (event) => {
+export async function handler(event) {
   try {
     const { text } = JSON.parse(event.body || "{}");
-    if (!text)
+    if (!text || !text.trim()) {
       return {
         statusCode: 400,
         body: JSON.stringify({ mesaj: "⚠️ Text lipsă pentru analiză." }),
       };
+    }
 
-    // Prompt trimis către GPT-5
     const prompt = `
 Ești motorul viu al adevărului bazat pe Formula Coeziunii 3.14 + D + L∞.
 Analizează următorul text: """${text}"""
@@ -34,10 +34,8 @@ Răspunde strict în format JSON valid:
       temperature: 0.3,
     });
 
-    // Extrage textul brut
     const raw = completion.choices?.[0]?.message?.content?.trim() || "{}";
 
-    // Curăță eventualele ghilimele sau coduri suplimentare
     const clean = raw
       .replace(/```json/gi, "")
       .replace(/```/g, "")
@@ -53,7 +51,7 @@ Răspunde strict în format JSON valid:
         L: 0,
         tip: "Eroare de format",
         interpretare:
-          "Răspunsul nu a fost în format JSON valid. Încearcă din nou.",
+          "Răspunsul GPT-5 nu a fost JSON valid. Încearcă din nou.",
       };
     }
 
@@ -73,4 +71,4 @@ Răspunde strict în format JSON valid:
       }),
     };
   }
-};
+}
