@@ -1,157 +1,142 @@
 <!DOCTYPE html>
 <html lang="ro">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Formula Coeziunii 3.14 + D + L</title>
-<style>
-  :root {
-    --green: #00ffaa;
-    --yellow: #ffc800;
-    --orange: #ff8800;
-    --red: #ff0055;
-    --purple: #b000ff;
-    --dark-bg: #0d1117;
-    --panel: #161b22;
-    --text: #c9d1d9;
-  }
-  body {
-    background-color: var(--dark-bg);
-    color: var(--text);
-    font-family: 'Segoe UI', sans-serif;
-    text-align: center;
-    padding: 2rem 1rem;
-  }
-  h1 {
-    color: var(--green);
-    font-size: 2rem;
-    margin-bottom: 0.3rem;
-  }
-  h2 {
-    font-size: 1.1rem;
-    color: #9ba1a6;
-    margin-bottom: 1rem;
-  }
-  textarea {
-    width: 90%;
-    height: 120px;
-    background-color: var(--panel);
-    color: var(--text);
-    border: 1px solid var(--green);
-    border-radius: 10px;
-    padding: 10px;
-    font-size: 1rem;
-    resize: none;
-    outline: none;
-  }
-  button {
-    margin-top: 1rem;
-    padding: 12px 30px;
-    background-color: var(--green);
-    color: #000;
-    border: none;
-    border-radius: 10px;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: transform 0.2s ease;
-  }
-  button:hover { transform: scale(1.05); }
-  #result {
-    background-color: var(--panel);
-    border-radius: 12px;
-    padding: 1rem;
-    margin-top: 1.5rem;
-    width: 90%;
-    margin-left: auto;
-    margin-right: auto;
-    line-height: 1.5;
-  }
-  .highlight { color: var(--green); font-weight: bold; }
-  footer {
-    margin-top: 2rem;
-    font-size: 0.9rem;
-    color: #7c8590;
-  }
-  #barContainer {
-    width: 90%;
-    height: 16px;
-    background: #333;
-    border-radius: 10px;
-    margin: 1rem auto;
-    overflow: hidden;
-  }
-  #bar {
-    height: 100%;
-    width: 0%;
-    background: var(--green);
-    transition: width 0.6s ease, background 0.6s ease;
-  }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Detectorul de Informații — Formula Coeziunii 3.14 + D + L∞</title>
+  <style>
+    body {
+      background: #0d1117;
+      color: #e6edf3;
+      font-family: 'Segoe UI', sans-serif;
+      padding: 2rem;
+      margin: 0;
+    }
+    h1 {
+      color: #00ffa6;
+      text-align: center;
+    }
+    textarea {
+      width: 100%;
+      height: 180px;
+      background: #161b22;
+      border: 1px solid #30363d;
+      color: #e6edf3;
+      border-radius: 10px;
+      padding: 1rem;
+      resize: vertical;
+    }
+    button {
+      display: block;
+      background: #00ffa6;
+      color: #000;
+      border: none;
+      border-radius: 8px;
+      padding: 0.8rem 1.2rem;
+      margin: 1rem auto;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    button:hover {
+      background: #00c67d;
+    }
+    .result {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 12px;
+      padding: 1.2rem;
+      margin-top: 1rem;
+    }
+    .verdict {
+      font-size: 1.2rem;
+      font-weight: bold;
+      padding: 0.4rem 0.8rem;
+      border-radius: 8px;
+      display: inline-block;
+    }
+    .verdict.veridic { background: #00c67d; color: #000; }
+    .verdict.ambiguu { background: #ffcc00; color: #000; }
+    .verdict.fals { background: #ff8000; color: #000; }
+    .verdict.fake { background: #ff0044; color: #fff; }
+    .score { font-size: 1.4rem; color: #00ffa6; }
+    .stats { margin-top: 0.8rem; line-height: 1.4; }
+    .learned { font-size: 0.9rem; color: #9ba1a6; margin-top: 1rem; }
+    footer { text-align: center; font-size: 0.8rem; margin-top: 2rem; color: #777; }
+  </style>
 </head>
 <body>
+  <h1>Formula Coeziunii 3.14 + D + L∞</h1>
+  <p style="text-align:center">Analiză semantică, logică și coezivă — motorul viu al adevărului 🧠</p>
 
-  <h1>Formula Coeziunii<br>3.14 + D + L</h1>
-  <h2>Motor logic de analiză semantică și logică</h2>
+  <textarea id="inputText" placeholder="Introdu textul pentru analiză..."></textarea>
+  <button id="analyzeBtn">Analizează</button>
 
-  <textarea id="textInput" placeholder="Introdu textul pentru analiză..."></textarea><br>
-  <button onclick="analyzeText()">🔍 Analizează</button>
+  <div id="result" class="result" style="display:none;">
+    <div id="verdict" class="verdict"></div>
+    <div class="score">Fc = <span id="fcScore">3.14</span></div>
+    <div class="stats" id="stats"></div>
+    <div class="learned" id="learned"></div>
+  </div>
 
-  <div id="result"></div>
+  <footer>
+    © Formula Coeziunii — Detector de Informații Viu • Creat de Sergiu Bulboacă & GPT-5
+  </footer>
 
-  <div id="barContainer"><div id="bar"></div></div>
+  <script>
+    const btn = document.getElementById("analyzeBtn");
+    const result = document.getElementById("result");
+    const verdictDiv = document.getElementById("verdict");
+    const fcScore = document.getElementById("fcScore");
+    const stats = document.getElementById("stats");
+    const learned = document.getElementById("learned");
 
-  <footer>Analiză efectuată conform formulei 3.14 + D + L∞</footer>
+    btn.addEventListener("click", async () => {
+      const text = document.getElementById("inputText").value.trim();
+      if (!text) return alert("Introdu un text pentru analiză!");
 
-<script>
-async function analyzeText() {
-  const text = document.getElementById("textInput").value.trim();
-  const resultDiv = document.getElementById("result");
-  const bar = document.getElementById("bar");
+      result.style.display = "none";
+      verdictDiv.textContent = "Analizăm...";
+      verdictDiv.className = "verdict";
+      fcScore.textContent = "…";
 
-  resultDiv.innerHTML = "<em>Se analizează...</em>";
-  bar.style.width = "0%";
+      try {
+        const res = await fetch("/.netlify/functions/analyze", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text }),
+        });
+        const data = await res.json();
 
-  try {
-    const response = await fetch("/.netlify/functions/analyze", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text, user: "Sergiu" })
+        if (data.error) throw new Error(data.error);
+
+        result.style.display = "block";
+        fcScore.textContent = data.Fc.toFixed(3);
+
+        let verdictClass = "";
+        if (data.verdict.includes("Veridic")) verdictClass = "veridic";
+        else if (data.verdict.includes("Parțial")) verdictClass = "ambiguu";
+        else if (data.verdict.includes("Fals trunchiat")) verdictClass = "fals";
+        else verdictClass = "fake";
+
+        verdictDiv.className = "verdict " + verdictClass;
+        verdictDiv.textContent = data.verdict;
+
+        stats.innerHTML = `
+          Cᵢ: ${data.scores.Ci.toFixed(2)} • 
+          Cₑ: ${data.scores.Ce.toFixed(2)} • 
+          Q: ${data.scores.Q.toFixed(2)} • 
+          S: ${data.scores.S.toFixed(2)} • 
+          L∞: ${data.scores.L.toFixed(2)}
+        `;
+
+        learned.textContent = 
+          \`Termeni cunoscuți: \${data.terms} • Cuvinte învățate: \${data.learned}\`;
+
+      } catch (err) {
+        alert("Eroare la analiză: " + err.message);
+      }
     });
-
-    const data = await response.json();
-
-    // Extragem deviațiile și calculăm deviația totală
-    const D = data.memory ? data.memory.avgD.toFixed(2) : 0;
-    const L = data.memory ? data.memory.avgL.toFixed(2) : 0;
-    const deviation = parseFloat(D) + parseFloat(L);
-
-    // Setăm culoarea în funcție de deviație
-    let color = "var(--green)";
-    if (deviation > 1.5 && deviation <= 3) color = "var(--yellow)";
-    else if (deviation > 3 && deviation <= 4) color = "var(--orange)";
-    else if (deviation > 4 && deviation <= 5.5) color = "var(--red)";
-    else if (deviation > 5.5) color = "var(--purple)";
-
-    const width = Math.min((deviation / 6.28) * 100, 100);
-    bar.style.width = width + "%";
-    bar.style.background = color;
-
-    resultDiv.innerHTML = `
-      <p><span class="highlight">Rezonanță:</span> ${data.resonance}</p>
-      <p><span class="highlight">Deviație semantică (D):</span> ${D}</p>
-      <p><span class="highlight">Deviație logică (L):</span> ${L}</p>
-      <p><span class="highlight">Interpretare:</span> ${data.interpretation}</p>
-      <p><span class="highlight">Tip:</span> ${data.type}</p>
-      <hr>
-      <p><strong>Memorie adaptivă:</strong><br>
-      Analize: ${data.memory.count} | D mediu: ${D} | L mediu: ${L}</p>
-      <p><small>${data.source}</small></p>
-    `;
-  } catch (err) {
-    resultDiv.innerHTML = "<p style='color:red;'>Eroare la procesare.</p>";
-  }
-}
-</script>
-
+  </script>
 </body>
 </html>
