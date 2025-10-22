@@ -1,57 +1,50 @@
-exports.handler = async (event) => {
+export async function handler(event) {
   try {
-    const { text, auth } = JSON.parse(event.body || "{}");
-
-    // verificare sursă autentică
-    if (auth !== "SergiuAuthKey") {
-      return {
-        statusCode: 401,
-        body: JSON.stringify({ message: "Interogare neautorizată." })
-      };
+    const { text } = JSON.parse(event.body || "{}");
+    if (!text) {
+      return { statusCode: 400, body: JSON.stringify({ error: "Lipsește textul pentru analiză." }) };
     }
 
-    // nivel 1: energie lingvistică
-    const E = (text.match(/[a-zA-ZăâîșțĂÂÎȘȚ]/g) || []).length;
-    const V = (text.match(/[aeiouăâîșțAEIOUĂÂÎȘȚ]/g) || []).length;
-    const energie = V / Math.max(E, 1);
+    // 1️⃣ Normalizăm textul
+    const clean = text.replace(/[^a-zA-ZăâîșțĂÂÎȘȚ ]/g, "").toLowerCase().trim();
 
-    // nivel 2: coerență (relații logice)
-    const cauze = (text.match(/\b(deoarece|pentru că|astfel|dar|însă|prin urmare)\b/gi) || []).length;
-    const afirmatii = (text.match(/\b(este|sunt|există|adevăr|fals)\b/gi) || []).length;
-    const C = (cauze + afirmatii) / Math.max(text.split(" ").length, 1);
+    // 2️⃣ Calculăm deviația "D"
+    const vowels = clean.match(/[aeiouăâî]/g)?.length || 0;
+    const consonants = clean.match(/[bcdfghjklmnpqrstvwxyzșț]/g)?.length || 0;
+    const ratio = vowels && consonants ? vowels / consonants : 0;
+    const D = Math.abs((ratio - 0.38) * 10).toFixed(2); // deviația optimă ~0.38
 
-    // nivel 3: rezonanță
-    const R = (1 + Math.abs(energie - C)).toFixed(2);
+    // 3️⃣ Calculăm forța totală
+    const resonance = (3.14 + parseFloat(D)).toFixed(2);
 
-    // deviație logică
-    const D = ((energie - C) / R).toFixed(2);
-    const Fc = (3.14 + parseFloat(D)).toFixed(2);
+    // 4️⃣ Interpretare logică după formula 3.14 + D
+    let interpretation = "";
+    let type = "";
+    if (D < 0.2) {
+      interpretation = "Informația se află în rezonanță cu legea coeziunii.";
+      type = "Echilibru coeziv";
+    } else if (D < 0.8) {
+      interpretation = "Informația prezintă ușoare fluctuații, dar rămâne coerentă.";
+      type = "Oscilație controlată";
+    } else if (D < 1.5) {
+      interpretation = "Informația are deviații semnificative de sens.";
+      type = "Dezechilibru parțial";
+    } else {
+      interpretation = "Informația indică dezechilibru și posibilă manipulare.";
+      type = "Deviație manipulativă";
+    }
 
-    // interpretare
-    let tip = "", color = "#00ffb7";
-    if (D > 0.5) { tip = "Deviație manipulativă"; color = "#ff0055"; }
-    else if (D < -0.5) { tip = "Inerție logică"; color = "#999999"; }
-    else { tip = "Echilibru coeziv"; color = "#00ffb7"; }
-
-    const interpretare =
-      D > 0.5 ? "Informația tinde să distorsioneze structura naturală." :
-      D < -0.5 ? "Informația are vibrație scăzută, pasivă." :
-      "Informația se află în rezonanță cu legea coeziunii.";
-
-    const score = Math.min(100, Math.abs((3.14 / Fc) * 100)).toFixed(1);
-
+    // 5️⃣ Răspuns final
     return {
       statusCode: 200,
       body: JSON.stringify({
-        formula: `3.14 + ${D} = ${Fc}`,
-        interpretare,
-        tip,
-        score,
-        color,
-        message: "Analiză finalizată conform formulei 3.14 + D"
-      })
+        resonance: `3.14 + ${D} = ${resonance}`,
+        interpretation,
+        type,
+        message: "Analiză finalizată conform formulei 3.14 + D",
+      }),
     };
   } catch (err) {
-    return { statusCode: 500, body: JSON.stringify({ error: err.message }) };
+    return { statusCode: 500, body: JSON.stringify({ error: "Eroare la analiză", details: err.message }) };
   }
-};
+}
