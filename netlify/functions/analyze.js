@@ -15,43 +15,38 @@ export async function handler(event) {
     }
 
     const prompt = `
-Ești motorul viu al adevărului bazat pe Formula Coeziunii 3.14 + D + L∞.
-Analizează următorul text: """${text}"""
+Analizează logic, semantic și coeziv următorul text: """${text}"""
+Aplică Formula Coeziunii 3.14 + D + L∞.
 
-Răspunde strict în format JSON valid:
+Returnează strict JSON valid de forma:
 {
-  "rezonanta": număr între 3.00 și 4.50,
-  "D": deviație semantică între 0.00 și 1.00,
-  "L": deviație logică între 0.00 și 1.00,
+  "rezonanta": număr între 3.0 și 4.5,
+  "D": număr între 0 și 1,
+  "L": număr între 0 și 1,
   "tip": "Echilibru coeziv" | "Echilibru fragil" | "Deviație extinsă",
-  "interpretare": scurt text explicativ în limba română
+  "interpretare": scurt text în limba română care explică rezultatul
 }
     `;
 
     const completion = await client.chat.completions.create({
       model: "gpt-5",
       messages: [{ role: "user", content: prompt }],
-      temperature: 0.3,
+      temperature: 0.4,
     });
 
     const raw = completion.choices?.[0]?.message?.content?.trim() || "{}";
+    const jsonMatch = raw.match(/{[\s\S]*}/);
+    let data = {};
 
-    const clean = raw
-      .replace(/```json/gi, "")
-      .replace(/```/g, "")
-      .replace(/^[^{]*({[\s\S]*})[^}]*$/, "$1");
-
-    let data;
     try {
-      data = JSON.parse(clean);
-    } catch (e) {
+      data = JSON.parse(jsonMatch ? jsonMatch[0] : "{}");
+    } catch {
       data = {
         rezonanta: 3.14,
         D: 0,
         L: 0,
         tip: "Eroare de format",
-        interpretare:
-          "Răspunsul GPT-5 nu a fost JSON valid. Încearcă din nou.",
+        interpretare: "Nu s-a putut interpreta JSON-ul GPT-5.",
       };
     }
 
