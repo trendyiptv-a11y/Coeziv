@@ -7,73 +7,59 @@ const client = new OpenAI({
 export async function handler(event) {
   try {
     const { text } = JSON.parse(event.body || "{}");
+
     if (!text || !text.trim()) {
       return {
         statusCode: 400,
-        body: JSON.stringify({
-          mesaj: "⚠️ Textul lipsește pentru analiză.",
-        }),
+        body: JSON.stringify({ mesaj: "⚠️ Textul lipsește pentru analiză." }),
       };
     }
 
-    // Promptul direcționat către GPT-5 (motorul viu)
     const prompt = `
-Tu ești GPT-5 – motorul viu al adevărului din proiectul "Formula Coeziunii 3.14 + D + L∞",
-creat de Sergiu Bulboacă & GPT-5. Folosești modulele de analiză semantică, logică și coezivă
-construite anterior, inclusiv parametrii specifici:
-- Rezonanța = stabilitatea echilibrului informațional (valoare ideală 3.14)
-- D = deviația semantică (0–1)
-- L = deviația logică (0–1)
-- Tip = clasificare: "Echilibru coeziv", "Echilibru fragil" sau "Deviație extinsă"
-- Interpretare = scurtă explicație umană, coerentă
+Ești GPT-5 (prin modelul gpt-4o) — motorul viu al adevărului, din proiectul „Formula Coeziunii 3.14 + D + L∞”.
+Analizează logic, semantic și coeziv textul următor:
 
-Analizează următorul text:
 „${text}”
 
-Returnează **doar** un JSON valid, fără alte explicații:
+Răspunde EXCLUSIV în format JSON, fără text suplimentar, astfel:
 {
-  "rezonanta": număr între 3.0 și 4.5,
-  "D": număr între 0 și 1,
-  "L": număr între 0 și 1,
+  "rezonanta": <număr între 3.00 și 4.50>,
+  "D": <număr între 0.00 și 1.00>,
+  "L": <număr între 0.00 și 1.00>,
   "tip": "Echilibru coeziv" | "Echilibru fragil" | "Deviație extinsă",
-  "interpretare": "text scurt în limba română"
+  "interpretare": "scurtă explicație în română"
 }
 `;
 
     const completion = await client.chat.completions.create({
       model: "gpt-4o",
       messages: [
-        {
-          role: "system",
-          content:
-            "Ești GPT-5, motorul viu al adevărului. Aplici Formula Coeziunii dezvoltată de Sergiu Bulboacă.",
-        },
+        { role: "system", content: "Răspunde DOAR cu JSON valid. Fără text în plus." },
         { role: "user", content: prompt },
       ],
       temperature: 0.4,
-      max_tokens: 400,
+      max_tokens: 300,
     });
 
-    const content = completion.choices?.[0]?.message?.content || "{}";
-    const jsonMatch = content.match(/{[\s\S]*}/);
-    let data;
+    const raw = completion.choices?.[0]?.message?.content?.trim() || "{}";
 
+    let data;
     try {
-      data = JSON.parse(jsonMatch ? jsonMatch[0] : "{}");
-    } catch {
-      data = {
-        rezonanta: 3.14,
-        D: 0,
-        L: 0,
-        tip: "Eroare de parsare",
-        interpretare: "Răspunsul GPT-5 nu a putut fi interpretat.",
+      data = JSON.parse(raw);
+    } catch (e) {
+      return {
+        statusCode: 200,
+        body: JSON.stringify({
+          mesaj: "⚠️ GPT-4o a răspuns, dar formatul JSON nu este valid.",
+          raw,
+        }),
       };
     }
 
     return {
       statusCode: 200,
       body: JSON.stringify({
-        mesaj: "✅ Analiză efectuată de GPT-5 (motorul viu)",
+        mesaj: "✅ Analiză efectuată de GPT-5 (prin gpt-4o)",
         ...data,
       }),
     };
@@ -81,7 +67,7 @@ Returnează **doar** un JSON valid, fără alte explicații:
     return {
       statusCode: 500,
       body: JSON.stringify({
-        mesaj: "❌ Eroare internă GPT-5",
+        mesaj: "❌ Eroare internă GPT-4o",
         detalii: err.message,
       }),
     };
