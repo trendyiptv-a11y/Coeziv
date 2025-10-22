@@ -96,10 +96,12 @@
       if (!text) return alert("Te rog introdu un text pentru analiză.");
 
       const res = await fetch("/.netlify/functions/analyze", {
-        method: "POST",
-        body: JSON.stringify({ text }),
-      });
-      const data = await res.json();
+  method: "POST",
+  headers: { "Content-Type": "application/json" },  // 🟢 linia care lipsea
+  body: JSON.stringify({ text }),
+});
+const data = await res.json();
+console.log("API Response:", data); // pentru verificare rapidă
 
       // ✅ Afișează rezultatele
       result.style.display = "block";
@@ -148,3 +150,4 @@
   </script>
 </body>
 </html>
+
