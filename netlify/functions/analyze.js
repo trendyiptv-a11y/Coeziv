@@ -2,9 +2,6 @@
 // Motor viu al adevărului – Analiză semantică, logică și coezivă
 // © Sergiu Bulboacă & GPT-5
 
-const fs = require("fs");
-const path = require("path");
-
 exports.handler = async (event, context) => {
   try {
     const text = event.body ? JSON.parse(event.body).text : "";
@@ -15,15 +12,43 @@ exports.handler = async (event, context) => {
       };
     }
 
-    // === 🧠 Încărcare memorie semantică ===
-    const memoryPath = path.join(__dirname, "memory.json");
-    const memoryData = JSON.parse(fs.readFileSync(memoryPath, "utf8"));
+    // === 🧠 Memorie semantică integrată (direct în fișier) ===
+    const memory = {
+      data: [
+        {
+          text: "Tăcerea vorbește mai tare decât cuvintele",
+          D: 0.15,
+          L: 0.20,
+          interpretare: "Contradicție aparentă — deviație echilibrată poetic.",
+        },
+        {
+          text: "Apa fierbe la 100°C la nivelul mării",
+          D: 0.10,
+          L: 0.00,
+          interpretare: "Informația este coerentă și echilibrată.",
+        },
+        {
+          text: "România este cea mai bogată țară din lume",
+          D: 0.60,
+          L: 0.10,
+          interpretare:
+            "Textul prezintă dezechilibru semantic sau exagerare.",
+        },
+        {
+          text: "Soarele se învârte în jurul Pământului",
+          D: 0.30,
+          L: 0.60,
+          interpretare:
+            "Textul prezintă deviație logică și semantică majoră.",
+        },
+      ],
+    };
 
-    // === Funcție pentru similaritate simplă ===
+    // === Funcție simplă pentru similaritate ===
     function findClosestMemoryEntry(inputText) {
       let best = null;
       let maxScore = 0;
-      for (const item of memoryData.data) {
+      for (const item of memory.data) {
         const common = item.text
           .toLowerCase()
           .split(" ")
@@ -37,7 +62,6 @@ exports.handler = async (event, context) => {
       return best && maxScore > 0.3 ? best : null;
     }
 
-    // === Analiză cu memorie ===
     const memoryMatch = findClosestMemoryEntry(text);
     let D = 0,
       L = 0,
@@ -48,7 +72,7 @@ exports.handler = async (event, context) => {
       L = memoryMatch.L;
       interpretare = memoryMatch.interpretare;
     } else {
-      // fallback logic simplificat
+      // fallback logic
       D = parseFloat((Math.random() * 0.6).toFixed(2));
       L = parseFloat((Math.random() * 0.6).toFixed(2));
 
@@ -59,10 +83,8 @@ exports.handler = async (event, context) => {
       else interpretare = "Textul este parțial coerent, dar cu deviații subtile.";
     }
 
-    // === Calcul simbolic de rezonanță ===
     const rezonanta = parseFloat((3.14 + D + L).toFixed(2));
 
-    // === Returnare rezultat ===
     return {
       statusCode: 200,
       body: JSON.stringify({
