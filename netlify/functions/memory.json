@@ -1,5 +1,42 @@
 {
-  "terms": {},
-  "learned": 0,
-  "history": []
+  "version": "1.0",
+  "last_update": "2025-10-22",
+  "description": "Set de calibrare semantică inițială pentru Formula Coeziunii 3.14 + D + L∞ — Motor logic și viu al adevărului.",
+  "data": [
+    {
+      "text": "Apa fierbe la 100°C la nivelul mării.",
+      "D": 0.05,
+      "L": 0.00,
+      "interpretare": "Adevăr stabil și coerent, fără deviație semnificativă.",
+      "categorie": "adevăr factual"
+    },
+    {
+      "text": "România este cea mai bogată țară din lume.",
+      "D": 0.60,
+      "L": 0.10,
+      "interpretare": "Exagerare semantică cu deviație minoră logică.",
+      "categorie": "exagerare"
+    },
+    {
+      "text": "Soarele se învârte în jurul Pământului.",
+      "D": 0.30,
+      "L": 0.60,
+      "interpretare": "Afirmație falsă cu deviație logică mare.",
+      "categorie": "fals evident"
+    },
+    {
+      "text": "Inima mea plânge sub lumina soarelui.",
+      "D": 0.45,
+      "L": 0.05,
+      "interpretare": "Text metaforic — deviație semantică naturală, logică redusă.",
+      "categorie": "poetic / metaforic"
+    },
+    {
+      "text": "Tăcerea vorbește mai tare decât cuvintele.",
+      "D": 0.55,
+      "L": 0.25,
+      "interpretare": "Contradicție aparentă — deviație echilibrată poetic.",
+      "categorie": "paradox / contradicție"
+    }
+  ]
 }
