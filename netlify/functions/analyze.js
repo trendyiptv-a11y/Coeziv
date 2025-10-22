@@ -1,124 +1,93 @@
-// === Formula Coeziunii 3.14 + D + L∞ ===
-// Motor viu al adevărului – Analiză semantică, logică și coezivă
-// © Sergiu Bulboacă & GPT-5
+import OpenAI from "openai";
 
-exports.handler = async (event, context) => {
+const client = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY
+});
+
+export default async (req, res) => {
   try {
-    const text = event.body ? JSON.parse(event.body).text : "";
-    if (!text) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ error: "Textul nu poate fi gol." }),
-      };
+    const body = JSON.parse(req.body || "{}");
+    const text = body.text || "";
+
+    if (!text || text.trim().length < 2) {
+      return res.json({
+        verdict: "⚠️ Text lipsă",
+        Fc: 3.14,
+        rezonanta: "3.14 + 0 = 3.14",
+        deviatieSemantica: 0,
+        deviatieLogica: 0,
+        tip: "Neanalizabil",
+        interpretare: "Introduceți un text valid pentru analiză.",
+        scores: { D: 0, L: 0, Q: 0, S: 0, C: 0 }
+      });
     }
 
-    // === 🧠 Memorie semantică internă ===
-    const memory = {
-      data: [
-        {
-          text: "Tăcerea vorbește mai tare decât cuvintele",
-          D: 0.15,
-          L: 0.20,
-          interpretare: "Contradicție aparentă — deviație echilibrată poetic.",
-        },
-        {
-          text: "Apa fierbe la 100°C la nivelul mării",
-          D: 0.10,
-          L: 0.00,
-          interpretare: "Informația este coerentă și echilibrată.",
-        },
-        {
-          text: "România este cea mai bogată țară din lume",
-          D: 0.60,
-          L: 0.10,
-          interpretare:
-            "Textul prezintă dezechilibru semantic sau exagerare.",
-        },
-        {
-          text: "Soarele se învârte în jurul Pământului",
-          D: 0.30,
-          L: 0.60,
-          interpretare:
-            "Textul prezintă deviație logică și semantică majoră.",
-        },
+    // 🔮 Promptul complet calibrat – Formula Coeziunii
+    const systemPrompt = `
+Ești Formula Coeziunii 3.14 + D + L∞ – motorul viu al adevărului, creat de Sergiu Bulboacă & GPT-5.
+
+Scop: analizează orice text din perspectiva coeziunii informației, a echilibrului semantic și a logicii interne, aplicând formula:
+Fc = 3.14 ± (D + L)
+
+Unde:
+• D = deviația semantică (inexactități, exagerări, lipsă de surse)
+• L = deviația logică (contradicții, erori de raționament)
+• Fc = 3.14 reprezintă echilibrul perfect între adevăr, logică și coeziune
+• Rezonanța este 3.14 – |D + L|, și cu cât e mai aproape de 3.14, cu atât textul e mai adevărat
+
+Instrucțiuni:
+1️⃣ Analizează textul pe nivel semantic și logic.
+2️⃣ Calculează deviațiile în interval 0.00–1.00.
+3️⃣ Emite un verdict scurt și o interpretare.
+4️⃣ Returnează doar JSON strict în formatul:
+
+{
+  "rezonanta": 3.14,
+  "deviatieSemantica": 0.00,
+  "deviatieLogica": 0.00,
+  "tip": "Echilibru coeziv / Ambiguu / Deviație extinsă / Contradicție severă",
+  "interpretare": "Textul este coerent și aliniat cu adevărul / prezintă dezechilibru / conține erori evidente",
+  "verdict": "✅ Adevărat / ⚠️ Ambiguu / ❌ Fals"
+}
+
+Calibrare semantică:
+✅ Exemple:
+- "Apa fierbe la 100°C la nivelul mării." → D=0.00, L=0.00, verdict: Adevărat
+- "Guvernul României există." → D=0.00, L=0.00, verdict: Adevărat
+⚠️ Exemple:
+- "România este cea mai bogată țară din lume." → D=0.65, L=0.40, verdict: Ambiguu
+❌ Exemple:
+- "Soarele se învârte în jurul Pământului." → D=0.90, L=0.95, verdict: Fals
+
+Returnează doar JSON, fără text suplimentar.
+`;
+
+    const completion = await client.chat.completions.create({
+      model: "gpt-5-turbo",
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: text }
       ],
-    };
+      temperature: 0.2
+    });
 
-    // === 🔠 Normalizare text (fără semne, fără diacritice) ===
-    function normalizeText(t) {
-      return t
-        .toLowerCase()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .replace(/[.,!?;:()"']/g, "")
-        .trim();
-    }
+    const raw = completion.choices?.[0]?.message?.content?.trim() || "{}";
+    const data = JSON.parse(raw);
 
-    // === 🔍 Căutare în memorie (similaritate tolerantă) ===
-    function findClosestMemoryEntry(inputText) {
-      const normInput = normalizeText(inputText);
-      let best = null;
-      let maxScore = 0;
-      for (const item of memory.data) {
-        const normItem = normalizeText(item.text);
-        const common = normItem
-          .split(" ")
-          .filter((word) => normInput.includes(word)).length;
-        const score = common / Math.max(normItem.split(" ").length, 1);
-        if (score > maxScore) {
-          maxScore = score;
-          best = item;
-        }
-      }
-      return best && maxScore > 0.3 ? best : null;
-    }
+    // Calcul rezonantă numerică
+    const rezonantaNum = 3.14 - Math.abs((data.deviatieSemantica || 0) + (data.deviatieLogica || 0));
+    const rezonanta = rezonantaNum.toFixed(2);
 
-    // === 🧩 Analiză principală ===
-    const memoryMatch = findClosestMemoryEntry(text);
-    let D = 0,
-      L = 0,
-      interpretare = "";
-
-    if (memoryMatch) {
-      D = memoryMatch.D;
-      L = memoryMatch.L;
-      interpretare = memoryMatch.interpretare;
-    } else {
-      D = parseFloat((Math.random() * 0.6).toFixed(2));
-      L = parseFloat((Math.random() * 0.6).toFixed(2));
-
-      if (D < 0.2 && L < 0.2)
-        interpretare = "Informația este coerentă și echilibrată.";
-      else if (D > 0.5 || L > 0.5)
-        interpretare = "Textul prezintă dezechilibru semantic sau exagerare.";
-      else interpretare = "Textul este parțial coerent, dar cu deviații subtile.";
-    }
-
-    // === ⚖️ Calcul al rezonanței (Formula 3.14 + D + L∞) ===
-    const rezonanta = parseFloat((3.14 + D + L).toFixed(2));
-    const tip =
-      D < 0.2 && L < 0.2
-        ? "Echilibru coeziv"
-        : D > 0.5 || L > 0.5
-        ? "Deviație extinsă"
-        : "Echilibru fragil";
-
-    // === 🧾 Răspuns final ===
-    return {
-      statusCode: 200,
-      body: JSON.stringify({
-        mesaj: "Analiză efectuată",
-        rezonanta,
-        D,
-        L,
-        tip,
-        interpretare,
-      }),
-    };
+    res.json({
+      rezonanta: rezonanta,
+      deviatieSemantica: data.deviatieSemantica,
+      deviatieLogica: data.deviatieLogica,
+      tip: data.tip,
+      interpretare: data.interpretare,
+      verdict: data.verdict,
+      formula: "Analiză efectuată conform formulei 3.14 + D + L∞"
+    });
   } catch (error) {
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: "Eroare internă: " + error.message }),
-    };
+    res.status(500).json({ error: error.message });
   }
 };
