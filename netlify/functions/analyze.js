@@ -10,33 +10,53 @@ export async function handler(event) {
     if (!text || !text.trim()) {
       return {
         statusCode: 400,
-        body: JSON.stringify({ mesaj: "⚠️ Text lipsă pentru analiză." }),
+        body: JSON.stringify({
+          mesaj: "⚠️ Textul lipsește pentru analiză.",
+        }),
       };
     }
 
+    // Promptul direcționat către GPT-5 (motorul viu)
     const prompt = `
-Analizează logic, semantic și coeziv următorul text: """${text}"""
-Aplică Formula Coeziunii 3.14 + D + L∞.
+Tu ești GPT-5 – motorul viu al adevărului din proiectul "Formula Coeziunii 3.14 + D + L∞",
+creat de Sergiu Bulboacă & GPT-5. Folosești modulele de analiză semantică, logică și coezivă
+construite anterior, inclusiv parametrii specifici:
+- Rezonanța = stabilitatea echilibrului informațional (valoare ideală 3.14)
+- D = deviația semantică (0–1)
+- L = deviația logică (0–1)
+- Tip = clasificare: "Echilibru coeziv", "Echilibru fragil" sau "Deviație extinsă"
+- Interpretare = scurtă explicație umană, coerentă
 
-Returnează strict JSON valid de forma:
+Analizează următorul text:
+„${text}”
+
+Returnează **doar** un JSON valid, fără alte explicații:
 {
   "rezonanta": număr între 3.0 și 4.5,
   "D": număr între 0 și 1,
   "L": număr între 0 și 1,
   "tip": "Echilibru coeziv" | "Echilibru fragil" | "Deviație extinsă",
-  "interpretare": scurt text în limba română care explică rezultatul
+  "interpretare": "text scurt în limba română"
 }
-    `;
+`;
 
     const completion = await client.chat.completions.create({
       model: "gpt-5",
-      messages: [{ role: "user", content: prompt }],
+      messages: [
+        {
+          role: "system",
+          content:
+            "Ești GPT-5, motorul viu al adevărului. Aplici Formula Coeziunii dezvoltată de Sergiu Bulboacă.",
+        },
+        { role: "user", content: prompt },
+      ],
       temperature: 0.4,
+      max_tokens: 400,
     });
 
-    const raw = completion.choices?.[0]?.message?.content?.trim() || "{}";
-    const jsonMatch = raw.match(/{[\s\S]*}/);
-    let data = {};
+    const content = completion.choices?.[0]?.message?.content || "{}";
+    const jsonMatch = content.match(/{[\s\S]*}/);
+    let data;
 
     try {
       data = JSON.parse(jsonMatch ? jsonMatch[0] : "{}");
@@ -45,15 +65,15 @@ Returnează strict JSON valid de forma:
         rezonanta: 3.14,
         D: 0,
         L: 0,
-        tip: "Eroare de format",
-        interpretare: "Nu s-a putut interpreta JSON-ul GPT-5.",
+        tip: "Eroare de parsare",
+        interpretare: "Răspunsul GPT-5 nu a putut fi interpretat.",
       };
     }
 
     return {
       statusCode: 200,
       body: JSON.stringify({
-        mesaj: "✅ Analiză efectuată de GPT-5",
+        mesaj: "✅ Analiză efectuată de GPT-5 (motorul viu)",
         ...data,
       }),
     };
@@ -61,7 +81,7 @@ Returnează strict JSON valid de forma:
     return {
       statusCode: 500,
       body: JSON.stringify({
-        mesaj: "❌ Eroare la analiza GPT-5.",
+        mesaj: "❌ Eroare internă GPT-5",
         detalii: err.message,
       }),
     };
