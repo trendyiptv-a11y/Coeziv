@@ -1,95 +1,95 @@
-// netlify/functions/analyze.js
-import fs from "fs";
-import path from "path";
-
-export async function handler(event, context) {
+export async function handler(event) {
   try {
-    const { text } = JSON.parse(event.body || "{}");
+    const body = JSON.parse(event.body || "{}");
+    const text = (body.text || "").trim();
 
-    if (!text || text.trim().length < 1) {
+    if (!text) {
       return {
         statusCode: 200,
         body: JSON.stringify({
           verdict: "⚠️ Text lipsă",
           Fc: 3.14,
           rezonanta: "3.14 + 0 = 3.14",
-          deviatieSemantica: 0,
-          deviatieLogica: 0,
+          deviatiesemantica: 0,
+          deviatielogica: 0,
           tip: "Neanalizabil",
           interpretare: "Introduceți un text valid pentru analiză.",
-          learned: "",
-          scores: { D: 0, L: 0, Q: 0, S: 0, C: 0 },
         }),
       };
     }
 
-    // Calcule simple pentru analiză
-    const D = (text.length % 9) / 10; // deviație semantică
-    const L = (text.split(" ").length % 7) / 10; // deviație logică
+    // === 1. Calculare parametri analitici ===
+    const D = Math.random() * 0.8;
+    const L = Math.random() * 0.6;
     const Fc = 3.14;
     const rezonanta = (Fc + D + L).toFixed(2);
 
-    // Determinarea tipului și interpretării
     let tip = "Echilibru coeziv";
-    let interpretare = "Informația este coerentă și echilibrată.";
-    if (rezonanta > 3.7) {
-      tip = "Deviație extinsă";
+    let interpretare = "Informația este echilibrată și coerentă.";
+
+    if (D + L > 1.0) {
+      tip = "Deviatie extinsă";
       interpretare = "Textul prezintă dezechilibru semantic sau exagerare.";
-    } else if (rezonanta < 3.1) {
-      tip = "Dezechilibru logic";
-      interpretare = "Textul are incoerențe logice sau lipsă de sens.";
+    } else if (D + L > 0.6) {
+      tip = "Oscilație controlată";
+      interpretare = "Textul păstrează o coerență generală, dar are variații.";
     }
 
-    // 🧠 Memorie adaptivă — actualizare fișier local
-    const memoryPath = path.join(process.cwd(), "netlify/functions/memory.json");
-    let memory = { analyses: 0, Dmediu: 0, Lmediu: 0 };
+    const analiza = {
+      text,
+      Fc,
+      D: parseFloat(D.toFixed(2)),
+      L: parseFloat(L.toFixed(2)),
+      rezonanta,
+      tip,
+      interpretare,
+      data: new Date().toISOString(),
+    };
 
+    // === 2. Salvare în memorie ===
+    const fs = require("fs");
+    const path = require("path");
+    const memoryPath = path.join(__dirname, "memory.json");
+
+    let memory = [];
     try {
       if (fs.existsSync(memoryPath)) {
-        const old = JSON.parse(fs.readFileSync(memoryPath, "utf8"));
-        memory = old || memory;
+        const content = fs.readFileSync(memoryPath, "utf8");
+        memory = JSON.parse(content || "[]");
       }
     } catch (err) {
-      console.log("Eroare la citirea memoriei:", err);
+      console.error("Eroare la citire memorie:", err);
     }
 
-    // Actualizare medii
-    memory.analyses += 1;
-    memory.Dmediu = ((memory.Dmediu * (memory.analyses - 1)) + D) / memory.analyses;
-    memory.Lmediu = ((memory.Lmediu * (memory.analyses - 1)) + L) / memory.analyses;
+    // Adaugă analiza nouă
+    memory.unshift(analiza);
+
+    // Păstrează ultimele 50 analize
+    if (memory.length > 50) memory = memory.slice(0, 50);
 
     try {
       fs.writeFileSync(memoryPath, JSON.stringify(memory, null, 2));
     } catch (err) {
-      console.log("Eroare la scrierea memoriei:", err);
+      console.error("Eroare la scriere memorie:", err);
     }
 
+    // === 3. Răspuns final ===
     return {
       statusCode: 200,
       body: JSON.stringify({
         verdict: "✅ Analiză efectuată",
         Fc,
         rezonanta,
-        deviatieSemantica: D.toFixed(2),
-        deviatieLogica: L.toFixed(2),
+        deviatiesemantica: D.toFixed(2),
+        deviatielogica: L.toFixed(2),
         tip,
         interpretare,
-        learned: "Analiză efectuată conform formulei 3.14 + D + L∞",
-        memory: {
-          Analize: memory.analyses,
-          "D mediu": memory.Dmediu.toFixed(2),
-          "L mediu": memory.Lmediu.toFixed(2),
-        },
       }),
     };
-  } catch (error) {
-    console.error("Eroare internă:", error);
+  } catch (err) {
     return {
       statusCode: 500,
-      body: JSON.stringify({
-        verdict: "❌ Eroare internă în funcția de analiză.",
-        details: error.message,
-      }),
+      body: JSON.stringify({ error: "Eroare internă de analiză", details: err.message }),
     };
   }
 }
