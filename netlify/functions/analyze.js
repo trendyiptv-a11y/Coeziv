@@ -41,7 +41,7 @@ Returnează **doar** un JSON valid, fără alte explicații:
 `;
 
     const completion = await client.chat.completions.create({
-      model: "gpt-5",
+      model: "gpt-4o",
       messages: [
         {
           role: "system",
