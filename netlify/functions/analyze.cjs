@@ -1,53 +1,56 @@
-// --- Importă biblioteca OpenAI ---
+// --- Formula Coeziunii 3.14 + D + L∞ ---
+// Funcție de analiză semantică, logică și coezivă
+// Creată de Sergiu Bulboacă & GPT-5 💡
+
+// Import OpenAI SDK (ESM)
 import OpenAI from "openai";
 
-// Creează clientul OpenAI folosind cheia ta din variabilele de mediu
+// Creează clientul OpenAI
 const client = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-// Funcția principală Netlify
 export async function handler(event, context) {
   try {
-    // Parsează textul primit din frontend
     const body = JSON.parse(event.body || "{}");
     const text = body.text || "";
 
-    if (!text) {
+    if (!text.trim()) {
       return {
         statusCode: 400,
-        body: JSON.stringify({ eroare: "Nu s-a primit niciun text pentru analiză." }),
+        body: JSON.stringify({ eroare: "Niciun text de analizat." }),
       };
     }
 
-    // Trimite textul către GPT pentru analiză semantică și coezivă
+    // Solicitare către GPT-5 (sau GPT-4o dacă GPT-5 nu e disponibil)
     const completion = await client.chat.completions.create({
-      model: "gpt-4o-mini", // poți schimba în "gpt-4o" sau "gpt-5"
+      model: "gpt-5", // dacă dă eroare 404, schimbă în "gpt-4o"
       messages: [
         {
           role: "system",
           content:
             "Ești motorul viu al formulei coeziunii 3.14 + D + L∞. " +
-            "Analizează textul primit și returnează o structură JSON cu următoarele câmpuri: " +
-            "rezonanta (valoare numerică între 0 și 3.14), deviatia_semantica, deviatia_logica, tip, interpretare. " +
-            "Răspunsul trebuie să fie JSON curat fără explicații.",
+            "Primești un text și calculezi: rezonanta (0–3.14), deviatia_semantica (D), deviatia_logica (L), " +
+            "tipul (Echilibru coeziv / Dezechilibru semantic / Dezechilibru logic) și o scurtă interpretare. " +
+            "Returnează răspunsul strict în format JSON cu aceste câmpuri.",
         },
         { role: "user", content: text },
       ],
+      temperature: 0.5,
     });
 
-    const reply = completion.choices[0].message.content;
+    const rezultat = completion.choices?.[0]?.message?.content || "{}";
 
     return {
       statusCode: 200,
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ rezultat: reply }),
+      body: JSON.stringify({ rezultat }),
     };
   } catch (err) {
     return {
       statusCode: 500,
       body: JSON.stringify({
-        mesaj: "Eroare internă GPT",
+        mesaj: "Eroare internă GPT-5",
         detalii: err.message,
       }),
     };
