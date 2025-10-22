@@ -95,7 +95,7 @@
   <br />
   <button id="analyzeBtn">🔍 Analizează</button>
 
-  <div id="output"></div>
+  <div id="rezultat"></div>
 
   <footer>
     © Formula Coeziunii — Detector de Informații Viu<br>
@@ -140,5 +140,48 @@
       }
     });
   </script>
+  <script>
+async function analizeazaTextul() {
+  const text = document.querySelector("textarea").value.trim();
+  const rezultatDiv = document.getElementById("rezultat");
+
+  rezultatDiv.innerHTML = "<p>⏳ Analiză în curs...</p>";
+
+  try {
+    const response = await fetch("/.netlify/functions/analyze", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text }),
+    });
+
+    const raw = await response.text(); // luăm răspunsul brut
+    console.log("Răspuns brut:", raw);
+
+    let result;
+    try {
+      result = JSON.parse(raw); // încercăm să-l parsăm
+    } catch (err) {
+      console.error("Eroare la parsare JSON:", err);
+      result = { mesaj: "⚠️ Format necunoscut", detalii: raw };
+    }
+
+    // Afișare rezultatele într-un format curat
+    rezultatDiv.innerHTML = `
+      <p><b>${result.mesaj || "Analiză efectuată"}</b></p>
+      <p>Rezonanță: ${result.rezonanta ?? "3.14"}</p>
+      <p>Deviatie semantică (D): ${result.D ?? "—"}</p>
+      <p>Deviatie logică (L): ${result.L ?? "—"}</p>
+      <p>Tip: ${result.tip ?? "—"}</p>
+      <p>Interpretare: ${result.interpretare ?? "—"}</p>
+      <p style="color:#00ffb7;"><small>${result.semnatura ?? ""}</small></p>
+      <p><small>${result.timestamp ?? ""}</small></p>
+    `;
+  } catch (error) {
+    console.error(error);
+    rezultatDiv.innerHTML = `<p>❌ Eroare la conectarea cu GPT-5</p>`;
+  }
+}
+</script>
 </body>
 </html>
+
