@@ -1,26 +1,120 @@
-<script>
-async function analyzeText() {
-  const input = document.getElementById("inputText").value.trim();
-  const resultBox = document.getElementById("result");
-  resultBox.innerHTML = "Analiză în curs...";
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Formula Coeziunii 3.14 + D</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --panel: #161b22;
+      --accent: #00ffb7;
+      --text: #c9d1d9;
+    }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', sans-serif;
+      text-align: center;
+      padding: 2rem 1rem;
+      margin: 0;
+    }
+    h1 {
+      color: var(--accent);
+      font-size: 2rem;
+      margin-bottom: 0.4rem;
+    }
+    h2 {
+      font-size: 1.1rem;
+      font-weight: 400;
+      color: #9ba1a6;
+      margin-bottom: 1.5rem;
+    }
+    textarea {
+      width: 90%;
+      max-width: 600px;
+      height: 150px;
+      border-radius: 12px;
+      border: 1px solid var(--accent);
+      background: var(--panel);
+      color: var(--text);
+      padding: 1rem;
+      font-size: 1rem;
+      outline: none;
+      resize: none;
+      transition: border 0.3s ease;
+    }
+    textarea:focus {
+      border-color: #00ffa6;
+    }
+    button {
+      margin-top: 1rem;
+      background: var(--accent);
+      color: #000;
+      font-size: 1rem;
+      border: none;
+      border-radius: 10px;
+      padding: 0.7rem 1.5rem;
+      cursor: pointer;
+      transition: 0.3s ease;
+    }
+    button:hover {
+      opacity: 0.85;
+    }
+    #result {
+      margin-top: 1.5rem;
+      font-size: 1rem;
+      line-height: 1.5;
+      background: var(--panel);
+      display: inline-block;
+      padding: 1rem 1.5rem;
+      border-radius: 12px;
+      max-width: 600px;
+    }
+    small {
+      display: block;
+      margin-top: 0.5rem;
+      color: #7d8590;
+    }
+  </style>
+</head>
 
-  try {
-    const response = await fetch("/.netlify/functions/analyze", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text: input })
-    });
+<body>
+  <h1>Formula Coeziunii<br>3.14 + D</h1>
+  <h2>Motor logic de analiză a informației</h2>
 
-    const data = await response.json();
+  <textarea id="inputText" placeholder="Scrie aici textul de analizat..."></textarea><br>
+  <button onclick="analyzeText()">🔍 Analizează</button>
 
-    resultBox.innerHTML = `
-      <strong>Rezonanță:</strong> ${data.resonance || "Nedefinit"}<br>
-      <strong>Interpretare:</strong> ${data.interpretation || "Nedefinit"}<br>
-      <strong>Tip:</strong> ${data.type || "Nedefinit"}<br>
-      ${data.message ? `<small>${data.message}</small>` : ""}
-    `;
-  } catch (err) {
-    resultBox.innerHTML = "Eroare la analiză: " + err.message;
+  <div id="result"></div>
+
+  <script>
+  async function analyzeText() {
+    const input = document.getElementById("inputText").value.trim();
+    const resultBox = document.getElementById("result");
+    resultBox.innerHTML = "Analiză în curs...";
+
+    try {
+      const response = await fetch("/.netlify/functions/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: input })
+      });
+
+      // Parsăm răspunsul corect de la Netlify
+      const raw = await response.json();
+      const data = typeof raw.body === "string" ? JSON.parse(raw.body) : raw;
+
+      resultBox.innerHTML = `
+        <strong>Rezonanță:</strong> ${data.resonance || "Nedefinit"}<br>
+        <strong>Interpretare:</strong> ${data.interpretation || "Nedefinit"}<br>
+        <strong>Tip:</strong> ${data.type || "Nedefinit"}<br>
+        ${data.message ? `<small>${data.message}</small>` : ""}
+      `;
+    } catch (err) {
+      resultBox.innerHTML = "Eroare la analiză: " + err.message;
+    }
   }
-}
-</script>
+  </script>
+</body>
+</html>
