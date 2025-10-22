@@ -2,6 +2,9 @@
 // Motor viu al adevărului – Analiză semantică, logică și coezivă
 // © Sergiu Bulboacă & GPT-5
 
+const fs = require("fs");
+const path = require("path");
+
 exports.handler = async (event, context) => {
   try {
     const text = event.body ? JSON.parse(event.body).text : "";
@@ -12,14 +15,15 @@ exports.handler = async (event, context) => {
       };
     }
 
-    // === 🧠 Integrare memorie semantică ===
-    const memory = require("./memory.json");
+    // === 🧠 Încărcare memorie semantică ===
+    const memoryPath = path.join(__dirname, "memory.json");
+    const memoryData = JSON.parse(fs.readFileSync(memoryPath, "utf8"));
 
-    // Funcție pentru similaritate simplă bazată pe cuvinte comune
+    // === Funcție pentru similaritate simplă ===
     function findClosestMemoryEntry(inputText) {
       let best = null;
       let maxScore = 0;
-      for (const item of memory.data) {
+      for (const item of memoryData.data) {
         const common = item.text
           .toLowerCase()
           .split(" ")
@@ -30,9 +34,10 @@ exports.handler = async (event, context) => {
           best = item;
         }
       }
-      return best && maxScore > 0.3 ? best : null; // prag minim de similaritate
+      return best && maxScore > 0.3 ? best : null;
     }
 
+    // === Analiză cu memorie ===
     const memoryMatch = findClosestMemoryEntry(text);
     let D = 0,
       L = 0,
@@ -43,7 +48,7 @@ exports.handler = async (event, context) => {
       L = memoryMatch.L;
       interpretare = memoryMatch.interpretare;
     } else {
-      // fallback: analiză autonomă – calcule simbolice
+      // fallback logic simplificat
       D = parseFloat((Math.random() * 0.6).toFixed(2));
       L = parseFloat((Math.random() * 0.6).toFixed(2));
 
@@ -54,10 +59,10 @@ exports.handler = async (event, context) => {
       else interpretare = "Textul este parțial coerent, dar cu deviații subtile.";
     }
 
-    // === 🧩 Calcul rezonanță (valoare simbolică) ===
+    // === Calcul simbolic de rezonanță ===
     const rezonanta = parseFloat((3.14 + D + L).toFixed(2));
 
-    // === 📦 Returnăm răspunsul complet ===
+    // === Returnare rezultat ===
     return {
       statusCode: 200,
       body: JSON.stringify({
