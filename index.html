@@ -6,110 +6,137 @@
   <title>Formula Coeziunii 3.14 + D + L∞</title>
   <style>
     :root {
-      --accent: #00ffb7;
+      --good: #00ffb7;
+      --medium: #ffc800;
+      --bad: #ff0055;
       --bg: #0d1117;
       --panel: #161b22;
-      --text: #c9d1d9;
     }
+
     body {
       background-color: var(--bg);
-      color: var(--text);
-      font-family: "Segoe UI", sans-serif;
+      color: #c9d1d9;
+      font-family: 'Segoe UI', sans-serif;
       text-align: center;
       padding: 2rem 1rem;
+      overflow-x: hidden;
     }
+
     h1 {
-      color: var(--accent);
-      font-size: 1.8rem;
+      color: var(--good);
+      font-size: 2rem;
       margin-bottom: 0.3rem;
     }
-    textarea {
-      width: 90%;
-      max-width: 500px;
-      height: 100px;
-      background: var(--panel);
-      color: var(--text);
-      border: 1px solid var(--accent);
-      border-radius: 10px;
-      padding: 0.7rem;
+
+    h2 {
+      font-weight: 400;
       font-size: 1rem;
-      margin-bottom: 1rem;
+      color: #9ba1a6;
+      margin-bottom: 2rem;
     }
+
+    textarea {
+      width: 100%;
+      max-width: 600px;
+      height: 100px;
+      border: 1px solid var(--panel);
+      border-radius: 12px;
+      padding: 1rem;
+      background: #0e131a;
+      color: #fff;
+      resize: vertical;
+      font-size: 1rem;
+      outline: none;
+      box-shadow: inset 0 0 10px rgba(0, 255, 183, 0.1);
+    }
+
     button {
-      background-color: var(--accent);
+      background-color: var(--good);
       color: #000;
       border: none;
       border-radius: 10px;
-      font-size: 1.1rem;
-      padding: 0.6rem 1.4rem;
-      cursor: pointer;
-      font-weight: 600;
-    }
-    #result {
+      padding: 0.8rem 2rem;
       margin-top: 1rem;
-      background: var(--panel);
-      border-radius: 12px;
-      padding: 1rem;
-      width: 90%;
-      max-width: 500px;
-      margin-inline: auto;
-      display: none;
-      box-shadow: 0 0 15px #00ffb733;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: 0.2s ease-in-out;
+      font-weight: bold;
     }
+
+    button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 15px var(--good);
+    }
+
+    #output {
+      margin-top: 2rem;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+      background: var(--panel);
+      padding: 1.5rem;
+      border-radius: 16px;
+      text-align: left;
+      box-shadow: 0 0 20px rgba(0, 255, 183, 0.1);
+    }
+
     footer {
       margin-top: 2rem;
-      font-size: 0.8rem;
-      color: #777;
+      font-size: 0.9rem;
+      color: #6d7580;
     }
   </style>
 </head>
 <body>
   <h1>Formula Coeziunii 3.14 + D + L∞</h1>
-  <p>Analiză semantică, logică și coezivă — motorul viu al adevărului 🧠</p>
+  <h2>Analiză semantică, logică și coezivă — motorul viu al adevărului 🧠</h2>
 
-  <textarea id="inputText" placeholder="Scrie textul pentru analiză..."></textarea><br>
+  <textarea id="inputText" placeholder="Scrie textul pentru analiză..."></textarea>
+  <br />
   <button id="analyzeBtn">🔍 Analizează</button>
 
-  <div id="result">
-    <p id="verdict"></p>
-    <p id="fcScore"></p>
-    <p id="stats"></p>
-    <p id="learned"></p>
-  </div>
+  <div id="output"></div>
 
-  <footer>© Formula Coeziunii — Detector de Informații Viu • Creat de Sergiu Bulboacă & GPT-5</footer>
+  <footer>
+    © Formula Coeziunii — Detector de Informații Viu<br>
+    Creat de <b>Sergiu Bulboacă</b> & <b>GPT-5</b>
+  </footer>
 
   <script>
-    const analyzeBtn = document.getElementById("analyzeBtn");
-    const result = document.getElementById("result");
+    const button = document.getElementById("analyzeBtn");
+    const output = document.getElementById("output");
 
-    analyzeBtn.addEventListener("click", async () => {
+    button.addEventListener("click", async () => {
       const text = document.getElementById("inputText").value.trim();
-      if (!text) return alert("Te rog introdu un text pentru analiză!");
+      if (!text) {
+        output.innerHTML = "<p>⚠️ Te rog introdu un text pentru analiză.</p>";
+        return;
+      }
+
+      output.innerHTML = "<p>⏳ Se efectuează analiza...</p>";
 
       try {
-        const res = await fetch("/.netlify/functions/analyze", {
+        const response = await fetch("/.netlify/functions/analyze", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ text }),
         });
-        const data = await res.json();
-        console.log("Răspuns API:", data); // pentru debugging
 
-        // ✅ Afișează rezultatele în pagină
-        result.style.display = "block";
-        document.getElementById("verdict").textContent = data.verdict || "—";
-        document.getElementById("fcScore").textContent = `Rezonanță: ${data.rezonanta || "3.14"}`;
-        document.getElementById("stats").innerHTML = `
-          <b>Deviație semantică (D):</b> ${data.deviatieSemantica}<br>
-          <b>Deviație logică (L):</b> ${data.deviatieLogica}<br>
-          <b>Tip:</b> ${data.tip || "Echilibru coeziv"}<br>
-          <b>Interpretare:</b> ${data.interpretare || "—"}
+        const data = await response.json();
+
+        output.innerHTML = `
+          <p><b>${data.mesaj || "✅ Analiză efectuată"}</b></p>
+          <p>🔹 <b>Rezonanță:</b> ${data.rezonanta ?? "–"}</p>
+          <p>🔹 <b>Deviație semantică (D):</b> ${data.D ?? "–"}</p>
+          <p>🔹 <b>Deviație logică (L):</b> ${data.L ?? "–"}</p>
+          <p>🔹 <b>Tip:</b> ${data.tip ?? "–"}</p>
+          <p>🔹 <b>Interpretare:</b> ${data.interpretare ?? "–"}</p>
+          <p style="margin-top:1em;opacity:0.7;font-size:0.9rem;">
+            Analiză efectuată conform Formulei 3.14 + D + L∞
+          </p>
         `;
-        document.getElementById("learned").textContent = data.learned || "Analiză efectuată conform formulei 3.14 + D + L∞";
-      } catch (error) {
-        console.error("Eroare analiză:", error);
-        alert("A apărut o eroare la conectarea cu motorul de analiză.");
+      } catch (err) {
+        output.innerHTML = `<p>❌ Eroare la analiză: ${err.message}</p>`;
       }
     });
   </script>
