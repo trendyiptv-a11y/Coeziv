@@ -1,58 +1,61 @@
-// --- Formula Coeziunii 3.14 + D + L∞ ---
-// Funcție de analiză semantică, logică și coezivă
-// Creată de Sergiu Bulboacă & GPT-5 💡
-
-// Import OpenAI SDK (ESM)
-import OpenAI from "openai";
-
-// Creează clientul OpenAI
-const client = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
-export async function handler(event, context) {
+// analyze.cjs
+const OpenAI = require("openai");
+exports.handler = async (event, context) => {
   try {
     const body = JSON.parse(event.body || "{}");
     const text = body.text || "";
 
-    if (!text.trim()) {
+    if (!text) {
       return {
         statusCode: 400,
-        body: JSON.stringify({ eroare: "Niciun text de analizat." }),
+        body: JSON.stringify({ error: "Lipsă text pentru analiză." }),
       };
     }
 
-    // Solicitare către GPT-5 (sau GPT-4o dacă GPT-5 nu e disponibil)
-    const completion = await client.chat.completions.create({
-      model: "gpt-5", // dacă dă eroare 404, schimbă în "gpt-4o"
+    const client = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    });
+
+    // Trimiterea cererii către model
+    const response = await client.chat.completions.create({
+      model: "gpt-4o-mini",
       messages: [
         {
           role: "system",
           content:
-            "Ești motorul viu al formulei coeziunii 3.14 + D + L∞. " +
-            "Primești un text și calculezi: rezonanta (0–3.14), deviatia_semantica (D), deviatia_logica (L), " +
-            "tipul (Echilibru coeziv / Dezechilibru semantic / Dezechilibru logic) și o scurtă interpretare. " +
-            "Returnează răspunsul strict în format JSON cu aceste câmpuri.",
+            "Ești modulul de analiză semantică și coezivă din Formula Coeziunii 3.14 + D + L∞. Răspunzi concis și structurat.",
         },
-        { role: "user", content: text },
+        {
+          role: "user",
+          content: `Analizează următorul text: "${text}". 
+          Oferă rezultatele conform formulei:
+          - Rezonanță (valoare numerică aproximativ 3.14)
+          - Devație semantică (D)
+          - Devație logică (L)
+          - Tip coeziune
+          - Interpretare concisă`,
+        },
       ],
-      temperature: 0.5,
     });
 
-    const rezultat = completion.choices?.[0]?.message?.content || "{}";
+    const answer = response.choices[0].message.content.trim();
 
     return {
       statusCode: 200,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ rezultat }),
+      body: JSON.stringify({
+        success: true,
+        text,
+        analysis: answer,
+      }),
     };
-  } catch (err) {
+  } catch (error) {
+    console.error("Eroare analiză:", error);
     return {
       statusCode: 500,
       body: JSON.stringify({
-        mesaj: "Eroare internă GPT-5",
-        detalii: err.message,
+        error: "Eroare la procesarea analizei",
+        details: error.message,
       }),
     };
   }
-}
+};
