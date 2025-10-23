@@ -19,30 +19,36 @@ exports.handler = async (event) => {
         {
           role: "system",
           content:
-            "Răspunde STRICT în format JSON, fără alt text. Structura obligatorie: \
-            {\"rezonanta\": <număr>, \"D\": <număr>, \"L\": <număr>, \"interpretare\": \"<text scurt>\"}. \
-            Nu adăuga explicații, doar JSON valid.",
+            "Analizează textul după Formula Coeziunii 3.14 + D + L∞. \
+             Returnează DOAR un obiect JSON valid, fără text explicativ. \
+             Format exact: {\"rezonanta\": număr, \"D\": număr, \"L\": număr, \"interpretare\": \"text\"}",
         },
         { role: "user", content: text },
       ],
-      temperature: 0.3,
+      temperature: 0.4,
     });
 
-    let output = completion.choices[0].message.content.trim();
+    let output = completion.choices?.[0]?.message?.content?.trim() || "";
 
-    // 🧩 Dacă modelul a trimis text extra, extragem doar JSON-ul
+    // 🧩 Încearcă să extragi JSON-ul din textul complet
     const match = output.match(/\{[\s\S]*\}/);
-    if (match) output = match[0];
+    let parsed = null;
 
-    let parsed;
-    try {
-      parsed = JSON.parse(output);
-    } catch (e) {
+    if (match) {
+      try {
+        parsed = JSON.parse(match[0]);
+      } catch {
+        parsed = null;
+      }
+    }
+
+    // ✅ Dacă nu s-a putut parsa, trimitem text brut
+    if (!parsed) {
       parsed = {
         rezonanta: 3.14,
-        D: null,
-        L: null,
-        interpretare: "Nu s-a putut parsa JSON-ul corect.",
+        D: 0.0,
+        L: 0.0,
+        interpretare: output || "Nu s-a putut extrage analiză JSON.",
       };
     }
 
