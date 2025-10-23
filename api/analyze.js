@@ -1,9 +1,5 @@
 import OpenAI from "openai";
 
-console.log("🧩 DEBUG START — verificare conexiune OPENAI");
-console.log("🔑 Cheie prezentă:", !!process.env.OPENAI_API_KEY);
-console.log("📦 Pachet OPENAI importat corect:", typeof OpenAI !== "undefined");
-
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
@@ -44,16 +40,21 @@ export default async function handler(req, res) {
       ],
     });
 
-    console.log("🧠 GPT response complet:", completion);
-
     interpretation =
-      completion?.choices?.[0]?.message?.content?.trim() ||
+      completion.choices?.[0]?.message?.content?.trim() ||
       "GPT nu a returnat conținut clar.";
   } catch (error) {
     console.error("❌ Eroare GPT:", error);
+    interpretation = `Eroare GPT: ${error.message}`;
   }
 
+  // 🔄 Trimite rezultatele finale spre interfață
   return res.status(200).json({
-    analysis: { D, L, resonance, interpretation },
+    analysis: {
+      D,
+      L,
+      resonance,
+      interpretation,
+    },
   });
 }
