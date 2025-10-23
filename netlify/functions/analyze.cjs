@@ -1,61 +1,47 @@
-// analyze.cjs
+// netlify/functions/analyze.cjs
 const OpenAI = require("openai");
-exports.handler = async (event, context) => {
-  try {
-    const body = JSON.parse(event.body || "{}");
-    const text = body.text || "";
 
+exports.handler = async (event) => {
+  try {
+    const { text } = JSON.parse(event.body || "{}");
     if (!text) {
       return {
         statusCode: 400,
-        body: JSON.stringify({ error: "Lipsă text pentru analiză." }),
+        body: JSON.stringify({ error: "Lipsește textul de analizat." }),
       };
     }
 
-    const client = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY,
-    });
+    const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-    // Trimiterea cererii către model
-    const response = await client.chat.completions.create({
+    // 🔹 Solicitare simplă către GPT
+    const completion = await client.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
         {
           role: "system",
           content:
-            "Ești modulul de analiză semantică și coezivă din Formula Coeziunii 3.14 + D + L∞. Răspunzi concis și structurat.",
+            "Ești motorul analitic al Formulei Coeziunii 3.14 + D + L∞. \
+            Analizează textul primit și întoarce rezultatul sub formă de JSON cu câmpurile: \
+            rezonanta (număr), D (deviație semantică), L (deviație logică) și interpretare (text scurt).",
         },
-        {
-          role: "user",
-          content: `Analizează următorul text: "${text}". 
-          Oferă rezultatele conform formulei:
-          - Rezonanță (valoare numerică aproximativ 3.14)
-          - Devație semantică (D)
-          - Devație logică (L)
-          - Tip coeziune
-          - Interpretare concisă`,
-        },
+        { role: "user", content: text },
       ],
+      temperature: 0.4,
     });
 
-    const answer = response.choices[0].message.content.trim();
+    const output = completion.choices[0].message.content.trim();
 
+    // ✅ Asigurăm răspuns JSON pentru frontend
     return {
       statusCode: 200,
-      body: JSON.stringify({
-        success: true,
-        text,
-        analysis: answer,
-      }),
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ analysis: output }),
     };
-  } catch (error) {
-    console.error("Eroare analiză:", error);
+  } catch (err) {
+    console.error("Eroare analiză:", err);
     return {
       statusCode: 500,
-      body: JSON.stringify({
-        error: "Eroare la procesarea analizei",
-        details: error.message,
-      }),
+      body: JSON.stringify({ error: err.message }),
     };
   }
 };
