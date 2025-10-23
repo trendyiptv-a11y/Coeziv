@@ -1,5 +1,9 @@
 import OpenAI from "openai";
 
+console.log("🧩 DEBUG START — verificare conexiune OPENAI");
+console.log("🔑 Cheie prezentă:", !!process.env.OPENAI_API_KEY);
+console.log("📦 Pachet OPENAI importat corect:", typeof OpenAI !== "undefined");
+
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
@@ -10,16 +14,13 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: "Textul nu poate fi gol." });
   }
 
-  // Calcule locale — Formula Coeziunii
+  // --- Calcule locale — Formula Coeziunii ---
   const words = text.trim().split(/\s+/).length;
   const letters = text.replace(/\s+/g, "").length;
   const D = ((letters / words) % 3.14).toFixed(2);
   const L = ((Math.sin(letters) + 1.5) % 3.14).toFixed(2);
   const resonance =
     Math.abs(D - L) < 0.1 ? "3.14 (coeziv)" : "3.14 ± fluctuație minoră";
-
-  // Test de conexiune GPT
-  console.log("🔗 Test cheie GPT:", !!process.env.OPENAI_API_KEY);
 
   const client = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
@@ -34,7 +35,7 @@ export default async function handler(req, res) {
         {
           role: "system",
           content:
-            "Ești modulul viu al Formulei Coeziunii. Interpretează mesajul în stil poetic și logic, explicând coeziunea internă dintre idee și expresie.",
+            "Ești modulul viu al Formulei Coeziunii. Interpretează mesajul poetic și logic.",
         },
         {
           role: "user",
