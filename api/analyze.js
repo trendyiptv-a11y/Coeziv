@@ -1,3 +1,5 @@
+import OpenAI from "openai";
+
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
@@ -8,7 +10,7 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: "Textul lipsește" });
   }
 
-  // Simulare analiză locală bazată pe formula 3.14 + D + L∞
+  // Calcule locale — Formula Coeziunii
   const words = text.trim().split(/\s+/).length;
   const letters = text.replace(/\s+/g, "").length;
   const D = ((letters / words) % 3.14).toFixed(2);
@@ -16,22 +18,36 @@ export default async function handler(req, res) {
   const resonance =
     Math.abs(D - L) < 0.1 ? "3.14 (coeziv)" : "3.14 ± fluctuație minoră";
 
-  const interpretations = [
-    "Textul are echilibru semantic ridicat.",
-    "Rezonanța exprimării este stabilă.",
-    "Formularea indică armonie între idee și expresie.",
-    "Analiza sugerează un nucleu logic coerent.",
-  ];
+  // Conectare GPT-5
+  const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-  const interpretare =
-    interpretations[Math.floor(Math.random() * interpretations.length)];
+  try {
+    const completion = await openai.chat.completions.create({
+      model: "gpt-5-turbo",
+      messages: [
+        {
+          role: "system",
+          content:
+            "Ești modulul viu al Formulei Coeziunii 3.14 + D + L∞. Interpretează logic, semantic și spiritual textul, în stil poetic, dar clar.",
+        },
+        {
+          role: "user",
+          content: `Text: "${text}"\nD=${D}, L=${L}, Rezonanță=${resonance}\nAnalizează conform formulei.`,
+        },
+      ],
+    });
 
-  return res.status(200).json({
-    analysis: {
-      rezonanta: resonance,
-      D,
-      L,
-      interpretare,
-    },
-  });
+    const interpretation =
+      completion.choices?.[0]?.message?.content?.trim() ||
+      "Nu s-a putut genera interpretarea.";
+
+    return res.status(200).json({
+      analysis: { D, L, resonance, interpretation },
+    });
+  } catch (error) {
+    console.error("Eroare GPT-5:", error);
+    return res
+      .status(500)
+      .json({ error: "Eroare la interpretarea GPT-5", details: error.message });
+  }
 }
