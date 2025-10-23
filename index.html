@@ -3,135 +3,90 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Formula Coeziunii 3.14Δ – Detector de Informații Viu</title>
-
+  <title>Formula 3.14Δ — Detector de Informații Viu</title>
   <style>
-  :root {
-    --bg: #0d1117;
-    --panel: #161b22;
-    --text: #c9d1d9;
-    --accent: #00ffb7;
-    --accent2: #ffc800;
-    --error: #ff3366;
-  }
-
-  body {
-    background-color: var(--bg);
-    color: var(--text);
-    font-family: 'Segoe UI', sans-serif;
-    margin: 0;
-    padding: 2rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-  }
-
-  h1 {
-    color: var(--accent);
-    font-size: 1.8rem;
-    margin-bottom: 0.2rem;
-  }
-
-  h2 {
-    font-size: 1rem;
-    color: var(--accent2);
-    margin-top: 0;
-    margin-bottom: 1.5rem;
-  }
-
-  textarea {
-    width: 95%;
-    max-width: 600px;
-    height: 120px;
-    background-color: var(--panel);
-    color: var(--text);
-    border: 1px solid #30363d;
-    border-radius: 12px;
-    padding: 1rem;
-    resize: none;
-    font-size: 1rem;
-    outline: none;
-    margin-bottom: 1rem;
-  }
-
-  button {
-    background-color: var(--accent);
-    color: #000;
-    border: none;
-    padding: 0.7rem 1.2rem;
-    border-radius: 12px;
-    font-size: 1rem;
-    font-weight: bold;
-    cursor: pointer;
-    transition: 0.2s ease;
-  }
-
-  button:hover {
-    background-color: #00d89e;
-    transform: scale(1.05);
-  }
-
-  /* 🧠 Corecție principală: container extins cu scrollbar intern */
-  .result {
-    background-color: var(--panel);
-    border-radius: 16px;
-    padding: 1rem 1.5rem;
-    max-width: 650px;
-    text-align: left;
-    margin-top: 1.5rem;
-    line-height: 1.5;
-    box-shadow: 0 0 12px rgba(0, 255, 183, 0.1);
-    max-height: 70vh;              /* înălțime adaptivă */
-    overflow-y: auto;              /* scroll intern */
-    scrollbar-width: thin;
-    scrollbar-color: var(--accent) var(--panel);
-  }
-
-  .result::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  .result::-webkit-scrollbar-thumb {
-    background-color: var(--accent);
-    border-radius: 3px;
-  }
-
-  .section-title {
-    font-weight: bold;
-    color: var(--accent);
-    margin-top: 0.5rem;
-  }
-
-  .note {
-    font-size: 0.85rem;
-    color: #9ba1a6;
-    border-top: 1px solid #30363d;
-    padding-top: 0.5rem;
-    margin-top: 0.5rem;
-    text-align: center;
-  }
-
-  footer {
-    font-size: 0.8rem;
-    color: #808080;
-    margin-top: 2rem;
-    text-align: center;
-  }
-
-  .brain {
-    font-size: 1.1rem;
-  }
-</style>
+    :root {
+      --bg: #0d1117;
+      --panel: #161b22;
+      --text: #d1d5db;
+      --accent: #00ffb7;
+    }
+    body {
+      font-family: "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 1.5rem;
+      text-align: center;
+    }
+    h1 {
+      color: var(--accent);
+      font-size: 1.8rem;
+      margin-bottom: 1rem;
+    }
+    textarea {
+      width: 90%;
+      height: 100px;
+      background: var(--panel);
+      border: 1px solid #30363d;
+      border-radius: 10px;
+      color: var(--text);
+      font-size: 1rem;
+      padding: 10px;
+      resize: vertical;
+    }
+    button {
+      background: var(--accent);
+      color: #000;
+      font-weight: bold;
+      border: none;
+      border-radius: 10px;
+      padding: 10px 20px;
+      margin: 10px 5px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    button:hover {
+      opacity: 0.85;
+      transform: scale(1.03);
+    }
+    #resultBox {
+      margin: 1.5rem auto;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      text-align: left;
+      background: rgba(22, 27, 34, 0.6);
+      border-radius: 12px;
+      box-shadow: 0 0 12px rgba(0, 0, 0, 0.3);
+      padding: 1.2rem;
+      line-height: 1.6;
+      font-size: 1rem;
+    }
+    #resultBox::-webkit-scrollbar {
+      width: 8px;
+    }
+    #resultBox::-webkit-scrollbar-thumb {
+      background-color: var(--accent);
+      border-radius: 4px;
+    }
+    footer {
+      margin-top: 2rem;
+      font-size: 0.8rem;
+      color: #8b949e;
+    }
+  </style>
 </head>
 <body>
-  <h1>Formula Coeziunii 3.14Δ</h1>
-  <h2>Verificator Universal v7.7 – Stabilizare Semantică</h2>
+  <h1>Formula 3.14Δ — Detector de Informații Viu</h1>
+  <p>Introdu un text și apasă „Analizează”.</p>
 
-  <textarea id="inputText" placeholder="Introdu un text și apasă „Analizează”..."></textarea><br />
+  <textarea id="inputText" placeholder="Scrie textul aici..."></textarea><br />
   <button id="analyzeBtn">🔍 Analizează</button>
+  <button id="clearBtn">Șterge</button>
 
-  <div id="resultContainer"></div>
+  <div id="resultBox"></div>
 
   <footer>
     © Formula Coeziunii — Detector de Informații Viu<br />
@@ -139,48 +94,44 @@
   </footer>
 
   <script>
-    document.getElementById("analyzeBtn").addEventListener("click", async () => {
-      const text = document.getElementById("inputText").value.trim();
-      const resultContainer = document.getElementById("resultContainer");
-      resultContainer.innerHTML = "<p>⏳ Se analizează informația...</p>";
+    const analyzeBtn = document.getElementById("analyzeBtn");
+    const clearBtn = document.getElementById("clearBtn");
+    const resultBox = document.getElementById("resultBox");
 
+    analyzeBtn.addEventListener("click", async () => {
+      const text = document.getElementById("inputText").value.trim();
       if (!text) {
-        resultContainer.innerHTML = "<p style='color:var(--error)'>⚠ Introdu un text pentru analiză.</p>";
+        resultBox.innerHTML = "⚠️ Introdu un text pentru analiză.";
         return;
       }
+      resultBox.innerHTML = "🔄 Analiză în curs...";
 
       try {
-        const response = await fetch("/api/analyze", {
+        const res = await fetch("/api/analyze", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ text }),
+          body: JSON.stringify({ text })
         });
-
-        const data = await response.json();
-
-        if (data.error) {
-          resultContainer.innerHTML = `<p style='color:var(--error)'>❌ Eroare: ${data.error}</p>`;
-          return;
-        }
-
-        const a = data.analysis;
-        resultContainer.innerHTML = `
-          <div class="result">
-            <p class="section-title">✅ Analiză efectuată</p>
-            <p>🔹 Rezonanță: <b>${a.resonance}</b><br>
-            🔹 D: ${a.D}<br>
-            🔹 L: ${a.L}</p>
-
-            <p class="section-title brain">🧠 Interpretare GPT:</p>
-            <p>${a.interpretation}</p>
-            <div class="note">${a.note}</div>
-          </div>
-        `;
+        const data = await res.json();
+        resultBox.innerHTML = `
+        <h3>✅ Analiză efectuată</h3>
+        <p>🔹 Rezonanță: <b>${data.rezonanta}</b><br>
+        🔹 D: ${data.D}<br>
+        🔹 L: ${data.L}</p>
+        <h3>🧠 Interpretare GPT:</h3>
+        <p>${data.interpretare}</p>
+        <hr>
+        <p>⏳ Analiza se bazează pe echilibrul logic-semantic al textului.<br>
+        Valorile pot fluctua ±0.14 în funcție de densitatea informației.</p>`;
       } catch (err) {
-        resultContainer.innerHTML = `<p style='color:var(--error)'>❌ Eroare de conexiune: ${err.message}</p>`;
+        resultBox.innerHTML = "❌ Eroare la analiză: " + err.message;
       }
+    });
+
+    clearBtn.addEventListener("click", () => {
+      document.getElementById("inputText").value = "";
+      resultBox.innerHTML = "";
     });
   </script>
 </body>
 </html>
-
