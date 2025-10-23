@@ -10,7 +10,7 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: "Textul nu poate fi gol." });
   }
 
-  // 🔢 Calcule locale — Formula Coeziunii
+  // Calcule locale — Formula Coeziunii
   const words = text.trim().split(/\s+/).length;
   const letters = text.replace(/\s+/g, "").length;
   const D = ((letters / words) % 3.14).toFixed(2);
@@ -18,10 +18,14 @@ export default async function handler(req, res) {
   const resonance =
     Math.abs(D - L) < 0.1 ? "3.14 (coeziv)" : "3.14 ± fluctuație minoră";
 
-  // 🤖 Conectare OpenAI GPT
+  // Test de conexiune GPT
+  console.log("🔗 Test cheie GPT:", !!process.env.OPENAI_API_KEY);
+
   const client = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
   });
+
+  let interpretation = "GPT nu a oferit răspuns.";
 
   try {
     const completion = await client.chat.completions.create({
@@ -30,30 +34,25 @@ export default async function handler(req, res) {
         {
           role: "system",
           content:
-            "Ești modulul viu al Formulei Coeziunii. Interpretează mesajul uman în termeni de armonie, rezonanță și echilibru logic.",
+            "Ești modulul viu al Formulei Coeziunii. Interpretează mesajul în stil poetic și logic, explicând coeziunea internă dintre idee și expresie.",
         },
         {
           role: "user",
-          content: `Analizează textul: "${text}". Valorile: D=${D}, L=${L}, Rezonanță=${resonance}. Oferă o interpretare poetică și logică într-o singură frază.`,
+          content: `Text: "${text}". Valorile: D=${D}, L=${L}, Rezonanță=${resonance}.`,
         },
       ],
     });
 
-    // 🔍 Verificare sigură a conținutului răspunsului
-    const message = completion.choices?.[0]?.message?.content ?? "";
-    const interpretation =
-      message && message.length > 0
-        ? message
-        : "GPT nu a returnat conținut — verifică cheia API.";
+    console.log("🧠 GPT response complet:", completion);
 
-    return res.status(200).json({
-      analysis: { D, L, resonance, interpretation },
-    });
-  } catch (err) {
-    console.error("❌ Eroare GPT:", err);
-    return res.status(500).json({
-      error: "Eroare la interpretarea GPT-5",
-      details: err.message,
-    });
+    interpretation =
+      completion?.choices?.[0]?.message?.content?.trim() ||
+      "GPT nu a returnat conținut clar.";
+  } catch (error) {
+    console.error("❌ Eroare GPT:", error);
   }
+
+  return res.status(200).json({
+    analysis: { D, L, resonance, interpretation },
+  });
 }
