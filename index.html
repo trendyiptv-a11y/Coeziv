@@ -102,45 +102,28 @@
     Creat de <b>Sergiu Bulboacă</b> & <b>GPT-5</b>
   </footer>
 
-  <script>
-    const button = document.getElementById("analyzeBtn");
-    const output = document.getElementById("output");
+<script>
+async function analyzeText() {
+  const input = document.querySelector("textarea").value.trim();
+  const resultBox = document.querySelector("#resultBox");
 
-    button.addEventListener("click", async () => {
-      const text = document.getElementById("inputText").value.trim();
-      if (!text) {
-        output.innerHTML = "<p>⚠️ Te rog introdu un text pentru analiză.</p>";
-        return;
-      }
+  resultBox.innerHTML = "⏳ Se analizează...";
 
-      output.innerHTML = "<p>⏳ Se efectuează analiza...</p>";
+  const response = await fetch("/.netlify/functions/analyze", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ text: input }),
+  });
 
-      try {
-        const response = await fetch("/.netlify/functions/analyze", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ text }),
-        });
+  const data = await response.json();
 
-        const data = await response.json();
-
-        output.innerHTML = `
-          <p><b>${data.mesaj || "✅ Analiză efectuată"}</b></p>
-          <p>🔹 <b>Rezonanță:</b> ${data.rezonanta ?? "–"}</p>
-          <p>🔹 <b>Deviație semantică (D):</b> ${data.D ?? "–"}</p>
-          <p>🔹 <b>Deviație logică (L):</b> ${data.L ?? "–"}</p>
-          <p>🔹 <b>Tip:</b> ${data.tip ?? "–"}</p>
-          <p>🔹 <b>Interpretare:</b> ${data.interpretare ?? "–"}</p>
-          <p style="margin-top:1em;opacity:0.7;font-size:0.9rem;">
-            Analiză efectuată conform Formulei 3.14 + D + L∞
-          </p>
-        `;
-      } catch (err) {
-        output.innerHTML = `<p>❌ Eroare la analiză: ${err.message}</p>`;
-      }
-    });
-  </script>
-  <script>
+  if (data.analysis) {
+    resultBox.innerHTML = `<pre>${data.analysis}</pre>`;
+  } else {
+    resultBox.innerHTML = `❌ Eroare: ${data.error || "răspuns invalid."}`;
+  }
+}
+</script>
 async function analizeazaTextul() {
   const text = document.querySelector("textarea").value.trim();
   const rezultatDiv = document.getElementById("rezultat");
@@ -184,4 +167,5 @@ async function analizeazaTextul() {
 </script>
 </body>
 </html>
+
 
