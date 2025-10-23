@@ -1,5 +1,7 @@
 {
+  "name": "formulaai",
+  "version": "1.0.0",
   "dependencies": {
-    "openai": "^4.70.0"
+    "openai": "^4.0.0"
   }
 }
