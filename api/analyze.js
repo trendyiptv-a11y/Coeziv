@@ -4,51 +4,34 @@ export default async function handler(req, res) {
   }
 
   const { text } = req.body;
-
   if (!text || text.trim().length === 0) {
     return res.status(400).json({ error: "Textul lipsește" });
   }
 
-  try {
-    const response = await fetch("https://api.oaiproxy.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer sk-free-proxy-key", // fără cheie personală!
-      },
-      body: JSON.stringify({
-        model: "gpt-3.5-turbo",
-        messages: [
-          {
-            role: "system",
-            content:
-              "Ești un analizor semantic și logic bazat pe Formula Coeziunii 3.14 + D + L∞. Returnează un obiect JSON curat cu câmpurile: rezonanta, D, L, interpretare.",
-          },
-          {
-            role: "user",
-            content: `Analizează textul: "${text}"`,
-          },
-        ],
-      }),
-    });
+  // Simulare analiză locală bazată pe formula 3.14 + D + L∞
+  const words = text.trim().split(/\s+/).length;
+  const letters = text.replace(/\s+/g, "").length;
+  const D = ((letters / words) % 3.14).toFixed(2);
+  const L = ((Math.sin(letters) + 1.5) % 3.14).toFixed(2);
+  const resonance =
+    Math.abs(D - L) < 0.1 ? "3.14 (coeziv)" : "3.14 ± fluctuație minoră";
 
-    const data = await response.json();
+  const interpretations = [
+    "Textul are echilibru semantic ridicat.",
+    "Rezonanța exprimării este stabilă.",
+    "Formularea indică armonie între idee și expresie.",
+    "Analiza sugerează un nucleu logic coerent.",
+  ];
 
-    if (data.error) {
-      return res.status(500).json({ error: data.error.message });
-    }
+  const interpretare =
+    interpretations[Math.floor(Math.random() * interpretations.length)];
 
-    const answer = data.choices?.[0]?.message?.content || "Nicio analiză primită.";
-
-    return res.status(200).json({
-      analysis: {
-        rezonanta: "3.14",
-        D: Math.random().toFixed(2),
-        L: Math.random().toFixed(2),
-        interpretare: answer.trim(),
-      },
-    });
-  } catch (err) {
-    return res.status(500).json({ error: "Eroare la comunicarea cu proxy: " + err.message });
-  }
+  return res.status(200).json({
+    analysis: {
+      rezonanta: resonance,
+      D,
+      L,
+      interpretare,
+    },
+  });
 }
