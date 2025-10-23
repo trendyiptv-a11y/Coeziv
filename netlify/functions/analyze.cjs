@@ -7,38 +7,52 @@ exports.handler = async (event) => {
     if (!text) {
       return {
         statusCode: 400,
-        body: JSON.stringify({ error: "Lipsește textul de analizat." }),
+        body: JSON.stringify({ error: "⚠️ Lipsește textul pentru analiză." }),
       };
     }
 
     const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-    // 🔹 Solicitare simplă către GPT
     const completion = await client.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
         {
           role: "system",
           content:
-            "Ești motorul analitic al Formulei Coeziunii 3.14 + D + L∞. \
-            Analizează textul primit și întoarce rezultatul sub formă de JSON cu câmpurile: \
-            rezonanta (număr), D (deviație semantică), L (deviație logică) și interpretare (text scurt).",
+            "Răspunde STRICT în format JSON, fără alt text. Structura obligatorie: \
+            {\"rezonanta\": <număr>, \"D\": <număr>, \"L\": <număr>, \"interpretare\": \"<text scurt>\"}. \
+            Nu adăuga explicații, doar JSON valid.",
         },
         { role: "user", content: text },
       ],
-      temperature: 0.4,
+      temperature: 0.3,
     });
 
-    const output = completion.choices[0].message.content.trim();
+    let output = completion.choices[0].message.content.trim();
 
-    // ✅ Asigurăm răspuns JSON pentru frontend
+    // 🧩 Dacă modelul a trimis text extra, extragem doar JSON-ul
+    const match = output.match(/\{[\s\S]*\}/);
+    if (match) output = match[0];
+
+    let parsed;
+    try {
+      parsed = JSON.parse(output);
+    } catch (e) {
+      parsed = {
+        rezonanta: 3.14,
+        D: null,
+        L: null,
+        interpretare: "Nu s-a putut parsa JSON-ul corect.",
+      };
+    }
+
     return {
       statusCode: 200,
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ analysis: output }),
+      body: JSON.stringify({ analysis: parsed }),
     };
   } catch (err) {
-    console.error("Eroare analiză:", err);
+    console.error("❌ Eroare analiză:", err);
     return {
       statusCode: 500,
       body: JSON.stringify({ error: err.message }),
