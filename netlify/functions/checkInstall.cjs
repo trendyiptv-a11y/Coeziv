@@ -1,33 +1,37 @@
-// Verificare instalare OpenAI + cheie activă
+// Verificare instalare OpenAI + cheie activă (CommonJS)
 // Formula Coeziunii — test de diagnostic
+// Autor: Sergiu Bulboacă & GPT-5 💡
 
-import OpenAI from "openai";
+const OpenAI = require("openai");
 
-export async function handler() {
+exports.handler = async function () {
   try {
-    // Test 1 — Verifică dacă biblioteca OpenAI este instalată
-    const openaiVersion = OpenAI?.toString ? "✅ OpenAI importat corect" : "❌ Problema la import";
+    // Test 1 — Verificare instalare pachet
+    const openaiVersion = typeof OpenAI === "function"
+      ? "✅ OpenAI importat corect (CommonJS)"
+      : "❌ Problema la import";
 
-    // Test 2 — Încearcă o cerere minimă către API
+    // Test 2 — Inițializează clientul
     const client = new OpenAI({
       apiKey: process.env.OPENAI_API_KEY,
     });
 
-    let modelStatus = "❌ Niciun model nu a răspuns";
+    let modelStatus = "❌ Niciun răspuns de la API";
+
     try {
       const models = await client.models.list();
-      const found = models.data?.[0]?.id || "Nedefinit";
-      modelStatus = `✅ Conexiune API activă (${found})`;
+      const firstModel = models.data?.[0]?.id || "necunoscut";
+      modelStatus = `✅ API funcțional (primul model: ${firstModel})`;
     } catch (err) {
-      modelStatus = `⚠️ Eroare la conexiune API: ${err.message}`;
+      modelStatus = `⚠️ Eroare API: ${err.message}`;
     }
 
-    // Returnează rezultatele în format clar
+    // Rezultatul testului
     return {
       statusCode: 200,
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        mesaj: "Raport de verificare instalare Formula Coeziunii",
+        mesaj: "Raport de verificare Formula Coeziunii",
         openaiVersion,
         modelStatus,
         nodeVersion: process.version,
@@ -45,4 +49,4 @@ export async function handler() {
       }),
     };
   }
-}
+};
