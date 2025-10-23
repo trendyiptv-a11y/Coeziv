@@ -1,109 +1,108 @@
 <!DOCTYPE html>
 <html lang="ro">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Formula Coeziunii 3.14 + D + L∞</title>
-<style>
-  body {
-    background-color: #0d1117;
-    color: #c9d1d9;
-    font-family: 'Segoe UI', sans-serif;
-    text-align: center;
-    padding: 2rem 1rem;
-  }
-  h1 {
-    color: #00ffb7;
-    font-size: 1.9rem;
-    margin-bottom: 0.5rem;
-  }
-  textarea {
-    width: 90%;
-    max-width: 600px;
-    height: 100px;
-    background: #161b22;
-    border: 1px solid #30363d;
-    border-radius: 12px;
-    color: #c9d1d9;
-    font-size: 1rem;
-    padding: 10px;
-  }
-  button {
-    margin-top: 1rem;
-    background-color: #00ffb7;
-    color: #000;
-    border: none;
-    padding: 10px 24px;
-    border-radius: 12px;
-    cursor: pointer;
-    font-weight: bold;
-    font-size: 1rem;
-  }
-  button:hover { background-color: #00d89b; }
-  #resultBox {
-    margin-top: 1.5rem;
-    text-align: left;
-    display: inline-block;
-    max-width: 600px;
-    background: #161b22;
-    border-radius: 10px;
-    padding: 15px;
-    color: #9ba1a6;
-    white-space: pre-wrap;
-  }
-  footer {
-    margin-top: 2rem;
-    font-size: 0.8rem;
-    color: #777;
-  }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Formula Coeziunii 3.14 + D + L∞</title>
+  <style>
+    body {
+      background-color: #0d1117;
+      color: #c9d1d9;
+      font-family: "Segoe UI", sans-serif;
+      text-align: center;
+      padding: 2rem;
+    }
+    h1 {
+      color: #00ffb7;
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+    textarea {
+      width: 90%;
+      height: 120px;
+      margin-top: 1rem;
+      border-radius: 12px;
+      border: 1px solid #00ffb7;
+      background: #161b22;
+      color: #c9d1d9;
+      font-size: 1rem;
+      padding: 1rem;
+      outline: none;
+    }
+    button {
+      background: #00ffb7;
+      color: #000;
+      border: none;
+      border-radius: 10px;
+      padding: 0.8rem 1.5rem;
+      margin-top: 1rem;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    button:hover {
+      background: #00cc99;
+    }
+    #rezultat {
+      margin-top: 1.5rem;
+      color: #9ba1a6;
+      text-align: left;
+      max-width: 600px;
+      margin-inline: auto;
+      white-space: pre-wrap;
+    }
+  </style>
 </head>
 <body>
+  <h1>Formula Coeziunii 3.14 + D + L∞</h1>
+  <p>Analiză semantică, logică și coezivă — motorul viu al adevărului 🧠</p>
 
-<h1>Formula Coeziunii 3.14 + D + L∞</h1>
-<p>Analiză semantică, logică și coezivă — motorul viu al adevărului 🧠</p>
+  <textarea id="textarea" placeholder="Scrie o propoziție pentru analiză..."></textarea><br>
+  <button onclick="analizeaza()">🔍 Analizează</button>
 
-<textarea placeholder="Scrie o propoziție pentru analiză..."></textarea>
-<br>
-<button onclick="analyzeText()">🔍 Analizează</button>
+  <div id="rezultat"></div>
 
-<div id="resultBox"></div>
+  <script>
+    async function analizeaza() {
+      const text = document.getElementById("textarea").value.trim();
+      const rezultatDiv = document.getElementById("rezultat");
+      if (!text) {
+        rezultatDiv.innerText = "⚠️ Introdu un text pentru analiză.";
+        return;
+      }
 
-<footer>
-  © Formula Coeziunii — Detector de Informații Viu • Creat de Sergiu Bulboacă & GPT-5
-</footer>
+      rezultatDiv.innerText = "⏳ Analiză în curs...";
 
-<script>
-async function analyzeText() {
-  const input = document.querySelector("textarea").value.trim();
-  const resultBox = document.querySelector("#resultBox");
+      try {
+        const response = await fetch("/api/analyze", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text }),
+        });
 
-  if (!input) {
-    resultBox.innerHTML = "⚠️ Introdu un text pentru analiză.";
-    return;
-  }
-
-  resultBox.innerHTML = "⏳ Analiză în curs...";
-
-  try {
-    const response = await fetch("/.netlify/functions/analyze", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text: input }),
-    });
-
-    const data = await response.json();
-
-    if (data.analysis) {
-      resultBox.innerHTML = `<pre>${data.analysis}</pre>`;
-    } else {
-      resultBox.innerHTML = `⚠️ Eroare: ${data.error || "răspuns invalid."}`;
+        const data = await response.json();
+        if (data.analysis) {
+          rezultatDiv.innerText = `
+✅ Analiză efectuată
+Rezonanță: ${data.analysis.rezonanta}
+D: ${data.analysis.D}
+L: ${data.analysis.L}
+Interpretare: ${data.analysis.interpretare}
+`;
+        } else if (data.error) {
+          rezultatDiv.innerText = `❌ Eroare: ${data.error}`;
+        } else {
+          rezultatDiv.innerText = "⚠️ Format necunoscut de răspuns.";
+        }
+      } catch (err) {
+        rezultatDiv.innerText = "❌ Eroare de conexiune: " + err.message;
+      }
     }
-  } catch (err) {
-    resultBox.innerHTML = `❌ Eroare la conexiune: ${err.message}`;
-  }
-}
-</script>
+  </script>
 
+  <footer style="margin-top:2rem;font-size:0.9rem;">
+    © Formula Coeziunii — Detector de Informații Viu<br>
+    Creat de Sergiu Bulboacă & GPT-5
+  </footer>
 </body>
 </html>
