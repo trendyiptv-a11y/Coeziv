@@ -5,73 +5,131 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Formula Coeziunii 3.14 + D + L∞</title>
   <style>
+    :root {
+      --accent: #00ffb7;
+      --bg: #0d1117;
+      --panel: #161b22;
+      --text: #c9d1d9;
+      --muted: #9ba1a6;
+    }
+
     body {
-      background-color: #0d1117;
-      color: #c9d1d9;
-      font-family: "Segoe UI", sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', sans-serif;
       text-align: center;
-      padding: 2rem;
+      padding: 2rem 1rem;
     }
+
     h1 {
-      color: #00ffb7;
+      color: var(--accent);
       font-size: 2rem;
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.3rem;
     }
+
+    h2 {
+      color: var(--accent);
+      font-weight: 500;
+      margin-top: 0;
+    }
+
+    p {
+      color: var(--muted);
+    }
+
     textarea {
       width: 90%;
-      height: 120px;
-      margin-top: 1rem;
-      border-radius: 12px;
-      border: 1px solid #00ffb7;
-      background: #161b22;
-      color: #c9d1d9;
-      font-size: 1rem;
+      max-width: 400px;
+      height: 100px;
+      background: var(--panel);
+      border: 1px solid var(--accent);
+      color: var(--text);
       padding: 1rem;
-      outline: none;
+      border-radius: 12px;
+      resize: none;
+      font-size: 1rem;
     }
+
     button {
-      background: #00ffb7;
-      color: #000;
+      background: var(--accent);
+      color: var(--bg);
+      font-size: 1rem;
       border: none;
       border-radius: 10px;
-      padding: 0.8rem 1.5rem;
+      padding: 0.6rem 1.2rem;
       margin-top: 1rem;
-      font-size: 1.1rem;
       cursor: pointer;
-      transition: 0.2s;
+      transition: all 0.2s;
     }
+
     button:hover {
-      background: #00cc99;
+      opacity: 0.9;
+      transform: scale(1.02);
     }
-    #rezultat {
+
+    #result {
       margin-top: 1.5rem;
-      color: #9ba1a6;
       text-align: left;
-      max-width: 600px;
-      margin-inline: auto;
-      white-space: pre-wrap;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+      background: var(--panel);
+      border-radius: 12px;
+      padding: 1rem;
+      box-shadow: 0 0 10px rgba(0, 255, 183, 0.15);
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    .loader {
+      margin: 10px auto;
+      border: 3px solid #333;
+      border-top: 3px solid var(--accent);
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    footer {
+      margin-top: 2rem;
+      font-size: 0.9rem;
+      color: var(--muted);
     }
   </style>
 </head>
+
 <body>
-  <h1>Formula Coeziunii 3.14 + D + L∞</h1>
+  <h1>Formula Coeziunii</h1>
+  <h2>3.14 + D + L∞</h2>
   <p>Analiză semantică, logică și coezivă — motorul viu al adevărului 🧠</p>
 
-  <textarea id="textarea" placeholder="Scrie o propoziție pentru analiză..."></textarea><br>
-  <button onclick="analizeaza()">🔍 Analizează</button>
+  <textarea id="textInput" placeholder="Scrie aici textul pentru analiză..."></textarea><br />
+  <button onclick="analyzeText()">🔍 Analizează</button>
 
-  <div id="rezultat"></div>
+  <div id="result"></div>
+
+  <footer>
+    © Formula Coeziunii — Detector de Informații Viu<br>
+    Creat de Sergiu Bulboacă & GPT-5
+  </footer>
 
   <script>
-    async function analizeaza() {
-      const text = document.getElementById("textarea").value.trim();
-      const rezultatDiv = document.getElementById("rezultat");
+    async function analyzeText() {
+      const text = document.getElementById("textInput").value.trim();
+      const resultDiv = document.getElementById("result");
+
       if (!text) {
-        rezultatDiv.innerText = "⚠️ Introdu un text pentru analiză.";
+        resultDiv.innerHTML = "⚠️ Te rog introdu un text.";
         return;
       }
 
-      rezultatDiv.innerText = "⏳ Analiză în curs...";
+      resultDiv.innerHTML = `<div class="loader"></div> Analiză în curs...`;
 
       try {
         const response = await fetch("/api/analyze", {
@@ -81,28 +139,26 @@
         });
 
         const data = await response.json();
-        if (data.analysis) {
-          rezultatDiv.innerText = `
-✅ Analiză efectuată
-Rezonanță: ${data.analysis.rezonanta}
-D: ${data.analysis.D}
-L: ${data.analysis.L}
-Interpretare: ${data.analysis.interpretare}
-`;
-        } else if (data.error) {
-          rezultatDiv.innerText = `❌ Eroare: ${data.error}`;
+
+        if (response.ok && data.analysis) {
+          const a = data.analysis;
+          resultDiv.innerHTML = `
+            ✅ <strong>Analiză efectuată</strong><br>
+            🔹 Rezonanță: ${a.resonance}<br>
+            🔹 D: ${a.D}<br>
+            🔹 L: ${a.L}<br>
+            <br>
+            <strong>🧠 Interpretare GPT:</strong><br>
+            <em>${a.interpretation}</em>
+          `;
         } else {
-          rezultatDiv.innerText = "⚠️ Format necunoscut de răspuns.";
+          resultDiv.innerHTML = `❌ Eroare: ${data.error || "Răspuns invalid"}`;
         }
-      } catch (err) {
-        rezultatDiv.innerText = "❌ Eroare de conexiune: " + err.message;
+      } catch (error) {
+        console.error("Eroare:", error);
+        resultDiv.innerHTML = "❌ Eroare de conexiune cu serverul.";
       }
     }
   </script>
-
-  <footer style="margin-top:2rem;font-size:0.9rem;">
-    © Formula Coeziunii — Detector de Informații Viu<br>
-    Creat de Sergiu Bulboacă & GPT-5
-  </footer>
 </body>
 </html>
