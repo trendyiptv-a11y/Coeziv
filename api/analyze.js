@@ -27,26 +27,26 @@ export default async function handler(req, res) {
   const L = ((Math.sin(letters) + 1.5) % 3.14).toFixed(2);
 
   // Rezonanță: coezivă, fluctuantă sau rigidă
-  let resonance = "";
+  let rezonanta = "";
   const delta = Math.abs(D - L);
-  if (delta < 0.15) resonance = "3.14 (coeziune echilibrată)";
-  else if (delta < 0.5) resonance = "3.14 ± fluctuație minoră";
-  else resonance = "3.14 ⚠ dezechilibru logic";
+  if (delta < 0.15) rezonanta = "3.14 (coeziune echilibrată)";
+  else if (delta < 0.5) rezonanta = "3.14 ± fluctuație minoră";
+  else rezonanta = "3.14 ⚠ dezechilibru logic";
 
   // === 🧠 Conectare la GPT ===
   const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-  let interpretation = "GPT nu a oferit un răspuns.";
+  let interpretare = "GPT nu a oferit un răspuns clar.";
 
   try {
     const completion = await client.chat.completions.create({
       model: "gpt-4o-mini",
-      temperature: 0.3,
-      max_tokens: 220,
+      temperature: 0.35,
+      max_tokens: 400,
       messages: [
         {
           role: "system",
           content:
-            "Ești modulul viu al Formulei Coeziunii 3.14Δ – un analizator logic, semantic și poetic. Răspunde concis și clar, în română.",
+            "Ești modulul viu al Formulei Coeziunii 3.14Δ – un analizator logic, semantic și poetic. Răspunde concis, clar și expresiv în limba română.",
         },
         {
           role: "user",
@@ -57,36 +57,34 @@ Analizează următorul text prin prisma echilibrului logic și semantic:
 Valorile:
 - D = ${D}
 - L = ${L}
-- Rezonanță = ${resonance}
+- Rezonanță = ${rezonanta}
 
-Evaluează dacă textul este coerent, rigid sau distorsionat.
-Dacă există contradicții logice sau neclarități, menționează-le.
-Formulează o scurtă interpretare poetică în final.
+1️⃣ Evaluează dacă textul este coerent, rigid sau distorsionat.
+2️⃣ Identifică eventuale contradicții sau lipsuri logice.
+3️⃣ Formulează o scurtă interpretare poetică în final.
           `,
         },
       ],
     });
 
-    interpretation =
+    interpretare =
       completion.choices?.[0]?.message?.content?.trim() ||
       "GPT nu a returnat conținut clar.";
 
-    // 🧩 Trunchiere controlată pentru a evita texte prea lungi
-    interpretation = interpretation.slice(0, 900);
+    // 🧩 Eliminare limitare – afișează TOT textul (fără tăiere)
+    if (interpretare.length > 2000) {
+      interpretare = interpretare.substring(0, 2000) + " […]";
+    }
   } catch (error) {
     console.error("❌ Eroare GPT:", error);
-    interpretation = `Eroare GPT: ${error.message}`;
+    interpretare = `Eroare GPT: ${error.message}`;
   }
 
-  // === 📦 Răspuns JSON complet ===
+  // === 📦 Răspuns JSON compatibil cu index.html ===
   return res.status(200).json({
-    analysis: {
-      D,
-      L,
-      resonance,
-      interpretation,
-      note:
-        "⏳ Analiza se bazează pe echilibrul logic-semantic al textului. Valorile pot fluctua ±0.14 în funcție de densitatea informației.",
-    },
+    rezonanta,
+    D,
+    L,
+    interpretare,
   });
 }
