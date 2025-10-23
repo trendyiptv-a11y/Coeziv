@@ -6,7 +6,6 @@ export default async function handler(req, res) {
   }
 
   const { text } = req.body;
-
   if (!text || text.trim().length === 0) {
     return res.status(400).json({ error: "Textul nu poate fi gol." });
   }
@@ -31,24 +30,27 @@ export default async function handler(req, res) {
         {
           role: "system",
           content:
-            "Ești modulul viu al Formulei Coeziunii. Interpretează logic, semantic și poetic mesajul uman. Răspunde concis și coerent.",
+            "Ești modulul viu al Formulei Coeziunii. Interpretează mesajul uman în termeni de armonie, rezonanță și echilibru logic.",
         },
         {
           role: "user",
-          content: `Text: "${text}" | D=${D}, L=${L}, Rezonanță=${resonance}`,
+          content: `Analizează textul: "${text}". Valorile: D=${D}, L=${L}, Rezonanță=${resonance}. Oferă o interpretare poetică și logică într-o singură frază.`,
         },
       ],
     });
 
+    // 🔍 Verificare sigură a conținutului răspunsului
+    const message = completion.choices?.[0]?.message?.content ?? "";
     const interpretation =
-      completion.choices?.[0]?.message?.content ||
-      "Interpretare indisponibilă momentan.";
+      message && message.length > 0
+        ? message
+        : "GPT nu a returnat conținut — verifică cheia API.";
 
     return res.status(200).json({
       analysis: { D, L, resonance, interpretation },
     });
   } catch (err) {
-    console.error("❌ Eroare API OpenAI:", err);
+    console.error("❌ Eroare GPT:", err);
     return res.status(500).json({
       error: "Eroare la interpretarea GPT-5",
       details: err.message,
