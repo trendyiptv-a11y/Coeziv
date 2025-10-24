@@ -23,50 +23,36 @@ export default async function handler(req, res) {
       return res.status(400).json({ success: false, error: "Lipsește textul pentru analiză." });
     }
 
-    const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+    // 🔍 1️⃣ Verificare factuală prin GDELT API (gratuit, fără cheie)
+    const gdeltUrl = `https://api.gdeltproject.org/api/v2/doc/doc?query=${encodeURIComponent(
+      textDeAnalizat
+    )}&format=json`;
 
-    // === PAS 1: verificare factuală ===
-    const baseUrl = process.env.VERCEL_URL
-      ? `https://${process.env.VERCEL_URL}`
-      : "http://localhost:3000";
+    let factualInfo = "Nu s-au găsit surse externe pentru verificare.";
+    try {
+      const resp = await fetch(gdeltUrl);
+      const data = await resp.json();
+      if (data?.articles?.length > 0) {
+        const first = data.articles[0];
+        factualInfo = `Sursă găsită: ${first.url || "necunoscută"} (${first.seendate || "fără dată"})`;
+      }
+    } catch (err) {
+      factualInfo = "Eroare la conectarea cu GDELT.";
+    }
 
-    const verifyRes = await fetch(`${baseUrl}/api/verifyNews`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text: textDeAnalizat }),
-    });
-
-    const verifyData = await verifyRes.json();
-    const sources = verifyData.found
-      ? `✅ Surse confirmate: ${verifyData.articles.map(a => `${a.source} (${a.title})`).join("; ")}`
-      : "⚠️ Nicio sursă confirmată în presa actuală.";
-
-    // === PAS 2: GPT – analiza Formula 3.14Δ cu context factual ===
-    const prompt = `
-Text de analizat: "${textDeAnalizat}"
-
-Context factual actual: ${sources}
-
-Aplică Formula 3.14Δ și oferă:
-- Δ (0–6.28)
-- Fc (0–3.14)
-- grad manipulare (%)
-- verdict textual (Veridic / Ambiguu / Fals / Manipulator)
-- scurt rezumat explicativ.
-`;
-
-    const completion = await openai.chat.completions.create({
+    // 🧠 2️⃣ Analiza logică prin GPT
+    const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+    const completion = await client.chat.completions.create({
       model: "gpt-5",
-      temperature: 0.3,
       messages: [
         { role: "system", content: SYSTEM_PROMPT },
-        { role: "user", content: prompt },
+        { role: "user", content: `Text: ${textDeAnalizat}\n\nVerificare factuală: ${factualInfo}` }
       ],
     });
 
-    const raw = completion.choices[0].message.content;
+    const raw = completion.choices[0].message.content || "";
 
-    // === PAS 3: extragere valori numerice ===
+    // 🔢 3️⃣ Extragem valorile numerice din răspunsul GPT
     const deltaMatch = raw.match(/Δ\s*=?\s*([\d.]+)/);
     const fcMatch = raw.match(/Fc\s*=?\s*([\d.]+)/);
     const manipMatch = raw.match(/manipulare\s*=?\s*([\d.]+)/);
@@ -76,15 +62,14 @@ Aplică Formula 3.14Δ și oferă:
     const manipulare = manipMatch ? parseFloat(manipMatch[1]) : Math.max(0, (1 - fc / 3.14) * 100);
 
     const rezultat = {
-      surse: verifyData.articles || [],
       text: raw,
       delta,
       fc,
       manipulare,
+      sursa: factualInfo,
     };
 
     return res.status(200).json({ success: true, rezultat });
-
   } catch (error) {
     console.error("Eroare API GPT:", error);
     return res.status(500).json({ success: false, error: error.message });
