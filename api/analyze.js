@@ -1,66 +1,51 @@
-import OpenAI from "openai";
-
-const client = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
 export default async function handler(req, res) {
   if (req.method !== "POST") {
-    return res.status(405).json({ error: "Metodă neacceptată" });
+    return res.status(405).json({ error: "Method not allowed" });
   }
 
   const { text } = req.body;
-  if (!text || text.trim() === "") {
-    return res.status(400).json({ error: "Textul nu poate fi gol." });
+  if (!text) {
+    return res.status(400).json({ error: "Missing text for analysis" });
   }
 
   try {
-    const prompt = `
-Analizează următorul text și oferă:
-1. O interpretare scurtă și obiectivă (max 3 rânduri).
-2. Trei valori numerice între 0 și 6:
-   - Δ (vibrație semantică): măsura coerenței expresive și emoționale.
-   - Fc (coeziune logică): gradul de structură și consistență logică.
-   - Manipulare probabilă (%): estimarea intenției de manipulare sau distorsionare.
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: "gpt-5",
+        max_completion_tokens: 300,
+        temperature: 0.3,
+        messages: [
+          {
+            role: "system",
+            content: `Ești un motor de analiză informațională numit Formula 3.14Δ.
+Analizezi orice text și returnezi un raport scurt, clar și structurat exact în acest format:
 
-Text: "${text}"
-
-Răspuns în format JSON cu cheile:
-{
-  "interpretation": "...",
-  "delta": număr,
-  "fc": număr,
-  "manipulation": număr
-}
-`;
-
-    const completion = await client.chat.completions.create({
-      model: "gpt-5",
-      messages: [{ role: "user", content: prompt }],
-      max_completion_tokens: 300,
+Δ (vibrație semantică): [valoare între 0–5]
+Fc (coeziune logică): [valoare între 0–5]
+Manipulare probabilă: [valoare între 0–100%]
+Verdict: [ADEVĂRAT / PARȚIAL / FALS / MANIPULATOR]
+Explicație: [1–2 propoziții cu motivul principal]`
+          },
+          { role: "user", content: text }
+        ],
+      }),
     });
 
-    const message = completion.choices[0].message.content;
-    let result;
+    const data = await response.json();
 
-    try {
-      result = JSON.parse(message);
-    } catch {
-      // fallback dacă GPT returnează text liber
-      const match = message.match(
-        /"delta":\s*([\d.]+).*?"fc":\s*([\d.]+).*?"manipulation":\s*([\d.]+)/s
-      );
-      result = {
-        interpretation: message.split("\n")[0] || "Interpretare indisponibilă.",
-        delta: match ? parseFloat(match[1]) : Math.random() * 3,
-        fc: match ? parseFloat(match[2]) : Math.random() * 3,
-        manipulation: match ? parseFloat(match[3]) : Math.random() * 50,
-      };
-    }
+    const message =
+      data?.choices?.[0]?.message?.content ||
+      data?.choices?.[0]?.delta?.content ||
+      "Nicio interpretare primită.";
 
-    res.status(200).json(result);
+    res.status(200).json({ result: message });
   } catch (error) {
-    console.error("Eroare GPT:", error);
-    res.status(500).json({ error: "Eroare la analiza GPT: " + error.message });
+    console.error("Eroare API GPT-5:", error);
+    res.status(500).json({ error: "Eroare la procesarea GPT-5." });
   }
 }
