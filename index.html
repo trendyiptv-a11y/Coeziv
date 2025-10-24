@@ -103,69 +103,96 @@
   <footer>© 2025 Formula 3.14Δ — Sergiu Bulboacă</footer>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script>
-    const ctx = document.getElementById("chart").getContext("2d");
-    const chart = new Chart(ctx, {
-      type: "bar",
-      data: {
-        labels: ["Fc (Coeziune)", "Δ (Vibrație)", "Manipulare %"],
-        datasets: [{
-          label: "Valori analiză",
-          data: [0, 0, 0],
-          backgroundColor: ["#00ffb7", "#ffcc00", "#ff3366"]
-        }]
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const ctx = document.getElementById("chart").getContext("2d");
+  const chart = new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels: ["Fc (Coeziune)", "Δ (Vibrație)", "Manipulare %"],
+      datasets: [{
+        label: "Valori analiză",
+        data: [0, 0, 0],
+        backgroundColor: ["#00ffb7", "#ffcc00", "#ff3366"]
+      }]
+    },
+    options: {
+      scales: {
+        y: { beginAtZero: true, max: 6.3, ticks: { color: "#ccc" } },
+        x: { ticks: { color: "#ccc" } }
       },
-      options: {
-        scales: {
-          y: { beginAtZero: true, max: 6.3, ticks: { color: "#ccc" } },
-          x: { ticks: { color: "#ccc" } }
-        },
-        plugins: { legend: { display: false } }
-      }
-    });
+      plugins: { legend: { display: false } }
+    }
+  });
 
-    const verdictBar = document.getElementById("verdictBar");
-    const resultDiv = document.getElementById("result");
+  const verdictBar = document.getElementById("verdictBar");
+  const resultDiv = document.getElementById("result");
 
-    document.getElementById("analyzeBtn").addEventListener("click", async () => {
-      const text = document.getElementById("textInput").value.trim();
-      if (!text) {
-        resultDiv.textContent = "⚠️ Introdu un text pentru analiză.";
-        return;
-      }
+  // ✅ verdict text mare
+  const verdictText = document.createElement("div");
+  verdictText.style.fontSize = "1.4em";
+  verdictText.style.fontWeight = "bold";
+  verdictText.style.marginTop = "0.8em";
+  verdictText.style.transition = "color 0.4s";
+  document.body.insertBefore(verdictText, verdictBar);
 
-      resultDiv.textContent = "⏳ Analiză în curs...";
-      verdictBar.style.background = "#444";
+  document.getElementById("analyzeBtn").addEventListener("click", async () => {
+    const text = document.getElementById("textInput").value.trim();
+    if (!text) {
+      resultDiv.textContent = "⚠️ Introdu un text pentru analiză.";
+      return;
+    }
 
-      try {
-        const response = await fetch("/api/analyze", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ textDeAnalizat: text }),
-        });
+    resultDiv.textContent = "⏳ Analiză în curs...";
+    verdictBar.style.background = "#444";
+    verdictText.textContent = "";
 
-        const data = await response.json();
-        if (data.success) {
-          const { fc, delta, manipulare, text: rezumat } = data.rezultat;
-          resultDiv.textContent = rezumat;
+    try {
+      const response = await fetch("/api/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ textDeAnalizat: text }),
+      });
 
-          chart.data.datasets[0].data = [fc, delta, manipulare];
-          chart.update();
+      const data = await response.json();
+      if (data.success) {
+        const { fc, delta, manipulare, text: rezumat } = data.rezultat;
+        resultDiv.textContent = rezumat;
 
-          // 🧠 Verdict vizual
-          let verdictColor = "#00ffb7"; // verde
-          if (manipulare > 40) verdictColor = "#ff3366"; // roșu
-          else if (manipulare > 20) verdictColor = "#ffcc00"; // galben
+        chart.data.datasets[0].data = [fc, delta, manipulare];
+        chart.update();
 
-          verdictBar.style.background = verdictColor;
-        } else {
-          resultDiv.textContent = "❌ Eroare: " + data.error;
+        // 🧠 Verdict vizual + text logic
+        let verdictColor = "#00ffb7";
+        let verdictMsg = "✅ Veridic / Coeziv";
+
+        if (rezumat.toLowerCase().includes("fals") || rezumat.toLowerCase().includes("dezinformare")) {
+          verdictColor = "#ff3366";
+          verdictMsg = "🔴 Fals logic / Dezinformare";
+        } else if (rezumat.toLowerCase().includes("ambiguu") || manipulare > 25) {
+          verdictColor = "#ffcc00";
+          verdictMsg = "⚠️ Ambiguu / Incomplet";
+        } else if (rezumat.toLowerCase().includes("veridic") || manipulare < 20) {
+          verdictColor = "#00ffb7";
+          verdictMsg = "✅ Veridic / Coeziv";
         }
-      } catch (err) {
-        resultDiv.textContent = "⚠️ Eroare de conexiune cu motorul GPT.";
+
+        verdictBar.style.background = verdictColor;
+        verdictText.textContent = verdictMsg;
+        verdictText.style.color = verdictColor;
+      } else {
+        resultDiv.textContent = "❌ Eroare: " + data.error;
+        verdictText.textContent = "❌ Eroare API";
         verdictBar.style.background = "#ff3366";
       }
-    });
-  </script>
+    } catch (err) {
+      resultDiv.textContent = "⚠️ Eroare de conexiune cu motorul GPT.";
+      verdictBar.style.background = "#ff3366";
+      verdictText.textContent = "⚠️ Eroare conexiune";
+      verdictText.style.color = "#ff3366";
+    }
+  });
+</script>
 </body>
 </html>
+
