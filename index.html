@@ -3,134 +3,141 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Formula 3.14Δ — Detector de Informații Viu</title>
+  <title>Formula 3.14Δ – Detector de informații</title>
   <style>
-    :root {
-      --bg: #0d1117;
-      --panel: #161b22;
-      --text: #d1d5db;
-      --accent: #00ffb7;
-    }
     body {
+      background: #0d1117;
+      color: #e6edf3;
       font-family: "Segoe UI", sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      margin: 0;
-      padding: 1.5rem;
       text-align: center;
+      margin: 0;
+      padding: 1em;
     }
     h1 {
-      color: var(--accent);
-      font-size: 1.8rem;
-      margin-bottom: 1rem;
+      color: #00ffb7;
+      margin-bottom: 0.1em;
+    }
+    p {
+      color: #9ba1a6;
+      margin-top: 0;
     }
     textarea {
-      width: 90%;
-      height: 100px;
-      background: var(--panel);
+      width: 95%;
+      max-width: 650px;
+      height: 180px;
+      background: #161b22;
+      color: #c9d1d9;
       border: 1px solid #30363d;
       border-radius: 10px;
-      color: var(--text);
-      font-size: 1rem;
-      padding: 10px;
-      resize: vertical;
+      padding: 1em;
+      font-size: 1em;
+      resize: none;
     }
     button {
-      background: var(--accent);
+      margin-top: 1em;
+      background: #00ffb7;
       color: #000;
-      font-weight: bold;
       border: none;
-      border-radius: 10px;
-      padding: 10px 20px;
-      margin: 10px 5px;
+      border-radius: 8px;
+      padding: 0.8em 1.6em;
       cursor: pointer;
-      transition: 0.2s;
+      font-weight: bold;
+      font-size: 1em;
+      transition: background 0.2s;
     }
     button:hover {
-      opacity: 0.85;
-      transform: scale(1.03);
+      background: #00cc8f;
     }
-    #resultBox {
-      margin: 1.5rem auto;
-      width: 90%;
-      max-height: 80vh;
-      overflow-y: auto;
-      white-space: pre-wrap;
-      text-align: left;
-      background: rgba(22, 27, 34, 0.6);
+    .result {
+      margin: 1.5em auto;
+      width: 95%;
+      max-width: 700px;
+      background: #161b22;
+      padding: 1.5em;
       border-radius: 12px;
-      box-shadow: 0 0 12px rgba(0, 0, 0, 0.3);
-      padding: 1.2rem;
-      line-height: 1.6;
-      font-size: 1rem;
+      border: 1px solid #30363d;
+      text-align: left;
+      line-height: 1.5;
+      white-space: pre-wrap;
     }
-    #resultBox::-webkit-scrollbar {
-      width: 8px;
-    }
-    #resultBox::-webkit-scrollbar-thumb {
-      background-color: var(--accent);
-      border-radius: 4px;
+    canvas {
+      margin-top: 1em;
+      background: #0d1117;
     }
     footer {
-      margin-top: 2rem;
-      font-size: 0.8rem;
-      color: #8b949e;
+      margin-top: 1em;
+      color: #777;
+      font-size: 0.9em;
     }
   </style>
 </head>
 <body>
-  <h1>Formula 3.14Δ — Detector de Informații Viu</h1>
-  <p>Introdu un text și apasă „Analizează”.</p>
+  <h1>Formula 3.14Δ</h1>
+  <p>Motor de analiză informațională – GPT-5</p>
 
-  <textarea id="inputText" placeholder="Scrie textul aici..."></textarea><br />
-  <button id="analyzeBtn">🔍 Analizează</button>
-  <button id="clearBtn">Șterge</button>
+  <textarea id="textInput" placeholder="Introdu textul pentru analiză..."></textarea>
+  <br />
+  <button id="analyzeBtn">Analizează</button>
 
-  <div id="resultBox"></div>
+  <div class="result" id="result">Aici vor apărea rezultatele...</div>
+  <canvas id="chart" width="320" height="180"></canvas>
 
-  <footer>
-    © Formula Coeziunii — Detector de Informații Viu<br />
-    Creat de Sergiu Bulboacă & GPT-5
-  </footer>
+  <footer>© 2025 Formula 3.14Δ — Sergiu Bulboacă</footer>
 
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
-    const analyzeBtn = document.getElementById("analyzeBtn");
-    const clearBtn = document.getElementById("clearBtn");
-    const resultBox = document.getElementById("resultBox");
-
-    analyzeBtn.addEventListener("click", async () => {
-      const text = document.getElementById("inputText").value.trim();
-      if (!text) {
-        resultBox.innerHTML = "⚠️ Introdu un text pentru analiză.";
-        return;
-      }
-      resultBox.innerHTML = "🔄 Analiză în curs...";
-
-      try {
-        const res = await fetch("/api/analyze", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ text })
-        });
-        const data = await res.json();
-        resultBox.innerHTML = `
-        <h3>✅ Analiză efectuată</h3>
-        <p>🔹 Rezonanță: <b>${data.rezonanta}</b><br>
-        🔹 D: ${data.D}<br>
-        🔹 L: ${data.L}</p>
-        <h3>🧠 Interpretare GPT:</h3>
-        <p>${data.interpretare}</p>
-        <hr>
-        <p>⏳ Analiza se bazează pe echilibrul logic-semantic al textului.<br>
-        Valorile pot fluctua ±0.14 în funcție de densitatea informației.</p>`;
-      } catch (err) {
-        resultBox.innerHTML = "❌ Eroare la analiză: " + err.message;
+    const ctx = document.getElementById("chart").getContext("2d");
+    const chart = new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels: ["Fc (Coeziune)", "Δ (Vibrație)", "Manipulare %"],
+        datasets: [{
+          label: "Valori analiză",
+          data: [0, 0, 0],
+          backgroundColor: ["#00ffb7", "#ffcc00", "#ff3366"]
+        }]
+      },
+      options: {
+        scales: {
+          y: { beginAtZero: true, max: 6.3, ticks: { color: "#ccc" } },
+          x: { ticks: { color: "#ccc" } }
+        },
+        plugins: { legend: { display: false } }
       }
     });
 
-    clearBtn.addEventListener("click", () => {
-      document.getElementById("inputText").value = "";
-      resultBox.innerHTML = "";
+    document.getElementById("analyzeBtn").addEventListener("click", async () => {
+      const text = document.getElementById("textInput").value.trim();
+      const resultDiv = document.getElementById("result");
+      if (!text) {
+        resultDiv.textContent = "⚠️ Introdu un text pentru analiză.";
+        return;
+      }
+
+      resultDiv.textContent = "⏳ Analiză în curs...";
+
+      try {
+        const response = await fetch("/api/analyze", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ textDeAnalizat: text }),
+        });
+
+        const data = await response.json();
+        if (data.success) {
+          resultDiv.textContent = data.rezultat.text;
+          chart.data.datasets[0].data = [
+            data.rezultat.fc,
+            data.rezultat.delta,
+            data.rezultat.manipulare
+          ];
+          chart.update();
+        } else {
+          resultDiv.textContent = "❌ Eroare: " + data.error;
+        }
+      } catch (err) {
+        resultDiv.textContent = "⚠️ Eroare de conexiune cu motorul GPT.";
+      }
     });
   </script>
 </body>
