@@ -3,168 +3,196 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Formula 3.14Δ – Motor de analiză informațională</title>
+  <title>Formula 3.14Δ — Detector de Informații Viu</title>
   <style>
-    :root {
-      --bg: #0d1117;
-      --panel: #161b22;
-      --text: #c9d1d9;
-      --good: #00ffb7;
-      --bad: #ff004c;
-      --accent: #00c7ff;
-    }
-
     body {
-      background-color: var(--bg);
-      color: var(--text);
+      background: #0d1117;
+      color: #e6edf3;
       font-family: "Segoe UI", sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      margin: 0;
-      padding: 1rem;
       text-align: center;
+      margin: 0;
+      padding: 1em;
     }
-
     h1 {
-      color: var(--good);
-      font-size: 1.6rem;
-      margin-bottom: 1rem;
+      color: #00ffb7;
+      margin-bottom: 0.1em;
     }
-
+    p {
+      color: #9ba1a6;
+      margin-top: 0;
+    }
     textarea {
-      width: 90%;
-      max-width: 600px;
-      height: 150px;
-      background: var(--panel);
+      width: 95%;
+      max-width: 650px;
+      height: 180px;
+      background: #161b22;
+      color: #c9d1d9;
       border: 1px solid #30363d;
       border-radius: 10px;
-      color: var(--text);
-      padding: 10px;
+      padding: 1em;
+      font-size: 1em;
       resize: none;
-      outline: none;
-      font-size: 1rem;
     }
-
     button {
-      margin-top: 1rem;
-      padding: 0.6rem 1.4rem;
-      background: var(--accent);
-      color: #fff;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      font-size: 1rem;
-      font-weight: bold;
-      transition: all 0.3s ease;
-    }
-
-    button:hover {
-      background: var(--good);
+      margin-top: 1em;
+      background: #00ffb7;
       color: #000;
-    }
-
-    .progress-container {
-      width: 90%;
-      max-width: 600px;
-      background: #222;
+      border: none;
       border-radius: 8px;
-      overflow: hidden;
-      height: 12px;
-      margin-top: 1.5rem;
+      padding: 0.8em 1.6em;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 1em;
+      transition: background 0.2s;
     }
-
-    .progress-bar {
-      height: 12px;
-      width: 0%;
-      background: var(--good);
-      transition: width 1s ease;
+    button:hover {
+      background: #00cc8f;
     }
-
     .result {
-      margin-top: 1.2rem;
-      font-size: 1rem;
-      background: var(--panel);
-      padding: 1rem;
-      border-radius: 10px;
-      width: 90%;
-      max-width: 600px;
-      white-space: pre-wrap;
+      margin: 1.5em auto;
+      width: 95%;
+      max-width: 700px;
+      background: #161b22;
+      padding: 1.5em;
+      border-radius: 12px;
+      border: 1px solid #30363d;
       text-align: left;
+      line-height: 1.5;
+      white-space: pre-wrap;
     }
-
-    .analyzing {
-      margin-top: 0.5rem;
-      font-size: 1rem;
-      color: var(--accent);
-      animation: pulse 1.2s infinite;
+    canvas {
+      margin-top: 1em;
+      background: #0d1117;
     }
-
-    @keyframes pulse {
-      0% { opacity: 0.2; }
-      50% { opacity: 1; }
-      100% { opacity: 0.2; }
+    .verdict-bar {
+      margin: 1em auto;
+      width: 90%;
+      max-width: 500px;
+      height: 25px;
+      border-radius: 10px;
+      transition: background 0.5s;
+    }
+    .legend {
+      margin-top: 0.6em;
+      color: #aaa;
+      font-size: 0.9em;
+    }
+    footer {
+      margin-top: 1em;
+      color: #777;
+      font-size: 0.9em;
     }
   </style>
 </head>
 <body>
-  <h1>Formula 3.14Δ – Motor de analiză informațională</h1>
+  <h1>Formula 3.14Δ</h1>
+  <p>Motor de analiză informațională — GPT-5</p>
 
-  <textarea id="inputText" placeholder="Introdu textul pentru analiză..."></textarea>
-  <button onclick="analyzeText()">🔍 Analizează</button>
+  <textarea id="textInput" placeholder="Introdu textul pentru analiză..."></textarea>
+  <br />
+  <button id="analyzeBtn">Analizează</button>
 
-  <div class="progress-container">
-    <div class="progress-bar" id="progressBar"></div>
+  <div class="result" id="result">Aici vor apărea rezultatele...</div>
+  <div class="verdict-bar" id="verdictBar"></div>
+  <canvas id="chart" width="320" height="180"></canvas>
+
+  <div class="legend">
+    ✅ Verde = Veridic / Coeziv | ⚠️ Galben = Ambiguu / incert | 🔴 Roșu = Fals / Manipulator
   </div>
 
-  <div class="analyzing" id="analyzingText" style="display: none;">Analiză în curs...</div>
-  <div class="result" id="result"></div>
+  <footer>© 2025 Formula 3.14Δ — Sergiu Bulboacă</footer>
 
-  <script>
-    async function analyzeText() {
-      const text = document.getElementById("inputText").value.trim();
-      const result = document.getElementById("result");
-      const bar = document.getElementById("progressBar");
-      const analyzing = document.getElementById("analyzingText");
-
-      if (!text) {
-        result.innerHTML = "⚠️ Introdu un text pentru analiză.";
-        result.style.color = "var(--bad)";
-        return;
-      }
-
-      result.innerHTML = "";
-      bar.style.width = "0%";
-      analyzing.style.display = "block";
-
-      let width = 0;
-      const interval = setInterval(() => {
-        if (width >= 100) clearInterval(interval);
-        else {
-          width += 5;
-          bar.style.width = width + "%";
-        }
-      }, 80);
-
-      try {
-        const response = await fetch("/api/analyze", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ text }),
-        });
-
-        const data = await response.json();
-        analyzing.style.display = "none";
-        result.style.color = "var(--text)";
-        result.innerHTML = data.result || "❌ Eroare: fără răspuns GPT-5.";
-      } catch (err) {
-        analyzing.style.display = "none";
-        result.style.color = "var(--bad)";
-        result.innerHTML = "❌ Eroare la conexiunea cu API-ul.";
-      }
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const ctx = document.getElementById("chart").getContext("2d");
+  const chart = new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels: ["Fc (Coeziune)", "Δ (Vibrație)", "Manipulare %"],
+      datasets: [{
+        label: "Valori analiză",
+        data: [0, 0, 0],
+        backgroundColor: ["#00ffb7", "#ffcc00", "#ff3366"]
+      }]
+    },
+    options: {
+      scales: {
+        y: { beginAtZero: true, max: 6.3, ticks: { color: "#ccc" } },
+        x: { ticks: { color: "#ccc" } }
+      },
+      plugins: { legend: { display: false } }
     }
-  </script>
+  });
+
+  const verdictBar = document.getElementById("verdictBar");
+  const resultDiv = document.getElementById("result");
+
+  // ✅ verdict text mare
+  const verdictText = document.createElement("div");
+  verdictText.style.fontSize = "1.4em";
+  verdictText.style.fontWeight = "bold";
+  verdictText.style.marginTop = "0.8em";
+  verdictText.style.transition = "color 0.4s";
+  document.body.insertBefore(verdictText, verdictBar);
+
+  document.getElementById("analyzeBtn").addEventListener("click", async () => {
+    const text = document.getElementById("textInput").value.trim();
+    if (!text) {
+      resultDiv.textContent = "⚠️ Introdu un text pentru analiză.";
+      return;
+    }
+
+    resultDiv.textContent = "⏳ Analiză în curs...";
+    verdictBar.style.background = "#444";
+    verdictText.textContent = "";
+
+    try {
+      const response = await fetch("/api/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ textDeAnalizat: text }),
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        const { fc, delta, manipulare, text: rezumat } = data.rezultat;
+        resultDiv.textContent = rezumat;
+
+        chart.data.datasets[0].data = [fc, delta, manipulare];
+        chart.update();
+
+        // 🧠 Verdict vizual + text logic
+        let verdictColor = "#00ffb7";
+        let verdictMsg = "✅ Veridic / Coeziv";
+
+        if (rezumat.toLowerCase().includes("fals") || rezumat.toLowerCase().includes("dezinformare")) {
+          verdictColor = "#ff3366";
+          verdictMsg = "🔴 Fals logic / Dezinformare";
+        } else if (rezumat.toLowerCase().includes("ambiguu") || manipulare > 25) {
+          verdictColor = "#ffcc00";
+          verdictMsg = "⚠️ Ambiguu / Incomplet";
+        } else if (rezumat.toLowerCase().includes("veridic") || manipulare < 20) {
+          verdictColor = "#00ffb7";
+          verdictMsg = "✅ Veridic / Coeziv";
+        }
+
+        verdictBar.style.background = verdictColor;
+        verdictText.textContent = verdictMsg;
+        verdictText.style.color = verdictColor;
+      } else {
+        resultDiv.textContent = "❌ Eroare: " + data.error;
+        verdictText.textContent = "❌ Eroare API";
+        verdictBar.style.background = "#ff3366";
+      }
+    } catch (err) {
+      resultDiv.textContent = "⚠️ Eroare de conexiune cu motorul GPT.";
+      verdictBar.style.background = "#ff3366";
+      verdictText.textContent = "⚠️ Eroare conexiune";
+      verdictText.style.color = "#ff3366";
+    }
+  });
+</script>
 </body>
 </html>
+
