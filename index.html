@@ -7,112 +7,143 @@
   <style>
     body {
       background-color: #0d1117;
-      color: #d0d6db;
+      color: #c9d1d9;
       font-family: "Segoe UI", sans-serif;
       text-align: center;
-      padding: 2rem;
+      padding: 2rem 1rem;
     }
-    h1 { color: #00ffb3; }
+    h1 {
+      color: #00ffb7;
+      font-size: 2rem;
+      margin-bottom: 0.3rem;
+    }
+    h2 {
+      font-size: 1rem;
+      font-weight: 400;
+      color: #9ba1a6;
+      margin-top: 0;
+    }
     textarea {
       width: 90%;
+      max-width: 600px;
       height: 100px;
-      margin-top: 1rem;
       background: #161b22;
-      color: #c9d1d9;
-      border: 1px solid #00ffb3;
-      border-radius: 8px;
-      padding: 1rem;
+      color: #fff;
+      border: 1px solid #00ffb7;
+      border-radius: 10px;
+      padding: 10px;
+      font-size: 1rem;
+      margin-bottom: 1rem;
+      resize: none;
     }
     button {
-      background: #00ffb3;
+      background-color: #00ffb7;
+      color: #000;
+      font-weight: bold;
       border: none;
-      padding: 0.8rem 2rem;
-      border-radius: 8px;
-      margin-top: 1rem;
-      cursor: pointer;
+      border-radius: 10px;
+      padding: 10px 25px;
       font-size: 1rem;
+      cursor: pointer;
+      transition: 0.2s ease;
     }
-    .result {
-      margin-top: 2rem;
-      padding: 1rem;
+    button:hover {
+      background-color: #00dba0;
+    }
+    #result {
+      margin-top: 1rem;
       background: #161b22;
       border-radius: 12px;
+      padding: 1rem;
+      width: 90%;
       max-width: 700px;
       margin-left: auto;
       margin-right: auto;
-      text-align: left;
-      line-height: 1.5;
+      box-shadow: 0 0 10px #00ffb766;
     }
-    .history {
-      margin-top: 2rem;
-      text-align: left;
-      color: #9aa1a9;
+    .chart {
+      display: flex;
+      justify-content: space-around;
+      align-items: flex-end;
+      height: 150px;
+      margin-top: 1rem;
+    }
+    .bar {
+      width: 70px;
+      border-radius: 8px 8px 0 0;
+      transition: height 0.6s ease, background-color 0.6s ease;
+    }
+    .label {
+      margin-top: 5px;
       font-size: 0.9rem;
-      max-width: 700px;
-      margin-left: auto;
-      margin-right: auto;
     }
   </style>
 </head>
 <body>
   <h1>Formula 3.14Δ</h1>
-  <p>Motor de analiză informațională — GPT-5</p>
+  <h2>Motor de analiză informațională — GPT-5</h2>
 
-  <textarea id="inputText" placeholder="Introdu textul pentru analiză..."></textarea>
-  <br />
+  <textarea id="textInput" placeholder="Introdu un text pentru analiză..."></textarea><br />
   <button id="analyzeBtn">🔍 Analizează</button>
 
-  <div id="result" class="result"></div>
-  <div class="history" id="history"></div>
+  <div id="result" style="display: none">
+    <h3>🧠 Rezumat GPT:</h3>
+    <p id="interpretation">–</p>
+    <hr style="border: 1px solid #00ffb766" />
+    <p>Δ (vibrație semantică): <span id="delta"></span></p>
+    <p>Fc (coeziune logică): <span id="fc"></span></p>
+    <p>Manipulare probabilă: <span id="manipulation"></span>%</p>
+
+    <div class="chart">
+      <div>
+        <div class="bar" id="barFc" style="background:#00ffb7;height:0"></div>
+        <div class="label">Fc</div>
+      </div>
+      <div>
+        <div class="bar" id="barDelta" style="background:#ffcc00;height:0"></div>
+        <div class="label">Δ</div>
+      </div>
+      <div>
+        <div class="bar" id="barManip" style="background:#ff0055;height:0"></div>
+        <div class="label">Manipulare</div>
+      </div>
+    </div>
+  </div>
 
   <script>
-    async function analyzeText() {
-      const text = document.getElementById("inputText").value.trim();
-      if (!text) return alert("Introdu un text.");
+    document.getElementById("analyzeBtn").addEventListener("click", async () => {
+      const text = document.getElementById("textInput").value.trim();
+      if (!text) return alert("Introdu un text pentru analiză.");
 
-      const resultDiv = document.getElementById("result");
-      resultDiv.innerHTML = "Analiză în curs... 🧠";
+      const resDiv = document.getElementById("result");
+      resDiv.style.display = "block";
+      document.getElementById("interpretation").innerText = "Analiză în curs...";
 
-      const res = await fetch("/api/analyze", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text }),
-      });
+      try {
+        const response = await fetch("/api/analyze", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text }),
+        });
 
-      const data = await res.json();
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || "Eroare necunoscută.");
 
-      if (data.error) {
-        resultDiv.innerHTML = "❌ " + data.error;
-        return;
+        document.getElementById("delta").innerText = data.delta;
+        document.getElementById("fc").innerText = data.fc;
+        document.getElementById("manipulation").innerText = data.manipulation;
+        document.getElementById("interpretation").innerText = data.interpretation;
+
+        // Grafic adaptiv
+        document.getElementById("barFc").style.height = `${data.fc * 40}px`;
+        document.getElementById("barDelta").style.height = `${data.delta * 40}px`;
+        document.getElementById("barManip").style.height = `${(data.manipulation / 20) * 40}px`;
+
+      } catch (err) {
+        document.getElementById("interpretation").innerText =
+          "Eroare la analiză: " + err.message;
       }
-
-      const output = `
-        <strong>Rezumat GPT:</strong><br>${data.interpretation}<br><br>
-        <strong>Δ (vibrație semantică):</strong> ${data.Delta}<br>
-        <strong>Fc (coeziune logică):</strong> ${data.Fc}<br>
-        <strong>Manipulare probabilă:</strong> ${data.Manipulare}%
-      `;
-      resultDiv.innerHTML = output;
-
-      // salvează în istoric local
-      let hist = JSON.parse(localStorage.getItem("analyses") || "[]");
-      hist.unshift({ text, output, date: new Date().toLocaleString() });
-      hist = hist.slice(0, 5);
-      localStorage.setItem("analyses", JSON.stringify(hist));
-      showHistory();
-    }
-
-    function showHistory() {
-      const histDiv = document.getElementById("history");
-      const hist = JSON.parse(localStorage.getItem("analyses") || "[]");
-      if (!hist.length) return;
-      histDiv.innerHTML =
-        "<h3>🧠 Analize recente:</h3>" +
-        hist.map(h => `<p><strong>${h.date}</strong><br>${h.text}<br>${h.output}</p>`).join("<hr>");
-    }
-
-    document.getElementById("analyzeBtn").addEventListener("click", analyzeText);
-    showHistory();
+    });
   </script>
 </body>
 </html>
