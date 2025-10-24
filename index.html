@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Motor de analiză informațională – GPT-5</title>
+  <title>Formula 3.14Δ – Motor de analiză informațională</title>
   <style>
     :root {
       --bg: #0d1117;
@@ -22,7 +22,7 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      height: 100vh;
+      min-height: 100vh;
       margin: 0;
       padding: 1rem;
       text-align: center;
@@ -31,7 +31,7 @@
     h1 {
       color: var(--good);
       font-size: 1.6rem;
-      margin-bottom: 0.5rem;
+      margin-bottom: 1rem;
     }
 
     textarea {
@@ -84,9 +84,15 @@
     }
 
     .result {
-      margin-top: 1rem;
-      font-size: 1.3rem;
-      font-weight: bold;
+      margin-top: 1.2rem;
+      font-size: 1rem;
+      background: var(--panel);
+      padding: 1rem;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 600px;
+      white-space: pre-wrap;
+      text-align: left;
     }
 
     .analyzing {
@@ -104,10 +110,10 @@
   </style>
 </head>
 <body>
-  <h1>Motor de analiză informațională – GPT-5</h1>
+  <h1>Formula 3.14Δ – Motor de analiză informațională</h1>
 
   <textarea id="inputText" placeholder="Introdu textul pentru analiză..."></textarea>
-  <button onclick="analyzeText()">Analizează</button>
+  <button onclick="analyzeText()">🔍 Analizează</button>
 
   <div class="progress-container">
     <div class="progress-bar" id="progressBar"></div>
@@ -117,14 +123,14 @@
   <div class="result" id="result"></div>
 
   <script>
-    function analyzeText() {
+    async function analyzeText() {
       const text = document.getElementById("inputText").value.trim();
       const result = document.getElementById("result");
       const bar = document.getElementById("progressBar");
       const analyzing = document.getElementById("analyzingText");
 
       if (!text) {
-        result.innerHTML = "Introdu un text pentru analiză.";
+        result.innerHTML = "⚠️ Introdu un text pentru analiză.";
         result.style.color = "var(--bad)";
         return;
       }
@@ -135,26 +141,29 @@
 
       let width = 0;
       const interval = setInterval(() => {
-        if (width >= 100) {
-          clearInterval(interval);
-          analyzing.style.display = "none";
-          
-          // Simulare analiză logică rapidă:
-          const fc = Math.random() * 1; // coeziune logică
-          const delta = Math.random() * 1; // vibrație semantică
-          const manipulare = Math.random() * 1; // nivel de manipulare
-
-          const indice = (fc + (1 - manipulare) + (1 - Math.abs(0.5 - delta))) / 3;
-          const verdict = indice > 0.55 ? "COERENT / ADEVĂRAT" : "FALS / DEZINFORMARE";
-          const color = indice > 0.55 ? "var(--good)" : "var(--bad)";
-
-          result.style.color = color;
-          result.innerHTML = `${verdict}<br><small>Fc: ${fc.toFixed(2)} | Δ: ${delta.toFixed(2)} | Manipulare: ${manipulare.toFixed(2)}</small>`;
-        } else {
+        if (width >= 100) clearInterval(interval);
+        else {
           width += 5;
           bar.style.width = width + "%";
         }
-      }, 90);
+      }, 80);
+
+      try {
+        const response = await fetch("/api/analyze", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text }),
+        });
+
+        const data = await response.json();
+        analyzing.style.display = "none";
+        result.style.color = "var(--text)";
+        result.innerHTML = data.result || "❌ Eroare: fără răspuns GPT-5.";
+      } catch (err) {
+        analyzing.style.display = "none";
+        result.style.color = "var(--bad)";
+        result.innerHTML = "❌ Eroare la conexiunea cu API-ul.";
+      }
     }
   </script>
 </body>
