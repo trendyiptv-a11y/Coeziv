@@ -1,63 +1,62 @@
-export const config = { runtime: "edge" };
+import OpenAI from "openai";
 
-export default async function handler(req) {
+const client = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+
+export default async function handler(req, res) {
   if (req.method !== "POST") {
-    return new Response(JSON.stringify({ error: "Method not allowed" }), {
-      status: 405,
-      headers: { "Content-Type": "application/json" },
-    });
+    return res.status(405).json({ error: "Method not allowed" });
   }
 
   try {
-    const { text } = await req.json();
+    const { text } = req.body;
 
-    // Trimite textul către GPT pentru analiză autentică
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-      },
-      body: JSON.stringify({
-        model: "gpt-5",
-        messages: [
-          {
-            role: "system",
-            content:
-              "Ești motorul de analiză Formula 3.14Δ — Detector de Informații Viu. Analizează fiecare text strict pe baza coerenței logice, intenției, biasului și nivelului de manipulare. Nu fi poetic, ci precis, logic și echilibrat.",
-          },
-          { role: "user", content: text },
-        ],
-        max_completion_tokens: 300,
-        temperature: 1.0, // autentic, fără distorsiuni
-      }),
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      return new Response(
-        JSON.stringify({ error: data.error?.message || "Eroare GPT" }),
-        { status: response.status, headers: { "Content-Type": "application/json" } }
-      );
+    if (!text || text.trim().length === 0) {
+      return res.status(400).json({ error: "Textul nu poate fi gol." });
     }
 
-    const interpretation = data.choices?.[0]?.message?.content?.trim() || "Fără interpretare.";
+    // Calcule interne - Formula Coeziunii 3.14Δ
+    const words = text.trim().split(/\s+/).length;
+    const letters = text.replace(/\s+/g, "").length;
 
-    return new Response(
-      JSON.stringify({
-        text,
-        interpretation,
-        Fc: (Math.random() * 3 + 2).toFixed(2),
-        Delta: (Math.random() * 0.5).toFixed(2),
-        Manipulare: (Math.random() * 60).toFixed(2),
-      }),
-      { status: 200, headers: { "Content-Type": "application/json" } }
-    );
+    const delta = Math.abs(Math.sin(letters / words)).toFixed(2);
+    const fc = ((letters / words) % 3.14).toFixed(2);
+    const manipulation = ((Math.abs(fc - delta) / 3.14) * 100).toFixed(2);
+
+    // Solicitare către GPT-5 (sau gpt-4o)
+    const gptResponse = await client.chat.completions.create({
+      model: "gpt-4o-mini",
+      max_completion_tokens: 300,
+      messages: [
+        {
+          role: "system",
+          content:
+            "Ești un evaluator logic și semantic. Analizează textul primit și explică gradul de veridicitate, coerență și eventual bias sau intenție manipulatoare. Fii clar și neutru.",
+        },
+        {
+          role: "user",
+          content: `Analizează următorul text: "${text}". Oferă un scurt rezumat obiectiv.`,
+        },
+      ],
+    });
+
+    // Extragem interpretarea din răspunsul GPT-5
+    const interpretation =
+      gptResponse.choices?.[0]?.message?.content || "Fără interpretare.";
+
+    // Returnăm rezultatul complet
+    return res.status(200).json({
+      delta,
+      fc,
+      manipulation,
+      interpretation,
+    });
   } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" },
+    console.error("Eroare GPT:", error);
+    return res.status(500).json({
+      error: "Eroare la interpretarea GPT-5",
+      details: error.message,
     });
   }
 }
