@@ -28,7 +28,7 @@ export default async function handler(req) {
           },
           { role: "user", content: text },
         ],
-        max_tokens: 400,
+        max_completion_tokens: 300,
         temperature: 1.0, // autentic, fără distorsiuni
       }),
     });
