@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Formula 3.14Δ – Detector de informații</title>
+  <title>Formula 3.14Δ — Detector de Informații Viu</title>
   <style>
     body {
       background: #0d1117;
@@ -64,6 +64,19 @@
       margin-top: 1em;
       background: #0d1117;
     }
+    .verdict-bar {
+      margin: 1em auto;
+      width: 90%;
+      max-width: 500px;
+      height: 25px;
+      border-radius: 10px;
+      transition: background 0.5s;
+    }
+    .legend {
+      margin-top: 0.6em;
+      color: #aaa;
+      font-size: 0.9em;
+    }
     footer {
       margin-top: 1em;
       color: #777;
@@ -73,14 +86,19 @@
 </head>
 <body>
   <h1>Formula 3.14Δ</h1>
-  <p>Motor de analiză informațională – GPT-5</p>
+  <p>Motor de analiză informațională — GPT-5</p>
 
   <textarea id="textInput" placeholder="Introdu textul pentru analiză..."></textarea>
   <br />
   <button id="analyzeBtn">Analizează</button>
 
   <div class="result" id="result">Aici vor apărea rezultatele...</div>
+  <div class="verdict-bar" id="verdictBar"></div>
   <canvas id="chart" width="320" height="180"></canvas>
+
+  <div class="legend">
+    ✅ Verde = Veridic / Coeziv | ⚠️ Galben = Ambiguu / incert | 🔴 Roșu = Fals / Manipulator
+  </div>
 
   <footer>© 2025 Formula 3.14Δ — Sergiu Bulboacă</footer>
 
@@ -106,15 +124,18 @@
       }
     });
 
+    const verdictBar = document.getElementById("verdictBar");
+    const resultDiv = document.getElementById("result");
+
     document.getElementById("analyzeBtn").addEventListener("click", async () => {
       const text = document.getElementById("textInput").value.trim();
-      const resultDiv = document.getElementById("result");
       if (!text) {
         resultDiv.textContent = "⚠️ Introdu un text pentru analiză.";
         return;
       }
 
       resultDiv.textContent = "⏳ Analiză în curs...";
+      verdictBar.style.background = "#444";
 
       try {
         const response = await fetch("/api/analyze", {
@@ -125,18 +146,24 @@
 
         const data = await response.json();
         if (data.success) {
-          resultDiv.textContent = data.rezultat.text;
-          chart.data.datasets[0].data = [
-            data.rezultat.fc,
-            data.rezultat.delta,
-            data.rezultat.manipulare
-          ];
+          const { fc, delta, manipulare, text: rezumat } = data.rezultat;
+          resultDiv.textContent = rezumat;
+
+          chart.data.datasets[0].data = [fc, delta, manipulare];
           chart.update();
+
+          // 🧠 Verdict vizual
+          let verdictColor = "#00ffb7"; // verde
+          if (manipulare > 40) verdictColor = "#ff3366"; // roșu
+          else if (manipulare > 20) verdictColor = "#ffcc00"; // galben
+
+          verdictBar.style.background = verdictColor;
         } else {
           resultDiv.textContent = "❌ Eroare: " + data.error;
         }
       } catch (err) {
         resultDiv.textContent = "⚠️ Eroare de conexiune cu motorul GPT.";
+        verdictBar.style.background = "#ff3366";
       }
     });
   </script>
