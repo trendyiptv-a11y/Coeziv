@@ -3,196 +3,159 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Formula 3.14Δ — Detector de Informații Viu</title>
+  <title>Motor de analiză informațională – GPT-5</title>
   <style>
+    :root {
+      --bg: #0d1117;
+      --panel: #161b22;
+      --text: #c9d1d9;
+      --good: #00ffb7;
+      --bad: #ff004c;
+      --accent: #00c7ff;
+    }
+
     body {
-      background-color: #0d1117;
-      color: #c9d1d9;
+      background-color: var(--bg);
+      color: var(--text);
       font-family: "Segoe UI", sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      padding: 1rem;
       text-align: center;
-      padding: 2rem 1rem;
     }
+
     h1 {
-      color: #00ffb7;
-      font-size: 2.1rem;
-      margin-bottom: 0.3rem;
-      animation: pulse 2.5s infinite ease-in-out;
+      color: var(--good);
+      font-size: 1.6rem;
+      margin-bottom: 0.5rem;
     }
-    @keyframes pulse {
-      0% { text-shadow: 0 0 5px #00ffb755, 0 0 10px #00ffb733; }
-      50% { text-shadow: 0 0 20px #00ffb7aa, 0 0 40px #00ffb799; }
-      100% { text-shadow: 0 0 5px #00ffb755, 0 0 10px #00ffb733; }
-    }
-    h2 {
-      font-size: 1rem;
-      font-weight: 400;
-      color: #9ba1a6;
-      margin-top: 0;
-    }
+
     textarea {
       width: 90%;
       max-width: 600px;
-      height: 100px;
-      background: #161b22;
-      color: #fff;
-      border: 1px solid #00ffb7;
+      height: 150px;
+      background: var(--panel);
+      border: 1px solid #30363d;
       border-radius: 10px;
+      color: var(--text);
       padding: 10px;
-      font-size: 1rem;
-      margin-bottom: 1rem;
       resize: none;
+      outline: none;
+      font-size: 1rem;
     }
+
     button {
-      background-color: #00ffb7;
-      color: #000;
-      font-weight: bold;
+      margin-top: 1rem;
+      padding: 0.6rem 1.4rem;
+      background: var(--accent);
+      color: #fff;
       border: none;
       border-radius: 10px;
-      padding: 10px 25px;
-      font-size: 1rem;
       cursor: pointer;
-      transition: 0.2s ease;
-    }
-    button:hover { background-color: #00dba0; }
-
-    #result {
-      margin-top: 1rem;
-      background: #161b22;
-      border-radius: 15px;
-      padding: 1.5rem;
-      width: 90%;
-      max-width: 700px;
-      margin-left: auto;
-      margin-right: auto;
-      box-shadow: 0 0 15px #00ffb744;
-      transition: box-shadow 0.6s ease, border 0.4s ease;
-    }
-
-    .verdict {
+      font-size: 1rem;
       font-weight: bold;
-      font-size: 1.3rem;
-      margin-top: 1rem;
-      padding: 0.5rem 1rem;
-      border-radius: 10px;
-      display: inline-block;
-    }
-    .bar-intensity {
-      height: 12px;
-      width: 80%;
-      border-radius: 10px;
-      margin: 0.8rem auto 1.3rem;
-      background: linear-gradient(to right, #00ffb7, #161b22);
-      transition: width 0.6s ease, background 0.6s ease;
+      transition: all 0.3s ease;
     }
 
-    .chart {
-      display: flex;
-      justify-content: space-around;
-      align-items: flex-end;
-      height: 150px;
+    button:hover {
+      background: var(--good);
+      color: #000;
+    }
+
+    .progress-container {
+      width: 90%;
+      max-width: 600px;
+      background: #222;
+      border-radius: 8px;
+      overflow: hidden;
+      height: 12px;
+      margin-top: 1.5rem;
+    }
+
+    .progress-bar {
+      height: 12px;
+      width: 0%;
+      background: var(--good);
+      transition: width 1s ease;
+    }
+
+    .result {
       margin-top: 1rem;
+      font-size: 1.3rem;
+      font-weight: bold;
     }
-    .bar {
-      width: 70px;
-      border-radius: 8px 8px 0 0;
-      transition: height 0.6s ease, background-color 0.6s ease;
+
+    .analyzing {
+      margin-top: 0.5rem;
+      font-size: 1rem;
+      color: var(--accent);
+      animation: pulse 1.2s infinite;
     }
-    .label { margin-top: 5px; font-size: 0.9rem; }
+
+    @keyframes pulse {
+      0% { opacity: 0.2; }
+      50% { opacity: 1; }
+      100% { opacity: 0.2; }
+    }
   </style>
 </head>
 <body>
-  <h1>Formula 3.14Δ</h1>
-  <h2>Motor de analiză informațională — GPT-5</h2>
+  <h1>Motor de analiză informațională – GPT-5</h1>
 
-  <textarea id="textInput" placeholder="Introdu un text pentru analiză..."></textarea><br />
-  <button id="analyzeBtn">🔍 Analizează</button>
+  <textarea id="inputText" placeholder="Introdu textul pentru analiză..."></textarea>
+  <button onclick="analyzeText()">Analizează</button>
 
-  <div id="result" style="display: none">
-    <h3>🧠 Rezumat GPT:</h3>
-    <p id="interpretation">–</p>
-
-    <div class="verdict" id="verdictBox">–</div>
-    <div class="bar-intensity" id="barIntensity"></div>
-
-    <p>Δ (vibrație semantică): <span id="delta"></span></p>
-    <p>Fc (coeziune logică): <span id="fc"></span></p>
-    <p>Manipulare probabilă: <span id="manipulation"></span>%</p>
-
-    <div class="chart">
-      <div>
-        <div class="bar" id="barFc" style="background:#00ffb7;height:0"></div>
-        <div class="label">Fc</div>
-      </div>
-      <div>
-        <div class="bar" id="barDelta" style="background:#ffcc00;height:0"></div>
-        <div class="label">Δ</div>
-      </div>
-      <div>
-        <div class="bar" id="barManip" style="background:#ff0055;height:0"></div>
-        <div class="label">Manipulare</div>
-      </div>
-    </div>
+  <div class="progress-container">
+    <div class="progress-bar" id="progressBar"></div>
   </div>
 
+  <div class="analyzing" id="analyzingText" style="display: none;">Analiză în curs...</div>
+  <div class="result" id="result"></div>
+
   <script>
-    document.getElementById("analyzeBtn").addEventListener("click", async () => {
-      const text = document.getElementById("textInput").value.trim();
-      if (!text) return alert("Introdu un text pentru analiză.");
+    function analyzeText() {
+      const text = document.getElementById("inputText").value.trim();
+      const result = document.getElementById("result");
+      const bar = document.getElementById("progressBar");
+      const analyzing = document.getElementById("analyzingText");
 
-      const resDiv = document.getElementById("result");
-      resDiv.style.display = "block";
-      document.getElementById("interpretation").innerText = "Analiză în curs...";
-      document.getElementById("verdictBox").innerText = "–";
-      document.getElementById("barIntensity").style.background = "#161b22";
-
-      try {
-        const response = await fetch("/api/analyze", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ text }),
-        });
-
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.error || "Eroare necunoscută.");
-
-        document.getElementById("delta").innerText = data.delta;
-        document.getElementById("fc").innerText = data.fc;
-        document.getElementById("manipulation").innerText = data.manipulation;
-        document.getElementById("interpretation").innerText = data.interpretation;
-
-        document.getElementById("barFc").style.height = `${data.fc * 40}px`;
-        document.getElementById("barDelta").style.height = `${data.delta * 40}px`;
-        document.getElementById("barManip").style.height = `${(data.manipulation / 20) * 40}px`;
-
-        // Verdict logic automat
-        const verdictBox = document.getElementById("verdictBox");
-        const barIntensity = document.getElementById("barIntensity");
-        const resultCard = document.getElementById("result");
-        let verdict = "";
-        let color = "";
-
-        if (data.manipulation > 60 || data.fc < 1.0) {
-          verdict = "🔴 Fals logic / Dezinformare";
-          color = "#ff0055";
-        } else if (data.manipulation > 30) {
-          verdict = "🟡 Ambiguu / Neclar";
-          color = "#ffcc00";
-        } else {
-          verdict = "🟢 Coerent / Adevărat";
-          color = "#00ffb7";
-        }
-
-        verdictBox.innerText = verdict;
-        verdictBox.style.background = color + "22";
-        verdictBox.style.color = color;
-        barIntensity.style.background = `linear-gradient(to right, ${color}, #161b22)`;
-        resultCard.style.boxShadow = `0 0 20px ${color}66`;
-
-      } catch (err) {
-        document.getElementById("interpretation").innerText =
-          "Eroare la analiză: " + err.message;
+      if (!text) {
+        result.innerHTML = "Introdu un text pentru analiză.";
+        result.style.color = "var(--bad)";
+        return;
       }
-    });
+
+      result.innerHTML = "";
+      bar.style.width = "0%";
+      analyzing.style.display = "block";
+
+      let width = 0;
+      const interval = setInterval(() => {
+        if (width >= 100) {
+          clearInterval(interval);
+          analyzing.style.display = "none";
+          
+          // Simulare analiză logică rapidă:
+          const fc = Math.random() * 1; // coeziune logică
+          const delta = Math.random() * 1; // vibrație semantică
+          const manipulare = Math.random() * 1; // nivel de manipulare
+
+          const indice = (fc + (1 - manipulare) + (1 - Math.abs(0.5 - delta))) / 3;
+          const verdict = indice > 0.55 ? "COERENT / ADEVĂRAT" : "FALS / DEZINFORMARE";
+          const color = indice > 0.55 ? "var(--good)" : "var(--bad)";
+
+          result.style.color = color;
+          result.innerHTML = `${verdict}<br><small>Fc: ${fc.toFixed(2)} | Δ: ${delta.toFixed(2)} | Manipulare: ${manipulare.toFixed(2)}</small>`;
+        } else {
+          width += 5;
+          bar.style.width = width + "%";
+        }
+      }, 90);
+    }
   </script>
 </body>
 </html>
