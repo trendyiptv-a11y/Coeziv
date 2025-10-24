@@ -14,8 +14,14 @@
     }
     h1 {
       color: #00ffb7;
-      font-size: 2rem;
+      font-size: 2.1rem;
       margin-bottom: 0.3rem;
+      animation: pulse 2.5s infinite ease-in-out;
+    }
+    @keyframes pulse {
+      0% { text-shadow: 0 0 5px #00ffb755, 0 0 10px #00ffb733; }
+      50% { text-shadow: 0 0 20px #00ffb7aa, 0 0 40px #00ffb799; }
+      100% { text-shadow: 0 0 5px #00ffb755, 0 0 10px #00ffb733; }
     }
     h2 {
       font-size: 1rem;
@@ -47,20 +53,38 @@
       cursor: pointer;
       transition: 0.2s ease;
     }
-    button:hover {
-      background-color: #00dba0;
-    }
+    button:hover { background-color: #00dba0; }
+
     #result {
       margin-top: 1rem;
       background: #161b22;
-      border-radius: 12px;
-      padding: 1rem;
+      border-radius: 15px;
+      padding: 1.5rem;
       width: 90%;
       max-width: 700px;
       margin-left: auto;
       margin-right: auto;
-      box-shadow: 0 0 10px #00ffb766;
+      box-shadow: 0 0 15px #00ffb744;
+      transition: box-shadow 0.6s ease, border 0.4s ease;
     }
+
+    .verdict {
+      font-weight: bold;
+      font-size: 1.3rem;
+      margin-top: 1rem;
+      padding: 0.5rem 1rem;
+      border-radius: 10px;
+      display: inline-block;
+    }
+    .bar-intensity {
+      height: 12px;
+      width: 80%;
+      border-radius: 10px;
+      margin: 0.8rem auto 1.3rem;
+      background: linear-gradient(to right, #00ffb7, #161b22);
+      transition: width 0.6s ease, background 0.6s ease;
+    }
+
     .chart {
       display: flex;
       justify-content: space-around;
@@ -73,10 +97,7 @@
       border-radius: 8px 8px 0 0;
       transition: height 0.6s ease, background-color 0.6s ease;
     }
-    .label {
-      margin-top: 5px;
-      font-size: 0.9rem;
-    }
+    .label { margin-top: 5px; font-size: 0.9rem; }
   </style>
 </head>
 <body>
@@ -89,7 +110,10 @@
   <div id="result" style="display: none">
     <h3>🧠 Rezumat GPT:</h3>
     <p id="interpretation">–</p>
-    <hr style="border: 1px solid #00ffb766" />
+
+    <div class="verdict" id="verdictBox">–</div>
+    <div class="bar-intensity" id="barIntensity"></div>
+
     <p>Δ (vibrație semantică): <span id="delta"></span></p>
     <p>Fc (coeziune logică): <span id="fc"></span></p>
     <p>Manipulare probabilă: <span id="manipulation"></span>%</p>
@@ -118,6 +142,8 @@
       const resDiv = document.getElementById("result");
       resDiv.style.display = "block";
       document.getElementById("interpretation").innerText = "Analiză în curs...";
+      document.getElementById("verdictBox").innerText = "–";
+      document.getElementById("barIntensity").style.background = "#161b22";
 
       try {
         const response = await fetch("/api/analyze", {
@@ -134,10 +160,33 @@
         document.getElementById("manipulation").innerText = data.manipulation;
         document.getElementById("interpretation").innerText = data.interpretation;
 
-        // Grafic adaptiv
         document.getElementById("barFc").style.height = `${data.fc * 40}px`;
         document.getElementById("barDelta").style.height = `${data.delta * 40}px`;
         document.getElementById("barManip").style.height = `${(data.manipulation / 20) * 40}px`;
+
+        // Verdict logic automat
+        const verdictBox = document.getElementById("verdictBox");
+        const barIntensity = document.getElementById("barIntensity");
+        const resultCard = document.getElementById("result");
+        let verdict = "";
+        let color = "";
+
+        if (data.manipulation > 60 || data.fc < 1.0) {
+          verdict = "🔴 Fals logic / Dezinformare";
+          color = "#ff0055";
+        } else if (data.manipulation > 30) {
+          verdict = "🟡 Ambiguu / Neclar";
+          color = "#ffcc00";
+        } else {
+          verdict = "🟢 Coerent / Adevărat";
+          color = "#00ffb7";
+        }
+
+        verdictBox.innerText = verdict;
+        verdictBox.style.background = color + "22";
+        verdictBox.style.color = color;
+        barIntensity.style.background = `linear-gradient(to right, ${color}, #161b22)`;
+        resultCard.style.boxShadow = `0 0 20px ${color}66`;
 
       } catch (err) {
         document.getElementById("interpretation").innerText =
