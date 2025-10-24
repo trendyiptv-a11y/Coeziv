@@ -27,7 +27,6 @@ export default async function handler(req, res) {
 
     const completion = await client.chat.completions.create({
       model: "gpt-5",
-      temperature: 0.4,
       messages: [
         { role: "system", content: SYSTEM_PROMPT },
         { role: "user", content: textDeAnalizat }
