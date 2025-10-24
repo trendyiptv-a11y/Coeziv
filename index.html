@@ -6,81 +6,51 @@
   <title>Formula 3.14Δ — Detector de Informații Viu</title>
   <style>
     body {
-      background: #0d1117;
-      color: #e6edf3;
+      background-color: #0d1117;
+      color: #d0d6db;
       font-family: "Segoe UI", sans-serif;
       text-align: center;
-      margin: 0;
-      padding: 1em;
+      padding: 2rem;
     }
-    h1 {
-      color: #00ffb7;
-      margin-bottom: 0.1em;
-    }
-    p {
-      color: #9ba1a6;
-      margin-top: 0;
-    }
+    h1 { color: #00ffb3; }
     textarea {
-      width: 95%;
-      max-width: 650px;
-      height: 180px;
+      width: 90%;
+      height: 100px;
+      margin-top: 1rem;
       background: #161b22;
       color: #c9d1d9;
-      border: 1px solid #30363d;
-      border-radius: 10px;
-      padding: 1em;
-      font-size: 1em;
-      resize: none;
+      border: 1px solid #00ffb3;
+      border-radius: 8px;
+      padding: 1rem;
     }
     button {
-      margin-top: 1em;
-      background: #00ffb7;
-      color: #000;
+      background: #00ffb3;
       border: none;
+      padding: 0.8rem 2rem;
       border-radius: 8px;
-      padding: 0.8em 1.6em;
+      margin-top: 1rem;
       cursor: pointer;
-      font-weight: bold;
-      font-size: 1em;
-      transition: background 0.2s;
-    }
-    button:hover {
-      background: #00cc8f;
+      font-size: 1rem;
     }
     .result {
-      margin: 1.5em auto;
-      width: 95%;
-      max-width: 700px;
+      margin-top: 2rem;
+      padding: 1rem;
       background: #161b22;
-      padding: 1.5em;
       border-radius: 12px;
-      border: 1px solid #30363d;
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
       text-align: left;
       line-height: 1.5;
-      white-space: pre-wrap;
     }
-    canvas {
-      margin-top: 1em;
-      background: #0d1117;
-    }
-    .verdict-bar {
-      margin: 1em auto;
-      width: 90%;
-      max-width: 500px;
-      height: 25px;
-      border-radius: 10px;
-      transition: background 0.5s;
-    }
-    .legend {
-      margin-top: 0.6em;
-      color: #aaa;
-      font-size: 0.9em;
-    }
-    footer {
-      margin-top: 1em;
-      color: #777;
-      font-size: 0.9em;
+    .history {
+      margin-top: 2rem;
+      text-align: left;
+      color: #9aa1a9;
+      font-size: 0.9rem;
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
     }
   </style>
 </head>
@@ -88,111 +58,61 @@
   <h1>Formula 3.14Δ</h1>
   <p>Motor de analiză informațională — GPT-5</p>
 
-  <textarea id="textInput" placeholder="Introdu textul pentru analiză..."></textarea>
+  <textarea id="inputText" placeholder="Introdu textul pentru analiză..."></textarea>
   <br />
-  <button id="analyzeBtn">Analizează</button>
+  <button id="analyzeBtn">🔍 Analizează</button>
 
-  <div class="result" id="result">Aici vor apărea rezultatele...</div>
-  <div class="verdict-bar" id="verdictBar"></div>
-  <canvas id="chart" width="320" height="180"></canvas>
+  <div id="result" class="result"></div>
+  <div class="history" id="history"></div>
 
-  <div class="legend">
-    ✅ Verde = Veridic / Coeziv | ⚠️ Galben = Ambiguu / incert | 🔴 Roșu = Fals / Manipulator
-  </div>
+  <script>
+    async function analyzeText() {
+      const text = document.getElementById("inputText").value.trim();
+      if (!text) return alert("Introdu un text.");
 
-  <footer>© 2025 Formula 3.14Δ — Sergiu Bulboacă</footer>
+      const resultDiv = document.getElementById("result");
+      resultDiv.innerHTML = "Analiză în curs... 🧠";
 
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-  const ctx = document.getElementById("chart").getContext("2d");
-  const chart = new Chart(ctx, {
-    type: "bar",
-    data: {
-      labels: ["Fc (Coeziune)", "Δ (Vibrație)", "Manipulare %"],
-      datasets: [{
-        label: "Valori analiză",
-        data: [0, 0, 0],
-        backgroundColor: ["#00ffb7", "#ffcc00", "#ff3366"]
-      }]
-    },
-    options: {
-      scales: {
-        y: { beginAtZero: true, max: 6.3, ticks: { color: "#ccc" } },
-        x: { ticks: { color: "#ccc" } }
-      },
-      plugins: { legend: { display: false } }
-    }
-  });
-
-  const verdictBar = document.getElementById("verdictBar");
-  const resultDiv = document.getElementById("result");
-
-  // ✅ verdict text mare
-  const verdictText = document.createElement("div");
-  verdictText.style.fontSize = "1.4em";
-  verdictText.style.fontWeight = "bold";
-  verdictText.style.marginTop = "0.8em";
-  verdictText.style.transition = "color 0.4s";
-  document.body.insertBefore(verdictText, verdictBar);
-
-  document.getElementById("analyzeBtn").addEventListener("click", async () => {
-    const text = document.getElementById("textInput").value.trim();
-    if (!text) {
-      resultDiv.textContent = "⚠️ Introdu un text pentru analiză.";
-      return;
-    }
-
-    resultDiv.textContent = "⏳ Analiză în curs...";
-    verdictBar.style.background = "#444";
-    verdictText.textContent = "";
-
-    try {
-      const response = await fetch("/api/analyze", {
+      const res = await fetch("/api/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ textDeAnalizat: text }),
+        body: JSON.stringify({ text }),
       });
 
-      const data = await response.json();
-      if (data.success) {
-        const { fc, delta, manipulare, text: rezumat } = data.rezultat;
-        resultDiv.textContent = rezumat;
+      const data = await res.json();
 
-        chart.data.datasets[0].data = [fc, delta, manipulare];
-        chart.update();
-
-        // 🧠 Verdict vizual + text logic
-        let verdictColor = "#00ffb7";
-        let verdictMsg = "✅ Veridic / Coeziv";
-
-        if (rezumat.toLowerCase().includes("fals") || rezumat.toLowerCase().includes("dezinformare")) {
-          verdictColor = "#ff3366";
-          verdictMsg = "🔴 Fals logic / Dezinformare";
-        } else if (rezumat.toLowerCase().includes("ambiguu") || manipulare > 25) {
-          verdictColor = "#ffcc00";
-          verdictMsg = "⚠️ Ambiguu / Incomplet";
-        } else if (rezumat.toLowerCase().includes("veridic") || manipulare < 20) {
-          verdictColor = "#00ffb7";
-          verdictMsg = "✅ Veridic / Coeziv";
-        }
-
-        verdictBar.style.background = verdictColor;
-        verdictText.textContent = verdictMsg;
-        verdictText.style.color = verdictColor;
-      } else {
-        resultDiv.textContent = "❌ Eroare: " + data.error;
-        verdictText.textContent = "❌ Eroare API";
-        verdictBar.style.background = "#ff3366";
+      if (data.error) {
+        resultDiv.innerHTML = "❌ " + data.error;
+        return;
       }
-    } catch (err) {
-      resultDiv.textContent = "⚠️ Eroare de conexiune cu motorul GPT.";
-      verdictBar.style.background = "#ff3366";
-      verdictText.textContent = "⚠️ Eroare conexiune";
-      verdictText.style.color = "#ff3366";
+
+      const output = `
+        <strong>Rezumat GPT:</strong><br>${data.interpretation}<br><br>
+        <strong>Δ (vibrație semantică):</strong> ${data.Delta}<br>
+        <strong>Fc (coeziune logică):</strong> ${data.Fc}<br>
+        <strong>Manipulare probabilă:</strong> ${data.Manipulare}%
+      `;
+      resultDiv.innerHTML = output;
+
+      // salvează în istoric local
+      let hist = JSON.parse(localStorage.getItem("analyses") || "[]");
+      hist.unshift({ text, output, date: new Date().toLocaleString() });
+      hist = hist.slice(0, 5);
+      localStorage.setItem("analyses", JSON.stringify(hist));
+      showHistory();
     }
-  });
-</script>
+
+    function showHistory() {
+      const histDiv = document.getElementById("history");
+      const hist = JSON.parse(localStorage.getItem("analyses") || "[]");
+      if (!hist.length) return;
+      histDiv.innerHTML =
+        "<h3>🧠 Analize recente:</h3>" +
+        hist.map(h => `<p><strong>${h.date}</strong><br>${h.text}<br>${h.output}</p>`).join("<hr>");
+    }
+
+    document.getElementById("analyzeBtn").addEventListener("click", analyzeText);
+    showHistory();
+  </script>
 </body>
 </html>
-
