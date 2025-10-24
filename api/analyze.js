@@ -23,36 +23,19 @@ export default async function handler(req, res) {
       return res.status(400).json({ success: false, error: "Lipsește textul pentru analiză." });
     }
 
-    // 🔍 1️⃣ Verificare factuală prin GDELT API (gratuit, fără cheie)
-    const gdeltUrl = `https://api.gdeltproject.org/api/v2/doc/doc?query=${encodeURIComponent(
-      textDeAnalizat
-    )}&format=json`;
-
-    let factualInfo = "Nu s-au găsit surse externe pentru verificare.";
-    try {
-      const resp = await fetch(gdeltUrl);
-      const data = await resp.json();
-      if (data?.articles?.length > 0) {
-        const first = data.articles[0];
-        factualInfo = `Sursă găsită: ${first.url || "necunoscută"} (${first.seendate || "fără dată"})`;
-      }
-    } catch (err) {
-      factualInfo = "Eroare la conectarea cu GDELT.";
-    }
-
-    // 🧠 2️⃣ Analiza logică prin GPT
     const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
     const completion = await client.chat.completions.create({
       model: "gpt-5",
       messages: [
         { role: "system", content: SYSTEM_PROMPT },
-        { role: "user", content: `Text: ${textDeAnalizat}\n\nVerificare factuală: ${factualInfo}` }
+        { role: "user", content: textDeAnalizat }
       ],
     });
 
-    const raw = completion.choices[0].message.content || "";
+    const raw = completion.choices[0].message.content;
 
-    // 🔢 3️⃣ Extragem valorile numerice din răspunsul GPT
+    // 🧠 Extragem valorile numerice din răspunsul GPT
     const deltaMatch = raw.match(/Δ\s*=?\s*([\d.]+)/);
     const fcMatch = raw.match(/Fc\s*=?\s*([\d.]+)/);
     const manipMatch = raw.match(/manipulare\s*=?\s*([\d.]+)/);
@@ -66,7 +49,6 @@ export default async function handler(req, res) {
       delta,
       fc,
       manipulare,
-      sursa: factualInfo,
     };
 
     return res.status(200).json({ success: true, rezultat });
