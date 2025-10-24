@@ -50,38 +50,8 @@ export default async function handler(req, res) {
       fc,
       manipulare,
     };
-/ 🔹 Verificare factuală prin GDELT (fără API key)
-try {
-  const gdeltUrl = `https://api.gdeltproject.org/api/v2/doc/doc?query=${encodeURIComponent(textDeAnalizat)}&format=json&maxrecords=10&timespan=7d`;
-  const gdeltRes = await fetch(gdeltUrl);
 
-  rezultat.factualStatus = "Neconfirmat";
-  rezultat.surse = [];
-
-  if (gdeltRes.ok) {
-    const gdeltData = await gdeltRes.json();
-    if (gdeltData?.articles?.length > 0) {
-      rezultat.factualStatus = "Confirmat";
-      rezultat.surse = gdeltData.articles.slice(0, 3).map(a => a.title || "");
-    } else {
-      rezultat.factualStatus = "Neconfirmat";
-    }
-  } else {
-    rezultat.factualStatus = "Eroare verificare";
-  }
-} catch (err) {
-  rezultat.factualStatus = "Eroare verificare";
-   // 🔹 Ajustăm verdictul final în funcție de verificarea factuală
-if (rezultat.factualStatus === "Confirmat" && rezultat.verdict !== "Fals") {
-  rezultat.verdictFinal = "Veridic";
-} else if (rezultat.factualStatus === "Neconfirmat" && rezultat.verdict === "Veridic") {
-  rezultat.verdictFinal = "Ambiguu";
-} else if (rezultat.factualStatus === "Eroare verificare") {
-  rezultat.verdictFinal = "Ambiguu";
-} else {
-  rezultat.verdictFinal = rezultat.verdict || "Ambiguu";
-}
-}  return res.status(200).json({ success: true, rezultat });
+    return res.status(200).json({ success: true, rezultat });
   } catch (error) {
     console.error("Eroare API GPT:", error);
     return res.status(500).json({ success: false, error: error.message });
