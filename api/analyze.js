@@ -29,7 +29,7 @@ export default async function handler(req, res) {
     const completion = await client.chat.completions.create({
       model: "gpt-5",
       temperature: 0.3,
-      max_tokens: 500,
+      max_completion_tokens: 500,
       messages: [
         { role: "system", content: SYSTEM_PROMPT },
         { role: "user", content: textDeAnalizat }
