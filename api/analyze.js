@@ -1,136 +1,59 @@
 import OpenAI from "openai";
 
-const client = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+const SYSTEM_PROMPT = `
+Tu ești motorul oficial de analiză al proiectului „Formula 3.14Δ”, creat de Sergiu Bulboacă.
+
+Scopul tău este să evaluezi textele după coeziunea informațională, adevăr logic și manipulare semantică, astfel:
+1️⃣ Calculează valoarea Δ (vibrația semantică) între 0.00 și 6.28, unde 3.14 este echilibrul perfect.
+2️⃣ Calculează Fc = 3.14 - |Δ - 3.14| / 3.14.
+3️⃣ Calculează gradul de manipulare = (1 - Fc / 3.14) × 100.
+4️⃣ Evaluează coerența logică, biasul și intenția comunicării.
+5️⃣ Returnează:
+   - valoarea Δ
+   - coeficientul Fc
+   - procentul manipulare
+   - verdict textual (Veridic, Ambiguu, Dezinformare, Fals)
+   - un scurt rezumat explicativ.
+`;
 
 export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
-  }
-
   try {
-    const { textDeAnalizat } = req.body;
+    const { textDeAnalizat } = req.body || {};
+    if (!textDeAnalizat) {
+      return res.status(400).json({ success: false, error: "Lipsește textul pentru analiză." });
+    }
+
+    const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+    const completion = await client.chat.completions.create({
+      model: "gpt-5",
+      messages: [
+        { role: "system", content: SYSTEM_PROMPT },
+        { role: "user", content: textDeAnalizat }
+      ],
+    });
+
+    const raw = completion.choices[0].message.content;
+
+    // 🧠 Extragem valorile numerice din răspunsul GPT
+    const deltaMatch = raw.match(/Δ\s*=?\s*([\d.]+)/);
+    const fcMatch = raw.match(/Fc\s*=?\s*([\d.]+)/);
+    const manipMatch = raw.match(/manipulare\s*=?\s*([\d.]+)/);
+
+    const delta = deltaMatch ? parseFloat(deltaMatch[1]) : 3.14;
+    const fc = fcMatch ? parseFloat(fcMatch[1]) : 3.14;
+    const manipulare = manipMatch ? parseFloat(manipMatch[1]) : Math.max(0, (1 - fc / 3.14) * 100);
+
     const rezultat = {
-      surse: [],
-      factualStatus: "Neconfirmat",
+      text: raw,
+      delta,
+      fc,
+      manipulare,
     };
 
-    // === 1️⃣ Analiza semantică GPT ==========================================
-    try {
-      const completion = await client.chat.completions.create({
-        model: "gpt-5-turbo",
-        temperature: 0.4,
-        max_tokens: 400,
-        messages: [
-          {
-            role: "system",
-            content: `
-Ești motorul de analiză informațională „Formula 3.14Δ”.
-Analizează textul primit și oferă:
-- Δ (vibrație semantică) între 0–6.28
-- Fc (coeziune logică) între 0–6.28
-- Manipulare (%) între 0–100
-- Verdict (Veridic / Ambiguu / Fals / Manipulator)
-- Rezumat logic (2-4 fraze clare, neutre)
-Returnează text structurat, lizibil.
-            `,
-          },
-          { role: "user", content: textDeAnalizat },
-        ],
-      });
-
-      const raspuns = completion.choices[0].message.content || "";
-      rezultat.delta =
-        parseFloat(raspuns.match(/Δ[:=]?\s*([\d.,]+)/i)?.[1]?.replace(",", ".")) ||
-        3.14;
-      rezultat.fc =
-        parseFloat(raspuns.match(/Fc[:=]?\s*([\d.,]+)/i)?.[1]?.replace(",", ".")) ||
-        3.14;
-      rezultat.manipulare =
-        parseFloat(raspuns.match(/Manipulare[:=]?\s*([\d.,]+)/i)?.[1]) || 0;
-      rezultat.verdict =
-        raspuns.match(/(Veridic|Ambiguu|Fals|Manipulator)/i)?.[1] || "Ambiguu";
-      rezultat.rezumat =
-        raspuns.match(/Rezumat[:=]?\s*([\s\S]*)/i)?.[1]?.trim() ||
-        "Text analizat fără erori evidente.";
-    } catch (err) {
-      console.error("Eroare GPT:", err);
-      rezultat.verdict = "Eroare GPT";
-    }
-
-    // === 2️⃣ Căutare factuală gratuită =======================================
-    try {
-      const queries = [
-        `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(
-          textDeAnalizat
-        )}&format=json`,
-        `https://en.wikinews.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(
-          textDeAnalizat
-        )}&format=json`,
-        `https://api.gdeltproject.org/api/v2/doc/doc?query=${encodeURIComponent(
-          textDeAnalizat
-        )}&format=json`,
-      ];
-
-      const responses = await Promise.allSettled(
-        queries.map((url) =>
-          fetch(url).then((r) => (r.ok ? r.json() : Promise.reject()))
-        )
-      );
-
-      const allResults = [];
-
-      // Wikipedia
-      if (responses[0].status === "fulfilled") {
-        const wiki = responses[0].value.query?.search?.slice(0, 3) || [];
-        wiki.forEach((a) => {
-          allResults.push({
-            title: a.title,
-            url: `https://en.wikipedia.org/wiki/${encodeURIComponent(a.title)}`,
-            source: "Wikipedia",
-          });
-        });
-      }
-
-      // Wikinews
-      if (responses[1].status === "fulfilled") {
-        const news = responses[1].value.query?.search?.slice(0, 3) || [];
-        news.forEach((a) => {
-          allResults.push({
-            title: a.title,
-            url: `https://en.wikinews.org/wiki/${encodeURIComponent(a.title)}`,
-            source: "Wikinews",
-          });
-        });
-      }
-
-      // GDELT fallback
-      if (responses[2].status === "fulfilled") {
-        const gdelt = responses[2].value.articles?.slice(0, 3) || [];
-        gdelt.forEach((a) => {
-          allResults.push({
-            title: a.title || "Articol fără titlu",
-            url: a.url || "#",
-            source: a.source || "GDELT",
-          });
-        });
-      }
-
-      if (allResults.length > 0) {
-        rezultat.factualStatus = "Confirmat";
-        rezultat.surse = allResults;
-      } else {
-        rezultat.factualStatus = "Neconfirmat";
-      }
-    } catch (err) {
-      rezultat.factualStatus = "Eroare verificare factuală";
-    }
-
-    // === 3️⃣ Răspuns final ====================================================
     return res.status(200).json({ success: true, rezultat });
   } catch (error) {
-    console.error("Eroare generală:", error);
-    return res.status(500).json({ error: "Eroare API principal" });
+    console.error("Eroare API GPT:", error);
+    return res.status(500).json({ success: false, error: error.message });
   }
 }
