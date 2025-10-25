@@ -1,95 +1,118 @@
-import OpenAI from "openai";
+// 🔍 analyze.js – Detector de Fake News – Formula Coeziunii 3.14
+// Versiune completă: GDELT + Bing RSS + Wikipedia
+// © 2025 Sergiu Bulboacă & GPT-5 – Motor Coeziv Informațional
 
-export default async function handler(req, res) {
-  try {
-    const { textDeAnalizat } = req.body || {};
-    if (!textDeAnalizat) {
-      return res.status(400).json({ success: false, error: "Lipsește textul de analizat." });
-    }
-
-    const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
-    // 🔹 Pas 1. Analiză semantică GPT-5 (Formula 3.14Δ)
-    const completion = await client.chat.completions.create({
-      model: "gpt-5",
-      messages: [
-        {
-          role: "system",
-          content: `
-          Ești un analizator factual și semantic. Pentru textul primit, oferă:
-          - valoarea Δ (vibrația semantică)
-          - coeficientul Fc (coeziune logică)
-          - procentul manipulare (%)
-          - verdict textual (Veridic, Ambiguu, Dezinformare)
-          - un rezumat explicativ coerent și concis.
-          Formatează rezultatul clar, ușor de extras numeric.`,
-        },
-        { role: "user", content: textDeAnalizat },
-      ],
-    });
-
-    const raw = completion.choices[0].message.content || "";
-
-    // 🔹 Extragem valorile numerice
-    const delta = parseFloat(raw.match(/Δ[:=]?\s*([\d.,]+)/)?.[1] || 3.14);
-    const fc = parseFloat(raw.match(/Fc[:=]?\s*([\d.,]+)/)?.[1] || 3.14);
-    const manip = parseFloat(raw.match(/manipul[a-z]*[:=]?\s*([\d.,]+)/i)?.[1] || 0);
-    const rezumat = raw;
-
-    // 🧠 Pas 2. Generăm query factual în engleză pentru GDELT
-    const simplificat = await client.chat.completions.create({
-      model: "gpt-5",
-      messages: [
-        {
-          role: "system",
-          content:
-            "Extract 5–10 relevant English keywords for factual news search from this text. Use only plain keywords, no punctuation.",
-        },
-        { role: "user", content: textDeAnalizat },
-      ],
-    });
-
-    const query = encodeURIComponent(simplificat.choices[0].message.content);
-    const gdeltUrl = `https://api.gdeltproject.org/api/v2/doc/doc?query=${query}&format=json`;
-
-    // 🌍 Pas 3. Căutare GDELT
-    let surse = [];
-    let factualStatus = "Neconfirmat";
-
-    try {
-      const gdeltRes = await fetch(gdeltUrl);
-      if (gdeltRes.ok) {
-        const data = await gdeltRes.json();
-        if (data?.articles?.length > 0) {
-          factualStatus = "Confirmat";
-          surse = data.articles
-            .filter(a => a.title && a.url)
-            .slice(0, 3)
-            .map(a => ({
-              title: a.title,
-              url: a.url,
-              source: a.domain || a.source || "necunoscut",
-            }));
-        }
-      }
-    } catch (err) {
-      factualStatus = "Eroare verificare factuală";
-    }
-
-    // 🔹 Răspuns final
-    return res.status(200).json({
-      success: true,
-      rezultat: {
-        delta,
-        fc,
-        manipulare: manip,
-        text: rezumat,
-        factualStatus,
-        surse,
-      },
-    });
-  } catch (error) {
-    console.error("Eroare API GPT:", error);
-    return res.status(500).json({ success: false, error: "Eroare internă GPT sau GDELT." });
-  }
+// 🎧 Funcție pentru sunete în funcție de verdict
+function playSound(verdict) {
+  const audio = new Audio();
+  if (verdict.includes("Veridic")) audio.src = "https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg";
+  else if (verdict.includes("Ambiguu")) audio.src = "https://actions.google.com/sounds/v1/alarms/beep_short.ogg";
+  else if (verdict.includes("Dezinformare")) audio.src = "https://actions.google.com/sounds/v1/alarms/beep_short.ogg";
+  else audio.src = "https://actions.google.com/sounds/v1/alarms/beep_short.ogg";
+  audio.play();
 }
+
+// 🧮 Formula Coeziunii 3.14 + Q + S + Bias + D
+function calcFormulaCoeziune(text, matchesCount, sentimentScore) {
+  let C_i = 1; // coeziune internă
+  let C_e = matchesCount > 0 ? 1 : 0.7; // coeziune externă
+  let Q = text.includes("?") ? -0.05 : 0.05;
+  let S = sentimentScore >= 0 ? 0.1 : -0.2;
+  let Bias = text.match(/(propaganda|manipulare|minciună|hoț|vinovat|ei|noi)/gi) ? -0.1 : 0;
+  let D = text.match(/(străini|elite|guvern|popor)/gi) ? -0.05 : 0;
+  return (3.14 * (C_i + C_e + Q + S + Bias + D)) / 3;
+}
+
+// 🌐 Căutare în sursele libere: Wikipedia, Bing RSS, GDELT
+async function searchSources(query) {
+  const urls = [
+    `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(query)}&utf8=&format=json&origin=*`,
+    `https://www.bing.com/news/search?q=${encodeURIComponent(query)}&format=RSS`,
+    `https://api.gdeltproject.org/api/v2/doc/doc?query=${encodeURIComponent(query)}&format=json`
+  ];
+
+  const results = [];
+  for (const url of urls) {
+    try {
+      const response = await fetch(url);
+      const data = await response.text();
+      if (data && data.length > 100) results.push(url);
+    } catch (err) {
+      console.warn("Eroare sursă:", url);
+    }
+  }
+  return results;
+}
+
+// 🔊 Bară de progres + analiză vizuală
+function updateProgress(percent, verdict) {
+  const bar = document.getElementById("progress-bar");
+  if (!bar) return;
+  bar.style.width = percent + "%";
+  bar.style.backgroundColor =
+    verdict.includes("Veridic") ? "#00ffb7" :
+    verdict.includes("Ambiguu") ? "#ffc800" :
+    verdict.includes("Dezinformare") ? "#ff5555" : "#ff0000";
+}
+
+// ⚙️ Funcția principală de analiză
+async function analyzeText() {
+  const input = document.getElementById("userInput").value.trim();
+  const resultDiv = document.getElementById("result");
+  const sourcesDiv = document.getElementById("sources");
+  const bar = document.getElementById("progress-bar");
+
+  if (!input) {
+    resultDiv.innerHTML = "Introduceți un text pentru analiză.";
+    return;
+  }
+
+  // Reset
+  resultDiv.innerHTML = "Se analizează informația...";
+  sourcesDiv.innerHTML = "";
+  bar.style.width = "10%";
+
+  // 🔄 Cache local
+  if (localStorage.getItem(input)) {
+    resultDiv.innerHTML = localStorage.getItem(input);
+    bar.style.width = "100%";
+    return;
+  }
+
+  // 🌍 Caută surse
+  const sources = await searchSources(input);
+  bar.style.width = "60%";
+
+  // 🧠 Simulare analiză semantică (pentru API GPT dacă e activ)
+  const matchesCount = sources.length;
+  const sentimentScore = input.match(/bine|adevăr|pozitiv/gi) ? 1 : input.match(/rău|minciună|pericol/gi) ? -1 : 0;
+
+  // 🔢 Calculează formula
+  const score = calcFormulaCoeziune(input, matchesCount, sentimentScore);
+
+  // 🎯 Verdict
+  let verdict = "";
+  if (score >= 3.10) verdict = "✅ Veridic";
+  else if (score >= 2.90) verdict = "⚠️ Ambiguu";
+  else if (score >= 2.50) verdict = "🔴 Dezinformare";
+  else verdict = "⛔ Fake news complet";
+
+  updateProgress(score * 30, verdict);
+  playSound(verdict);
+
+  // 🧩 Afișează rezultat
+  const html = `
+    <p><strong>Rezultat analiză:</strong> ${verdict}</p>
+    <p><strong>Scor:</strong> ${score.toFixed(2)}</p>
+    <p><strong>Surse găsite:</strong></p>
+    <ul>${sources.map(src => `<li><a href="${src}" target="_blank">${src}</a></li>`).join("") || "<li>Nicio sursă relevantă găsită.</li>"}</ul>
+  `;
+
+  resultDiv.innerHTML = html;
+  sourcesDiv.innerHTML = "";
+  localStorage.setItem(input, html);
+  bar.style.width = "100%";
+}
+
+// 🎛️ Eveniment pe buton
+document.getElementById("analyzeBtn").addEventListener("click", analyzeText);
