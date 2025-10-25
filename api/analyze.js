@@ -75,6 +75,30 @@ const completion = await client.chat.completions.create({
       manipulare,
     };
 
+     // 🔗 Adăugăm verificarea factuală prin GDELT și includerea surselor
+try {
+  const gdeltUrl = `https://api.gdeltproject.org/api/v2/doc/doc?query=${encodeURIComponent(textDeAnalizat)}&format=json`;
+  const gdeltRes = await fetch(gdeltUrl);
+  rezultat.surse = [];
+  rezultat.factualStatus = "Neconfirmat";
+
+  if (gdeltRes.ok) {
+    const gdeltData = await gdeltRes.json();
+
+    if (gdeltData?.articles?.length > 0) {
+      rezultat.factualStatus = "Confirmat";
+      rezultat.surse = gdeltData.articles
+        .slice(0, 3)
+        .map(a => ({
+          title: a.title || "Articol fără titlu",
+          url: a.url || "—",
+          source: a.source || "necunoscut"
+        }));
+    }
+  }
+} catch (err) {
+  rezultat.factualStatus = "Eroare verificare factuală";
+}
     return res.status(200).json({ success: true, rezultat });
   } catch (error) {
     console.error("Eroare API GPT:", error);
