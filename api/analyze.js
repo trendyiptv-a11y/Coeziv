@@ -77,7 +77,20 @@ const completion = await client.chat.completions.create({
 
      // 🔗 Adăugăm verificarea factuală prin GDELT și includerea surselor
 try {
-  const gdeltUrl = `https://api.gdeltproject.org/api/v2/doc/doc?query=${encodeURIComponent(textDeAnalizat)}&format=json`;
+  // 🌐 traducem textul pentru GDELT (căutare globală, în engleză)
+const q = encodeURIComponent(
+  textDeAnalizat
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // eliminăm diacritice
+    .replace(/\s+/g, " ")
+    .replace(/a declarat/gi, "said")
+    .replace(/azi/gi, "today")
+    .replace(/ieri/gi, "yesterday")
+    .replace(/Ucraina/gi, "Ukraine")
+    .replace(/Danemarca/gi, "Denmark")
+    .replace(/România/gi, "Romania")
+    .replace(/Trump/gi, "Donald Trump")
+);
+const gdeltUrl = `https://api.gdeltproject.org/api/v2/doc/doc?query=${q}&format=json`;
   const gdeltRes = await fetch(gdeltUrl);
   rezultat.surse = [];
   rezultat.factualStatus = "Neconfirmat";
