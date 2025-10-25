@@ -1,121 +1,95 @@
 import OpenAI from "openai";
 
-const SYSTEM_PROMPT = `
-Tu ești motorul oficial de analiză al proiectului „Formula 3.14Δ”, creat de Sergiu Bulboacă.
-
-Scopul tău este să evaluezi textele după coeziunea informațională, adevăr logic și manipulare semantică, astfel:
-1️⃣ Calculează valoarea Δ (vibrația semantică) între 0.00 și 6.28, unde 3.14 este echilibrul perfect.
-2️⃣ Calculează Fc = 3.14 - |Δ - 3.14| / 3.14.
-3️⃣ Calculează gradul de manipulare = (1 - Fc / 3.14) × 100.
-4️⃣ Evaluează coerența logică, biasul și intenția comunicării.
-5️⃣ Returnează:
-   - valoarea Δ
-   - coeficientul Fc
-   - procentul manipulare
-   - verdict textual (Veridic, Ambiguu, Dezinformare, Fals)
-   - un scurt rezumat explicativ.
-`;
-
 export default async function handler(req, res) {
   try {
     const { textDeAnalizat } = req.body || {};
     if (!textDeAnalizat) {
-      return res.status(400).json({ success: false, error: "Lipsește textul pentru analiză." });
+      return res.status(400).json({ success: false, error: "Lipsește textul de analizat." });
     }
 
     const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-    // 🔍 Integrare verificare factuală automată prin GDELT
-let factualSources = [];
-let factualStatus = "Neconfirmat";
+    // 🔹 Pas 1. Analiză semantică GPT-5 (Formula 3.14Δ)
+    const completion = await client.chat.completions.create({
+      model: "gpt-5",
+      messages: [
+        {
+          role: "system",
+          content: `
+          Ești un analizator factual și semantic. Pentru textul primit, oferă:
+          - valoarea Δ (vibrația semantică)
+          - coeficientul Fc (coeziune logică)
+          - procentul manipulare (%)
+          - verdict textual (Veridic, Ambiguu, Dezinformare)
+          - un rezumat explicativ coerent și concis.
+          Formatează rezultatul clar, ușor de extras numeric.`,
+        },
+        { role: "user", content: textDeAnalizat },
+      ],
+    });
 
-try {
-  const gdeltUrl = `https://api.gdeltproject.org/api/v2/doc/doc?query=${encodeURIComponent(textDeAnalizat)}&format=json`;
-  const gdeltRes = await fetch(gdeltUrl);
+    const raw = completion.choices[0].message.content || "";
 
-  if (gdeltRes.ok) {
-    const gdeltData = await gdeltRes.json();
-    if (gdeltData?.articles?.length > 0) {
-      factualStatus = "Confirmat";
-      factualSources = gdeltData.articles.slice(0, 3).map(a => a.url);
+    // 🔹 Extragem valorile numerice
+    const delta = parseFloat(raw.match(/Δ[:=]?\s*([\d.,]+)/)?.[1] || 3.14);
+    const fc = parseFloat(raw.match(/Fc[:=]?\s*([\d.,]+)/)?.[1] || 3.14);
+    const manip = parseFloat(raw.match(/manipul[a-z]*[:=]?\s*([\d.,]+)/i)?.[1] || 0);
+    const rezumat = raw;
+
+    // 🧠 Pas 2. Generăm query factual în engleză pentru GDELT
+    const simplificat = await client.chat.completions.create({
+      model: "gpt-5",
+      messages: [
+        {
+          role: "system",
+          content:
+            "Extract 5–10 relevant English keywords for factual news search from this text. Use only plain keywords, no punctuation.",
+        },
+        { role: "user", content: textDeAnalizat },
+      ],
+    });
+
+    const query = encodeURIComponent(simplificat.choices[0].message.content);
+    const gdeltUrl = `https://api.gdeltproject.org/api/v2/doc/doc?query=${query}&format=json`;
+
+    // 🌍 Pas 3. Căutare GDELT
+    let surse = [];
+    let factualStatus = "Neconfirmat";
+
+    try {
+      const gdeltRes = await fetch(gdeltUrl);
+      if (gdeltRes.ok) {
+        const data = await gdeltRes.json();
+        if (data?.articles?.length > 0) {
+          factualStatus = "Confirmat";
+          surse = data.articles
+            .filter(a => a.title && a.url)
+            .slice(0, 3)
+            .map(a => ({
+              title: a.title,
+              url: a.url,
+              source: a.domain || a.source || "necunoscut",
+            }));
+        }
+      }
+    } catch (err) {
+      factualStatus = "Eroare verificare factuală";
     }
-  } else {
-    factualStatus = "Eroare verificare externă";
-  }
-} catch (e) {
-  console.error("Eroare GDELT:", e);
-  factualStatus = "Eșuat";
-}
 
-// 🧠 Răspunsul GPT (fără web_search)
-const completion = await client.chat.completions.create({
-  model: "gpt-5",
-  messages: [
-    { role: "system", content: SYSTEM_PROMPT },
-    { role: "user", content: `${textDeAnalizat}\n\n(Surse externe: ${factualSources.join(", ")})` }
-  ],
-  temperature: 1
-});
-
-    const raw = completion.choices[0].message.content;
-
-    // 🧠 Extragem valorile numerice din răspunsul GPT
-    const deltaMatch = raw.match(/Δ\s*=?\s*([\d.]+)/);
-    const fcMatch = raw.match(/Fc\s*=?\s*([\d.]+)/);
-    const manipMatch = raw.match(/manipulare\s*=?\s*([\d.]+)/);
-
-    const delta = deltaMatch ? parseFloat(deltaMatch[1]) : 3.14;
-    const fc = fcMatch ? parseFloat(fcMatch[1]) : 3.14;
-    const manipulare = manipMatch ? parseFloat(manipMatch[1]) : Math.max(0, (1 - fc / 3.14) * 100);
-
-    const rezultat = {
-      text: raw,
-      delta,
-      fc,
-      manipulare,
-    };
-
-     // 🔗 Adăugăm verificarea factuală prin GDELT și includerea surselor
-try {
-  // 🌐 traducem textul pentru GDELT (căutare globală, în engleză)
-const q = encodeURIComponent(
-  textDeAnalizat
-    .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // eliminăm diacritice
-    .replace(/\s+/g, " ")
-    .replace(/a declarat/gi, "said")
-    .replace(/azi/gi, "today")
-    .replace(/ieri/gi, "yesterday")
-    .replace(/Ucraina/gi, "Ukraine")
-    .replace(/Danemarca/gi, "Denmark")
-    .replace(/România/gi, "Romania")
-    .replace(/Trump/gi, "Donald Trump")
-);
-const gdeltUrl = `https://api.gdeltproject.org/api/v2/doc/doc?query=${q}&format=json`;
-  const gdeltRes = await fetch(gdeltUrl);
-  rezultat.surse = [];
-  rezultat.factualStatus = "Neconfirmat";
-
-  if (gdeltRes.ok) {
-    const gdeltData = await gdeltRes.json();
-
-    if (gdeltData?.articles?.length > 0) {
-  rezultat.factualStatus = "Confirmat";
-  rezultat.surse = gdeltData.articles
-    .filter(a => a.title && a.url) // doar articole cu titlu și link
-    .slice(0, 3)
-    .map(a => ({
-      title: a.title || "Articol fără titlu",
-      url: a.url,
-      source: a.domain || a.source || "necunoscut"
-    }));
-}
-  }
-} catch (err) {
-  rezultat.factualStatus = "Eroare verificare factuală";
-}
-    return res.status(200).json({ success: true, rezultat });
+    // 🔹 Răspuns final
+    return res.status(200).json({
+      success: true,
+      rezultat: {
+        delta,
+        fc,
+        manipulare: manip,
+        text: rezumat,
+        factualStatus,
+        surse,
+      },
+    });
   } catch (error) {
     console.error("Eroare API GPT:", error);
-    return res.status(500).json({ success: false, error: error.message });
+    return res.status(500).json({ success: false, error: "Eroare internă GPT sau GDELT." });
   }
 }
