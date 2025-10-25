@@ -25,22 +25,34 @@ export default async function handler(req, res) {
 
     const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-    // 🔍 Versiune extinsă cu WebSearchGPT activat
+    // 🔍 Integrare verificare factuală automată prin GDELT
+let factualSources = [];
+let factualStatus = "Neconfirmat";
+
+try {
+  const gdeltUrl = `https://api.gdeltproject.org/api/v2/doc/doc?query=${encodeURIComponent(textDeAnalizat)}&format=json`;
+  const gdeltRes = await fetch(gdeltUrl);
+
+  if (gdeltRes.ok) {
+    const gdeltData = await gdeltRes.json();
+    if (gdeltData?.articles?.length > 0) {
+      factualStatus = "Confirmat";
+      factualSources = gdeltData.articles.slice(0, 3).map(a => a.url);
+    }
+  } else {
+    factualStatus = "Eroare verificare externă";
+  }
+} catch (e) {
+  console.error("Eroare GDELT:", e);
+  factualStatus = "Eșuat";
+}
+
+// 🧠 Răspunsul GPT (fără web_search)
 const completion = await client.chat.completions.create({
   model: "gpt-5",
   messages: [
     { role: "system", content: SYSTEM_PROMPT },
-    { role: "user", content: textDeAnalizat }
-  ],
-  tools: [
-    {
-      type: "web_search",
-      web_search: {
-        enable: true,
-        max_results: 5,
-        include_snippets: true
-      }
-    }
+    { role: "user", content: `${textDeAnalizat}\n\n(Surse externe: ${factualSources.join(", ")})` }
   ],
   temperature: 0.2,
 });
