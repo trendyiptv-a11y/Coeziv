@@ -54,7 +54,7 @@ const completion = await client.chat.completions.create({
     { role: "system", content: SYSTEM_PROMPT },
     { role: "user", content: `${textDeAnalizat}\n\n(Surse externe: ${factualSources.join(", ")})` }
   ],
-  temperature: 0.2,
+  temperature: 1
 });
 
     const raw = completion.choices[0].message.content;
