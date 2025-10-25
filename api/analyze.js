@@ -28,7 +28,7 @@ export default async function handler(req, res) {
     // === 1️⃣ Analiza principală Formula 3.14Δ ===
     const completion = await client.chat.completions.create({
       model: "gpt-5",
-      temperature: 0.3,
+      temperature: 1,
       max_completion_tokens: 500,
       messages: [
         { role: "system", content: SYSTEM_PROMPT },
