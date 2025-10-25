@@ -25,13 +25,25 @@ export default async function handler(req, res) {
 
     const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-    const completion = await client.chat.completions.create({
-      model: "gpt-5",
-      messages: [
-        { role: "system", content: SYSTEM_PROMPT },
-        { role: "user", content: textDeAnalizat }
-      ],
-    });
+    // 🔍 Versiune extinsă cu WebSearchGPT activat
+const completion = await client.chat.completions.create({
+  model: "gpt-5",
+  messages: [
+    { role: "system", content: SYSTEM_PROMPT },
+    { role: "user", content: textDeAnalizat }
+  ],
+  tools: [
+    {
+      type: "web_search",
+      web_search: {
+        enable: true,
+        max_results: 5,
+        include_snippets: true
+      }
+    }
+  ],
+  temperature: 0.2,
+});
 
     const raw = completion.choices[0].message.content;
 
