@@ -99,15 +99,16 @@ const gdeltUrl = `https://api.gdeltproject.org/api/v2/doc/doc?query=${q}&format=
     const gdeltData = await gdeltRes.json();
 
     if (gdeltData?.articles?.length > 0) {
-      rezultat.factualStatus = "Confirmat";
-      rezultat.surse = gdeltData.articles
-        .slice(0, 3)
-        .map(a => ({
-          title: a.title || "Articol fără titlu",
-          url: a.url || "—",
-          source: a.source || "necunoscut"
-        }));
-    }
+  rezultat.factualStatus = "Confirmat";
+  rezultat.surse = gdeltData.articles
+    .filter(a => a.title && a.url) // doar articole cu titlu și link
+    .slice(0, 3)
+    .map(a => ({
+      title: a.title || "Articol fără titlu",
+      url: a.url,
+      source: a.domain || a.source || "necunoscut"
+    }));
+}
   }
 } catch (err) {
   rezultat.factualStatus = "Eroare verificare factuală";
