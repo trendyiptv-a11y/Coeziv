@@ -171,7 +171,16 @@
       if (data.success) {
         const { fc, delta, manipulare, text: rezumat } = data.rezultat;
         resultDiv.textContent = rezumat;
-
+// 🧠 Afișăm sursele găsite automat 
+const sourcesDiv = document.getElementById("sources");
+if (data.rezultat?.surse && data.rezultat.surse.length > 0) {
+  sourcesDiv.innerHTML = `<b>🔗 Surse găsite:</b><br>` +
+    data.rezultat.surse.map(s => 
+      `<a href="${s.url}" target="_blank">${s.title}</a> <small>(${s.source})</small>`
+    ).join("<br>");
+} else {
+  sourcesDiv.innerHTML = `<i>Nicio sursă relevantă găsită.</i>`;
+}
         chart.data.datasets[0].data = [fc, delta, manipulare];
         chart.update();
 
@@ -208,6 +217,7 @@
 </script>
 </body>
 </html>
+
 
 
 
