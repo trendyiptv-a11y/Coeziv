@@ -66,17 +66,23 @@ return res.status(200).json({
   success: true,
   rezultat: {
     // text combinat pentru afișarea completă în UI
-    text: `🧩 Analiză factuală:\n${webAnswer}\n\n📊 Analiză semantică:\nΔ = ${delta}\nFc = ${fc}\nManipulare% = ${manipulare}`,
+    text: `${webAnswer}\n\n📊 Analiză semantică:\nΔ = ${delta}\nFc = ${fc}\nManipulare% = ${manipulare}`,
     fc,
     delta,
     manipulare,
     // 🔗 Formatare surse clickabile
-    surse: (webSources || []).map((src, index) => {
-      if (typeof src === "object" && src.url) {
-        return { title: src.title || `Sursă ${index + 1}`, url: src.url };
-      }
-      return { title: `Sursă ${index + 1}`, url: src };
-    }),
+    surse:
+  webSources && webSources.length > 0
+    ? webSources.map((src, index) => {
+        if (typeof src === "object" && src.url) {
+          return { title: src.title || `Sursă ${index + 1}`, url: src.url };
+        }
+        if (typeof src === "string") {
+          return { title: `Sursă ${index + 1}`, url: src };
+        }
+        return null;
+      }).filter(Boolean)
+    : null,
   },
 });
   } catch (err) {
