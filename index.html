@@ -178,7 +178,7 @@
     verdictText.textContent = "";
 
     try {
-      const response = await fetch("/api/analyze", {
+      const response = await fetch("/api/analyze-web", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ textDeAnalizat: text }),
@@ -236,6 +236,7 @@ if (data.rezultat?.surse && data.rezultat.surse.length > 0) {
 </script>
 </body>
 </html>
+
 
 
 
