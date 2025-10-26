@@ -10,16 +10,29 @@ export default async function handler(req, res) {
 
     // 🧠 Pas 1 — verificare factuală live
     const search = await client.responses.create({
-      model: "gpt-5",
-      tools: [{ type: "web_search" }],
-      input: [
-        {
-          role: "user",
-          content: `Verifică factual următorul text și explică dacă este confirmat, parțial confirmat sau fals.
-                    Include sursele principale și oferă un scurt rezumat: "${textDeAnalizat}"`,
-        },
-      ],
-    });
+  model: "gpt-5",
+  tools: [{ type: "web_search" }],
+  input: [
+    {
+      role: "user",
+      content: `
+Verifică factual următorul text: "${textDeAnalizat}". 
+Răspunde concis, în română, dar include obligatoriu 3–5 linkuri externe reale (cu https://...) din surse majore și verificabile. 
+Sursele trebuie să fie cât mai diverse (ex: Wikipedia, Britannica, Reuters, BBC, New York Times, Binance, NASA etc.).
+Formatul cerut:
+
+🧩 Analiză factuală:
+Verdict: [Adevărat / Fals / Parțial adevărat].
+Explicație scurtă: [...]
+Surse:
+1. [Titlu sursă 1](https://...)
+2. [Titlu sursă 2](https://...)
+3. [Titlu sursă 3](https://...)
+
+Include doar surse relevante, actuale (2024–2025).`,
+    },
+  ],
+});
 
     const webAnswer = search.output_text || "Nu s-au găsit surse clare.";
     const webSources =
