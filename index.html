@@ -3,78 +3,237 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Coeziv 3.14 – Analizor informațional</title>
+  <title>Coeziv 3.14Δ – Analizor Informațional</title>
   <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background: #0d1117;
-      color: #c9d1d9;
-      text-align: center;
-      padding: 2rem;
+    :root {
+      --good: #00ffb7;
+      --medium: #ffaa00;
+      --bad: #ff0055;
+      --bg: #0d1117;
+      --panel: #161b22;
     }
-    h1 { color: #00ffb7; }
+    body {
+      background-color: var(--bg);
+      color: #c9d1d9;
+      font-family: "Segoe UI", sans-serif;
+      text-align: center;
+      padding: 2rem 1rem;
+      overflow-x: hidden;
+      transition: background-color 0.5s ease;
+    }
+    h1 {
+      color: var(--good);
+      font-size: 2rem;
+      margin-bottom: 0.3rem;
+    }
+    p {
+      color: #9ba1a6;
+      margin-bottom: 1rem;
+    }
     textarea {
-      width: 90%; height: 120px;
-      margin: 1rem auto;
-      display: block;
-      background: #161b22;
-      border: 1px solid #30363d;
-      border-radius: 10px;
-      color: #fff; padding: 1rem;
+      width: 90%;
+      max-width: 800px;
+      height: 130px;
+      background: var(--panel);
+      border: none;
+      border-radius: 12px;
+      color: #c9d1d9;
+      font-size: 1rem;
+      padding: 1rem;
       resize: none;
+      outline: none;
+      box-shadow: 0 0 12px rgba(0, 0, 0, 0.3);
     }
     button {
-      background: #00ffb7; color: #0d1117;
-      border: none; border-radius: 10px;
-      padding: 0.7rem 2rem; cursor: pointer;
-      font-weight: bold; margin-bottom: 1rem;
+      margin-top: 1rem;
+      background: var(--good);
+      color: #0d1117;
+      border: none;
+      border-radius: 10px;
+      padding: 0.7rem 1.5rem;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.3s ease, transform 0.2s ease;
     }
-    #result, #sources {
-      background: #161b22; padding: 1rem; margin-top: 1rem;
-      border-radius: 10px; text-align: left;
+    button:hover {
+      background: #00e6a6;
+      transform: scale(1.03);
     }
-    a { color: #00ccff; display: block; margin: 0.4rem 0; }
+    #result, #chartContainer, #sources {
+      margin-top: 1.5rem;
+      max-width: 900px;
+      margin-left: auto;
+      margin-right: auto;
+      background: var(--panel);
+      padding: 1rem;
+      border-radius: 12px;
+      box-shadow: 0 0 12px rgba(0, 0, 0, 0.2);
+      text-align: left;
+    }
+    a {
+      color: var(--good);
+      text-decoration: none;
+      display: block;
+      margin: 5px 0;
+    }
+    a:hover { text-decoration: underline; }
+    #chartContainer {
+      display: none;
+      text-align: center;
+    }
   </style>
 </head>
+
 <body>
-  <h1>🧠 Motor Coeziv 3.14</h1>
-  <textarea id="userInput" placeholder="Introdu textul sau știrea de verificat..."></textarea>
-  <button id="analyzeBtn">🔍 Analizează</button>
+  <h1>🧠 Coeziv 3.14Δ</h1>
+  <p>Analizor informațional – detectează nivelul de coeziune, vibrație și manipulare semantică.</p>
+  
+  <textarea id="userInput" placeholder="Introdu textul, afirmația sau știrea de verificat..."></textarea><br />
+  <button id="analyzeBtn">Analizează Informația</button>
 
   <div id="result"></div>
+  <div id="chartContainer">
+    <canvas id="chart"></canvas>
+  </div>
   <div id="sources"></div>
 
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
-    document.getElementById("analyzeBtn").addEventListener("click", async () => {
+    const btn = document.getElementById("analyzeBtn");
+    const resultDiv = document.getElementById("result");
+    const chartDiv = document.getElementById("chartContainer");
+    const srcDiv = document.getElementById("sources");
+
+    // 🔘 Buton de comutare Simplu / Detaliat
+    let modDetaliat = false;
+    const toggle = document.createElement("button");
+    toggle.textContent = "🔍 Mod detaliat: OFF";
+    toggle.style = `
+      margin-top:10px;
+      background:#161b22;
+      color:#00ffb7;
+      border:none;
+      border-radius:8px;
+      padding:6px 12px;
+      cursor:pointer;
+      transition: all 0.3s ease;
+    `;
+    toggle.onmouseover = () => (toggle.style.opacity = "0.8");
+    toggle.onmouseout = () => (toggle.style.opacity = "1");
+    toggle.onclick = () => {
+      modDetaliat = !modDetaliat;
+      toggle.textContent = modDetaliat ? "🧠 Mod detaliat: ON" : "🔍 Mod detaliat: OFF";
+      document.body.style.backgroundColor = modDetaliat ? "#0f141a" : "#0d1117";
+    };
+    document.body.insertBefore(toggle, chartDiv);
+
+    // 🔄 Efect de tranziție general
+    const fade = (el, type = "in") => {
+      el.style.opacity = type === "in" ? 0 : 1;
+      el.style.display = "block";
+      let last = +new Date();
+      const tick = () => {
+        el.style.opacity = +el.style.opacity + (new Date() - last) / 300;
+        last = +new Date();
+        if (+el.style.opacity < 1 && type === "in") requestAnimationFrame(tick);
+        if (+el.style.opacity > 0 && type === "out") requestAnimationFrame(() => {
+          el.style.opacity -= 0.1;
+          if (+el.style.opacity <= 0) el.style.display = "none";
+        });
+      };
+      tick();
+    };
+
+    btn.addEventListener("click", async () => {
       const text = document.getElementById("userInput").value.trim();
       if (!text) return alert("Te rog introdu textul.");
 
-      document.getElementById("result").innerHTML = "⏳ Analizăm informația...";
-      document.getElementById("sources").innerHTML = "";
+      fade(resultDiv, "out");
+      fade(chartDiv, "out");
+      resultDiv.innerHTML = "⏳ Analiză în curs...";
+      srcDiv.innerHTML = "";
 
-      // Rulează ambele funcții în paralel
-      const [gptRes, factualRes] = await Promise.all([
-        fetch("/api/analyze-web", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ text })
-        }).then(r => r.json()),
-        fetch(`/api/factual?query=${encodeURIComponent(text)}`).then(r => r.json())
-      ]);
+      try {
+        // 🔹 Cerere către backend (GPT + factual)
+        const [gptRes, factualRes] = await Promise.all([
+          fetch("/api/analyze-web", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ text })
+          }).then(r => r.json()),
+          fetch(`/api/factual?query=${encodeURIComponent(text)}`).then(r => r.json())
+        ]);
 
-      // Afișare analiză Coeziv 3.14
-      document.getElementById("result").innerHTML =
-        `<h3>🧩 Analiză Coeziv 3.14</h3><p>${gptRes.result || "Eroare la analiză."}</p>`;
+        const analiza = gptRes.result || "";
+        resultDiv.innerHTML = modDetaliat
+          ? `<h3>🧩 Analiză completă Coeziv 3.14</h3><p>${analiza}</p>`
+          : `<h3>🧩 Analiză Coeziv 3.14</h3><p>${analiza.split("Explicație")[0]}</p>`;
+        fade(resultDiv, "in");
 
-      // Afișare surse factuale
-      const srcDiv = document.getElementById("sources");
-      srcDiv.innerHTML = "<h3>🔎 Surse factuale:</h3>";
-      factualRes.sources.forEach(src => {
-        if (src.url)
-          srcDiv.innerHTML += `<a href="${src.url}" target="_blank">${src.title}</a>`;
-        else
-          srcDiv.innerHTML += `<p>${src.title}</p>`;
-      });
+        // 🔢 Extragem valorile numerice
+        const delta = parseFloat(analiza.match(/Δ\s*=\s*([\d.,]+)/)?.[1]?.replace(",", ".") || "3.14");
+        const fc = parseFloat(analiza.match(/Fc\s*=\s*([\d.,]+)/)?.[1]?.replace(",", ".") || "3.14");
+        const manipulare = parseFloat(analiza.match(/manipulare.*?([\d.,]+)/i)?.[1]?.replace(",", ".") || "0");
+
+        // 🔠 Interpretare semantică
+        let verdict = "";
+        if (manipulare < 10 && fc > 3)
+          verdict = "✅ Nivel de coeziune foarte bun – informația este neutră și stabilă.";
+        else if (manipulare < 30)
+          verdict = "⚠️ Nivel moderat – conține ambiguități minore.";
+        else if (manipulare < 60)
+          verdict = "🟠 Nivel scăzut – posibile biasuri sau interpretări subiective.";
+        else verdict = "🔴 Nivel critic – text manipulator sau fals.";
+
+        // 🔹 Grafic colorat
+        const ctx = document.getElementById("chart").getContext("2d");
+        new Chart(ctx, {
+          type: "bar",
+          data: {
+            labels: ["Fc (Coeziune)", "Δ (Vibrație)", "Manipulare %"],
+            datasets: [{
+              data: [fc, delta, manipulare],
+              backgroundColor: [
+                fc >= 3 ? "#00ffb7" : fc >= 2 ? "#ffaa00" : "#ff0055",
+                delta >= 3 ? "#00ffb7" : delta >= 2 ? "#ffaa00" : "#ff0055",
+                manipulare > 50 ? "#ff0055" : manipulare > 25 ? "#ffaa00" : "#00ffb7"
+              ]
+            }]
+          },
+          options: {
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true, max: 6.3 } }
+          }
+        });
+
+        chartDiv.style.display = "block";
+        fade(chartDiv, "in");
+
+        // 🧮 Interpretarea Formulei 3.14Δ
+        chartDiv.insertAdjacentHTML("beforeend", `
+          <div id="interpretare" style="margin-top:1rem; font-size:0.9rem; color:#c9d1d9; opacity:0; transition:opacity 1s;">
+            <h4>🧮 Interpretarea Formulei 3.14Δ</h4>
+            <p>${verdict}</p>
+            <ul style="list-style:none; text-align:left; margin-top:0.5rem; color:#9ba1a6;">
+              <li>🟢 Fc – stabilitatea internă a logicii textului.</li>
+              <li>🟡 Δ – amplitudinea vibrației semantice (gradul de claritate).</li>
+              <li>🔴 Manipulare% – probabilitatea intenției de distorsionare.</li>
+            </ul>
+          </div>
+        `);
+        setTimeout(() => (document.getElementById("interpretare").style.opacity = "1"), 300);
+
+        // 🔗 Surse factuale
+        srcDiv.innerHTML = "<h3>🔎 Surse factuale:</h3>";
+        (factualRes.sources || []).forEach(src => {
+          if (src.url)
+            srcDiv.innerHTML += `<a href="${src.url}" target="_blank">${src.title}</a>`;
+          else srcDiv.innerHTML += `<p>${src.title}</p>`;
+        });
+
+      } catch (err) {
+        resultDiv.innerHTML = "⚠️ Eroare de conexiune cu motorul Coeziv.";
+      }
     });
   </script>
 </body>
