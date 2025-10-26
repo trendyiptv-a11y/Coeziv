@@ -190,17 +190,22 @@
         resultDiv.textContent = rezumat;
 
    // 🧠 Afișăm sursele găsite automat
-const sourcesDiv = document.getElementById("sources");
-if (data.rezultat?.surse && data.rezultat.surse.length > 0) {
-  sourcesDiv.innerHTML = `<b>🔗 Surse găsite:</b><br>` +
-    data.rezultat.surse.map(s => {
-      const isTrusted = /(bbc\.com|cnn\.com|nytimes\.com|reuters\.com|theguardian\.com|apnews\.com|mediafax\.ro|agerpres\.ro)/i.test(s.url);
-      const badge = isTrusted ? `<span class="badge">✅ verificat</span>` : `<span class="badge gray">ℹ️ neconfirmat</span>`;
-      return `<div class="source-item">${badge} <a href="${s.url}" target="_blank">${s.title}</a> <small>(${s.source})</small></div>`;
-    }).join("");
+  const sourcesDiv = document.getElementById("sources");
+
+if (data.rezultat.surse && data.rezultat.surse.length > 0) {
+  sourcesDiv.innerHTML = `<b>🔗 Surse verificate:</b><br>` +
+    data.rezultat.surse
+      .map(
+        (s, i) =>
+          `<a href="${s.url}" target="_blank" rel="noopener noreferrer" 
+            style="color:#00ffb7;text-decoration:none;">
+            ${i + 1}. ${s.title || s.url}
+          </a>`
+      )
+      .join("<br>");
 } else {
-  sourcesDiv.innerHTML = `<i>Nicio sursă relevantă găsită.</i>`;
-}     chart.data.datasets[0].data = [fc, delta, manipulare];
+  sourcesDiv.innerHTML = ""; // nu afișăm nimic
+} chart.data.datasets[0].data = [fc, delta, manipulare];
         chart.update();
 
         // 🧠 Verdict vizual + text logic
@@ -236,6 +241,7 @@ if (data.rezultat?.surse && data.rezultat.surse.length > 0) {
 </script>
 </body>
 </html>
+
 
 
 
