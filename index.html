@@ -135,107 +135,63 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-  const ctx = document.getElementById("chart").getContext("2d");
-  const chart = new Chart(ctx, {
-    type: "bar",
-    data: {
-      labels: ["Fc (Coeziune)", "Δ (Vibrație)", "Manipulare %"],
-      datasets: [{
-        label: "Valori analiză",
-        data: [0, 0, 0],
-        backgroundColor: ["#00ffb7", "#ffcc00", "#ff3366"]
-      }]
-    },
-    options: {
-      scales: {
-        y: { beginAtZero: true, max: 6.3, ticks: { color: "#ccc" } },
-        x: { ticks: { color: "#ccc" } }
-      },
-      plugins: { legend: { display: false } }
-    }
-  });
-
-  const verdictBar = document.getElementById("verdictBar");
+<script>
+document.getElementById("analyzeBtn").addEventListener("click", async () => {
+  const text = document.getElementById("textInput").value.trim();
   const resultDiv = document.getElementById("result");
+  const verdictBar = document.getElementById("verdictBar");
 
-  // ✅ verdict text mare
-  const verdictText = document.createElement("div");
-  verdictText.style.fontSize = "1.4em";
-  verdictText.style.fontWeight = "bold";
-  verdictText.style.marginTop = "0.8em";
-  verdictText.style.transition = "color 0.4s";
-  document.body.insertBefore(verdictText, verdictBar);
+  if (!text) {
+    resultDiv.textContent = "⚠️ Introdu un text pentru analiză.";
+    return;
+  }
 
-  document.getElementById("analyzeBtn").addEventListener("click", async () => {
-    const text = document.getElementById("textInput").value.trim();
-    if (!text) {
-      resultDiv.textContent = "⚠️ Introdu un text pentru analiză.";
-      return;
+  resultDiv.textContent = "⏳ Analiză în curs...";
+  verdictBar.style.background = "#444";
+
+  try {
+    const response = await fetch("/api/analyze-web", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ textDeAnalizat: text }),
+    });
+
+    const data = await response.json(); // ✅ important!
+
+    if (data.success) {
+      const r = data.rezultat;
+
+      // 🔗 surse clickabile
+      const surseHTML = (r.surse || [])
+        .map(
+          (s, i) =>
+            `<a href="${s.url}" target="_blank" rel="noopener noreferrer"
+               style="display:block;color:#00ffb7;text-decoration:none;
+                      margin:4px 0;border-left:2px solid #00ffb7;padding-left:6px;">
+               🌐 ${s.title || s.url}
+             </a>`
+        )
+        .join("");
+
+      resultDiv.innerHTML = `
+        <div style="white-space:pre-line">${r.text}</div>
+        ${surseHTML ? `<div><b>Surse:</b><br>${surseHTML}</div>` : ""}
+      `;
+      verdictBar.style.background = "#00ffb7";
+    } else {
+      resultDiv.textContent = "❌ Eroare API";
+      verdictBar.style.background = "#ff0055";
     }
-
-    resultDiv.textContent = "⏳ Analiză în curs...";
-    verdictBar.style.background = "#444";
-    verdictText.textContent = "";
-
-    try {
-      const response = await fetch("/api/analyze-web", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ textDeAnalizat: text }),
-      });
-
-      const data = await response.json();
-      if (data.success) {
-        const { fc, delta, manipulare, text: rezumat } = data.rezultat;
-        resultDiv.textContent = rezumat;
-
-   // 🧠 Afișăm sursele găsite automat
-const sourcesDiv = document.getElementById("sources");
-if (data.rezultat?.surse && data.rezultat.surse.length > 0) {
-  sourcesDiv.innerHTML = `<b>🔗 Surse găsite:</b><br>` +
-    data.rezultat.surse.map(s => {
-      const isTrusted = /(bbc\.com|cnn\.com|nytimes\.com|reuters\.com|theguardian\.com|apnews\.com|mediafax\.ro|agerpres\.ro)/i.test(s.url);
-      const badge = isTrusted ? `<span class="badge">✅ verificat</span>` : `<span class="badge gray">ℹ️ neconfirmat</span>`;
-      return `<div class="source-item">${badge} <a href="${s.url}" target="_blank">${s.title}</a> <small>(${s.source})</small></div>`;
-    }).join("");
-} else {
-  sourcesDiv.innerHTML = `<i>Nicio sursă relevantă găsită.</i>`;
-}     chart.data.datasets[0].data = [fc, delta, manipulare];
-        chart.update();
-
-        // 🧠 Verdict vizual + text logic
-        let verdictColor = "#00ffb7";
-        let verdictMsg = "✅ Veridic / Coeziv";
-
-        if (rezumat.toLowerCase().includes("fals") || rezumat.toLowerCase().includes("dezinformare")) {
-          verdictColor = "#ff3366";
-          verdictMsg = "🔴 Fals logic / Dezinformare";
-        } else if (rezumat.toLowerCase().includes("ambiguu") || manipulare > 25) {
-          verdictColor = "#ffcc00";
-          verdictMsg = "⚠️ Ambiguu / Incomplet";
-        } else if (rezumat.toLowerCase().includes("veridic") || manipulare < 20) {
-          verdictColor = "#00ffb7";
-          verdictMsg = "✅ Veridic / Coeziv";
-        }
-
-        verdictBar.style.background = verdictColor;
-        verdictText.textContent = verdictMsg;
-        verdictText.style.color = verdictColor;
-      } else {
-        resultDiv.textContent = "❌ Eroare: " + data.error;
-        verdictText.textContent = "❌ Eroare API";
-        verdictBar.style.background = "#ff3366";
-      }
-    } catch (err) {
-      resultDiv.textContent = "⚠️ Eroare de conexiune cu motorul GPT.";
-      verdictBar.style.background = "#ff3366";
-      verdictText.textContent = "⚠️ Eroare conexiune";
-      verdictText.style.color = "#ff3366";
-    }
-  });
+  } catch (err) {
+    console.error(err);
+    resultDiv.textContent = `❌ Eroare: ${err.message}`;
+    verdictBar.style.background = "#ff0055";
+  }
+});
 </script>
 </body>
 </html>
+
 
 
 
