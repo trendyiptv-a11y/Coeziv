@@ -53,7 +53,7 @@ Scopul tău este să evaluezi textele după coeziunea informațională, adevăr 
 1️⃣ Calculează valoarea Δ (vibrația semantică) între 0.00 și 6.28, unde 3.14 este echilibrul perfect.
 2️⃣ Calculează Fc = 3.14 - |Δ - 3.14| / 3.14.
 3️⃣ Calculează gradul de manipulare = (1 - Fc / 3.14) × 100.
-4️⃣ Evaluează coerența logică, biasul și intenția comunicării.
+4️⃣ Evaluează coerența logică, biasul și intenția comunicării.,'
         },
         { role: "user", content: textDeAnalizat },
       ],
