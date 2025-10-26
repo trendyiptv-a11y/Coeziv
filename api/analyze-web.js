@@ -8,31 +8,37 @@ export default async function handler(req, res) {
 
     const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-    // 🧠 Pas 1 — verificare factuală live
-const search = await client.chat.completions.create({
+    // ðŸ§  Pas 1 â€” verificare factualÄƒ live
+    const search = await client.responses.create({
   model: "gpt-5",
-  messages: [
-    {
-      role: "system",
-      content: `Ești un verificator factual. Analizează textul și întoarce surse externe reale (cu https://...)`,
-    },
+  tools: [{ type: "web_search" }],
+  input: [
     {
       role: "user",
       content: `
-Verifică factual următorul text: "${textDeAnalizat}". 
-Include 3–5 linkuri din surse majore (Reuters, BBC, Wikipedia, etc.).
-Răspunde în format:
-🧩 Analiză factuală:
-Verdict: [Adevărat / Fals / Parțial adevărat]
-Explicație scurtă: [...]
+VerificÄƒ factual urmÄƒtorul text: "${textDeAnalizat}". 
+RÄƒspunde concis, Ã®n romÃ¢nÄƒ, dar include obligatoriu 3â€“5 linkuri externe reale (cu https://...) din surse majore È™i verificabile. 
+Sursele trebuie sÄƒ fie cÃ¢t mai diverse (ex: Wikipedia, Britannica, Reuters, BBC, New York Times, Binance, NASA etc.).
+Formatul cerut:
+
+ðŸ§© AnalizÄƒ factualÄƒ:
+Verdict: [AdevÄƒrat / Fals / ParÈ›ial adevÄƒrat].
+ExplicaÈ›ie scurtÄƒ: [...]
 Surse:
-1. [Titlu sursă](https://...)
-2. [Titlu sursă](https://...)
-3. [Titlu sursă](https://...)
-`,
+1. [Titlu sursÄƒ 1](https://...)
+2. [Titlu sursÄƒ 2](https://...)
+3. [Titlu sursÄƒ 3](https://...)
+
+Include doar surse relevante, actuale (2024â€“2025).`,
     },
   ],
 });
+
+    const webAnswer = search.output_text || "Nu s-au gÄƒsit surse clare.";
+    const webSources =
+      search.output?.[0]?.citations?.map((c) => c.url) ||
+      search.output?.[0]?.references?.map((r) => r.url) ||
+      [];
 
     // ðŸ§  Pas 2 â€” analizÄƒ semanticÄƒ (Formula 3.14Î”)
     const analyze = await client.chat.completions.create({
@@ -41,13 +47,10 @@ Surse:
         {
           role: "system",
           content: `
-Tu ești motorul oficial de analiză al proiectului „Formula 3.14Δ”, creat de Sergiu Bulboacă.
-
-Scopul tău este să evaluezi textele după coeziunea informațională, adevăr logic și manipulare semantică, astfel:
-1️⃣ Calculează valoarea Δ (vibrația semantică) între 0.00 și 6.28, unde 3.14 este echilibrul perfect.
-2️⃣ Calculează Fc = 3.14 - |Δ - 3.14| / 3.14.
-3️⃣ Calculează gradul de manipulare = (1 - Fc / 3.14) × 100.
-4️⃣ Evaluează coerența logică, biasul și intenția comunicării.,'
+Tu eÈ™ti motorul Formula 3.14Î”. CalculeazÄƒ:
+Î” Ã®ntre 0â€“6.28, Fc = 3.14 - |Î” - 3.14|/3.14,
+Manipulare% = (1 - Fc/3.14)*100.
+EvalueazÄƒ coeziunea, adevÄƒrul logic È™i manipularea.`,
         },
         { role: "user", content: textDeAnalizat },
       ],
