@@ -81,6 +81,56 @@
       display: none;
       text-align: center;
     }
+
+    /* 🌀 Spinner animat */
+    .spinner {
+      margin: 20px auto;
+      width: 50px;
+      height: 50px;
+      border: 5px solid rgba(0,255,183,0.2);
+      border-top: 5px solid var(--good);
+      border-radius: 50%;
+      animation: spin 1s linear infinite, pulse 2s ease-in-out infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 0.6; }
+      50% { opacity: 1; }
+    }
+
+    /* ✨ Efect bare animate */
+    canvas {
+      animation: growBars 1.2s ease-out forwards;
+      transform-origin: bottom;
+      opacity: 0;
+    }
+    @keyframes growBars {
+      0% { transform: scaleY(0.1); opacity: 0.3; }
+      60% { transform: scaleY(1.05); opacity: 1; }
+      100% { transform: scaleY(1); opacity: 1; }
+    }
+
+    /* 🌐 Text animat "Analiză în curs..." */
+    .loading-text {
+      font-size: 1rem;
+      color: #9ba1a6;
+      margin-top: 10px;
+      letter-spacing: 0.5px;
+    }
+    .loading-text::after {
+      content: "";
+      display: inline-block;
+      animation: dots 1.5s infinite;
+    }
+    @keyframes dots {
+      0% { content: ""; }
+      33% { content: "."; }
+      66% { content: ".."; }
+      100% { content: "..."; }
+    }
   </style>
 </head>
 
@@ -127,7 +177,7 @@
     };
     document.body.insertBefore(toggle, chartDiv);
 
-    // 🔄 Efect de tranziție general
+    // 🔄 Tranziție generală
     const fade = (el, type = "in") => {
       el.style.opacity = type === "in" ? 0 : 1;
       el.style.display = "block";
@@ -150,7 +200,11 @@
 
       fade(resultDiv, "out");
       fade(chartDiv, "out");
-      resultDiv.innerHTML = "⏳ Analiză în curs...";
+      resultDiv.innerHTML = `
+        <div style="text-align:center;">
+          <div class="spinner"></div>
+          <p class="loading-text">Analiză în curs</p>
+        </div>`;
       srcDiv.innerHTML = "";
 
       try {
@@ -173,9 +227,13 @@
         // 🔢 Extragem valorile numerice
         const delta = parseFloat(analiza.match(/Δ\s*=\s*([\d.,]+)/)?.[1]?.replace(",", ".") || "3.14");
         const fc = parseFloat(analiza.match(/Fc\s*=\s*([\d.,]+)/)?.[1]?.replace(",", ".") || "3.14");
-        const manipulare = parseFloat(analiza.match(/manipulare.*?([\d.,]+)/i)?.[1]?.replace(",", ".") || "0");
+        
+        let manipulare = 0;
+        const mMatch = analiza.match(/manipulare[^0-9]*([\d]+[.,]?\d*)/i);
+        if (mMatch) manipulare = parseFloat(mMatch[1].replace(",", "."));
+        if (isNaN(manipulare)) manipulare = 0;
 
-        // 🔠 Interpretare semantică
+        // 🔠 Verdict coerent
         let verdict = "";
         if (manipulare < 10 && fc > 3)
           verdict = "✅ Nivel de coeziune foarte bun – informația este neutră și stabilă.";
@@ -183,9 +241,10 @@
           verdict = "⚠️ Nivel moderat – conține ambiguități minore.";
         else if (manipulare < 60)
           verdict = "🟠 Nivel scăzut – posibile biasuri sau interpretări subiective.";
-        else verdict = "🔴 Nivel critic – text manipulator sau fals.";
+        else
+          verdict = "🔴 Nivel critic – text manipulator sau fals.";
 
-        // 🔹 Grafic colorat
+        // 🔹 Grafic animat
         const ctx = document.getElementById("chart").getContext("2d");
         new Chart(ctx, {
           type: "bar",
@@ -201,6 +260,10 @@
             }]
           },
           options: {
+            animation: {
+              duration: 1200,
+              easing: "easeOutCubic"
+            },
             plugins: { legend: { display: false } },
             scales: { y: { beginAtZero: true, max: 6.3 } }
           }
@@ -209,7 +272,7 @@
         chartDiv.style.display = "block";
         fade(chartDiv, "in");
 
-        // 🧮 Interpretarea Formulei 3.14Δ
+        // 🧮 Interpretare
         chartDiv.insertAdjacentHTML("beforeend", `
           <div id="interpretare" style="margin-top:1rem; font-size:0.9rem; color:#c9d1d9; opacity:0; transition:opacity 1s;">
             <h4>🧮 Interpretarea Formulei 3.14Δ</h4>
@@ -224,12 +287,16 @@
         setTimeout(() => (document.getElementById("interpretare").style.opacity = "1"), 300);
 
         // 🔗 Surse factuale
-        srcDiv.innerHTML = "<h3>🔎 Surse factuale:</h3>";
-        (factualRes.sources || []).forEach(src => {
-          if (src.url)
-            srcDiv.innerHTML += `<a href="${src.url}" target="_blank">${src.title}</a>`;
-          else srcDiv.innerHTML += `<p>${src.title}</p>`;
-        });
+        if (!factualRes.sources || factualRes.sources.length === 0) {
+          srcDiv.innerHTML = `<h3>🔎 Surse factuale:</h3><p>Nicio sursă factuală relevantă găsită.</p>`;
+        } else {
+          srcDiv.innerHTML = "<h3>🔎 Surse factuale:</h3>";
+          factualRes.sources.forEach(src => {
+            if (src.url)
+              srcDiv.innerHTML += `<a href="${src.url}" target="_blank">${src.title}</a>`;
+            else srcDiv.innerHTML += `<p>${src.title}</p>`;
+          });
+        }
 
       } catch (err) {
         resultDiv.innerHTML = "⚠️ Eroare de conexiune cu motorul Coeziv.";
