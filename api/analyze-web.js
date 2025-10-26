@@ -48,17 +48,24 @@ Evaluează coeziunea, adevărul logic și manipularea.`,
     const fc = parseFloat(raw.match(/Fc\s*=?\s*([\d.]+)/)?.[1]) || 3.14;
     const manipulare = parseFloat(raw.match(/manipulare\s*=?\s*([\d.]+)/)?.[1]) || Math.max(0, (1 - fc / 3.14) * 100);
 
-    // ✅ Combinăm rezultatele
-    return res.status(200).json({
-      success: true,
-      rezultat: {
-        text: `🧩 Analiză factuală:\n${webAnswer}\n\n📊 Analiză semantică:\n${raw}`,
-        fc,
-        delta,
-        manipulare,
-        surse: webSources,
-      },
-    });
+    // ✅ Combinăm rezultatele (cu surse clickabile)
+return res.status(200).json({
+  success: true,
+  rezultat: {
+    // text combinat pentru afișarea completă în UI
+    text: `🧩 Analiză factuală:\n${webAnswer}\n\n📊 Analiză semantică:\nΔ = ${delta}\nFc = ${fc}\nManipulare% = ${manipulare}`,
+    fc,
+    delta,
+    manipulare,
+    // 🔗 Formatare surse clickabile
+    surse: (webSources || []).map((src, index) => {
+      if (typeof src === "object" && src.url) {
+        return { title: src.title || `Sursă ${index + 1}`, url: src.url };
+      }
+      return { title: `Sursă ${index + 1}`, url: src };
+    }),
+  },
+});
   } catch (err) {
     console.error("Eroare analiză completă:", err);
     return res.status(500).json({ success: false, error: err.message });
