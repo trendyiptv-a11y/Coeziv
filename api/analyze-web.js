@@ -49,37 +49,23 @@ Evaluează coeziunea, adevărul logic și manipularea.`,
     const manipulare = parseFloat(raw.match(/manipulare\s*=?\s*([\d.]+)/)?.[1]) || Math.max(0, (1 - fc / 3.14) * 100);
 
     // ✅ Combinăm rezultatele (cu surse clickabile)
-// 🔗 Afișăm sursele clickabile
-if (data.rezultat.surse && data.rezultat.surse.length > 0) {
-  const linksHTML = data.rezultat.surse.map((s) => `
-    <a href="${s.url}" 
-       target="_blank" 
-       rel="noopener noreferrer"
-       style="
-         display:block;
-         color:#00ffb7;
-         text-decoration:none;
-         margin:4px 0;
-         border-left:2px solid #00ffb7;
-         padding-left:6px;
-         transition:0.2s;
-       "
-       onmouseover="this.style.color='#00ffaa'"
-       onmouseout="this.style.color='#00ffb7'">
-       🌐 ${s.title || s.url}
-    </a>
-  `).join("");
-
-  document.getElementById("sources").innerHTML = `
-    <div style="margin-top:1em;">
-      <b>🔗 Surse verificate:</b>
-      ${linksHTML}
-    </div>
-  `;
-} else {
-  document.getElementById("sources").innerHTML =
-    `<i style="color:#777;">⚠️ Nicio sursă relevantă găsită.</i>`;
-}
+return res.status(200).json({
+  success: true,
+  rezultat: {
+    // text combinat pentru afișarea completă în UI
+    text: `🧩 Analiză factuală:\n${webAnswer}\n\n📊 Analiză semantică:\nΔ = ${delta}\nFc = ${fc}\nManipulare% = ${manipulare}`,
+    fc,
+    delta,
+    manipulare,
+    // 🔗 Formatare surse clickabile
+    surse: (webSources || []).map((src, index) => {
+      if (typeof src === "object" && src.url) {
+        return { title: src.title || `Sursă ${index + 1}`, url: src.url };
+      }
+      return { title: `Sursă ${index + 1}`, url: src };
+    }),
+  },
+});
   } catch (err) {
     console.error("Eroare analiză completă:", err);
     return res.status(500).json({ success: false, error: err.message });
