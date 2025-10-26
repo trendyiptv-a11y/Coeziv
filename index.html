@@ -3,101 +3,105 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Coeziv 3.14 — Motor de analiză informațională </title>
+  <title>Coeziv 3.14 – Motor de analiză informațională</title>
   <style>
+    :root {
+      --bg: #0d1117;
+      --panel: #161b22;
+      --text: #c9d1d9;
+      --accent: #00ffb7;
+      --error: #ff0055;
+    }
+
     body {
-      background: #0d1117;
-      color: #e6edf3;
-      font-family: "Segoe UI", sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', sans-serif;
       text-align: center;
-      margin: 0;
-      padding: 1em;
+      padding: 2rem 1rem;
+      overflow-x: hidden;
     }
+
     h1 {
-      color: #00ffb7;
-      margin-bottom: 0.1em;
+      color: var(--accent);
+      font-size: 2.2rem;
+      margin-bottom: 0.3rem;
     }
+
     p {
       color: #9ba1a6;
-      margin-top: 0;
+      margin-bottom: 2rem;
     }
+
     textarea {
-      width: 95%;
-      max-width: 650px;
-      height: 180px;
-      background: #161b22;
-      color: #c9d1d9;
-      border: 1px solid #30363d;
+      width: 100%;
+      max-width: 600px;
+      height: 120px;
+      background: var(--panel);
+      border: 1px solid #333;
       border-radius: 10px;
-      padding: 1em;
-      font-size: 1em;
+      color: var(--text);
+      padding: 10px;
+      font-size: 1rem;
       resize: none;
+      outline: none;
     }
+
     button {
-      margin-top: 1em;
-      background: #00ffb7;
-      color: #000;
+      background-color: var(--accent);
+      color: black;
       border: none;
       border-radius: 8px;
-      padding: 0.8em 1.6em;
+      padding: 10px 20px;
+      margin-top: 1rem;
+      font-weight: 600;
       cursor: pointer;
-      font-weight: bold;
-      font-size: 1em;
-      transition: background 0.2s;
+      transition: 0.3s;
     }
+
     button:hover {
-      background: #00cc8f;
+      opacity: 0.9;
+      transform: scale(1.02);
     }
-    .result {
-      margin: 1.5em auto;
-      width: 95%;
-      max-width: 700px;
-      background: #161b22;
-      padding: 1.5em;
-      border-radius: 12px;
-      border: 1px solid #30363d;
-      text-align: left;
-      line-height: 1.5;
-      white-space: pre-wrap;
-    }
-    canvas {
-      margin-top: 1em;
-      background: #0d1117;
-    }
-    .verdict-bar {
-      margin: 1em auto;
-      width: 90%;
-      max-width: 500px;
-      height: 25px;
+
+    #result {
+      background: var(--panel);
       border-radius: 10px;
-      transition: background 0.5s;
+      margin: 1.5rem auto;
+      padding: 1rem;
+      max-width: 600px;
+      min-height: 80px;
+      white-space: pre-line;
+      text-align: left;
     }
-    .legend {
-      margin-top: 0.6em;
-      color: #aaa;
-      font-size: 0.9em;
+
+    #verdictBar {
+      width: 90%;
+      height: 20px;
+      margin: 1rem auto;
+      background: #444;
+      border-radius: 10px;
+      transition: background 0.3s;
     }
+
     footer {
-      margin-top: 1em;
-      color: #777;
-      font-size: 0.9em;
-      .badge {
-  background-color: #00ffb7;
-  color: #0d1117;
-  font-size: 0.7em;
-  font-weight: bold;
-  padding: 2px 5px;
-  border-radius: 6px;
-  margin-right: 5px;
-}
-.badge.gray {
-  background-color: #444;
-  color: #bbb;
-}
-.source-item {
-  margin: 4px 0;
-  animation: fadeIn 0.6s ease-in;
-}
+      font-size: 0.85rem;
+      color: #aaa;
+      margin-top: 2rem;
+    }
+
+    a.source-link {
+      display: block;
+      color: var(--accent);
+      text-decoration: none;
+      margin: 4px 0;
+      border-left: 2px solid var(--accent);
+      padding-left: 6px;
+      transition: 0.2s;
+    }
+
+    a.source-link:hover {
+      color: #00ffaa;
     }
   </style>
 </head>
@@ -105,99 +109,67 @@
   <h1>Coeziv 3.14</h1>
   <p>Motor de analiză informațională</p>
 
-  <textarea id="textInput" placeholder="Introdu textul pentru analiză..."></textarea>
+  <textarea id="textInput" placeholder="Scrie textul pentru analiză..."></textarea>
   <br />
   <button id="analyzeBtn">Analizează</button>
 
-  <div class="result" id="result">Aici vor apărea rezultatele...</div>
-  <!-- 🔗 Surse găsite automat -->
-<div id="sources" class="sources"></div>
-  <div class="verdict-bar" id="verdictBar"></div>
-  <canvas id="chart" width="320" height="180"></canvas>
+  <div id="result">Aici vor apărea rezultatele...</div>
+  <div id="verdictBar"></div>
 
-  <div class="legend">
-    ✅ Verde = Veridic / Coeziv | ⚠️ Galben = Ambiguu / incert | 🔴 Roșu = Fals / Manipulator
-  </div>
-<!-- 🧠 Legendă formula Coeziv 3.14 -->
-<div class="legend-container" style="margin-top:1.5rem; padding:1rem; background:#0d1117; border:1px solid #1f2937; border-radius:12px; font-family:'Segoe UI',sans-serif; color:#d1d5db;">
-  <h3 style="font-size:1rem; color:#22d3ee; margin-bottom:0.5rem;">🧭 Interpretarea Formulei 3.14Δ</h3>
-  <ul style="list-style:none; margin:0; padding:0; line-height:1.6;">
-    <li>🟩 <b>Fc (Coeziune logică)</b> — măsoară stabilitatea internă a informației, consistența logică și claritatea gramaticală.</li>
-    <li>🟨 <b>Δ (Vibrație semantică)</b> — reprezintă activitatea informațională neutră, adică variațiile naturale de sens și ton, fără intenție de manipulare.</li>
-    <li>🟥 <b>Manipulare (%)</b> — indică tendința de distorsionare sau dezechilibru al mesajului, intenționat sau emoțional.</li>
-  </ul>
-  <p style="font-size:0.85rem; color:#9ca3af; margin-top:0.6rem;">
-    🔹 <b>Notă:</b> Culoarea galbenă (<b>Δ</b>) nu semnifică eroare — ci doar vibrația vie a informației, adică faptul că textul transmite sens activ, nu static.
-  </p>
-</div>
-  <footer>© 2025 Coeziv 3.14 </footer>
+  <footer>
+    ✅ Verde = Veridic / Coeziv | ⚠️ Galben = Ambiguu | ❌ Roșu = Manipulator
+  </footer>
 
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-<script>
-document.getElementById("analyzeBtn").addEventListener("click", async () => {
-  const text = document.getElementById("textInput").value.trim();
-  const resultDiv = document.getElementById("result");
-  const verdictBar = document.getElementById("verdictBar");
+  <script>
+    document.getElementById("analyzeBtn").addEventListener("click", async () => {
+      const text = document.getElementById("textInput").value.trim();
+      const resultDiv = document.getElementById("result");
+      const verdictBar = document.getElementById("verdictBar");
 
-  if (!text) {
-    resultDiv.textContent = "⚠️ Introdu un text pentru analiză.";
-    return;
-  }
+      if (!text) {
+        resultDiv.textContent = "⚠️ Introdu un text pentru analiză.";
+        return;
+      }
 
-  resultDiv.textContent = "⏳ Analiză în curs...";
-  verdictBar.style.background = "#444";
+      resultDiv.textContent = "⏳ Analiză în curs...";
+      verdictBar.style.background = "#444";
 
-  try {
-    const response = await fetch("/api/analyze-web", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ textDeAnalizat: text }),
+      try {
+        const response = await fetch("/api/analyze-web", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ textDeAnalizat: text }),
+        });
+
+        const data = await response.json(); // ✅ FIX: aici era eroarea
+
+        if (data.success) {
+          const r = data.rezultat;
+
+          const surseHTML = (r.surse || [])
+            .map(
+              (s, i) =>
+                `<a class="source-link" href="${s.url}" target="_blank" rel="noopener noreferrer">
+                  🌐 ${s.title || s.url}
+                </a>`
+            )
+            .join("");
+
+          resultDiv.innerHTML = `
+            <div>${r.text}</div>
+            ${surseHTML ? `<div><b>Surse principale:</b><br>${surseHTML}</div>` : ""}
+          `;
+          verdictBar.style.background = "#00ffb7";
+        } else {
+          resultDiv.textContent = "❌ Eroare API";
+          verdictBar.style.background = "#ff0055";
+        }
+      } catch (err) {
+        console.error(err);
+        resultDiv.textContent = `❌ Eroare: ${err.message}`;
+        verdictBar.style.background = "#ff0055";
+      }
     });
-
-    const data = await response.json(); // ✅ important!
-
-    if (data.success) {
-      const r = data.rezultat;
-
-      // 🔗 surse clickabile
-      const surseHTML = (r.surse || [])
-        .map(
-          (s, i) =>
-            `<a href="${s.url}" target="_blank" rel="noopener noreferrer"
-               style="display:block;color:#00ffb7;text-decoration:none;
-                      margin:4px 0;border-left:2px solid #00ffb7;padding-left:6px;">
-               🌐 ${s.title || s.url}
-             </a>`
-        )
-        .join("");
-
-      resultDiv.innerHTML = `
-        <div style="white-space:pre-line">${r.text}</div>
-        ${surseHTML ? `<div><b>Surse:</b><br>${surseHTML}</div>` : ""}
-      `;
-      verdictBar.style.background = "#00ffb7";
-    } else {
-      resultDiv.textContent = "❌ Eroare API";
-      verdictBar.style.background = "#ff0055";
-    }
-  } catch (err) {
-    console.error(err);
-    resultDiv.textContent = `❌ Eroare: ${err.message}`;
-    verdictBar.style.background = "#ff0055";
-  }
-});
-</script>
+  </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
