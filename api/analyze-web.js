@@ -1,92 +1,46 @@
-import OpenAI from "openai";
+export const config = { runtime: "edge" };
 
-export default async function handler(req, res) {
+export default async function handler(req) {
   try {
-    const { textDeAnalizat } = req.body || {};
-    if (!textDeAnalizat)
-      return res.status(400).json({ success: false, error: "Lipsește textul pentru analiză." });
+    const { text } = await req.json();
 
-    const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+    if (!text || !text.trim()) {
+      return new Response(JSON.stringify({ success: false, message: "Textul este gol." }), {
+        status: 400,
+        headers: { "Content-Type": "application/json; charset=utf-8" },
+      });
+    }
 
-    // 🧠 Pas 1 — verificare factuală live
-    const search = await client.responses.create({
-  model: "gpt-5",
-  tools: [{ type: "web_search" }],
-  input: [
-    {
-      role: "user",
-      content: `
-Verifică factual următorul text: "${textDeAnalizat}". 
-Răspunde concis, în română, dar include obligatoriu 3–5 linkuri externe reale (cu https://...) din surse majore și verificabile. 
-Sursele trebuie să fie cât mai diverse (ex: Wikipedia, Britannica, Reuters, BBC, New York Times, Binance, NASA etc.).
-Formatul cerut:
-
-🧩 Analiză factuală:
-Verdict: [Adevărat / Fals / Parțial adevărat].
-Explicație scurtă: [...]
-Surse:
-1. [Titlu sursă 1](https://...)
-2. [Titlu sursă 2](https://...)
-3. [Titlu sursă 3](https://...)
-
-Include doar surse relevante, actuale (2024–2025).`,
-    },
-  ],
-});
-
-    const webAnswer = search.output_text || "Nu s-au găsit surse clare.";
-    const webSources =
-      search.output?.[0]?.citations?.map((c) => c.url) ||
-      search.output?.[0]?.references?.map((r) => r.url) ||
-      [];
-
-    // 🧠 Pas 2 — analiză semantică (Formula 3.14Δ)
-    const analyze = await client.chat.completions.create({
-      model: "gpt-5",
-      messages: [
-        {
-          role: "system",
-          content: `
-Tu ești motorul Formula 3.14Δ. Calculează:
-Δ între 0–6.28, Fc = 3.14 - |Δ - 3.14|/3.14,
-Manipulare% = (1 - Fc/3.14)*100.
-Evaluează coeziunea, adevărul logic și manipularea.`,
-        },
-        { role: "user", content: textDeAnalizat },
-      ],
+    const gptResponse = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: "gpt-4o-mini",
+        messages: [
+          {
+            role: "system",
+            content:
+              "Ești motorul Coeziv 3.14. Analizează textul folosind formula Δ (diferență logică), Fc (forța coeziunii) și gradul de Manipulare (%). Explică succint și obiectiv, în română.",
+          },
+          { role: "user", content: text },
+        ],
+      }),
     });
 
-    const raw = analyze.choices[0].message.content;
-    const delta = parseFloat(raw.match(/Δ\s*=?\s*([\d.]+)/)?.[1]) || 3.14;
-    const fc = parseFloat(raw.match(/Fc\s*=?\s*([\d.]+)/)?.[1]) || 3.14;
-    const manipulare = parseFloat(raw.match(/manipulare\s*=?\s*([\d.]+)/)?.[1]) || Math.max(0, (1 - fc / 3.14) * 100);
+    const data = await gptResponse.json();
+    const answer = data.choices?.[0]?.message?.content || "Analiza nu a generat conținut.";
 
-    // ✅ Combinăm rezultatele (cu surse clickabile)
-return res.status(200).json({
-  success: true,
-  rezultat: {
-    // text combinat pentru afișarea completă în UI
-    text: `${webAnswer}\n\n📊 Analiză semantică:\nΔ = ${delta}\nFc = ${fc}\nManipulare% = ${manipulare}`,
-    fc,
-    delta,
-    manipulare,
-    // 🔗 Formatare surse clickabile
-    surse:
-  webSources && webSources.length > 0
-    ? webSources.map((src, index) => {
-        if (typeof src === "object" && src.url) {
-          return { title: src.title || `Sursă ${index + 1}`, url: src.url };
-        }
-        if (typeof src === "string") {
-          return { title: `Sursă ${index + 1}`, url: src };
-        }
-        return null;
-      }).filter(Boolean)
-    : null,
-  },
-});
+    return new Response(JSON.stringify({ success: true, result: answer }), {
+      status: 200,
+      headers: { "Content-Type": "application/json; charset=utf-8" },
+    });
   } catch (err) {
-    console.error("Eroare analiză completă:", err);
-    return res.status(500).json({ success: false, error: err.message });
+    return new Response(JSON.stringify({ success: false, error: err.message }), {
+      status: 500,
+      headers: { "Content-Type": "application/json; charset=utf-8" },
+    });
   }
 }
