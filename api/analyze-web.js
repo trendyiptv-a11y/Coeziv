@@ -40,7 +40,7 @@ Include doar surse relevante, actuale (2024â€“2025).`,
       search.output?.[0]?.references?.map((r) => r.url) ||
       [];
 
-    // ðŸ§  Pas 2 â€” analizÄƒ semanticÄƒ (Formula 3.14Î”)
+    // ðŸ§  Pas 2 Analiză semantică (Formula 3.14Î”)
     const analyze = await client.chat.completions.create({
       model: "gpt-5",
       messages: [
