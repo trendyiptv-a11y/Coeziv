@@ -77,6 +77,12 @@ Returnează atât valorile numerice, cât și o explicație clară:
       ],
     });
 
+    const verdictEl = document.getElementById("verdictTitle");
+
+// 🟦 Arată mesajul doar când începe analiza
+verdictEl.style.display = "block";
+verdictEl.textContent = "⚙️ Analiză în curs...";
+verdictEl.style.color = "#22d3ee";
     const raw = analyze.choices[0].message.content || "";
     const delta = parseFloat(raw.match(/Δ\s*=?\s*([\d.,]+)/)?.[1] || "3.14");
     const fc = parseFloat(raw.match(/Fc\s*=?\s*([\d.,]+)/)?.[1] || "3.14");
