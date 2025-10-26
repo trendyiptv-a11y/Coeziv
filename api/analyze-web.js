@@ -8,37 +8,31 @@ export default async function handler(req, res) {
 
     const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-    // ðŸ§  Pas 1 â€” verificare factualÄƒ live
-    const search = await client.responses.create({
+    // 🧠 Pas 1 — verificare factuală live
+const search = await client.chat.completions.create({
   model: "gpt-5",
-  tools: [{ type: "web_search" }],
-  input: [
+  messages: [
+    {
+      role: "system",
+      content: `Ești un verificator factual. Analizează textul și întoarce surse externe reale (cu https://...)`,
+    },
     {
       role: "user",
       content: `
-VerificÄƒ factual urmÄƒtorul text: "${textDeAnalizat}". 
-RÄƒspunde concis, Ã®n romÃ¢nÄƒ, dar include obligatoriu 3â€“5 linkuri externe reale (cu https://...) din surse majore È™i verificabile. 
-Sursele trebuie sÄƒ fie cÃ¢t mai diverse (ex: Wikipedia, Britannica, Reuters, BBC, New York Times, Binance, NASA etc.).
-Formatul cerut:
-
-ðŸ§© AnalizÄƒ factualÄƒ:
-Verdict: [AdevÄƒrat / Fals / ParÈ›ial adevÄƒrat].
-ExplicaÈ›ie scurtÄƒ: [...]
+Verifică factual următorul text: "${textDeAnalizat}". 
+Include 3–5 linkuri din surse majore (Reuters, BBC, Wikipedia, etc.).
+Răspunde în format:
+🧩 Analiză factuală:
+Verdict: [Adevărat / Fals / Parțial adevărat]
+Explicație scurtă: [...]
 Surse:
-1. [Titlu sursÄƒ 1](https://...)
-2. [Titlu sursÄƒ 2](https://...)
-3. [Titlu sursÄƒ 3](https://...)
-
-Include doar surse relevante, actuale (2024â€“2025).`,
+1. [Titlu sursă](https://...)
+2. [Titlu sursă](https://...)
+3. [Titlu sursă](https://...)
+`,
     },
   ],
 });
-
-    const webAnswer = search.output_text || "Nu s-au gÄƒsit surse clare.";
-    const webSources =
-      search.output?.[0]?.citations?.map((c) => c.url) ||
-      search.output?.[0]?.references?.map((r) => r.url) ||
-      [];
 
     // ðŸ§  Pas 2 â€” analizÄƒ semanticÄƒ (Formula 3.14Î”)
     const analyze = await client.chat.completions.create({
