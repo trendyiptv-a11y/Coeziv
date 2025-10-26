@@ -62,7 +62,8 @@ EvalueazÄƒ coeziunea, adevÄƒrul logic È™i manipularea.`,
     const manipulare = parseFloat(raw.match(/manipulare\s*=?\s*([\d.]+)/)?.[1]) || Math.max(0, (1 - fc / 3.14) * 100);
 
     // âœ… CombinÄƒm rezultatele (cu surse clickabile)
-return res.status(200).json({
+res.setHeader("Content-Type", "application/json; charset=utf-8");
+    return res.status(200).json({
   success: true,
   rezultat: {
     // text combinat pentru afiÈ™area completÄƒ Ã®n UI
