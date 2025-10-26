@@ -3,125 +3,115 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Coeziv 3.14Δ – Motor de analiză informațională</title>
-
+  <title>Coeziv 3.14Δ – Analizor Informațional</title>
   <style>
+    :root {
+      --good: #00ffb7;
+      --medium: #ffaa00;
+      --bad: #ff0055;
+      --bg: #0d1117;
+      --panel: #161b22;
+    }
     body {
-      background-color: #0d1117;
+      background-color: var(--bg);
       color: #c9d1d9;
-      font-family: 'Segoe UI', sans-serif;
+      font-family: "Segoe UI", sans-serif;
       text-align: center;
-      margin: 0;
-      padding: 1rem;
+      padding: 2rem 1rem;
+      overflow-x: hidden;
+      transition: background-color 0.5s ease;
     }
-
     h1 {
-      color: #00ffb7;
-      font-size: 1.9rem;
-      margin-bottom: 0.2rem;
+      color: var(--good);
+      font-size: 2rem;
+      margin-bottom: 0.3rem;
     }
-
-    p {
-      color: #9ba1a6;
-      font-size: 0.95rem;
-      margin-top: 0;
-    }
-
+    p { color: #9ba1a6; margin-bottom: 1rem; }
     textarea {
-      background: #161b22;
-      border: 1px solid #30363d;
-      border-radius: 10px;
-      color: #c9d1d9;
       width: 90%;
-      height: 100px;
-      margin-top: 1rem;
-      padding: 10px;
+      max-width: 800px;
+      height: 130px;
+      background: var(--panel);
+      border: none;
+      border-radius: 12px;
+      color: #c9d1d9;
       font-size: 1rem;
-      resize: vertical;
+      padding: 1rem;
+      resize: none;
+      outline: none;
+      box-shadow: 0 0 12px rgba(0, 0, 0, 0.3);
     }
-
     button {
-      background-color: #00ffb7;
+      margin-top: 1rem;
+      background: var(--good);
       color: #0d1117;
-      font-weight: 600;
       border: none;
       border-radius: 10px;
-      padding: 12px 30px;
+      padding: 0.7rem 1.5rem;
+      font-size: 1rem;
       cursor: pointer;
-      font-size: 1.05rem;
-      margin-top: 1rem;
-      transition: all 0.25s ease-in-out;
+      transition: background 0.3s ease, transform 0.2s ease;
     }
-
-    button:hover {
-      background-color: #03e9a4;
-      transform: scale(1.03);
-    }
-
-    .result {
-      background-color: #161b22;
-      border-radius: 12px;
+    button:hover { background: #00e6a6; transform: scale(1.03); }
+    #result, #chartContainer, #sources {
       margin-top: 1.5rem;
+      max-width: 900px;
+      margin-left: auto;
+      margin-right: auto;
+      background: var(--panel);
       padding: 1rem;
-      width: 92%;
-      margin-inline: auto;
-      box-shadow: 0 0 12px rgba(0, 255, 183, 0.08);
+      border-radius: 12px;
+      box-shadow: 0 0 12px rgba(0, 0, 0, 0.2);
       text-align: left;
-      line-height: 1.6;
+    }
+    a { color: var(--good); text-decoration: none; display: block; margin: 5px 0; }
+    a:hover { text-decoration: underline; }
+    #chartContainer { display: none; text-align: center; }
+
+    /* Spinner animat */
+    .spinner {
+      margin: 20px auto;
+      width: 50px;
+      height: 50px;
+      border: 5px solid rgba(0,255,183,0.2);
+      border-top: 5px solid var(--good);
+      border-radius: 50%;
+      animation: spin 1s linear infinite, pulse 2s ease-in-out infinite;
+    }
+    @keyframes spin { 0% {transform:rotate(0);} 100% {transform:rotate(360deg);} }
+    @keyframes pulse { 0%,100% {opacity:.6;} 50% {opacity:1;} }
+
+    .loading-text {
+      font-size: 1rem;
+      color: #9ba1a6;
+      margin-top: 10px;
+      letter-spacing: 0.5px;
+    }
+    .loading-text::after {
+      content: "";
+      display: inline-block;
+      animation: dots 1.5s infinite;
+    }
+    @keyframes dots {
+      0% { content: ""; }
+      33% { content: "."; }
+      66% { content: ".."; }
+      100% { content: "..."; }
     }
 
-    .highlight-delta { color: #ffd60a; font-weight: 600; }
-    .highlight-fc { color: #00ffb7; font-weight: 600; }
-    .highlight-manip { color: #ff0055; font-weight: 600; }
-
-    .bar-container {
-      background: #22272e;
+    /* ✨ Efect vizual pentru concluzii */
+    .highlight-conclusion {
+      background: rgba(0, 255, 183, 0.08);
+      border-left: 3px solid var(--good);
       border-radius: 8px;
-      height: 16px;
-      margin: 0.4rem 0 0.9rem;
-      overflow: hidden;
+      padding: 10px;
+      margin-top: 10px;
+      box-shadow: 0 0 10px rgba(0,255,183,0.2);
+      animation: fadeIn 0.8s ease-in-out;
     }
-
-    .bar {
-      height: 100%;
-      border-radius: 8px;
-      width: 0%;
-      transition: width 1s ease;
-    }
-
-    .bar-delta { background-color: #ffd60a; }
-    .bar-fc { background-color: #00ffb7; }
-    .bar-manip { background-color: #ff0055; }
-
-    .sources {
-      margin-top: 1.3rem;
-      border-top: 1px solid #30363d;
-      padding-top: 0.8rem;
-    }
-
-    .sources a {
-      color: #00ffb7;
-      text-decoration: none;
-    }
-
-    .sources a:hover {
-      text-decoration: underline;
-    }
-
-    .error {
-      color: #ff5577;
-      font-weight: 500;
-    }
-
-    footer {
-      margin-top: 2rem;
-      font-size: 0.85rem;
-      color: #8b949e;
-    }
-
-    @media (max-width: 480px) {
-      h1 { font-size: 1.5rem; }
-      textarea { width: 95%; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
   </style>
 </head>
@@ -129,105 +119,157 @@
 <body>
   <h1>🧠 Coeziv 3.14Δ</h1>
   <p>Analizor informațional – detectează nivelul de coeziune, vibrație și manipulare semantică.</p>
+  
+  <textarea id="userInput" placeholder="Introdu textul, afirmația sau știrea de verificat..."></textarea><br />
+  <button id="analyzeBtn">Analizează Informația</button>
 
-  <textarea id="textInput" placeholder="Introdu textul pentru analiză..."></textarea>
-  <br />
-  <button id="analyzeBtn">🔍 Analizează Informația</button>
+  <div id="result"></div>
+  <div id="chartContainer"><canvas id="chart"></canvas></div>
+  <div id="sources"></div>
 
-  <div class="result" id="result">
-    Aici va apărea analiza completă Coeziv 3.14Δ.
-  </div>
-
-  <footer>© 2025 Coeziv 3.14Δ</footer>
-
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
-    async function analyzeText() {
-      const text = document.getElementById("textInput").value.trim();
-      const result = document.getElementById("result");
+    const btn = document.getElementById("analyzeBtn");
+    const resultDiv = document.getElementById("result");
+    const chartDiv = document.getElementById("chartContainer");
+    const srcDiv = document.getElementById("sources");
 
-      if (!text) {
-        result.innerHTML = "⚠️ Introdu un text pentru analiză.";
-        return;
-      }
+    let modDetaliat = false;
+    const toggle = document.createElement("button");
+    toggle.textContent = "🔍 Mod detaliat: OFF";
+    toggle.style = `
+      margin-top:10px;
+      background:#161b22;
+      color:#00ffb7;
+      border:none;
+      border-radius:8px;
+      padding:6px 12px;
+      cursor:pointer;
+      transition: all 0.3s ease;`;
+    toggle.onclick = () => {
+      modDetaliat = !modDetaliat;
+      toggle.textContent = modDetaliat ? "🧠 Mod detaliat: ON" : "🔍 Mod detaliat: OFF";
+      document.body.style.backgroundColor = modDetaliat ? "#0f141a" : "#0d1117";
+    };
+    document.body.insertBefore(toggle, chartDiv);
 
-      result.innerHTML = "🧠 Analiză în curs...";
+    function fade(el, type="in"){
+      el.style.opacity = type==="in"?0:1;
+      el.style.display="block";
+      let last=+new Date();
+      const tick=()=>{ el.style.opacity = +el.style.opacity + (new Date()-last)/300;
+        last=+new Date();
+        if(+el.style.opacity<1&&type==="in") requestAnimationFrame(tick);
+        if(+el.style.opacity>0&&type==="out") requestAnimationFrame(()=>{
+          el.style.opacity-=0.1;
+          if(+el.style.opacity<=0) el.style.display="none";
+        });
+      };
+      tick();
+    }
+
+    // 🧠 Formatare inteligentă cu evidențiere
+    function formatAnalysisText(txt){
+      let html = txt
+        .replace(/\*\*(.*?)\*\*/g,"<strong style='color:#00ffb7'>$1</strong>")
+        .replace(/(Analiză:|Explicație:|Concluzie:|Formula:|Interpretare:)/gi,
+          "<h3 style='color:#00ffb7; margin-top:10px;'>$1</h3>")
+        .replace(/(\n|\\n)/g,"<br>");
+      html = html.replace(/(<h3[^>]*>Concluzie:.*?<\/h3>.*?)(?=<h3|$)/gis,
+        match => `<div class="highlight-conclusion">${match}</div>`);
+      return html;
+    }
+
+    btn.addEventListener("click", async () => {
+      const text = document.getElementById("userInput").value.trim();
+      if (!text) return alert("Te rog introdu textul.");
+
+      fade(resultDiv,"out");
+      fade(chartDiv,"out");
+      resultDiv.innerHTML = `<div style="text-align:center;"><div class="spinner"></div>
+      <p class="loading-text">Analiză în curs</p></div>`;
+      srcDiv.innerHTML = "";
 
       try {
-        const response = await fetch(`/api/analyze-web?query=${encodeURIComponent(text)}`);
-        let data = await response.json().catch(() => null);
-        if (!data || (!data.analysis && typeof data !== "string")) {
-          const textResponse = await response.text();
-          data = { analysis: textResponse };
+        const [gptRes, factualRes] = await Promise.all([
+          fetch("/api/analyze-web", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ text })
+          }).then(r => r.json()),
+          fetch(`/api/factual?query=${encodeURIComponent(text)}`).then(r => r.json())
+        ]);
+
+        const analiza = gptRes.result || "";
+        const formatted = formatAnalysisText(analiza);
+        resultDiv.innerHTML = modDetaliat
+          ? `<h3>🧩 Analiză completă Coeziv 3.14</h3><p>${formatted}</p>`
+          : `<h3>🧩 Analiză Coeziv 3.14</h3><p>${formatted.split("<h3")[0]}</p>`;
+        fade(resultDiv,"in");
+
+        const delta = parseFloat(analiza.match(/Δ\s*=\s*([\d.,]+)/)?.[1]?.replace(",", ".") || "3.14");
+        const fc = parseFloat(analiza.match(/Fc\s*=\s*([\d.,]+)/)?.[1]?.replace(",", ".") || "3.14");
+        let manipulare = parseFloat(analiza.match(/manipulare[^0-9]*([\d]+[.,]?\d*)/i)?.[1]?.replace(",", ".") || "0");
+
+        const ctx = document.getElementById("chart").getContext("2d");
+        new Chart(ctx, {
+          type: "bar",
+          data: {
+            labels: ["Fc (Coeziune)", "Δ (Vibrație)", "Manipulare %"],
+            datasets: [{
+              data: [fc, delta, manipulare],
+              backgroundColor: [
+                fc >= 3 ? "#00ffb7" : fc >= 2 ? "#ffaa00" : "#ff0055",
+                delta >= 3 ? "#00ffb7" : delta >= 2 ? "#ffaa00" : "#ff0055",
+                manipulare > 50 ? "#ff0055" : manipulare > 25 ? "#ffaa00" : "#00ffb7"
+              ]
+            }]
+          },
+          options: { plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true,max:6.3}} }
+        });
+        chartDiv.style.display="block"; fade(chartDiv,"in");
+
+        // 🔗 Surse factuale + fallback complet
+        if (!factualRes.sources || factualRes.sources.length === 0) {
+          srcDiv.innerHTML = `
+            <h3>🔎 Surse factuale:</h3>
+            <div style="background: rgba(22,27,34,0.6);
+              border-left: 3px solid #00ffb7;
+              border-radius: 8px;
+              padding: 10px;
+              margin-top: 10px;">
+              <p style="color:#9ba1a6;">
+                Nicio sursă factuală relevantă găsită automat.<br>
+                Poți verifica manual următoarele surse neutre:
+              </p>
+              <ul style="list-style:none; color:#9ba1a6; text-align:left;">
+                <li>📘 <a href="https://ro.wikipedia.org" target="_blank">Wikipedia – enciclopedie generală</a></li>
+                <li>📰 <a href="https://www.reuters.com" target="_blank">Reuters – știri globale verificate</a></li>
+                <li>💼 <a href="https://www.investopedia.com" target="_blank">Investopedia – concepte economice</a></li>
+              </ul>
+            </div>`;
+        } else {
+          srcDiv.innerHTML = "<h3>🔎 Surse factuale:</h3>";
+          factualRes.sources.forEach((src, i) => {
+            if (src.url) {
+              srcDiv.innerHTML += `
+                <div style="background: rgba(22,27,34,0.5);
+                  border-left: 3px solid #00ffb7;
+                  border-radius: 8px;
+                  padding: 8px;
+                  margin-top: 6px;">
+                  <a href="${src.url}" target="_blank">🔗 ${src.title || 'Sursă ' + (i + 1)}</a>
+                </div>`;
+            } else {
+              srcDiv.innerHTML += `<p style="color:#9ba1a6;">${src.title}</p>`;
+            }
+          });
         }
 
-        const sourcesRes = await fetch(`/api/factual?query=${encodeURIComponent(text)}`).catch(() => null);
-        let sourcesData = await sourcesRes?.json().catch(() => null);
-        if (!sourcesData || !sourcesData.sources) sourcesData = { sources: [] };
-
-        // Extragem valorile numerice Δ, Fc, Manipulare
-        const deltaVal = extractValue(data.analysis, /Δ\s*=\s*([\d.,]+)/);
-        const fcVal = extractValue(data.analysis, /Fc\s*=\s*([\d.,]+)/);
-        const manipVal = extractValue(data.analysis, /Manipulare%?\s*=\s*([\d.,]+)/);
-
-        const analysisText = `
-          <h3>🧩 Analiză completă Coeziv 3.14Δ</h3>
-          ${data.analysis ? highlightFormulaElements(data.analysis) : "Nicio analiză disponibilă."}
-
-          <div class="bars">
-            <p><span class="highlight-fc">Fc (Coeziune logică):</span></p>
-            <div class="bar-container"><div id="fcBar" class="bar bar-fc"></div></div>
-
-            <p><span class="highlight-delta">Δ (Vibrație semantică):</span></p>
-            <div class="bar-container"><div id="deltaBar" class="bar bar-delta"></div></div>
-
-            <p><span class="highlight-manip">Manipulare (%):</span></p>
-            <div class="bar-container"><div id="manipBar" class="bar bar-manip"></div></div>
-          </div>
-
-          <div class="sources">
-            <h4>🔎 Surse factuale:</h4>
-            ${sourcesData.sources.length
-              ? sourcesData.sources.map(s => `<a href="${s.url}" target="_blank">• ${s.title}</a>`).join("<br>")
-              : "<p>Nicio sursă factuală relevantă găsită.</p>"}
-          </div>
-        `;
-
-        result.innerHTML = analysisText;
-
-        // Animăm barele cu valori
-        animateBars(fcVal, deltaVal, manipVal);
-
       } catch (err) {
-        result.innerHTML = `<p class="error">⚠️ Eroare de conexiune cu motorul GPT.<br>${err.message}</p>`;
+        resultDiv.innerHTML = "⚠️ Eroare de conexiune cu motorul Coeziv.";
       }
-    }
-
-    // Extrage o valoare numerică din text
-    function extractValue(text, regex) {
-      const match = text?.match(regex);
-      return match ? parseFloat(match[1].replace(",", ".")) : 0;
-    }
-
-    // Animația barelor
-    function animateBars(fc, delta, manip) {
-      const fcBar = document.getElementById("fcBar");
-      const deltaBar = document.getElementById("deltaBar");
-      const manipBar = document.getElementById("manipBar");
-
-      fcBar.style.width = `${(fc / 3.14) * 100}%`;
-      deltaBar.style.width = `${(delta / 3.14) * 100}%`;
-      manipBar.style.width = `${manip}%`;
-    }
-
-    // Colorare semantică în textul analizat
-    function highlightFormulaElements(html) {
-      return html
-        .replace(/Δ\s*\((.*?)\)/g, `<span class="highlight-delta">Δ ($1)</span>`)
-        .replace(/Fc\s*\((.*?)\)/g, `<span class="highlight-fc">Fc ($1)</span>`)
-        .replace(/Gradul de Manipulare\s*\(%\)/gi, `<span class="highlight-manip">Gradul de Manipulare (%)</span>`);
-    }
-
-    document.getElementById("analyzeBtn").addEventListener("click", analyzeText);
+    });
   </script>
 </body>
 </html>
