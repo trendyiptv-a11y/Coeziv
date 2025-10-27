@@ -1,93 +1,105 @@
 import OpenAI from "openai";
 
-const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
-export const config = { runtime: "edge" };
-
-export default async function handler(req) {
+export default async function handler(req, res) {
   try {
-    const { text } = await req.json();
+    const { text } = req.body;
+    if (!text || text.trim().length === 0)
+      return res.status(400).json({ error: "Text lipsă pentru analiză." });
 
-    if (!text) {
-      return new Response(JSON.stringify({
-        analysis: "⚠️ Introdu un text pentru analiză.",
-        confidence: 0,
-        sources: []
-      }), { status: 400 });
-    }
-
-    // 🔍 Căutare factuală cu Serper.dev
-    const searchResponse = await fetch("https://google.serper.dev/search", {
+    // 1️⃣ — Căutare factuală reală prin Serper.dev
+    const query = text.trim();
+    const response = await fetch("https://google.serper.dev/search", {
       method: "POST",
       headers: {
         "X-API-KEY": process.env.SERPER_API_KEY,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ q: text, gl: "ro", hl: "ro", num: 5 }),
+      body: JSON.stringify({ q: query, num: 5 }),
     });
 
-    let sources = [];
-    if (searchResponse.ok) {
-      const data = await searchResponse.json();
-      if (Array.isArray(data.organic)) {
-        sources = data.organic.slice(0, 5).map((r) => ({
-          title: r.title,
-          url: r.link,
-        }));
-      }
+    const data = await response.json();
+    const results = data.organic || [];
+
+    // 2️⃣ — Extragem sursele relevante
+    const sources = results
+      .map((r) => ({
+        title: r.title,
+        snippet: r.snippet,
+        link: r.link,
+      }))
+      .filter((r) => r.title && r.snippet)
+      .slice(0, 5);
+
+    // 3️⃣ — Prag minim de 3 surse
+    if (sources.length < 3) {
+      return res.status(200).json({
+        status: "insuficiente_surse",
+        verdictColor: "⚠️",
+        verdictText:
+          "Analiză suspendată – insuficiente surse factuale (minim 3 necesare).",
+        trustIndex: 0,
+        sources,
+      });
     }
 
-    // 🧱 Filtru de siguranță — fără 3 surse, nu se emite verdict
-    if (!sources || sources.length < 3) {
-      return new Response(
-        JSON.stringify({
-          analysis:
-            "⚠️ Analiză suspendată – insuficiente surse factuale (minim 3 necesare pentru verdict).",
-          confidence: 0,
-          sources: sources.length ? sources : [
-            { title: "Nicio sursă factuală relevantă găsită.", url: "#" },
-          ],
-        }),
-        { status: 200, headers: { "Content-Type": "application/json" } }
-      );
-    }
-
-    // 🧠 Analiză semantică Coeziv 3.14Δ
+    // 4️⃣ — Analiză semantică reală cu GPT-4o-mini
+    const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
     const prompt = `
-Analizează afirmația: "${text}" prin Formula Coeziv 3.14Δ.
-Include:
-1. Δ (diferența logică)
-2. Fc (forța coeziunii)
-3. Grad de manipulare (%)
-4. Raționament final + Indice global de încredere.
+Evaluează afirmația conform Formulei Coezive 3.14Δ:
+Δ = diferență logică, Fc = forță a coeziunii, Mp = grad de manipulare.
+Include o concluzie scurtă și un indice de încredere între 0 și 100.
+
+Afirmația: "${text}"
+
+Surse factuale:
+${sources.map((s, i) => `${i + 1}. ${s.title} – ${s.link}`).join("\n")}
 `;
 
-    const completion = await client.chat.completions.create({
+    const aiResponse = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
-        { role: "system", content: "Ești motorul Coeziv 3.14Δ, analist semantic factual." },
+        { role: "system", content: "Ești un analist informațional neutru." },
         { role: "user", content: prompt },
       ],
-      temperature: 0.6,
     });
 
-    const analysis = completion.choices[0].message.content.trim();
-    const match = analysis.match(/(\d{1,3})%/);
-    const confidence = match ? parseInt(match[1]) : 50;
+    const analysis = aiResponse.choices[0].message.content;
 
-    return new Response(
-      JSON.stringify({ analysis, confidence, sources }),
-      { status: 200, headers: { "Content-Type": "application/json" } }
-    );
+    // 5️⃣ — Determinare culoare verdict
+    const extractTrust = analysis.match(/(\d{1,3})%/);
+    const trustIndex = extractTrust
+      ? Math.min(parseInt(extractTrust[1]), 100)
+      : 50;
+
+    let verdictColor = "🟨";
+    let verdictText = "Risc moderat de manipulare – recomandăm verificare suplimentară.";
+
+    if (trustIndex >= 75) {
+      verdictColor = "🟩";
+      verdictText = "Informație verificată – grad redus de manipulare.";
+    } else if (trustIndex <= 40) {
+      verdictColor = "🟥";
+      verdictText = "Grad ridicat de manipulare – necesită confirmare factuală.";
+    }
+
+    // 6️⃣ — Returnăm rezultat complet
+    return res.status(200).json({
+      status: "ok",
+      verdictColor,
+      verdictText,
+      trustIndex,
+      analysis,
+      sources,
+    });
   } catch (err) {
-    console.error("Eroare:", err);
-    return new Response(
-      JSON.stringify({
-        analysis: "⚠️ Eroare internă motor semantic.",
-        confidence: 0,
-        sources: [],
-      }),
-      { status: 500 }
-    );
+    console.error("Eroare motor Coeziv:", err);
+    return res.status(500).json({
+      status: "error",
+      verdictColor: "⚠️",
+      verdictText: "Eroare internă în motorul semantic.",
+      trustIndex: 0,
+      analysis: "",
+      sources: [],
+    });
   }
 }
