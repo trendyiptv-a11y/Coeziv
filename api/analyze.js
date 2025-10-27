@@ -1,4 +1,3 @@
-// /api/analyze.js
 import fetch from "node-fetch";
 
 export default async function handler(req, res) {
@@ -19,6 +18,7 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({ q: text, num: 10 }),
     });
+
     const serperData = await serperRes.json();
     const sources = (serperData.organic || []).slice(0, 5);
 
