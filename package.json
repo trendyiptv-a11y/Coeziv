@@ -1,7 +1,7 @@
 {
   "name": "coeziv",
   "version": "1.0.0",
-  "description": "Motor Coeziv 3.14Δ - Analiză factuală și semantică",
+  "description": "Motor Coeziv 3.14Δ - analiză factuală și semantică",
   "main": "server.js",
   "type": "module",
   "scripts": {
