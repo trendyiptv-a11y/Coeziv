@@ -12,7 +12,9 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: "Text insuficient" });
     }
 
-    // --- 1️⃣ Căutare factuală Serper.dev (știri + fallback web general)
+    // === 1️⃣ Căutare factuală Serper.dev în surse verificate ===
+    const trustedQuery = `${text} site:romania.europalibera.org OR site:hotnews.ro OR site:digi24.ro OR site:antena3.ro OR site:adevărul.ro`;
+
     let serperRes = await fetch("https://google.serper.dev/news", {
       method: "POST",
       headers: {
@@ -20,22 +22,27 @@ export default async function handler(req, res) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        q: text,
+        q: trustedQuery,
         num: 10,
-        tbs: "qdr:m", // ultimele 30 zile
         gl: "ro",
         hl: "ro",
       }),
     });
 
     let data = await serperRes.json();
-    let sources = (data.news || []).map((s) => ({
+    let sources = (data.news || []).filter(
+      s =>
+        s.title &&
+        !/zgomote|glum|pamflet|ironic/i.test(s.title) &&
+        !/mormânt|CTP/i.test(s.title)
+    ).map(s => ({
       title: s.title,
       link: s.link,
       date: s.date || "",
       snippet: s.snippet || "",
     }));
 
+    // === 2️⃣ Fallback dacă nu găsește nimic ===
     if (!sources.length) {
       const webRes = await fetch("https://google.serper.dev/search", {
         method: "POST",
@@ -46,7 +53,11 @@ export default async function handler(req, res) {
         body: JSON.stringify({ q: text, num: 10, gl: "ro", hl: "ro" }),
       });
       const webData = await webRes.json();
-      sources = (webData.organic || []).map((s) => ({
+      sources = (webData.organic || []).filter(
+        s =>
+          s.title &&
+          !/zgomote|glum|pamflet|ironic/i.test(s.title)
+      ).map(s => ({
         title: s.title,
         link: s.link,
         date: s.date || "",
@@ -54,27 +65,28 @@ export default async function handler(req, res) {
       }));
     }
 
-    // --- 2️⃣ Analiză semantică GPT (Formula Coezivă 3.14Δ)
+    // === 3️⃣ Construim contextul pentru GPT ===
     const contextText = sources
       .slice(0, 5)
       .map((s) => `• ${s.title} (${s.date}) — ${s.snippet}`)
       .join("\n");
 
     const prompt = `
-Analizează factual și semantic afirmația de mai jos.
+Evaluează factual și semantic afirmația următoare, folosind contextul de mai jos.
 
 🔹 Afirmație: "${text}"
-🔹 Surse recente:
+🔹 Surse disponibile:
 ${contextText}
 
-Evaluează dacă afirmația este:
-1. ✅ adevărată,
-2. ⚠️ probabilă / parțial adevărată,
-3. ❌ falsă.
+Dacă sursele confirmă explicit afirmația, marchează-o ca ✅ adevărată și dă un scor apropiat de 3.14.
+Dacă o infirmă clar, marchează ❌ falsă (scor 0.0–0.5).
+Dacă sursele sunt vagi sau indirecte, marchează ⚠️ probabilă (scor 1.0–2.0).
 
-Returnează un scurt verdict coerent în limba română, cu scor pe o scară 0–3.14 și un mesaj scurt explicativ.
+Returnează textul final în format clar și scurt:
+„Verdict: ... Scor: X / 3.14 Explicație: ...”
 `;
 
+    // === 4️⃣ Analiză GPT ===
     const gptRes = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -90,7 +102,7 @@ Returnează un scurt verdict coerent în limba română, cu scor pe o scară 0�
     const gptData = await gptRes.json();
     const answer = gptData.choices?.[0]?.message?.content || "Eroare GPT";
 
-    // --- 3️⃣ Returnăm rezultatul complet
+    // === 5️⃣ Răspuns complet ===
     return res.status(200).json({
       statement: text,
       verdict: answer,
