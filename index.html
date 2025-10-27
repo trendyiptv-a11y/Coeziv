@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Motor Coeziv 3.14Δ</title>
+  <style>
+    :root {
+      --good: #00ffb7;
+      --medium: #ffc800;
+      --bad: #ff0055;
+      --bg: #0d1117;
+      --panel: #161b22;
+    }
+    body {
+      background: var(--bg);
+      color: #c9d1d9;
+      font-family: "Segoe UI", sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem;
+      min-height: 100vh;
+    }
+    h1 { color: var(--good); }
+    textarea {
+      width: 100%; max-width: 600px; height: 100px;
+      background: var(--panel); color: white;
+      border-radius: 12px; padding: 1rem;
+      border: 1px solid #30363d; resize: none;
+    }
+    button {
+      margin-top: 1rem; padding: 0.8rem 1.6rem;
+      background: var(--good); border: none; border-radius: 12px;
+      cursor: pointer; font-weight: 600; color: black;
+    }
+    .result {
+      margin-top: 2rem; max-width: 650px; width: 100%;
+      background: var(--panel); border-radius: 14px; padding: 1.5rem;
+    }
+    .bar-container { height: 14px; background: #2c313a; border-radius: 10px; overflow: hidden; }
+    .bar-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--bad), var(--medium), var(--good)); transition: width 2s ease; }
+    .pulse-green { color: var(--good); }
+    .pulse-yellow { color: var(--medium); }
+    .pulse-red { color: var(--bad); }
+  </style>
+</head>
+<body>
+  <h1>Motor Coeziv 3.14Δ</h1>
+  <p>Analiză factuală și semantică în timp real</p>
+
+  <textarea id="inputText" placeholder="Scrie o afirmație pentru verificare..."></textarea>
+  <button id="analyzeBtn">Analizează informația</button>
+
+  <div id="result" class="result" style="display:none;">
+    <div id="verdict"></div>
+    <div class="bar-container"><div id="barFill" class="bar-fill"></div></div>
+    <div id="score"></div>
+    <div id="interpretation"></div>
+    <div id="sources"></div>
+  </div>
+
+  <script>
+    const analyzeBtn = document.getElementById("analyzeBtn");
+    const input = document.getElementById("inputText");
+    const result = document.getElementById("result");
+    const verdict = document.getElementById("verdict");
+    const barFill = document.getElementById("barFill");
+    const score = document.getElementById("score");
+    const interpretation = document.getElementById("interpretation");
+    const sources = document.getElementById("sources");
+
+    analyzeBtn.addEventListener("click", async () => {
+      const text = input.value.trim();
+      if (!text) return alert("Introdu o afirmație pentru analiză.");
+      result.style.display = "block";
+      verdict.textContent = "⏳ Se analizează...";
+      barFill.style.width = "0%";
+      score.textContent = ""; interpretation.textContent = ""; sources.innerHTML = "";
+
+      try {
+        const res = await fetch("/analyze", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text })
+        });
+        const data = await res.json();
+        const percent = (data.score / 3.14) * 100;
+        barFill.style.width = `${percent}%`;
+
+        verdict.className = data.verdict === "coeziv"
+          ? "pulse-green" : data.verdict === "parțial"
+          ? "pulse-yellow" : "pulse-red";
+        verdict.textContent =
+          data.verdict === "coeziv" ? "🟢 Informație coerentă factual"
+          : data.verdict === "parțial" ? "🟡 Informație parțial confirmată"
+          : "🔴 Informație incoerentă";
+        score.textContent = `Scor: ${data.score.toFixed(2)} / 3.14`;
+        interpretation.textContent = data.interpretation;
+        sources.innerHTML = data.sources?.length
+          ? data.sources.map(s => `<div>🔗 <a href="${s.link}" target="_blank">${s.title}</a></div>`).join("")
+          : "<p style='color:var(--medium)'>⚠️ Nicio sursă relevantă găsită.</p>";
+      } catch {
+        verdict.textContent = "❌ Eroare de conexiune";
+      }
+    });
+  </script>
+</body>
+</html>
