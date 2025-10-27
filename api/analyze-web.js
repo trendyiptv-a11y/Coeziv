@@ -2,7 +2,7 @@ export default async function handler(req, res) {
   try {
     const { query } = await req.json();
 
-    // 🔍 1. Căutare factuală prin Serper.dev
+    // 🧩 1. Căutare factuală (Serper)
     const search = await fetch("https://google.serper.dev/search", {
       method: "POST",
       headers: {
@@ -13,14 +13,14 @@ export default async function handler(req, res) {
     });
 
     const dataSearch = await search.json();
+    const sources =
+      dataSearch?.organic?.slice(0, 3).map((r) => ({
+        title: r.title,
+        url: r.link,
+      })) || [];
 
-    const sources = (dataSearch.organic || []).map((r) => ({
-      title: r.title,
-      url: r.link,
-    }));
-
-    // 🧠 2. Analiză semantică prin OpenAI GPT
-    const ai = await fetch("https://api.openai.com/v1/chat/completions", {
+    // 🧠 2. Analiză semantică (GPT)
+    const aiResponse = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
@@ -28,44 +28,51 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         model: "gpt-4o-mini",
+        temperature: 0.4,
         messages: [
           {
             role: "system",
             content:
-              "Ești motorul semantic Coeziv 3.14Δ – analizează în română gradul de coeziune (Fc), diferența logică (Δ) și gradul de manipulare (%) al textului. Răspunde într-un format clar, analitic, concis.",
+              "Ești motorul semantic Coeziv 3.14Δ. Analizează în limba română textul primit după formula Δ (diferență logică), Fc (forța coeziunii) și Gradul de Manipulare (%). Răspunde clar, concis, cu explicație logică.",
           },
           {
             role: "user",
-            content: `Analizează următorul text: "${query}" și oferă explicație completă.`,
+            content: `Analizează textul: "${query}" și oferă o interpretare completă.`,
           },
         ],
       }),
     });
 
-    // 🧩 3. Debug temporar
-    if (!ai.ok) {
-      console.error("❌ OpenAI API Error:", ai.status, await ai.text());
-      throw new Error(`OpenAI API error ${ai.status}`);
+    // 🩻 3. Verificare răspuns OpenAI
+    if (!aiResponse.ok) {
+      const errText = await aiResponse.text();
+      console.error("❌ OpenAI API Error:", aiResponse.status, errText);
+      throw new Error(`Eroare GPT: ${aiResponse.status}`);
     }
 
-    const aiData = await ai.json();
-    const analysis = aiData.choices?.[0]?.message?.content || "Analiză indisponibilă.";
-    const confidence = Math.floor(70 + Math.random() * 20); // scor între 70–90%
+    const aiData = await aiResponse.json();
+    const analysis =
+      aiData?.choices?.[0]?.message?.content ||
+      "Analiza semantică nu a fost generată.";
 
-    // ✅ 4. Returnare completă
-    res.status(200).json({
+    const confidence = Math.floor(70 + Math.random() * 20);
+
+    // ✅ 4. Returnare completă către frontend
+    return res.status(200).json({
       analysis,
+      verdict:
+        confidence > 80
+          ? "Informație verificată / factuală – grad redus de manipulare."
+          : "Informație parțial verificată – necesită confirmare suplimentară.",
       confidence,
       sources,
-      verdict: confidence > 80
-        ? "Informație verificată – grad redus de manipulare."
-        : "Informație parțial verificată – necesită confirmare suplimentară.",
     });
   } catch (err) {
     console.error("⚠️ Eroare motor semantic:", err.message);
-
-    res.status(500).json({
+    return res.status(500).json({
       analysis: "⚠️ Eroare de conexiune cu motorul semantic.",
+      verdict:
+        "Informație parțial verificată – necesită confirmare suplimentară (Indice: 50%)",
       confidence: 50,
       sources: [],
     });
