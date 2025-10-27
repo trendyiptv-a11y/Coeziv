@@ -101,41 +101,62 @@ Informația a fost redirecționată către <b>modul factual automat</b>.<br><br>
   };
 
   document.getElementById("analyzeBtn").addEventListener("click", async () => {
-    const text = document.getElementById("inputText").value.trim();
-    const result = document.getElementById("result");
-    const analysisEl = document.getElementById("analysis");
-    const sourcesEl = document.getElementById("sources");
-    const verdictEl = document.getElementById("verdictBox");
+  const text = document.getElementById("inputText").value.trim();
+  const result = document.getElementById("result");
+  const analysisEl = document.getElementById("analysis");
+  const sourcesEl = document.getElementById("sources");
+  const verdictEl = document.getElementById("verdictBox");
 
-    if (!text) return alert("Te rog introdu un text pentru analiză.");
+  if (!text) return alert("Te rog introdu un text pentru analiză.");
 
-    result.style.display = "block";
-    analysisEl.innerHTML = "🔄 Analiză în desfășurare...";
-    sourcesEl.innerHTML = "";
-    verdictEl.textContent = "";
+  result.style.display = "block";
+  analysisEl.innerHTML = "🔄 Analiză în desfășurare...";
+  sourcesEl.innerHTML = "";
+  verdictEl.textContent = "";
 
-    const data = await analyze(text);
+  try {
+    const response = await fetch(`/api/analyze-web?query=${encodeURIComponent(text)}`);
+    const data = await response.json();
 
+    // ✅ 1. Afișează analiza semantică completă
     const formatted = data.analysis
       .replace(/\n/g, "<br>")
       .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
     analysisEl.innerHTML = formatted;
 
+    // ✅ 2. Verdict colorat în funcție de confidence
     const conf = data.confidence || 50;
     let verdictText = "", verdictClass = "";
-    if (conf > 80) { verdictText = `✅ Informație verificată / factuală – grad redus de manipulare (Indice: ${conf}%)`; verdictClass="green"; }
-    else if (conf >= 50) { verdictText = `⚠️ Informație parțial verificată – necesită confirmare suplimentară (Indice: ${conf}%)`; verdictClass="yellow"; }
-    else { verdictText = `❌ Informație neverificată sau contradictorie (Indice: ${conf}%)`; verdictClass="red"; }
-
+    if (conf > 80) {
+      verdictText = `✅ Informație verificată / factuală – grad redus de manipulare (Indice: ${conf}%)`;
+      verdictClass = "green";
+    } else if (conf >= 50) {
+      verdictText = `⚠️ Informație parțial verificată – necesită confirmare suplimentară (Indice: ${conf}%)`;
+      verdictClass = "yellow";
+    } else {
+      verdictText = `❌ Informație neverificată sau contradictorie (Indice: ${conf}%)`;
+      verdictClass = "red";
+    }
     verdictEl.textContent = verdictText;
     verdictEl.className = `verdict ${verdictClass}`;
 
-    if (data.sources && data.sources.length > 0)
-      sourcesEl.innerHTML = data.sources.map(s=>`<li><a href="${s.url}" target="_blank">${s.title}</a></li>`).join("");
-    else
+    // ✅ 3. Listează sursele factuale reale
+    if (data.sources && data.sources.length > 0) {
+      sourcesEl.innerHTML = data.sources
+        .map(s => `<li><a href="${s.url}" target="_blank">${s.title}</a></li>`)
+        .join("");
+    } else {
       sourcesEl.innerHTML = "<li>Nicio sursă factuală relevantă găsită.</li>";
-  });
+    }
+
+  } catch (err) {
+    analysisEl.innerHTML = "⚠️ Eroare de conexiune cu motorul semantic.";
+    console.error(err);
+  }
+});
+    
   </script>
 </body>
 </html>
+
 
