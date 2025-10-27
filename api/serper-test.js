@@ -10,8 +10,8 @@ export default async function handler(req, res) {
     const { text } = req.body;
     if (!text) return res.status(400).json({ error: "Lipsă text" });
 
-    // 🔎 Interogare directă în știri recente (ultimele 7 zile)
-    const serperRes = await fetch("https://google.serper.dev/news", {
+    // 1️⃣ Mai întâi încercăm în știri recente
+    let serperRes = await fetch("https://google.serper.dev/news", {
       method: "POST",
       headers: {
         "X-API-KEY": process.env.SERPER_API_KEY,
@@ -20,22 +20,46 @@ export default async function handler(req, res) {
       body: JSON.stringify({
         q: text,
         num: 10,
-        tbs: "qdr:w", // ultima săptămână
+        tbs: "qdr:w",
         gl: "ro",
         hl: "ro",
       }),
     });
 
-    const data = await serperRes.json();
-
-    // extragem doar ce e relevant
-    const results = (data.news || []).map((s) => ({
+    let data = await serperRes.json();
+    let results = (data.news || []).map((s) => ({
       title: s.title,
       link: s.link,
       source: s.source,
       date: s.date,
       snippet: s.snippet,
     }));
+
+    // 2️⃣ Dacă nu există rezultate în știri, căutăm pe web general
+    if (!results.length) {
+      serperRes = await fetch("https://google.serper.dev/search", {
+        method: "POST",
+        headers: {
+          "X-API-KEY": process.env.SERPER_API_KEY,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          q: text,
+          num: 10,
+          gl: "ro",
+          hl: "ro",
+        }),
+      });
+
+      data = await serperRes.json();
+      results = (data.organic || []).map((s) => ({
+        title: s.title,
+        link: s.link,
+        source: s.source || s.domain,
+        date: s.date || "",
+        snippet: s.snippet,
+      }));
+    }
 
     return res.status(200).json({
       query: text,
