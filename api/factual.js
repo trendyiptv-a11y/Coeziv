@@ -1,55 +1,77 @@
-export default async function handler(req, res) {
-  try {
-    const query = req.query.query || "";
-    if (!query) {
-      return res.status(400).json({ error: "No query provided" });
-    }
+export const config = {
+  runtime: "edge",
+};
 
-    // 🔍 Căutare publică pe DuckDuckGo
-    const ddgUrl = `https://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json&no_redirect=1&no_html=1`;
-    const response = await fetch(ddgUrl);
+/**
+ * Endpoint factual pentru Coeziv 3.14Δ
+ * Returnează surse factuale relevante folosind Serper.dev (Google Search API)
+ */
+export default async function handler(req) {
+  const { searchParams } = new URL(req.url);
+  const query = searchParams.get("query");
+
+  if (!query) {
+    return new Response(
+      JSON.stringify({ error: "Lipsește parametrul ?query=" }),
+      { status: 400, headers: { "Content-Type": "application/json" } }
+    );
+  }
+
+  try {
+    // 🔍 Căutare factuală pe Google via Serper.dev
+    const response = await fetch("https://google.serper.dev/search", {
+      method: "POST",
+      headers: {
+        "X-API-KEY": process.env.SERPER_KEY,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        q: query,
+        num: 6,
+        gl: "ro",
+        hl: "ro",
+        location: "Romania",
+      }),
+    });
+
     const data = await response.json();
 
-    let sources = [];
+    // 📚 Extragem doar linkuri verificate
+    const sources =
+      data?.organic
+        ?.filter((r) =>
+          /(reuters\.com|bbc\.com|apnews\.com|hotnews\.ro|wikipedia\.org|agerpres\.ro|cnn\.com|euronews\.com)/i.test(
+            r.link
+          )
+        )
+        .slice(0, 5)
+        .map((r) => ({
+          title: r.title,
+          url: r.link,
+          snippet: r.snippet,
+        })) || [];
 
-    if (data && data.RelatedTopics && data.RelatedTopics.length > 0) {
-      sources = data.RelatedTopics
-        .filter(item => item.Text && item.FirstURL && !item.FirstURL.includes("yandex"))
-        .slice(0, 4)
-        .map(item => ({
-          title: item.Text,
-          url: item.FirstURL
-        }));
-    }
-
-    // 🧩 Fallback Wikipedia dacă DuckDuckGo nu returnează nimic
     if (sources.length === 0) {
-      const wikiUrl = `https://en.wikipedia.org/w/api.php?action=opensearch&format=json&limit=4&search=${encodeURIComponent(query)}`;
-      const wikiRes = await fetch(wikiUrl);
-      const wikiData = await wikiRes.json();
-
-      if (wikiData && wikiData[1]?.length) {
-        sources = wikiData[1].map((title, i) => ({
-          title: title,
-          url: wikiData[3][i]
-        }));
-      }
+      return new Response(
+        JSON.stringify({
+          sources: [],
+          message: "Nicio sursă factuală relevantă găsită.",
+        }),
+        { headers: { "Content-Type": "application/json" } }
+      );
     }
 
-    // 🔚 Dacă tot nu există rezultate, trimitem fallback
-    if (sources.length === 0) {
-      sources = [
-        { title: "Wikipedia – enciclopedie generală", url: "https://ro.wikipedia.org" },
-        { title: "Reuters – știri globale verificate", url: "https://www.reuters.com" },
-        { title: "Investopedia – concepte economice", url: "https://www.investopedia.com" }
-      ];
-    }
-
-    res.status(200).json({ sources });
-  } catch (error) {
-    res.status(500).json({
-      error: "Factual search failed",
-      details: error.message
+    return new Response(JSON.stringify({ sources }), {
+      headers: { "Content-Type": "application/json" },
     });
+  } catch (err) {
+    console.error("❌ Eroare factual:", err);
+    return new Response(
+      JSON.stringify({
+        error: "Eroare la conectarea cu motorul factual.",
+        details: err.message,
+      }),
+      { status: 500, headers: { "Content-Type": "application/json" } }
+    );
   }
 }
