@@ -1,8 +1,9 @@
 export default async function handler(req, res) {
   try {
-    const { query } = await req.json();
+    // 🧩 Citim textul primit de la frontend
+    const { query } = req.body; // ✅ corect pentru Vercel API routes
 
-    // 🔍 Pas 1: Căutare factuală cu Serper
+    // 🔍 1. Căutare factuală prin Serper.dev
     const search = await fetch("https://google.serper.dev/search", {
       method: "POST",
       headers: {
@@ -19,7 +20,7 @@ export default async function handler(req, res) {
         url: r.link,
       })) || [];
 
-    // 🧠 Pas 2: Analiză semantică OpenAI
+    // 🧠 2. Analiză semantică (OpenAI)
     const aiResponse = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -32,13 +33,14 @@ export default async function handler(req, res) {
           {
             role: "system",
             content:
-              "Ești motorul semantic Coeziv 3.14Δ. Analizează în română textul primit după formula Δ (diferență logică), Fc (forța coeziunii) și Gradul de Manipulare (%). Răspunde clar și structurat.",
+              "Ești motorul semantic Coeziv 3.14Δ. Analizează textul în limba română după formula Δ (diferență logică), Fc (forța coeziunii) și Gradul de Manipulare (%). Fii concis și logic.",
           },
           {
             role: "user",
-            content: `Analizează textul: "${query}" și oferă explicație completă.`,
+            content: `Analizează textul: "${query}" și explică raționamentul.`,
           },
         ],
+        temperature: 0.4,
       }),
     });
 
