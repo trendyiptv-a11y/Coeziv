@@ -1,25 +1,30 @@
-export default async function handler(req, res) {
+export const config = { runtime: "edge" };
+
+export default async function handler(req) {
   try {
-    // 1️⃣ Acceptăm doar POST
+    // 1️⃣ Doar POST
     if (req.method !== "POST") {
-      return res.status(405).json({ error: "Folosește metoda POST." });
+      return new Response(
+        JSON.stringify({ error: "Folosește metoda POST." }),
+        { status: 405 }
+      );
     }
 
-    // 2️⃣ Citim manual corpul cererii (compatibil Node 18+ / Vercel)
-    const buffers = [];
-    for await (const chunk of req.body) buffers.push(chunk);
-    const data = JSON.parse(Buffer.concat(buffers).toString());
-    const text = data.text?.trim();
+    // 2️⃣ Citim JSON direct (funcționează nativ în runtime Edge)
+    const { text } = await req.json();
 
-    if (!text) {
-      return res.status(400).json({
-        analysis: "⚠️ Text lipsă pentru analiză.",
-        confidence: 0,
-        sources: [],
-      });
+    if (!text || text.trim() === "") {
+      return new Response(
+        JSON.stringify({
+          analysis: "⚠️ Text lipsă pentru analiză.",
+          confidence: 0,
+          sources: [],
+        }),
+        { status: 400 }
+      );
     }
 
-    // 3️⃣ Căutare factuală (Serper.dev sau orice altă sursă factuală)
+    // 3️⃣ Căutare factuală (Serper.dev)
     const search = await fetch("https://api.serper.dev/search", {
       method: "POST",
       headers: {
@@ -28,7 +33,6 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({ q: text }),
     });
-
     const dataSearch = await search.json();
     const sources = (dataSearch.organic || []).slice(0, 3).map((r) => ({
       title: r.title,
@@ -48,7 +52,7 @@ export default async function handler(req, res) {
           {
             role: "system",
             content:
-              "Ești motorul semantic Coeziv 3.14Δ. Analizează nivelul de coeziune, manipulare, vibrație și grad de factualitate al afirmației. Returnează o analiză logică, structurată și clară.",
+              "Ești motorul semantic Coeziv 3.14Δ. Analizează gradul de coeziune, manipulare și forța logică a textului.",
           },
           { role: "user", content: `Analizează afirmația: "${text}"` },
         ],
@@ -56,17 +60,28 @@ export default async function handler(req, res) {
     });
 
     const aiData = await ai.json();
-    const analysis = aiData.choices?.[0]?.message?.content || "⚠️ Analiză indisponibilă.";
+    const analysis =
+      aiData.choices?.[0]?.message?.content ||
+      "⚠️ Analiză indisponibilă din cauza erorii GPT.";
     const confidence = Math.floor(60 + Math.random() * 30);
 
-    // 5️⃣ Returnăm răspunsul complet
-    return res.status(200).json({ analysis, confidence, sources });
+    // 5️⃣ Răspuns final
+    return new Response(
+      JSON.stringify({ analysis, confidence, sources }),
+      {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
   } catch (err) {
     console.error("🧠 Eroare motor semantic:", err);
-    return res.status(500).json({
-      analysis: "⚠️ Eroare de conexiune cu motorul semantic.",
-      confidence: 0,
-      sources: [],
-    });
+    return new Response(
+      JSON.stringify({
+        analysis: "⚠️ Eroare de conexiune cu motorul semantic.",
+        confidence: 0,
+        sources: [],
+      }),
+      { status: 500 }
+    );
   }
 }
