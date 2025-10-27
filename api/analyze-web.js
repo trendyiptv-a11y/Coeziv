@@ -15,7 +15,7 @@ export default async function handler(req) {
     if (!text || text.trim().length === 0) {
       return new Response(
         JSON.stringify({
-          analysis: "⚠️ Nu a fost introdus niciun text pentru analiză.",
+          analysis: "⚠️ Introdu un text pentru analiză.",
           confidence: 0,
           sources: [],
         }),
@@ -23,35 +23,33 @@ export default async function handler(req) {
       );
     }
 
-    // 🔍 Căutare factuală pe web (prin Bing, DuckDuckGo, Google fallback etc.)
-    const searchResponse = await fetch(
-      `https://r.jina.ai/http://www.google.com/search?q=${encodeURIComponent(
-        text
-      )}`
-    );
-
+    // 🔍 Căutare factuală reală prin Jina AI (text complet, simplu și stabil)
+    const jinaUrl = `https://r.jina.ai/search?q=${encodeURIComponent(text + " site:.ro OR site:.com OR site:.org")}`;
+    const searchResponse = await fetch(jinaUrl);
     let searchResults = [];
 
     if (searchResponse.ok) {
-      const rawText = await searchResponse.text();
-      const matches = [...rawText.matchAll(/<a href="([^"]+)">([^<]+)<\/a>/g)];
-      searchResults = matches.slice(0, 5).map((m) => ({
-        url: m[1],
-        title: m[2],
-      }));
+      const data = await searchResponse.json();
+      // Jina returnează obiecte cu title + url
+      if (Array.isArray(data.data)) {
+        searchResults = data.data
+          .filter((r) => r.title && r.url)
+          .slice(0, 3)
+          .map((r) => ({
+            title: r.title,
+            url: r.url,
+          }));
+      }
     }
 
     // 🔬 Analiză semantică GPT
     const prompt = `
-Evaluează afirmația: "${text}" folosind Formula Coeziv 3.14Δ.
-Returnează o analiză completă în limba română care să includă:
-
-1. Δ (diferența logică) – claritatea și coerența afirmației.
-2. Fc (forța coeziunii) – gradul de unitate și claritate semantică.
-3. Gradul de Manipulare (%) – cât de mult poate influența sau distorsiona percepția.
-4. Raționament final.
-
-La final oferă un indice global de încredere (0–100).
+Analizează afirmația: "${text}" folosind Formula Coeziv 3.14Δ.
+Include:
+1. Δ (diferența logică)
+2. Fc (forța coeziunii)
+3. Gradul de Manipulare (%)
+4. Raționament final + Indice global de încredere.
 `;
 
     const completion = await client.chat.completions.create({
@@ -65,22 +63,17 @@ La final oferă un indice global de încredere (0–100).
 
     const aiAnalysis = completion.choices[0].message.content.trim();
 
-    // 🔢 Extragem un procent de încredere din analiză (fallback random moderat)
+    // 🔢 Extragem procentul de încredere din analiză
     const match = aiAnalysis.match(/(\d{1,3})%/);
-    const confidenceScore = match ? parseInt(match[1]) : 70;
+    const confidenceScore = match ? parseInt(match[1]) : 65;
 
-    // 🧩 Surse factuale prelucrate
+    // 🧩 Surse factuale curate
     const sources =
       searchResults.length > 0
-        ? searchResults.slice(0, 3)
-        : [
-            {
-              title: "Nicio sursă factuală relevantă găsită.",
-              url: "#",
-            },
-          ];
+        ? searchResults
+        : [{ title: "Nicio sursă factuală relevantă găsită.", url: "#" }];
 
-    // ✅ Returnăm datele către interfață
+    // ✅ Returnăm răspunsul
     return new Response(
       JSON.stringify({
         analysis: aiAnalysis,
