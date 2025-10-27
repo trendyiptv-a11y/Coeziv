@@ -1,109 +1,135 @@
 <!DOCTYPE html>
 <html lang="ro">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Motor Coeziv 3.14Δ</title>
-  <style>
-    :root {
-      --good: #00ffb7;
-      --medium: #ffc800;
-      --bad: #ff0055;
-      --bg: #0d1117;
-      --panel: #161b22;
-    }
-    body {
-      background: var(--bg);
-      color: #c9d1d9;
-      font-family: "Segoe UI", sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 2rem 1rem;
-      min-height: 100vh;
-    }
-    h1 { color: var(--good); }
-    textarea {
-      width: 100%; max-width: 600px; height: 100px;
-      background: var(--panel); color: white;
-      border-radius: 12px; padding: 1rem;
-      border: 1px solid #30363d; resize: none;
-    }
-    button {
-      margin-top: 1rem; padding: 0.8rem 1.6rem;
-      background: var(--good); border: none; border-radius: 12px;
-      cursor: pointer; font-weight: 600; color: black;
-    }
-    .result {
-      margin-top: 2rem; max-width: 650px; width: 100%;
-      background: var(--panel); border-radius: 14px; padding: 1.5rem;
-    }
-    .bar-container { height: 14px; background: #2c313a; border-radius: 10px; overflow: hidden; }
-    .bar-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--bad), var(--medium), var(--good)); transition: width 2s ease; }
-    .pulse-green { color: var(--good); }
-    .pulse-yellow { color: var(--medium); }
-    .pulse-red { color: var(--bad); }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Motor Coeziv 3.14Δ</title>
+<style>
+  :root {
+    --good:#00ffb7;
+    --mid:#ffc800;
+    --bad:#ff0055;
+    --bg:#0d1117;
+    --panel:#161b22;
+    --text:#c9d1d9;
+  }
+  body {
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Segoe UI',sans-serif;
+    margin:0;
+    padding:2rem 1rem;
+    text-align:center;
+  }
+  h1 {
+    color:var(--good);
+    margin-bottom:.5rem;
+  }
+  p {color:#9ba1a6;margin-top:0;margin-bottom:2rem;}
+  textarea {
+    width:100%;
+    max-width:600px;
+    height:80px;
+    background:var(--panel);
+    border:1px solid #30363d;
+    border-radius:10px;
+    color:white;
+    padding:1rem;
+    resize:none;
+    font-size:1rem;
+  }
+  button {
+    background:var(--good);
+    color:#000;
+    font-weight:600;
+    border:none;
+    border-radius:10px;
+    padding:.8rem 1.6rem;
+    margin-top:1rem;
+    cursor:pointer;
+    transition:.2s;
+  }
+  button:hover {transform:scale(1.05);}
+  #result {
+    margin-top:2rem;
+    max-width:700px;
+    margin-inline:auto;
+    background:var(--panel);
+    border-radius:14px;
+    padding:1.2rem;
+    text-align:left;
+  }
+  .bar {
+    height:8px;
+    border-radius:5px;
+    margin-top:.5rem;
+    background:#333;
+    overflow:hidden;
+  }
+  .bar-fill {
+    height:8px;
+    width:0%;
+    background:var(--good);
+    transition:width .8s;
+  }
+  .src {
+    border-top:1px solid #2f333b;
+    margin-top:1rem;
+    padding-top:.6rem;
+    font-size:.9rem;
+  }
+  .src a {color:var(--good);text-decoration:none;}
+  .src a:hover {text-decoration:underline;}
+</style>
 </head>
 <body>
   <h1>Motor Coeziv 3.14Δ</h1>
   <p>Analiză factuală și semantică în timp real</p>
-
-  <textarea id="inputText" placeholder="Scrie o afirmație pentru verificare..."></textarea>
+  <textarea id="input" placeholder="Ex: Ion Iliescu a murit"></textarea><br />
   <button id="analyzeBtn">Analizează informația</button>
+  <div id="result" style="display:none;"></div>
 
-  <div id="result" class="result" style="display:none;">
-    <div id="verdict"></div>
-    <div class="bar-container"><div id="barFill" class="bar-fill"></div></div>
-    <div id="score"></div>
-    <div id="interpretation"></div>
-    <div id="sources"></div>
-  </div>
+<script>
+const btn=document.getElementById("analyzeBtn");
+const resDiv=document.getElementById("result");
 
-  <script>
-    const analyzeBtn = document.getElementById("analyzeBtn");
-    const input = document.getElementById("inputText");
-    const result = document.getElementById("result");
-    const verdict = document.getElementById("verdict");
-    const barFill = document.getElementById("barFill");
-    const score = document.getElementById("score");
-    const interpretation = document.getElementById("interpretation");
-    const sources = document.getElementById("sources");
+btn.addEventListener("click",async()=>{
+  const text=document.getElementById("input").value.trim();
+  if(!text) return alert("Introdu o afirmație pentru analiză.");
+  resDiv.style.display="block";
+  resDiv.innerHTML="<p>⏳ Analiză în curs...</p>";
 
-    analyzeBtn.addEventListener("click", async () => {
-      const text = input.value.trim();
-      if (!text) return alert("Introdu o afirmație pentru analiză.");
-      result.style.display = "block";
-      verdict.textContent = "⏳ Se analizează...";
-      barFill.style.width = "0%";
-      score.textContent = ""; interpretation.textContent = ""; sources.innerHTML = "";
+  try{
+    const res=await fetch("/api/analyze",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text})});
+    const data=await res.json();
+    if(data.error) throw new Error(data.error);
 
-      try {
-        const res = await fetch("/api/analyze", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ text })
-        });
-        const data = await res.json();
-        const percent = (data.score / 3.14) * 100;
-        barFill.style.width = `${percent}%`;
+    // determinăm culoarea barei după text
+    let color="var(--mid)";
+    if(/✅|adevăr|corect|factual|în viață/i.test(data.verdict)) color="var(--good)";
+    if(/❌|fals|incorect|greșit/i.test(data.verdict)) color="var(--bad)";
+    const scoreMatch=data.verdict.match(/([0-9]\.?[0-9]*)\s*\/\s*3\.?14/);
+    const score=scoreMatch?parseFloat(scoreMatch[1]):2.0;
+    const width=Math.min((score/3.14)*100,100);
 
-        verdict.className = data.verdict === "coeziv"
-          ? "pulse-green" : data.verdict === "parțial"
-          ? "pulse-yellow" : "pulse-red";
-        verdict.textContent =
-          data.verdict === "coeziv" ? "🟢 Informație coerentă factual"
-          : data.verdict === "parțial" ? "🟡 Informație parțial confirmată"
-          : "🔴 Informație incoerentă";
-        score.textContent = `Scor: ${data.score.toFixed(2)} / 3.14`;
-        interpretation.textContent = data.interpretation;
-        sources.innerHTML = data.sources?.length
-          ? data.sources.map(s => `<div>🔗 <a href="${s.link}" target="_blank">${s.title}</a></div>`).join("")
-          : "<p style='color:var(--medium)'>⚠️ Nicio sursă relevantă găsită.</p>";
-      } catch {
-        verdict.textContent = "❌ Eroare de conexiune";
-      }
-    });
-  </script>
+    const sources=(data.sources||[]).slice(0,5).map(s=>`
+      <div class="src">
+        <a href="${s.link}" target="_blank">${s.title}</a><br/>
+        <span style="color:#9ba1a6">${s.date||""}</span><br/>
+        ${s.snippet||""}
+      </div>
+    `).join("");
+
+    resDiv.innerHTML=`
+      <p><strong>Verdict:</strong><br/>${data.verdict.replace(/\n/g,"<br/>")}</p>
+      <div class="bar"><div class="bar-fill" style="background:${color};width:${width}%"></div></div>
+      <p style="margin-top:1rem;color:#9ba1a6;">Surse: ${data.sourceCount}</p>
+      ${sources}
+    `;
+  }catch(err){
+    resDiv.innerHTML=`<p style="color:var(--bad)">❌ Eroare: ${err.message}</p>`;
+  }
+});
+</script>
 </body>
 </html>
