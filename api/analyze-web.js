@@ -23,32 +23,35 @@ export default async function handler(req) {
       );
     }
 
-    // 🔍 Căutare factuală reală prin Jina AI (text complet, simplu și stabil)
-    const jinaUrl = `https://r.jina.ai/search?q=${encodeURIComponent(text + " site:.ro OR site:.com OR site:.org")}`;
-    const searchResponse = await fetch(jinaUrl);
-    let searchResults = [];
+    // 🔍 Căutare factuală extinsă (Google News + DuckDuckGo + Bing proxy)
+    const query = `${text} site:.ro OR site:.com OR site:.org after:2024-09`;
+    const jinaURL = `https://r.jina.ai/http://duckduckgo.com/html/?q=${encodeURIComponent(query)}`;
+    const response = await fetch(jinaURL);
+    let sources = [];
 
-    if (searchResponse.ok) {
-      const data = await searchResponse.json();
-      // Jina returnează obiecte cu title + url
-      if (Array.isArray(data.data)) {
-        searchResults = data.data
-          .filter((r) => r.title && r.url)
-          .slice(0, 3)
-          .map((r) => ({
-            title: r.title,
-            url: r.url,
-          }));
-      }
+    if (response.ok) {
+      const html = await response.text();
+      const matches = [...html.matchAll(/<a rel="nofollow" href="([^"]+)"[^>]*>(.*?)<\/a>/g)];
+      sources = matches
+        .map((m) => ({
+          url: m[1],
+          title: m[2].replace(/<[^>]*>/g, "").trim(),
+        }))
+        .filter((s) => s.title && !s.url.includes("duckduckgo"))
+        .slice(0, 3);
     }
 
-    // 🔬 Analiză semantică GPT
+    if (sources.length === 0) {
+      sources = [{ title: "Nicio sursă factuală relevantă găsită.", url: "#" }];
+    }
+
+    // 🔬 Analiza semantică GPT
     const prompt = `
-Analizează afirmația: "${text}" folosind Formula Coeziv 3.14Δ.
-Include:
-1. Δ (diferența logică)
-2. Fc (forța coeziunii)
-3. Gradul de Manipulare (%)
+Evaluează afirmația: "${text}" prin Formula Coeziv 3.14Δ.
+Descrie:
+1. Δ (diferența logică) – claritate și veridicitate.
+2. Fc (forța coeziunii) – unitate semantică.
+3. Gradul de Manipulare (%) – risc de distorsiune.
 4. Raționament final + Indice global de încredere.
 `;
 
@@ -58,35 +61,24 @@ Include:
         { role: "system", content: "Ești un analist semantic factual (motorul Coeziv 3.14Δ)." },
         { role: "user", content: prompt },
       ],
-      temperature: 0.6,
+      temperature: 0.5,
     });
 
-    const aiAnalysis = completion.choices[0].message.content.trim();
+    const analysis = completion.choices[0].message.content.trim();
 
-    // 🔢 Extragem procentul de încredere din analiză
-    const match = aiAnalysis.match(/(\d{1,3})%/);
-    const confidenceScore = match ? parseInt(match[1]) : 65;
+    // 🔢 Extrage procentul de încredere
+    const match = analysis.match(/(\d{1,3})%/);
+    const confidence = match ? parseInt(match[1]) : 70;
 
-    // 🧩 Surse factuale curate
-    const sources =
-      searchResults.length > 0
-        ? searchResults
-        : [{ title: "Nicio sursă factuală relevantă găsită.", url: "#" }];
-
-    // ✅ Returnăm răspunsul
     return new Response(
-      JSON.stringify({
-        analysis: aiAnalysis,
-        confidence: confidenceScore,
-        sources,
-      }),
+      JSON.stringify({ analysis, confidence, sources }),
       { status: 200, headers: { "Content-Type": "application/json" } }
     );
   } catch (err) {
-    console.error("Eroare analiză:", err);
+    console.error("Eroare Coeziv:", err);
     return new Response(
       JSON.stringify({
-        analysis: "⚠️ Eroare internă a motorului semantic.",
+        analysis: "⚠️ Eroare de conexiune cu motorul factual.",
         confidence: 0,
         sources: [],
       }),
