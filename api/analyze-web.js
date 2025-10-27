@@ -2,13 +2,12 @@ import OpenAI from "openai";
 
 const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-export const config = {
-  runtime: "edge",
-};
+export const config = { runtime: "edge" };
 
 export default async function handler(req) {
   try {
     const { text } = await req.json();
+
     if (!text) {
       return new Response(JSON.stringify({
         analysis: "⚠️ Introdu un text pentru analiză.",
@@ -17,7 +16,7 @@ export default async function handler(req) {
       }), { status: 400 });
     }
 
-    // 🔍 căutare factuală cu Serper.dev
+    // 🔍 Căutare factuală cu Serper.dev
     const searchResponse = await fetch("https://google.serper.dev/search", {
       method: "POST",
       headers: {
@@ -30,20 +29,30 @@ export default async function handler(req) {
     let sources = [];
     if (searchResponse.ok) {
       const data = await searchResponse.json();
-      // verificăm structura corectă (Serper trimite .organic)
       if (Array.isArray(data.organic)) {
-        sources = data.organic.slice(0, 3).map((r) => ({
+        sources = data.organic.slice(0, 5).map((r) => ({
           title: r.title,
           url: r.link,
         }));
       }
     }
 
-    if (sources.length === 0) {
-      sources = [{ title: "Nicio sursă factuală relevantă găsită.", url: "#" }];
+    // 🧱 Filtru de siguranță — fără 3 surse, nu se emite verdict
+    if (!sources || sources.length < 3) {
+      return new Response(
+        JSON.stringify({
+          analysis:
+            "⚠️ Analiză suspendată – insuficiente surse factuale (minim 3 necesare pentru verdict).",
+          confidence: 0,
+          sources: sources.length ? sources : [
+            { title: "Nicio sursă factuală relevantă găsită.", url: "#" },
+          ],
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } }
+      );
     }
 
-    // 🧠 Analiză semantică
+    // 🧠 Analiză semantică Coeziv 3.14Δ
     const prompt = `
 Analizează afirmația: "${text}" prin Formula Coeziv 3.14Δ.
 Include:
@@ -64,14 +73,10 @@ Include:
 
     const analysis = completion.choices[0].message.content.trim();
     const match = analysis.match(/(\d{1,3})%/);
-    const confidence = match ? parseInt(match[1]) : 65;
+    const confidence = match ? parseInt(match[1]) : 50;
 
     return new Response(
-      JSON.stringify({
-        analysis,
-        confidence,
-        sources,
-      }),
+      JSON.stringify({ analysis, confidence, sources }),
       { status: 200, headers: { "Content-Type": "application/json" } }
     );
   } catch (err) {
