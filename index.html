@@ -3,15 +3,104 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Coeziv 3.14Δ</title>
+  <title>Coeziv 3.14Δ – Analizor Informațional</title>
   <style>
-    body {background:#0d1117;color:#c9d1d9;font-family:'Segoe UI',sans-serif;text-align:center;padding:2rem}
-    textarea {width:90%;max-width:600px;height:90px;background:#161b22;color:#fff;border:1px solid #30363d;
-              border-radius:8px;padding:.8rem;font-size:1rem}
-    button {background:#00ffb7;border:none;border-radius:10px;color:#000;font-weight:600;
-            padding:.7rem 1.2rem;margin-top:1rem;cursor:pointer}
-    .card{background:#161b22;border-radius:16px;padding:1.5rem;margin:2rem auto;max-width:700px;text-align:left}
-    footer{margin-top:2rem;color:#6e7681}
+    :root {
+      --good: #00ffb7;
+      --medium: #ffc800;
+      --bad: #ff0055;
+      --bg: #0d1117;
+      --panel: #161b22;
+      --text: #c9d1d9;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: "Segoe UI", sans-serif;
+      text-align: center;
+      padding: 2rem 1rem;
+    }
+
+    h1 {
+      color: var(--good);
+      font-size: 2rem;
+      margin-bottom: 0.3rem;
+    }
+
+    textarea {
+      background: var(--panel);
+      border: 1px solid #30363d;
+      color: var(--text);
+      width: 90%;
+      max-width: 700px;
+      height: 90px;
+      border-radius: 10px;
+      padding: 1rem;
+      resize: none;
+      font-size: 1rem;
+    }
+
+    button {
+      margin-top: 1rem;
+      background-color: var(--good);
+      color: #000;
+      font-weight: 600;
+      border: none;
+      border-radius: 12px;
+      padding: 0.8rem 1.2rem;
+      cursor: pointer;
+      transition: all 0.2s ease-in-out;
+    }
+
+    button:hover {
+      background-color: #00ffaa;
+      transform: scale(1.05);
+    }
+
+    .card {
+      background: var(--panel);
+      border-radius: 15px;
+      padding: 1.5rem;
+      margin: 2rem auto;
+      max-width: 700px;
+      text-align: left;
+      box-shadow: 0 0 10px rgba(0,255,183,0.1);
+    }
+
+    h2 {
+      color: var(--good);
+      margin-bottom: 1rem;
+    }
+
+    a {
+      color: var(--good);
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    footer {
+      margin-top: 2rem;
+      font-size: 0.9rem;
+      color: #777;
+    }
+
+    #verdictBox {
+      margin: 1rem 0;
+      padding: 0.8rem;
+      border-radius: 10px;
+      text-align: center;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    #sources li {
+      margin-bottom: 0.3rem;
+    }
+
   </style>
 </head>
 <body>
@@ -21,44 +110,89 @@
   <textarea id="inputText" placeholder="Introdu afirmația pentru analiză..."></textarea><br>
   <button id="analyzeBtn">🔍 Analizează Informația</button>
 
-  <div id="result" class="card" style="display:none">
+  <div id="result" class="card">
     <h2>🧩 Analiză completă Coeziv 3.14Δ</h2>
-    <div id="analysis"></div>
-    <div id="confidenceBox"></div>
+    <div id="analysis">Aștept textul...</div>
+    <div id="verdictBox"></div>
     <h3>🔎 Surse factuale:</h3>
     <ul id="sources"></ul>
+    <div class="auth">
+      🧠 Analiză efectuată de <strong>Motorul Coeziv 3.14Δ</strong> – bazată pe date publice, web factual și verificare semantică autonomă.
+    </div>
   </div>
 
   <footer>© 2025 Coeziv 3.14Δ</footer>
 
-<script>
-document.getElementById("analyzeBtn").addEventListener("click", async () => {
-  const text = document.getElementById("inputText").value.trim();
-  const resDiv = document.getElementById("result");
-  resDiv.style.display = "block";
-  document.getElementById("analysis").innerText = "⏳ Analiză în curs...";
+  <script>
+    const analyzeBtn = document.getElementById("analyzeBtn");
+    const inputText = document.getElementById("inputText");
+    const analysisDiv = document.getElementById("analysis");
+    const verdictBox = document.getElementById("verdictBox");
+    const sourcesList = document.getElementById("sources");
 
-  try {
-    const res = await fetch("/api/analyze-web", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text })
-    });
+    // 🎨 Verdict colorat dinamic
+    function showVerdict(confidence, analysis) {
+      let color, verdictText;
 
-    const data = await res.json();
-    document.getElementById("analysis").innerHTML = data.analysis || "Eroare: niciun răspuns semantic.";
-    document.getElementById("confidenceBox").innerHTML = `<p><b>Indice de încredere:</b> ${data.confidence || 0}%</p>`;
-    const ul = document.getElementById("sources");
-    ul.innerHTML = "";
-    (data.sources || []).forEach(s => {
-      const li = document.createElement("li");
-      li.innerHTML = `<a href="${s.url}" target="_blank">${s.title}</a>`;
-      ul.appendChild(li);
-    });
-  } catch (err) {
-    document.getElementById("analysis").innerText = "❌ Eroare de conexiune cu motorul semantic.";
-  }
-});
-</script>
+      if (confidence < 40) {
+        color = "#00ffb7";
+        verdictText = "✅ Informație verificată – grad redus de manipulare.";
+      } else if (confidence < 70) {
+        color = "#ffc800";
+        verdictText = "⚠️ Risc moderat de manipulare – recomandăm verificare suplimentară.";
+      } else {
+        color = "#ff0055";
+        verdictText = "🚨 Grad ridicat de manipulare – necesită confirmare factuală.";
+      }
+
+      verdictBox.style.border = `2px solid ${color}`;
+      verdictBox.style.color = color;
+      verdictBox.innerHTML = `
+        ${verdictText}<br>
+        <span style="opacity:0.8;">Indice de încredere: ${confidence}%</span>
+      `;
+    }
+
+    // 🧠 Analiză principală
+    async function analyze() {
+      const text = inputText.value.trim();
+      if (!text) return alert("Introdu un text pentru analiză!");
+
+      analysisDiv.innerHTML = "Analiza în curs...";
+      verdictBox.innerHTML = "";
+      sourcesList.innerHTML = "";
+
+      try {
+        const response = await fetch("/api/analyze-web", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text }),
+        });
+
+        const data = await response.json();
+        analysisDiv.innerHTML = data.analysis || "Nicio analiză disponibilă.";
+        showVerdict(data.confidence || 0, data.analysis);
+
+        if (data.sources && data.sources.length > 0) {
+          sourcesList.innerHTML = data.sources
+            .map(
+              (s) =>
+                `<li><a href="${s.url}" target="_blank">${s.title}</a></li>`
+            )
+            .join("");
+        } else {
+          sourcesList.innerHTML =
+            "<li><em>Nicio sursă factuală relevantă găsită.</em></li>";
+        }
+      } catch (err) {
+        analysisDiv.innerHTML =
+          "⚠️ Eroare de conexiune cu motorul semantic.";
+        verdictBox.innerHTML = "";
+        sourcesList.innerHTML = "";
+      }
+    }
+
+    analyzeBtn.addEventListener("click", analyze);
+  </script>
 </body>
 </html>
