@@ -7,11 +7,13 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { text } = req.body;
-    if (!text) return res.status(400).json({ error: "Lipsă text" });
+    const { text } = await req.json?.() || req.body || {};
+    if (!text || text.length < 3) {
+      return res.status(400).json({ error: "Text insuficient" });
+    }
 
-    // --- 🔎 Căutare factuală în știri recente (Serper News API) ---
-    const serperRes = await fetch("https://google.serper.dev/news", {
+    // --- 1️⃣ Căutare factuală Serper.dev (știri + fallback web general)
+    let serperRes = await fetch("https://google.serper.dev/news", {
       method: "POST",
       headers: {
         "X-API-KEY": process.env.SERPER_API_KEY,
@@ -20,52 +22,63 @@ export default async function handler(req, res) {
       body: JSON.stringify({
         q: text,
         num: 10,
-        tbs: "qdr:d", // ultimele 24h
-        gl: "ro",     // regiune România
-        hl: "ro",     // limbă română
+        tbs: "qdr:m", // ultimele 30 zile
+        gl: "ro",
+        hl: "ro",
       }),
     });
 
-    const serperData = await serperRes.json();
-    const sources = (serperData.news || []).slice(0, 5).map((s) => ({
+    let data = await serperRes.json();
+    let sources = (data.news || []).map((s) => ({
       title: s.title,
       link: s.link,
-      date: s.date,
-      source: s.source,
-      snippet: s.snippet,
+      date: s.date || "",
+      snippet: s.snippet || "",
     }));
 
-    // dacă nu sunt suficiente surse
-    if (sources.length < 3) {
-      return res.status(200).json({
-        score: 0,
-        verdict: "incoerent",
-        interpretation:
-          "Analiza a fost suspendată – insuficiente surse factuale recente (minim 3 necesare).",
-        sources,
+    if (!sources.length) {
+      const webRes = await fetch("https://google.serper.dev/search", {
+        method: "POST",
+        headers: {
+          "X-API-KEY": process.env.SERPER_API_KEY,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ q: text, num: 10, gl: "ro", hl: "ro" }),
       });
+      const webData = await webRes.json();
+      sources = (webData.organic || []).map((s) => ({
+        title: s.title,
+        link: s.link,
+        date: s.date || "",
+        snippet: s.snippet || "",
+      }));
     }
 
-    // --- 🤖 Analiză factual-semantică GPT ---
+    // --- 2️⃣ Analiză semantică GPT (Formula Coezivă 3.14Δ)
+    const contextText = sources
+      .slice(0, 5)
+      .map((s) => `• ${s.title} (${s.date}) — ${s.snippet}`)
+      .join("\n");
+
     const prompt = `
-Verifică afirmația de mai jos în raport cu următoarele articole de presă recente:
+Analizează factual și semantic afirmația de mai jos.
 
-${sources.map((s) => `- ${s.title} (${s.source}, ${s.date}): ${s.snippet}`).join("\n")}
+🔹 Afirmație: "${text}"
+🔹 Surse recente:
+${contextText}
 
-Afirmație: "${text}"
+Evaluează dacă afirmația este:
+1. ✅ adevărată,
+2. ⚠️ probabilă / parțial adevărată,
+3. ❌ falsă.
 
-Evaluează factualitatea și returnează strict JSON:
-{
-  "score": număr între 0 și 3.14,
-  "verdict": "coeziv" | "parțial" | "incoerent",
-  "interpretation": "explicație scurtă în română"
-}
+Returnează un scurt verdict coerent în limba română, cu scor pe o scară 0–3.14 și un mesaj scurt explicativ.
 `;
 
     const gptRes = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+        "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
@@ -75,31 +88,18 @@ Evaluează factualitatea și returnează strict JSON:
     });
 
     const gptData = await gptRes.json();
-    let parsed;
+    const answer = gptData.choices?.[0]?.message?.content || "Eroare GPT";
 
-    try {
-      parsed = JSON.parse(gptData.choices?.[0]?.message?.content || "{}");
-    } catch {
-      parsed = {
-        score: 0,
-        verdict: "incoerent",
-        interpretation: "Eroare de analiză – răspuns GPT invalid.",
-      };
-    }
-
-    // Asigurare valori valide
-    parsed.score = Math.min(Math.max(Number(parsed.score || 0), 0), 3.14);
-    parsed.sources = sources;
-
-    return res.status(200).json(parsed);
-  } catch (err) {
-    console.error("Eroare Coeziv 3.14Δ:", err);
-    return res.status(500).json({
-      error: "Eroare internă în analiza Coeziv 3.14Δ.",
-      score: 0,
-      verdict: "eroare",
-      interpretation: "Conexiune eșuată către OpenAI sau Serper.",
-      sources: [],
+    // --- 3️⃣ Returnăm rezultatul complet
+    return res.status(200).json({
+      statement: text,
+      verdict: answer,
+      sources,
+      sourceCount: sources.length,
     });
+
+  } catch (error) {
+    console.error("Eroare analiza Coeziv 3.14Δ:", error);
+    return res.status(500).json({ error: "Eroare server analiză Coeziv 3.14Δ" });
   }
 }
