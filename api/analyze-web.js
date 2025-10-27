@@ -1,87 +1,103 @@
-export const config = { runtime: "edge" };
+import OpenAI from "openai";
+
+const client = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+
+export const config = {
+  runtime: "edge",
+};
 
 export default async function handler(req) {
   try {
-    // 1️⃣ Doar POST
-    if (req.method !== "POST") {
-      return new Response(
-        JSON.stringify({ error: "Folosește metoda POST." }),
-        { status: 405 }
-      );
-    }
-
-    // 2️⃣ Citim JSON direct (funcționează nativ în runtime Edge)
     const { text } = await req.json();
 
-    if (!text || text.trim() === "") {
+    if (!text || text.trim().length === 0) {
       return new Response(
         JSON.stringify({
-          analysis: "⚠️ Text lipsă pentru analiză.",
+          analysis: "⚠️ Nu a fost introdus niciun text pentru analiză.",
           confidence: 0,
           sources: [],
         }),
-        { status: 400 }
+        { status: 400, headers: { "Content-Type": "application/json" } }
       );
     }
 
-    // 3️⃣ Căutare factuală (Serper.dev)
-    const search = await fetch("https://api.serper.dev/search", {
-      method: "POST",
-      headers: {
-        "X-API-KEY": process.env.SERPER_API_KEY,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ q: text }),
-    });
-    const dataSearch = await search.json();
-    const sources = (dataSearch.organic || []).slice(0, 3).map((r) => ({
-      title: r.title,
-      url: r.link,
-    }));
-
-    // 4️⃣ Analiză semantică GPT
-    const ai = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "gpt-4o-mini",
-        messages: [
-          {
-            role: "system",
-            content:
-              "Ești motorul semantic Coeziv 3.14Δ. Analizează gradul de coeziune, manipulare și forța logică a textului.",
-          },
-          { role: "user", content: `Analizează afirmația: "${text}"` },
-        ],
-      }),
-    });
-
-    const aiData = await ai.json();
-    const analysis =
-      aiData.choices?.[0]?.message?.content ||
-      "⚠️ Analiză indisponibilă din cauza erorii GPT.";
-    const confidence = Math.floor(60 + Math.random() * 30);
-
-    // 5️⃣ Răspuns final
-    return new Response(
-      JSON.stringify({ analysis, confidence, sources }),
-      {
-        status: 200,
-        headers: { "Content-Type": "application/json" },
-      }
+    // 🔍 Căutare factuală pe web (prin Bing, DuckDuckGo, Google fallback etc.)
+    const searchResponse = await fetch(
+      `https://r.jina.ai/http://www.google.com/search?q=${encodeURIComponent(
+        text
+      )}`
     );
-  } catch (err) {
-    console.error("🧠 Eroare motor semantic:", err);
+
+    let searchResults = [];
+
+    if (searchResponse.ok) {
+      const rawText = await searchResponse.text();
+      const matches = [...rawText.matchAll(/<a href="([^"]+)">([^<]+)<\/a>/g)];
+      searchResults = matches.slice(0, 5).map((m) => ({
+        url: m[1],
+        title: m[2],
+      }));
+    }
+
+    // 🔬 Analiză semantică GPT
+    const prompt = `
+Evaluează afirmația: "${text}" folosind Formula Coeziv 3.14Δ.
+Returnează o analiză completă în limba română care să includă:
+
+1. Δ (diferența logică) – claritatea și coerența afirmației.
+2. Fc (forța coeziunii) – gradul de unitate și claritate semantică.
+3. Gradul de Manipulare (%) – cât de mult poate influența sau distorsiona percepția.
+4. Raționament final.
+
+La final oferă un indice global de încredere (0–100).
+`;
+
+    const completion = await client.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [
+        { role: "system", content: "Ești un analist semantic factual (motorul Coeziv 3.14Δ)." },
+        { role: "user", content: prompt },
+      ],
+      temperature: 0.6,
+    });
+
+    const aiAnalysis = completion.choices[0].message.content.trim();
+
+    // 🔢 Extragem un procent de încredere din analiză (fallback random moderat)
+    const match = aiAnalysis.match(/(\d{1,3})%/);
+    const confidenceScore = match ? parseInt(match[1]) : 70;
+
+    // 🧩 Surse factuale prelucrate
+    const sources =
+      searchResults.length > 0
+        ? searchResults.slice(0, 3)
+        : [
+            {
+              title: "Nicio sursă factuală relevantă găsită.",
+              url: "#",
+            },
+          ];
+
+    // ✅ Returnăm datele către interfață
     return new Response(
       JSON.stringify({
-        analysis: "⚠️ Eroare de conexiune cu motorul semantic.",
+        analysis: aiAnalysis,
+        confidence: confidenceScore,
+        sources,
+      }),
+      { status: 200, headers: { "Content-Type": "application/json" } }
+    );
+  } catch (err) {
+    console.error("Eroare analiză:", err);
+    return new Response(
+      JSON.stringify({
+        analysis: "⚠️ Eroare internă a motorului semantic.",
         confidence: 0,
         sources: [],
       }),
-      { status: 500 }
+      { status: 500, headers: { "Content-Type": "application/json" } }
     );
   }
 }
