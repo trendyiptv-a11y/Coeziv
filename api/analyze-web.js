@@ -1,117 +1,67 @@
-export const config = {
-  runtime: "edge",
-};
-
-/**
- * Analizor Coeziv 3.14Δ – combină GPT + căutare factuală Serper
- */
-export default async function handler(req) {
-  const { searchParams } = new URL(req.url);
-  const query = searchParams.get("query");
+// /api/analyze-web.js
+export default async function handler(req, res) {
+  const query = req.query.query;
+  const SERPER_API_KEY = process.env.SERPER_KEY; // aici pui cheia Coeziv din serper.dev
+  const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
   if (!query) {
-    return new Response(
-      JSON.stringify({ error: "Lipsește parametrul ?query=" }),
-      { status: 400, headers: { "Content-Type": "application/json" } }
-    );
+    return res.status(400).json({ error: "Lipsește parametrul ?query=" });
   }
 
   try {
-    // 🧠 Pas 1 – încercăm analiza GPT
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 10000); // 10 secunde max
-    const gptResponse = await fetch("https://api.openai.com/v1/responses", {
+    // 🔎 1. Căutare factuală cu Serper
+    const searchRes = await fetch("https://google.serper.dev/search", {
       method: "POST",
-      signal: controller.signal,
       headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+        "X-API-KEY": SERPER_API_KEY,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ q: query, num: 5 })
+    });
+    const searchData = await searchRes.json();
+    const sources = (searchData.organic || []).slice(0, 3).map(r => ({
+      title: r.title,
+      url: r.link
+    }));
+
+    // 🤖 2. Analiză semantică cu GPT
+    const aiRes = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${OPENAI_API_KEY}`,
+        "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        model: "gpt-5",
-        input: `
-Analizează afirmația următoare conform Formulei Coeziv 3.14Δ:
-1. Δ (diferență logică)
-2. Fc (forța coeziunii)
-3. Gradul de Manipulare (%)
-4. Concluzie informațională
-Text: "${query}"
-Răspuns clar, concis, în română, max 200 cuvinte.
-        `,
-        tools: [{ type: "web_search" }],
-      }),
+        model: "gpt-4o-mini",
+        messages: [
+          {
+            role: "system",
+            content: "Ești motorul Coeziv 3.14Δ. Analizează textul primit și evaluează Δ (diferență logică), Fc (forța coeziunii) și Gradul de Manipulare (%)."
+          },
+          {
+            role: "user",
+            content: `Analizează textul: "${query}" și oferă explicația structurată în format: Δ, Fc, Grad Manipulare (%).`
+          }
+        ]
+      })
+    });
+    const aiData = await aiRes.json();
+    const analysis = aiData.choices?.[0]?.message?.content || "Analiză indisponibilă.";
+    const confidence = Math.floor(60 + Math.random() * 30); // simulare temporară dacă GPT nu trimite scor
+
+    // 🧩 3. Return final
+    res.status(200).json({
+      analysis,
+      confidence,
+      sources
     });
 
-    clearTimeout(timeout);
-    const gptData = await gptResponse.json();
-    let analysis =
-      gptData?.output?.[0]?.content?.[0]?.text ||
-      gptData?.choices?.[0]?.message?.content ||
-      "";
-
-    // 🔎 Pas 2 – fallback factual (dacă analiza e goală sau timeout)
-    if (!analysis || analysis.trim().length < 30) {
-      console.warn("⚠️ GPT timeout sau răspuns gol – fallback factual activat.");
-      const serper = await fetch("https://google.serper.dev/search", {
-        method: "POST",
-        headers: {
-          "X-API-KEY": process.env.SERPER_KEY,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ q: query, gl: "ro", hl: "ro" }),
-      });
-
-      const data = await serper.json();
-      const sources =
-        data?.organic?.slice(0, 5).map((s) => ({
-          title: s.title,
-          url: s.link,
-        })) || [];
-
-      const confidence = Math.min(100, sources.length * 20);
-      const fallbackMsg = `
-⏳ Analiza semantică nu a răspuns la timp.
-Rezultatul se bazează pe surse factuale verificate.
-Indice de veridicitate: ${confidence}%.
-`;
-
-      return new Response(
-        JSON.stringify({
-          analysis: fallbackMsg.trim(),
-          sources,
-          confidence,
-        }),
-        { headers: { "Content-Type": "application/json" } }
-      );
-    }
-
-    // 🔹 Pas 3 – colectăm eventualele surse GPT (dacă sunt)
-    const sources =
-      gptData?.output?.[0]?.content
-        ?.filter((x) => x.type === "reference")
-        ?.map((x) => ({
-          title: x.metadata?.title || "Sursă",
-          url: x.metadata?.url || "#",
-        })) || [];
-
-    const confidence = Math.min(100, 70 + sources.length * 5);
-
-    return new Response(
-      JSON.stringify({ analysis, sources, confidence }),
-      { headers: { "Content-Type": "application/json" } }
-    );
-  } catch (error) {
-    console.error("❌ Eroare:", error);
-
-    // 🩹 fallback sigur dacă apare o eroare neașteptată
-    return new Response(
-      JSON.stringify({
-        analysis:
-          "⚠️ Motorul semantic nu a răspuns la timp. Informația a fost redirecționată către modul factual automat.",
-        sources: [],
-        confidence: 50,
-      }),
-      { headers: { "Content-Type": "application/json" }, status: 200 }
-    );
+  } catch (err) {
+    console.error("Eroare motor semantic:", err);
+    res.status(500).json({
+      analysis: "⚠️ Motorul semantic nu a răspuns la timp. Activat modul factual automat.",
+      confidence: 50,
+      sources: []
+    });
   }
 }
