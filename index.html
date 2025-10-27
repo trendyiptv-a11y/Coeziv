@@ -74,6 +74,11 @@
       box-shadow: 0 0 10px rgba(0, 255, 183, 0.08);
     }
 
+    h2 {
+      color: var(--accent);
+      margin-top: 0;
+    }
+
     .verdict {
       font-weight: 600;
       margin-top: 1rem;
@@ -117,6 +122,15 @@
       color: #6e7681;
       font-size: 0.9rem;
     }
+
+    ul {
+      list-style: none;
+      padding-left: 1rem;
+    }
+
+    li {
+      margin-bottom: 0.4rem;
+    }
   </style>
 </head>
 
@@ -130,7 +144,7 @@
 
   <div id="result" class="card" style="display: none;">
     <h2>🧩 Analiză completă Coeziv 3.14Δ</h2>
-    <p id="analysis">Analiza în curs...</p>
+    <div id="analysis">Analiza în curs...</div>
 
     <div id="verdictBox" class="verdict">...</div>
 
@@ -138,8 +152,7 @@
     <ul id="sources"></ul>
 
     <div class="auth">
-      🧠 Analiză efectuată de <strong>Motorul Coeziv 3.14Δ</strong>  
-      – bazată pe date publice, web factual și verificare semantică autonomă.
+      🧠 Analiză efectuată de <strong>Motorul Coeziv 3.14Δ</strong> – bazată pe date publice, web factual și verificare semantică autonomă.
     </div>
   </div>
 
@@ -167,15 +180,17 @@
         const res = await fetch(`/api/analyze-web?query=${encodeURIComponent(text)}`);
         const data = await res.json();
 
-        if (data.error) {
-          analysisEl.textContent = `⚠️ Eroare: ${data.error}`;
-          return;
+        // 🧠 Afișăm analiza semantică completă (Δ, Fc, Manipulare)
+        if (data.analysis) {
+          const formatted = data.analysis
+            .replace(/\n/g, "<br>")
+            .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+          analysisEl.innerHTML = formatted;
+        } else {
+          analysisEl.textContent = "Nicio analiză disponibilă.";
         }
 
-        // ✅ Analiză text
-        analysisEl.textContent = data.analysis || "Nicio analiză disponibilă.";
-
-        // 🧭 Verdict & indice veridicitate
+        // 🧭 Verdict colorat + Indice veridicitate
         const conf = data.confidence || 50;
         let verdictText = "";
         let verdictClass = "";
@@ -194,10 +209,10 @@
         verdictEl.textContent = verdictText;
         verdictEl.className = `verdict ${verdictClass}`;
 
-        // 📚 Surse
+        // 🔗 Surse factuale
         if (data.sources && data.sources.length > 0) {
           sourcesEl.innerHTML = data.sources
-            .map(s => `<li><a href="${s.url}" target="_blank">${s.title}</a></li>`)
+            .map((s) => `<li><a href="${s.url}" target="_blank">${s.title}</a></li>`)
             .join("");
         } else {
           sourcesEl.innerHTML = "<li>Nicio sursă factuală relevantă găsită.</li>";
