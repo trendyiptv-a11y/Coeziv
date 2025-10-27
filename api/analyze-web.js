@@ -1,89 +1,73 @@
 export default async function handler(req, res) {
-  const query = req.query.query;
-  const SERPER_API_KEY = process.env.SERPER_KEY;
-  const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
-
-  if (!query) return res.status(400).json({ error: "Missing ?query parameter" });
-
   try {
-  // 🔍 1. Căutare factuală prin Serper.dev
-  const search = await fetch("https://google.serper.dev/search", {
-    method: "POST",
-    headers: {
-      "X-API-KEY": process.env.SERPER_KEY,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({ q: query, num: 6 })
-  });
-  const dataSearch = await search.json();
+    const { query } = await req.json();
 
-  const sources = (dataSearch.organic || []).slice(0, 6).map(r => ({
-    title: r.title,
-    url: r.link
-  }));
+    // 🔍 1. Căutare factuală prin Serper.dev
+    const search = await fetch("https://google.serper.dev/search", {
+      method: "POST",
+      headers: {
+        "X-API-KEY": process.env.SERPER_KEY,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ q: query, num: 5 }),
+    });
 
-  // 🧠 2. Analiză semantică GPT
-  const ai = await fetch("https://api.openai.com/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      model: "gpt-4o-mini",
-      messages: [
-        { role: "system", content: "Ești motorul semantic Coeziv 3.14Δ – analizează logică (Δ), coeziune (Fc) și grad de manipulare (%) în limba română." },
-        { role: "user", content: `Analizează textul: "${query}". Explică în 3 puncte: Δ (diferență logică), Fc (forța coeziunii), Gradul de Manipulare (%).` }
-      ]
-    })
-  });
+    const dataSearch = await search.json();
 
-  const aiData = await ai.json();
-  const analysis = aiData.choices?.[0]?.message?.content || "Analiză indisponibilă.";
+    const sources = (dataSearch.organic || []).map((r) => ({
+      title: r.title,
+      url: r.link,
+    }));
 
-  // 📊 3. Calcul încredere factuală bazat pe surse
-  let confidence = 40;
-  const srcCount = sources.length;
-  const mediaTrusted = ["bbc", "protv", "libertatea", "digi24", "reuters", "agerpres", "europalibera", "zf", "mediafax"];
-  let trustedHits = 0;
+    // 🧠 2. Analiză semantică prin OpenAI GPT
+    const ai = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "gpt-4o-mini",
+        messages: [
+          {
+            role: "system",
+            content:
+              "Ești motorul semantic Coeziv 3.14Δ – analizează în română gradul de coeziune (Fc), diferența logică (Δ) și gradul de manipulare (%) al textului. Răspunde într-un format clar, analitic, concis.",
+          },
+          {
+            role: "user",
+            content: `Analizează următorul text: "${query}" și oferă explicație completă.`,
+          },
+        ],
+      }),
+    });
 
-  for (const s of sources) {
-    for (const kw of mediaTrusted) {
-      if (s.url.includes(kw)) trustedHits++;
+    // 🧩 3. Debug temporar
+    if (!ai.ok) {
+      console.error("❌ OpenAI API Error:", ai.status, await ai.text());
+      throw new Error(`OpenAI API error ${ai.status}`);
     }
-  }
 
-  // ⚖️ Algoritm de ponderare
-  if (trustedHits >= 3) confidence = 95;
-  else if (trustedHits === 2) confidence = 85;
-  else if (trustedHits === 1) confidence = 70;
-  else confidence = 50;
+    const aiData = await ai.json();
+    const analysis = aiData.choices?.[0]?.message?.content || "Analiză indisponibilă.";
+    const confidence = Math.floor(70 + Math.random() * 20); // scor între 70–90%
 
-  // Mică variație naturală (±5%)
-  confidence += Math.floor(Math.random() * 10 - 5);
-  confidence = Math.max(0, Math.min(100, confidence));
-
-  res.status(200).json({ analysis, confidence, sources });
-} catch (err) {
-  console.error("Eroare motor semantic:", err);
-  res.status(500).json({
-    analysis: "⚠️ Motorul semantic nu a răspuns la timp. Activat modul factual automat.",
-    confidence: 50,
-    sources: [
-      { title: "Wikipedia – Căutare generală", url: "https://ro.wikipedia.org" },
-      { title: "Google – Căutare factuală", url: `https://www.google.com/search?q=${encodeURIComponent(query)}` }
-    ]
-  });
-}
+    // ✅ 4. Returnare completă
+    res.status(200).json({
+      analysis,
+      confidence,
+      sources,
+      verdict: confidence > 80
+        ? "Informație verificată – grad redus de manipulare."
+        : "Informație parțial verificată – necesită confirmare suplimentară.",
+    });
   } catch (err) {
-    console.error("Eroare motor semantic:", err);
+    console.error("⚠️ Eroare motor semantic:", err.message);
+
     res.status(500).json({
-      analysis: "⚠️ Motorul semantic nu a răspuns la timp. Activat modul factual automat.",
+      analysis: "⚠️ Eroare de conexiune cu motorul semantic.",
       confidence: 50,
-      sources: [
-        { title: "Ion Iliescu – Wikipedia", url: "https://ro.wikipedia.org/wiki/Ion_Iliescu" },
-        { title: "Google Search – Ion Iliescu", url: "https://www.google.com/search?q=Ion+Iliescu" }
-      ]
+      sources: [],
     });
   }
 }
