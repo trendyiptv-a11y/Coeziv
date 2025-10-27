@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 <html lang="ro">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Coeziv 3.14Δ – Analiză Semantică</title>
 <style>
   :root {
     --good: #00ffb7;
     --medium: #ffc800;
-    --bad: #ff5555;
+    --warning: #ff6600;
+    --bad: #ff0055;
     --bg: #0d1117;
     --panel: #161b22;
-    --accent: #00ffb7;
   }
   body {
     background-color: var(--bg);
@@ -26,133 +26,192 @@
     font-size: 2rem;
     margin-bottom: 0.3rem;
   }
+  p { color: #9ba1a6; margin-bottom: 1rem; }
   textarea {
     width: 90%;
     max-width: 700px;
-    height: 100px;
-    margin: 1rem 0;
-    background: var(--panel);
-    border: 1px solid #30363d;
-    color: #c9d1d9;
+    height: 80px;
     border-radius: 10px;
+    border: none;
+    background: #0c0f13;
+    color: #fff;
     padding: 1rem;
     font-size: 1rem;
+    resize: none;
+    margin-bottom: 1rem;
   }
   button {
     background-color: var(--good);
     color: #000;
     border: none;
+    padding: 0.8rem 1.6rem;
     border-radius: 12px;
-    padding: 0.8rem 1.2rem;
-    font-weight: bold;
     cursor: pointer;
-    transition: all 0.2s ease;
+    font-weight: bold;
+    transition: transform 0.15s ease;
   }
-  button:hover {
-    opacity: 0.8;
-  }
+  button:hover { transform: scale(1.05); }
   .card {
     background: var(--panel);
-    border-radius: 14px;
-    padding: 1.2rem;
+    border-radius: 15px;
+    padding: 1.5rem;
     margin: 1.5rem auto;
     max-width: 700px;
     text-align: left;
     box-shadow: 0 0 10px rgba(0,255,183,0.1);
   }
-  h2 { color: var(--accent); margin-top: 0; }
-  .verdict { font-weight: 600; margin-top: 1rem; }
-  .green { color: var(--good); }
-  .yellow { color: var(--medium); }
-  .red { color: var(--bad); }
-  .auth { margin-top: 1rem; font-size: 0.9rem; color: #7a828e; }
-  a { color: var(--accent); text-decoration: none; }
-  a:hover { text-decoration: underline; }
-  footer { margin-top: 2rem; color: #6e7681; font-size: 0.8rem; }
-  ul { list-style: none; padding-left: 1rem; }
-  .loader {
-    border: 3px solid #333;
-    border-top: 3px solid var(--good);
-    border-radius: 50%;
-    width: 24px;
-    height: 24px;
-    margin: 0 auto;
-    animation: spin 1s linear infinite;
+  h2 { color: var(--good); }
+  .verdict {
+    font-weight: bold;
+    margin-top: 1rem;
+    padding: 1rem;
+    border-radius: 10px;
+    transition: background-color 0.3s ease;
   }
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+  .verdict.good { background-color: rgba(0,255,183,0.1); border-left: 5px solid var(--good); }
+  .verdict.medium { background-color: rgba(255,200,0,0.1); border-left: 5px solid var(--medium); }
+  .verdict.warning { background-color: rgba(255,102,0,0.1); border-left: 5px solid var(--warning); }
+  .verdict.bad { background-color: rgba(255,0,85,0.1); border-left: 5px solid var(--bad); animation: pulse 1.5s infinite; }
+  @keyframes pulse {
+    0%,100% { box-shadow: 0 0 5px rgba(255,0,85,0.3); }
+    50% { box-shadow: 0 0 20px rgba(255,0,85,0.7); }
+  }
+  a { color: var(--good); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  footer { margin-top: 2rem; color: #6e7681; font-size: 0.9rem; }
+
+  /* 🔵 Gauge semantic */
+  .gauge {
+    position: relative;
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    margin: 1rem auto;
+    background: conic-gradient(var(--good) 0deg, var(--panel) 0deg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .gauge-inner {
+    position: absolute;
+    width: 110px;
+    height: 110px;
+    background: var(--panel);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    font-weight: bold;
+  }
+  .context-text {
+    text-align: center;
+    font-style: italic;
+    font-size: 0.95rem;
+    margin-top: 0.5rem;
+    color: #b4b4b4;
+    min-height: 24px;
+    transition: color 0.4s ease;
   }
 </style>
 </head>
-
 <body>
-  <h1>🧠 Coeziv 3.14Δ</h1>
-  <p>Analizor informațional – detectează nivelul de coeziune, vibrație și manipulare semantică.</p>
+<h1>🧠 Coeziv 3.14Δ</h1>
+<p>Analizor informațional – detectează nivelul de coeziune, vibrație și manipulare semantică.</p>
 
-  <textarea id="inputText" placeholder="Exemplu: Ion Iliescu a murit."></textarea><br>
-  <button id="analyzeBtn">🔍 Analizează Informația</button>
+<textarea id="inputText" placeholder="Scrie aici textul pentru analiză..."></textarea>
+<br>
+<button id="analyzeBtn">🔍 Analizează Informația</button>
 
-  <div id="result" class="card">
-    <h2>🧩 Analiză completă Coeziv 3.14Δ</h2>
-    <div id="analysis">Aștept analiză...</div>
-    <div id="verdictBox" class="verdict"></div>
-    <h3>🔎 Surse factuale:</h3>
-    <ul id="sources"></ul>
-    <div class="auth">
-      🧠 Analiză efectuată de <strong>Motorul Coeziv 3.14Δ</strong> – bazată pe date publice, web factual și verificare semantică autonomă.
-    </div>
+<div id="result" class="card">
+  <div class="gauge" id="gauge">
+    <div class="gauge-inner" id="gaugeText">0%</div>
   </div>
+  <div id="contextText" class="context-text">Nicio analiză efectuată încă.</div>
 
-  <footer>© 2025 Coeziv 3.14Δ</footer>
+  <h2>🧩 Analiză completă Coeziv 3.14Δ</h2>
+  <div id="analysis">Aștept textul pentru analiză...</div>
+  <div id="verdictBox" class="verdict"></div>
+  <h3>🔎 Surse factuale:</h3>
+  <ul id="sources"></ul>
+  <div class="auth">
+    🧠 Analiză efectuată de <strong>Motorul Coeziv 3.14Δ</strong> – bazată pe date publice, web factual și verificare semantică autonomă.
+  </div>
+</div>
 
-  <script>
-  async function analizeazaInformatii() {
-    const inputText = document.getElementById("inputText").value.trim();
-    const analysisDiv = document.getElementById("analysis");
-    const verdictBox = document.getElementById("verdictBox");
-    const sourcesList = document.getElementById("sources");
+<footer>© 2025 Coeziv 3.14Δ</footer>
 
-    if (!inputText) {
-      analysisDiv.innerHTML = "<p class='red'>⚠️ Introdu un text pentru analiză.</p>";
-      verdictBox.innerHTML = "";
-      sourcesList.innerHTML = "";
-      return;
-    }
+<script>
+const analyze = async (text) => {
+  const analysisBox = document.getElementById("analysis");
+  const verdictBox = document.getElementById("verdictBox");
+  const sourcesList = document.getElementById("sources");
+  const gauge = document.getElementById("gauge");
+  const gaugeText = document.getElementById("gaugeText");
+  const contextText = document.getElementById("contextText");
 
-    // Loader animat
-    analysisDiv.innerHTML = "<div class='loader'></div><p>🌀 Analiza semantică în curs...</p>";
-    verdictBox.innerHTML = "";
-    sourcesList.innerHTML = "";
+  analysisBox.textContent = "⏳ Analiză în curs...";
+  verdictBox.textContent = "";
+  sourcesList.innerHTML = "";
+  gauge.style.background = "conic-gradient(var(--good) 0deg, var(--panel) 0deg)";
+  gaugeText.textContent = "0%";
+  contextText.textContent = "Analiza semantică este în curs...";
 
-    try {
-      const response = await fetch("/api/analyze-web", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query: inputText }),
+  try {
+    const response = await fetch(`/api/analyze-web`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text })
+    });
+
+    const data = await response.json();
+    analysisBox.innerHTML = data.analysis || "❌ Eroare de analiză semantică.";
+
+    const percent = Math.min(100, Math.max(0, data.confidence || 0));
+    gaugeText.textContent = `${percent}%`;
+
+    // culoare și unghi gauge
+    let color = "var(--good)";
+    let mood = "Analiză stabilă – text informativ și clar.";
+    if (percent < 30) { color = "var(--good)"; mood = "Text factual – risc minim de manipulare."; }
+    else if (percent < 60) { color = "var(--medium)"; mood = "Atenție – text cu potențial de confuzie contextuală."; }
+    else if (percent < 80) { color = "var(--warning)"; mood = "Risc moderat de manipulare – recomandăm verificare suplimentară."; }
+    else { color = "var(--bad)"; mood = "⚠️ Risc ridicat de manipulare semantică!"; }
+
+    gauge.style.background = `conic-gradient(${color} ${percent * 3.6}deg, #333 ${percent * 3.6}deg)`;
+    contextText.textContent = mood;
+    contextText.style.color = color;
+
+    let verdictClass = "good";
+    let emoji = "✅";
+    if (percent >= 80) { verdictClass = "bad"; emoji = "🚨"; }
+    else if (percent >= 60) { verdictClass = "warning"; emoji = "🟠"; }
+    else if (percent >= 40) { verdictClass = "medium"; emoji = "⚠️"; }
+
+    verdictBox.className = `verdict ${verdictClass}`;
+    verdictBox.innerHTML = `${emoji} <strong>Verdict:</strong> ${data.verdict || "Nedefinit"}<br>Indice de încredere: ${percent}%`;
+
+    if (data.sources && data.sources.length > 0) {
+      data.sources.forEach(src => {
+        const li = document.createElement("li");
+        li.innerHTML = `<a href="${src.url}" target="_blank">${src.title}</a>`;
+        sourcesList.appendChild(li);
       });
-
-      if (!response.ok) throw new Error("Eroare server: " + response.status);
-
-      const data = await response.json();
-
-      analysisDiv.innerHTML = `<p>${data.analysis}</p>`;
-      verdictBox.innerHTML = `<span class='green'>📊 Verdict:</span> ${data.verdict || '—'}<br><b>Indice de încredere:</b> ${data.confidence || 0}%`;
-
-      if (data.sources && data.sources.length > 0) {
-        sourcesList.innerHTML = data.sources
-          .map((s) => `<li><a href="${s.url}" target="_blank">${s.title}</a></li>`)
-          .join("");
-      } else {
-        sourcesList.innerHTML = "<li>Nicio sursă factuală relevantă găsită.</li>";
-      }
-    } catch (err) {
-      console.error("Eroare analiză:", err);
-      analysisDiv.innerHTML = "<p class='red'>⚠️ Eroare de conexiune cu motorul semantic.</p>";
+    } else {
+      sourcesList.innerHTML = "<li>Nicio sursă factuală relevantă găsită.</li>";
     }
-  }
 
-  document.getElementById("analyzeBtn").addEventListener("click", analizeazaInformatii);
-  </script>
+  } catch (err) {
+    analysisBox.textContent = "❌ Eroare la conectarea cu motorul semantic.";
+    contextText.textContent = "Conexiunea semantică a eșuat temporar.";
+    contextText.style.color = "var(--bad)";
+  }
+};
+
+document.getElementById("analyzeBtn").addEventListener("click", () => {
+  const text = document.getElementById("inputText").value.trim();
+  if (text) analyze(text);
+});
+</script>
 </body>
 </html>
