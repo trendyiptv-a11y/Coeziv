@@ -73,6 +73,51 @@
   <footer>© 2025 Coeziv 3.14Δ</footer>
 
   <script>
+    <script>
+async function analizeazaInformatii() {
+  const inputText = document.getElementById("inputText").value.trim();
+  const resultDiv = document.getElementById("result");
+  const analysisDiv = document.getElementById("analysis");
+  const sourcesList = document.getElementById("sources");
+  const verdictBox = document.getElementById("verdictBox");
+
+  if (!inputText) {
+    analysisDiv.innerHTML = "<p style='color:#ff5555'>⚠️ Introdu un text pentru analiză.</p>";
+    sourcesList.innerHTML = "";
+    return;
+  }
+
+  analysisDiv.innerHTML = "<p style='color:#00ffb7'>🌀 Analiza semantică în curs...</p>";
+  sourcesList.innerHTML = "";
+
+  try {
+    const response = await fetch("/api/analyze-web", {
+      method: "POST", // ✅ IMPORTANT
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ query: inputText }),
+    });
+
+    if (!response.ok) throw new Error("Eroare server: " + response.status);
+
+    const data = await response.json();
+
+    // 🔍 Analiza
+    analysisDiv.innerHTML = `<p>${data.analysis}</p>`;
+    verdictBox.innerHTML = `<span class="green">📊 Verdict:</span> ${data.verdict} 
+      <br><b>Indice de încredere:</b> ${data.confidence}%`;
+
+    // 🧩 Surse
+    if (data.sources && data.sources.length > 0) {
+      sourcesList.innerHTML = data.sources
+        .map((s) => `<li><a href="${s.url}" target="_blank" style="color:#00ffb7">${s.title}</a></li>`)
+        .join("");
+    } else {
+      sourcesList.innerHTML = "<li>Nicio sursă factuală relevantă găsită.</li>";
+    }
+  } catch (err) {
+    console.error("Eroare analiză:", err);
+    analysisDiv.innerHTML =
+      "<p style='color:#ff5555'>
   const analyze = async (text) => {
     const ctrl = new AbortController();
     const timeout = setTimeout(() => ctrl.abort(), 8000); // 8s limită
@@ -158,5 +203,6 @@ Informația a fost redirecționată către <b>modul factual automat</b>.<br><br>
   </script>
 </body>
 </html>
+
 
 
