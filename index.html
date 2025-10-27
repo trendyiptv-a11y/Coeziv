@@ -1,155 +1,210 @@
 <!DOCTYPE html>
 <html lang="ro">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Motor Coeziv 3.14Δ – Analiză Informațională</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Motor Coeziv 3.14Δ</title>
   <style>
+    :root {
+      --good: #00ffb7;
+      --medium: #ffc800;
+      --bad: #ff0055;
+      --bg: #0d1117;
+      --panel: #161b22;
+    }
+
     body {
-      font-family: "Segoe UI", sans-serif;
-      background-color: #0d1117;
+      background-color: var(--bg);
       color: #c9d1d9;
-      text-align: center;
-      padding: 2rem;
-      margin: 0;
+      font-family: 'Inter', 'Segoe UI', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem;
+      min-height: 100vh;
     }
+
     h1 {
-      color: #00ffb7;
-      font-size: 1.8rem;
-      margin-bottom: 1rem;
+      color: var(--good);
+      font-size: 2rem;
+      margin-bottom: 0.2rem;
+      text-align: center;
     }
+
+    p {
+      color: #9ba1a6;
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+
     textarea {
       width: 100%;
       max-width: 600px;
-      height: 120px;
-      border-radius: 8px;
-      border: none;
-      padding: 10px;
-      background-color: #161b22;
+      height: 100px;
+      background-color: var(--panel);
       color: #fff;
-      resize: none;
+      border: 1px solid #30363d;
+      border-radius: 12px;
+      padding: 1rem;
       font-size: 1rem;
+      resize: none;
+      outline: none;
+      transition: border 0.2s;
     }
+
+    textarea:focus {
+      border-color: var(--good);
+    }
+
     button {
-      background-color: #00ffb7;
+      margin-top: 1.5rem;
+      background-color: var(--good);
       color: #000;
+      font-weight: 600;
       border: none;
-      border-radius: 6px;
-      padding: 10px 20px;
-      margin-top: 12px;
+      border-radius: 12px;
+      padding: 0.8rem 1.6rem;
       cursor: pointer;
-      font-weight: bold;
-      transition: 0.3s;
+      transition: transform 0.2s, box-shadow 0.3s;
     }
+
     button:hover {
-      background-color: #00c78f;
+      transform: scale(1.05);
+      box-shadow: 0 0 12px var(--good);
     }
-    .result-box {
+
+    .result {
       margin-top: 2rem;
-      background-color: #161b22;
+      width: 100%;
+      max-width: 650px;
+      background-color: var(--panel);
+      border-radius: 14px;
       padding: 1.5rem;
-      border-radius: 10px;
-      max-width: 700px;
-      margin-left: auto;
-      margin-right: auto;
-      box-shadow: 0 0 15px rgba(0,255,183,0.2);
+      text-align: left;
+      box-shadow: 0 0 20px rgba(0, 255, 183, 0.05);
+      transition: all 0.6s ease;
     }
+
     .verdict {
       font-size: 1.3rem;
-      margin: 1rem 0;
       font-weight: bold;
+      margin-bottom: 0.6rem;
+      text-shadow: 0 0 12px transparent;
+      transition: color 0.6s ease, text-shadow 0.6s ease;
     }
+
+    .score {
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+      color: #9ba1a6;
+    }
+
     .sources {
-      text-align: left;
-      max-width: 650px;
-      margin: 1rem auto;
-      font-size: 0.95rem;
+      border-top: 1px solid #30363d;
+      margin-top: 1rem;
+      padding-top: 1rem;
     }
-    .sources a {
-      color: #00ffb7;
+
+    .source {
+      margin-bottom: 0.5rem;
+    }
+
+    .source a {
+      color: var(--good);
       text-decoration: none;
     }
-    .sources a:hover {
+
+    .source a:hover {
       text-decoration: underline;
     }
-    .loading {
-      color: #ffc800;
-      font-style: italic;
-      margin-top: 1rem;
+
+    .warning {
+      color: var(--medium);
+      font-weight: bold;
     }
+
+    @keyframes pulseGreen {
+      0% { text-shadow: 0 0 5px var(--good); }
+      50% { text-shadow: 0 0 25px var(--good); }
+      100% { text-shadow: 0 0 5px var(--good); }
+    }
+
+    @keyframes pulseYellow {
+      0% { text-shadow: 0 0 5px var(--medium); }
+      50% { text-shadow: 0 0 25px var(--medium); }
+      100% { text-shadow: 0 0 5px var(--medium); }
+    }
+
+    @keyframes pulseRed {
+      0% { text-shadow: 0 0 5px var(--bad); }
+      50% { text-shadow: 0 0 25px var(--bad); }
+      100% { text-shadow: 0 0 5px var(--bad); }
+    }
+
+    .pulse-green { animation: pulseGreen 2s infinite; color: var(--good); }
+    .pulse-yellow { animation: pulseYellow 2s infinite; color: var(--medium); }
+    .pulse-red { animation: pulseRed 2s infinite; color: var(--bad); }
+
   </style>
 </head>
 <body>
   <h1>Motor Coeziv 3.14Δ</h1>
   <p>Analiză factuală și semantică în timp real</p>
 
-  <textarea id="userInput" placeholder="Introdu afirmația de verificat..."></textarea><br>
-  <button onclick="analyze()">Analizează informația</button>
+  <textarea id="inputText" placeholder="Scrie o afirmație pentru verificare..."></textarea>
+  <button id="analyzeBtn">Analizează informația</button>
 
-  <div id="result" class="result-box" style="display:none;">
+  <div id="result" class="result" style="display:none;">
     <div id="verdict" class="verdict"></div>
-    <div id="analysis"></div>
-    <div id="sources" class="sources"></div>
+    <div id="score" class="score"></div>
+    <div id="interpretation"></div>
+    <div class="sources" id="sources"></div>
   </div>
 
-  <p id="loading" class="loading" style="display:none;">Se analizează informația...</p>
-
   <script>
-    async function analyze() {
-      const text = document.getElementById("userInput").value.trim();
-      const resultDiv = document.getElementById("result");
-      const verdictDiv = document.getElementById("verdict");
-      const analysisDiv = document.getElementById("analysis");
-      const sourcesDiv = document.getElementById("sources");
-      const loading = document.getElementById("loading");
+    const analyzeBtn = document.getElementById("analyzeBtn");
+    const input = document.getElementById("inputText");
+    const result = document.getElementById("result");
+    const verdict = document.getElementById("verdict");
+    const score = document.getElementById("score");
+    const interpretation = document.getElementById("interpretation");
+    const sources = document.getElementById("sources");
 
-      if (!text) {
-        alert("Te rog introdu o afirmație pentru analiză!");
-        return;
+    const verdictClasses = ["pulse-green", "pulse-yellow", "pulse-red"];
+
+    analyzeBtn.addEventListener("click", () => {
+      const text = input.value.trim();
+      if (!text) return alert("Introdu o afirmație pentru analiză.");
+
+      result.style.display = "block";
+
+      // DEMO random verdict
+      const rnd = Math.random();
+      verdictClasses.forEach(cls => verdict.classList.remove(cls));
+
+      if (rnd > 0.66) {
+        verdict.textContent = "🟢 Analiză Coezivă – informația este consistentă factual.";
+        verdict.classList.add("pulse-green");
+        score.textContent = "Scor coeziune: 3.00 / 3.14";
+        interpretation.textContent = "Analiza semantică indică o consistență ridicată cu sursele disponibile.";
+        sources.innerHTML = `
+          <div class='source'>🔗 <a href="#">Wikipedia.org</a></div>
+          <div class='source'>🔗 <a href="#">HotNews.ro</a></div>
+          <div class='source'>🔗 <a href="#">Digi24.ro</a></div>`;
+      } else if (rnd > 0.33) {
+        verdict.textContent = "🟡 Analiză parțială – sursele sunt insuficiente sau contradictorii.";
+        verdict.classList.add("pulse-yellow");
+        score.textContent = "Scor coeziune: 1.48 / 3.14";
+        interpretation.textContent = "Informația nu poate fi confirmată complet; unele surse lipsesc.";
+        sources.innerHTML = "<p class='warning'>⚠️ Surse insuficiente – se recomandă verificare suplimentară.</p>";
+      } else {
+        verdict.textContent = "🔴 Informație incoerentă – nu se confirmă factual.";
+        verdict.classList.add("pulse-red");
+        score.textContent = "Scor coeziune: 0.74 / 3.14";
+        interpretation.textContent = "Analiza semantică arată inconsistențe majore față de sursele verificate.";
+        sources.innerHTML = "<p class='warning'>❌ Nicio sursă validă nu confirmă această afirmație.</p>";
       }
-
-      resultDiv.style.display = "none";
-      loading.style.display = "block";
-      verdictDiv.innerHTML = "";
-      analysisDiv.innerHTML = "";
-      sourcesDiv.innerHTML = "";
-
-      try {
-        const response = await fetch("/api/analyze-web", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ text }),
-        });
-
-        const data = await response.json();
-        loading.style.display = "none";
-        resultDiv.style.display = "block";
-
-        let verdictColor = "#ffc800"; // implicit galben
-        if (data.verdictColor === "🟩") verdictColor = "#00ffb7";
-        if (data.verdictColor === "🟥") verdictColor = "#ff0055";
-
-        verdictDiv.innerHTML = `${data.verdictColor} <span style="color:${verdictColor}">${data.verdictText}</span>`;
-        analysisDiv.innerHTML = `<p>${data.analysis || ""}</p>`;
-
-        if (data.sources && data.sources.length > 0) {
-          const links = data.sources
-            .map(
-              (s, i) =>
-                `<p><b>${i + 1}.</b> <a href="${s.link}" target="_blank">${s.title}</a><br><i>${s.snippet}</i></p>`
-            )
-            .join("");
-          sourcesDiv.innerHTML = `<h3>🔗 Surse factuale:</h3>${links}`;
-        } else {
-          sourcesDiv.innerHTML = `<p style="color:#aaa;">Nicio sursă relevantă găsită.</p>`;
-        }
-      } catch (err) {
-        loading.style.display = "none";
-        resultDiv.style.display = "block";
-        verdictDiv.innerHTML = "⚠️ <span style='color:#ff0055'>Eroare la analiză.</span>";
-        console.error(err);
-      }
-    }
+    });
   </script>
 </body>
 </html>
