@@ -3,116 +3,116 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Coeziv 3.14Δ – Analizor Informațional</title>
+  <title>Motor Coeziv 3.14Δ – Analiză Informațională</title>
   <style>
-    :root {
-      --bg: #0d1117;
-      --panel: #161b22;
-      --text: #c9d1d9;
-      --accent: #00ffb7;
-      --gray: #777;
-      --green: #00ffb7;
-      --yellow: #ffc800;
-      --red: #ff0055;
-    }
-
     body {
-      background-color: var(--bg);
-      color: var(--text);
       font-family: "Segoe UI", sans-serif;
+      background-color: #0d1117;
+      color: #c9d1d9;
       text-align: center;
+      padding: 2rem;
       margin: 0;
-      padding: 2rem 1rem;
     }
-
     h1 {
-      color: var(--accent);
+      color: #00ffb7;
       font-size: 1.8rem;
+      margin-bottom: 1rem;
     }
-
     textarea {
-      width: 90%;
+      width: 100%;
       max-width: 600px;
       height: 120px;
-      background-color: var(--panel);
-      color: var(--text);
-      border: 1px solid #30363d;
-      border-radius: 12px;
-      padding: 0.8rem;
-      font-size: 1rem;
-      resize: none;
-      outline: none;
-    }
-
-    button {
-      background-color: var(--accent);
-      color: #000;
-      font-weight: 600;
+      border-radius: 8px;
       border: none;
-      border-radius: 10px;
-      padding: 0.7rem 1.5rem;
-      margin-top: 1rem;
+      padding: 10px;
+      background-color: #161b22;
+      color: #fff;
+      resize: none;
+      font-size: 1rem;
+    }
+    button {
+      background-color: #00ffb7;
+      color: #000;
+      border: none;
+      border-radius: 6px;
+      padding: 10px 20px;
+      margin-top: 12px;
       cursor: pointer;
-      transition: all 0.3s;
+      font-weight: bold;
+      transition: 0.3s;
     }
-
     button:hover {
-      filter: brightness(1.2);
+      background-color: #00c78f;
     }
-
-    #result {
-      max-width: 800px;
-      background: var(--panel);
-      margin: 2rem auto;
+    .result-box {
+      margin-top: 2rem;
+      background-color: #161b22;
       padding: 1.5rem;
-      border-radius: 16px;
-      text-align: left;
-      line-height: 1.5;
-      font-size: 0.95rem;
-      box-shadow: 0 0 10px #0006;
+      border-radius: 10px;
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
+      box-shadow: 0 0 15px rgba(0,255,183,0.2);
     }
-
-    a {
-      color: var(--accent);
+    .verdict {
+      font-size: 1.3rem;
+      margin: 1rem 0;
+      font-weight: bold;
+    }
+    .sources {
+      text-align: left;
+      max-width: 650px;
+      margin: 1rem auto;
+      font-size: 0.95rem;
+    }
+    .sources a {
+      color: #00ffb7;
       text-decoration: none;
     }
-
-    a:hover {
+    .sources a:hover {
       text-decoration: underline;
     }
-
-    footer {
-      margin-top: 2rem;
-      font-size: 0.8rem;
-      color: #777;
-      opacity: 0.8;
+    .loading {
+      color: #ffc800;
+      font-style: italic;
+      margin-top: 1rem;
     }
   </style>
 </head>
 <body>
-  <h1>🧠 Coeziv 3.14Δ</h1>
-  <p>Analizor informațional – detectează nivelul de coeziune, vibrație și manipulare semantică.</p>
+  <h1>Motor Coeziv 3.14Δ</h1>
+  <p>Analiză factuală și semantică în timp real</p>
 
-  <textarea id="textInput" placeholder="Scrie o afirmație pentru analiză..."></textarea><br>
-  <button onclick="analyzeText()">🔍 Analizează Informația</button>
+  <textarea id="userInput" placeholder="Introdu afirmația de verificat..."></textarea><br>
+  <button onclick="analyze()">Analizează informația</button>
 
-  <div id="result"></div>
+  <div id="result" class="result-box" style="display:none;">
+    <div id="verdict" class="verdict"></div>
+    <div id="analysis"></div>
+    <div id="sources" class="sources"></div>
+  </div>
 
-  <footer>
-    © 2025 Coeziv 3.14Δ – Verificare factuală triplă (semantic + factual + logic)
-  </footer>
+  <p id="loading" class="loading" style="display:none;">Se analizează informația...</p>
 
   <script>
-    async function analyzeText() {
-      const text = document.querySelector("#textInput").value.trim();
-      const resultBox = document.querySelector("#result");
+    async function analyze() {
+      const text = document.getElementById("userInput").value.trim();
+      const resultDiv = document.getElementById("result");
+      const verdictDiv = document.getElementById("verdict");
+      const analysisDiv = document.getElementById("analysis");
+      const sourcesDiv = document.getElementById("sources");
+      const loading = document.getElementById("loading");
 
       if (!text) {
-        resultBox.innerHTML = "⚠️ Introdu o afirmație pentru analiză.";
+        alert("Te rog introdu o afirmație pentru analiză!");
         return;
       }
 
-      resultBox.innerHTML = "🔄 Analiză în curs...";
+      resultDiv.style.display = "none";
+      loading.style.display = "block";
+      verdictDiv.innerHTML = "";
+      analysisDiv.innerHTML = "";
+      sourcesDiv.innerHTML = "";
 
       try {
         const response = await fetch("/api/analyze-web", {
@@ -122,46 +122,32 @@
         });
 
         const data = await response.json();
-        const { analysis, confidence, sources } = data;
+        loading.style.display = "none";
+        resultDiv.style.display = "block";
 
-        let verdict = "";
-        let verdictColor = "";
+        let verdictColor = "#ffc800"; // implicit galben
+        if (data.verdictColor === "🟩") verdictColor = "#00ffb7";
+        if (data.verdictColor === "🟥") verdictColor = "#ff0055";
 
-        // 🔍 regulă: fără minimum 3 surse → analiză suspendată
-        if (!sources || sources.length < 3) {
-          verdict = "⚠️ Analiză suspendată – insuficiente surse factuale (minim 3 necesare).";
-          verdictColor = "#777";
-        } else if (confidence < 40) {
-          verdict = "🟢 Grad redus de manipulare – informație confirmată factual.";
-          verdictColor = "#00ffb7";
-        } else if (confidence < 70) {
-          verdict = "🟡 Risc moderat – recomandăm verificare suplimentară.";
-          verdictColor = "#ffc800";
+        verdictDiv.innerHTML = `${data.verdictColor} <span style="color:${verdictColor}">${data.verdictText}</span>`;
+        analysisDiv.innerHTML = `<p>${data.analysis || ""}</p>`;
+
+        if (data.sources && data.sources.length > 0) {
+          const links = data.sources
+            .map(
+              (s, i) =>
+                `<p><b>${i + 1}.</b> <a href="${s.link}" target="_blank">${s.title}</a><br><i>${s.snippet}</i></p>`
+            )
+            .join("");
+          sourcesDiv.innerHTML = `<h3>🔗 Surse factuale:</h3>${links}`;
         } else {
-          verdict = "🔴 Grad ridicat de manipulare – necesită confirmare factuală.";
-          verdictColor = "#ff0055";
+          sourcesDiv.innerHTML = `<p style="color:#aaa;">Nicio sursă relevantă găsită.</p>`;
         }
-
-        // 🔗 afișare surse
-        let sourcesHTML = sources
-          .map((s) => `<li><a href="${s.url}" target="_blank">${s.title}</a></li>`)
-          .join("");
-
-        if (!sourcesHTML)
-          sourcesHTML = "<li>Nicio sursă factuală relevantă găsită.</li>";
-
-        resultBox.innerHTML = `
-          <div style="border:2px solid ${verdictColor};border-radius:12px;padding:1rem;margin-top:1rem;">
-            <strong style="color:${verdictColor}">${verdict}</strong><br>
-            <small>Indice de încredere: ${confidence}%</small>
-          </div>
-          <p>${analysis}</p>
-          <h4>🔍 Surse factuale:</h4>
-          <ul>${sourcesHTML}</ul>
-          <p><small>🧠 Analiză efectuată de Motorul Coeziv 3.14Δ – bazată pe date publice, web factual și verificare semantică autonomă.</small></p>
-        `;
       } catch (err) {
-        resultBox.innerHTML = "⚠️ Eroare la conexiunea cu motorul semantic.";
+        loading.style.display = "none";
+        resultDiv.style.display = "block";
+        verdictDiv.innerHTML = "⚠️ <span style='color:#ff0055'>Eroare la analiză.</span>";
+        console.error(err);
       }
     }
   </script>
