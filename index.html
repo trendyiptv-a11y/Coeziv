@@ -105,6 +105,9 @@
     .error {
       color: #ff5577;
       font-weight: 500;
+      background: #161b22;
+      border-radius: 10px;
+      padding: 0.8rem;
     }
 
     footer {
@@ -148,19 +151,26 @@
 
       try {
         const response = await fetch(`/api/analyze-web?query=${encodeURIComponent(text)}`);
-        let data = await response.json().catch(() => null);
-        if (!data || (!data.analysis && typeof data !== "string")) {
-          const textResponse = await response.text();
-          data = { analysis: textResponse };
+        const contentType = response.headers.get("content-type");
+        let data;
+
+        // ✅ Citim o singură dată răspunsul
+        if (contentType && contentType.includes("application/json")) {
+          data = await response.json();
+        } else {
+          data = { analysis: await response.text() };
         }
 
+        // 🔎 Surse factuale
         const sourcesRes = await fetch(`/api/factual?query=${encodeURIComponent(text)}`).catch(() => null);
         let sourcesData = await sourcesRes?.json().catch(() => null);
         if (!sourcesData || !sourcesData.sources) sourcesData = { sources: [] };
 
+        // 🔢 Extragem valoarea de manipulare
         const manipVal = extractValue(data.analysis, /Manipulare%?\s*=\s*([\d.,]+)/);
         const verdict = getVerdict(manipVal);
 
+        // 🧩 Construim textul de rezultat
         const analysisText = `
           <h3>🧩 Analiză completă Coeziv 3.14Δ</h3>
           ${data.analysis ? highlightFormulaElements(data.analysis) : "Nicio analiză disponibilă."}
