@@ -145,46 +145,38 @@ async function analyze() {
       return;
     }
 
-    // 🎨 determină culoarea și simbolul în funcție de truth
+    // 🎨 determină culoarea și simbolul în funcție de verdict
     let verdictSymbol = "⚪";
     let verdictClass = "verdict-neutru";
-    let verdictText = data.verdict;
-
-    if (data.truth === "adevărat") {
+    let color = "var(--neutral)";
+    if (data.verdict.includes("adevărat")) {
       verdictSymbol = "✅";
       verdictClass = "verdict-adevărat";
-      verdictText = "adevărat factual";
-    } else if (data.truth === "fals") {
+      color = "var(--true)";
+    } else if (data.verdict.includes("fals")) {
       verdictSymbol = "❌";
       verdictClass = "verdict-fals";
-      verdictText = "fals factual";
+      color = "var(--false)";
     }
 
-    const barColor =
-      data.truth === "adevărat" ? "var(--true)" :
-      data.truth === "fals" ? "var(--false)" : "var(--neutral)";
+    const correctionHTML = data.correction
+      ? `<p style="margin-top:10px;color:var(--true);font-weight:500;">🔍 Fapt corect: ${data.correction}</p>`
+      : "";
 
     const sourcesHTML = (data.sources || [])
-      .map(s => `<a class="source-link" href="${s.link}" target="_blank">${s.title}</a>`)
+      .map(s => `<a class="source-link" href="${s.link}" target="_blank">🌐 ${s.title}</a>`)
       .join("") || "<p style='color: var(--muted)'>Nicio sursă relevantă.</p>";
-
-    const correctionHTML = data.correction
-      ? `<p style='color: var(--true)'><b>ℹ️ Informația corectă conform surselor:</b> ${data.correction}</p>`
-      : "";
 
     resultBox.innerHTML = `
       <p class="type-${data.type}">📘 Tip: ${data.type}</p>
-      <p class="${verdictClass}">${verdictSymbol} <b>Verdict:</b> ${verdictText}</p>
+      <p class="${verdictClass}" style="font-weight:bold;">${verdictSymbol} Verdict: ${data.verdict}</p>
       <p><b>Scor:</b> ${data.score.toFixed(2)} / ${data.maxScore}</p>
-
       <div class="score-bar">
-        <div class="score-bar-inner" style="width:${(data.score/data.maxScore)*100}%; background-color:${barColor};"></div>
+        <div class="score-bar-inner" style="width:${(data.score/data.maxScore)*100}%;background-color:${color};"></div>
       </div>
-
       <p style="margin-top:1rem;">${data.explanation}</p>
       ${correctionHTML}
-
-      <h4>🔗 Surse:</h4>
+      <h4 style="margin-top:1rem;">🔗 Surse:</h4>
       ${sourcesHTML}
     `;
   } catch (err) {
