@@ -140,19 +140,29 @@ async function analyze() {
     });
 
     const data = await response.json();
-
     if (data.error) {
       resultBox.innerHTML = `<p style='color: var(--false)'>Eroare: ${data.error}</p>`;
       return;
     }
 
+    // 🎨 determină culoarea și simbolul în funcție de truth
+    let verdictSymbol = "⚪";
+    let verdictClass = "verdict-neutru";
+    let verdictText = data.verdict;
+
+    if (data.truth === "adevărat") {
+      verdictSymbol = "✅";
+      verdictClass = "verdict-adevărat";
+      verdictText = "adevărat factual";
+    } else if (data.truth === "fals") {
+      verdictSymbol = "❌";
+      verdictClass = "verdict-fals";
+      verdictText = "fals factual";
+    }
+
     const barColor =
       data.truth === "adevărat" ? "var(--true)" :
       data.truth === "fals" ? "var(--false)" : "var(--neutral)";
-
-    const verdictClass =
-      data.truth === "adevărat" ? "verdict-adevărat" :
-      data.truth === "fals" ? "verdict-fals" : "verdict-neutru";
 
     const sourcesHTML = (data.sources || [])
       .map(s => `<a class="source-link" href="${s.link}" target="_blank">${s.title}</a>`)
@@ -164,7 +174,7 @@ async function analyze() {
 
     resultBox.innerHTML = `
       <p class="type-${data.type}">📘 Tip: ${data.type}</p>
-      <p class="${verdictClass}">Verdict: ${data.verdict}</p>
+      <p class="${verdictClass}">${verdictSymbol} <b>Verdict:</b> ${verdictText}</p>
       <p><b>Scor:</b> ${data.score.toFixed(2)} / ${data.maxScore}</p>
 
       <div class="score-bar">
