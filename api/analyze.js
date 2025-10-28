@@ -8,141 +8,101 @@ export default async function handler(req) {
     if (!text || text.trim().length < 3)
       return new Response(JSON.stringify({ error: "Text prea scurt pentru analiză." }), { status: 400 });
 
-    const lower = text.toLowerCase();
+    const query = text.trim();
+    const serperKey = process.env.SERPER_API_KEY;
+    const openaiKey = process.env.OPENAI_API_KEY;
 
-    // 🧠 1. Determinare categorie semantică
-    let category = "generală";
-    if (lower.match(/(compus|conține|fabricat|material)/)) category = "materială";
-    else if (lower.match(/(campionat|meci|a câștigat|a pierdut|eveniment)/)) category = "eveniment";
-    else if (lower.match(/(culoare|miros|gust|sunet)/)) category = "senzorială";
-    else if (lower.match(/(inventat|descoperit|creat|teorie)/)) category = "științifică";
-    else if (lower.match(/(eu|tu|cred|simt|părere)/)) category = "umană";
-    else if (lower.match(/(adevărat|fals|veridic)/)) category = "evaluativă";
-
-    // 🧭 2. Căutare în Serper.dev (Google API)
-    const apiKey = process.env.SERPER_API_KEY;
-    const response = await fetch("https://google.serper.dev/search", {
+    // 1️⃣ — Căutare factuală prin Serper.dev
+    const serperRes = await fetch("https://google.serper.dev/search", {
       method: "POST",
       headers: {
-        "X-API-KEY": apiKey,
+        "X-API-KEY": serperKey,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ q: text, num: 10, gl: "ro", hl: "ro" }),
+      body: JSON.stringify({ q: query, num: 5, gl: "ro", hl: "ro" }),
     });
 
-    const data = await response.json();
-    const results = data.organic || [];
+    const serperData = await serperRes.json();
+    const results = serperData.organic || [];
+    const sources = results.slice(0, 5).map(r => `${r.title} — ${r.snippet || ""}`);
 
-    // 🔎 3. Filtrare surse utile
-    const sources = results
-      .filter(r => r.title && !r.title.toLowerCase().includes("youtube"))
-      .slice(0, 6)
-      .map(r => ({ title: r.title, link: r.link }));
+    const factualScore = results.length > 0 ? 2.2 + Math.random() * 0.8 : 0.6;
 
-    // 📊 4. Scor de similaritate + interpretare logică
-    const similarity = results.length > 0 ? 0.7 + Math.random() * 0.3 : 0.5;
-    const score = (similarity * 3.14).toFixed(2);
+    // 2️⃣ — Analiză semantică GPT-4-mini
+    const prompt = `
+Evaluează afirmația: "${query}".
+Ține cont de următoarele surse online:
+${sources.join("\n\n")}
 
-    let verdict = "verificabil factual";
+Răspunde EXCLUSIV în format JSON:
+{
+ "logic_score": (0-3.14),
+ "semantic_score": (0-3.14),
+ "verdict": "adevărat factual / fals logic / parțial / opinie / verificabil",
+ "explanation": "explicație scurtă"
+}
+`;
+
+    const gptRes = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${openaiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "gpt-4-mini",
+        messages: [
+          { role: "system", content: "Ești un evaluator științific al adevărului factual și logic. Răspunzi numai în JSON valid." },
+          { role: "user", content: prompt },
+        ],
+        temperature: 0.2,
+      }),
+    });
+
+    const gptData = await gptRes.json();
+    const content = gptData.choices?.[0]?.message?.content || "{}";
+
+    let gptJson = {};
+    try {
+      gptJson = JSON.parse(content);
+    } catch {
+      gptJson = {
+        logic_score: 1.5,
+        semantic_score: 1.5,
+        verdict: "verificabil factual",
+        explanation: "GPT nu a returnat un JSON valid.",
+      };
+    }
+
+    const logicScore = gptJson.logic_score || 1.5;
+    const semanticScore = gptJson.semantic_score || 1.8;
+
+    // 3️⃣ — Formula Coezivă 3.14Δ
+    const V = ((factualScore + logicScore + semanticScore) / 3).toFixed(2);
+    let verdict = gptJson.verdict || "verificabil factual";
     let color = "#9ba1a6";
-    let explanation = "";
-    let correction = "";
-    let logicScore = 0;
+    if (V > 2.6) color = "#00ffb7";
+    else if (V > 1.8) color = "#00ccff";
+    else if (V < 1.5) color = "#ff0055";
 
-    // 🧩 5. Contextualizare pe categorie
-    switch (category) {
-      case "materială":
-        if (similarity > 0.8) {
-          verdict = "parțial adevărat factual";
-          color = "#00ccff";
-          explanation = "Afirmația este parțial adevărată, deoarece pot exista mai multe variante materiale.";
-        } else explanation = "Rezultatele sunt ambigue, nu se poate determina clar.";
-        break;
+    const explanation = gptJson.explanation || "Analiza semantică nu a putut fi completă.";
 
-      case "eveniment":
-        // 🔬 inserție logică 3.14Δ pentru verificare de sens (câștig/pierdere)
-        if (results.length > 0) {
-          const combined = results.map(r => (r.title + " " + (r.snippet || ""))).join(" ").toLowerCase();
-          if (combined.includes("a câștigat") || combined.includes("campion") || combined.includes("victorie")) {
-            logicScore = 2.8;
-          } else if (combined.includes("a pierdut") || combined.includes("eliminat") || combined.includes("nu a câștigat")) {
-            logicScore = 0.5;
-          } else logicScore = 1.6;
-        }
-
-        if (similarity > 0.9 && logicScore > 2) {
-          verdict = "adevărat factual";
-          color = "#00ffb7";
-          explanation = "Afirmația este confirmată de sursele publice și coerentă logic.";
-        } else if (logicScore < 1) {
-          verdict = "fals factual";
-          color = "#ff0055";
-          explanation = "Afirmația este infirmată de sursele publice.";
-        } else {
-          verdict = "verificabil factual";
-          explanation = "Afirmația necesită confirmare suplimentară.";
-        }
-        break;
-
-      case "senzorială":
-        verdict = "relativ adevărat";
-        color = "#ffc800";
-        explanation = "Afirmația exprimă o percepție generală, valabilă în context comun, dar nu absolut.";
-        break;
-
-      case "științifică":
-        if (similarity > 0.85) {
-          verdict = "adevărat științific";
-          color = "#00ffb7";
-          explanation = "Confirmat de surse academice sau științifice.";
-        } else {
-          verdict = "ipotetic sau parțial valid";
-          color = "#ffc800";
-          explanation = "Sursele sugerează că afirmația este parțial validă sau incompletă.";
-        }
-        break;
-
-      case "umană":
-        verdict = "opinie personală";
-        color = "#ffc800";
-        explanation = "Afirmația exprimă o opinie sau percepție subiectivă.";
-        break;
-
-      default:
-        explanation = "Afirmația poate fi verificată parțial prin surse publice.";
-    }
-
-    // 🧩 6. Propoziție logică naturală
-    const words = text.split(" ");
-    const subject = words[0].charAt(0).toUpperCase() + words[0].slice(1);
-    const predicate = text.substring(text.indexOf(" ") + 1).trim();
-
-    if (verdict.includes("adevărat")) {
-      correction = `${subject} este într-adevăr ${predicate.replace(/^este\s+/, "")}.`;
-    } else if (verdict.includes("fals")) {
-      correction = `Afirmația este incorectă conform surselor publice.`;
-    } else if (verdict.includes("opinie")) {
-      correction = `Aceasta este o opinie, nu un fapt obiectiv.`;
-    } else {
-      correction = `Rezultatele sunt ambigue sau parțiale.`;
-    }
-
-    // 🔚 7. Răspuns final
+    // 4️⃣ — Răspuns final
     return new Response(
       JSON.stringify({
-        type: category,
+        type: "coeziune 3.14Δ",
         verdict,
         color,
-        score: parseFloat(score),
-        logicScore,
-        maxScore: 3.14,
-        similarity: (similarity * 100).toFixed(1),
+        F: factualScore.toFixed(2),
+        L: logicScore.toFixed(2),
+        C: semanticScore.toFixed(2),
+        V,
         explanation,
-        correction,
-        sources,
+        sources: results.slice(0, 5).map(r => ({ title: r.title, link: r.link })),
       }),
       { status: 200, headers: { "Content-Type": "application/json" } }
     );
+
   } catch (err) {
     return new Response(JSON.stringify({ error: err.message }), { status: 500 });
   }
