@@ -26,11 +26,5 @@
         "Cache-Control": "public, max-age=0, must-revalidate"
       }
     }
-  ],
-  "cache": {
-    "static": {
-      "maxAge": 31536000,
-      "staleWhileRevalidate": 60
-    }
-  }
+  ]
 }
