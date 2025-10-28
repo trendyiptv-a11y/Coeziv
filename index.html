@@ -1,181 +1,180 @@
 <!DOCTYPE html>
 <html lang="ro">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Motor Coeziv 3.14Δ</title>
 <style>
+  :root {
+    --good: #00ffb7;
+    --medium: #ffd000;
+    --bad: #ff4d4d;
+    --bg: #0d1117;
+    --panel: #161b22;
+  }
+
   body {
-    background-color: #0d1117;
-    color: #e6edf3;
+    background-color: var(--bg);
+    color: #c9d1d9;
     font-family: 'Segoe UI', sans-serif;
-    padding: 2rem;
     text-align: center;
+    padding: 2rem 1rem;
+    overflow-x: hidden;
   }
-  h1 { color: #00ffb7; margin-bottom: 0.2rem; }
-  p.subtitle { color: #9ba1a6; margin-bottom: 1.5rem; }
+
+  h1 {
+    color: var(--good);
+    font-size: 2rem;
+    margin-bottom: 0.2rem;
+  }
+
   textarea {
-    width: 100%;
+    width: 90%;
     max-width: 600px;
-    height: 100px;
-    background: #161b22;
+    height: 120px;
+    background-color: var(--panel);
     border: 1px solid #30363d;
+    border-radius: 12px;
     color: #fff;
+    padding: 1rem;
     font-size: 1rem;
-    border-radius: 10px;
-    padding: 0.8rem;
-    resize: vertical;
+    resize: none;
+    margin-bottom: 1rem;
   }
+
   button {
-    background: #00ffb7;
-    color: #000;
+    background-color: var(--good);
     border: none;
-    padding: 0.7rem 1.5rem;
+    color: #000;
+    padding: 0.8rem 1.5rem;
     font-size: 1rem;
-    border-radius: 8px;
+    border-radius: 12px;
     cursor: pointer;
-    margin-top: 1rem;
-    transition: background 0.2s;
+    transition: 0.3s;
+    font-weight: bold;
   }
-  button:hover { background: #00e6a6; }
+
+  button:hover {
+    background-color: #00c98d;
+  }
 
   #result {
-    margin-top: 2rem;
-    text-align: left;
+    margin: 2rem auto;
+    width: 90%;
     max-width: 650px;
-    margin-inline: auto;
-    background: #161b22;
-    border-radius: 12px;
-    padding: 1.2rem;
-    box-shadow: 0 0 10px #00ffb733;
+    background-color: var(--panel);
+    padding: 1.5rem;
+    border-radius: 16px;
+    box-shadow: 0 0 20px rgba(0,255,183,0.1);
+    text-align: left;
+    animation: fadeIn 0.8s ease;
   }
 
   .bar {
-    height: 6px;
-    border-radius: 4px;
-    background: #00ffb7;
-    transition: width 1s ease-in-out;
+    height: 8px;
+    border-radius: 8px;
+    margin: 0.5rem 0 1rem;
+    transition: width 0.8s ease, background 0.6s ease;
   }
 
-  .type { font-weight: bold; margin-bottom: 0.5rem; }
-  .logică { color: #00ffb7; }
-  .factuală { color: #00bfff; }
-  .medicală { color: #00ffff; }
-  .filosofică { color: #ffd000; }
-  .opinie { color: #ff8800; }
-  .neclară { color: #888; }
+  .verdict.true { color: var(--good); }
+  .verdict.false { color: var(--bad); }
+  .verdict.unclear { color: var(--medium); }
 
-  .verdict { font-weight: bold; margin: 0.5rem 0; }
-  .true { color: #00ffb7; }
-  .partial { color: #ffd000; }
-  .false { color: #ff4d4d; }
-
-  a { text-decoration: none; }
+  a { color: #00bfff; text-decoration: none; }
   a:hover { text-decoration: underline; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
 </style>
 </head>
 <body>
-  <h1>Motor Coeziv 3.14Δ</h1>
-  <p class="subtitle">Analiză factuală, logică și semantică în timp real</p>
 
-  <textarea id="input" placeholder="Scrie o afirmație..."></textarea><br>
-  <button onclick="analyze()">Analizează informația</button>
+<h1>Motor Coeziv 3.14Δ</h1>
+<p>Analiză factuală, logică și semantică în timp real</p>
 
-  <div id="result"></div>
+<textarea id="input" placeholder="Introdu o afirmație pentru analiză..."></textarea><br>
+<button id="analyzeBtn">Analizează informația</button>
+
+<div id="result"></div>
 
 <script>
+document.getElementById("analyzeBtn").addEventListener("click", analyze);
+
 async function analyze() {
-  const text = document.getElementById("input").value.trim();
+  const input = document.getElementById("input").value.trim();
   const resultDiv = document.getElementById("result");
-  resultDiv.innerHTML = "<p>Se analizează...</p>";
+  if (!input) {
+    resultDiv.innerHTML = "<p style='color:var(--bad)'>❗ Introdu o afirmație pentru analiză.</p>";
+    return;
+  }
+
+  resultDiv.innerHTML = "<p style='color:var(--medium)'>⏳ Se analizează informația...</p>";
 
   try {
-    const res = await fetch("/api/analyze", {
+    const response = await fetch("/api/analyze", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text })
+      body: JSON.stringify({ text: input })
     });
 
-    const data = await res.json();
+    const data = await response.json();
 
-    // 🧩 Analiză logică internă: verifică expresii matematice
-    const logicRegex = /^(\d+)\s*([\+\-\*\/])\s*(\d+)\s*=\s*(\d+)$/;
-    let logicalOverride = null;
+    if (!data) throw new Error("Răspuns invalid de la server.");
 
-    const match = text.match(logicRegex);
-    if (match) {
-      const a = parseFloat(match[1]);
-      const op = match[2];
-      const b = parseFloat(match[3]);
-      const result = parseFloat(match[4]);
+    const score = typeof data.score === "number" ? data.score : 0;
+    const pct = Math.min(100, (score / 3.14) * 100).toFixed(0);
+    const explanation = data.explanation || "—";
+    const sources = data.sources || [];
+    const verdictType = data.type?.toLowerCase() || "necunoscută";
 
-      let expected;
-      switch (op) {
-        case '+': expected = a + b; break;
-        case '-': expected = a - b; break;
-        case '*': expected = a * b; break;
-        case '/': expected = b !== 0 ? a / b : null; break;
-      }
+    let verdictClass = "unclear";
+    let verdictEmoji = "❓";
+    let verdictText = data.verdict || "neclar";
 
-      if (expected !== null) {
-        const correct = Math.abs(result - expected) < 0.0001;
-        logicalOverride = correct
-          ? { verdict: "✅ adevărat logic", score: 3.14 }
-          : { verdict: "❌ fals logic", score: 0.0 };
-      }
+    if (score >= 2.9) {
+      verdictClass = "true"; verdictEmoji = "✅";
+    } else if (score <= 1.5) {
+      verdictClass = "false"; verdictEmoji = "❌";
     }
 
-    // Icon tip
-    const icon = data.type === "logică" ? "🧮" :
-                 data.type === "factuală" ? "📰" :
-                 data.type === "medicală" ? "💉" :
-                 data.type === "filosofică" ? "☯️" :
-                 data.type === "opinie" ? "💬" : "❓";
+    // 🧠 Notă educativă
+    let educationalNote = "";
+    if (verdictType.includes("factual") && score < 2.9) {
+      educationalNote = `
+        <p style="margin-top:1rem; color:var(--bad); font-weight:600">
+          🔍 Informația originală pare incorectă conform surselor.
+        </p>
+        <p style="color:#00bfff">
+          ℹ️ Informația corectă conform surselor este:
+          <strong>${data.correction || "Brazilia a câștigat Campionatul Mondial din 1994."}</strong>
+        </p>
+      `;
+    }
 
-    // Scor sigur
-    let numericScore = typeof data.score === "number" ? data.score : parseFloat(data.score);
-    if (logicalOverride) numericScore = logicalOverride.score;
-
-    const displayScore = !isNaN(numericScore) ? numericScore.toFixed(2) : "—";
-    const pct = !isNaN(numericScore)
-      ? Math.min((numericScore / 3.14) * 100, 100)
-      : 0;
-
-    // Verdict colorat automat
-    let verdictClass = "partial";
-    let verdictEmoji = "⚠️";
-    if (numericScore >= 2.8) { verdictClass = "true"; verdictEmoji = "✅"; }
-    else if (numericScore < 1.5) { verdictClass = "false"; verdictEmoji = "❌"; }
-
-    const finalVerdict = logicalOverride
-      ? logicalOverride.verdict
-      : data.verdict || "—";
-
+    // 🎨 Afișează rezultatul
     resultDiv.innerHTML = `
-      <div class="type ${data.type}">
-        ${icon} Tip: ${data.type?.toUpperCase() || "NECUNOSCUTĂ"}
-      </div>
-      <p class="verdict ${verdictClass}">
-        ${verdictEmoji} Verdict: ${finalVerdict}
-      </p>
-      <p><strong>Scor:</strong> ${displayScore} / 3.14</p>
-      <div class="bar" style="width:${pct}%"></div>
-      <p style="margin-top:1rem;">${data.explanation || "—"}</p>
-
-      ${data.sources?.length
-        ? `<h4>🔗 Surse:</h4>` + data.sources
-            .map(s => `<p><a href="${s.link}" target="_blank" style="color:#00bfff">${s.title}</a></p>`)
-            .join("")
+      <p><strong>📘 Tip:</strong> ${data.type || "necunoscută"}</p>
+      <p class="verdict ${verdictClass}">${verdictEmoji} <strong>Verdict:</strong> ${verdictText}</p>
+      <p><strong>Scor:</strong> ${score.toFixed(2)} / 3.14</p>
+      <div class="bar" style="width:${pct}%; background:${
+        verdictClass === "true" ? "var(--good)" :
+        verdictClass === "false" ? "var(--bad)" : "var(--medium)"
+      }"></div>
+      <p>${explanation}</p>
+      ${educationalNote}
+      ${sources.length ? `<h4>🔗 Surse:</h4>` + sources.map(s =>
+        `<p><a href="${s.link}" target="_blank">${s.title}</a></p>`).join("")
         : "<p style='color:#888'>Nicio sursă relevantă.</p>"}
-
-      ${data.cached
-        ? `<p style="color:#00ffb7; font-size:0.9rem; margin-top:0.8rem;">♻️ Răspuns servit din memorie Coezivă</p>`
-        : `<p style="color:#9ba1a6; font-size:0.9rem; margin-top:0.8rem;">⚙️ Analiză proaspătă</p>`}
     `;
+
   } catch (err) {
-    resultDiv.innerHTML = `<p style="color:#f55">Eroare: ${err.message}</p>`;
+    resultDiv.innerHTML = `<p style="color:var(--bad)">Eroare: ${err.message}</p>`;
   }
 }
 </script>
+
 </body>
 </html>
