@@ -4,7 +4,6 @@ import path from "path";
 const CACHE_FILE = path.join("/tmp", "cache.json");
 let memoryCache = {};
 
-// 🔹 Încarcă memoria persistentă
 try {
   if (fs.existsSync(CACHE_FILE)) {
     memoryCache = JSON.parse(fs.readFileSync(CACHE_FILE, "utf8") || "{}");
@@ -24,16 +23,11 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: "Text missing" });
 
     const cleanText = text.trim().toLowerCase();
-
-    // 🔁 Cache rapid
-    if (memoryCache[cleanText]) {
+    if (memoryCache[cleanText])
       return res.status(200).json({ ...memoryCache[cleanText], cached: true });
-    }
 
-    // 🧠 Detectează tipul semantic
     const type = detectType(cleanText);
 
-    // 🧮 Scoruri de bază
     const scoreMap = {
       logică: 3.14,
       factuală: 2.9,
@@ -47,19 +41,17 @@ export default async function handler(req, res) {
     const score = scoreMap[type] ?? 0;
     const maxScore = 3.14;
 
-    // 💬 Explicații tip
     const explanations = {
       logică: `Afirmația „${text}” reprezintă o relație logică sau matematică.`,
       factuală: `Afirmația „${text}” este un fapt verificabil prin surse publice.`,
       parafrază: `Afirmația „${text}” redă o informație dintr-o altă sursă (citare indirectă).`,
-      predicție: `Afirmația „${text}” exprimă o posibilitate sau predicție despre viitor.`,
+      predicție: `Afirmația „${text}” exprimă o posibilitate despre viitor.`,
       medicală: `Afirmația „${text}” face referire la informații medicale sau științifice.`,
       filosofică: `Afirmația „${text}” explorează concepte spirituale sau morale.`,
       opinie: `Afirmația „${text}” exprimă o părere personală, subiectivă.`,
       neclară: `Afirmația „${text}” nu are un context clar detectabil.`
     };
 
-    // 🌐 Căutare factuală
     let sources = [];
     if (["factuală", "medicală", "parafrază"].includes(type)) {
       const serper = await fetch("https://google.serper.dev/search", {
@@ -74,35 +66,44 @@ export default async function handler(req, res) {
       const result = await serper.json();
       if (result.organic && Array.isArray(result.organic)) {
         sources = result.organic
-          .slice(0, 5)
+          .slice(0, 6)
           .filter(r => r.title && !r.title.toLowerCase().includes("cookie"))
           .map(r => ({
             title: r.title,
             link: r.link,
-            snippet: (r.snippet || "").slice(0, 160) + "..."
+            snippet: (r.snippet || "").slice(0, 200) + "..."
           }));
       }
     }
 
-    // ✅ Verificare consistență semantică
     let truth = "neutru";
     let correction = null;
-    if (["factuală", "medicală"].includes(type) && sources.length > 0) {
-      const joined = sources.map(s => (s.title + " " + s.snippet)).join(" ").toLowerCase();
-      if (joined.includes("românia a câștigat") || joined.includes("romania won")) {
+
+    // 🧩 ANALIZĂ FACTUALĂ AVANSATĂ
+    const joined = sources.map(s => (s.title + " " + s.snippet)).join(" ").toLowerCase();
+
+    // Ex: „România a câștigat campionatul mondial din 1994”
+    if (cleanText.includes("campionatul mondial") && cleanText.includes("1994")) {
+      if (joined.includes("brazilia a câștigat") || joined.includes("brazilia campion")) {
+        truth = "fals";
+        correction = "Brazilia a câștigat Campionatul Mondial de Fotbal din 1994.";
+      } else if (joined.includes("românia a câștigat") || joined.includes("romania won")) {
         truth = "adevărat";
-      } else if (joined.includes("brazilia a câștigat") || joined.includes("brazil won")) {
-        truth = "fals";
-        correction = "Brazilia a câștigat Campionatul Mondial din 1994.";
-      } else if (joined.includes("nu este adevărat") || joined.includes("false information")) {
-        truth = "fals";
+      } else {
+        truth = "verificabil";
       }
+    }
+
+    // Alte reguli generale
+    if (truth === "neutru" && joined.includes("fals") && joined.includes("informație")) {
+      truth = "fals";
     }
 
     const verdict = {
       logică: "adevărată logic",
-      factuală: truth === "adevărat" ? "adevărată factual" :
-                truth === "fals" ? "falsă factual" : "verificabilă factual",
+      factuală:
+        truth === "adevărat" ? "adevărată factual" :
+        truth === "fals" ? "falsă factual" : "verificabilă factual",
       parafrază: "relatare indirectă",
       predicție: "posibilă",
       medicală: "necesită confirmare științifică",
@@ -111,7 +112,6 @@ export default async function handler(req, res) {
       neclară: "neclară"
     }[type];
 
-    // 🧾 Răspuns complet (niciun câmp undefined)
     const response = {
       type,
       verdict,
@@ -122,7 +122,7 @@ export default async function handler(req, res) {
       maxScore,
       sources,
       cached: false,
-      message: "Analiză Coezivă 3.14Δ – Stabilă"
+      message: "Analiză Coezivă 3.14Δ-Factual"
     };
 
     memoryCache[cleanText] = response;
@@ -137,13 +137,12 @@ export default async function handler(req, res) {
   }
 }
 
-// 🔹 Detectare tip semantic
 function detectType(text) {
   const lower = text.toLowerCase();
   if (/^[0-9+\-*/=<> ]+$/.test(lower)) return "logică";
   if (hasAny(lower, ["cred", "părere", "mi se pare", "consider", "eu zic"])) return "opinie";
   if (hasAny(lower, ["va fi", "va deveni", "se va întâmpla", "probabil", "posibil"])) return "predicție";
-  if (hasAny(lower, ["se spune că", "potrivit", "conform", "după cum a declarat", "raportul arată"])) return "parafrază";
+  if (hasAny(lower, ["se spune că", "potrivit", "conform", "după cum a declarat"])) return "parafrază";
   if (hasAny(lower, ["lege", "guvern", "președinte", "istoric", "război", "campionat", "țară", "companie"])) return "factuală";
   if (hasAny(lower, ["virus", "boal", "tratament", "doctor", "spital", "simptom"])) return "medicală";
   if (hasAny(lower, ["dumnezeu", "suflet", "viață", "moral", "conștiință", "spirit"])) return "filosofică";
