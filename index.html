@@ -95,9 +95,11 @@ async function analyze() {
     const C = data.semantic_score || 0;
 
     let verdictClass = "verdict-neutru";
-    if (verdict.includes("adevărat")) verdictClass = "verdict-adevărat";
-    else if (verdict.includes("fals")) verdictClass = "verdict-fals";
-
+const verdictText = (verdict || "").toLowerCase();
+if (verdictText.includes("adevărat")) verdictClass = "verdict-adevărat";
+else if (verdictText.includes("fals")) verdictClass = "verdict-fals";
+else if (verdictText.includes("relativ")) verdictClass = "verdict-neutru";
+    
     // bara de progres
     const barWidth = (V / 3.14) * 100;
 
