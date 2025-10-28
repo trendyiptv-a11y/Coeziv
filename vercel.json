@@ -1,5 +1,9 @@
 {
   "version": 2,
+  "env": {
+    "GPT_API_KEY": "@gpt_api_key",
+    "SERPER_KEY": "@serper_key"
+  },
   "builds": [
     {
       "src": "index.html",
@@ -17,7 +21,16 @@
     },
     {
       "src": "/(.*)",
-      "dest": "/index.html"
+      "dest": "/index.html",
+      "headers": {
+        "Cache-Control": "public, max-age=0, must-revalidate"
+      }
     }
-  ]
+  ],
+  "cache": {
+    "static": {
+      "maxAge": 31536000,
+      "staleWhileRevalidate": 60
+    }
+  }
 }
