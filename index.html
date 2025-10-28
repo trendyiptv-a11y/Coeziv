@@ -57,16 +57,18 @@
     transition: width 1s ease-in-out;
   }
 
-  .type {
-    font-weight: bold;
-    margin-bottom: 0.5rem;
-  }
+  .type { font-weight: bold; margin-bottom: 0.5rem; }
   .logică { color: #00ffb7; }
   .factuală { color: #00bfff; }
   .medicală { color: #00ffff; }
   .filosofică { color: #ffd000; }
   .opinie { color: #ff8800; }
   .neclară { color: #888; }
+
+  .verdict { font-weight: bold; margin: 0.5rem 0; }
+  .true { color: #00ffb7; }
+  .partial { color: #ffd000; }
+  .false { color: #ff4d4d; }
 
   a { text-decoration: none; }
   a:hover { text-decoration: underline; }
@@ -96,26 +98,66 @@ async function analyze() {
 
     const data = await res.json();
 
-    // Selectare emoji în funcție de tip
+    // 🧩 Analiză logică internă: verifică expresii matematice
+    const logicRegex = /^(\d+)\s*([\+\-\*\/])\s*(\d+)\s*=\s*(\d+)$/;
+    let logicalOverride = null;
+
+    const match = text.match(logicRegex);
+    if (match) {
+      const a = parseFloat(match[1]);
+      const op = match[2];
+      const b = parseFloat(match[3]);
+      const result = parseFloat(match[4]);
+
+      let expected;
+      switch (op) {
+        case '+': expected = a + b; break;
+        case '-': expected = a - b; break;
+        case '*': expected = a * b; break;
+        case '/': expected = b !== 0 ? a / b : null; break;
+      }
+
+      if (expected !== null) {
+        const correct = Math.abs(result - expected) < 0.0001;
+        logicalOverride = correct
+          ? { verdict: "✅ adevărat logic", score: 3.14 }
+          : { verdict: "❌ fals logic", score: 0.0 };
+      }
+    }
+
+    // Icon tip
     const icon = data.type === "logică" ? "🧮" :
                  data.type === "factuală" ? "📰" :
                  data.type === "medicală" ? "💉" :
                  data.type === "filosofică" ? "☯️" :
                  data.type === "opinie" ? "💬" : "❓";
 
-    // Scor sigur (evită .toFixed pe valori non-numerice)
-    const numericScore = typeof data.score === "number" ? data.score : parseFloat(data.score);
+    // Scor sigur
+    let numericScore = typeof data.score === "number" ? data.score : parseFloat(data.score);
+    if (logicalOverride) numericScore = logicalOverride.score;
+
     const displayScore = !isNaN(numericScore) ? numericScore.toFixed(2) : "—";
     const pct = !isNaN(numericScore)
       ? Math.min((numericScore / 3.14) * 100, 100)
       : 0;
 
-    // Construim HTML-ul rezultatului
+    // Verdict colorat automat
+    let verdictClass = "partial";
+    let verdictEmoji = "⚠️";
+    if (numericScore >= 2.8) { verdictClass = "true"; verdictEmoji = "✅"; }
+    else if (numericScore < 1.5) { verdictClass = "false"; verdictEmoji = "❌"; }
+
+    const finalVerdict = logicalOverride
+      ? logicalOverride.verdict
+      : data.verdict || "—";
+
     resultDiv.innerHTML = `
       <div class="type ${data.type}">
         ${icon} Tip: ${data.type?.toUpperCase() || "NECUNOSCUTĂ"}
       </div>
-      <p><strong>Verdict:</strong> ${data.verdict || "—"}</p>
+      <p class="verdict ${verdictClass}">
+        ${verdictEmoji} Verdict: ${finalVerdict}
+      </p>
       <p><strong>Scor:</strong> ${displayScore} / 3.14</p>
       <div class="bar" style="width:${pct}%"></div>
       <p style="margin-top:1rem;">${data.explanation || "—"}</p>
