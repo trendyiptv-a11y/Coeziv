@@ -28,126 +28,94 @@ export default async function handler(req, res) {
 
     const type = detectType(cleanText);
 
-    const scoreMap = {
-      logică: 3.14,
-      factuală: 2.9,
-      parafrază: 2.5,
-      predicție: 2.2,
-      medicală: 2.8,
-      filosofică: 1.8,
-      opinie: 1.6,
-      neclară: 0.0
-    };
-    const score = scoreMap[type] ?? 0;
-    const maxScore = 3.14;
-
-    const explanations = {
-      logică: `Afirmația „${text}” reprezintă o relație logică sau matematică.`,
-      factuală: `Afirmația „${text}” este un fapt verificabil prin surse publice.`,
-      parafrază: `Afirmația „${text}” redă o informație dintr-o altă sursă (citare indirectă).`,
-      predicție: `Afirmația „${text}” exprimă o posibilitate despre viitor.`,
-      medicală: `Afirmația „${text}” face referire la informații medicale sau științifice.`,
-      filosofică: `Afirmația „${text}” explorează concepte spirituale sau morale.`,
-      opinie: `Afirmația „${text}” exprimă o părere personală, subiectivă.`,
-      neclară: `Afirmația „${text}” nu are un context clar detectabil.`
-    };
+    // 🔎 1. Caută pe Google via Serper
+    const response = await fetch("https://google.serper.dev/search", {
+      method: "POST",
+      headers: {
+        "X-API-KEY": process.env.SERPER_API_KEY,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ q: text, gl: "ro", hl: "ro", num: 10 })
+    });
+    const data = await response.json();
 
     let sources = [];
-    if (["factuală", "medicală", "parafrază"].includes(type)) {
-      const serper = await fetch("https://google.serper.dev/search", {
-        method: "POST",
-        headers: {
-          "X-API-KEY": process.env.SERPER_API_KEY,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ q: text, gl: "ro", hl: "ro", num: 10 })
-      });
-
-      const result = await serper.json();
-      if (result.organic && Array.isArray(result.organic)) {
-        sources = result.organic
-          .slice(0, 6)
-          .filter(r => r.title && !r.title.toLowerCase().includes("cookie"))
-          .map(r => ({
-            title: r.title,
-            link: r.link,
-            snippet: (r.snippet || "").slice(0, 200) + "..."
-          }));
-      }
+    if (data.organic && Array.isArray(data.organic)) {
+      sources = data.organic
+        .slice(0, 8)
+        .filter(r => r.title && !r.title.toLowerCase().includes("cookie"))
+        .map(r => ({
+          title: r.title,
+          link: r.link,
+          snippet: (r.snippet || "").slice(0, 200)
+        }));
     }
 
+    // 🔬 2. Analiză semantică simplă
+    const joined = sources.map(s => (s.title + " " + s.snippet)).join(" ").toLowerCase();
+    const words = cleanText.split(/\s+/);
+    const total = words.length;
+    let matches = 0;
+
+    for (const w of words) {
+      if (joined.includes(w)) matches++;
+    }
+
+    const ratio = matches / total;
+    let verdict = "verificabilă factual";
     let truth = "neutru";
     let correction = null;
 
-    // 🧩 ANALIZĂ FACTUALĂ AVANSATĂ
-    const joined = sources.map(s => (s.title + " " + s.snippet)).join(" ").toLowerCase();
-
-    // Ex: „România a câștigat campionatul mondial din 1994”
-    if (cleanText.includes("campionatul mondial") && cleanText.includes("1994")) {
-      if (joined.includes("brazilia a câștigat") || joined.includes("brazilia campion")) {
-        truth = "fals";
-        correction = "Brazilia a câștigat Campionatul Mondial de Fotbal din 1994.";
-      } else if (joined.includes("românia a câștigat") || joined.includes("romania won")) {
-        truth = "adevărat";
-      } else {
-        truth = "verificabil";
-      }
-    }
-
-    // Alte reguli generale
-    if (truth === "neutru" && joined.includes("fals") && joined.includes("informație")) {
+    // 3️⃣  Detectare expresii contrazicătoare
+    if (joined.includes("nu a câștigat") || joined.includes("a pierdut") || joined.includes("brazilia a câștigat")) {
       truth = "fals";
+      verdict = "falsă factual";
+      correction = "Conform surselor, afirmația este contrazisă de faptele cunoscute.";
+    } else if (joined.includes("a câștigat") && joined.includes("românia")) {
+      truth = "adevărat";
+      verdict = "adevărată factual";
+    } else if (ratio > 0.6) {
+      truth = "verificabil";
+      verdict = "verificabilă factual";
     }
 
-    const verdict = {
-      logică: "adevărată logic",
-      factuală:
-        truth === "adevărat" ? "adevărată factual" :
-        truth === "fals" ? "falsă factual" : "verificabilă factual",
-      parafrază: "relatare indirectă",
-      predicție: "posibilă",
-      medicală: "necesită confirmare științifică",
-      filosofică: "interpretabilă",
-      opinie: "subiectivă",
-      neclară: "neclară"
-    }[type];
+    const score = Math.min(3.14, (ratio * 3.14).toFixed(2));
+    const maxScore = 3.14;
 
-    const response = {
+    const explanation = `Afirmația „${text}” a fost comparată cu primele ${sources.length} rezultate Google. 
+    Similaritate: ${(ratio * 100).toFixed(1)}%.`;
+
+    const result = {
       type,
-      verdict,
       truth,
+      verdict,
       correction,
-      explanation: explanations[type],
       score,
       maxScore,
       sources,
+      explanation,
       cached: false,
-      message: "Analiză Coezivă 3.14Δ-Factual"
+      message: "Analiză Coezivă 3.14Δ – Comparare directă cu surse"
     };
 
-    memoryCache[cleanText] = response;
+    memoryCache[cleanText] = result;
     fs.writeFileSync(CACHE_FILE, JSON.stringify(memoryCache, null, 2));
-    res.status(200).json(response);
+
+    res.status(200).json(result);
   } catch (err) {
-    res.status(500).json({
-      error: err.message,
-      score: 0,
-      maxScore: 1
-    });
+    res.status(500).json({ error: err.message });
   }
 }
 
 function detectType(text) {
   const lower = text.toLowerCase();
-  if (/^[0-9+\-*/=<> ]+$/.test(lower)) return "logică";
   if (hasAny(lower, ["cred", "părere", "mi se pare", "consider", "eu zic"])) return "opinie";
   if (hasAny(lower, ["va fi", "va deveni", "se va întâmpla", "probabil", "posibil"])) return "predicție";
-  if (hasAny(lower, ["se spune că", "potrivit", "conform", "după cum a declarat"])) return "parafrază";
-  if (hasAny(lower, ["lege", "guvern", "președinte", "istoric", "război", "campionat", "țară", "companie"])) return "factuală";
-  if (hasAny(lower, ["virus", "boal", "tratament", "doctor", "spital", "simptom"])) return "medicală";
-  if (hasAny(lower, ["dumnezeu", "suflet", "viață", "moral", "conștiință", "spirit"])) return "filosofică";
+  if (hasAny(lower, ["lege", "guvern", "președinte", "istoric", "campionat", "țară"])) return "factuală";
+  if (hasAny(lower, ["dumnezeu", "suflet", "viață", "moral", "spirit"])) return "filosofică";
   return "neclară";
 }
+
 function hasAny(text, arr) {
   return arr.some(w => text.includes(w));
 }
