@@ -22,84 +22,42 @@ body {
   text-align: center;
   padding: 2rem 1rem;
 }
-h1 {
-  color: var(--true);
-  font-size: 2rem;
-  margin-bottom: 0.3rem;
-}
-h2 {
-  color: var(--muted);
-  font-weight: normal;
-  margin-bottom: 1rem;
-}
+h1 { color: var(--true); font-size: 2rem; margin-bottom: 0.3rem; }
+h2 { color: var(--muted); font-weight: normal; margin-bottom: 1rem; }
 textarea {
-  width: 90%;
-  max-width: 600px;
-  height: 120px;
-  border-radius: 10px;
-  border: 1px solid #222;
-  background-color: var(--panel);
-  color: var(--text);
-  padding: 0.8rem;
-  font-size: 1rem;
-  resize: vertical;
+  width: 90%; max-width: 600px; height: 120px;
+  border-radius: 10px; border: 1px solid #222;
+  background-color: var(--panel); color: var(--text);
+  padding: 0.8rem; font-size: 1rem; resize: vertical;
 }
 button {
-  background-color: var(--true);
-  border: none;
-  border-radius: 10px;
-  color: #000;
-  font-weight: bold;
-  padding: 0.8rem 1.6rem;
-  font-size: 1rem;
-  cursor: pointer;
-  margin-top: 1rem;
+  background-color: var(--true); border: none; border-radius: 10px;
+  color: #000; font-weight: bold; padding: 0.8rem 1.6rem;
+  font-size: 1rem; cursor: pointer; margin-top: 1rem;
   transition: background-color 0.25s;
 }
 button:hover { background-color: #00d0a0; }
 .result-box {
-  background-color: var(--panel);
-  border-radius: 14px;
-  padding: 1.4rem;
-  margin: 1.6rem auto;
-  width: 90%;
-  max-width: 650px;
-  text-align: left;
+  background-color: var(--panel); border-radius: 14px; padding: 1.4rem;
+  margin: 1.6rem auto; width: 90%; max-width: 650px; text-align: left;
   box-shadow: 0 0 14px rgba(0, 255, 183, 0.1);
 }
-.score-bar {
-  height: 6px;
-  border-radius: 3px;
-  background-color: #333;
-  overflow: hidden;
-  margin-top: 6px;
-}
-.score-bar-inner {
-  height: 6px;
-  transition: width 0.4s ease;
-  border-radius: 3px;
-}
+.score-bar { height: 6px; border-radius: 3px; background-color: #333; overflow: hidden; margin-top: 6px; }
+.score-bar-inner { height: 6px; transition: width 0.4s ease; border-radius: 3px; }
 .verdict-adevărat { color: var(--true); }
 .verdict-fals { color: var(--false); }
 .verdict-neutru { color: var(--neutral); }
-.verdict-opinie { color: var(--opinion); }
 a.source-link {
-  display: block;
-  text-decoration: none;
-  color: #1e90ff;
-  margin-top: 6px;
+  display: block; text-decoration: none; color: #1e90ff; margin-top: 6px;
 }
 a.source-link:hover { text-decoration: underline; }
-.icon {
-  font-size: 1.2rem;
-  margin-right: 6px;
-}
+.icon { font-size: 1.2rem; margin-right: 6px; }
 </style>
 </head>
 
 <body>
   <h1>Motor Coeziv 3.14Δ</h1>
-  <h2>Analiză factuală, logică și umană în timp real</h2>
+  <h2>Analiză factuală, logică și semantică în timp real</h2>
 
   <textarea id="inputText" placeholder="Scrie o afirmație..."></textarea><br>
   <button onclick="analyze()">Analizează afirmația</button>
@@ -128,57 +86,37 @@ async function analyze() {
       return;
     }
 
-    // 🎨 determină stilul și pictograma
-    let verdictSymbol = "⚪";
+    // fallback sigur
+    const verdict = data.verdict || "Verdict indisponibil";
+    const summary = data.summary || "Nu s-a putut genera un rezumat.";
+    const V = data.V || "–";
+    const F = data.factual_score || 0;
+    const L = data.logic_score || 0;
+    const C = data.semantic_score || 0;
+
     let verdictClass = "verdict-neutru";
-    let color = data.color || "var(--neutral)";
-    let typeIcon = "🧠"; // implicit factuală
+    if (verdict.includes("adevărat")) verdictClass = "verdict-adevărat";
+    else if (verdict.includes("fals")) verdictClass = "verdict-fals";
 
-    if (data.type.includes("opinie")) typeIcon = "💭";
-    else if (data.type.includes("sport")) typeIcon = "🏆";
-    else if (data.type.includes("geografic")) typeIcon = "🌍";
-    else if (data.type.includes("științific") || data.type.includes("istoric")) typeIcon = "⚙️";
-    else if (data.type.includes("descriptiv")) typeIcon = "🧩";
-
-    if (data.verdict.includes("adevărat")) {
-      verdictSymbol = "✅"; verdictClass = "verdict-adevărat";
-    } else if (data.verdict.includes("fals")) {
-      verdictSymbol = "❌"; verdictClass = "verdict-fals";
-    } else if (data.verdict.includes("opinie")) {
-      verdictSymbol = "💭"; verdictClass = "verdict-opinie";
-      color = "var(--opinion)";
-    }
+    // bara de progres
+    const barWidth = (V / 3.14) * 100;
 
     const sourcesHTML = (data.sources || [])
       .map(s => `<a class="source-link" href="${s.link}" target="_blank">🌐 ${s.title}</a>`)
       .join("") || "<p style='color: var(--muted)'>Nicio sursă relevantă.</p>";
 
-    // 💭 Afișare specială pentru opinii personale
-    if (data.verdict.includes("opinie")) {
-      resultBox.innerHTML = `
-        <p><span class="icon">${typeIcon}</span><b>Tip:</b> ${data.type}</p>
-        <p class="${verdictClass}" style="font-weight:bold;">${verdictSymbol} Verdict: ${data.verdict}</p>
-        <p style="color:var(--opinion);margin-top:10px;">${data.correction}</p>
-        <p style="margin-top:10px;color:var(--muted);">${data.explanation}</p>
-        <h4 style="margin-top:1rem;">🔗 Surse:</h4>
-        ${sourcesHTML}
-      `;
-      return;
-    }
-
-    // 🧠 Afișare completă pentru afirmații verificabile
     resultBox.innerHTML = `
-      <p><span class="icon">${typeIcon}</span><b>Tip:</b> ${data.type}</p>
-      <p class="${verdictClass}" style="font-weight:bold;">${verdictSymbol} Verdict: ${data.verdict}</p>
-      <p><b>Scor:</b> ${data.score.toFixed(2)} / ${data.maxScore}</p>
+      <p><b>🧩 Formula 3.14Δ:</b> F=${F.toFixed(2)}, L=${L.toFixed(2)}, C=${C.toFixed(2)}</p>
+      <p class="${verdictClass}" style="font-weight:bold;">⚖️ Verdict: ${verdict}</p>
+      <p><b>Scor total V:</b> ${V} / 3.14</p>
       <div class="score-bar">
-        <div class="score-bar-inner" style="width:${(data.score/data.maxScore)*100}%;background-color:${color};"></div>
+        <div class="score-bar-inner" style="width:${barWidth}%;background-color:var(--true);"></div>
       </div>
-      <p style="margin-top:1rem;">${data.explanation}</p>
-      <p style="color:${color};font-weight:500;">${data.correction}</p>
+      <p style="margin-top:1rem;">${summary}</p>
       <h4 style="margin-top:1rem;">🔗 Surse:</h4>
       ${sourcesHTML}
     `;
+
   } catch (err) {
     resultBox.innerHTML = `<p style='color: var(--false)'>Eroare: ${err.message}</p>`;
   }
