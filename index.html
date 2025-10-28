@@ -5,176 +5,182 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Motor Coeziv 3.14Δ</title>
 <style>
-  :root {
-    --good: #00ffb7;
-    --medium: #ffd000;
-    --bad: #ff4d4d;
-    --bg: #0d1117;
-    --panel: #161b22;
-  }
+:root {
+  --true: #00ffb7;
+  --false: #ff3b3b;
+  --neutral: #a0a0a0;
+  --factual: #00aaff;
+  --logic: #00ffb7;
+  --medical: #ff9f00;
+  --philosophy: #ff00ff;
+  --opinion: #ffd700;
+  --bg: #0d1117;
+  --panel: #161b22;
+  --text: #c9d1d9;
+  --muted: #9ba1a6;
+}
 
-  body {
-    background-color: var(--bg);
-    color: #c9d1d9;
-    font-family: 'Segoe UI', sans-serif;
-    text-align: center;
-    padding: 2rem 1rem;
-    overflow-x: hidden;
-  }
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: 'Segoe UI', sans-serif;
+  text-align: center;
+  padding: 2rem 1rem;
+}
 
-  h1 {
-    color: var(--good);
-    font-size: 2rem;
-    margin-bottom: 0.2rem;
-  }
+h1 {
+  color: var(--true);
+  font-size: 2rem;
+  margin-bottom: 0.3rem;
+}
+h2 {
+  color: var(--muted);
+  font-weight: normal;
+  margin-bottom: 1rem;
+}
 
-  textarea {
-    width: 90%;
-    max-width: 600px;
-    height: 120px;
-    background-color: var(--panel);
-    border: 1px solid #30363d;
-    border-radius: 12px;
-    color: #fff;
-    padding: 1rem;
-    font-size: 1rem;
-    resize: none;
-    margin-bottom: 1rem;
-  }
+textarea {
+  width: 90%;
+  max-width: 600px;
+  height: 120px;
+  border-radius: 10px;
+  border: 1px solid #222;
+  background-color: var(--panel);
+  color: var(--text);
+  padding: 0.8rem;
+  font-size: 1rem;
+  resize: vertical;
+}
 
-  button {
-    background-color: var(--good);
-    border: none;
-    color: #000;
-    padding: 0.8rem 1.5rem;
-    font-size: 1rem;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: 0.3s;
-    font-weight: bold;
-  }
+button {
+  background-color: var(--true);
+  border: none;
+  border-radius: 10px;
+  color: #000;
+  font-weight: bold;
+  padding: 0.8rem 1.6rem;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: 1rem;
+  transition: background-color 0.25s;
+}
+button:hover {
+  background-color: #00d0a0;
+}
 
-  button:hover {
-    background-color: #00c98d;
-  }
+.result-box {
+  background-color: var(--panel);
+  border-radius: 14px;
+  padding: 1.4rem;
+  margin: 1.6rem auto;
+  width: 90%;
+  max-width: 650px;
+  text-align: left;
+  box-shadow: 0 0 14px rgba(0, 255, 183, 0.1);
+}
 
-  #result {
-    margin: 2rem auto;
-    width: 90%;
-    max-width: 650px;
-    background-color: var(--panel);
-    padding: 1.5rem;
-    border-radius: 16px;
-    box-shadow: 0 0 20px rgba(0,255,183,0.1);
-    text-align: left;
-    animation: fadeIn 0.8s ease;
-  }
+.score-bar {
+  height: 6px;
+  border-radius: 3px;
+  background-color: #333;
+  overflow: hidden;
+  margin-top: 6px;
+}
+.score-bar-inner {
+  height: 6px;
+  transition: width 0.4s ease;
+  border-radius: 3px;
+}
 
-  .bar {
-    height: 8px;
-    border-radius: 8px;
-    margin: 0.5rem 0 1rem;
-    transition: width 0.8s ease, background 0.6s ease;
-  }
+.verdict-adevărat { color: var(--true); }
+.verdict-fals { color: var(--false); }
+.verdict-neutru { color: var(--neutral); }
 
-  .verdict.true { color: var(--good); }
-  .verdict.false { color: var(--bad); }
-  .verdict.unclear { color: var(--medium); }
+.type-logică { color: var(--logic); }
+.type-factuală { color: var(--factual); }
+.type-medicală { color: var(--medical); }
+.type-filosofică { color: var(--philosophy); }
+.type-opinie { color: var(--opinion); }
 
-  a { color: #00bfff; text-decoration: none; }
-  a:hover { text-decoration: underline; }
-
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
+a.source-link {
+  display: block;
+  text-decoration: none;
+  color: var(--factual);
+  margin-top: 6px;
+}
+a.source-link:hover {
+  text-decoration: underline;
+}
 </style>
 </head>
+
 <body>
+  <h1>Motor Coeziv 3.14Δ</h1>
+  <h2>Analiză factuală, logică și semantică în timp real</h2>
 
-<h1>Motor Coeziv 3.14Δ</h1>
-<p>Analiză factuală, logică și semantică în timp real</p>
+  <textarea id="inputText" placeholder="Scrie o afirmație..."></textarea><br>
+  <button onclick="analyze()">Analizează informația</button>
 
-<textarea id="input" placeholder="Introdu o afirmație pentru analiză..."></textarea><br>
-<button id="analyzeBtn">Analizează informația</button>
-
-<div id="result"></div>
+  <div id="result" class="result-box" style="display:none;"></div>
 
 <script>
-document.getElementById("analyzeBtn").addEventListener("click", analyze);
-
 async function analyze() {
-  const input = document.getElementById("input").value.trim();
-  const resultDiv = document.getElementById("result");
-  if (!input) {
-    resultDiv.innerHTML = "<p style='color:var(--bad)'>❗ Introdu o afirmație pentru analiză.</p>";
-    return;
-  }
+  const text = document.getElementById("inputText").value.trim();
+  const resultBox = document.getElementById("result");
+  if (!text) return alert("Introdu o propoziție pentru analiză.");
 
-  resultDiv.innerHTML = "<p style='color:var(--medium)'>⏳ Se analizează informația...</p>";
+  resultBox.style.display = "block";
+  resultBox.innerHTML = "⏳ Se analizează...";
 
   try {
     const response = await fetch("/api/analyze", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text: input })
+      body: JSON.stringify({ text })
     });
 
     const data = await response.json();
 
-    if (!data) throw new Error("Răspuns invalid de la server.");
-
-    const score = typeof data.score === "number" ? data.score : 0;
-    const pct = Math.min(100, (score / 3.14) * 100).toFixed(0);
-    const explanation = data.explanation || "—";
-    const sources = data.sources || [];
-    const verdictType = data.type?.toLowerCase() || "necunoscută";
-
-    let verdictClass = "unclear";
-    let verdictEmoji = "❓";
-    let verdictText = data.verdict || "neclar";
-
-    if (score >= 2.9) {
-      verdictClass = "true"; verdictEmoji = "✅";
-    } else if (score <= 1.5) {
-      verdictClass = "false"; verdictEmoji = "❌";
+    if (data.error) {
+      resultBox.innerHTML = `<p style='color: var(--false)'>Eroare: ${data.error}</p>`;
+      return;
     }
 
-    // 🧠 Notă educativă
-    let educationalNote = "";
-    if (verdictType.includes("factual") && score < 2.9) {
-      educationalNote = `
-        <p style="margin-top:1rem; color:var(--bad); font-weight:600">
-          🔍 Informația originală pare incorectă conform surselor.
-        </p>
-        <p style="color:#00bfff">
-          ℹ️ Informația corectă conform surselor este:
-          <strong>${data.correction || "Brazilia a câștigat Campionatul Mondial din 1994."}</strong>
-        </p>
-      `;
-    }
+    const barColor =
+      data.truth === "adevărat" ? "var(--true)" :
+      data.truth === "fals" ? "var(--false)" : "var(--neutral)";
 
-    // 🎨 Afișează rezultatul
-    resultDiv.innerHTML = `
-      <p><strong>📘 Tip:</strong> ${data.type || "necunoscută"}</p>
-      <p class="verdict ${verdictClass}">${verdictEmoji} <strong>Verdict:</strong> ${verdictText}</p>
-      <p><strong>Scor:</strong> ${score.toFixed(2)} / 3.14</p>
-      <div class="bar" style="width:${pct}%; background:${
-        verdictClass === "true" ? "var(--good)" :
-        verdictClass === "false" ? "var(--bad)" : "var(--medium)"
-      }"></div>
-      <p>${explanation}</p>
-      ${educationalNote}
-      ${sources.length ? `<h4>🔗 Surse:</h4>` + sources.map(s =>
-        `<p><a href="${s.link}" target="_blank">${s.title}</a></p>`).join("")
-        : "<p style='color:#888'>Nicio sursă relevantă.</p>"}
+    const verdictClass =
+      data.truth === "adevărat" ? "verdict-adevărat" :
+      data.truth === "fals" ? "verdict-fals" : "verdict-neutru";
+
+    const sourcesHTML = (data.sources || [])
+      .map(s => `<a class="source-link" href="${s.link}" target="_blank">${s.title}</a>`)
+      .join("") || "<p style='color: var(--muted)'>Nicio sursă relevantă.</p>";
+
+    const correctionHTML = data.correction
+      ? `<p style='color: var(--true)'><b>ℹ️ Informația corectă conform surselor:</b> ${data.correction}</p>`
+      : "";
+
+    resultBox.innerHTML = `
+      <p class="type-${data.type}">📘 Tip: ${data.type}</p>
+      <p class="${verdictClass}">Verdict: ${data.verdict}</p>
+      <p><b>Scor:</b> ${data.score.toFixed(2)} / ${data.maxScore}</p>
+
+      <div class="score-bar">
+        <div class="score-bar-inner" style="width:${(data.score/data.maxScore)*100}%; background-color:${barColor};"></div>
+      </div>
+
+      <p style="margin-top:1rem;">${data.explanation}</p>
+      ${correctionHTML}
+
+      <h4>🔗 Surse:</h4>
+      ${sourcesHTML}
     `;
-
   } catch (err) {
-    resultDiv.innerHTML = `<p style="color:var(--bad)">Eroare: ${err.message}</p>`;
+    resultBox.innerHTML = `<p style='color: var(--false)'>Eroare: ${err.message}</p>`;
   }
 }
 </script>
-
 </body>
 </html>
