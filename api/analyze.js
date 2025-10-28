@@ -26,49 +26,50 @@ export default async function handler(req, res) {
 
     const cleanText = text.trim().toLowerCase();
 
-    // ✅ 1. Verificare memorie
+    // ✅ 1. Verificare cache
     if (memoryCache[cleanText]) {
       console.log("♻️ Cache hit:", cleanText);
       return res.status(200).json({
         ...memoryCache[cleanText],
         cached: true,
-        message: "♻️ Răspuns servit din memorie persistentă Coezivă"
+        message: "♻️ Răspuns servit din memorie Coezivă"
       });
     }
 
     console.log("🧠 Cache miss:", cleanText);
 
-    // ✅ 2. Clasificare logică
+    // ✅ 2. Detectare tip semantic
     const type = detectType(cleanText);
 
+    // ✅ 3. Atribuire scoruri de bază
     const scoreMap = {
       logică: 3.14,
-      factuală: 3.14,
-      medicală: 2.86,
-      filosofică: 2.00,
-      opinie: 1.57,
+      factuală: 2.9,
+      parafrază: 2.5,
+      predicție: 2.2,
+      medicală: 2.8,
+      filosofică: 1.8,
+      opinie: 1.6,
       neclară: 0.0
     };
 
+    // ✅ 4. Explicații tip dedicate
     const explanations = {
-      logică: `Afirmația „${text}” este o propoziție logică/matematică.`,
-      factuală: `Afirmația „${text}” exprimă un fapt verificabil prin surse publice.`,
-      medicală: `Afirmația „${text}” face referire la sănătate și necesită verificare științifică.`,
-      filosofică: `Afirmația „${text}” conține concepte spirituale sau morale.`,
-      opinie: `Afirmația „${text}” este o părere personală.`,
-      neclară: `Afirmația „${text}” nu are context clar.`
+      logică: `Afirmația „${text}” reprezintă o relație logică sau matematică.`,
+      factuală: `Afirmația „${text}” este un fapt verificabil prin surse publice.`,
+      parafrază: `Afirmația „${text}” redă o informație dintr-o altă sursă (citare indirectă).`,
+      predicție: `Afirmația „${text}” exprimă o posibilitate sau predicție despre viitor.`,
+      medicală: `Afirmația „${text}” face referire la informații medicale sau științifice.`,
+      filosofică: `Afirmația „${text}” explorează concepte spirituale sau morale.`,
+      opinie: `Afirmația „${text}” exprimă o părere personală, subiectivă.`,
+      neclară: `Afirmația „${text}” nu are un context clar detectabil.`
     };
 
-    let score = 0;
-    if (type === "logică" && /[0-9=]/.test(text)) score = 3.14;
-    else if (type === "factuală") score = 2.8;
-    else if (type === "medicală") score = 2.6;
-    else if (type === "filosofică") score = 1.4;
-    else if (type === "opinie") score = 1.2;
+    let score = scoreMap[type] || 0;
 
-    // ✅ 3. Căutare Serper (doar factual/medical)
+    // ✅ 5. Căutare factuală (doar pentru tipuri verificabile)
     let sources = [];
-    if (["factuală", "medicală"].includes(type)) {
+    if (["factuală", "medicală", "parafrază"].includes(type)) {
       const serper = await fetch("https://google.serper.dev/search", {
         method: "POST",
         headers: {
@@ -90,21 +91,30 @@ export default async function handler(req, res) {
       }
     }
 
-    // ✅ 4. Construim răspunsul
-    const response = {
-      type,
-      tipIcon: getIcon(type),
-      color: getColor(type),
-      verdict: getVerdict(type),
-      score: score.toFixed(2),
-      maxScore: scoreMap[type],
-      explanation: explanations[type],
-      sources,
-      cached: false,
-      message: "Analiză proaspătă generată de Motorul Coeziv 3.14Δ"
+    // ✅ 6. Construim verdictul
+    const verdicts = {
+      logică: "adevărată logic",
+      factuală: "verificabilă factual",
+      parafrază: "relatare indirectă",
+      predicție: "posibilă, dar nedemonstrabilă",
+      medicală: "necesită confirmare științifică",
+      filosofică: "interpretabilă",
+      opinie: "subiectivă",
+      neclară: "neclară"
     };
 
-    // ✅ 5. Salvăm în memorie + pe disc
+    const response = {
+      type,
+      verdict: verdicts[type],
+      explanation: explanations[type],
+      score: score,
+      maxScore: 3.14,
+      sources,
+      cached: false,
+      message: "Analiză Coezivă completă 3.14Δ Semantic Extended"
+    };
+
+    // ✅ 7. Salvare în memorie
     memoryCache[cleanText] = response;
     try {
       fs.writeFileSync(CACHE_FILE, JSON.stringify(memoryCache, null, 2));
@@ -122,26 +132,16 @@ export default async function handler(req, res) {
 
 // 🔹 Funcții auxiliare
 function detectType(text) {
-  if (/^[0-9+\-*/=<> ]+$/.test(text)) return "logică";
-  if (hasAny(text, ["lege","guvern","parlament","pensii","fotbal","președinte","istoric"])) return "factuală";
-  if (hasAny(text, ["covid","virus","boal","tratament","doctor","spital"])) return "medicală";
-  if (hasAny(text, ["dumnezeu","suflet","spirit","viață","moral","conștiință"])) return "filosofică";
-  if (hasAny(text, ["cred","părere","poate","ar putea"])) return "opinie";
+  const lower = text.toLowerCase();
+
+  if (/^[0-9+\-*/=<> ]+$/.test(lower)) return "logică";
+  if (hasAny(lower, ["cred", "părere", "mi se pare", "consider", "eu zic"])) return "opinie";
+  if (hasAny(lower, ["va fi", "va deveni", "se va întâmpla", "probabil", "posibil"])) return "predicție";
+  if (hasAny(lower, ["se spune că", "potrivit", "conform", "după cum a declarat", "raportul arată"])) return "parafrază";
+  if (hasAny(lower, ["lege", "guvern", "președinte", "istoric", "război", "campionat", "țară", "companie"])) return "factuală";
+  if (hasAny(lower, ["virus", "boal", "tratament", "doctor", "spital", "simptom"])) return "medicală";
+  if (hasAny(lower, ["dumnezeu", "suflet", "viață", "moral", "conștiință", "spirit"])) return "filosofică";
   return "neclară";
 }
 
 function hasAny(text, arr) { return arr.some(w => text.includes(w)); }
-
-function getColor(t){
-  return {logică:"#00ffb7",factuală:"#00aaff",medicală:"#00ffff",
-          filosofică:"#ffd000",opinie:"#ff8800",neclară:"#888"}[t];
-}
-function getIcon(t){
-  return {logică:"🧮",factuală:"📰",medicală:"💉",
-          filosofică:"☯️",opinie:"💬",neclară:"❓"}[t];
-}
-function getVerdict(t){
-  return {logică:"adevărată logic",factuală:"verificabilă factual",
-          medicală:"susceptibilă de verificare științifică",
-          filosofică:"interpretabilă",opinie:"subiectivă",neclară:"neclară"}[t];
-}
