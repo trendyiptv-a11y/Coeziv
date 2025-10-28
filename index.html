@@ -3,23 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Motor Coeziv 3.14Δ</title>
+<title>Motor Coeziv 3.14Δ – HumanLogic</title>
 <style>
 :root {
   --true: #00ffb7;
   --false: #ff3b3b;
-  --neutral: #a0a0a0;
-  --factual: #00aaff;
-  --logic: #00ffb7;
-  --medical: #ff9f00;
-  --philosophy: #ff00ff;
-  --opinion: #ffd700;
+  --neutral: #ffc800;
+  --opinion: #888;
   --bg: #0d1117;
   --panel: #161b22;
   --text: #c9d1d9;
   --muted: #9ba1a6;
 }
-
 body {
   background-color: var(--bg);
   color: var(--text);
@@ -27,7 +22,6 @@ body {
   text-align: center;
   padding: 2rem 1rem;
 }
-
 h1 {
   color: var(--true);
   font-size: 2rem;
@@ -38,7 +32,6 @@ h2 {
   font-weight: normal;
   margin-bottom: 1rem;
 }
-
 textarea {
   width: 90%;
   max-width: 600px;
@@ -51,7 +44,6 @@ textarea {
   font-size: 1rem;
   resize: vertical;
 }
-
 button {
   background-color: var(--true);
   border: none;
@@ -64,10 +56,7 @@ button {
   margin-top: 1rem;
   transition: background-color 0.25s;
 }
-button:hover {
-  background-color: #00d0a0;
-}
-
+button:hover { background-color: #00d0a0; }
 .result-box {
   background-color: var(--panel);
   border-radius: 14px;
@@ -78,7 +67,6 @@ button:hover {
   text-align: left;
   box-shadow: 0 0 14px rgba(0, 255, 183, 0.1);
 }
-
 .score-bar {
   height: 6px;
   border-radius: 3px;
@@ -91,35 +79,30 @@ button:hover {
   transition: width 0.4s ease;
   border-radius: 3px;
 }
-
 .verdict-adevărat { color: var(--true); }
 .verdict-fals { color: var(--false); }
 .verdict-neutru { color: var(--neutral); }
-
-.type-logică { color: var(--logic); }
-.type-factuală { color: var(--factual); }
-.type-medicală { color: var(--medical); }
-.type-filosofică { color: var(--philosophy); }
-.type-opinie { color: var(--opinion); }
-
+.verdict-opinie { color: var(--opinion); }
 a.source-link {
   display: block;
   text-decoration: none;
-  color: var(--factual);
+  color: #1e90ff;
   margin-top: 6px;
 }
-a.source-link:hover {
-  text-decoration: underline;
+a.source-link:hover { text-decoration: underline; }
+.icon {
+  font-size: 1.2rem;
+  margin-right: 6px;
 }
 </style>
 </head>
 
 <body>
   <h1>Motor Coeziv 3.14Δ</h1>
-  <h2>Analiză factuală, logică și semantică în timp real</h2>
+  <h2>Analiză factuală, logică și umană în timp real</h2>
 
   <textarea id="inputText" placeholder="Scrie o afirmație..."></textarea><br>
-  <button onclick="analyze()">Analizează informația</button>
+  <button onclick="analyze()">Analizează afirmația</button>
 
   <div id="result" class="result-box" style="display:none;"></div>
 
@@ -145,37 +128,54 @@ async function analyze() {
       return;
     }
 
-    // 🎨 determină culoarea și simbolul în funcție de verdict
+    // 🎨 determină stilul și pictograma
     let verdictSymbol = "⚪";
     let verdictClass = "verdict-neutru";
-    let color = "var(--neutral)";
-    if (data.verdict.includes("adevărat")) {
-      verdictSymbol = "✅";
-      verdictClass = "verdict-adevărat";
-      color = "var(--true)";
-    } else if (data.verdict.includes("fals")) {
-      verdictSymbol = "❌";
-      verdictClass = "verdict-fals";
-      color = "var(--false)";
-    }
+    let color = data.color || "var(--neutral)";
+    let typeIcon = "🧠"; // implicit factuală
 
-    const correctionHTML = data.correction
-      ? `<p style="margin-top:10px;color:var(--true);font-weight:500;">🔍 Fapt corect: ${data.correction}</p>`
-      : "";
+    if (data.type.includes("opinie")) typeIcon = "💭";
+    else if (data.type.includes("sport")) typeIcon = "🏆";
+    else if (data.type.includes("geografic")) typeIcon = "🌍";
+    else if (data.type.includes("științific") || data.type.includes("istoric")) typeIcon = "⚙️";
+    else if (data.type.includes("descriptiv")) typeIcon = "🧩";
+
+    if (data.verdict.includes("adevărat")) {
+      verdictSymbol = "✅"; verdictClass = "verdict-adevărat";
+    } else if (data.verdict.includes("fals")) {
+      verdictSymbol = "❌"; verdictClass = "verdict-fals";
+    } else if (data.verdict.includes("opinie")) {
+      verdictSymbol = "💭"; verdictClass = "verdict-opinie";
+      color = "var(--opinion)";
+    }
 
     const sourcesHTML = (data.sources || [])
       .map(s => `<a class="source-link" href="${s.link}" target="_blank">🌐 ${s.title}</a>`)
       .join("") || "<p style='color: var(--muted)'>Nicio sursă relevantă.</p>";
 
+    // 💭 Afișare specială pentru opinii personale
+    if (data.verdict.includes("opinie")) {
+      resultBox.innerHTML = `
+        <p><span class="icon">${typeIcon}</span><b>Tip:</b> ${data.type}</p>
+        <p class="${verdictClass}" style="font-weight:bold;">${verdictSymbol} Verdict: ${data.verdict}</p>
+        <p style="color:var(--opinion);margin-top:10px;">${data.correction}</p>
+        <p style="margin-top:10px;color:var(--muted);">${data.explanation}</p>
+        <h4 style="margin-top:1rem;">🔗 Surse:</h4>
+        ${sourcesHTML}
+      `;
+      return;
+    }
+
+    // 🧠 Afișare completă pentru afirmații verificabile
     resultBox.innerHTML = `
-      <p class="type-${data.type}">📘 Tip: ${data.type}</p>
+      <p><span class="icon">${typeIcon}</span><b>Tip:</b> ${data.type}</p>
       <p class="${verdictClass}" style="font-weight:bold;">${verdictSymbol} Verdict: ${data.verdict}</p>
       <p><b>Scor:</b> ${data.score.toFixed(2)} / ${data.maxScore}</p>
       <div class="score-bar">
         <div class="score-bar-inner" style="width:${(data.score/data.maxScore)*100}%;background-color:${color};"></div>
       </div>
       <p style="margin-top:1rem;">${data.explanation}</p>
-      ${correctionHTML}
+      <p style="color:${color};font-weight:500;">${data.correction}</p>
       <h4 style="margin-top:1rem;">🔗 Surse:</h4>
       ${sourcesHTML}
     `;
