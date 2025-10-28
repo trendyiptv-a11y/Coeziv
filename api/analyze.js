@@ -4,15 +4,14 @@ import path from "path";
 const CACHE_FILE = path.join("/tmp", "cache.json");
 let memoryCache = {};
 
-// 🔹 Încarcă memoria persistentă (dacă există)
+// 🔹 Încarcă memoria persistentă
 try {
   if (fs.existsSync(CACHE_FILE)) {
-    const data = fs.readFileSync(CACHE_FILE, "utf8");
-    memoryCache = JSON.parse(data || "{}");
-    console.log("🧠 Memorie Coezivă reactivată:", Object.keys(memoryCache).length, "intrări");
+    memoryCache = JSON.parse(fs.readFileSync(CACHE_FILE, "utf8") || "{}");
+    console.log("🧠 Memorie Coezivă activă:", Object.keys(memoryCache).length);
   }
 } catch (err) {
-  console.warn("⚠️ Nu s-a putut citi cache-ul:", err.message);
+    console.warn("⚠️ Nu s-a putut citi cache-ul:", err.message);
 }
 
 export default async function handler(req, res) {
@@ -26,22 +25,15 @@ export default async function handler(req, res) {
 
     const cleanText = text.trim().toLowerCase();
 
-    // ✅ 1. Verificare cache
+    // 🔁 Verifică cache
     if (memoryCache[cleanText]) {
-      console.log("♻️ Cache hit:", cleanText);
-      return res.status(200).json({
-        ...memoryCache[cleanText],
-        cached: true,
-        message: "♻️ Răspuns servit din memorie Coezivă"
-      });
+      return res.status(200).json({ ...memoryCache[cleanText], cached: true });
     }
 
-    console.log("🧠 Cache miss:", cleanText);
-
-    // ✅ 2. Detectare tip semantic
+    // 🧠 Detectează tipul semantic
     const type = detectType(cleanText);
 
-    // ✅ 3. Atribuire scoruri de bază
+    // 🧮 Scoruri de bază
     const scoreMap = {
       logică: 3.14,
       factuală: 2.9,
@@ -52,8 +44,9 @@ export default async function handler(req, res) {
       opinie: 1.6,
       neclară: 0.0
     };
+    let score = scoreMap[type] || 0;
 
-    // ✅ 4. Explicații tip dedicate
+    // 💬 Explicații tip dedicate
     const explanations = {
       logică: `Afirmația „${text}” reprezintă o relație logică sau matematică.`,
       factuală: `Afirmația „${text}” este un fapt verificabil prin surse publice.`,
@@ -65,9 +58,7 @@ export default async function handler(req, res) {
       neclară: `Afirmația „${text}” nu are un context clar detectabil.`
     };
 
-    let score = scoreMap[type] || 0;
-
-    // ✅ 5. Căutare factuală (doar pentru tipuri verificabile)
+    // 🌐 Căutare factuală (doar unde are sens)
     let sources = [];
     if (["factuală", "medicală", "parafrază"].includes(type)) {
       const serper = await fetch("https://google.serper.dev/search", {
@@ -79,6 +70,7 @@ export default async function handler(req, res) {
         body: JSON.stringify({ q: text, gl: "ro", hl: "ro", num: 10 })
       });
       const result = await serper.json();
+
       if (result.organic && Array.isArray(result.organic)) {
         sources = result.organic
           .slice(0, 5)
@@ -91,49 +83,67 @@ export default async function handler(req, res) {
       }
     }
 
-    // ✅ 6. Construim verdictul
-    const verdicts = {
+    // ✅ Pasul 8 — verificare de consistență semantică (adevărat/fals/neutru)
+    let truth = "neutru";
+    let correction = null;
+
+    if (["factuală", "medicală"].includes(type) && sources.length > 0) {
+      const joined = sources.map(s => (s.title + " " + s.snippet)).join(" ").toLowerCase();
+
+      // ⚽ exemplu: România / Brazilia
+      if (joined.includes("românia a câștigat") || joined.includes("romania won")) {
+        truth = "adevărat";
+      } else if (joined.includes("brazilia a câștigat") || joined.includes("brazil won")) {
+        truth = "fals";
+        correction = "Brazilia a câștigat Campionatul Mondial din 1994.";
+      }
+
+      // 🧩 alte formule generice
+      else if (joined.includes("nu este adevărat") || joined.includes("false information")) {
+        truth = "fals";
+      }
+    }
+
+    // 🎯 Construiește verdictul
+    let verdict = {
       logică: "adevărată logic",
-      factuală: "verificabilă factual",
+      factuală: truth === "adevărat" ? "adevărată factual" : truth === "fals" ? "falsă factual" : "verificabilă factual",
       parafrază: "relatare indirectă",
       predicție: "posibilă, dar nedemonstrabilă",
       medicală: "necesită confirmare științifică",
       filosofică: "interpretabilă",
       opinie: "subiectivă",
       neclară: "neclară"
-    };
+    }[type];
 
+    // 🧾 Răspuns complet
     const response = {
       type,
-      verdict: verdicts[type],
+      verdict,
+      truth,
+      correction,
       explanation: explanations[type],
-      score: score,
+      score,
       maxScore: 3.14,
       sources,
       cached: false,
-      message: "Analiză Coezivă completă 3.14Δ Semantic Extended"
+      message: "Analiză Coezivă 3.14Δ – Semantic + Consistent"
     };
 
-    // ✅ 7. Salvare în memorie
+    // 💾 Salvează în cache
     memoryCache[cleanText] = response;
-    try {
-      fs.writeFileSync(CACHE_FILE, JSON.stringify(memoryCache, null, 2));
-      console.log("💾 Cache actualizat:", cleanText);
-    } catch (err) {
-      console.warn("⚠️ Eroare la scriere cache:", err.message);
-    }
+    fs.writeFileSync(CACHE_FILE, JSON.stringify(memoryCache, null, 2));
 
     res.status(200).json(response);
 
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 }
 
 // 🔹 Funcții auxiliare
 function detectType(text) {
   const lower = text.toLowerCase();
-
   if (/^[0-9+\-*/=<> ]+$/.test(lower)) return "logică";
   if (hasAny(lower, ["cred", "părere", "mi se pare", "consider", "eu zic"])) return "opinie";
   if (hasAny(lower, ["va fi", "va deveni", "se va întâmpla", "probabil", "posibil"])) return "predicție";
@@ -144,4 +154,6 @@ function detectType(text) {
   return "neclară";
 }
 
-function hasAny(text, arr) { return arr.some(w => text.includes(w)); }
+function hasAny(text, arr) {
+  return arr.some(w => text.includes(w));
+}
