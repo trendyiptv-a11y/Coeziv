@@ -1,15 +1,12 @@
 {
   "name": "coeziv",
   "version": "1.0.0",
-  "description": "Motor Coeziv 3.14Δ - analiză factuală și semantică",
-  "main": "server.js",
+  "description": "Motor Coeziv 3.14Δ - analiză semantică",
   "type": "module",
   "scripts": {
-    "start": "node server.js"
+    "start": "vercel dev"
   },
   "dependencies": {
-    "express": "^4.19.2",
-    "dotenv": "^16.4.5",
     "node-fetch": "^3.3.2"
   }
 }
