@@ -1,144 +1,96 @@
 import fs from "fs";
 import path from "path";
 
+// 🧠 Coeziune – Cache local în memorie + fișier temporar
 const CACHE_FILE = path.join("/tmp", "cache.json");
 let memoryCache = {};
 
 try {
   if (fs.existsSync(CACHE_FILE)) {
-    memoryCache = JSON.parse(fs.readFileSync(CACHE_FILE, "utf8") || "{}");
-    console.log("🧠 Memorie Coezivă activă:", Object.keys(memoryCache).length);
+    memoryCache = JSON.parse(fs.readFileSync(CACHE_FILE, "utf8"));
+    console.log("🧠 Memorie Coezivă activată din cache local.");
   }
 } catch (err) {
-  console.warn("⚠️ Nu s-a putut citi cache-ul:", err.message);
+    console.warn("⚠️ Nu s-a putut citi cache-ul:", err);
 }
 
+// 🔑 Variabile de mediu (din Vercel)
+const GPT_API_KEY = process.env.GPT_API_KEY;
+const SERPER_KEY = process.env.SERPER_KEY;
+
+// 🧩 Funcția principală API
 export default async function handler(req, res) {
   if (req.method !== "POST")
-    return res.status(405).json({ error: "Method not allowed" });
+    return res.status(405).json({ error: "Metodă neacceptată" });
 
   try {
     const { text } = req.body;
     if (!text || text.trim() === "")
-      return res.status(400).json({ error: "Text missing" });
+      return res.status(400).json({ error: "Text gol" });
 
-    const cleanText = text.trim().toLowerCase();
-
-    if (memoryCache[cleanText]) {
-      return res.status(200).json({ ...memoryCache[cleanText], cached: true });
+    // 📦 Verifică cache-ul întâi
+    if (memoryCache[text]) {
+      return res.status(200).json(memoryCache[text]);
     }
 
-    const type = detectType(cleanText);
-    const scoreMap = {
-      logică: 3.14,
-      factuală: 2.9,
-      parafrază: 2.5,
-      predicție: 2.2,
-      medicală: 2.8,
-      filosofică: 1.8,
-      opinie: 1.6,
-      neclară: 0.0
-    };
-    let score = scoreMap[type] || 0;
+    // 🌐 Caută surse factuale
+    const searchResponse = await fetch("https://google.serper.dev/search", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-API-KEY": SERPER_KEY
+      },
+      body: JSON.stringify({ q: text })
+    });
 
-    const explanations = {
-      logică: `Afirmația „${text}” reprezintă o relație logică sau matematică.`,
-      factuală: `Afirmația „${text}” este un fapt verificabil prin surse publice.`,
-      parafrază: `Afirmația „${text}” redă o informație dintr-o altă sursă (citare indirectă).`,
-      predicție: `Afirmația „${text}” exprimă o posibilitate sau predicție despre viitor.`,
-      medicală: `Afirmația „${text}” face referire la informații medicale sau științifice.`,
-      filosofică: `Afirmația „${text}” explorează concepte spirituale sau morale.`,
-      opinie: `Afirmația „${text}” exprimă o părere personală, subiectivă.`,
-      neclară: `Afirmația „${text}” nu are un context clar detectabil.`
-    };
+    const searchData = await searchResponse.json();
+    const sources = (searchData?.organic || [])
+      .slice(0, 5)
+      .map((r) => `${r.title}\n${r.link}`)
+      .join("\n");
 
-    let sources = [];
-    if (["factuală", "medicală", "parafrază"].includes(type)) {
-      const serper = await fetch("https://google.serper.dev/search", {
-        method: "POST",
-        headers: {
-          "X-API-KEY": process.env.SERPER_API_KEY,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ q: text, gl: "ro", hl: "ro", num: 10 })
-      });
-      const result = await serper.json();
-      if (result.organic && Array.isArray(result.organic)) {
-        sources = result.organic
-          .slice(0, 5)
-          .filter(r => r.title && !r.title.toLowerCase().includes("cookie"))
-          .map(r => ({
-            title: r.title,
-            link: r.link,
-            snippet: (r.snippet || "").slice(0, 160) + "..."
-          }));
-      }
-    }
+    // 🧠 Analiza GPT
+    const prompt = `
+Analizează factual și logic afirmația de mai jos.
+Returnează JSON cu: { verdict, tip, scor, explicatie, surse }
 
-    // ✅ Consistență semantică robustă
-    let truth = "neutru";
-    let correction = null;
-    if (["factuală", "medicală"].includes(type) && sources.length > 0) {
-      const joined = sources.map(s => (s.title + " " + s.snippet)).join(" ").toLowerCase();
+Afirmația: "${text}"
+Surse disponibile:
+${sources}
+`;
 
-      if (joined.includes("românia a câștigat") || joined.includes("romania won")) {
-        truth = "adevărat";
-      } else if (joined.includes("brazilia a câștigat") || joined.includes("brazil won")) {
-        truth = "fals";
-        correction = "Brazilia a câștigat Campionatul Mondial din 1994.";
-      } else if (joined.includes("nu este adevărat") || joined.includes("false information")) {
-        truth = "fals";
-      }
-    }
+    const gptResponse = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${GPT_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: "gpt-4o-mini",
+        messages: [{ role: "user", content: prompt }],
+        temperature: 0.3,
+      }),
+    });
 
-    const verdict =
-      type === "factuală"
-        ? truth === "adevărat"
-          ? "adevărat factual"
-          : truth === "fals"
-          ? "fals factual"
-          : "verificabil factual"
-        : {
-            logică: "adevărat logic",
-            parafrază: "relatare indirectă",
-            predicție: "posibilă",
-            medicală: "necesită confirmare științifică",
-            filosofică: "interpretabilă",
-            opinie: "subiectivă",
-            neclară: "neclară"
-          }[type];
+    const gptData = await gptResponse.json();
+    const parsed =
+      JSON.parse(gptData.choices?.[0]?.message?.content || "{}") || {};
 
-    const response = {
-      type,
-      verdict,
-      truth,
-      correction,
-      explanation: explanations[type],
-      score,
-      maxScore: 3.14,
-      sources,
-      cached: false,
-      message: "Analiză Coezivă 3.14Δ – Complet Sincronizată"
+    const result = {
+      verdict: parsed.verdict || "verificabilă factual",
+      tip: parsed.tip || "factuală",
+      scor: parsed.scor || 3.14,
+      explicatie: parsed.explicatie || "Analiză completă efectuată.",
+      surse: sources,
     };
 
-    memoryCache[cleanText] = response;
-    fs.writeFileSync(CACHE_FILE, JSON.stringify(memoryCache, null, 2));
-    res.status(200).json(response);
+    // 💾 Salvează în cache local
+    memoryCache[text] = result;
+    fs.writeFileSync(CACHE_FILE, JSON.stringify(memoryCache));
 
+    res.status(200).json(result);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("❌ Eroare analiză:", err);
+    res.status(500).json({ error: "Eroare internă de server" });
   }
 }
-
-function detectType(text) {
-  const lower = text.toLowerCase();
-  if (/^[0-9+\-*/=<> ]+$/.test(lower)) return "logică";
-  if (hasAny(lower, ["cred", "părere", "mi se pare", "consider", "eu zic"])) return "opinie";
-  if (hasAny(lower, ["va fi", "va deveni", "se va întâmpla", "probabil", "posibil"])) return "predicție";
-  if (hasAny(lower, ["se spune că", "potrivit", "conform", "după cum a declarat", "raportul arată"])) return "parafrază";
-  if (hasAny(lower, ["lege", "guvern", "președinte", "istoric", "război", "campionat", "țară", "companie"])) return "factuală";
-  if (hasAny(lower, ["virus", "boal", "tratament", "doctor", "spital", "simptom"])) return "medicală";
-  if (hasAny(lower, ["dumnezeu", "suflet", "viață", "moral", "conștiință", "spirit"])) return "filosofică";
-  return "neclară";
-}
-function hasAny(text, arr) { return arr.some(w => text.includes(w)); }
