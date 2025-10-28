@@ -1,109 +1,126 @@
-export const config = {
-  runtime: "edge",
-};
+import fetch from "node-fetch";
+import dotenv from "dotenv";
+dotenv.config();
 
-export default async function handler(req) {
+export default async function handler(req, res) {
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method not allowed" });
+  }
+
+  const { text } = req.body;
+  if (!text) {
+    return res.status(400).json({ error: "Missing text for analysis." });
+  }
+
   try {
-    const { text } = await req.json();
-    if (!text || text.trim().length < 3)
-      return new Response(JSON.stringify({ error: "Text prea scurt pentru analiză." }), { status: 400 });
+    // === 1️⃣ Promptul complet Coeziv 3.14Δ ===
+    const gptPrompt = `
+Ești Motorul Coeziv 3.14Δ — un sistem de analiză factuală, logică și umană bazat pe Formula Coeziunii 3.14Δ.
 
-    const query = text.trim();
-    const serperKey = process.env.SERPER_API_KEY;
-    const openaiKey = process.env.OPENAI_API_KEY;
+Analizează afirmația următoare conform celor 3 axe fundamentale:
+1. **Factual (F)** – adevărul obiectiv verificabil.
+2. **Logic (L)** – coerența cauză-efect și raționamentul intern.
+3. **Semantic (C)** – armonia și sensul exprimării în context uman.
 
-    // 1️⃣ — Căutare factuală prin Serper.dev
-    const serperRes = await fetch("https://google.serper.dev/search", {
-      method: "POST",
-      headers: {
-        "X-API-KEY": serperKey,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ q: query, num: 5, gl: "ro", hl: "ro" }),
-    });
+Acordă pentru fiecare o valoare între 0 și 3.14, unde:
+0–1.04 = fals, incoerent, disonant
+1.05–2.09 = parțial adevărat, ambiguu
+2.10–3.14 = adevărat, coerent, coeziv
 
-    const serperData = await serperRes.json();
-    const results = serperData.organic || [];
-    const sources = results.slice(0, 5).map(r => `${r.title} — ${r.snippet || ""}`);
+Calculează valoarea coezivă totală:
+V = (F + L + C) / 3
 
-    const factualScore = results.length > 0 ? 2.2 + Math.random() * 0.8 : 0.6;
+Determină verdictul final:
+0–1.04 → ❌ fals logic/factual
+1.05–2.09 → ⚠️ parțial adevărat / ambiguu
+2.10–3.14 → ✅ adevărat coeziv
 
-    // 2️⃣ — Analiză semantică GPT-4-mini
-    const prompt = `
-Evaluează afirmația: "${query}".
-Ține cont de următoarele surse online:
-${sources.join("\n\n")}
-
-Răspunde EXCLUSIV în format JSON:
+Apoi returnează **doar un obiect JSON valid**:
 {
- "logic_score": (0-3.14),
- "semantic_score": (0-3.14),
- "verdict": "adevărat factual / fals logic / parțial / opinie / verificabil",
- "explanation": "explicație scurtă"
+  "factual_score": număr,
+  "logic_score": număr,
+  "semantic_score": număr,
+  "V": număr,
+  "verdict": "text scurt",
+  "summary": "explicație scurtă conform Formulei 3.14Δ"
 }
+
+Afirmația de analizat este:
+"${text}"
 `;
 
-    const gptRes = await fetch("https://api.openai.com/v1/chat/completions", {
+    // === 2️⃣ Cerere către OpenAI GPT ===
+    const gptResponse = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${openaiKey}`,
         "Content-Type": "application/json",
+        "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`
       },
       body: JSON.stringify({
-        model: "gpt-4-mini",
+        model: "gpt-4o-mini",
         messages: [
-          { role: "system", content: "Ești un evaluator științific al adevărului factual și logic. Răspunzi numai în JSON valid." },
-          { role: "user", content: prompt },
+          { role: "system", content: "Ești un evaluator de adevăr conform Formulei Coeziunii 3.14Δ." },
+          { role: "user", content: gptPrompt }
         ],
-        temperature: 0.2,
-      }),
+        temperature: 0.4
+      })
     });
 
-    const gptData = await gptRes.json();
-    const content = gptData.choices?.[0]?.message?.content || "{}";
+    const gptData = await gptResponse.json();
+    const content = gptData?.choices?.[0]?.message?.content;
 
-    let gptJson = {};
+    // === 3️⃣ Încearcă să parsezi JSON-ul de la GPT ===
+    let gptJson;
     try {
       gptJson = JSON.parse(content);
     } catch {
+      console.error("Eroare la parsarea JSON-ului GPT:", content);
       gptJson = {
-        logic_score: 1.5,
-        semantic_score: 1.5,
-        verdict: "verificabil factual",
-        explanation: "GPT nu a returnat un JSON valid.",
+        factual_score: 1.57,
+        logic_score: 1.57,
+        semantic_score: 1.57,
+        V: 1.57,
+        verdict: "Ambiguu (parsare eșuată)",
+        summary: "Nu s-a putut genera un răspuns complet coerent."
       };
     }
 
-    const logicScore = gptJson.logic_score || 1.5;
-    const semanticScore = gptJson.semantic_score || 1.8;
+    // === 4️⃣ Calcul suplimentar de siguranță ===
+    const safe = (v) => (typeof v === "number" && !isNaN(v) ? v : 1.57);
+    const F = safe(gptJson.factual_score);
+    const L = safe(gptJson.logic_score);
+    const C = safe(gptJson.semantic_score);
+    const V = ((F + L + C) / 3).toFixed(2);
 
-    // 3️⃣ — Formula Coezivă 3.14Δ
-    const V = ((factualScore + logicScore + semanticScore) / 3).toFixed(2);
-    let verdict = gptJson.verdict || "verificabil factual";
-    let color = "#9ba1a6";
-    if (V > 2.6) color = "#00ffb7";
-    else if (V > 1.8) color = "#00ccff";
-    else if (V < 1.5) color = "#ff0055";
+    // === 5️⃣ Integrare cu Serper.dev (pentru surse publice) ===
+    const serp = await fetch("https://google.serper.dev/search", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-API-KEY": process.env.SERPER_API_KEY
+      },
+      body: JSON.stringify({ q: text, gl: "ro", hl: "ro" })
+    });
 
-    const explanation = gptJson.explanation || "Analiza semantică nu a putut fi completă.";
+    const serpData = await serp.json();
+    const sources = serpData?.organic?.slice(0, 5).map(r => ({
+      title: r.title,
+      link: r.link
+    })) || [];
 
-    // 4️⃣ — Răspuns final
-    return new Response(
-      JSON.stringify({
-        type: "coeziune 3.14Δ",
-        verdict,
-        color,
-        F: factualScore.toFixed(2),
-        L: logicScore.toFixed(2),
-        C: semanticScore.toFixed(2),
-        V,
-        explanation,
-        sources: results.slice(0, 5).map(r => ({ title: r.title, link: r.link })),
-      }),
-      { status: 200, headers: { "Content-Type": "application/json" } }
-    );
+    // === 6️⃣ Răspuns final Coeziv 3.14Δ ===
+    return res.status(200).json({
+      factual_score: F,
+      logic_score: L,
+      semantic_score: C,
+      V,
+      verdict: gptJson.verdict,
+      summary: gptJson.summary,
+      sources
+    });
 
   } catch (err) {
-    return new Response(JSON.stringify({ error: err.message }), { status: 500 });
+    console.error("Eroare la analiza Coezivă:", err);
+    return res.status(500).json({ error: "Eroare internă în analiza Coezivă 3.14Δ." });
   }
 }
