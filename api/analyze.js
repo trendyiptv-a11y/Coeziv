@@ -173,6 +173,8 @@ export default async function handler(req) {
       { status: 200, headers: { "Content-Type": "application/json" } }
     );
   } catch (err) {
-    return new Response(JSON.stringify({ error: err.message }), { status: 500 });
+    console.error("Eroare Motor 3.14Δ:", err);
+    return res.status(500).json({ error: err.message || "Eroare internă server (JSON invalid)" });
+  }
   }
 }
