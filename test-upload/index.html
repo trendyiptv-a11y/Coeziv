@@ -106,9 +106,41 @@
     document.getElementById("uploadBtn").addEventListener("click", async () => {
       const file = document.getElementById("fileInput").files[0];
       if (!file) return alert("Selectează un fișier!");
+
       const reader = new FileReader();
       reader.onload = async () => {
-        const base64 = reader.result.split(",")[1];
+        let base64 = reader.result.split(",")[1];
+
+        // 🔸 Compresie automată pentru imagini
+        if (file.type.startsWith("image/")) {
+          try {
+            const img = new Image();
+            img.src = reader.result;
+            await new Promise((resolve) => (img.onload = resolve));
+
+            const canvas = document.createElement("canvas");
+            const maxW = 900;
+            const scale = Math.min(1, maxW / img.width);
+            canvas.width = img.width * scale;
+            canvas.height = img.height * scale;
+
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+            base64 = canvas.toDataURL("image/jpeg", 0.7).split(",")[1];
+            console.log("Imagine comprimată și gata de trimitere.");
+          } catch (e) {
+            alert("Eroare la compresia imaginii: " + e.message);
+            return;
+          }
+        }
+
+        // 🔸 Verificare dimensiune
+        if (base64.length > 1_000_000) {
+          alert("Fișierul este prea mare (max 1MB). Încearcă unul mai mic.");
+          return;
+        }
+
         try {
           const res = await fetch(apiUrl, {
             method: "POST",
