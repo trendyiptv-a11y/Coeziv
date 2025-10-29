@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>💛 Motor Coeziv 3.14ΔH – Test Upload</title>
+  <title>💛 Motor Coeziv 3.14ΔH – OCR Test</title>
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
   <style>
     body {
       background-color: #0d1117;
@@ -35,6 +36,7 @@
       padding: 0.6rem 1rem;
       font-weight: 600;
       cursor: pointer;
+      margin-top: 0.5rem;
     }
     .upload-panel {
       margin-top: 2rem;
@@ -43,14 +45,6 @@
       border-radius: 12px;
       padding: 1rem;
       display: inline-block;
-    }
-    .upload-panel input {
-      background: #0d1117;
-      color: #c9d1d9;
-      border: 1px solid #30363d;
-      border-radius: 6px;
-      padding: 0.4rem;
-      margin-top: 0.5rem;
     }
     #output {
       text-align: left;
@@ -63,19 +57,23 @@
       white-space: pre-wrap;
       color: #00ffb7;
     }
+    .loading {
+      color: #ffc800;
+      font-style: italic;
+    }
   </style>
 </head>
 <body>
-  <h1>💛 Motor Coeziv 3.14ΔH – Test Upload</h1>
+  <h1>💛 Motor Coeziv 3.14ΔH – Test Upload + OCR</h1>
 
   <textarea id="inputText" placeholder="Tastează o afirmație pentru analiza ΔH..."></textarea><br />
   <button id="analyzeHumanBtn">💛 Analizează (ΔH)</button>
 
   <div class="upload-panel">
     <p>📄 Sau încarcă o imagine / document pentru analiză (ΔH):</p>
-    <input type="file" id="fileInput" accept=".jpg,.jpeg,.png,.txt,.pdf" />
+    <input type="file" id="fileInput" accept=".jpg,.jpeg,.png" />
     <br />
-    <button id="uploadBtn">📤 Încarcă și analizează</button>
+    <button id="uploadBtn">📤 Încarcă, citește și analizează</button>
   </div>
 
   <pre id="output"></pre>
@@ -105,26 +103,37 @@
 
     document.getElementById("uploadBtn").addEventListener("click", async () => {
       const file = document.getElementById("fileInput").files[0];
-      if (!file) return alert("Selectează un fișier!");
+      if (!file) return alert("Selectează o imagine!");
 
-      // 👉 Înlocuim complet logica de Base64
-      // Trimitem o propoziție clară către analyze.js
-      const text = `[Fișier încărcat: ${file.name}] Imagine / document trimis pentru analiză umană conform formulei 3.14ΔH.`;
+      const output = document.getElementById("output");
+      output.textContent = "🔍 Extragere text din imagine...\n";
+      output.classList.add("loading");
 
-      try {
-        const res = await fetch(apiUrl, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            text,
-            humanMode: true
-          }),
-        });
-        const data = await res.json();
-        document.getElementById("output").textContent = JSON.stringify(data, null, 2);
-      } catch (err) {
-        document.getElementById("output").textContent = "Eroare: " + err.message;
-      }
+      const reader = new FileReader();
+      reader.onload = async () => {
+        const imageData = reader.result;
+        try {
+          // OCR local în browser
+          const result = await Tesseract.recognize(imageData, "ron+eng", {
+            logger: m => output.textContent = `📖 OCR progres: ${Math.round(m.progress * 100)}%\n`
+          });
+          const extractedText = result.data.text.trim();
+          output.classList.remove("loading");
+
+          if (!extractedText) {
+            output.textContent = "⚠️ Nu s-a putut extrage text din imagine.";
+            return;
+          }
+
+          output.textContent = "📜 Text extras:\n" + extractedText + "\n\n🔄 Trimit către motorul Coeziv 3.14ΔH...\n";
+
+          await analyze(`[OCR din ${file.name}]: ${extractedText}`, true);
+        } catch (err) {
+          output.textContent = "Eroare OCR: " + err.message;
+          output.classList.remove("loading");
+        }
+      };
+      reader.readAsDataURL(file);
     });
   </script>
 </body>
