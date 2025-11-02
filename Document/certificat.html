@@ -3,66 +3,111 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Certificat Blockchain – Formula coeziunii 3.14</title>
+<title>Certificat de ancorare Blockchain – Formula coeziunii 3.14</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <style>
 body {
-  font-family: "Segoe UI", sans-serif;
-  background-color: #fafafa;
-  color: #111;
-  margin: 40px auto;
-  max-width: 800px;
+  font-family: "Times New Roman", serif;
   line-height: 1.7;
-  padding: 0 15px;
+  max-width: 800px;
+  margin: 60px auto;
+  padding: 0 25px;
+  color: #000;
 }
-h1 {
-  color: #111;
+h1, h2 {
   text-align: center;
+  font-weight: bold;
 }
-footer {
+.subtitle {
   text-align: center;
-  margin-top: 50px;
-  color: #666;
-  font-size: 14px;
-}
-button {
-  background: #0078d7;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  padding: 12px 20px;
-  cursor: pointer;
+  font-style: italic;
+  margin-top: -10px;
+  margin-bottom: 30px;
   font-size: 16px;
-  display: block;
-  margin: 40px auto 0 auto;
-  transition: 0.3s;
 }
-button:hover {
-  background: #111;
+p {
+  text-align: justify;
+  font-size: 17px;
 }
-code {
-  background: #eee;
-  padding: 3px 6px;
-  border-radius: 5px;
+hr {margin: 2rem 0;}
+.center {text-align:center;}
+#savePDF {
+  background:#000;
+  color:#fff;
+  border:none;
+  padding:10px 22px;
+  border-radius:8px;
+  font-size:17px;
+  cursor:pointer;
+  transition:all 0.3s ease;
+}
+#savePDF:hover {
+  background:#1a1a1a;
+  transform:scale(1.05);
+}
+#savePDF:active {
+  transform:scale(0.98);
+}
+.footer-note {
+  text-align:center;
+  font-size:13px;
+  color:#555;
+  margin-top:30px;
 }
 </style>
 </head>
 <body>
 
-<h1>Certificat Blockchain – Formula Coeziunii 3.14</h1>
+<h1>Certificat de ancorare Blockchain</h1>
+<p class="subtitle">Document certificat criptografic, înregistrat în blockchainul Bitcoin</p>
+<p class="center"><em>Confirmare de existență și prioritate digitală</em></p>
 
-<p>Acest document confirmă existența și integritatea fișierului <strong>Formula_Coeziunii_3.14.pdf</strong> înregistrat criptografic prin protocolul <em>OpenTimestamps</em> pe rețeaua <strong>Bitcoin</strong>.</p>
+<hr>
 
-<p><strong>Hash (SHA-256):</strong><br>
-<code>1811a3bfcd77dc5e73fbdc11150121e61513556b32a1f1bd108</code></p>
+<h2>Lucrare certificată</h2>
+<p><b>Titlu:</b> Formula coeziunii 3.14 – Echilibrul perfect al vieții<br>
+<b>Autor:</b> Sergiu Bulboacă<br>
+<b>Data ancorării:</b> 2 noiembrie 2025<br>
+<b>Metodă:</b> OpenTimestamps – Rețeaua Bitcoin<br>
+<b>Hash (SHA-256):</b><br>
+<code>1811a3bfcd77dc5e73fbdc11150121e61513556b32a1f1bd108...</code></p>
 
-<p><strong>Timpul înregistrării:</strong> <em>OpenTimestamps – 2025</em></p>
+<hr>
 
-<p>Acest certificat garantează integritatea și prioritatea în timp a lucrării originale „Formula coeziunii 3.14 – Echilibrul perfect al vieții”.</p>
+<h2>Descriere tehnică</h2>
+<p>Acest certificat atestă faptul că documentul intitulat <em>„Formula coeziunii 3.14 – Echilibrul perfect al vieții”</em> a fost existent și neschimbat la data menționată, printr-un proces de timestamping descentralizat în rețeaua Bitcoin.</p>
 
-<footer>
-<button onclick="location.href='/Document/lucrare.html'">📘 Vezi Lucrarea completă</button>
-<p>© Sergiu Bulboacă – Toate drepturile rezervate</p>
-</footer>
+<p>Procedura a fost realizată prin protocolul <b>OpenTimestamps</b>, care generează o amprentă digitală unică (hash SHA-256) a fișierului și o inscripționează într-un bloc Bitcoin, oferind dovadă criptografică inviolabilă de existență temporală.</p>
+
+<hr>
+
+<h2>Semnătură și verificare</h2>
+<p>Certificatul este emis pentru uz personal, științific sau juridic, și poate fi verificat public prin încărcarea fișierului original PDF și a fișierului corespunzător <code>.ots</code> pe platforma <a href="https://opentimestamps.org" target="_blank">opentimestamps.org</a>.</p>
+
+<p class="center"><b>© Sergiu Bulboacă</b><br>
+<em>Toate drepturile rezervate – Certificat academic de ancorare digitală</em></p>
+
+<p class="center" style="margin-top:20px;">
+  <button id="savePDF">📄 Descarcă PDF</button>
+</p>
+
+<p class="footer-note">
+  Verificare publică disponibilă la <a href="https://opentimestamps.org" target="_blank">opentimestamps.org</a>
+</p>
+
+<script>
+document.getElementById("savePDF").addEventListener("click", () => {
+  const element = document.body;
+  const opt = {
+    margin: 0.5,
+    filename: 'Certificat_Blockchain_Formula_3.14.pdf',
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2 },
+    jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+  };
+  html2pdf().set(opt).from(element).save();
+});
+</script>
 
 </body>
 </html>
