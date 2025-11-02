@@ -7,6 +7,7 @@
 <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
 <script id="MathJax-script" async
  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <style>
 body {
   font-family: "Segoe UI", Arial, sans-serif;
@@ -32,6 +33,26 @@ td, th {
 }
 code {background:#f2f2f2; padding:2px 4px;}
 .center {text-align:center;}
+#savePDF {
+  background:#000;
+  color:#fff;
+  border:none;
+  padding:10px 22px;
+  border-radius:8px;
+  font-size:17px;
+  cursor:pointer;
+  transition:all 0.3s ease;
+  box-shadow:0 0 0 rgba(0,0,0,0);
+}
+#savePDF:hover {
+  background:#1a1a1a;
+  transform:scale(1.05);
+  box-shadow:0 0 10px rgba(0,0,0,0.3);
+}
+#savePDF:active {
+  transform:scale(0.98);
+  box-shadow:0 0 5px rgba(0,0,0,0.2);
+}
 </style>
 </head>
 <body>
@@ -39,6 +60,10 @@ code {background:#f2f2f2; padding:2px 4px;}
 <h1>Formula coeziunii 3.14 – Echilibrul perfect al vieții</h1>
 <p class="center"><strong>Autor:</strong> Sergiu Bulboacă<br>
 <em>(în colaborare cu ChatGPT – model de analiză asistată)</em></p>
+
+<p class="center">
+  <button id="savePDF">📄 Descarcă PDF</button>
+</p>
 
 <hr>
 
@@ -50,7 +75,6 @@ code {background:#f2f2f2; padding:2px 4px;}
 <hr>
 
 <h2>2. Formula fundamentală</h2>
-
 <p class="center">$$F_c = \frac{(N_{H_2O}\, n_{e^-}\, E)}{r^2}$$</p>
 
 <table>
@@ -91,7 +115,6 @@ code {background:#f2f2f2; padding:2px 4px;}
 <hr>
 
 <h2>4. Interpretarea fizică și simbolică</h2>
-
 <table>
 <tr><th>Regim</th><th>\(F_c\)</th><th>Semnificație</th></tr>
 <tr><td>Sub-coeziv</td><td>&lt;3</td><td>Relaxare, pierdere de coerență</td></tr>
@@ -104,7 +127,6 @@ code {background:#f2f2f2; padding:2px 4px;}
 <hr>
 
 <h2>5. Întrebări și răspunsuri (Mini-FAQ)</h2>
-
 <p><b>Ce este formula coeziunii 3.14?</b><br>
 Un model numeric ce exprimă echilibrul natural al mediilor vii.</p>
 
@@ -133,6 +155,20 @@ Când produsul dintre densitate, energie și potențial este raportat la ordinea
 A dezvoltat modelul „Formula coeziunii 3.14” ca sinteză între date biofizice reale și principiul geometric al echilibrului natural, demonstrând numeric coerența sistemelor vii.</p>
 
 <p class="center"><em>© Sergiu Bulboacă – Toate drepturile rezervate</em></p>
+
+<script>
+document.getElementById("savePDF").addEventListener("click", () => {
+  const element = document.body;
+  const opt = {
+    margin: 0.5,
+    filename: 'Formula_Coeziunii_3.14.pdf',
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2 },
+    jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+  };
+  html2pdf().set(opt).from(element).save();
+});
+</script>
 
 </body>
 </html>
