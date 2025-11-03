@@ -41,6 +41,10 @@ button {
   background: #111;
   color: white;
 }
+#date {
+  background: #555;
+  color: white;
+}
 button:hover {
   transform: scale(1.05);
   opacity: 0.9;
@@ -51,6 +55,12 @@ footer {
   font-size: 14px;
   line-height: 1.6;
 }
+hr {
+  border: 0;
+  border-top: 1px solid #ccc;
+  width: 60%;
+  margin: 30px auto;
+}
 </style>
 </head>
 <body>
@@ -58,7 +68,10 @@ footer {
 <h1>Arhivă oficială Coeziv 3.14</h1>
 <h2>Acces la documentele originale certificate pe blockchain</h2>
 
+<hr>
+
 <button id="lucrare" onclick="location.href='/Document/lucrare.html'">📘 Lucrarea completă</button>
+<button id="date" onclick="location.href='/Document/date.html'">📊 Date experimentale</button>
 <button id="certificat" onclick="location.href='/Document/certificat.html'">🔒 Certificatul Blockchain</button>
 
 <footer>
