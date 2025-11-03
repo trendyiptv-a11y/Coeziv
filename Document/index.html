@@ -1,92 +1,124 @@
 <!DOCTYPE html>
 <html lang="ro">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Arhivă oficială Coeziv 3.14</title>
-<style>
-body {
-  font-family: "Segoe UI", sans-serif;
-  text-align: center;
-  background-color: #fafafa;
-  color: #111;
-  padding: 50px 15px;
-}
-h1 {
-  font-size: 2rem;
-  margin-bottom: 5px;
-}
-h2 {
-  font-size: 1.2rem;
-  color: #555;
-  margin-bottom: 30px;
-  font-weight: normal;
-  font-style: italic;
-}
-p.intro {
-  max-width: 720px;
-  margin: 0 auto 40px auto;
-  font-size: 1rem;
-  line-height: 1.7;
-  color: #333;
-}
-button {
-  display: inline-block;
-  margin: 10px;
-  padding: 15px 25px;
-  font-size: 18px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-#lucrare { background: #0078d7; color: white; }
-#date { background: #555; color: white; }
-#certificat { background: #111; color: white; }
-#assistant { background: #00b894; color: white; }
-#despre { background: #ffc107; color: #111; font-weight: bold; }
-button:hover {
-  transform: scale(1.05);
-  opacity: 0.9;
-}
-footer {
-  margin-top: 60px;
-  color: #666;
-  font-size: 14px;
-  line-height: 1.6;
-}
-hr {
-  border: 0;
-  border-top: 1px solid #ccc;
-  width: 60%;
-  margin: 30px auto;
-}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Arhiva Coeziv 3.14Δ</title>
+  <style>
+    :root {
+      --yellow: #ffc800;
+      --blue: #0094ff;
+      --grey: #444;
+      --black: #0d1117;
+      --green: #00ffb7;
+      --text: #222;
+    }
+
+    body {
+      background: #f6f7f9;
+      font-family: "Segoe UI", sans-serif;
+      color: var(--text);
+      margin: 0;
+      padding: 2rem 1rem;
+      text-align: center;
+    }
+
+    h1 {
+      color: var(--black);
+      font-size: 1.9rem;
+      margin-bottom: 1rem;
+    }
+
+    p {
+      max-width: 600px;
+      margin: 0 auto 1.5rem;
+      line-height: 1.6;
+      font-size: 1rem;
+    }
+
+    strong {
+      color: var(--black);
+    }
+
+    a {
+      display: block;
+      max-width: 320px;
+      margin: 0.8rem auto;
+      padding: 0.9rem 1rem;
+      text-decoration: none;
+      font-weight: bold;
+      border-radius: 12px;
+      color: #fff;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      transition: all 0.25s ease;
+    }
+
+    a:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
+    }
+
+    .btn-yellow {
+      background: var(--yellow);
+      color: #000;
+    }
+
+    .btn-blue {
+      background: var(--blue);
+    }
+
+    .btn-grey {
+      background: #666;
+    }
+
+    .btn-black {
+      background: #111;
+    }
+
+    .btn-green {
+      background: var(--green);
+      color: #000;
+    }
+
+    footer {
+      margin-top: 2.5rem;
+      font-size: 0.9rem;
+      color: #555;
+    }
+
+    footer em {
+      display: block;
+      margin-top: 0.4rem;
+      font-size: 0.85rem;
+      color: #777;
+    }
+  </style>
 </head>
+
 <body>
+  <h1>Formula Coeziunii 3.14Δ</h1>
 
-<h1>Arhivă oficială Coeziv 3.14Δ</h1>
-<h2>Documente certificate criptografic pe blockchain</h2>
+  <p>
+    <strong>Formula coeziunii 3.14</strong> este un model numeric care exprimă echilibrul intern al sistemelor vii
+    prin corelarea dintre densitate, energie și geometrie. Dezvoltată de
+    <strong>Sergiu Bulboacă</strong> în cadrul unei cercetări independente, cu sprijin analitic AI
+    (<em>ChatGPT – OpenAI</em>), formula oferă o perspectivă integrativă asupra homeostaziei și coerenței naturale a vieții.
+  </p>
 
-<hr>
+  <a href="despre.html" class="btn-yellow">ℹ️ Despre formulă</a>
+  <a href="lucrarea.html" class="btn-blue">📘 Lucrarea completă</a>
+  <a href="date.html" class="btn-grey">📊 Date experimentale</a>
 
-<p class="intro">
-<strong>Formula coeziunii 3.14</strong> este un model numeric care exprimă echilibrul intern al sistemelor vii prin corelarea dintre densitate, energie și geometrie.
-Dezvoltată de <strong>Sergiu Bulboacă</strong> în cadrul unei cercetări independente, cu sprijin analitic AI (<em>ChatGPT – OpenAI</em>), formula oferă o perspectivă integrativă asupra homeostaziei și coerenței naturale a vieții.
-</p>
+  <!-- 🔹 Noi butoane adăugate -->
+  <a href="sources.html" class="btn-blue">🌐 Surse științifice</a>
+  <a href="calculator.html" class="btn-green">🧮 Calculator Coeziv 3.14Δ</a>
 
-<button id="despre" onclick="location.href='/Document/despre.html'">ℹ️ Despre formulă</button>
-<br>
+  <a href="certificat.html" class="btn-black">🔒 Certificatul Blockchain</a>
+  <a href="asistent.html" class="btn-green">💬 Întreabă Asistentul Coeziv 3.14</a>
 
-<button id="lucrare" onclick="location.href='/Document/lucrare.html'">📘 Lucrarea completă</button>
-<button id="date" onclick="location.href='/Document/date.html'">📊 Date experimentale</button>
-<button id="certificat" onclick="location.href='/Document/certificat.html'">🔒 Certificatul Blockchain</button>
-<button id="assistant" onclick="location.href='/Document/assistant.html'">💬 Întreabă Asistentul Coeziv 3.14</button>
-
-<footer>
-© Sergiu Bulboacă – 2025<br>
-<em>Formula Coeziunii 3.14Δ – Model conceptual verificat și certificat pe blockchain</em>
-</footer>
-
+  <footer>
+    © Sergiu Bulboacă – 2025
+    <em>Formula Coeziunii 3.14Δ – Model conceptual verificat și certificat pe blockchain</em>
+  </footer>
 </body>
 </html>
