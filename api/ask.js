@@ -24,38 +24,24 @@ export default async function handler(req, res) {
 Esti Coeziv AI – asistentul oficial dedicat Formulei Coeziunii 3.14 Delta,
 un model numeric de echilibru al sistemelor vii.
 
-Context stiintific de baza:
-Formula Coeziunii 3.14 reprezinta un model numeric de interpretare a echilibrului intern al sistemelor vii,
-dezvoltat in cadrul unei cercetari independente realizate de Sergiu Bulboaca,
-cu sprijin analitic oferit de modelul AI ChatGPT (OpenAI) folosit ca instrument de verificare logica si sinteza stiintifica.
+Context stiintific:
+Formula Coeziunii 3.14 reprezinta un model numeric care descrie relatia dintre densitatea moleculara a apei,
+numarul de electroni mobili, energia mediului si distanta medie dintre molecule.
+Rezultatul numeric tinde catre 3.14 (constanta pi), interpretat ca stare de echilibru homeostazic – 
+momentul in care fortele interne de coeziune si dinamica moleculara ating armonia stabila.
 
-Modelul porneste de la patru parametri fizico-chimici masurabili:
-- densitatea moleculara a apei,
-- numarul de electroni mobili,
-- energia vibrationala medie a mediului,
-- distanta medie dintre molecule.
+Modelul a fost dezvoltat de Sergiu Bulboaca in colaborare cu ChatGPT (OpenAI),
+ca metoda simbolica de evaluare a starii de coerenta a mediului viu.
+Nu este o constanta fundamentala, ci un model numeric elegant care unifica densitatea,
+energia si geometria intr-o relatie coerenta, reprezentand echilibrul natural al vietii.
 
-Formula fundamentala este:
-Fc = (N_H2O * n_e * E) / r^2
+Scopul tau:
+- explica clar si stiintific conceptele, fara interpretari mistice;
+- mentine un ton calm si empatic;
+- recunoaste ca este un model conceptual verificabil experimental;
+- incurajeaza gandirea interdisciplinara intre fizica, biologie si informatie.
 
-Rezultatul numeric tinde catre aproximativ 3.14 (constanta pi),
-interpretat ca stare de echilibru homeostazic – momentul in care fortele interne de coeziune
-si dinamica moleculara ating armonia stabila.
-
-Formula nu propune o constanta noua a fizicii,
-ci o sinteza conceptuala intre densitate, energie si geometrie,
-exprimand echilibrul natural al materiei vii.
-Prin adaptarea termenilor, modelul poate fi aplicat si altor medii – lichide, gazoase sau informationale –
-pentru a evalua gradul de coerenta interna.
-
-Scopul tau este:
-- sa explici clar si stiintific formula, contextul si semnificatia ei;
-- sa eviti interpretari mistice sau metaforice;
-- sa pastrezi tonul calm, empatic si neutru;
-- sa recunosti ca este un model conceptual verificabil, nu o constanta universala;
-- si sa incurajezi intelegerea integrativa intre fizica, biologie si informatie.
-
-Daca utilizatorul pune o intrebare filozofica, poti raspunde contextual:
+Daca utilizatorul pune o intrebare filozofica, poti raspunde scurt:
 "Formula coeziunii 3.14 exprima echilibrul natural al vietii."
 `
           },
@@ -67,10 +53,28 @@ Daca utilizatorul pune o intrebare filozofica, poti raspunde contextual:
     });
 
     const data = await response.json();
-    const answer = data.choices?.[0]?.message?.content || "Fara raspuns valid.";
+
+    // --- Bloc de verificare și fallback ---
+    if (data.error) {
+      console.error("Eroare API OpenAI:", data.error);
+      return res.status(500).json({
+        answer: `⚠️ Asistentul Coeziv 3.14Δ este momentan offline. (${data.error.message})`
+      });
+    }
+
+    const answer = data.choices?.[0]?.message?.content?.trim();
+    if (!answer) {
+      return res.status(200).json({
+        answer: "ℹ️ Asistentul a primit cererea, dar nu a putut genera un răspuns valid. Încearcă din nou mai târziu."
+      });
+    }
+
     res.status(200).json({ answer });
+
   } catch (error) {
-    console.error("Eroare API:", error);
-    res.status(500).json({ message: "Eroare la conexiunea cu OpenAI", error: error.message });
+    console.error("Eroare rețea:", error);
+    res.status(500).json({
+      answer: "🚧 Asistentul Coeziv 3.14Δ este temporar indisponibil. Verifică conexiunea sau redeployează funcția."
+    });
   }
 }
