@@ -23,121 +23,83 @@
     line-height: 1.6;
   }
 
-  h1 {
-    color: var(--accent);
-    font-size: 2.2rem;
-    margin-bottom: 0.3rem;
-  }
+  h1 { color: var(--accent); font-size: 2.2rem; margin-bottom: 0.3rem; }
+  h2 { color: var(--medium); font-weight: 500; margin-top: 2rem; }
+  h3 { color: var(--accent); font-weight: 500; margin-top: 1.5rem; }
 
-  h2 {
-    color: var(--medium);
-    font-weight: 500;
-    margin-top: 2rem;
-  }
-
-  h3 {
-    color: var(--accent);
-    font-weight: 500;
-    margin-top: 1.5rem;
-  }
-
-  p {
-    max-width: 900px;
-    margin: 0.5rem auto;
-  }
+  p { max-width: 900px; margin: 0.5rem auto; }
 
   table {
-    width: 90%;
-    max-width: 900px;
-    margin: 1rem auto;
-    border-collapse: collapse;
-    background-color: var(--panel);
-    border-radius: 10px;
-    overflow: hidden;
+    width: 90%; max-width: 900px; margin: 1rem auto;
+    border-collapse: collapse; background-color: var(--panel);
+    border-radius: 10px; overflow: hidden;
   }
-
-  th, td {
-    border-bottom: 1px solid #333;
-    padding: 0.6rem;
-  }
-
-  th {
-    background-color: #1b2028;
-    color: var(--accent);
-  }
-
-  tr:last-child td {
-    border-bottom: none;
-  }
+  th, td { border-bottom: 1px solid #333; padding: 0.6rem; }
+  th { background-color: #1b2028; color: var(--accent); }
+  tr:last-child td { border-bottom: none; }
 
   .circle-container {
-    position: relative;
-    width: 320px;
-    height: 320px;
-    margin: 3rem auto;
+    position: relative; width: 320px; height: 320px; margin: 3rem auto;
   }
-
   .circle {
-    position: absolute;
-    border-radius: 50%;
-    border: 3px solid var(--accent);
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    position: absolute; border-radius: 50%; border: 3px solid var(--accent);
+    top: 50%; left: 50%; transform: translate(-50%, -50%);
     animation: pulse 6s infinite ease-in-out;
   }
-
-  .circle.small {
-    width: 100px;
-    height: 100px;
-    border-color: var(--high);
-    animation-delay: 0s;
-  }
-
-  .circle.medium {
-    width: 200px;
-    height: 200px;
-    border-color: var(--medium);
-    animation-delay: 1.5s;
-  }
-
-  .circle.large {
-    width: 300px;
-    height: 300px;
-    border-color: var(--accent);
-    animation-delay: 3s;
-  }
+  .circle.small { width: 100px; height: 100px; border-color: var(--high); animation-delay: 0s; }
+  .circle.medium { width: 200px; height: 200px; border-color: var(--medium); animation-delay: 1.5s; }
+  .circle.large { width: 300px; height: 300px; border-color: var(--accent); animation-delay: 3s; }
 
   @keyframes pulse {
     0%, 100% { opacity: 0.6; transform: translate(-50%, -50%) scale(1); }
     50% { opacity: 1; transform: translate(-50%, -50%) scale(1.05); }
   }
 
-  .label {
-    position: absolute;
-    color: var(--text);
-    font-weight: 500;
-    font-size: 0.9rem;
-    text-align: center;
-  }
-
+  .label { position: absolute; color: var(--text); font-weight: 500; font-size: 0.9rem; text-align: center; }
   .local { top: 55%; left: 52%; color: var(--high); }
   .regional { top: 33%; left: 25%; color: var(--medium); }
   .national { top: 10%; left: 65%; color: var(--accent); }
 
-  footer {
-    margin-top: 4rem;
-    color: #7a818b;
-    font-size: 0.8rem;
-  }
+  hr { border: none; border-top: 1px solid #333; margin: 2rem auto; width: 80%; }
 
-  hr {
-    border: none;
-    border-top: 1px solid #333;
+  footer { margin-top: 4rem; color: #7a818b; font-size: 0.8rem; }
+
+  /* Calculator */
+  .calc-box {
+    background: var(--panel);
+    max-width: 400px;
     margin: 2rem auto;
-    width: 80%;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 0 20px #0005;
   }
-
+  input[type="number"] {
+    width: 80px;
+    padding: 0.3rem;
+    border: none;
+    border-radius: 5px;
+    text-align: center;
+    background: #222;
+    color: var(--accent);
+    font-weight: bold;
+  }
+  label { display: block; margin: 0.6rem 0 0.2rem; color: var(--medium); }
+  button {
+    margin-top: 1rem;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 8px;
+    background: var(--accent);
+    color: #000;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  button:hover { filter: brightness(1.2); }
+  #result {
+    margin-top: 1rem;
+    font-size: 1.4rem;
+    font-weight: bold;
+  }
 </style>
 </head>
 <body>
@@ -145,124 +107,84 @@
 <h1>Democrația Coezivă 3.14</h1>
 <h2>Guvernarea prin echilibru, transparență și empatie</h2>
 
-<p><strong>Formula Coeziunii 3.14</strong> descrie starea de echilibru perfect dintre părțile unui sistem viu.  
-Într-o democrație autentică, același principiu poate fi aplicat statului: fiecare om, instituție și decizie trebuie să contribuie proporțional la stabilitate, libertate și armonie colectivă.</p>
+<p><strong>Formula Coeziunii 3.14</strong> descrie echilibrul perfect al unui sistem viu.  
+Aplicată societății, ea devine un model pentru o democrație care se menține stabilă prin conștiință, libertate și participare.</p>
 
 <p><em>Formula fizică:</em>  
 <b>F<sub>c</sub> = (N<sub>H₂O</sub> × n<sub>e⁻</sub> × E) / r² ≈ 3.14</b></p>
 
 <hr>
 
-<h2>1. Interpretarea formulei în plan social-politic</h2>
-
+<h2>1. Interpretarea social-politică</h2>
 <table>
-  <tr>
-    <th>Componentă fizică</th>
-    <th>Echivalent social-politic</th>
-    <th>Explicație</th>
-  </tr>
-  <tr>
-    <td><b>N₍H₂O₎</b></td>
-    <td>Populația vie</td>
-    <td>Fiecare cetățean este o „moleculă” indispensabilă coeziunii. Statul nu poate fi stabil dacă oricare parte este ignorată.</td>
-  </tr>
-  <tr>
-    <td><b>n₍e⁻₎</b></td>
-    <td>Libertatea și participarea civică</td>
-    <td>Cu cât cetățenii se pot mișca liber informațional și decizional, cu atât sistemul devine mai coeziv.</td>
-  </tr>
-  <tr>
-    <td><b>E</b></td>
-    <td>Conștiința comună</td>
-    <td>Este energia morală și intenția comună care dă sens și direcție unei națiuni.</td>
-  </tr>
-  <tr>
-    <td><b>r²</b></td>
-    <td>Distanța socială și economică</td>
-    <td>Cu cât oamenii sunt mai separați prin inegalitate, neîncredere sau polarizare, cu atât forța coezivă scade.</td>
-  </tr>
-  <tr>
-    <td><b>F<sub>c</sub> ≈ 3.14</b></td>
-    <td>Echilibrul social</td>
-    <td>Starea de armonie între libertate, responsabilitate și empatie — o democrație vie, nu doar formală.</td>
-  </tr>
+  <tr><th>Componentă</th><th>Echivalent</th><th>Explicație</th></tr>
+  <tr><td>N₍H₂O₎</td><td>Populația vie</td><td>Fiecare cetățean contribuie la coeziune.</td></tr>
+  <tr><td>n₍e⁻₎</td><td>Libertate civică</td><td>Participarea activă întărește sistemul.</td></tr>
+  <tr><td>E</td><td>Conștiința comună</td><td>Energia morală a colectivului.</td></tr>
+  <tr><td>r²</td><td>Distanță socială</td><td>Crește odată cu polarizarea și inegalitatea.</td></tr>
+  <tr><td>F<sub>c</sub></td><td>Echilibru social</td><td>Rezultatul coeziunii: ≈3.14 indică sănătate societală.</td></tr>
 </table>
 
 <hr>
 
-<h2>2. Modelul de guvernare inspirat din formulă</h2>
-<h3>„Democrația Coezivă 3.14”</h3>
-
-<p>Un sistem bazat pe coeziune, nu pe competiție.  
-Democrația devine un organism viu care respiră prin echilibru și empatie, nu prin luptă și dominație.</p>
-
-<ul style="text-align:left;max-width:850px;margin:0 auto;">
-  <li>🔹 <b>Echilibru circular, nu ierarhic</b> – deciziile majore se iau prin consens, în cercuri conectate.</li>
-  <li>🔹 <b>Flux liber de informație</b> – statul facilitează circulația adevărului, fără manipulare.</li>
-  <li>🔹 <b>Participare conștientă</b> – fiecare cetățean este o moleculă activă, nu un simplu număr.</li>
-  <li>🔹 <b>Distanță socială minimă</b> – încrederea și apropierea devin valori politice măsurabile.</li>
-  <li>🔹 <b>Energie comună (E)</b> – scopurile naționale se stabilesc prin acord mutual, nu impunere.</li>
-</ul>
-
-<hr>
-
-<h2>3. Structura unui stat coeziv (model 3.14)</h2>
-
+<h2>2. Modelul circular al statului coeziv</h2>
 <div class="circle-container">
   <div class="circle large"></div>
   <div class="circle medium"></div>
   <div class="circle small"></div>
 
   <div class="label local">Cercul 1 – Local<br><small>Comunități autonome<br>autogestiune & cooperare</small></div>
-  <div class="label regional">Cercul 2 – Regional<br><small>Coordonare & echilibrare<br>distribuție resurse</small></div>
+  <div class="label regional">Cercul 2 – Regional<br><small>Coordonare & echilibrare<br>resurse comune</small></div>
   <div class="label national">Cercul 3 – Național<br><small>Sinteză & protecție<br>armonizarea libertăților</small></div>
 </div>
 
-<p>Fiecare cerc se raportează la celălalt prin <b>rezonanță</b>, nu prin dominație.  
-Exact cum moleculele de apă se aliniază natural într-o rețea stabilă, comunitățile se armonizează într-un stat coeziv.</p>
-
 <hr>
 
-<h2>4. Condiția numerică – 3.14 ca indicator de sănătate socială</h2>
-
-<p>Transformăm formula într-un indice de coeziune națională:</p>
-
+<h2>3. Indicele de Coeziune (I<sub>c</sub>)</h2>
 <p><b>I<sub>c</sub> = (P × L × C) / D²</b></p>
 
-<table>
-  <tr><th>Simbol</th><th>Semnificație</th></tr>
-  <tr><td><b>P</b></td><td>Participare civică autentică</td></tr>
-  <tr><td><b>L</b></td><td>Libertate informațională</td></tr>
-  <tr><td><b>C</b></td><td>Conștiință colectivă</td></tr>
-  <tr><td><b>D</b></td><td>Distanța economică și socială</td></tr>
-</table>
+<p>Introdu valori între 0 și 10 pentru fiecare parametru:</p>
 
-<p>
-Dacă <b>I<sub>c</sub> ≈ 3.14</b> → societatea este echilibrată.<br>
-Dacă <b>I<sub>c</sub> &lt; 3.14</b> → sistemul e corupt sau divizat.<br>
-Dacă <b>I<sub>c</sub> &gt; 3.14</b> → sistemul devine instabil prin exces (idealism sau utopie).
-</p>
+<div class="calc-box">
+  <label for="P">Participare civică (P)</label>
+  <input type="number" id="P" min="0" max="10" step="0.1" value="8">
+
+  <label for="L">Libertate informațională (L)</label>
+  <input type="number" id="L" min="0" max="10" step="0.1" value="9">
+
+  <label for="C">Conștiință colectivă (C)</label>
+  <input type="number" id="C" min="0" max="10" step="0.1" value="8">
+
+  <label for="D">Distanță socială (D)</label>
+  <input type="number" id="D" min="0.1" max="10" step="0.1" value="3">
+
+  <button onclick="calcIc()">Calculează I₍c₎</button>
+  <div id="result"></div>
+</div>
+
+<script>
+function calcIc() {
+  const P = parseFloat(document.getElementById('P').value);
+  const L = parseFloat(document.getElementById('L').value);
+  const C = parseFloat(document.getElementById('C').value);
+  const D = parseFloat(document.getElementById('D').value);
+  const Ic = (P * L * C) / (D * D);
+  const resultDiv = document.getElementById('result');
+  let color = "#ff0055";
+  let status = "Sistem corupt / divizat 🔴";
+  if (Ic >= 2.7 && Ic <= 3.5) { color = "#00ffb7"; status = "Echilibru social stabil 🟢"; }
+  else if (Ic > 3.5 && Ic < 5) { color = "#ffc800"; status = "Utopie / presiune excesivă 🟡"; }
+  resultDiv.innerHTML = `I<sub>c</sub> = <span style="color:${color}">${Ic.toFixed(2)}</span><br>${status}`;
+}
+</script>
 
 <hr>
 
-<h2>5. Concluzie</h2>
-
-<p>
-Formula coeziunii 3.14 arată că o democrație autentică nu este suma voturilor, ci <b>rezonanța conștientă</b> dintre cetățeni și instituții.
-</p>
-
-<p>
-Un stat administrat conform acestei formule:
-</p>
-<ul style="text-align:left;max-width:850px;margin:0 auto;">
-  <li>✅ Elimină centralizarea abuzivă</li>
-  <li>✅ Favorizează echilibrul local-global</li>
-  <li>✅ Menține libertatea, adevărul și empatia într-o vibrație comună</li>
-</ul>
+<h2>4. Concluzie</h2>
+<p>Formula 3.14 arată că o democrație vie se bazează pe <b>rezonanță, nu dominație</b>.  
+Un stat coeziv este acela unde cetățenii, informația și conștiința colectivă pulsează în echilibru.</p>
 
 <p><b>Statul Coeziv 3.14</b> = Guvernare prin echilibru, transparență și empatie măsurabilă.</p>
-
-<hr>
 
 <footer>© 2025 – Model inspirat din Formula Coeziunii 3.14 | Sergiu Bulboacă</footer>
 
