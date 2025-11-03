@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Asistent Coeziv 3.14 – Întrebări și răspunsuri</title>
+<style>
+body {
+  font-family: "Segoe UI", sans-serif;
+  background:#fafafa;
+  color:#111;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-start;
+  min-height:100vh;
+  margin:0;
+  padding:30px 15px;
+}
+h1{color:#0078d7;text-align:center;margin-bottom:5px;}
+p.subtitle{color:#555;font-style:italic;margin-bottom:20px;text-align:center;}
+#chatbox{
+  background:white;
+  border:1px solid #ccc;
+  border-radius:8px;
+  width:100%;
+  max-width:600px;
+  height:60vh;
+  overflow-y:auto;
+  padding:15px;
+  box-shadow:0 0 10px rgba(0,0,0,0.05);
+}
+.message{margin:10px 0;}
+.user{color:#0078d7;}
+.bot{color:#111;}
+form{
+  margin-top:15px;
+  width:100%;
+  max-width:600px;
+  display:flex;
+  gap:8px;
+}
+input{
+  flex:1;
+  padding:10px;
+  border:1px solid #ccc;
+  border-radius:6px;
+  font-size:16px;
+}
+button{
+  background:#0078d7;
+  color:white;
+  border:none;
+  border-radius:6px;
+  padding:10px 18px;
+  cursor:pointer;
+  transition:0.3s;
+}
+button:hover{background:#111;}
+.suggestions {
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:8px;
+  margin-top:10px;
+  max-width:600px;
+}
+.suggestions button {
+  background:#eee;
+  color:#111;
+  border:1px solid #ddd;
+  padding:8px 12px;
+  border-radius:6px;
+  font-size:14px;
+  transition:0.2s;
+}
+.suggestions button:hover {
+  background:#0078d7;
+  color:white;
+}
+footer{
+  margin-top:25px;
+  color:#666;
+  font-size:14px;
+  text-align:center;
+}
+</style>
+</head>
+<body>
+
+<h1>Asistent Coeziv 3.14</h1>
+<p class="subtitle">Întreabă liber despre formula, sensul sau aplicațiile ei</p>
+
+<div id="chatbox">
+  <div class="message bot"><b>CoEziv AI:</b> Salut! Sunt asistentul Coeziv 3.14 🤖  
+  Poți întreba orice despre formula coeziunii, apa, homeostazia sau semnificația numărului π.  
+  Alege una dintre întrebările de mai jos sau scrie propria ta întrebare.</div>
+</div>
+
+<form id="form">
+  <input id="input" type="text" placeholder="Scrie întrebarea ta aici..." required />
+  <button type="submit">Trimite</button>
+</form>
+
+<div class="suggestions">
+  <button>Ce este formula coeziunii 3.14?</button>
+  <button>De ce apare π în biologie?</button>
+  <button>Este o constantă a naturii sau un model?</button>
+  <button>Cum explică formula starea de homeostazie?</button>
+  <button>Poate fi verificată experimental?</button>
+  <button>Este apa purtătorul coeziunii universale?</button>
+  <button>Se poate aplica și altor medii?</button>
+  <button>Cum se leagă formula de echilibrul vieții?</button>
+</div>
+
+<footer>
+<button onclick="location.href='/Document/index.html'">🏛 Înapoi la Arhivă</button><br>
+© Sergiu Bulboacă – Formula Coeziunii 3.14
+</footer>
+
+<script>
+const form=document.getElementById('form');
+const input=document.getElementById('input');
+const chat=document.getElementById('chatbox');
+const suggestionBtns=document.querySelectorAll('.suggestions button');
+
+// 🧠 trimite mesajul și afișează răspunsul
+async function askGPT(question){
+  const OPENAI_API_KEY="AICI_CHEIA_TA_OPENAI"; // 🔑 cheia ta API
+  const response=await fetch("https://api.openai.com/v1/chat/completions",{
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json",
+      "Authorization":`Bearer ${OPENAI_API_KEY}`
+    },
+    body:JSON.stringify({
+      model:"gpt-4o-mini",
+      messages:[
+        {
+          role:"system",
+          content:"Ești Asistentul Coeziv 3.14. Răspunde clar, științific și empatic la întrebările despre Formula coeziunii 3.14, apa, π, homeostazie și echilibrul natural."
+        },
+        {role:"user",content:question}
+      ],
+      temperature:0.7
+    })
+  });
+  const data=await response.json();
+  return data.choices?.[0]?.message?.content||"Nu am putut genera un răspuns.";
+}
+
+function addMessage(role,text){
+  const msg=document.createElement('div');
+  msg.className=`message ${role}`;
+  msg.innerHTML=`<b>${role==='user'?'Tu':'CoEziv AI'}:</b> ${text}`;
+  chat.appendChild(msg);
+  chat.scrollTop=chat.scrollHeight;
+}
+
+form.addEventListener('submit',async(e)=>{
+  e.preventDefault();
+  const question=input.value.trim();
+  if(!question) return;
+  addMessage('user',question);
+  input.value='';
+  const placeholder=addMessage('bot','...');
+  const answer=await askGPT(question);
+  placeholder.innerHTML=`<b>CoEziv AI:</b> ${answer}`;
+});
+
+// 📎 Sugestiile pot fi apăsate direct
+suggestionBtns.forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    input.value=btn.textContent;
+    form.dispatchEvent(new Event('submit'));
+  });
+});
+</script>
+
+</body>
+</html>
