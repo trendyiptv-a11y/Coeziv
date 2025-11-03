@@ -114,6 +114,13 @@
       border-radius: 4px;
       color: #00ffb7;
     }
+
+    .tip {
+      color: #7fd0ff;
+      font-size: 0.9rem;
+      margin-top: 0.5rem;
+      margin-bottom: 1rem;
+    }
   </style>
 </head>
 
@@ -152,6 +159,9 @@
   <input type="text" id="electrons" placeholder="Număr electroni mobili n_e⁻">
   <input type="text" id="energie" placeholder="Energie medie E (J)">
   <input type="text" id="distanta" placeholder="Distanță r (m)">
+
+  <p class="tip">💡 Scrie valorile în notație științifică: ex. <code>3.3e28</code> înseamnă 3.3 × 10²⁸.</p>
+
   <button onclick="calculeaza()">Calculează</button>
 
   <div class="bar-container">
