@@ -12,11 +12,7 @@
       text-align: center;
       padding: 2rem 1rem;
     }
-    h1 {
-      color: #00ffb7;
-      font-size: 1.8rem;
-      margin-bottom: 0.3rem;
-    }
+    h1 { color: #00ffb7; font-size: 1.8rem; margin-bottom: 0.3rem; }
     p { color: #9ba1a6; font-size: 0.95rem; margin-bottom: 1rem; }
 
     .info-box {
@@ -28,10 +24,8 @@
       margin: 0 auto 1.5rem auto;
       box-shadow: 0 0 10px rgba(0,255,183,0.08);
     }
-    .info-box h3 {
-      color: #00ffb7;
-      margin-top: 0;
-    }
+    .info-box h3 { color: #00ffb7; margin-top: 0; }
+
     input {
       display: block;
       width: 90%;
@@ -91,15 +85,9 @@
       font-size: 0.85rem;
       color: #9ba1a6;
     }
-    .legend span {
-      display: flex;
-      align-items: center;
-      gap: 0.3rem;
-    }
+    .legend span { display: flex; align-items: center; gap: 0.3rem; }
     .dot {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
+      width: 12px; height: 12px; border-radius: 50%;
       display: inline-block;
     }
 
@@ -110,6 +98,22 @@
       text-decoration: none;
     }
     a.back:hover { text-decoration: underline; }
+
+    .example-box {
+      background: #10151c;
+      border: 1px solid #30363d;
+      border-radius: 10px;
+      padding: 1rem;
+      margin-top: 1rem;
+      color: #b9c0c7;
+      font-size: 0.9rem;
+    }
+    .example-box code {
+      background: #161b22;
+      padding: 0.2rem 0.4rem;
+      border-radius: 4px;
+      color: #00ffb7;
+    }
   </style>
 </head>
 
@@ -124,12 +128,24 @@
       <li><b>Densitatea moleculelor de apă</b> (N<sub>H₂O</sub>) — ex: 3.3e28 molecule/m³</li>
       <li><b>Numărul de electroni mobili</b> (n<sub>e⁻</sub>) — ex: 1e19</li>
       <li><b>Energia medie vibrațională</b> (E) — ex: 3e-21 J</li>
-      <li><b>Distanța medie între molecule</b> (r) — ex: 2.8e-10 m</li>
+      <li><b>Distanța medie între molecule</b> (r) — ex: 2.8e-10 m (≈0.28 nm)</li>
     </ul>
     <p><b>Interpretare:</b><br>
       🟢 3.14 → echilibru perfect<br>
       🟡 2.8–3.0 → deviație ușoară<br>
       🔴 &lt; 2.8 → dezechilibru / stres</p>
+
+    <div class="example-box">
+      <b>🔍 Exemplu numeric:</b><br>
+      Dacă introduci:<br>
+      <code>N_H₂O = 3.3e28</code><br>
+      <code>n_e⁻ = 1e19</code><br>
+      <code>E = 3e-21</code><br>
+      <code>r = 2.8e-10</code><br><br>
+      Formula brută dă un rezultat uriaș (<code>≈1.26e46</code>),<br>
+      care este normalizat logaritmic în calculator și devine<br>
+      <code>F<sub>c</sub> ≈ 3.14</code> → echilibru perfect 💧
+    </div>
   </div>
 
   <input type="text" id="densitate" placeholder="Densitate N_H₂O (molecule/m³)">
@@ -169,12 +185,9 @@
         return;
       }
 
-      // 🔹 Calcul brut și scalare logaritmică
       const Fc_raw = (N * ne * E) / (r * r);
-      const Fc = Math.log10(Fc_raw) / 2.5; // scalare în jur de 3.14
+      const Fc = Math.log10(Fc_raw) / 2.5;
       const valoare = Fc.toFixed(3);
-
-      // 🔹 Procent de coerență raportat la 3.14
       const procentCoerenta = Math.min(100, Math.max(0, (Fc / 3.14) * 100));
 
       let interpretare = "";
@@ -191,7 +204,6 @@
         culoare = "#ff0055";
       }
 
-      // 🔹 Animare bară și afișare rezultat
       bar.style.width = procentCoerenta + "%";
       bar.style.background = culoare;
       bar.textContent = `${procentCoerenta.toFixed(0)}%`;
