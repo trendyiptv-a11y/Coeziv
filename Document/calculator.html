@@ -6,13 +6,10 @@
   <title>Calculator Coeziv 3.14Δ</title>
   <style>
     body {
-      background: #0d1117;
-      color: #c9d1d9;
-      font-family: "Segoe UI", sans-serif;
-      text-align: center;
-      padding: 2rem 1rem;
+      background: #0d1117; color: #c9d1d9;
+      font-family: "Segoe UI", sans-serif; text-align: center; padding: 2rem 1rem;
     }
-    h1 { color: #00ffb7; margin-bottom: 1rem; }
+    h1 { color: #00ffb7; }
     input {
       width: 90%; max-width: 300px; margin: 0.5rem 0; padding: 0.6rem;
       border-radius: 6px; border: none; text-align: center;
@@ -28,7 +25,7 @@
 </head>
 <body>
   <h1>🧮 Calculator Coeziv 3.14Δ</h1>
-  <p>Introdu valorile și descoperă gradul de coeziune: F<sub>c</sub> = (N<sub>H₂O</sub> × n<sub>e⁻</sub> × E) / r²</p>
+  <p>Introdu valorile: F<sub>c</sub> = (N<sub>H₂O</sub> × n<sub>e⁻</sub> × E) / r²</p>
 
   <input id="N" placeholder="Densitate N_H₂O (molecule/m³)">
   <input id="ne" placeholder="Număr electroni mobili n_e⁻">
@@ -37,7 +34,7 @@
   <button onclick="calc()">Calculează</button>
   <div class="result" id="out"></div>
 
-  <a href="/arhiva.html">← Înapoi la arhivă</a>
+  <a href="/document/index.html">← Înapoi la arhivă</a>
 
   <script>
     function calc() {
