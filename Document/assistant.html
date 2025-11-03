@@ -1,150 +1,44 @@
 <!DOCTYPE html>
 <html lang="ro">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Asistent Coeziv 3.14</title>
-<style>
-body {
-  background-color: #fafafa;
-  font-family: "Segoe UI", sans-serif;
-  margin: 0;
-  padding: 0;
-  text-align: center;
-}
-header {
-  background: #00b894;
-  color: white;
-  padding: 20px;
-  font-size: 1.6rem;
-  font-weight: 600;
-}
-#chat {
-  max-width: 600px;
-  margin: 30px auto;
-  text-align: left;
-  background: #fff;
-  border-radius: 10px;
-  padding: 20px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-}
-.message {
-  margin: 10px 0;
-}
-.user {
-  color: #0078d7;
-  font-weight: bold;
-}
-.bot {
-  color: #111;
-}
-#input-area {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 5px;
-  margin-top: 20px;
-}
-input {
-  width: 70%;
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  font-size: 16px;
-}
-button {
-  background: #00b894;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  padding: 10px 15px;
-  cursor: pointer;
-  font-size: 16px;
-}
-button:hover {
-  opacity: 0.85;
-}
-footer {
-  margin: 30px 0;
-  font-size: 14px;
-  color: #555;
-}
-.question-list {
-  margin-top: 25px;
-}
-.question-list button {
-  background: #eee;
-  color: #333;
-  border: none;
-  margin: 5px;
-  padding: 8px 15px;
-  border-radius: 6px;
-  cursor: pointer;
-}
-.question-list button:hover {
-  background: #00b894;
-  color: white;
-}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Asistent Coeziv 3.14Δ</title>
+  <style>
+    body { font-family: "Segoe UI", sans-serif; background: #0d1117; color: #c9d1d9; text-align: center; padding: 2rem; }
+    h1 { color: #00ffb7; }
+    input { width: 80%; max-width: 400px; padding: 0.7rem; border-radius: 8px; border: none; }
+    button { background: #00ffb7; color: #000; font-weight: bold; border: none; border-radius: 8px; padding: 0.7rem 1.2rem; margin-left: 0.5rem; cursor: pointer; }
+    #chat { margin-top: 2rem; text-align: left; max-width: 500px; margin-left: auto; margin-right: auto; }
+    .user { color: #00ffb7; }
+    .ai { color: #fff; }
+    a { color: #00ffb7; text-decoration: none; display: block; margin-top: 2rem; }
+  </style>
 </head>
 <body>
-
-<header>💬 Asistent Coeziv 3.14Δ</header>
-
-<div id="chat">
-  <div id="messages">
-    <p><strong>CoEziv AI:</strong> Salut! Sunt asistentul Coeziv 3.14 🤖  
-    Poți întreba orice despre formula coeziunii, apa, homeostazia sau semnificația numărului π.  
-    Alege una dintre întrebările de mai jos sau scrie propria ta întrebare.</p>
+  <h1>🤖 Asistent Coeziv 3.14Δ</h1>
+  <p>Pune orice întrebare despre formula coeziunii, apa, homeostazie sau semnificația numărului π.</p>
+  <div id="chat"></div>
+  <div style="margin-top:1rem;">
+    <input id="q" placeholder="Scrie întrebarea ta aici...">
+    <button onclick="ask()">Trimite</button>
   </div>
+  <a href="/arhiva.html">← Înapoi la arhivă</a>
 
-  <div id="input-area">
-    <input type="text" id="userInput" placeholder="Scrie întrebarea ta aici...">
-    <button onclick="sendMessage()">Trimite</button>
-  </div>
-
-  <div class="question-list">
-    <button onclick="askPreset('Ce este formula coeziunii 3.14?')">Ce este formula coeziunii 3.14?</button>
-    <button onclick="askPreset('De ce apare π în biologie?')">De ce apare π în biologie?</button>
-    <button onclick="askPreset('Este o constantă a naturii sau un model?')">Este o constantă a naturii sau un model?</button>
-    <button onclick="askPreset('Cum explică formula starea de homeostazie?')">Cum explică formula starea de homeostazie?</button>
-    <button onclick="askPreset('Poate fi verificată experimental?')">Poate fi verificată experimental?</button>
-  </div>
-</div>
-
-<footer>
-  <a href="/Document/index.html">⬅ Înapoi la arhivă</a><br>
-  © Sergiu Bulboacă – Formula Coeziunii 3.14Δ
-</footer>
-
-<script>
-async function askGPT(question) {
-  const response = await fetch("/api/ask", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ question }),
-  });
-  const data = await response.json();
-  return data.answer || "Eroare la procesare.";
-}
-
-async function sendMessage() {
-  const input = document.getElementById("userInput");
-  const messages = document.getElementById("messages");
-  const userText = input.value.trim();
-  if (!userText) return;
-  messages.innerHTML += `<p class="message user">Tu: ${userText}</p>`;
-  input.value = "";
-  const botReply = await askGPT(userText);
-  messages.innerHTML += `<p class="message bot"><strong>CoEziv AI:</strong> ${botReply}</p>`;
-  messages.scrollTop = messages.scrollHeight;
-}
-
-function askPreset(question) {
-  document.getElementById("userInput").value = question;
-  sendMessage();
-}
-</script>
-
+  <script>
+    async function ask() {
+      const q = document.getElementById("q").value;
+      if (!q) return;
+      const chat = document.getElementById("chat");
+      chat.innerHTML += `<p class='user'><b>Tu:</b> ${q}</p>`;
+      const res = await fetch('/api/ask', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question: q })
+      });
+      const data = await res.json();
+      chat.innerHTML += `<p class='ai'><b>CoEziv AI:</b> ${data.answer || "Fără răspuns valid."}</p>`;
+    }
+  </script>
 </body>
 </html>
