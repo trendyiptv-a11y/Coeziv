@@ -1,169 +1,54 @@
 <!DOCTYPE html>
 <html lang="ro">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Calculator Coeziv 3.14Δ</title>
   <style>
-    :root {
-      --good: #00ffb7;
-      --medium: #ffc800;
-      --bad: #ff0055;
-      --bg: #0d1117;
-      --panel: #161b22;
-      --text: #c9d1d9;
-    }
     body {
-      background: var(--bg);
-      color: var(--text);
+      background: #0d1117;
+      color: #c9d1d9;
       font-family: "Segoe UI", sans-serif;
       text-align: center;
-      margin: 0;
       padding: 2rem 1rem;
     }
-    h1 {
-      color: var(--good);
-      font-size: 1.8rem;
-      margin-bottom: 1rem;
-    }
-    p {
-      color: #9ba1a6;
-      max-width: 600px;
-      margin: 0 auto 1.5rem;
-    }
-    .calc-panel {
-      background: var(--panel);
-      border-radius: 16px;
-      padding: 1.5rem;
-      box-shadow: 0 0 15px #000;
-      max-width: 600px;
-      margin: 0 auto;
-    }
-    label {
-      display: block;
-      text-align: left;
-      margin: 0.6rem 0 0.2rem 0.5rem;
-      font-size: 0.9rem;
-      color: var(--good);
-    }
+    h1 { color: #00ffb7; margin-bottom: 1rem; }
     input {
-      width: 100%;
-      padding: 0.5rem;
-      border-radius: 8px;
-      border: none;
-      outline: none;
-      font-size: 1rem;
-      background: #0f1621;
-      color: var(--text);
+      width: 90%; max-width: 300px; margin: 0.5rem 0; padding: 0.6rem;
+      border-radius: 6px; border: none; text-align: center;
     }
     button {
-      margin-top: 1rem;
-      background: var(--good);
-      color: #000;
-      font-weight: bold;
-      border: none;
-      border-radius: 12px;
-      padding: 0.7rem 1.4rem;
-      cursor: pointer;
-      font-size: 1rem;
+      margin-top: 1rem; background: #00ffb7; color: #000;
+      font-weight: bold; border: none; border-radius: 10px;
+      padding: 0.7rem 1.4rem; cursor: pointer;
     }
-    button:hover {
-      opacity: 0.85;
-    }
-    .result {
-      margin-top: 1.5rem;
-      font-size: 1.3rem;
-      font-weight: bold;
-    }
-    .circle {
-      width: 120px;
-      height: 120px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.5rem;
-      font-weight: bold;
-      margin: 1rem auto;
-      color: #000;
-    }
-    .back {
-      display: block;
-      margin-top: 2rem;
-      color: var(--good);
-      text-decoration: none;
-    }
+    .result { margin-top: 1rem; font-weight: bold; color: #00ffb7; }
+    a { color: #00ffb7; text-decoration: none; display: block; margin-top: 2rem; }
   </style>
 </head>
 <body>
   <h1>🧮 Calculator Coeziv 3.14Δ</h1>
-  <p>
-    Introdu valorile parametrilor și descoperă gradul de coeziune al mediului.
-    Formula utilizată este: <br />
-    <strong>F<sub>c</sub> = (N<sub>H₂O</sub> × n<sub>e⁻</sub> × E) / r²</strong>
-  </p>
+  <p>Introdu valorile și descoperă gradul de coeziune: F<sub>c</sub> = (N<sub>H₂O</sub> × n<sub>e⁻</sub> × E) / r²</p>
 
-  <div class="calc-panel">
-    <label for="nH2O">Densitatea moleculelor de apă (N<sub>H₂O</sub>, molecule/m³)</label>
-    <input id="nH2O" type="number" placeholder="Ex: 3.3e28" />
+  <input id="N" placeholder="Densitate N_H₂O (molecule/m³)">
+  <input id="ne" placeholder="Număr electroni mobili n_e⁻">
+  <input id="E" placeholder="Energie medie E (J)">
+  <input id="r" placeholder="Distanță r (m)">
+  <button onclick="calc()">Calculează</button>
+  <div class="result" id="out"></div>
 
-    <label for="ne">Numărul de electroni mobili (n<sub>e⁻</sub>)</label>
-    <input id="ne" type="number" placeholder="Ex: 1e19" />
-
-    <label for="E">Energia medie vibrațională (E, J)</label>
-    <input id="E" type="number" placeholder="Ex: 3e-21" />
-
-    <label for="r">Distanța medie între molecule (r, m)</label>
-    <input id="r" type="number" placeholder="Ex: 2.8e-10" />
-
-    <button onclick="calculate()">Calculează</button>
-
-    <div class="result" id="resultText"></div>
-    <div class="circle" id="circle"></div>
-  </div>
-
-  <a href="/arhiva.html" class="back">← Înapoi la arhivă</a>
+  <a href="/arhiva.html">← Înapoi la arhivă</a>
 
   <script>
-    function calculate() {
-      const N = parseFloat(document.getElementById("nH2O").value);
-      const n = parseFloat(document.getElementById("ne").value);
+    function calc() {
+      const N = parseFloat(document.getElementById("N").value);
+      const ne = parseFloat(document.getElementById("ne").value);
       const E = parseFloat(document.getElementById("E").value);
       const r = parseFloat(document.getElementById("r").value);
-
-      if (!N || !n || !E || !r) {
-        document.getElementById("resultText").innerText =
-          "⚠️ Completează toate câmpurile corect.";
-        document.getElementById("circle").style.background = "transparent";
-        document.getElementById("circle").innerText = "";
-        return;
-      }
-
-      const Fc = (N * n * E) / (r * r);
-      const val = Fc.toExponential(2);
-
-      let color = "";
-      let explanation = "";
-
-      if (Fc < 2.5) {
-        color = "var(--bad)";
-        explanation = "🟥 Coeziune scăzută – mediu instabil sau dezechilibrat.";
-      } else if (Fc >= 2.5 && Fc < 3.0) {
-        color = "var(--medium)";
-        explanation = "🟨 Aproape coerent – sistemul tinde spre echilibru.";
-      } else if (Fc >= 3.0 && Fc <= 3.3) {
-        color = "var(--good)";
-        explanation = "🟩 Echilibru perfect – coeziune stabilă, homeostazie.";
-      } else {
-        color = "var(--medium)";
-        explanation = "🟨 Valoare superioară – posibilă suprastructurare energetică.";
-      }
-
-      document.getElementById("resultText").innerHTML =
-        `<strong>F<sub>c</sub> = ${val}</strong><br>${explanation}`;
-      const circle = document.getElementById("circle");
-      circle.style.background = color;
-      circle.innerText = "≈ " + Fc.toFixed(2);
+      if (!N || !ne || !E || !r) return alert("Completează toate valorile!");
+      const Fc = (N * ne * E) / (r * r);
+      const V = (Fc / 3.14).toFixed(2);
+      document.getElementById("out").innerHTML = `Fc = ${Fc.toExponential(2)}<br>Raport ≈ ${V} din 3.14`;
     }
   </script>
 </body>
