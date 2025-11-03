@@ -21,7 +21,7 @@ export default async function handler(req, res) {
           {
             role: "system",
             content:
-              "Ești Asistentul Coeziv 3.14. Răspunde clar, științific și empatic la întrebările despre Formula coeziunii 3.14, apa, π, homeostazie și echilibrul natural.",
+              "Ești Asistentul Coeziv 3.14. Răspunde clar, științific, echilibrat și empatic la întrebările despre Formula coeziunii 3.14, apa, homeostazia și echilibrul natural. Răspunsurile trebuie să fie concise, academice și ușor de înțeles.",
           },
           { role: "user", content: question },
         ],
@@ -33,6 +33,7 @@ export default async function handler(req, res) {
     const answer = data.choices?.[0]?.message?.content || "Fără răspuns valid.";
     res.status(200).json({ answer });
   } catch (error) {
-    res.status(500).json({ message: "Eroare la conexiunea cu OpenAI", error });
+    console.error("Eroare OpenAI:", error);
+    res.status(500).json({ message: "Eroare la conexiunea cu OpenAI" });
   }
 }
