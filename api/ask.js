@@ -48,7 +48,9 @@ Daca utilizatorul pune o intrebare filozofica, poti raspunde scurt:
           { role: "user", content: question }
         ],
         temperature: 1,
-        max_completion_tokens: 900, // ✅ corect
+        max_completion_tokens: 1500, // ✅ corect
+        presence_penalty: 0.2,
+frequency_penalty: 0.3,
       }),
     });
 
