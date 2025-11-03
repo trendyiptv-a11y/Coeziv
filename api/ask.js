@@ -48,13 +48,12 @@ Daca utilizatorul pune o intrebare filozofica, poti raspunde scurt:
           { role: "user", content: question }
         ],
         temperature: 0.5,
-        max_tokens: 900,
+        max_completion_tokens: 900, // ✅ corect
       }),
     });
 
     const data = await response.json();
 
-    // --- Bloc de verificare și fallback ---
     if (data.error) {
       console.error("Eroare API OpenAI:", data.error);
       return res.status(500).json({
