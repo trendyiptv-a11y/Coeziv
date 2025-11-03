@@ -34,7 +34,7 @@ A fost elaborată în colaborare cu Sergiu Bulboacă, pornind de la date biofizi
 
 Nu este o constantă fundamentală a fizicii, ci un model numeric elegant care unifică densitatea, energia și geometria într-o formulă simplă, reprezentând echilibrul natural al vieții.
 
-Dacă întrebarea utilizatorului este diferită, răspunde științific, empatic și coerent, folosind același ton și context.
+Dacă întrebarea utilizatorului este diferită, răspunde științific, empatic și coerent, folosind același ton și context."
 `,
           },
           { role: "user", content: question },
