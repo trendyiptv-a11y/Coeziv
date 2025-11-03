@@ -23,6 +23,13 @@ h2 {
   font-weight: normal;
   font-style: italic;
 }
+p.intro {
+  max-width: 720px;
+  margin: 0 auto 40px auto;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: #333;
+}
 button {
   display: inline-block;
   margin: 10px;
@@ -33,22 +40,11 @@ button {
   cursor: pointer;
   transition: all 0.3s ease;
 }
-#lucrare {
-  background: #0078d7;
-  color: white;
-}
-#date {
-  background: #555;
-  color: white;
-}
-#certificat {
-  background: #111;
-  color: white;
-}
-#assistant {
-  background: #00b894;
-  color: white;
-}
+#lucrare { background: #0078d7; color: white; }
+#date { background: #555; color: white; }
+#certificat { background: #111; color: white; }
+#assistant { background: #00b894; color: white; }
+#despre { background: #ffc107; color: #111; font-weight: bold; }
 button:hover {
   transform: scale(1.05);
   opacity: 0.9;
@@ -69,10 +65,18 @@ hr {
 </head>
 <body>
 
-<h1>Arhivă oficială Coeziv 3.14</h1>
-<h2>Acces la documentele originale certificate pe blockchain</h2>
+<h1>Arhivă oficială Coeziv 3.14Δ</h1>
+<h2>Documente certificate criptografic pe blockchain</h2>
 
 <hr>
+
+<p class="intro">
+<strong>Formula coeziunii 3.14</strong> este un model numeric care exprimă echilibrul intern al sistemelor vii prin corelarea dintre densitate, energie și geometrie.
+Dezvoltată de <strong>Sergiu Bulboacă</strong> în cadrul unei cercetări independente, cu sprijin analitic AI (<em>ChatGPT – OpenAI</em>), formula oferă o perspectivă integrativă asupra homeostaziei și coerenței naturale a vieții.
+</p>
+
+<button id="despre" onclick="location.href='/Document/despre.html'">ℹ️ Despre formulă</button>
+<br>
 
 <button id="lucrare" onclick="location.href='/Document/lucrare.html'">📘 Lucrarea completă</button>
 <button id="date" onclick="location.href='/Document/date.html'">📊 Date experimentale</button>
@@ -81,7 +85,7 @@ hr {
 
 <footer>
 © Sergiu Bulboacă – 2025<br>
-<em>Formula coeziunii 3.14 – Document certificat criptografic în rețeaua Bitcoin</em>
+<em>Formula Coeziunii 3.14Δ – Model conceptual verificat și certificat pe blockchain</em>
 </footer>
 
 </body>
