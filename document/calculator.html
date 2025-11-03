@@ -79,6 +79,7 @@
 
     .legend {
       display: flex;
+      flex-wrap: wrap;
       justify-content: center;
       gap: 1rem;
       margin-top: 0.5rem;
@@ -138,9 +139,11 @@
       <li><b>Distanța medie între molecule</b> (r) — ex: 2.8e-10 m (≈0.28 nm)</li>
     </ul>
     <p><b>Interpretare:</b><br>
-      🟢 3.14 → echilibru perfect<br>
+      🔵 3.15–3.35 → supracoeziune / regenerare<br>
+      🟢 3.0–3.14 → echilibru natural<br>
       🟡 2.8–3.0 → deviație ușoară<br>
-      🔴 &lt; 2.8 → dezechilibru / stres</p>
+      🔴 &lt; 2.8 → dezechilibru / stres<br>
+      ⚪ &gt; 3.35 → structură rigidă / mediu cristalizat</p>
 
     <div class="example-box">
       <b>🔍 Exemplu numeric:</b><br>
@@ -159,8 +162,7 @@
   <input type="text" id="electrons" placeholder="Număr electroni mobili n_e⁻">
   <input type="text" id="energie" placeholder="Energie medie E (J)">
   <input type="text" id="distanta" placeholder="Distanță r (m)">
-
-  <p class="tip">💡 Scrie valorile în notație științifică: ex. <code>3.3e28</code> înseamnă 3.3 × 10²⁸.</p>
+  <p class="tip">💡 Scrie valorile în notație științifică: ex. <code>3.3e28</code> = 3.3 × 10²⁸.</p>
 
   <button onclick="calculeaza()">Calculează</button>
 
@@ -171,7 +173,9 @@
   <div class="legend">
     <span><span class="dot" style="background:#ff0055;"></span> &lt;2.8 stres</span>
     <span><span class="dot" style="background:#ffc800;"></span> 2.8–3.0 deviație</span>
-    <span><span class="dot" style="background:#00ffb7;"></span> 3.14 echilibru</span>
+    <span><span class="dot" style="background:#00ffb7;"></span> 3.0–3.14 echilibru</span>
+    <span><span class="dot" style="background:#3aa8ff;"></span> 3.15–3.35 supracoeziune</span>
+    <span><span class="dot" style="background:#b0b0ff;"></span> &gt;3.35 rigiditate</span>
   </div>
 
   <p id="rezultat"></p>
@@ -198,20 +202,26 @@
       const Fc_raw = (N * ne * E) / (r * r);
       const Fc = Math.log10(Fc_raw) / 2.5;
       const valoare = Fc.toFixed(3);
-      const procentCoerenta = Math.min(100, Math.max(0, (Fc / 3.14) * 100));
+      const procentCoerenta = Math.min(100, Math.max(0, (Fc / 3.35) * 100));
 
       let interpretare = "";
       let culoare = "";
 
-      if (Fc >= 3.1 && Fc <= 3.17) {
+      if (Fc > 3.14 && Fc <= 3.35) {
+        interpretare = "🔵 Supracoeziune – câmp informațional intens, regenerare activă.";
+        culoare = "#3aa8ff";
+      } else if (Fc >= 3.0 && Fc <= 3.14) {
         interpretare = "🟢 Echilibru perfect – homeostazie naturală.";
         culoare = "#00ffb7";
-      } else if (Fc >= 2.8 && Fc < 3.1) {
+      } else if (Fc >= 2.8 && Fc < 3.0) {
         interpretare = "🟡 Ușoară deviație – coerență afectată parțial.";
         culoare = "#ffc800";
-      } else {
+      } else if (Fc < 2.8) {
         interpretare = "🔴 Dezechilibru – coeziune slabă sau perturbată.";
         culoare = "#ff0055";
+      } else {
+        interpretare = "⚪ Stabilitate rigidă – posibilă suprastructurare (ex. gheață, cristale).";
+        culoare = "#b0b0ff";
       }
 
       bar.style.width = procentCoerenta + "%";
