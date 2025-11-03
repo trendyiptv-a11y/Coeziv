@@ -6,46 +6,167 @@
   <title>Calculator Coeziv 3.14</title>
   <style>
     body {
-      background: #0d1117; color: #c9d1d9;
-      font-family: "Segoe UI", sans-serif; text-align: center; padding: 2rem 1rem;
+      background-color: #0d1117;
+      color: #c9d1d9;
+      font-family: 'Segoe UI', sans-serif;
+      text-align: center;
+      padding: 2rem 1rem;
     }
-    h1 { color: #00ffb7; }
+    h1 {
+      color: #00ffb7;
+      font-size: 1.8rem;
+      margin-bottom: 0.5rem;
+    }
+    p {
+      color: #9ba1a6;
+      font-size: 0.95rem;
+      line-height: 1.5;
+      margin-bottom: 1.5rem;
+    }
+    .info-box {
+      background: #161b22;
+      border-radius: 12px;
+      padding: 1rem;
+      text-align: left;
+      max-width: 600px;
+      margin: 0 auto 1.5rem auto;
+      box-shadow: 0 0 10px rgba(0,255,183,0.08);
+    }
+    .info-box h3 {
+      color: #00ffb7;
+      margin-top: 0;
+    }
     input {
-      width: 90%; max-width: 300px; margin: 0.5rem 0; padding: 0.6rem;
-      border-radius: 6px; border: none; text-align: center;
+      display: block;
+      width: 90%;
+      max-width: 400px;
+      margin: 0.5rem auto;
+      padding: 0.8rem;
+      background-color: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      color: #c9d1d9;
+      text-align: center;
     }
     button {
-      margin-top: 1rem; background: #00ffb7; color: #000;
-      font-weight: bold; border: none; border-radius: 10px;
-      padding: 0.7rem 1.4rem; cursor: pointer;
+      background-color: #00ffb7;
+      color: #0d1117;
+      border: none;
+      padding: 0.8rem 1.5rem;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 1rem;
+      transition: 0.3s;
     }
-    .result { margin-top: 1rem; font-weight: bold; color: #00ffb7; }
-    a { color: #00ffb7; text-decoration: none; display: block; margin-top: 2rem; }
+    button:hover { background-color: #00d6a1; }
+
+    .bar-container {
+      width: 90%;
+      max-width: 400px;
+      height: 18px;
+      background: #222;
+      border-radius: 10px;
+      margin: 1.5rem auto;
+      overflow: hidden;
+    }
+    .bar-fill {
+      height: 100%;
+      width: 0%;
+      background: #00ffb7;
+      border-radius: 10px;
+      transition: width 1s ease, background 0.8s ease;
+    }
+
+    #rezultat {
+      font-size: 1.1rem;
+      margin-top: 1rem;
+    }
+
+    a.back {
+      display: block;
+      margin-top: 1.5rem;
+      color: #00ffb7;
+      text-decoration: none;
+    }
+    a.back:hover { text-decoration: underline; }
   </style>
 </head>
+
 <body>
-  <h1>🧮 Calculator Coeziv 3.14</h1>
-  <p>Introdu valorile: F<sub>c</sub> = (N<sub>H₂O</sub> × n<sub>e⁻</sub> × E) / r²</p>
+  <h1>🧮 Calculator Coeziv 3.14Δ</h1>
+  <p>Introdu valorile parametrilor și descoperă gradul de coeziune al mediului.</p>
+  <p>Formula: <strong>F<sub>c</sub> = (N<sub>H₂O</sub> × n<sub>e⁻</sub> × E) / r²</strong></p>
 
-  <input id="N" placeholder="Densitate N_H₂O (molecule/m³)">
-  <input id="ne" placeholder="Număr electroni mobili n_e⁻">
-  <input id="E" placeholder="Energie medie E (J)">
-  <input id="r" placeholder="Distanță r (m)">
-  <button onclick="calc()">Calculează</button>
-  <div class="result" id="out"></div>
+  <div class="info-box">
+    <h3>ℹ️ Ghid de utilizare</h3>
+    <ul>
+      <li><b>Densitatea moleculelor de apă</b> (N<sub>H₂O</sub>) — ex: 3.3e28 molecule/m³</li>
+      <li><b>Numărul de electroni mobili</b> (n<sub>e⁻</sub>) — ex: 1e19</li>
+      <li><b>Energia medie vibrațională</b> (E) — ex: 3e-21 J</li>
+      <li><b>Distanța medie între molecule</b> (r) — ex: 2.8e-10 m</li>
+    </ul>
+    <p><b>Interpretare:</b><br>
+      🟢 3.14 → echilibru perfect<br>
+      🟡 2.8–3.0 → deviație ușoară<br>
+      🔴 &lt; 2.8 → dezechilibru / stres</p>
+  </div>
 
-  <a href="/document/index.html">← Înapoi la arhivă</a>
+  <input type="text" id="densitate" placeholder="Densitate N_H₂O (molecule/m³)">
+  <input type="text" id="electrons" placeholder="Număr electroni mobili n_e⁻">
+  <input type="text" id="energie" placeholder="Energie medie E (J)">
+  <input type="text" id="distanta" placeholder="Distanță r (m)">
+  <button onclick="calculeaza()">Calculează</button>
+
+  <div class="bar-container">
+    <div class="bar-fill" id="bar"></div>
+  </div>
+
+  <p id="rezultat"></p>
+
+  <a href="/document/index.html" class="back">← Înapoi la arhivă</a>
 
   <script>
-    function calc() {
-      const N = parseFloat(document.getElementById("N").value);
-      const ne = parseFloat(document.getElementById("ne").value);
-      const E = parseFloat(document.getElementById("E").value);
-      const r = parseFloat(document.getElementById("r").value);
-      if (!N || !ne || !E || !r) return alert("Completează toate valorile!");
+    function calculeaza() {
+      const N = parseFloat(document.getElementById("densitate").value);
+      const ne = parseFloat(document.getElementById("electrons").value);
+      const E = parseFloat(document.getElementById("energie").value);
+      const r = parseFloat(document.getElementById("distanta").value);
+
+      const bar = document.getElementById("bar");
+      const rezultat = document.getElementById("rezultat");
+
+      if (isNaN(N) || isNaN(ne) || isNaN(E) || isNaN(r)) {
+        rezultat.innerHTML = "⚠️ Introdu toate valorile corect.";
+        bar.style.width = "0%";
+        bar.style.background = "#ff0055";
+        return;
+      }
+
       const Fc = (N * ne * E) / (r * r);
-      const V = (Fc / 3.14).toFixed(2);
-      document.getElementById("out").innerHTML = `Fc = ${Fc.toExponential(2)}<br>Raport ≈ ${V} din 3.14`;
+      const valoare = Fc.toExponential(3);
+      let interpretare = "";
+      let culoare = "";
+      let procent = 0;
+
+      if (Fc >= 3.1 && Fc <= 3.17) {
+        interpretare = "🟢 Echilibru perfect – homeostazie naturală.";
+        culoare = "#00ffb7";
+        procent = 100;
+      } else if (Fc >= 2.8 && Fc < 3.1) {
+        interpretare = "🟡 Ușoară deviație – coerență afectată parțial.";
+        culoare = "#ffc800";
+        procent = 70;
+      } else {
+        interpretare = "🔴 Dezechilibru – coeziune slabă sau perturbată.";
+        culoare = "#ff0055";
+        procent = 40;
+      }
+
+      bar.style.width = procent + "%";
+      bar.style.background = culoare;
+
+      rezultat.innerHTML = `<strong>F<sub>c</sub> = ${valoare}</strong><br>${interpretare}`;
     }
   </script>
 </body>
