@@ -180,11 +180,12 @@
     .controls{gap:0.4rem;padding:0.6rem 0;}
     button{min-width:48px;max-width:72px;font-size:0.9rem;padding:0.3rem;}
   }
-  /* 🔹 Legendă */
+
+  /* 🔹 Legendă poziționată peste butoane */
   #legend {
     position: fixed;
     right: 6px;
-    bottom: 32px;
+    bottom: 110px;
     background: rgba(0, 25, 30, 0.85);
     border: 1px solid #00ffff55;
     box-shadow: 0 0 12px #00ffff33 inset;
@@ -209,7 +210,7 @@
   }
   @media (max-width: 700px) {
     #legend {
-      bottom: 70px;
+      bottom: 145px;
       right: 4px;
       font-size: 0.7rem;
       line-height: 1rem;
@@ -261,7 +262,7 @@
 
 <div id="statusBar">Fc=3.14 | Flux=0.50 | Temp=0.50</div>
 
-<!-- 🔹 Legenda -->
+<!-- 🔹 Legendă control -->
 <div id="legend">
   <h4>🧭 Legendă control</h4>
   <p>▶ Start simulare</p>
@@ -309,13 +310,14 @@ function animate(){
 }
 animate();
 
+// Butoane control
 document.getElementById("start").onclick=()=>running=true;
 document.getElementById("stop").onclick=()=>running=false;
 document.getElementById("boost").onclick=()=>{speed=Math.min(3,speed+0.5);};
 document.getElementById("cool").onclick=()=>{speed=Math.max(0.5,speed-0.5);};
 document.getElementById("reset").onclick=()=>{speed=1;flux=0.5;temp=0.5;};
 
-// Fullscreen toggle
+// Fullscreen
 const fsBtn=document.getElementById("fullscreen");
 fsBtn.onclick=()=>{
   if(!document.fullscreenElement){
