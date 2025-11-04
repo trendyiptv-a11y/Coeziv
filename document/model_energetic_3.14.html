@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Model Energetic 3.14 – Sistem Motorizat Coeziv</title>
+<style>
+body{
+  margin:0;
+  font-family:'Segoe UI',sans-serif;
+  background:#050707;
+  color:#e6ffff;
+  line-height:1.6;
+}
+header{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:1rem;
+  background:radial-gradient(circle at 10% 50%,#003333 0%,#000 90%);
+  border-bottom:1px solid #00ffff55;
+  box-shadow:0 0 20px #00ffff22;
+}
+.logo{
+  width:60px;height:60px;
+  border-radius:50%;
+  background:radial-gradient(circle at 30% 30%,#00ffff 0%,#00bbaa 70%,#002222 100%);
+  box-shadow:0 0 25px #00ffff88;
+  display:flex;justify-content:center;align-items:center;
+  font-weight:700;
+  color:#000;
+  font-size:1.1rem;
+  text-shadow:0 0 8px #00ffff;
+}
+h1{
+  color:#00ffff;
+  text-shadow:0 0 8px #00bbaa;
+  margin:0;
+  font-size:1.4rem;
+}
+section{
+  max-width:900px;
+  margin:1.2rem auto;
+  background:#0a1012;
+  border-radius:12px;
+  padding:1rem 1.5rem;
+  box-shadow:0 0 15px #00ffff22 inset;
+}
+h2{
+  color:#00e6ff;
+  border-bottom:1px solid #00ffff33;
+  padding-bottom:0.3rem;
+}
+table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:0.5rem;
+}
+th,td{
+  border-bottom:1px solid #00ffff33;
+  padding:0.4rem 0.3rem;
+}
+th{
+  color:#00ffaa;
+  text-align:left;
+}
+formulas{
+  display:block;
+  background:#001a1d;
+  color:#aaffff;
+  padding:0.8rem;
+  border-radius:8px;
+  margin:0.6rem 0;
+  font-family:'Consolas',monospace;
+  font-size:0.95rem;
+}
+footer{
+  text-align:center;
+  margin:2rem 0 1rem;
+  font-size:0.8rem;
+  color:#00ffffaa;
+}
+button{
+  background:#002d2d;
+  color:#00ffff;
+  border:1px solid #00ffffaa;
+  border-radius:8px;
+  padding:10px 16px;
+  font-size:1rem;
+  cursor:pointer;
+  transition:all 0.3s ease;
+  box-shadow:0 0 10px #00ffff33 inset;
+}
+button:hover{
+  background:#00ffff;
+  color:#000;
+  box-shadow:0 0 10px #00ffff;
+}
+@media(max-width:600px){
+  h1{font-size:1.1rem;}
+  section{margin:0.8rem 0.5rem;padding:1rem;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">3.14</div>
+  <h1>Model Energetic 3.14 – Sistem Motorizat Coeziv</h1>
+</header>
+
+<section>
+<h2>⚙️ 1. Structură Energetică</h2>
+<p>Motorul Coeziv 3.14 convertește presiunea aerului recirculat într-un flux mecanic stabilizat
+prin coeziune laminară. Energia se distribuie în patru domenii interdependente:</p>
+<table>
+<tr><th>Domeniu</th><th>Simbol</th><th>Descriere</th><th>Unități</th></tr>
+<tr><td>Presiune internă</td><td>P</td><td>Energia potențială stocată în aer</td><td>Pa</td></tr>
+<tr><td>Flux vortex</td><td>Φ</td><td>Debit de aer prin rotor</td><td>m³/s</td></tr>
+<tr><td>Energie mecanică</td><td>Eₘ</td><td>Produsul P × Φ</td><td>W</td></tr>
+<tr><td>Energie coezivă</td><td>F<sub>c</sub></td><td>Factor de echilibru între pierdere și regenerare</td><td>—</td></tr>
+</table>
+</section>
+
+<section>
+<h2>🧮 2. Relații Fundamentale</h2>
+<formulas>Eₘ = P × Φ</formulas>
+<formulas>η<sub>c</sub> = F<sub>c</sub> / 3.14</formulas>
+<formulas>P<sub>out</sub> = Eₘ × η<sub>c</sub></formulas>
+<p>Stabilitatea se obține când <b>F<sub>c</sub>=3.14</b>, moment în care pierderile și energia regenerată
+se egalizează.</p>
+</section>
+
+<section>
+<h2>♻️ 3. Ciclul Energetic</h2>
+<p>Fluxul de energie într-un ciclu complet:</p>
+<ul>
+<li>Presiune → Vortex 3.14 → Energie mecanică</li>
+<li>Recirculare aer → Compresor integrat → Presiune reînnoită</li>
+<li>Frânarea regenerează presiunea (ΔP +)</li>
+<li>Supapele automate mențin echilibrul R1 ↔ R2</li>
+</ul>
+</section>
+
+<section>
+<h2>🔋 4. Model de Echilibru</h2>
+<formulas>dP/dt = −k₁Φ + k₂F<sub>c</sub></formulas>
+<p>În echilibru (<b>F<sub>c</sub>=3.14</b>): dP/dt = 0 → presiunea rămâne constantă.  
+Motorul devine autoreglat energetic.</p>
+</section>
+
+<section>
+<h2>🚗 5. Parametri Tipici (versiune auto, 6 module)</h2>
+<table>
+<tr><th>Parametru</th><th>Simbol</th><th>Valoare</th></tr>
+<tr><td>Presiune de lucru</td><td>P</td><td>10 bar</td></tr>
+<tr><td>Debit aer / modul</td><td>Φ</td><td>0.04 m³/s</td></tr>
+<tr><td>Energie mecanică / modul</td><td>Eₘ</td><td>400 W</td></tr>
+<tr><td>Randament coeziv</td><td>η<sub>c</sub></td><td>0.94</td></tr>
+<tr><td>Putere totală</td><td>P<sub>out</sub></td><td>≈ 13.6 kW</td></tr>
+<tr><td>Cuplu @ 3000 rpm</td><td>T</td><td>43 Nm</td></tr>
+<tr><td>Energie regenerată</td><td>E<sub>regen</sub></td><td>85 – 90 %</td></tr>
+</table>
+</section>
+
+<section>
+<h2>🌐 6. Autonomie Teoretică</h2>
+<formulas>A = (P<sub>out</sub> × 100) / (consum vehicul [kWh/100 km])</formulas>
+<p>Pentru un vehicul de 15 kWh/100 km → A ≈ 90 km/oră în regim stabil.</p>
+</section>
+
+<section>
+<h2>📈 7. Stabilitate Energetică</h2>
+<table>
+<tr><th>F<sub>c</sub></th><th>Randament η<sub>c</sub></th><th>Stare</th><th>Efect</th></tr>
+<tr><td>&lt; 3.10</td><td>&lt; 0.85</td><td>Sub-coeziv</td><td>Pierdere presiune</td></tr>
+<tr><td>3.14</td><td>1.00</td><td>Echilibru perfect</td><td>Flux laminar stabil</td></tr>
+<tr><td>&gt; 3.18</td><td>&gt; 1.02*</td><td>Supra-coeziv</td><td>Presiune crescută</td></tr>
+</table>
+<p style="font-size:0.85rem;">(*) valori temporare, auto-corectate prin compresorul integrat.</p>
+</section>
+
+<section>
+<h2>✅ 8. Concluzie</h2>
+<p>
+Motorul Coeziv 3.14 realizează un <b>echilibru dinamic între presiune, flux și regenerare</b>.
+Pierderile sunt compensate natural prin coeziunea vortexului, rezultând
+un sistem aproape închis energetic, cu randament &gt; 90 % și autonomie continuă.
+</p>
+</section>
+
+<div style="text-align:center;margin-top:2rem;">
+  <button onclick="window.print()">💾 Descarcă PDF</button>
+</div>
+
+<footer>© 2025 Coeziv 3.14 Research | Model Energetic 3.14</footer>
+
+</body>
+</html>
