@@ -9,51 +9,60 @@
     background:#050505;
     color:#0ff;
     font-family:"Orbitron",Arial,monospace;
-    margin:0;padding:2rem;
+    margin:0;padding:1.2rem;
     line-height:1.6;
   }
-  h1,h2{
-    text-align:center;
-    text-shadow:0 0 15px #00ffff,0 0 25px #00ffff;
-  }
-  h1{font-size:1.9rem;margin-bottom:1.5rem;}
-  h2{font-size:1.3rem;margin-top:2rem;}
+  h1,h2{text-align:center;text-shadow:0 0 15px #00ffff,0 0 25px #00ffff;}
+  h1{font-size:1.8rem;margin-bottom:1rem;}
+  h2{font-size:1.2rem;margin-top:1.6rem;}
   p,li{
     max-width:850px;margin:auto;
     color:#aef;text-shadow:0 0 6px #0099cc;
   }
-  ul{max-width:850px;margin:auto;}
-  .stage{border-left:3px solid #00ffff;padding-left:1rem;margin:1.5rem auto;width:850px;}
-  .back{text-align:center;margin-top:3rem;}
+  ul{max-width:850px;margin:auto;padding-left:1.2rem;}
+  .stage{
+    border-left:3px solid #00ffff;
+    padding-left:1rem;
+    margin:1.2rem auto;
+    width:90%;
+    max-width:850px;
+  }
+  .diagram{display:flex;justify-content:center;margin:1.5rem 0;}
+  svg{filter:drop-shadow(0 0 10px #00ffff);}
+  .back{text-align:center;margin-top:2rem;}
   a.button{
     background:#003333;color:#0ff;text-decoration:none;
-    padding:0.6rem 1rem;border:1px solid #0ff;
-    border-radius:8px;font-weight:bold;text-shadow:0 0 8px #00ffff;
+    padding:0.8rem 1.2rem;border:1px solid #0ff;
+    border-radius:10px;font-weight:bold;text-shadow:0 0 8px #00ffff;
     box-shadow:0 0 15px #00e5ff inset;transition:all 0.3s;
+    display:inline-block;
   }
   a.button:hover{background:#004c4c;}
-  .diagram{display:flex;justify-content:center;margin:2rem 0;}
-  svg{filter:drop-shadow(0 0 10px #00ffff);}
+  footer{text-align:center;font-size:0.8rem;opacity:0.7;margin-top:2rem;}
+  @media(max-width:700px){
+    h1{font-size:1.4rem;}
+    h2{font-size:1.05rem;}
+    svg{width:220px;height:180px;}
+    body{padding:0.8rem;}
+    .stage{border-left:2px solid #00ffff;padding-left:0.8rem;}
+    a.button{width:80%;font-size:1rem;}
+  }
 </style>
 </head>
 <body>
 
-<h1>🧭 Plan de Studiu Coeziv 3.14 – Motorul de Vortex</h1>
+<h1>🧭 Plan de Studiu Coeziv<br>3.14 – Motorul de Vortex</h1>
 
 <div class="diagram">
 <svg width="280" height="240" viewBox="0 0 280 240" xmlns="http://www.w3.org/2000/svg">
-  <!-- Câmp toroidal -->
   <ellipse cx="140" cy="120" rx="100" ry="60" fill="none" stroke="#00ffff" stroke-width="2"/>
   <ellipse cx="140" cy="120" rx="70" ry="40" fill="none" stroke="#0099ff" stroke-width="1.5"/>
   <ellipse cx="140" cy="120" rx="40" ry="20" fill="none" stroke="#0066ff" stroke-width="1"/>
-  <!-- Spirală vortex -->
   <path d="M140 120 C 130 80, 100 60, 80 40
            M140 120 C 150 160, 180 180, 200 200"
         stroke="#00ffff" stroke-width="2" fill="none" stroke-linecap="round"/>
-  <!-- Axă centrală -->
   <line x1="140" y1="20" x2="140" y2="220" stroke="#00ffff" stroke-width="1" stroke-dasharray="3,3"/>
-  <!-- Text explicativ -->
-  <text x="140" y="230" font-size="12" fill="#0ff" text-anchor="middle">Schema simbolică a fluxului coeziv 3.14</text>
+  <text x="140" y="230" font-size="12" fill="#0ff" text-anchor="middle">Schema fluxului coeziv 3.14</text>
 </svg>
 </div>
 
@@ -125,6 +134,8 @@ bazat pe principiul echilibrului energetic 3.14 între flux, presiune și câmp 
 <div class="back">
   <a href="turbina_3.14.html" class="button">⤺ Înapoi la Turbină</a>
 </div>
+
+<footer>© 2025 Coeziv 3.14 Research | Matrix Dynamics Division</footer>
 
 </body>
 </html>
