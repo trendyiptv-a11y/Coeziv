@@ -42,6 +42,12 @@
     border-radius:50%;
     background:radial-gradient(circle at 50% 60%,#001515 0%,#000 90%);
     box-shadow:0 0 25px #00faff80 inset,0 0 10px #00e5ff;
+    animation:levitate 4s ease-in-out infinite alternate;
+  }
+  @keyframes levitate {
+    0% { transform:translateY(0); box-shadow:0 0 25px #00faff80 inset,0 0 15px #00e5ff;}
+    50%{ transform:translateY(-6px); box-shadow:0 0 30px #00ffff inset,0 0 25px #00ffff;}
+    100%{transform:translateY(0); box-shadow:0 0 25px #00faff80 inset,0 0 15px #00e5ff;}
   }
   .arc{
     position:absolute;
@@ -101,8 +107,6 @@
     background:#004;
     transition:background 0.3s,box-shadow 0.3s;
   }
-
-  /* --- Zona butoanelor --- */
   .controls{
     display:flex;
     justify-content:center;
@@ -120,7 +124,6 @@
     50%{ box-shadow:0 0 35px rgba(0,255,255,0.35); }
     100%{ box-shadow:0 0 25px rgba(0,255,255,0.2); }
   }
-
   button{
     flex:1;
     min-width:55px;
@@ -144,6 +147,8 @@
   button.full{background:#002244;}
   button.doc{background:#004466;}
   button.plan{background:#003355;}
+  button.thermal{background:#003366;}
+  button.thermal:hover{background:#004477;}
   footer{
     text-align:center;
     font-size:0.8rem;
@@ -166,8 +171,6 @@
     text-shadow:0 0 8px #00ffff;
     opacity:0.85;
   }
-
-  /* --- Optimizare mobil --- */
   @media(max-width:700px){
     h1{font-size:1.35rem;}
     .value{font-size:1.4rem;}
@@ -176,6 +179,42 @@
     .thermo{height:130px;}
     .controls{gap:0.4rem;padding:0.6rem 0;}
     button{min-width:48px;max-width:72px;font-size:0.9rem;padding:0.3rem;}
+  }
+  /* 🔹 Legendă */
+  #legend {
+    position: fixed;
+    right: 6px;
+    bottom: 32px;
+    background: rgba(0, 25, 30, 0.85);
+    border: 1px solid #00ffff55;
+    box-shadow: 0 0 12px #00ffff33 inset;
+    padding: 0.5rem 0.8rem;
+    border-radius: 10px;
+    color: #0ff;
+    font-size: 0.75rem;
+    text-align: left;
+    max-width: 190px;
+    line-height: 1.2rem;
+    z-index: 20;
+    backdrop-filter: blur(3px);
+  }
+  #legend h4 {
+    font-size: 0.85rem;
+    text-shadow: 0 0 6px #00ffff;
+    margin: 0 0 0.3rem;
+    text-align: center;
+  }
+  #legend p {
+    margin: 0.1rem 0;
+  }
+  @media (max-width: 700px) {
+    #legend {
+      bottom: 70px;
+      right: 4px;
+      font-size: 0.7rem;
+      line-height: 1rem;
+      max-width: 170px;
+    }
   }
 </style>
 </head>
@@ -212,6 +251,7 @@
     <button class="cool" id="cool">❄</button>
     <button id="reset">🔄</button>
     <button class="full" id="fullscreen">⛶</button>
+    <button class="thermal" id="thermal">🌡️</button>
     <button class="doc" id="doc">📘</button>
     <button class="plan" id="plan">🧭</button>
   </div>
@@ -220,6 +260,20 @@
 </div>
 
 <div id="statusBar">Fc=3.14 | Flux=0.50 | Temp=0.50</div>
+
+<!-- 🔹 Legenda -->
+<div id="legend">
+  <h4>🧭 Legendă control</h4>
+  <p>▶ Start simulare</p>
+  <p>⏹ Stop simulare</p>
+  <p>⚡ Boost vortex</p>
+  <p>❄ Răcire controlată</p>
+  <p>🔄 Reset parametri</p>
+  <p>⛶ Mod ecran complet</p>
+  <p>🌡️ Modul termic T₃.14</p>
+  <p>📘 Documentație tehnică</p>
+  <p>🧭 Plan de studiu</p>
+</div>
 
 <script>
 let running=true,speed=1,flux=0.5,temp=0.5;
@@ -231,7 +285,6 @@ const fcVal=document.getElementById("fcVal"),
       ledH=document.getElementById("ledHigh"),
       ledL=document.getElementById("ledLow"),
       modeText=document.getElementById("modeText"),
-      modeIndicator=document.getElementById("modeIndicator"),
       statusBar=document.getElementById("statusBar"),
       panel=document.getElementById("panel");
 
@@ -256,7 +309,6 @@ function animate(){
 }
 animate();
 
-// Controls
 document.getElementById("start").onclick=()=>running=true;
 document.getElementById("stop").onclick=()=>running=false;
 document.getElementById("boost").onclick=()=>{speed=Math.min(3,speed+0.5);};
@@ -269,13 +321,13 @@ fsBtn.onclick=()=>{
   if(!document.fullscreenElement){
     panel.requestFullscreen().then(()=>{
       modeText.textContent="FULL";
-      modeIndicator.style.color="#0f0";
+      modeText.style.color="#0f0";
       fsBtn.textContent="🡼";
     });
   }else{
     document.exitFullscreen();
     modeText.textContent="WINDOW";
-    modeIndicator.style.color="#0ff";
+    modeText.style.color="#0ff";
     fsBtn.textContent="⛶";
   }
 };
@@ -283,6 +335,7 @@ fsBtn.onclick=()=>{
 // Navigație
 document.getElementById("doc").onclick=()=>window.open("documentatie.html","_self");
 document.getElementById("plan").onclick=()=>window.open("plan_studiu_3_14.html","_self");
+document.getElementById("thermal").onclick=()=>window.open("simulare_T3_14.html","_self");
 </script>
 </body>
 </html>
