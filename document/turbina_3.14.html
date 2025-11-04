@@ -3,69 +3,143 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-<title>Turbina Coezivă 3.14 – Digital Matrix Dashboard v4.0</title>
+<title>Turbina Coezivă 3.14 – Digital Matrix Dashboard v5.0</title>
 <style>
-html,body{margin:0;height:100%;background:#050505;color:#0ff;
-font-family:"Orbitron",Arial,monospace;overflow:hidden;}
-.panel{display:flex;flex-direction:column;align-items:center;
-justify-content:space-between;height:100%;padding:1rem;box-sizing:border-box;}
-h1{text-align:center;margin:0.5rem 0 1rem;font-size:1.7rem;
-text-shadow:0 0 15px #00ffff;}
-.displays{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:1.5rem;}
-.gauge{position:relative;width:200px;height:200px;border-radius:50%;
-background:radial-gradient(circle at 50% 60%,#001515 0%,#000 90%);
-box-shadow:0 0 25px #00faff80 inset,0 0 10px #00e5ff;animation:levitate 4s ease-in-out infinite alternate;}
+html,body{
+  margin:0;
+  height:100%;
+  background:#050505;
+  color:#0ff;
+  font-family:"Orbitron",Arial,monospace;
+  overflow:hidden;
+}
+.panel{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:space-between;
+  height:100%;
+  padding:1rem;
+  box-sizing:border-box;
+}
+h1{
+  text-align:center;
+  margin:0.5rem 0 1rem;
+  font-size:1.6rem;
+  text-shadow:0 0 15px #00ffff;
+}
+.displays{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  align-items:center;
+  gap:1.2rem;
+}
+.gauge{
+  position:relative;
+  width:200px;
+  height:200px;
+  border-radius:50%;
+  background:radial-gradient(circle at 50% 60%,#001515 0%,#000 90%);
+  box-shadow:0 0 25px #00faff80 inset,0 0 10px #00e5ff;
+  animation:levitate 4s ease-in-out infinite alternate;
+}
 @keyframes levitate{0%{transform:translateY(0);}50%{transform:translateY(-6px);}100%{transform:translateY(0);}}
-.arc{position:absolute;top:0;left:0;width:100%;height:100%;border-radius:50%;
-background:conic-gradient(from 270deg,#00ffff 0deg,#00ffff var(--angle,120deg),#003333 var(--angle,360deg));
-mask:radial-gradient(circle at center,transparent 70%,black 71%);}
-.value{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
-font-size:1.7rem;text-shadow:0 0 10px #00ffff,0 0 20px #00ffff;text-align:center;}
-.bar{width:260px;height:22px;background:#002222;border:1px solid #0ff;
-box-shadow:0 0 8px #00ffff inset;border-radius:8px;overflow:hidden;}
-.fill{height:100%;width:50%;background:linear-gradient(90deg,#00ffff,#0066ff);
-transition:width 0.3s;}
-.thermo{position:relative;width:35px;height:160px;background:#002222;border:1px solid #0ff;
-border-radius:18px;overflow:hidden;box-shadow:0 0 10px #00ffff inset;}
-.temp{position:absolute;bottom:0;width:100%;height:50%;
-background:linear-gradient(#00ffff,#0066ff);transition:height 0.3s;}
+.arc{
+  position:absolute;
+  top:0;left:0;
+  width:100%;height:100%;
+  border-radius:50%;
+  background:conic-gradient(from 270deg,#00ffff 0deg,#00ffff var(--angle,120deg),#003333 var(--angle,360deg));
+  mask:radial-gradient(circle at center,transparent 70%,black 71%);
+}
+.value{
+  position:absolute;
+  top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  font-size:1.6rem;
+  text-shadow:0 0 10px #00ffff;
+  text-align:center;
+}
+.bar{width:260px;height:22px;background:#002222;border:1px solid #0ff;box-shadow:0 0 8px #00ffff inset;border-radius:8px;overflow:hidden;}
+.fill{height:100%;width:50%;background:linear-gradient(90deg,#00ffff,#0066ff);transition:width 0.3s;}
+.thermo{position:relative;width:35px;height:160px;background:#002222;border:1px solid #0ff;border-radius:18px;overflow:hidden;box-shadow:0 0 10px #00ffff inset;}
+.temp{position:absolute;bottom:0;width:100%;height:50%;background:linear-gradient(#00ffff,#0066ff);transition:height 0.3s;}
 .leds{display:flex;gap:1rem;margin-top:1rem;}
-.led{width:18px;height:18px;border-radius:50%;box-shadow:0 0 10px #0ff;background:#004;
-transition:background 0.3s,box-shadow 0.3s;}
-.controls{display:flex;justify-content:center;flex-wrap:wrap;gap:0.5rem;
-margin-top:1.4rem;max-width:95vw;padding:0.8rem 0;border-radius:12px;
-animation:glowPulse 3s infinite alternate;box-shadow:0 0 20px rgba(0,255,255,0.25);}
-@keyframes glowPulse{0%{box-shadow:0 0 20px rgba(0,255,255,0.15);}
-50%{box-shadow:0 0 35px rgba(0,255,255,0.35);}
-100%{box-shadow:0 0 25px rgba(0,255,255,0.2);}}
-button{flex:1;min-width:55px;max-width:80px;background:#001515;color:#0ff;
-border:1px solid #0ff;border-radius:6px;padding:0.4rem 0.6rem;
-font-family:"Orbitron",monospace;font-weight:bold;cursor:pointer;
-text-shadow:0 0 6px #00ffff;box-shadow:0 0 10px #00e5ff inset;transition:all 0.2s;font-size:1rem;}
+.led{width:18px;height:18px;border-radius:50%;box-shadow:0 0 10px #0ff;background:#004;transition:background 0.3s,box-shadow 0.3s;}
+.controls{
+  display:flex;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:0.5rem;
+  margin-top:1.2rem;
+  max-width:95vw;
+  padding:0.7rem 0;
+  border-radius:12px;
+  animation:glowPulse 3s infinite alternate;
+  box-shadow:0 0 20px rgba(0,255,255,0.25);
+}
+@keyframes glowPulse{0%{box-shadow:0 0 20px rgba(0,255,255,0.15);}50%{box-shadow:0 0 35px rgba(0,255,255,0.35);}100%{box-shadow:0 0 25px rgba(0,255,255,0.2);}}
+button{
+  flex:1;
+  min-width:55px;
+  max-width:80px;
+  background:#001515;
+  color:#0ff;
+  border:1px solid #0ff;
+  border-radius:6px;
+  padding:0.4rem 0.6rem;
+  font-family:"Orbitron",monospace;
+  font-weight:bold;
+  cursor:pointer;
+  text-shadow:0 0 6px #00ffff;
+  box-shadow:0 0 10px #00e5ff inset;
+  transition:all 0.2s;
+  font-size:1rem;
+}
 button:hover{background:#003333;}
-button.stop{background:#330000;}button.cool{background:#003333;}
-button.full{background:#002244;}button.doc{background:#004466;}
-button.plan{background:#003355;}button.thermal{background:#003366;}
-button.thermal:hover{background:#004477;}
-button.analyze{background:#003311;}button.analyze:hover{background:#004422;}
-button.validate{background:#332200;}button.validate:hover{background:#664400;}
-button.system{background:#004400;}button.system:hover{background:#006600;}
+button.stop{background:#330000;}
+button.cool{background:#003333;}
+button.full{background:#002244;}
+button.doc{background:#004466;}
+button.plan{background:#003355;}
+button.thermal{background:#003366;}
+button.analyze{background:#003311;}
+button.validate{background:#332200;}
+button.system{background:#004400;}
+button.sheet{background:#003300;}
+button.sheet:hover{background:#005500;}
 footer{text-align:center;font-size:0.8rem;opacity:0.7;margin-top:0.3rem;}
 #modeIndicator{position:fixed;top:6px;right:10px;font-size:0.8rem;font-weight:bold;text-shadow:0 0 6px currentColor;}
-#statusBar{position:fixed;bottom:4px;left:0;width:100%;text-align:center;font-size:0.8rem;
-color:#0ff;text-shadow:0 0 8px #00ffff;opacity:0.85;}
-@media(max-width:700px){h1{font-size:1.35rem;}.value{font-size:1.4rem;}
-.gauge{width:160px;height:160px;}.bar{width:220px;}.thermo{height:130px;}
-.controls{gap:0.4rem;padding:0.6rem 0;}button{min-width:48px;max-width:72px;
-font-size:0.9rem;padding:0.3rem;}}
-#legend{position:fixed;right:6px;bottom:110px;background:rgba(0,25,30,0.85);
-border:1px solid #00ffff55;box-shadow:0 0 12px #00ffff33 inset;
-padding:0.5rem 0.8rem;border-radius:10px;color:#0ff;font-size:0.75rem;
-text-align:left;max-width:190px;line-height:1.2rem;z-index:20;backdrop-filter:blur(3px);}
+#statusBar{position:fixed;bottom:4px;left:0;width:100%;text-align:center;font-size:0.8rem;color:#0ff;text-shadow:0 0 8px #00ffff;opacity:0.85;}
+#legend{
+  position:fixed;
+  right:6px;
+  bottom:110px;
+  background:rgba(0,25,30,0.85);
+  border:1px solid #00ffff55;
+  box-shadow:0 0 12px #00ffff33 inset;
+  padding:0.5rem 0.8rem;
+  border-radius:10px;
+  color:#0ff;
+  font-size:0.75rem;
+  text-align:left;
+  max-width:190px;
+  line-height:1.2rem;
+  z-index:20;
+  backdrop-filter:blur(3px);
+}
 #legend h4{font-size:0.85rem;text-shadow:0 0 6px #00ffff;margin:0 0 0.3rem;text-align:center;}
 #legend p{margin:0.1rem 0;}
-@media(max-width:700px){#legend{bottom:145px;right:4px;font-size:0.7rem;
-line-height:1rem;max-width:170px;}}
+@media(max-width:700px){
+  h1{font-size:1.35rem;}
+  .value{font-size:1.3rem;}
+  .gauge{width:160px;height:160px;}
+  .bar{width:220px;}
+  .thermo{height:130px;}
+  button{min-width:48px;max-width:72px;font-size:0.9rem;padding:0.3rem;}
+  #legend{bottom:145px;right:4px;font-size:0.7rem;max-width:170px;}
+}
 </style>
 </head>
 <body>
@@ -106,27 +180,23 @@ line-height:1rem;max-width:170px;}}
     <button class="analyze" id="analyze">📊</button>
     <button class="validate" id="validate">🔧</button>
     <button class="system" id="system">🚘</button>
+    <button class="sheet" id="sheet">📄</button>
   </div>
 
-  <footer>© 2025 Coeziv 3.14 Research | Digital Matrix Dashboard v4.0</footer>
+  <footer>© 2025 Coeziv 3.14 Research | Digital Matrix Dashboard v5.0</footer>
 </div>
 
 <div id="statusBar">Fc=3.14 | Flux=0.50 | Temp=0.50</div>
 
 <div id="legend">
   <h4>🧭 Legendă control</h4>
-  <p>▶ Start simulare</p>
-  <p>⏹ Stop simulare</p>
-  <p>⚡ Boost vortex</p>
-  <p>❄ Răcire controlată</p>
-  <p>🔄 Reset parametri</p>
-  <p>⛶ Ecran complet</p>
+  <p>▶ Start simulare</p><p>⏹ Stop simulare</p>
+  <p>⚡ Boost vortex</p><p>❄ Răcire controlată</p>
+  <p>🔄 Reset parametri</p><p>⛶ Ecran complet</p>
   <p>🌡️ Simulare termică T₃.14</p>
-  <p>📘 Documentație tehnică</p>
-  <p>🧭 Plan de studiu</p>
-  <p>📊 Analiză live</p>
-  <p>🔧 Validare motor (kW/CP)</p>
-  <p>🚘 Sistem complet (autonomie/km)</p>
+  <p>📘 Documentație tehnică</p><p>🧭 Plan de studiu</p>
+  <p>📊 Analiză live</p><p>🔧 Validare motor (kW/CP)</p>
+  <p>🚘 Sistem complet (autonomie/km)</p><p>📄 Fișă tehnică</p>
 </div>
 
 <script>
@@ -163,14 +233,12 @@ function animate(){
 }
 animate();
 
-// Butoane
 document.getElementById("start").onclick=()=>running=true;
 document.getElementById("stop").onclick=()=>running=false;
 document.getElementById("boost").onclick=()=>speed=Math.min(3,speed+0.5);
 document.getElementById("cool").onclick=()=>speed=Math.max(0.5,speed-0.5);
 document.getElementById("reset").onclick=()=>{speed=1;flux=0.5;temp=0.5;};
 
-// Fullscreen
 const fsBtn=document.getElementById("fullscreen");
 fsBtn.onclick=()=>{
  if(!document.fullscreenElement){
@@ -183,13 +251,14 @@ fsBtn.onclick=()=>{
  }
 };
 
-// Navigație
+// Navigație module
 document.getElementById("doc").onclick=()=>window.open("documentatie.html","_self");
 document.getElementById("plan").onclick=()=>window.open("plan_studiu_3_14.html","_self");
 document.getElementById("thermal").onclick=()=>window.open("simulare_T3_14.html","_self");
 document.getElementById("analyze").onclick=()=>window.open("masuratori_3.14.html","_self");
 document.getElementById("validate").onclick=()=>window.open("validare_motor_3.14.html","_self");
 document.getElementById("system").onclick=()=>window.open("sistem_motor_3.14.html","_self");
+document.getElementById("sheet").onclick=()=>window.open("fisa_motor_3.14.html","_self");
 </script>
 </body>
 </html>
