@@ -2,263 +2,177 @@
 <html lang="ro">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-<title>Turbina Coezivă 3.14 – Digital Matrix Dashboard v5.0</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Turbina Coezivă 3.14 – Digital Matrix Lab v6.0</title>
 <style>
-html,body{
-  margin:0;
-  height:100%;
-  background:#050505;
-  color:#0ff;
-  font-family:"Orbitron",Arial,monospace;
-  overflow:hidden;
-}
-.panel{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:space-between;
-  height:100%;
-  padding:1rem;
-  box-sizing:border-box;
-}
-h1{
-  text-align:center;
-  margin:0.5rem 0 1rem;
-  font-size:1.6rem;
-  text-shadow:0 0 15px #00ffff;
-}
-.displays{
-  display:flex;
-  flex-wrap:wrap;
-  justify-content:center;
-  align-items:center;
-  gap:1.2rem;
-}
-.gauge{
-  position:relative;
-  width:200px;
-  height:200px;
-  border-radius:50%;
-  background:radial-gradient(circle at 50% 60%,#001515 0%,#000 90%);
-  box-shadow:0 0 25px #00faff80 inset,0 0 10px #00e5ff;
-  animation:levitate 4s ease-in-out infinite alternate;
-}
-@keyframes levitate{0%{transform:translateY(0);}50%{transform:translateY(-6px);}100%{transform:translateY(0);}}
-.arc{
-  position:absolute;
-  top:0;left:0;
-  width:100%;height:100%;
-  border-radius:50%;
-  background:conic-gradient(from 270deg,#00ffff 0deg,#00ffff var(--angle,120deg),#003333 var(--angle,360deg));
-  mask:radial-gradient(circle at center,transparent 70%,black 71%);
-}
-.value{
-  position:absolute;
-  top:50%;left:50%;
-  transform:translate(-50%,-50%);
-  font-size:1.6rem;
-  text-shadow:0 0 10px #00ffff;
-  text-align:center;
-}
-.bar{width:260px;height:22px;background:#002222;border:1px solid #0ff;box-shadow:0 0 8px #00ffff inset;border-radius:8px;overflow:hidden;}
-.fill{height:100%;width:50%;background:linear-gradient(90deg,#00ffff,#0066ff);transition:width 0.3s;}
-.thermo{position:relative;width:35px;height:160px;background:#002222;border:1px solid #0ff;border-radius:18px;overflow:hidden;box-shadow:0 0 10px #00ffff inset;}
-.temp{position:absolute;bottom:0;width:100%;height:50%;background:linear-gradient(#00ffff,#0066ff);transition:height 0.3s;}
-.leds{display:flex;gap:1rem;margin-top:1rem;}
-.led{width:18px;height:18px;border-radius:50%;box-shadow:0 0 10px #0ff;background:#004;transition:background 0.3s,box-shadow 0.3s;}
-.controls{
-  display:flex;
-  justify-content:center;
-  flex-wrap:wrap;
-  gap:0.5rem;
-  margin-top:1.2rem;
-  max-width:95vw;
-  padding:0.7rem 0;
-  border-radius:12px;
-  animation:glowPulse 3s infinite alternate;
-  box-shadow:0 0 20px rgba(0,255,255,0.25);
-}
-@keyframes glowPulse{0%{box-shadow:0 0 20px rgba(0,255,255,0.15);}50%{box-shadow:0 0 35px rgba(0,255,255,0.35);}100%{box-shadow:0 0 25px rgba(0,255,255,0.2);}}
-button{
-  flex:1;
-  min-width:55px;
-  max-width:80px;
-  background:#001515;
-  color:#0ff;
-  border:1px solid #0ff;
-  border-radius:6px;
-  padding:0.4rem 0.6rem;
-  font-family:"Orbitron",monospace;
-  font-weight:bold;
-  cursor:pointer;
-  text-shadow:0 0 6px #00ffff;
-  box-shadow:0 0 10px #00e5ff inset;
-  transition:all 0.2s;
-  font-size:1rem;
-}
-button:hover{background:#003333;}
-button.stop{background:#330000;}
-button.cool{background:#003333;}
-button.full{background:#002244;}
-button.doc{background:#004466;}
-button.plan{background:#003355;}
-button.thermal{background:#003366;}
-button.analyze{background:#003311;}
-button.validate{background:#332200;}
-button.system{background:#004400;}
-button.sheet{background:#003300;}
-button.sheet:hover{background:#005500;}
-footer{text-align:center;font-size:0.8rem;opacity:0.7;margin-top:0.3rem;}
-#modeIndicator{position:fixed;top:6px;right:10px;font-size:0.8rem;font-weight:bold;text-shadow:0 0 6px currentColor;}
-#statusBar{position:fixed;bottom:4px;left:0;width:100%;text-align:center;font-size:0.8rem;color:#0ff;text-shadow:0 0 8px #00ffff;opacity:0.85;}
-#legend{
-  position:fixed;
-  right:6px;
-  bottom:110px;
-  background:rgba(0,25,30,0.85);
-  border:1px solid #00ffff55;
-  box-shadow:0 0 12px #00ffff33 inset;
-  padding:0.5rem 0.8rem;
-  border-radius:10px;
-  color:#0ff;
-  font-size:0.75rem;
-  text-align:left;
-  max-width:190px;
-  line-height:1.2rem;
-  z-index:20;
-  backdrop-filter:blur(3px);
-}
-#legend h4{font-size:0.85rem;text-shadow:0 0 6px #00ffff;margin:0 0 0.3rem;text-align:center;}
-#legend p{margin:0.1rem 0;}
-@media(max-width:700px){
-  h1{font-size:1.35rem;}
-  .value{font-size:1.3rem;}
-  .gauge{width:160px;height:160px;}
-  .bar{width:220px;}
-  .thermo{height:130px;}
-  button{min-width:48px;max-width:72px;font-size:0.9rem;padding:0.3rem;}
-  #legend{bottom:145px;right:4px;font-size:0.7rem;max-width:170px;}
-}
+  :root {
+    --cyan: #00ffff;
+    --turq: #00e6b8;
+    --bg: #050708;
+    --panel: #0b1114;
+    --white: #ffffff;
+  }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--white);
+    font-family: 'Segoe UI', sans-serif;
+    text-align: center;
+    overflow-x: hidden;
+  }
+  h1 {
+    color: var(--cyan);
+    font-size: 1.3rem;
+    margin-top: 1rem;
+    text-shadow: 0 0 8px var(--turq);
+  }
+  .mode {
+    position: absolute;
+    top: 10px; right: 12px;
+    font-size: 0.7rem;
+    color: var(--turq);
+    opacity: 0.8;
+  }
+  .circle {
+    margin: 1.4rem auto;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    box-shadow: 0 0 20px var(--cyan) inset, 0 0 30px var(--cyan);
+    display: flex; justify-content: center; align-items: center;
+    font-size: 1.6rem;
+    color: var(--cyan);
+  }
+  .bar, .thermo {
+    margin: 0.8rem auto;
+    background: linear-gradient(90deg,#00d5ff,#0075ff);
+    border-radius: 10px;
+    box-shadow: 0 0 10px #00e6ff55 inset;
+  }
+  .bar { width: 80%; height: 20px; }
+  .thermo { width: 50px; height: 120px; border-radius: 25px; }
+
+  .buttons {
+    display: flex; flex-wrap: wrap; justify-content: center;
+    gap: 8px; padding: 8px; background: #0a0f12; border-radius: 12px;
+    width: 95%; max-width: 440px; margin: 10px auto;
+  }
+  button {
+    border: none;
+    color: var(--white);
+    background: #04191c;
+    box-shadow: 0 0 8px #00e6ff55 inset;
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    transition: all 0.25s ease;
+  }
+  button:hover {
+    background: var(--turq);
+    color: #000;
+    box-shadow: 0 0 8px var(--cyan);
+  }
+
+  footer {
+    font-size: 0.75rem;
+    margin-top: 10px;
+    color: #00ffffaa;
+  }
+
+  /* LEGEND */
+  #legend {
+    position: fixed;
+    right: 10px; bottom: 100px;
+    background: rgba(0,25,30,0.9);
+    border: 1px solid #00ffff55;
+    border-radius: 10px;
+    padding: 0.6rem 0.8rem;
+    color: var(--cyan);
+    font-size: 0.75rem;
+    line-height: 1.3rem;
+    text-align: left;
+    box-shadow: 0 0 12px #00ffff33 inset;
+    backdrop-filter: blur(3px);
+    z-index: 20;
+    max-width: 190px;
+    opacity: 0;
+    transform: scale(0.9);
+    pointer-events: none;
+    transition: opacity 0.4s ease, transform 0.4s ease;
+  }
+  #legend.active {
+    opacity: 1;
+    transform: scale(1);
+    pointer-events: auto;
+  }
+
+  @media (max-width:600px){
+    h1 { font-size:1.1rem; }
+    .circle { width:160px;height:160px;font-size:1.3rem; }
+    .buttons button { font-size:0.75rem;padding:5px 8px; }
+  }
 </style>
 </head>
 <body>
-<div id="modeIndicator">MODE: <span id="modeText">WINDOW</span></div>
+<div class="mode">MODE: WINDOW</div>
 
-<div class="panel" id="panel">
-  <h1>TURBINA COEZIVĂ 3.14 – DIGITAL MATRIX LAB</h1>
+<h1>TURBINA COEZIVĂ 3.14 – DIGITAL MATRIX LAB</h1>
 
-  <div class="displays">
-    <div class="gauge">
-      <div class="arc" id="arc"></div>
-      <div class="value">F<sub>c</sub>=<span id="fcVal">3.14</span></div>
-    </div>
-    <div>
-      <h3 style="text-align:center;text-shadow:0 0 8px #00ffff;">Flux Vortex</h3>
-      <div class="bar"><div class="fill" id="fluxFill"></div></div>
-      <h3 style="margin-top:1rem;text-align:center;text-shadow:0 0 8px #00ffff;">Nucleu 3.14 Temp</h3>
-      <div class="thermo"><div class="temp" id="tempFill"></div></div>
-    </div>
-  </div>
+<div class="circle">F<sub>c</sub>=3.157</div>
+<h3 style="color:var(--turq);text-shadow:0 0 5px var(--cyan)">Flux Vortex</h3>
+<div class="bar"></div>
+<h3 style="color:var(--turq);text-shadow:0 0 5px var(--cyan)">Nucleu 3.14 Temp</h3>
+<div class="thermo"></div>
 
-  <div class="leds">
-    <div class="led" id="ledStable" title="Stabil"></div>
-    <div class="led" id="ledHigh" title="Supra-coeziune"></div>
-    <div class="led" id="ledLow" title="Sub-coeziune"></div>
-  </div>
-
-  <div class="controls">
-    <button id="start">▶</button>
-    <button class="stop" id="stop">⏹</button>
-    <button id="boost">⚡</button>
-    <button class="cool" id="cool">❄</button>
-    <button id="reset">🔄</button>
-    <button class="full" id="fullscreen">⛶</button>
-    <button class="thermal" id="thermal">🌡️</button>
-    <button class="doc" id="doc">📘</button>
-    <button class="plan" id="plan">🧭</button>
-    <button class="analyze" id="analyze">📊</button>
-    <button class="validate" id="validate">🔧</button>
-    <button class="system" id="system">🚘</button>
-    <button class="sheet" id="sheet">📄</button>
-  </div>
-
-  <footer>© 2025 Coeziv 3.14 Research | Digital Matrix Dashboard v5.0</footer>
+<div class="buttons">
+  <button>▶ Start</button>
+  <button>⏹ Stop</button>
+  <button>⚡ Boost</button>
+  <button>❄️ Răcire</button>
+  <button>♻ Reset</button>
+  <button>⛶ Full</button>
+  <button>🌡 Termic</button>
+  <button>📘 Doc</button>
+  <button>🧭 Plan</button>
+  <button class="legend-btn">🧭 Legendă</button>
 </div>
-
-<div id="statusBar">Fc=3.14 | Flux=0.50 | Temp=0.50</div>
 
 <div id="legend">
-  <h4>🧭 Legendă control</h4>
-  <p>▶ Start simulare</p><p>⏹ Stop simulare</p>
-  <p>⚡ Boost vortex</p><p>❄ Răcire controlată</p>
-  <p>🔄 Reset parametri</p><p>⛶ Ecran complet</p>
-  <p>🌡️ Simulare termică T₃.14</p>
-  <p>📘 Documentație tehnică</p><p>🧭 Plan de studiu</p>
-  <p>📊 Analiză live</p><p>🔧 Validare motor (kW/CP)</p>
-  <p>🚘 Sistem complet (autonomie/km)</p><p>📄 Fișă tehnică</p>
+  <b>🧭 Legendă control</b><br>
+  ▶ Start simulare<br>
+  ⏹ Stop simulare<br>
+  ⚡ Boost vortex<br>
+  ❄️ Răcire controlată<br>
+  ♻ Reset parametri<br>
+  ⛶ Ecran complet<br>
+  🌡 Modul termic T₃.₁₄<br>
+  📘 Documentație tehnică<br>
+  🧭 Plan de studiu<br>
+  ⚙ Validare motor / Autonomie<br>
+  🧾 Fișă tehnică<br>
 </div>
 
+<footer>
+© 2025 Coeziv 3.14 Research | Digital Matrix Dashboard v6.0<br>
+F<sub>c</sub>=3.157 | Flux=0.65 | Temp=0.31
+</footer>
+
 <script>
-let running=true,speed=1,flux=0.5,temp=0.5;
-const fcVal=document.getElementById("fcVal"),
-      arc=document.getElementById("arc"),
-      fluxFill=document.getElementById("fluxFill"),
-      tempFill=document.getElementById("tempFill"),
-      ledS=document.getElementById("ledStable"),
-      ledH=document.getElementById("ledHigh"),
-      ledL=document.getElementById("ledLow"),
-      modeText=document.getElementById("modeText"),
-      statusBar=document.getElementById("statusBar"),
-      panel=document.getElementById("panel");
+const legend = document.getElementById("legend");
+const legendBtn = document.querySelector(".legend-btn");
+let legendTimer = null;
 
-function animate(){
- if(running){
-   const t=Date.now()/800*speed;
-   const fluct=Math.sin(t)*0.02;
-   const fc=(3.14+fluct).toFixed(3);
-   fcVal.textContent=fc;
-   arc.style.setProperty("--angle",(180+(fluct*3000))+"deg");
-   flux=0.5+Math.sin(t/2)*0.3;
-   temp=0.5+Math.cos(t/3)*0.25;
-   fluxFill.style.width=(flux*100)+"%";
-   tempFill.style.height=(temp*100)+"%";
-   ledS.style.background="#004";ledH.style.background="#004";ledL.style.background="#004";
-   if(fc>3.15){ledH.style.background="#0f0";ledH.style.boxShadow="0 0 15px #0f0";}
-   else if(fc<3.13){ledL.style.background="#f00";ledL.style.boxShadow="0 0 15px #f00";}
-   else{ledS.style.background="#0ff";ledS.style.boxShadow="0 0 15px #0ff";}
-   statusBar.textContent=`Fc=${fc} | Flux=${flux.toFixed(2)} | Temp=${temp.toFixed(2)}`;
- }
- requestAnimationFrame(animate);
-}
-animate();
+legendBtn.addEventListener("click", (e) => {
+  e.stopPropagation();
+  legend.classList.add("active");
+  clearTimeout(legendTimer);
+  legendTimer = setTimeout(() => legend.classList.remove("active"), 5000);
+});
 
-document.getElementById("start").onclick=()=>running=true;
-document.getElementById("stop").onclick=()=>running=false;
-document.getElementById("boost").onclick=()=>speed=Math.min(3,speed+0.5);
-document.getElementById("cool").onclick=()=>speed=Math.max(0.5,speed-0.5);
-document.getElementById("reset").onclick=()=>{speed=1;flux=0.5;temp=0.5;};
-
-const fsBtn=document.getElementById("fullscreen");
-fsBtn.onclick=()=>{
- if(!document.fullscreenElement){
-   panel.requestFullscreen().then(()=>{
-     modeText.textContent="FULL";modeText.style.color="#0f0";fsBtn.textContent="🡼";
-   });
- }else{
-   document.exitFullscreen();
-   modeText.textContent="WINDOW";modeText.style.color="#0ff";fsBtn.textContent="⛶";
- }
-};
-
-// Navigație module
-document.getElementById("doc").onclick=()=>window.open("documentatie.html","_self");
-document.getElementById("plan").onclick=()=>window.open("plan_studiu_3_14.html","_self");
-document.getElementById("thermal").onclick=()=>window.open("simulare_T3_14.html","_self");
-document.getElementById("analyze").onclick=()=>window.open("masuratori_3.14.html","_self");
-document.getElementById("validate").onclick=()=>window.open("validare_motor_3.14.html","_self");
-document.getElementById("system").onclick=()=>window.open("sistem_motor_3.14.html","_self");
-document.getElementById("sheet").onclick=()=>window.open("fisa_motor_3.14.html","_self");
+document.addEventListener("click", (e) => {
+  if (!legend.contains(e.target) && !legendBtn.contains(e.target)) {
+    legend.classList.remove("active");
+  }
+});
 </script>
 </body>
 </html>
