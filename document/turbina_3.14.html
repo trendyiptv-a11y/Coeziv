@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-<title>Turbina Coezivă 3.14 – Digital Matrix Dashboard</title>
+<title>Turbina Coezivă 3.14 – Digital Matrix Dashboard v3.0</title>
 <style>
   html,body{
     margin:0;
@@ -151,6 +151,8 @@
   button.thermal:hover{background:#004477;}
   button.analyze{background:#003311;}
   button.analyze:hover{background:#004422;}
+  button.validate{background:#332200;}
+  button.validate:hover{background:#664400;}
   footer{
     text-align:center;
     font-size:0.8rem;
@@ -256,6 +258,7 @@
     <button class="doc" id="doc">📘</button>
     <button class="plan" id="plan">🧭</button>
     <button class="analyze" id="analyze">📊</button>
+    <button class="validate" id="validate">🔧</button>
   </div>
 
   <footer>© 2025 Coeziv 3.14 Research | Digital Matrix Dashboard</footer>
@@ -276,6 +279,7 @@
   <p>📘 Documentație tehnică</p>
   <p>🧭 Plan de studiu</p>
   <p>📊 Măsurători & Analiză Live</p>
+  <p>🔧 Validare motor (calcul kW / CP)</p>
 </div>
 
 <script>
@@ -336,11 +340,12 @@ fsBtn.onclick=()=>{
   }
 };
 
-// Navigație
+// Navigație module
 document.getElementById("doc").onclick=()=>window.open("documentatie.html","_self");
 document.getElementById("plan").onclick=()=>window.open("plan_studiu_3_14.html","_self");
 document.getElementById("thermal").onclick=()=>window.open("simulare_T3_14.html","_self");
 document.getElementById("analyze").onclick=()=>window.open("masuratori_3.14.html","_self");
+document.getElementById("validate").onclick=()=>window.open("validare_motor_3.14.html","_self");
 </script>
 </body>
 </html>
