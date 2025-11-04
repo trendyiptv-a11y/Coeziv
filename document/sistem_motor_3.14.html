@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sistem Motor Coeziv 3.14 – Simulare Completă</title>
+<style>
+body {
+  background: #050505;
+  color: #0ff;
+  font-family: "Orbitron", Arial, monospace;
+  text-align: center;
+  padding: 1rem;
+}
+h1 {
+  text-shadow: 0 0 15px #00ffff;
+  margin-bottom: 1rem;
+}
+.panel {
+  max-width: 430px;
+  margin: auto;
+  border: 1px solid #00ffff44;
+  box-shadow: 0 0 20px #00ffff33 inset;
+  padding: 1rem;
+  border-radius: 10px;
+}
+label {
+  display: block;
+  margin-top: 0.8rem;
+}
+input[type=range] {
+  width: 90%;
+  accent-color: #00ffff;
+}
+select, input[type=number] {
+  background: #001515;
+  color: #0ff;
+  border: 1px solid #00ffff;
+  border-radius: 6px;
+  padding: 0.3rem;
+  font-family: inherit;
+}
+.output {
+  margin-top: 1rem;
+  border-top: 1px solid #00ffff33;
+  padding-top: 0.8rem;
+  text-align: left;
+}
+.output div {
+  margin: 0.3rem 0;
+}
+.result {
+  font-size: 1.3rem;
+  text-shadow: 0 0 10px #00ffff;
+  margin-top: 0.5rem;
+}
+.msg {
+  margin-top: 0.4rem;
+  font-size: 1rem;
+  color: #00ffaa;
+  text-shadow: 0 0 6px #00ffaa;
+  text-align: center;
+}
+button {
+  margin-top: 1rem;
+  background: #003333;
+  border: 1px solid #00ffff;
+  color: #0ff;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  font-family: "Orbitron", monospace;
+  cursor: pointer;
+  transition: 0.3s;
+}
+button:hover { background: #004444; }
+footer { margin-top: 1rem; font-size: 0.8rem; opacity: 0.6; }
+</style>
+</head>
+<body>
+
+<h1>⚙️ Sistem Motor Coeziv 3.14</h1>
+
+<div class="panel">
+  <label>Mediu:
+    <select id="medium">
+      <option value="air">Aer</option>
+      <option value="water">Apă</option>
+      <option value="plasma">Plasmă</option>
+    </select>
+  </label>
+
+  <label>Număr module: <span id="nVal">4</span></label>
+  <input type="range" id="nSlider" min="1" max="6" value="4">
+
+  <label>Diametru rotor (m): <span id="dVal">0.40</span></label>
+  <input type="range" id="dSlider" min="0.1" max="0.6" step="0.05" value="0.40">
+
+  <label>Presiune ΔP (Pa): <span id="pVal">1000</span></label>
+  <input type="range" id="pSlider" min="200" max="3000" step="50" value="1000">
+
+  <label>Viteză flux (m/s): <span id="vVal">60</span></label>
+  <input type="range" id="vSlider" min="10" max="250" step="5" value="60">
+
+  <label>Eficiență globală (%): <span id="eVal">90</span></label>
+  <input type="range" id="eSlider" min="50" max="100" step="1" value="90">
+
+  <label>Viteză vehicul (km/h): <span id="spdVal">80</span></label>
+  <input type="range" id="spdSlider" min="10" max="200" step="5" value="80">
+
+  <label>Consum vehicul (kWh/100km): <input type="number" id="cons" value="18" step="0.1"></label>
+
+  <div class="output">
+    <div>Putere totală: <strong><span id="pKW">0.00</span> kW</strong>  (<span id="pHP">0.00</span> CP)</div>
+    <div>Cuplu la 3000 rpm: <strong><span id="torque">0.0</span> Nm</strong></div>
+    <div>Eficiență globală: <strong><span id="eff">0</span>%</strong></div>
+    <div>Autonomie estimată: <strong><span id="autonomy">0</span> km/oră</strong></div>
+    <div class="msg" id="msg">Analiză în curs...</div>
+  </div>
+
+  <button id="back">↩ Înapoi la Turbină</button>
+</div>
+
+<footer>© 2025 Coeziv 3.14 Research | Simulare Sistem Complet</footer>
+
+<script>
+const nS=document.getElementById("nSlider"),
+      dS=document.getElementById("dSlider"),
+      pS=document.getElementById("pSlider"),
+      vS=document.getElementById("vSlider"),
+      eS=document.getElementById("eSlider"),
+      spdS=document.getElementById("spdSlider"),
+      cons=document.getElementById("cons"),
+      medium=document.getElementById("medium"),
+      nVal=document.getElementById("nVal"),
+      dVal=document.getElementById("dVal"),
+      pVal=document.getElementById("pVal"),
+      vVal=document.getElementById("vVal"),
+      eVal=document.getElementById("eVal"),
+      spdVal=document.getElementById("spdVal"),
+      pKW=document.getElementById("pKW"),
+      pHP=document.getElementById("pHP"),
+      torque=document.getElementById("torque"),
+      eff=document.getElementById("eff"),
+      autonomy=document.getElementById("autonomy"),
+      msg=document.getElementById("msg");
+
+function calc(){
+  const n=parseInt(nS.value),
+        D=parseFloat(dS.value),
+        dp=parseFloat(pS.value),
+        v=parseFloat(vS.value),
+        eta=parseFloat(eS.value)/100,
+        spd=parseFloat(spdS.value),
+        c=parseFloat(cons.value),
+        med=medium.value;
+
+  nVal.textContent=n;
+  dVal.textContent=D.toFixed(2);
+  pVal.textContent=dp;
+  vVal.textContent=v;
+  eVal.textContent=eta*100;
+  spdVal.textContent=spd;
+
+  // densitate mediu
+  let rho=1.204;
+  if(med==="water") rho=1000;
+  if(med==="plasma") rho=0.5;
+
+  const A=Math.PI*(D**2)/4;
+  const m_dot=rho*A*v;
+  const Fc=3.14+(Math.sin(v/40)*0.02);
+  const eta_c=Fc/3.14;
+  const P_mod=dp*(m_dot/rho)*eta_c;
+  const P_total=P_mod*n*eta;
+  const kW=P_total/1000;
+  const HP=kW/0.7355;
+
+  const rpm=3000;
+  const T=(P_total*1000)/(2*Math.PI*(rpm/60));
+
+  // autonomie: putere x timp / consum
+  const autonomy_km=(kW*100)/c;
+
+  pKW.textContent=kW.toFixed(2);
+  pHP.textContent=HP.toFixed(2);
+  torque.textContent=T.toFixed(1);
+  eff.textContent=(eta*100).toFixed(1);
+  autonomy.textContent=autonomy_km.toFixed(1);
+
+  let message="";
+  if(kW<10) message="⚙️ Microvehicul / dronă / generator portabil.";
+  else if(kW<30) message="🚗 Ideal pentru autoturism mic (2-3 module).";
+  else if(kW<80) message="🚙 Potrivit pentru SUV sau utilitar.";
+  else if(kW<150) message="🚛 Nivel camion ușor / industrial.";
+  else message="🚀 Sistem de propulsie avansat – aplicație mare (>150 kW).";
+
+  msg.textContent=message;
+}
+nS.oninput=dS.oninput=pS.oninput=vS.oninput=eS.oninput=spdS.oninput=cons.oninput=medium.onchange=calc;
+calc();
+
+document.getElementById("back").onclick=()=>window.open("turbina_3.14.html","_self");
+</script>
+</body>
+</html>
