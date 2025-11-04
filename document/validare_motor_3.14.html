@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Validare Motor Coeziv 3.14 – Simulare Realistă</title>
+<style>
+  body{
+    background:#050505;
+    color:#0ff;
+    font-family:"Orbitron",Arial,monospace;
+    text-align:center;
+    padding:1rem;
+  }
+  h1{text-shadow:0 0 15px #00ffff;margin-bottom:1rem;}
+  .panel{
+    max-width:400px;
+    margin:auto;
+    border:1px solid #00ffff44;
+    box-shadow:0 0 20px #00ffff33 inset;
+    padding:1rem;
+    border-radius:10px;
+  }
+  label{display:block;margin-top:0.8rem;}
+  input[type=range]{width:90%;accent-color:#00ffff;}
+  select{background:#001515;color:#0ff;border:1px solid #00ffff;border-radius:6px;padding:0.3rem;}
+  .output{
+    margin-top:1rem;
+    border-top:1px solid #00ffff33;
+    padding-top:0.8rem;
+  }
+  .result{
+    font-size:1.3rem;
+    text-shadow:0 0 10px #00ffff;
+    margin-top:0.5rem;
+  }
+  .msg{
+    margin-top:0.4rem;
+    font-size:1rem;
+    color:#00ffaa;
+    text-shadow:0 0 6px #00ffaa;
+  }
+  button{
+    margin-top:1rem;
+    background:#003333;
+    border:1px solid #00ffff;
+    color:#0ff;
+    border-radius:6px;
+    padding:0.5rem 1rem;
+    font-family:"Orbitron",monospace;
+    cursor:pointer;
+    transition:0.3s;
+  }
+  button:hover{background:#004444;}
+  footer{margin-top:1rem;font-size:0.8rem;opacity:0.6;}
+</style>
+</head>
+<body>
+
+<h1>⚙️ Validare Motor Coeziv 3.14</h1>
+<div class="panel">
+  <label>Mediu:
+    <select id="medium">
+      <option value="air">Aer</option>
+      <option value="water">Apă</option>
+      <option value="plasma">Plasmă</option>
+    </select>
+  </label>
+
+  <label>Viteză flux (m/s): <span id="vVal">30</span></label>
+  <input type="range" id="vSlider" min="5" max="200" value="30">
+
+  <label>Presiune diferențială ΔP (Pa): <span id="pVal">750</span></label>
+  <input type="range" id="pSlider" min="100" max="3000" value="750">
+
+  <label>Diametru rotor (m): <span id="dVal">0.25</span></label>
+  <input type="range" id="dSlider" min="0.1" max="1" step="0.05" value="0.25">
+
+  <label>Număr module/turbine: <span id="nVal">1</span></label>
+  <input type="range" id="nSlider" min="1" max="6" value="1">
+
+  <div class="output">
+    <div class="result">
+      Putere totală: <span id="powerKW">0.00</span> kW  
+      (<span id="powerHP">0.00</span> CP)
+    </div>
+    <div>Eficiență coezivă: <span id="eff">100</span>%</div>
+    <div class="msg" id="msg">Analiză în curs...</div>
+  </div>
+
+  <button id="back">↩ Înapoi la Turbină</button>
+</div>
+
+<footer>© 2025 Coeziv 3.14 Research | Modul de Validare Motor</footer>
+
+<script>
+const vS=document.getElementById("vSlider"),
+      pS=document.getElementById("pSlider"),
+      dS=document.getElementById("dSlider"),
+      nS=document.getElementById("nSlider"),
+      medium=document.getElementById("medium"),
+      vVal=document.getElementById("vVal"),
+      pVal=document.getElementById("pVal"),
+      dVal=document.getElementById("dVal"),
+      nVal=document.getElementById("nVal"),
+      powerKW=document.getElementById("powerKW"),
+      powerHP=document.getElementById("powerHP"),
+      eff=document.getElementById("eff"),
+      msg=document.getElementById("msg");
+
+function calc(){
+  const v=parseFloat(vS.value);
+  const dp=parseFloat(pS.value);
+  const D=parseFloat(dS.value);
+  const n=parseInt(nS.value);
+  const med=medium.value;
+
+  vVal.textContent=v;
+  pVal.textContent=dp;
+  dVal.textContent=D.toFixed(2);
+  nVal.textContent=n;
+
+  let rho=1.204;
+  if(med==="water") rho=1000;
+  if(med==="plasma") rho=0.5;
+
+  // Aria secțiunii
+  const A=Math.PI*(D**2)/4;
+  const m_dot=rho*A*v; // debit masic
+  const P=dp*(m_dot/rho); // putere ideală
+  const Fc=3.14+(Math.sin(v/30)*0.02); // variație coezivă
+  const eta=Fc/3.14;
+  const P_real=P*eta*n;
+
+  const kW=P_real/1000;
+  const HP=kW/0.7355;
+
+  powerKW.textContent=kW.toFixed(2);
+  powerHP.textContent=HP.toFixed(2);
+  eff.textContent=(eta*100).toFixed(1);
+
+  // Mesaje interpretative
+  let message="";
+  if(kW<2) message="⚙️ Bun pentru micro-dispozitive / drone.";
+  else if(kW<10) message="🚗 Ideal pentru mașină mică (1 modul).";
+  else if(kW<30) message="🚙 Bun pentru autoturisme compacte (2 module).";
+  else if(kW<70) message="🚐 Recomandat pentru vehicul mediu (3–4 module).";
+  else if(kW<150) message="🚛 Potrivit pentru camion ușor sau generator industrial (5 module).";
+  else message="🚀 Sistem de propulsie avansat – aplicație mare (>6 module).";
+
+  msg.textContent=message;
+}
+vS.oninput=pS.oninput=dS.oninput=nS.oninput=medium.onchange=calc;
+calc();
+
+document.getElementById("back").onclick=()=>window.open("turbina_3.14.html","_self");
+</script>
+</body>
+</html>
