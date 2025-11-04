@@ -48,6 +48,7 @@
   button.stop{background:#330000;}
   button.cool{background:#003333;}
   button.full{background:#002244;}
+  button.doc{background:#004466;}
   footer{text-align:center;font-size:0.8rem;opacity:0.7;margin-top:0.4rem;}
   #modeIndicator{position:fixed;top:6px;right:10px;font-size:0.8rem;font-weight:bold;text-shadow:0 0 6px currentColor;}
   #statusBar{position:fixed;bottom:4px;left:0;width:100%;text-align:center;
@@ -92,6 +93,7 @@
     <button class="cool" id="cool">❄</button>
     <button id="reset">🔄</button>
     <button class="full" id="fullscreen">⛶</button>
+    <button class="doc" id="doc">📘</button>
   </div>
 
   <footer>© 2025 Coeziv 3.14 Research | Digital Matrix Dashboard</footer>
@@ -143,7 +145,7 @@ document.getElementById("boost").onclick=()=>{speed=Math.min(3,speed+0.5);};
 document.getElementById("cool").onclick=()=>{speed=Math.max(0.5,speed-0.5);};
 document.getElementById("reset").onclick=()=>{speed=1;flux=0.5;temp=0.5;};
 
-// Fullscreen toggle + indicator color
+// Fullscreen toggle
 const fsBtn=document.getElementById("fullscreen");
 fsBtn.onclick=()=>{
   if(!document.fullscreenElement){
@@ -158,6 +160,11 @@ fsBtn.onclick=()=>{
     modeIndicator.style.color="#0ff";
     fsBtn.textContent="⛶";
   }
+};
+
+// Documentatie button
+document.getElementById("doc").onclick=()=>{
+  window.open("documentatie.html","_self");
 };
 </script>
 </body>
