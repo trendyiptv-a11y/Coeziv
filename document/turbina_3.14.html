@@ -6,137 +6,56 @@
 <title>Coeziv 3.14 – Digital Matrix Dashboard</title>
 <style>
   html,body{
-    margin:0;
-    height:100%;
-    background:#050505;
-    color:#0ff;
+    margin:0;height:100%;
+    background:#050505;color:#0ff;
     font-family:"Orbitron",Arial,monospace;
     overflow:hidden;
   }
   .panel{
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:space-between;
-    height:100%;
-    padding:1.5rem 1rem;
+    display:flex;flex-direction:column;
+    align-items:center;justify-content:space-between;
+    height:100%;padding:1.5rem 1rem;
     box-sizing:border-box;
   }
-  h1{
-    font-size:1.8rem;
-    text-shadow:0 0 15px #00ffff;
-    margin:0.5rem 0 1rem;
-    text-align:center;
-  }
-
-  .displays{
-    display:flex;
-    flex-wrap:wrap;
-    justify-content:center;
-    align-items:center;
-    gap:2rem;
-  }
-
-  .gauge{
-    position:relative;
-    width:200px;height:200px;
-    border-radius:50%;
+  h1{text-align:center;margin:0.5rem 0 1rem;
+    font-size:1.8rem;text-shadow:0 0 15px #00ffff;}
+  .displays{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:2rem;}
+  .gauge{position:relative;width:200px;height:200px;border-radius:50%;
     background:radial-gradient(circle at 50% 60%,#001515 0%,#000 90%);
-    box-shadow:0 0 25px #00faff80 inset,0 0 10px #00e5ff;
-  }
-  .gauge .arc{
-    position:absolute;
-    top:0;left:0;width:100%;height:100%;
+    box-shadow:0 0 25px #00faff80 inset,0 0 10px #00e5ff;}
+  .arc{position:absolute;top:0;left:0;width:100%;height:100%;
     border-radius:50%;
     background:conic-gradient(from 270deg,#00ffff 0deg,#00ffff var(--angle,120deg),#003333 var(--angle,360deg));
-    mask:radial-gradient(circle at center,transparent 70%,black 71%);
-  }
-  .gauge .value{
-    position:absolute;
-    top:50%;left:50%;
-    transform:translate(-50%,-50%);
-    font-size:1.8rem;
-    text-shadow:0 0 10px #00ffff,0 0 20px #00ffff;
-    text-align:center;
-  }
-
-  .bar{
-    width:280px;height:22px;
-    background:#002222;border:1px solid #0ff;
-    box-shadow:0 0 8px #00ffff inset;
-    border-radius:8px;overflow:hidden;
-  }
-  .bar .fill{
-    height:100%;width:50%;
-    background:linear-gradient(90deg,#00ffff,#0066ff);
-    transition:width 0.3s;
-  }
-
-  .thermo{
-    position:relative;
-    width:35px;height:160px;
-    background:#002222;border:1px solid #0ff;
-    border-radius:18px;overflow:hidden;
-    box-shadow:0 0 10px #00ffff inset;
-  }
-  .thermo .temp{
-    position:absolute;bottom:0;width:100%;
-    height:50%;background:linear-gradient(#00ffff,#0066ff);
-    transition:height 0.3s;
-  }
-
-  .leds{
-    display:flex;gap:1rem;margin-top:1rem;
-  }
-  .led{
-    width:18px;height:18px;border-radius:50%;
-    box-shadow:0 0 10px #0ff;background:#004;
-    transition:background 0.3s,box-shadow 0.3s;
-  }
-
-  .controls{
-    display:flex;
-    justify-content:center;
-    flex-wrap:nowrap;
-    gap:0.4rem;
-    margin-top:1.2rem;
-  }
-  button{
-    flex:1;
-    min-width:55px;
-    background:#001515;color:#0ff;
-    border:1px solid #0ff;
-    border-radius:6px;
-    padding:0.4rem 0.6rem;
-    font-family:"Orbitron",monospace;
-    font-weight:bold;
-    cursor:pointer;
-    text-shadow:0 0 6px #00ffff;
-    box-shadow:0 0 10px #00e5ff inset;
-    transition:all 0.2s;
-  }
+    mask:radial-gradient(circle at center,transparent 70%,black 71%);}
+  .value{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+    font-size:1.8rem;text-shadow:0 0 10px #00ffff,0 0 20px #00ffff;text-align:center;}
+  .bar{width:280px;height:22px;background:#002222;border:1px solid #0ff;
+    box-shadow:0 0 8px #00ffff inset;border-radius:8px;overflow:hidden;}
+  .fill{height:100%;width:50%;background:linear-gradient(90deg,#00ffff,#0066ff);transition:width 0.3s;}
+  .thermo{position:relative;width:35px;height:160px;background:#002222;
+    border:1px solid #0ff;border-radius:18px;overflow:hidden;box-shadow:0 0 10px #00ffff inset;}
+  .temp{position:absolute;bottom:0;width:100%;height:50%;
+    background:linear-gradient(#00ffff,#0066ff);transition:height 0.3s;}
+  .leds{display:flex;gap:1rem;margin-top:1rem;}
+  .led{width:18px;height:18px;border-radius:50%;box-shadow:0 0 10px #0ff;background:#004;
+    transition:background 0.3s,box-shadow 0.3s;}
+  .controls{display:flex;justify-content:center;flex-wrap:nowrap;gap:0.4rem;margin-top:1.2rem;}
+  button{flex:1;min-width:55px;background:#001515;color:#0ff;border:1px solid #0ff;
+    border-radius:6px;padding:0.4rem 0.6rem;font-family:"Orbitron",monospace;
+    font-weight:bold;cursor:pointer;text-shadow:0 0 6px #00ffff;
+    box-shadow:0 0 10px #00e5ff inset;transition:all 0.2s;}
   button:hover{background:#003333;}
   button.stop{background:#330000;}
   button.cool{background:#003333;}
   button.full{background:#002244;}
-  footer{
-    text-align:center;
-    font-size:0.8rem;
-    opacity:0.7;
-    margin-top:0.4rem;
-  }
-
-  #modeIndicator{
-    position:fixed;
-    top:6px;right:10px;
-    font-size:0.8rem;
-    font-weight:bold;
-    text-shadow:0 0 6px currentColor;
-  }
-
+  footer{text-align:center;font-size:0.8rem;opacity:0.7;margin-top:0.4rem;}
+  #modeIndicator{position:fixed;top:6px;right:10px;font-size:0.8rem;font-weight:bold;text-shadow:0 0 6px currentColor;}
+  #statusBar{position:fixed;bottom:4px;left:0;width:100%;text-align:center;
+    font-size:0.85rem;color:#0ff;text-shadow:0 0 8px #00ffff;opacity:0.85;}
   @media(max-width:600px){
     h1{font-size:1.4rem;}
-    .gauge .value{font-size:1.4rem;}
+    .value{font-size:1.4rem;}
+    #statusBar{font-size:0.75rem;}
   }
 </style>
 </head>
@@ -178,6 +97,8 @@
   <footer>© 2025 Coeziv 3.14 Research | Digital Matrix Dashboard</footer>
 </div>
 
+<div id="statusBar">Fc=3.14 | Flux=0.50 | Temp=0.50</div>
+
 <script>
 let running=true,speed=1,flux=0.5,temp=0.5;
 const fcVal=document.getElementById("fcVal"),
@@ -189,7 +110,8 @@ const fcVal=document.getElementById("fcVal"),
       ledL=document.getElementById("ledLow"),
       panel=document.getElementById("panel"),
       modeText=document.getElementById("modeText"),
-      modeIndicator=document.getElementById("modeIndicator");
+      modeIndicator=document.getElementById("modeIndicator"),
+      statusBar=document.getElementById("statusBar");
 
 function animate(){
   if(running){
@@ -207,6 +129,8 @@ function animate(){
     if(fc>3.15){ledH.style.background="#0f0";ledH.style.boxShadow="0 0 15px #0f0";}
     else if(fc<3.13){ledL.style.background="#f00";ledL.style.boxShadow="0 0 15px #f00";}
     else{ledS.style.background="#0ff";ledS.style.boxShadow="0 0 15px #0ff";}
+    // update status bar
+    statusBar.textContent=`Fc=${fc} | Flux=${flux.toFixed(2)} | Temp=${temp.toFixed(2)}`;
   }
   requestAnimationFrame(animate);
 }
@@ -227,7 +151,7 @@ fsBtn.onclick=()=>{
       modeText.textContent="FULL";
       modeIndicator.style.color="#0f0";
       fsBtn.textContent="🡼";
-    }).catch(err=>alert(err));
+    });
   }else{
     document.exitFullscreen();
     modeText.textContent="WINDOW";
