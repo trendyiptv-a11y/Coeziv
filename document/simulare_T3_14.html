@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Simulare Coezivă 3.14 – T₃.14 Lab</title>
+<style>
+  body{
+    background:#050505;
+    color:#0ff;
+    font-family:"Orbitron",Arial,monospace;
+    text-align:center;
+    padding:1rem;
+    overflow-x:hidden;
+  }
+  h1{
+    text-shadow:0 0 12px #00ffff;
+    margin-bottom:0.5rem;
+    font-size:1.6rem;
+  }
+  #container{
+    max-width:420px;
+    margin:auto;
+    padding:1rem;
+    border:1px solid #0ff;
+    border-radius:10px;
+    box-shadow:0 0 15px #00ffff33 inset;
+  }
+  input[type=range]{
+    width:90%;
+    accent-color:#00ffff;
+    margin-top:1rem;
+  }
+  canvas{
+    background:#000;
+    border:1px solid #0ff;
+    border-radius:8px;
+    margin-top:1rem;
+  }
+  .output{
+    font-size:1.2rem;
+    margin-top:0.5rem;
+    text-shadow:0 0 6px #00ffff;
+  }
+  .button{
+    margin-top:1rem;
+    display:inline-block;
+    background:#003333;
+    color:#0ff;
+    padding:0.6rem 1rem;
+    border-radius:8px;
+    text-decoration:none;
+    border:1px solid #0ff;
+    box-shadow:0 0 10px #00ffff inset;
+  }
+  footer{margin-top:1.5rem;font-size:0.8rem;opacity:0.6;}
+</style>
+</head>
+<body>
+
+<h1>🧪 T₃.14 – Laborator de Simulare Termică</h1>
+
+<div id="container">
+  <p>Alege temperatura nucleului (°C):</p>
+  <input type="range" min="-10" max="150" value="20" id="tempSlider">
+  <div class="output">T = <span id="Tval">20</span> °C<br>F<sub>c</sub> = <span id="Fcval">3.140</span></div>
+  <canvas id="chart" width="360" height="180"></canvas>
+  <a href="turbina_3.14.html" class="button">⤺ Înapoi la Turbină</a>
+</div>
+
+<footer>© 2025 Coeziv 3.14 Research | Modul Termic de Simulare</footer>
+
+<script>
+const slider=document.getElementById("tempSlider");
+const Tval=document.getElementById("Tval");
+const Fcval=document.getElementById("Fcval");
+const canvas=document.getElementById("chart");
+const ctx=canvas.getContext("2d");
+
+let FcPoints=[];
+for(let T=-10;T<=150;T+=5){
+  FcPoints.push({T,Fc:calcFc(T)});
+}
+drawGraph();
+
+slider.addEventListener("input",()=>{
+  const T=parseFloat(slider.value);
+  const Fc=calcFc(T);
+  Tval.textContent=T;
+  Fcval.textContent=Fc.toFixed(3);
+  drawGraph(T,Fc);
+});
+
+function calcFc(T){
+  const T0=293, alpha=0.002, F0=3.14;
+  const TK=T+273;
+  return F0*(1+alpha*(TK-T0)/T0);
+}
+
+function drawGraph(curT=20,curFc=3.14){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.strokeStyle="#00ffff";
+  ctx.lineWidth=1.5;
+  ctx.beginPath();
+  FcPoints.forEach((p,i)=>{
+    const x=map(p.T,-10,150,20,340);
+    const y=map(p.Fc,3.12,3.16,160,20);
+    if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+  });
+  ctx.stroke();
+  ctx.strokeStyle="#ff00aa";
+  ctx.beginPath();
+  const x=map(curT,-10,150,20,340);
+  const y=map(curFc,3.12,3.16,160,20);
+  ctx.arc(x,y,4,0,2*Math.PI);
+  ctx.fillStyle="#ff00aa";
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle="#00ffff";
+  ctx.font="12px Orbitron";
+  ctx.fillText("Temperatură (°C)",120,175);
+  ctx.save();
+  ctx.translate(10,100);
+  ctx.rotate(-Math.PI/2);
+  ctx.fillText("Fc",0,0);
+  ctx.restore();
+}
+
+function map(val,inMin,inMax,outMin,outMax){
+  return (val-inMin)*(outMax-outMin)/(inMax-inMin)+outMin;
+}
+</script>
+
+</body>
+</html>
