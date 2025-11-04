@@ -149,6 +149,8 @@
   button.plan{background:#003355;}
   button.thermal{background:#003366;}
   button.thermal:hover{background:#004477;}
+  button.analyze{background:#003311;}
+  button.analyze:hover{background:#004422;}
   footer{
     text-align:center;
     font-size:0.8rem;
@@ -205,9 +207,7 @@
     margin: 0 0 0.3rem;
     text-align: center;
   }
-  #legend p {
-    margin: 0.1rem 0;
-  }
+  #legend p { margin: 0.1rem 0; }
   @media (max-width: 700px) {
     #legend {
       bottom: 145px;
@@ -255,6 +255,7 @@
     <button class="thermal" id="thermal">🌡️</button>
     <button class="doc" id="doc">📘</button>
     <button class="plan" id="plan">🧭</button>
+    <button class="analyze" id="analyze">📊</button>
   </div>
 
   <footer>© 2025 Coeziv 3.14 Research | Digital Matrix Dashboard</footer>
@@ -274,6 +275,7 @@
   <p>🌡️ Modul termic T₃.14</p>
   <p>📘 Documentație tehnică</p>
   <p>🧭 Plan de studiu</p>
+  <p>📊 Măsurători & Analiză Live</p>
 </div>
 
 <script>
@@ -338,6 +340,7 @@ fsBtn.onclick=()=>{
 document.getElementById("doc").onclick=()=>window.open("documentatie.html","_self");
 document.getElementById("plan").onclick=()=>window.open("plan_studiu_3_14.html","_self");
 document.getElementById("thermal").onclick=()=>window.open("simulare_T3_14.html","_self");
+document.getElementById("analyze").onclick=()=>window.open("masuratori_3.14.html","_self");
 </script>
 </body>
 </html>
