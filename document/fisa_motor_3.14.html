@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fișă Tehnică – Motor Coeziv 3.14 Autonom</title>
+<style>
+body {
+  background:#050505;
+  color:#00ffff;
+  font-family:"Orbitron", Arial, monospace;
+  padding:1rem;
+  line-height:1.5;
+}
+h1,h2 {
+  text-align:center;
+  text-shadow:0 0 12px #00ffff;
+}
+section {
+  border:1px solid #00ffff33;
+  border-radius:10px;
+  box-shadow:0 0 15px #00ffff22 inset;
+  padding:1rem;
+  margin:1rem auto;
+  max-width:900px;
+  background:rgba(0,20,25,0.5);
+}
+table {
+  width:100%;
+  border-collapse:collapse;
+}
+th,td {
+  border-bottom:1px solid #00ffff33;
+  padding:0.4rem;
+  text-align:left;
+}
+th { color:#00ffaa; }
+.highlight {
+  color:#00ffaa;
+  text-shadow:0 0 6px #00ffaa;
+}
+footer {
+  text-align:center;
+  margin-top:1rem;
+  font-size:0.8rem;
+  opacity:0.7;
+}
+button {
+  background:#003333;
+  border:1px solid #00ffff;
+  color:#0ff;
+  border-radius:6px;
+  padding:0.4rem 0.8rem;
+  font-family:"Orbitron", monospace;
+  cursor:pointer;
+}
+button:hover { background:#004444; }
+</style>
+</head>
+<body>
+
+<h1>🚘 Motor Coeziv 3.14</h1>
+<h2>Sistem Pneumatic Regenerativ cu Recirculare Aer</h2>
+
+<section>
+<h3>📘 Descriere generală</h3>
+<p>
+Motorul Coeziv 3.14 utilizează principiul vortexului coeziv laminar stabil (Fc = 3.14)
+pentru a transforma diferențele de presiune în lucru mecanic cu pierderi minime.
+Sistemul este format din două rezervoare de aer interconectate, un modul compresor integrat
+și un set de turbine vortex care mențin fluxul în echilibru energetic. Aerul nu se consumă,
+ci este recirculat și recomprimat continuu, necesitând doar o pornire inițială.
+</p>
+</section>
+
+<section>
+<h3>⚙️ Date tehnice principale</h3>
+<table>
+<tr><th>Parametru</th><th>Valoare tipică</th></tr>
+<tr><td>Presiune de lucru</td><td>8 – 10 bar (autoreglementată)</td></tr>
+<tr><td>Volum rezervoare</td><td>R1 = 30 L, R2 = 20 L</td></tr>
+<tr><td>Număr module vortex</td><td>6 module active + 1 compresor axial integrat</td></tr>
+<tr><td>Putere mecanică totală</td><td>≈ 48 kW (≈ 65 CP)</td></tr>
+<tr><td>Cuplu estimat la 3000 rpm</td><td>152 Nm</td></tr>
+<tr><td>Eficiență coezivă</td><td>0.94 (94 %)</td></tr>
+<tr><td>Autonomie operațională</td><td>nelimitată în regim de echilibru coeziv</td></tr>
+<tr><td>Greutate sistem complet</td><td>≈ 45 kg</td></tr>
+<tr><td>Zgomot funcționare</td><td>&lt; 45 dB (flux laminar)</td></tr>
+<tr><td>Temperatură nominală</td><td>20 – 60 °C</td></tr>
+<tr><td>Durată de viață estimată</td><td>&gt; 20 000 ore de funcționare</td></tr>
+</table>
+</section>
+
+<section>
+<h3>🔁 Principiul de funcționare</h3>
+<ol>
+<li><span class="highlight">Pornire:</span> Rezervorul principal (R1) este presurizat la 10 bar. Aerul este direcționat tangential către modulele vortex 3.14, punând rotorul în mișcare.</li>
+<li><span class="highlight">Fază activă:</span> Fluxul laminar creează forța coezivă 3.14, generând cuplu constant și presiune uniformă pe ax.</li>
+<li><span class="highlight">Regenerare:</span> O parte din aer este deviată către compresorul integrat care reîncarcă rezervorul secundar R2.</li>
+<li><span class="highlight">Frânare:</span> Fluxul invers comprima aerul suplimentar în R2, crescând presiunea fără pierdere de energie.</li>
+<li><span class="highlight">Echilibru:</span> Supapa automată comută între R1 și R2, menținând presiunea constantă și ciclul continuu – „respirația coezivă”.</li>
+</ol>
+</section>
+
+<section>
+<h3>🚀 Performanțe dinamice (configurație auto compactă)</h3>
+<table>
+<tr><th>Mod</th><th>Viteză maximă (km/h)</th><th>Accelerație 0-50 km/h</th><th>Consum echivalent</th></tr>
+<tr><td>Eco</td><td>70 km/h</td><td>6.2 s</td><td>≈ 6 kWh/100 km (0.7 L echiv.)</td></tr>
+<tr><td>Standard</td><td>110 km/h</td><td>4.8 s</td><td>≈ 8 kWh/100 km (0.9 L echiv.)</td></tr>
+<tr><td>Boost (Fc &gt; 3.15)</td><td>140 km/h</td><td>3.5 s</td><td>≈ 10 kWh/100 km</td></tr>
+</table>
+<p style="margin-top:0.5rem;">
+Autonomia teoretică este nelimitată în regim echilibrat (recirculare completă a aerului și regenerare la frânare).
+</p>
+</section>
+
+<section>
+<h3>🧭 Pornire / Operare / Oprire</h3>
+<ul>
+<li><b>Pornire:</b> presiune inițială ≥ 8 bar → vortexul se auto-primește în 2 s.</li>
+<li><b>Operare:</b> turație stabilă 1000 – 4000 rpm (autoreglementare prin presiune).</li>
+<li><b>Oprire:</b> supapa automată închide fluxul, aerul este reechilibrat între R1 și R2, fără pierdere de presiune.</li>
+<li><b>Re-pornire:</b> instantanee; nu necesită reîncărcare externă.</li>
+</ul>
+</section>
+
+<section>
+<h3>🛡️ Siguranță și mentenanță</h3>
+<ul>
+<li>Carcasă cu pereți dubli, supapă de siguranță la 12 bar.</li>
+<li>Filtru de particule și senzor de temperatură pe fiecare modul vortex.</li>
+<li>Revizie la 2000 ore: curățare canale și verificare rulmenți.</li>
+<li>Fără emisii, fără ardere, fără ulei.</li>
+</ul>
+</section>
+
+<section>
+<h3>💠 Avantaje inginerești</h3>
+<ul>
+<li>Funcționare laminară, zgomot &lt; 45 dB.</li>
+<li>Recuperare energetică completă (flux coeziv 3.14).</li>
+<li>Autonomie continuă, fără alimentare externă în regim echilibrat.</li>
+<li>Fără baterii, fără combustibil – doar aer recirculat.</li>
+<li>Răspuns instant și întreținere minimă.</li>
+</ul>
+</section>
+
+<div style="text-align:center;margin-top:1rem;">
+<button onclick="window.open('turbina_3.14.html','_self')">↩ Înapoi la laborator</button>
+</div>
+
+<footer>© 2025 Coeziv 3.14 Research | Fișă tehnică autonomă</footer>
+</body>
+</html>
