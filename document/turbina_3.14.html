@@ -112,22 +112,32 @@ button.sheet:hover{background:#005500;}
 footer{text-align:center;font-size:0.8rem;opacity:0.7;margin-top:0.3rem;}
 #modeIndicator{position:fixed;top:6px;right:10px;font-size:0.8rem;font-weight:bold;text-shadow:0 0 6px currentColor;}
 #statusBar{position:fixed;bottom:4px;left:0;width:100%;text-align:center;font-size:0.8rem;color:#0ff;text-shadow:0 0 8px #00ffff;opacity:0.85;}
-#legend{
-  position:fixed;
-  right:6px;
-  bottom:110px;
-  background:rgba(0,25,30,0.85);
-  border:1px solid #00ffff55;
-  box-shadow:0 0 12px #00ffff33 inset;
-  padding:0.5rem 0.8rem;
-  border-radius:10px;
-  color:#0ff;
-  font-size:0.75rem;
-  text-align:left;
-  max-width:190px;
-  line-height:1.2rem;
-  z-index:20;
-  backdrop-filter:blur(3px);
+
+#legend {
+  position: fixed;
+  right: 6px;
+  bottom: 100px;
+  background: rgba(0,25,30,0.9);
+  border: 1px solid #00ffff55;
+  box-shadow: 0 0 12px #00ffff33 inset;
+  padding: 0.6rem 0.8rem;
+  border-radius: 10px;
+  color: #0ff;
+  font-size: 0.75rem;
+  text-align: left;
+  max-width: 190px;
+  line-height: 1.2rem;
+  z-index: 20;
+  backdrop-filter: blur(3px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+  opacity: 0;
+  transform: scale(0.9);
+  pointer-events: none;
+}
+#legend.active {
+  opacity: 1;
+  transform: scale(1);
+  pointer-events: auto;
 }
 #legend h4{font-size:0.85rem;text-shadow:0 0 6px #00ffff;margin:0 0 0.3rem;text-align:center;}
 #legend p{margin:0.1rem 0;}
