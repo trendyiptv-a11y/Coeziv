@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>📊 Coeziv 3.14 – Măsurători & Analiză Live</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  body {
+    margin: 0;
+    font-family: "Orbitron", monospace;
+    background: radial-gradient(circle at center, #000 60%, #001f1f);
+    color: #0ff;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100vh;
+  }
+  h1 {
+    text-align: center;
+    color: #00ffff;
+    text-shadow: 0 0 15px #00ffff;
+    font-size: 1.6rem;
+    margin-top: 0.6rem;
+  }
+  canvas {
+    background: rgba(0, 10, 10, 0.6);
+    border: 1px solid #00ffff66;
+    box-shadow: 0 0 25px #00ffff33;
+    border-radius: 10px;
+    margin-top: 1rem;
+  }
+  .controls {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 0.5rem;
+  }
+  button {
+    background: #001515;
+    color: #0ff;
+    border: 1px solid #00ffff;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 0.9rem;
+    padding: 0.4rem 0.7rem;
+    cursor: pointer;
+    text-shadow: 0 0 6px #00ffff;
+    box-shadow: 0 0 10px #00e5ff inset;
+    transition: all 0.2s;
+  }
+  button:hover { background: #003333; }
+  footer {
+    text-align: center;
+    font-size: 0.8rem;
+    margin-top: 0.5rem;
+    opacity: 0.7;
+  }
+</style>
+</head>
+<body>
+  <h1>📊 Coeziv 3.14 – Măsurători & Analiză Live</h1>
+  <canvas id="chart" width="360" height="220"></canvas>
+
+  <div class="controls">
+    <button id="start">▶ Start</button>
+    <button id="stop">⏹ Stop</button>
+    <button id="reset">🔄 Reset</button>
+    <button id="back">↩ Înapoi la Turbină</button>
+  </div>
+
+  <footer>© 2025 Coeziv 3.14 Research | Modul Analiză Live</footer>
+
+<script>
+const ctx = document.getElementById('chart').getContext('2d');
+let dataLength = 60;
+const chart = new Chart(ctx, {
+  type: 'line',
+  data: {
+    labels: Array(dataLength).fill(''),
+    datasets: [
+      {
+        label: 'Fc',
+        borderColor: '#00ffff',
+        borderWidth: 2,
+        fill: false,
+        data: Array(dataLength).fill(3.14),
+        pointRadius: 0,
+        tension: 0.3
+      },
+      {
+        label: 'Flux',
+        borderColor: '#00ff77',
+        borderWidth: 2,
+        fill: false,
+        data: Array(dataLength).fill(0.5),
+        pointRadius: 0,
+        tension: 0.3
+      },
+      {
+        label: 'Temp',
+        borderColor: '#ff5555',
+        borderWidth: 2,
+        fill: false,
+        data: Array(dataLength).fill(0.5),
+        pointRadius: 0,
+        tension: 0.3
+      }
+    ]
+  },
+  options: {
+    animation: false,
+    scales: {
+      y: {
+        beginAtZero: false,
+        min: 0,
+        max: 3.3,
+        ticks: { color: '#0ff' },
+        grid: { color: '#003333' }
+      },
+      x: {
+        ticks: { color: '#0ff' },
+        grid: { color: '#002222' }
+      }
+    },
+    plugins: {
+      legend: {
+        labels: { color: '#0ff', font: { size: 11 } }
+      }
+    }
+  }
+});
+
+let running = true;
+function updateChart() {
+  if (running) {
+    const t = Date.now() / 1000;
+    const fc = 3.14 + Math.sin(t) * 0.01 + Math.random() * 0.002;
+    const flux = 0.5 + Math.sin(t / 2) * 0.25 + Math.random() * 0.02;
+    const temp = 0.5 + Math.cos(t / 3) * 0.2 + Math.random() * 0.02;
+
+    chart.data.datasets[0].data.push(fc);
+    chart.data.datasets[1].data.push(flux * 3);
+    chart.data.datasets[2].data.push(temp * 3);
+    chart.data.labels.push('');
+
+    if (chart.data.datasets[0].data.length > dataLength) {
+      chart.data.datasets.forEach(d => d.data.shift());
+      chart.data.labels.shift();
+    }
+    chart.update();
+  }
+  requestAnimationFrame(updateChart);
+}
+updateChart();
+
+document.getElementById('start').onclick = () => (running = true);
+document.getElementById('stop').onclick = () => (running = false);
+document.getElementById('reset').onclick = () => {
+  chart.data.datasets.forEach(d => (d.data = Array(dataLength).fill(0)));
+  chart.update();
+};
+document.getElementById('back').onclick = () => window.open("turbina_3.14.html", "_self");
+</script>
+</body>
+</html>
