@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Control Electronic Fc 3.14 – Sistem de Reglaj Automat</title>
+<style>
+body{margin:0;background:#050707;color:#e6ffff;font-family:'Segoe UI',sans-serif;line-height:1.6;}
+header{display:flex;align-items:center;gap:10px;padding:1rem;
+background:radial-gradient(circle at 10% 50%,#003333 0%,#000 90%);
+border-bottom:1px solid #00ffff55;box-shadow:0 0 20px #00ffff22;}
+.logo{width:60px;height:60px;border-radius:50%;
+background:radial-gradient(circle at 30% 30%,#00ffff 0%,#00bbaa 70%,#002222 100%);
+box-shadow:0 0 25px #00ffff88;display:flex;justify-content:center;align-items:center;
+font-weight:700;color:#000;font-size:1.1rem;text-shadow:0 0 8px #00ffff;}
+h1{color:#00ffff;text-shadow:0 0 8px #00bbaa;margin:0;font-size:1.4rem;}
+section{max-width:900px;margin:1.2rem auto;background:#0a1012;border-radius:12px;
+padding:1rem 1.5rem;box-shadow:0 0 15px #00ffff22 inset;}
+h2{color:#00e6ff;border-bottom:1px solid #00ffff33;padding-bottom:0.3rem;}
+table{width:100%;border-collapse:collapse;margin-top:0.5rem;}
+th,td{border-bottom:1px solid #00ffff33;padding:0.4rem 0.3rem;}
+th{color:#00ffaa;text-align:left;}
+.diagram{
+  position:relative;
+  background:#001a1d;
+  border:1px solid #00ffff55;
+  border-radius:10px;
+  height:220px;
+  margin:1rem auto;
+  max-width:800px;
+  box-shadow:0 0 20px #00ffff22 inset;
+  color:#aaffff;
+  font-size:0.9rem;
+}
+.block{
+  position:absolute;
+  width:130px;
+  height:60px;
+  border:2px solid #00e6ff;
+  border-radius:10px;
+  background:#002d2d;
+  display:flex;justify-content:center;align-items:center;
+  text-align:center;
+}
+.block.sensorL{top:70px;left:40px;}
+.block.sensorR{top:70px;right:40px;}
+.block.esp{top:70px;left:50%;transform:translateX(-50%);}
+.block.valve{top:160px;left:50%;transform:translateX(-50%);}
+.connector{
+  position:absolute;height:3px;background:#00ffff66;
+}
+.connector.h1{top:100px;left:170px;width:180px;}
+.connector.h2{top:100px;right:170px;width:180px;}
+.connector.down{top:130px;left:50%;transform:translateX(-50%);width:3px;height:30px;}
+.connector.low{top:160px;left:50%;transform:translateX(-50%);width:3px;height:20px;}
+footer{text-align:center;margin:2rem 0 1rem;font-size:0.8rem;color:#00ffffaa;}
+button{background:#002d2d;color:#00ffff;border:1px solid #00ffffaa;border-radius:8px;
+padding:10px 16px;font-size:1rem;cursor:pointer;transition:all 0.3s ease;
+box-shadow:0 0 10px #00ffff33 inset;}
+button:hover{background:#00ffff;color:#000;box-shadow:0 0 10px #00ffff;}
+@media(max-width:600px){
+  h1{font-size:1.1rem;}
+  section{margin:0.8rem 0.5rem;padding:1rem;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">3.14</div>
+  <h1>Control Electronic Fc 3.14 – Sistem de Reglaj Automat</h1>
+</header>
+
+<section>
+<h2>🎯 1. Scopul sistemului</h2>
+<p>Sistemul de control electronic 3.14 are rolul de a menține <b>factorul de coeziune (F<sub>c</sub>)</b> stabil între 3.13 și 3.15,
+prin reglarea automată a presiunii și a fluxului de aer între rezervoarele R₁ și R₂.
+Unitatea centrală este un <b>ESP32</b>, care primește date de la senzori de presiune și debit, și controlează supapele proporționale pentru echilibrare.</p>
+</section>
+
+<section>
+<h2>🔌 2. Schema bloc de funcționare</h2>
+
+<div class="diagram">
+  <div class="block sensorL">Senzor presiune R₁</div>
+  <div class="block sensorR">Senzor presiune R₂</div>
+  <div class="block esp">Unitate centrală ESP32</div>
+  <div class="block valve">Supape proporționale</div>
+  <div class="connector h1"></div>
+  <div class="connector h2"></div>
+  <div class="connector down"></div>
+  <div class="connector low"></div>
+</div>
+
+<p style="text-align:center;color:#aaffff;">
+Flux de date: <b>Senzori → ESP32 → Algoritm Fc → Supape → Rezervoare</b>
+</p>
+</section>
+
+<section>
+<h2>⚙️ 3. Componente electronice recomandate</h2>
+<table>
+<tr><th>Componentă</th><th>Model / Specificație</th><th>Rol</th></tr>
+<tr><td>Microcontroler</td><td>ESP32 DevKit v1</td><td>Unitate centrală de control și comunicare</td></tr>
+<tr><td>Senzori presiune</td><td>MPX5010DP (0–10 bar)</td><td>Monitorizare presiune R₁ și R₂</td></tr>
+<tr><td>Senzor debit aer</td><td>FS6122-LF</td><td>Citire flux aer între module</td></tr>
+<tr><td>Supape proporționale</td><td>SMC ITV1000</td><td>Reglaj fin al presiunii</td></tr>
+<tr><td>Alimentare</td><td>12 V DC / 5 A</td><td>Alimentare sistem control</td></tr>
+<tr><td>Ecran</td><td>OLED 0.96” I2C</td><td>Afisare Fc, presiuni, debit</td></tr>
+<tr><td>Wi-Fi</td><td>Integrat în ESP32</td><td>Transmitere date către laborator</td></tr>
+</table>
+</section>
+
+<section>
+<h2>💡 4. Algoritm de control (pseudocod)</h2>
+<pre style="background:#001a1d;padding:1rem;border-radius:8px;color:#aaffff;">
+initialize sensors P1, P2, FLOW
+setpoint = 3.14       // valoare țintă Fc
+tolerance = 0.01
+
+loop:
+   read P1, P2, FLOW
+   Fc = (P1 + P2) / FLOW
+   error = setpoint - Fc
+
+   if abs(error) > tolerance:
+       adjust_valves(error)
+       update_display(Fc, P1, P2)
+   else:
+       maintain_current_state()
+
+   delay(100 ms)
+</pre>
+<p>Algoritmul ajustează automat debitul de aer până când <b>Fc</b> revine în intervalul 3.13–3.15.</p>
+</section>
+
+<section>
+<h2>🧭 5. Recomandări de calibrare</h2>
+<ul>
+<li>Calibrați senzorii de presiune la 0 bar înainte de montaj.</li>
+<li>Testați reacția supapelor la semnal PWM între 1.0–2.0 V.</li>
+<li>Introduceți un filtru mediu mobil (10 citiri) pentru stabilizarea Fc.</li>
+<li>Verificați periodic sincronizarea citirilor pentru a evita erorile de latență.</li>
+<li>Pentru siguranță, adăugați o limită automată de oprire dacă Fc &lt; 3.0 sau Fc &gt; 3.2.</li>
+</ul>
+</section>
+
+<div style="text-align:center;margin-top:2rem;">
+  <button onclick="window.print()">💾 Descarcă PDF</button>
+</div>
+
+<footer>© 2025 Coeziv 3.14 Research | Control Electronic Fc 3.14</footer>
+
+</body>
+</html>
