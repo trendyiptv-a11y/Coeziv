@@ -2,204 +2,224 @@
 <html lang="ro">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Turbina Coezivă 3.14 – Flux și Simulare</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Coeziv 3.14 – Digital Matrix Lab Dashboard</title>
 <style>
-  body {
-    font-family: "Segoe UI", sans-serif;
-    background-color: #f4f4f4;
-    color: #111;
-    margin: 0;
-    padding: 0;
+  html,body{
+    margin:0;
+    height:100%;
+    background:#050505;
+    color:#0ff;
+    font-family:"Orbitron",Arial,monospace;
+    overflow:hidden;
   }
-  header {
-    background: linear-gradient(90deg, #0074d9, #00c49a);
-    color: white;
-    text-align: center;
-    padding: 1rem;
+  .panel{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:space-between;
+    height:100%;
+    padding:2rem;
   }
-  h1 { margin: 0; font-size: 1.8rem; }
-  .container {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    padding: 2rem;
-  }
-
-  /* ----- DIAGRAMĂ ----- */
-  .diagram {
-    position: relative;
-    flex: 1;
-    min-width: 320px;
-    max-width: 600px;
-    text-align: center;
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.15);
-    padding: 1.5rem;
-    margin: 1rem;
-    overflow: hidden;
-  }
-  .diagram img {
-    max-width: 100%;
-    border-radius: 8px;
-    opacity: 0.85;
+  h1{
+    font-size:2rem;
+    text-shadow:0 0 15px #00ffff;
+    margin:0;
   }
 
-  /* ----- SPIRALA COEZIVĂ ----- */
-  .spiral {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 220px;
-    height: 220px;
-    margin: -110px;
-    border: 2px dashed rgba(255,204,0,0.6);
-    border-radius: 50%;
-    animation: rotate 8s linear infinite, pulse 4s ease-in-out infinite;
+  /* --- DISPLAY SECTION --- */
+  .displays{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    align-items:center;
+    gap:2rem;
+  }
+  .gauge{
+    position:relative;
+    width:220px;
+    height:220px;
+    border-radius:50%;
+    background:radial-gradient(circle at 50% 60%,#001515 0%,#000 90%);
+    box-shadow:0 0 25px #00faff80 inset,0 0 10px #00e5ff;
+  }
+  .gauge .arc{
+    position:absolute;
+    top:0;left:0;
+    width:100%;height:100%;
+    border-radius:50%;
+    background:conic-gradient(from 270deg,
+      #00ffff 0deg,
+      #00ffff var(--angle,120deg),
+      #003333 var(--angle,360deg)
+    );
+    mask:radial-gradient(circle at center,transparent 70%,black 71%);
+  }
+  .gauge .value{
+    position:absolute;
+    top:50%;left:50%;
+    transform:translate(-50%,-50%);
+    font-size:2rem;
+    text-shadow:0 0 10px #00ffff;
   }
 
-  /* ----- FLUX DE INTRARE ----- */
-  .flow-in {
-    position: absolute;
-    left: 5%;
-    top: 40%;
-    width: 80px;
-    height: 8px;
-    background: linear-gradient(90deg, #0074d9, rgba(0,116,217,0));
-    border-radius: 4px;
-    animation: flowIn 2s linear infinite;
+  .bar{
+    width:300px;
+    height:25px;
+    background:#002222;
+    border:1px solid #0ff;
+    box-shadow:0 0 8px #00ffff inset;
+    border-radius:8px;
+    overflow:hidden;
+  }
+  .bar .fill{
+    height:100%;
+    width:50%;
+    background:linear-gradient(90deg,#00ffff,#0066ff);
+    transition:width 0.3s;
   }
 
-  /* ----- FLUX DE IEȘIRE ----- */
-  .flow-out {
-    position: absolute;
-    right: 5%;
-    top: 60%;
-    width: 80px;
-    height: 8px;
-    background: linear-gradient(270deg, #ff4136, rgba(255,65,54,0));
-    border-radius: 4px;
-    animation: flowOut 2s linear infinite;
+  .thermo{
+    width:40px;height:200px;
+    background:#002222;
+    border:1px solid #0ff;
+    border-radius:20px;
+    overflow:hidden;
+    box-shadow:0 0 10px #00ffff inset;
+  }
+  .thermo .temp{
+    position:absolute;
+    bottom:0;
+    width:40px;
+    height:50%;
+    background:linear-gradient(#00ffff,#0066ff);
+    transition:height 0.3s;
   }
 
-  /* ----- ANIMAȚII ----- */
-  @keyframes rotate {
-    from { transform: translate(-50%, -50%) rotate(0deg); }
-    to { transform: translate(-50%, -50%) rotate(360deg); }
+  /* --- LEDS --- */
+  .leds{
+    display:flex;
+    gap:1rem;
+    margin-top:1rem;
   }
-  @keyframes pulse {
-    0%, 100% { opacity: 0.4; transform: scale(1) translate(-50%, -50%); }
-    50% { opacity: 1; transform: scale(1.1) translate(-50%, -50%); }
-  }
-  @keyframes flowIn {
-    0% { left: -10%; opacity: 0; }
-    50% { opacity: 1; }
-    100% { left: 5%; opacity: 0; }
-  }
-  @keyframes flowOut {
-    0% { right: -10%; opacity: 0; }
-    50% { opacity: 1; }
-    100% { right: 5%; opacity: 0; }
+  .led{
+    width:20px;height:20px;
+    border-radius:50%;
+    box-shadow:0 0 10px #0ff;
+    background:#004;
+    transition:background 0.3s,box-shadow 0.3s;
   }
 
-  /* ----- SIMULATOR COEZIV ----- */
-  .readout {
-    margin-top: 1.2rem;
-    background: #f0f8ff;
-    border-radius: 10px;
-    padding: 0.7rem 1rem;
-    display: inline-block;
-    font-weight: bold;
-    color: #0074d9;
-    font-size: 1.2rem;
-    border: 2px solid #0074d9;
+  /* --- CONTROLS --- */
+  .controls{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:1rem;
   }
-
-  /* ----- LEGENDĂ ----- */
-  .legend {
-    flex: 1;
-    min-width: 280px;
-    max-width: 500px;
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.15);
-    padding: 1.5rem;
-    margin: 1rem;
+  button{
+    background:#001515;
+    color:#0ff;
+    border:1px solid #0ff;
+    border-radius:6px;
+    padding:0.6rem 1.2rem;
+    font-family:"Orbitron",monospace;
+    font-weight:bold;
+    cursor:pointer;
+    text-shadow:0 0 6px #00ffff;
+    box-shadow:0 0 10px #00e5ff inset;
+    transition:all 0.2s;
   }
-  .legend h2 { margin-top: 0; color: #0074d9; }
-  .legend ul { list-style: none; padding-left: 0; }
-  .legend li { margin-bottom: 0.8rem; line-height: 1.4; }
-  .symbol {
-    display: inline-block;
-    width: 14px;
-    height: 14px;
-    margin-right: 8px;
-    border-radius: 50%;
+  button:hover{
+    background:#003333;
   }
-  .blue { background-color: #0074d9; }
-  .yellow { background-color: #ffcc00; }
-  .green { background-color: #00c49a; }
-  .red { background-color: #ff4136; }
-  .gray { background-color: #999; }
-
-  footer {
-    text-align: center;
-    color: #555;
-    font-size: 0.9rem;
-    padding: 1rem;
+  footer{
+    text-align:center;
+    font-size:0.8rem;
+    opacity:0.7;
   }
 </style>
 </head>
 <body>
-<header>
-  <h1>Turbina Coezivă 3.14 – Flux și Simulare</h1>
-  <p>Reprezentare animată a echilibrului coeziv și variației F<sub>c</sub></p>
-</header>
+<div class="panel">
+  <h1>COEZIV 3.14 – DIGITAL MATRIX LAB</h1>
 
-<div class="container">
-  <div class="diagram">
-    <img src="turbina_vortex_schema.png" alt="Schema turbinei coezive 3.14">
-    <div class="spiral"></div>
-    <div class="flow-in"></div>
-    <div class="flow-out"></div>
-
-    <div class="readout">
-      F<sub>c</sub> = <span id="fcValue">3.14</span>
+  <div class="displays">
+    <div class="gauge">
+      <div class="arc" id="arc"></div>
+      <div class="value">F<sub>c</sub>=<span id="fcVal">3.14</span></div>
     </div>
 
-    <p><em>Fluxul intră (albastru), se stabilizează (galben), și iese (roșu) în echilibru 3.14.</em></p>
+    <div>
+      <h3>Flux Vortex</h3>
+      <div class="bar"><div class="fill" id="fluxFill"></div></div>
+      <h3 style="margin-top:1.5rem;">Nucleu 3.14 Temp</h3>
+      <div class="thermo"><div class="temp" id="tempFill"></div></div>
+    </div>
   </div>
 
-  <div class="legend">
-    <h2>Legendă</h2>
-    <ul>
-      <li><span class="symbol blue"></span><b>A – Gura de admisie:</b> flux de aer/abur spre centrul vortexului.</li>
-      <li><span class="symbol gray"></span><b>B – Corpul turbinei:</b> ghidaj dublu-conic al fluxului.</li>
-      <li><span class="symbol yellow"></span><b>C – Zona coezivă 3.14:</b> echilibru între presiune și vibrație.</li>
-      <li><span class="symbol green"></span><b>Bobine toroidale:</b> captare electromagnetică armonizată.</li>
-      <li><span class="symbol red"></span><b>D – Gura de evacuare:</b> flux convertit în energie utilă.</li>
-    </ul>
+  <div class="leds">
+    <div class="led" id="ledStable" title="Stabil"></div>
+    <div class="led" id="ledHigh" title="Supra-coeziune"></div>
+    <div class="led" id="ledLow" title="Sub-coeziune"></div>
   </div>
+
+  <div class="controls">
+    <button id="start">▶ Start</button>
+    <button id="stop">⏹ Stop</button>
+    <button id="boost">⚡ Accelerare</button>
+    <button id="cool">❄ Răcire</button>
+    <button id="reset">🔄 Reset</button>
+  </div>
+
+  <footer>© 2025 Coeziv 3.14 Research | Digital Matrix Dashboard</footer>
 </div>
 
-<footer>
-  <p>© 2025 Coeziv 3.14 Research | Design & Concept: Sergiu Bulboacă</p>
-</footer>
-
 <script>
-  // Simulare numerică pentru F_c în jurul valorii 3.14
-  const fcElement = document.getElementById("fcValue");
-  function updateFC() {
-    const base = 3.14;
-    const fluct = (Math.sin(Date.now() / 1000) * 0.02).toFixed(3);
-    const value = (base + parseFloat(fluct)).toFixed(3);
-    fcElement.textContent = value;
-    fcElement.style.color =
-      value < 3.13 ? "#ff4136" : value > 3.15 ? "#00c49a" : "#0074d9";
-  }
-  setInterval(updateFC, 100);
-</script>
+let running=true;
+let speed=1;
+let flux=0.5;
+let temp=0.5;
+const fcVal=document.getElementById("fcVal");
+const arc=document.getElementById("arc");
+const fluxFill=document.getElementById("fluxFill");
+const tempFill=document.getElementById("tempFill");
+const ledS=document.getElementById("ledStable");
+const ledH=document.getElementById("ledHigh");
+const ledL=document.getElementById("ledLow");
 
+function animate(){
+  if(running){
+    const t=Date.now()/800*speed;
+    const fluct=Math.sin(t)*0.02;
+    const fc=(3.14+fluct).toFixed(3);
+    fcVal.textContent=fc;
+    const angle=180+(fluct*3000); // vizual arc
+    arc.style.setProperty("--angle",angle+"deg");
+    flux=0.5+Math.sin(t/2)*0.3;
+    temp=0.5+Math.cos(t/3)*0.25;
+    fluxFill.style.width=(flux*100)+"%";
+    tempFill.style.height=(temp*100)+"%";
+    // LED logic
+    ledS.style.background="#004";
+    ledH.style.background="#004";
+    ledL.style.background="#004";
+    if(fc>3.15){ledH.style.background="#0f0";ledH.style.boxShadow="0 0 15px #0f0";}
+    else if(fc<3.13){ledL.style.background="#f00";ledL.style.boxShadow="0 0 15px #f00";}
+    else{ledS.style.background="#0ff";ledS.style.boxShadow="0 0 15px #0ff";}
+  }
+  requestAnimationFrame(animate);
+}
+animate();
+
+// Controls
+document.getElementById("start").onclick=()=>running=true;
+document.getElementById("stop").onclick=()=>running=false;
+document.getElementById("boost").onclick=()=>{speed+=0.5;if(speed>3)speed=3;};
+document.getElementById("cool").onclick=()=>{speed=Math.max(0.5,speed-0.5);};
+document.getElementById("reset").onclick=()=>{
+  speed=1;flux=0.5;temp=0.5;
+};
+</script>
 </body>
 </html>
