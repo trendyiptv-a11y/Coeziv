@@ -46,9 +46,7 @@ th{color:#00ffaa;text-align:left;}
 .block.sensorR{top:70px;right:40px;}
 .block.esp{top:70px;left:50%;transform:translateX(-50%);}
 .block.valve{top:160px;left:50%;transform:translateX(-50%);}
-.connector{
-  position:absolute;height:3px;background:#00ffff66;
-}
+.connector{position:absolute;height:3px;background:#00ffff66;}
 .connector.h1{top:100px;left:170px;width:180px;}
 .connector.h2{top:100px;right:170px;width:180px;}
 .connector.down{top:130px;left:50%;transform:translateX(-50%);width:3px;height:30px;}
@@ -143,6 +141,26 @@ loop:
 <li>Verificați periodic sincronizarea citirilor pentru a evita erorile de latență.</li>
 <li>Pentru siguranță, adăugați o limită automată de oprire dacă Fc &lt; 3.0 sau Fc &gt; 3.2.</li>
 </ul>
+</section>
+
+<section>
+<h2>🧩 6. Diagnosticare și mesaje de stare</h2>
+<p>În timpul funcționării, sistemul afișează mesaje în timp real pe ecranul OLED și trimite notificări către laboratorul Coeziv 3.14.
+Acestea ajută operatorul să urmărească echilibrul energetic și eventualele abateri:</p>
+
+<table>
+<tr><th>Mesaj</th><th>Descriere</th><th>Acțiune recomandată</th></tr>
+<tr><td><b>✅ Fc stabil (3.13–3.15)</b></td><td>Sistemul funcționează normal, echilibru perfect între presiune și flux.</td><td>Nicio acțiune necesară.</td></tr>
+<tr><td><b>⚠️ Presiune scăzută R₁</b></td><td>Rezervorul stâng are presiune sub 8 bar.</td><td>Verifică etanșările sau supapele de admisie.</td></tr>
+<tr><td><b>⚠️ Presiune ridicată R₂</b></td><td>Rezervorul drept depășește 10 bar.</td><td>Sistemul reduce fluxul automat; verifică senzorul R₂.</td></tr>
+<tr><td><b>🔄 Supapă activă</b></td><td>Algoritmul ajustează presiunea; fluxul este reglat automat.</td><td>Monitorizează Fc pe ecranul principal.</td></tr>
+<tr><td><b>🟠 Fc instabil</b></td><td>Factorul de coeziune se abate temporar de la 3.14.</td><td>Sistemul va recalibra în câteva secunde; evită sarcinile mari.</td></tr>
+<tr><td><b>🟥 Eroare senzor</b></td><td>ESP32 nu primește date corecte de la unul dintre senzori.</td><td>Verifică conexiunile I2C și alimentarea senzorilor.</td></tr>
+<tr><td><b>⛔ Oprire automată</b></td><td>Fc depășește limitele sigure (&lt;3.0 sau &gt;3.2).</td><td>Sistemul se oprește pentru protecție; repornește după verificare.</td></tr>
+</table>
+
+<p style="margin-top:0.8rem;">Aceste mesaje pot fi afișate atât local (OLED), cât și în interfața online a laboratorului Coeziv 3.14, 
+pentru monitorizare în timp real a comportamentului energetic.</p>
 </section>
 
 <div style="text-align:center;margin-top:2rem;">
