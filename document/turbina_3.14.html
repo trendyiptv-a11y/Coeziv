@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Coeziv 3.14 – Digital Matrix Dashboard</title>
+<title>Turbina Coezivă 3.14 – Digital Matrix Dashboard</title>
 <style>
   html,body{
     margin:0;height:100%;
@@ -49,6 +49,8 @@
   button.cool{background:#003333;}
   button.full{background:#002244;}
   button.doc{background:#004466;}
+  button.plan{background:#003355;}
+  button.plan:hover{background:#004466;}
   footer{text-align:center;font-size:0.8rem;opacity:0.7;margin-top:0.4rem;}
   #modeIndicator{position:fixed;top:6px;right:10px;font-size:0.8rem;font-weight:bold;text-shadow:0 0 6px currentColor;}
   #statusBar{position:fixed;bottom:4px;left:0;width:100%;text-align:center;
@@ -64,7 +66,7 @@
 <div id="modeIndicator">MODE: <span id="modeText">WINDOW</span></div>
 
 <div class="panel" id="panel">
-  <h1>COEZIV 3.14 – DIGITAL MATRIX LAB</h1>
+  <h1>TURBINA COEZIVĂ 3.14 – DIGITAL MATRIX LAB</h1>
 
   <div class="displays">
     <div class="gauge">
@@ -94,6 +96,7 @@
     <button id="reset">🔄</button>
     <button class="full" id="fullscreen">⛶</button>
     <button class="doc" id="doc">📘</button>
+    <button class="plan" id="plan">🧭</button>
   </div>
 
   <footer>© 2025 Coeziv 3.14 Research | Digital Matrix Dashboard</footer>
@@ -162,9 +165,12 @@ fsBtn.onclick=()=>{
   }
 };
 
-// Documentatie button
+// Navigație
 document.getElementById("doc").onclick=()=>{
   window.open("documentatie.html","_self");
+};
+document.getElementById("plan").onclick=()=>{
+  window.open("plan_studiu_3_14.html","_self");
 };
 </script>
 </body>
