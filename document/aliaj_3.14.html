@@ -3,36 +3,38 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Modelul 3.14 – Coeziunea termică a superaliajelor</title>
+<title>Modelul 3.14 – Aliajul coeziv și simulările termice</title>
 <style>
-  body {
-    font-family: "Segoe UI", Arial, sans-serif;
-    background-color: #fafafa;
-    color: #222;
-    line-height: 1.6;
-    margin: 2rem auto;
-    max-width: 950px;
-    padding: 1.5rem;
-    border-radius: 12px;
-    box-shadow: 0 0 20px rgba(0,0,0,0.1);
-  }
-  h1,h2 {color:#004d40;text-align:center}
-  code{background:#f0f0f0;padding:2px 6px;border-radius:4px}
-  table{width:100%;border-collapse:collapse;margin:1rem 0}
-  th,td{border:1px solid #ccc;padding:8px 10px;text-align:left}
-  th{background:#e0f2f1}
-  .gauge-container{text-align:center;margin-top:40px}
-  canvas{width:260px;height:130px}
-  .gauge-value{font-size:1.3rem;color:#00695c;font-weight:bold}
-  input[type=range]{width:80%;margin-top:1rem}
-  #chartCanvas{width:100%;height:260px;margin-top:2rem}
-  footer{margin-top:2rem;text-align:right;font-style:italic}
+body{
+  font-family:"Segoe UI", Arial, sans-serif;
+  background:#fafafa;
+  color:#222;
+  line-height:1.6;
+  margin:2rem auto;
+  max-width:950px;
+  padding:1.5rem;
+  border-radius:12px;
+  box-shadow:0 0 20px rgba(0,0,0,0.1);
+}
+h1,h2{color:#004d40;text-align:center}
+code{background:#f0f0f0;padding:2px 6px;border-radius:4px}
+table{width:100%;border-collapse:collapse;margin:1rem 0}
+th,td{border:1px solid #ccc;padding:8px 10px;text-align:left}
+th{background:#e0f2f1}
+.gauge-container{text-align:center;margin-top:40px}
+canvas{width:260px;height:130px}
+.gauge-value{font-size:1.3rem;color:#00695c;font-weight:bold}
+input[type=range]{width:80%;margin-top:1rem}
+#chartCanvas{width:100%;height:260px;margin-top:2rem}
+.flame{width:160px;height:160px;border-radius:50%;margin:auto;box-shadow:0 0 30px rgba(0,0,0,0.3);transition:all 0.5s ease-in-out}
+.label{margin-top:10px;font-weight:bold;font-size:1.1rem}
+.line{width:140px;height:4px;margin:10px auto;border-radius:2px}
+footer{margin-top:40px;text-align:right;font-style:italic;color:#444}
 </style>
 </head>
 <body>
 
-<h1>Modelul 3.14 – Coeziunea termică a superaliajelor</h1>
-<h3>(simulare interactivă 800 – 1300 °C)</h3>
+<h1>Modelul 3.14 – Aliajul coeziv și simulările termice</h1>
 
 <h2>1. Introducere și principiu</h2>
 <p>
@@ -42,9 +44,7 @@ energia vibrațională (<em>E</em>) și distanța medie (<em>r</em>) prin relaț
 <p style="text-align:center;">
   <code>F<sub>c</sub> = (N × n<sub>e⁻</sub> × E) / r²</code>
 </p>
-<p>
-Pentru starea de coeziune perfectă, <em>F<sub>c</sub> ≈ 3.14</em>.
-</p>
+<p>Pentru starea de coeziune perfectă, <em>F<sub>c</sub> ≈ 3.14</em>.</p>
 
 <h2>2. Aplicare numerică</h2>
 <p>
@@ -65,24 +65,27 @@ indică o zonă de compoziție stabilă în jurul valorii F<sub>c</sub> = 3.14.
   <tr><td>Altele (Co, C)</td><td>ajustare locală</td><td>&lt; 2 %</td></tr>
 </table>
 
-<h2>4. Interpretare</h2>
-<p>
-În jurul valorii 1200 °C materialul atinge echilibrul coeziv perfect:
-sub 3.14 apar fisuri, peste 3.14 devine prea rigid.
-Aceasta corespunde experimental aliajelor Ni–Cr–Fe–W/Mo stabilizate cu Al și Ti,
-utilizate la suprafețe de ardere și camere termice de înalt randament.
-</p>
-
-<h2>5. Simulare interactivă</h2>
-
+<h2>4. Simulare termică (temperatură vs coeziune)</h2>
 <div class="gauge-container">
   <canvas id="gaugeCanvas"></canvas>
   <div class="gauge-value" id="gaugeValue">F<sub>c</sub> = 0.00</div>
   <label for="tempSlider">Temperatura (°C): <span id="tempLabel">1200</span></label><br>
   <input type="range" id="tempSlider" min="800" max="1300" value="1200" step="10">
 </div>
-
 <canvas id="chartCanvas"></canvas>
+
+<h2>5. Simulare de coeziune (2.5–3.5)</h2>
+<p style="text-align:center">Mută sliderul: la <strong>F<sub>c</sub> = 3.14</strong> sistemul devine stabil și ordonat.</p>
+<div class="flame" id="flame"></div>
+<div class="label" id="labelFc">F<sub>c</sub> = 2.50</div>
+<div class="line" id="line"></div>
+<p id="desc" style="text-align:center">Vibrații haotice, pierderi, ardere neregulată</p>
+<label for="slider">Ajustează coeziunea:</label><br>
+<input type="range" id="slider" min="2.5" max="3.5" value="2.5" step="0.01">
+
+<footer>
+Sergiu Bulboacă – autor al Modelului Coeziv 3.14<br>Danemarca, 2025
+</footer>
 
 <script>
 // ---- G A U G E  ----
@@ -91,7 +94,6 @@ const ctx=gaugeCanvas.getContext("2d");
 const tempSlider=document.getElementById("tempSlider");
 const tempLabel=document.getElementById("tempLabel");
 const gaugeValue=document.getElementById("gaugeValue");
-
 function drawGauge(fc){
   ctx.clearRect(0,0,gaugeCanvas.width,gaugeCanvas.height);
   const cx=gaugeCanvas.width/2, cy=gaugeCanvas.height, r=110;
@@ -102,57 +104,42 @@ function drawGauge(fc){
   ctx.beginPath();ctx.arc(cx,cy,r,start,ang);
   ctx.strokeStyle="#26a69a";ctx.lineWidth=15;ctx.stroke();
 }
-
-function calcFc(temp){
-  const diff=Math.abs(temp-1200);
-  return 3.14 - 0.0015*Math.pow(diff,1.3);
-}
-
+function calcFc(temp){const diff=Math.abs(temp-1200);return 3.14 - 0.0015*Math.pow(diff,1.3);}
 function updateGauge(){
   const t=parseInt(tempSlider.value);
   tempLabel.textContent=t;
   const fc=calcFc(t);
   const fcClamped=Math.max(0,Math.min(fc,3.14));
   drawGauge(fcClamped);
-  gaugeValue.innerHTML=`F<sub>c</sub> = ${fcClamped.toFixed(2)}`+
-    (Math.abs(t-1200)<20?" (echilibru coeziune perfectă)":"");
+  gaugeValue.innerHTML=`F<sub>c</sub> = ${fcClamped.toFixed(2)}`+(Math.abs(t-1200)<20?" (echilibru coeziune perfectă)":"");
   drawChart();
 }
-
 tempSlider.addEventListener("input",updateGauge);
 
 // ---- C H A R T ----
 const chartCanvas=document.getElementById("chartCanvas");
 const cctx=chartCanvas.getContext("2d");
 chartCanvas.width=900;chartCanvas.height=260;
-
 function drawChart(){
   const width=chartCanvas.width, height=chartCanvas.height;
   cctx.clearRect(0,0,width,height);
-  // axe
   cctx.strokeStyle="#888";cctx.lineWidth=1;
   cctx.beginPath();
   cctx.moveTo(50,height-30); cctx.lineTo(width-20,height-30);
   cctx.moveTo(50,20); cctx.lineTo(50,height-30);
   cctx.stroke();
-  // etichete
   cctx.font="12px Segoe UI";
   cctx.fillText("Temperatura (°C)",width/2-40,height-8);
-  cctx.save();
-  cctx.rotate(-Math.PI/2);
-  cctx.fillText("Fᶜ", -height/2-10, 15);
-  cctx.restore();
-  // curba
+  cctx.save();cctx.rotate(-Math.PI/2);
+  cctx.fillText("Fᶜ", -height/2-10, 15);cctx.restore();
   cctx.beginPath();
   for(let t=800;t<=1300;t+=10){
     const fc=calcFc(t);
     const x=50+((t-800)/(1300-800))*(width-70);
     const y=height-30-(fc/3.5)*(height-60);
-    if(t===800) cctx.moveTo(x,y);
-    else cctx.lineTo(x,y);
+    if(t===800) cctx.moveTo(x,y); else cctx.lineTo(x,y);
   }
   cctx.strokeStyle="#26a69a";cctx.lineWidth=2;cctx.stroke();
-  // punct curent
   const t=parseInt(tempSlider.value);
   const fc=calcFc(t);
   const x=50+((t-800)/(1300-800))*(width-70);
@@ -161,13 +148,45 @@ function drawChart(){
   cctx.fillStyle="#ff5722";cctx.fill();
 }
 
-updateGauge();
-</script>
+// ---- C O E Z I U N E  ----
+const flame=document.getElementById("flame");
+const slider=document.getElementById("slider");
+const label=document.getElementById("labelFc");
+const desc=document.getElementById("desc");
+const line=document.getElementById("line");
+function updateFlame(){
+  const fc=parseFloat(slider.value);
+  label.innerHTML=`F<sub>c</sub> = ${fc.toFixed(2)}`;
+  if(fc<3.0){
+    flame.style.background="radial-gradient(circle at 60% 40%, #ffab91, #e53935)";
+    flame.style.animation="chaos 0.5s infinite";
+    line.style.background="#d32f2f";
+    desc.innerHTML="Vibrații haotice, pierderi, ardere neregulată";
+  } else if(fc>=3.0 && fc<=3.28){
+    flame.style.background="radial-gradient(circle at 50% 60%, #00ffc3, #00796b)";
+    flame.style.animation="breathe 3s ease-in-out infinite";
+    line.style.background="#00bfa5";
+    desc.innerHTML="Flux uniform, echilibru coeziv, ardere curată";
+  } else {
+    flame.style.background="radial-gradient(circle at 50% 50%, #c5e1a5, #558b2f)";
+    flame.style.animation="pulse 1.5s ease-in-out infinite";
+    line.style.background="#9ccc65";
+    desc.innerHTML="Supra-coeziune: rigiditate, disipare limitată";
+  }
+}
+slider.addEventListener("input",updateFlame);
+updateGauge();updateFlame();
 
-<footer>
-Sergiu Bulboacă – autor al Modelului Coeziv 3.14<br>
-Danemarca, 2025
-</footer>
+// ---- A N I M A T I O N S ----
+const style=document.createElement('style');
+style.textContent=`
+@keyframes breathe {0%{transform:scale(1);}50%{transform:scale(1.08);}100%{transform:scale(1);}}
+@keyframes chaos {0%{transform:translate(0,0) scale(1);}25%{transform:translate(-3px,4px) scale(1.1);}
+50%{transform:translate(5px,-5px) scale(0.9);}75%{transform:translate(-4px,2px) scale(1.05);}100%{transform:translate(0,0) scale(1);}}
+@keyframes pulse {0%{box-shadow:0 0 15px #9ccc65;}50%{box-shadow:0 0 30px #aed581;}100%{box-shadow:0 0 15px #9ccc65;}}
+`;
+document.head.appendChild(style);
+</script>
 
 </body>
 </html>
