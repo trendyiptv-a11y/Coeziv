@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Modelul 3.14 – Interpretarea manifestării biologice</title>
+<title>Analiza manifestării biologice – Modelul 3.14</title>
 <style>
   :root {
     --accent: #00ffb7;
@@ -16,6 +16,7 @@
     color: #c9d1d9;
     margin: 0;
     padding: 2rem 1rem;
+    line-height: 1.6;
   }
   h1, h2 { color: var(--accent); text-align:center; }
   section {
@@ -23,63 +24,121 @@
     border-radius: 1rem;
     padding: 1.5rem;
     margin: 1rem auto;
-    max-width: 800px;
+    max-width: 850px;
     box-shadow: 0 0 10px #0005;
   }
-  p { line-height: 1.5; }
   .formula {
     background:#111;
     padding:1rem;
     border-radius:8px;
     font-family: "Courier New", monospace;
     text-align:center;
+    color:#0ff;
   }
-  footer {
-    text-align:center;
-    margin-top:2rem;
-    color:#888;
+  footer { text-align:center; color:#888; margin-top:2rem; font-size:0.9rem; }
+
+  /* Spirala */
+  .spirala {
+    position: relative;
+    width: 220px;
+    height: 220px;
+    margin: 0 auto 2rem auto;
   }
+  .spirala svg {
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+  }
+  .spirala circle {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 2;
+    opacity: 0.25;
+  }
+  .point {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--accent);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+  .p1 { transform: translate(-50%, -50%) rotate(0deg) translate(80px) rotate(90deg); }
+  .p2 { transform: translate(-50%, -50%) rotate(35deg) translate(65px) rotate(-35deg); background:#ffc800; }
+  .legend { text-align:center; color:#999; font-size:0.9rem; margin-top:0.5rem; }
 </style>
 </head>
 <body>
 
-<h1>Modelul 3.14 – Interpretarea unei manifestări biologice reale</h1>
+<h1>Analiza unei manifestări biologice rare</h1>
+<h2>Comparativ: Știința actuală și Modelul 3.14</h2>
+
+<div class="spirala">
+  <svg viewBox="0 0 200 200">
+    <path d="M100,100 m-80,0 a80,80 0 1,1 160,0 a80,80 0 1,1 -160,0" />
+  </svg>
+  <div class="point p1" title="Prima măsea (17-18 ani)"></div>
+  <div class="point p2" title="Noua măsea (53 ani, ușor spre interior)"></div>
+</div>
+<div class="legend">🟢 Prima măsea • 🟡 Noua măsea – spirala coeziunii 3.14</div>
 
 <section>
-  <h2>Descrierea probei</h2>
-  <p>Apariția unei măsele de minte la vârsta de 53 de ani, în același loc unde a existat una în tinerețe. Fenomen observat ca reactivare biologică spontană.</p>
+  <h2>1. Observația de teren</h2>
+  <p>Sunt prezente două formațiuni dentare distincte în zona molară inferioară dreaptă: 
+  prima – măseaua de minte apărută în adolescență (17-18 ani), 
+  și a doua – apărută recent, la 53 de ani, ușor deplasată spre interior. 
+  Ambele sunt vizibile fizic și complet formate, ceea ce confirmă coexistența a două structuri dentare autentice.</p>
 </section>
 
 <section>
-  <h2>Interpretarea prin Formula Coeziunii</h2>
+  <h2>2. Explicația științifică actuală</h2>
+  <p>Știința medicală clasifică asemenea cazuri drept <b>dinți supranumerari</b> sau <b>duplicații dentare</b>. 
+  Ele apar rar (0.1–1% din populație) și pot fi determinate de reactivarea unei zone stem 
+  sau de o expresie genetică întârziată. 
+  Biologic, formarea se produce dacă rămân celule stem dentare viabile în osul alveolar 
+  și dacă mediul local (nutrițional, hormonal, electric) este propice diferențierii celulare.</p>
+</section>
+
+<section>
+  <h2>3. Analiza prin metoda 3.14</h2>
   <div class="formula">
     F<sub>c</sub> = (N<sub>H₂O</sub> · n<sub>e⁻</sub> · E) / r²
   </div>
-  <p>Parametrii formulei indică revenirea sistemului biologic la echilibru:</p>
+  <p>Modelul 3.14 oferă o interpretare coezivă: sistemul biologic a atins din nou 
+  echilibrul π între densitatea materiei, fluxul energetic și conștiința corporală.</p>
   <ul>
-    <li><b>N<sub>H₂O</sub></b> – densitatea apei intracelulare a crescut local, refăcând structura osoasă;</li>
-    <li><b>n<sub>e⁻</sub></b> – fluxul electric al nervului trigeminal s-a reactivat pe aceeași linie;</li>
-    <li><b>E</b> – energia internă, asociată coerenței mintale, a determinat reluarea creșterii;</li>
-    <li><b>r</b> – raza de interacțiune a scăzut, ceea ce a concentrat câmpul în zona respectivă.</li>
+    <li><b>N<sub>H₂O</sub></b> – creștere a densității apei intracelulare, optimizând conductivitatea osului;</li>
+    <li><b>n<sub>e⁻</sub></b> – flux nervos reactivat pe traiectul trigeminal (curenți electrici biologici);</li>
+    <li><b>E</b> – energie internă stabilă, cu efect de stimulare regenerativă;</li>
+    <li><b>r</b> – micșorat local (dinte spre interior) → concentrare a câmpului coeziv.</li>
   </ul>
-  <p>Rezultatul: <b>F<sub>c</sub> ≈ 3.14 + δ</b>, unde δ reprezintă energia memoriei biologice. Corpul a reînchis cercul coeziv început la 17–18 ani.</p>
+  <p>Rezultatul: <b>F<sub>c</sub> ≈ 3.14 + δ</b>, unde δ indică memoria activă a țesutului. 
+  Câmpul viu a refăcut structura pierdută, dar ușor reconfigurată – o geometrie mai densă și mai precisă.</p>
 </section>
 
 <section>
-  <h2>Semnificație simbolică</h2>
-  <p>În modelul 3.14, reapariția unui dinte în același loc nu este o simplă regenerare, ci o recunoaștere a
-  codului de coerență al corpului. Câmpul viu restabilește geometria pierdută, confirmând echilibrul dintre materie,
-  energie și conștiință.</p>
+  <h2>4. Sinteză comparativă</h2>
+  <p><b>Știința modernă</b> confirmă posibilitatea biologică prin reactivarea celulelor stem dentare.</p>
+  <p><b>Modelul 3.14</b> explică momentul apariției și poziția ca pe un răspuns al câmpului coeziv: 
+  sistemul viu reface echilibrul geometric al zonei mandibulare, 
+  creând o a doua spirală π – un simbol al maturității biologice și conștiente.</p>
 </section>
 
 <section>
-  <h2>Concluzie</h2>
-  <p>Evenimentul biologic demonstrează că legea coeziunii 3.14 se manifestă natural: sistemul viu tinde mereu
-  spre echilibru. Reactivarea măselei de minte la 53 de ani reprezintă o <b>confirmare biologică a coerenței π</b>.</p>
+  <h2>5. Concluzie</h2>
+  <p>Prezența fizică a celor două măsele în același câmp mandibular 
+  demonstrează plasticitatea corpului viu și capacitatea sa de autoreglare. 
+  Din perspectiva științifică, fenomenul este o expresie rară a codului genetic latent.  
+  Din perspectiva coezivă, este o dovadă că sistemul biologic poate reatinge starea de echilibru 3.14 
+  prin regenerare adaptivă.</p>
+  <p><b>Concluzie finală:</b> natura nu repetă – <i>ea îmbunătățește</i>. 
+  Noua măsea nu este copia celei vechi, ci versiunea ei coerentă, perfect adaptată prezentului.</p>
 </section>
 
 <footer>
-  © 2025 Sergiu Bulboacă – Document observațional 3.14
+  © 2025 Sergiu Bulboacă – Document de observație și analiză 3.14
 </footer>
 
 </body>
