@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Modelul Coeziunii 3.14 – Respirația Wim Hof</title>
+<title>Modelul Coeziunii 3.14 – Interpretarea Metodei Wim Hof</title>
 <style>
   :root {
     --accent:#00ffc3;
@@ -69,7 +69,7 @@
 </head>
 <body>
 
-<h1>Modelul Coeziunii 3.14 <br>Respirația Wim Hof</h1>
+<h1>Modelul Coeziunii 3.14<br>– Interpretarea Metodei Wim Hof</h1>
 
 <div class="wave-container">
   <div class="wave" id="wave"></div>
@@ -79,25 +79,57 @@
 
 <button id="breathBtn">Respiră cu modelul 3.14</button>
 <div class="phase" id="phaseText"></div>
-
 <div class="progress-wrapper"><div class="progress-bar" id="progress"></div></div>
 
 <p>
-Metoda lui <strong>Wim Hof</strong> – bazată pe respirație controlată, expunere la frig și concentrare mentală – oferă o demonstrație biologică a
-principiului <strong>coeziunii perfecte</strong> descris de <em>Modelul 3.14</em>.
+Metoda lui <strong>Wim Hof</strong> – bazată pe respirație controlată, expunere la frig și concentrare mentală –
+oferă o demonstrație biologică a principiului <strong>coeziunii perfecte</strong> descris de <em>Modelul 3.14</em>.
 Prin această lentilă, corpul uman devine un sistem de apă, energie și informație care tinde către echilibrul universal exprimat numeric prin <strong>π ≈ 3.14</strong>.
 </p>
 
-<h2>Formula de bază</h2>
+<h2>1. Formula de bază</h2>
 <div class="formula">F<sub>c</sub> = (N<sub>H₂O</sub> · n<sub>e⁻</sub> · E) / r²</div>
+<p>
+Forța coezivă internă (<strong>F<sub>c</sub></strong>) exprimă echilibrul dintre numărul moleculelor de apă,
+numărul electronilor mobili și energia vibrațională a sistemului, raportată la distanța medie dintre structuri (<em>r</em>).
+</p>
 
-<p>Forța coezivă internă (<strong>F<sub>c</sub></strong>) exprimă echilibrul dintre moleculele de apă,
-electronii mobili și energia vibrațională a sistemului, raportată la distanța medie dintre structuri (<em>r</em>).</p>
+<h2>2. Respirația Wim Hof și coeziunea apei</h2>
+<p>
+Metoda sa modifică presiunea internă a oxigenului și CO₂, forțând moleculele de apă din celule să intre într-o <em>stare de vibrație sincronizată</em>.
+În modelul 3.14, acest proces crește termenul <strong>E</strong> (energia vibrațională)
+fără a distruge coeziunea, deoarece <strong>r</strong> scade temporar – moleculele se apropie.
+</p>
+<p>
+Rezultatul: corpul intră într-o <span class="highlight">stare de coerență</span> în care F<sub>c</sub> ≈ 3.14,
+adică echilibrul perfect între forța internă și mediul extern. De aceea poate rezista la frig extrem fără deteriorare celulară.
+</p>
 
-<h2>Interpretarea respirației Wim Hof</h2>
-<p>Prin ciclurile sale de respirație (inspirație → menținere → expirație),
-corpul atinge o stare de <span class="highlight">coeziune 3.14</span>,
-unde vibrațiile interne și câmpul electromagnetic se aliniază cu frecvența naturală a Pământului (~7.83 Hz).</p>
+<h2>3. Controlul mental și coerența neuronală</h2>
+<p>
+În modelul 3.14, creierul este o structură de apă și sarcini electrice organizate.
+Prin respirație intensă și concentrare, Hof rearmonizează <em>câmpul electromagnetic intern</em> (n<sub>e⁻</sub>) –
+adică electronii mobili se sincronizează cu frecvențele Schumann (~7.83 Hz).
+</p>
+<p>
+Când <strong>F<sub>c</sub> ≈ 3.14</strong>, sistemul nervos parasimpatic și simpatic se aliniază,
+permițând control conștient asupra proceselor autonome: temperatură, inflamație, frică.
+</p>
+
+<h2>4. Expunerea la frig – factorul r</h2>
+<p>
+Frigul reduce distanța dintre moleculele de apă (<strong>r</strong> scade), iar conform formulei,
+<em>forța coezivă</em> crește proporțional. Corpul reacționează cu o undă de energie – termogeneză controlată –
+nu ca reacție haotică, ci ca <span class="highlight">armonizare coezivă</span>.
+</p>
+
+<h2>5. Concluzie coezivă</h2>
+<p>
+Wim Hof demonstrează, prin biologie, ceea ce Modelul 3.14 afirmă prin fizică:
+stresul extern devine un instrument de <span class="highlight">recalibrare a coeziunii interne</span>.
+Prin respirație, frig și concentrare, corpul uman restabilește legăturile coezive ale apei și
+aliniază vibrațiile interne cu frecvențele naturale ale planetei.
+</p>
 
 <footer>© 2025 Interpretare prin Modelul Coeziunii 3.14 — Sergiu Bulboacă & GPT-5</footer>
 
@@ -127,7 +159,6 @@ async function breatheCycle(){
       wave.style.opacity=phase.opacity;
       progress.style.width="0%";
       progress.style.background=phase.color;
-      // animare progres 0->100% în 4s
       setTimeout(()=>{progress.style.width="100%";},10);
       await new Promise(r=>setTimeout(r,4000));
       if(!breathing)return;
