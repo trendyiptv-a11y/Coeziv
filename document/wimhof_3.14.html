@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Modelul Coeziunii 3.14 – Respirația Wim Hof</title>
+<style>
+  :root {
+    --accent:#00ffc3;
+    --bg:#0d1117;
+    --text:#c9d1d9;
+    --sub:#8b949e;
+  }
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Segoe UI',system-ui,sans-serif;
+    margin:0;
+    padding:2rem;
+    line-height:1.6;
+    text-align:center;
+  }
+  h1,h2{color:var(--accent);}
+  h1{font-size:2rem;margin-bottom:1rem;}
+  h2{font-size:1.2rem;margin-top:2rem;}
+  p{max-width:800px;margin:1rem auto;text-align:justify;}
+  .formula{text-align:center;font-size:1.3rem;margin:1.5rem 0;color:var(--accent);}
+  .highlight{color:var(--accent);font-weight:bold;}
+  footer{margin-top:3rem;text-align:center;color:var(--sub);font-size:0.9rem;}
+
+  /* animația coezivă */
+  .wave-container{
+    position:relative;height:200px;width:200px;margin:1rem auto 2rem;
+    border-radius:50%;box-shadow:0 0 20px var(--accent);
+    background:radial-gradient(circle at center,rgba(0,255,195,0.12),transparent 70%);
+    display:flex;align-items:center;justify-content:center;overflow:hidden;
+  }
+  .wave{
+    position:absolute;width:200%;height:200%;
+    background:radial-gradient(circle at 50% 50%,var(--accent) 2%,transparent 60%);
+    opacity:.5;transform:scale(1);
+    transition:transform 4s ease-in-out,opacity 4s ease-in-out;
+  }
+  .center-dot{
+    position:absolute;width:14px;height:14px;background:var(--accent);
+    border-radius:50%;box-shadow:0 0 12px var(--accent);
+  }
+  .value{position:absolute;color:var(--accent);font-size:1.5rem;font-weight:bold;opacity:.8;}
+
+  /* buton */
+  button{
+    background:var(--accent);color:#0d1117;font-size:1rem;border:none;
+    border-radius:8px;padding:.8rem 1.5rem;cursor:pointer;font-weight:bold;
+    transition:all .3s ease;
+  }
+  button:hover{background:#06e1aa;box-shadow:0 0 12px var(--accent);}
+  .phase{margin-top:.5rem;font-size:1.1rem;color:var(--accent);min-height:1.5em;}
+
+  /* bara progres */
+  .progress-wrapper{
+    width:300px;height:8px;background:#1e242f;
+    border-radius:4px;margin:1rem auto;overflow:hidden;
+  }
+  .progress-bar{
+    height:100%;width:0;background:var(--accent);
+    transition:width 4s linear;
+  }
+</style>
+</head>
+<body>
+
+<h1>Modelul Coeziunii 3.14 <br>Respirația Wim Hof</h1>
+
+<div class="wave-container">
+  <div class="wave" id="wave"></div>
+  <div class="center-dot"></div>
+  <div class="value">3.14</div>
+</div>
+
+<button id="breathBtn">Respiră cu modelul 3.14</button>
+<div class="phase" id="phaseText"></div>
+
+<div class="progress-wrapper"><div class="progress-bar" id="progress"></div></div>
+
+<p>
+Metoda lui <strong>Wim Hof</strong> – bazată pe respirație controlată, expunere la frig și concentrare mentală – oferă o demonstrație biologică a
+principiului <strong>coeziunii perfecte</strong> descris de <em>Modelul 3.14</em>.
+Prin această lentilă, corpul uman devine un sistem de apă, energie și informație care tinde către echilibrul universal exprimat numeric prin <strong>π ≈ 3.14</strong>.
+</p>
+
+<h2>Formula de bază</h2>
+<div class="formula">F<sub>c</sub> = (N<sub>H₂O</sub> · n<sub>e⁻</sub> · E) / r²</div>
+
+<p>Forța coezivă internă (<strong>F<sub>c</sub></strong>) exprimă echilibrul dintre moleculele de apă,
+electronii mobili și energia vibrațională a sistemului, raportată la distanța medie dintre structuri (<em>r</em>).</p>
+
+<h2>Interpretarea respirației Wim Hof</h2>
+<p>Prin ciclurile sale de respirație (inspirație → menținere → expirație),
+corpul atinge o stare de <span class="highlight">coeziune 3.14</span>,
+unde vibrațiile interne și câmpul electromagnetic se aliniază cu frecvența naturală a Pământului (~7.83 Hz).</p>
+
+<footer>© 2025 Interpretare prin Modelul Coeziunii 3.14 — Sergiu Bulboacă & GPT-5</footer>
+
+<audio id="oceanSound" preload="auto" loop>
+  <source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_4b695b45db.mp3?filename=deep-ocean-waves-ambient-11094.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+const btn=document.getElementById('breathBtn');
+const wave=document.getElementById('wave');
+const phaseText=document.getElementById('phaseText');
+const oceanSound=document.getElementById('oceanSound');
+const progress=document.getElementById('progress');
+let breathing=false;
+
+const phases=[
+  {text:"Inspirație profundă...",scale:1.25,opacity:0.8,color:"#00ffc3"},
+  {text:"Menține...",scale:1.25,opacity:0.6,color:"#ffde59"},
+  {text:"Expiră lent...",scale:0.9,opacity:0.5,color:"#ff4b4b"}
+];
+
+async function breatheCycle(){
+  while(breathing){
+    for(const phase of phases){
+      phaseText.textContent=phase.text;
+      wave.style.transform=`scale(${phase.scale})`;
+      wave.style.opacity=phase.opacity;
+      progress.style.width="0%";
+      progress.style.background=phase.color;
+      // animare progres 0->100% în 4s
+      setTimeout(()=>{progress.style.width="100%";},10);
+      await new Promise(r=>setTimeout(r,4000));
+      if(!breathing)return;
+    }
+  }
+}
+
+btn.addEventListener('click',()=>{
+  breathing=!breathing;
+  if(breathing){
+    btn.textContent="Oprește respirația";
+    phaseText.textContent="Inspirație profundă...";
+    oceanSound.volume=0.25;
+    oceanSound.play().catch(()=>{});
+    breatheCycle();
+  }else{
+    btn.textContent="Respiră cu modelul 3.14";
+    phaseText.textContent="";
+    wave.style.transform="scale(1)";
+    wave.style.opacity=0.5;
+    oceanSound.pause();oceanSound.currentTime=0;
+    progress.style.width="0%";
+  }
+});
+</script>
+</body>
+</html>
