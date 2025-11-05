@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Modelul 3.14 – Estimarea compoziției coezive a superaliajelor termice</title>
+<title>Modelul 3.14 – Coeziunea termică a superaliajelor</title>
 <style>
   body {
     font-family: "Segoe UI", Arial, sans-serif;
@@ -16,159 +16,73 @@
     border-radius: 12px;
     box-shadow: 0 0 20px rgba(0,0,0,0.1);
   }
-  h1, h2, h3 {
-    color: #004d40;
-    text-align: center;
-  }
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 1rem 0;
-  }
-  th, td {
-    border: 1px solid #ccc;
-    padding: 8px 10px;
-    text-align: left;
-  }
-  th { background-color: #e0f2f1; }
-  tr:nth-child(even) { background-color: #f9f9f9; }
-  code {
-    background-color: #f0f0f0;
-    padding: 2px 6px;
-    border-radius: 4px;
-  }
-  footer {
-    margin-top: 2rem;
-    text-align: right;
-    font-style: italic;
-  }
-
-  /* G A U G E */
-  .gauge-container {
-    text-align: center;
-    margin-top: 40px;
-  }
-  canvas {
-    width: 240px;
-    height: 120px;
-  }
-  .gauge-value {
-    font-size: 1.3rem;
-    color: #00695c;
-    font-weight: bold;
-  }
+  h1,h2 {color:#004d40;text-align:center}
+  table{width:100%;border-collapse:collapse;margin:1rem 0}
+  th,td{border:1px solid #ccc;padding:8px 10px;text-align:left}
+  th{background:#e0f2f1}
+  code{background:#f0f0f0;padding:2px 6px;border-radius:4px}
+  .gauge-container{text-align:center;margin-top:40px}
+  canvas{width:240px;height:120px}
+  .gauge-value{font-size:1.3rem;color:#00695c;font-weight:bold}
+  input[type=range]{width:80%;margin-top:1rem}
+  footer{margin-top:2rem;text-align:right;font-style:italic}
 </style>
 </head>
 <body>
 
-<h1>Modelul 3.14 – Estimarea compoziției coezive a superaliajelor termice</h1>
-<h3>(aplicație la temperatura 1200 °C)</h3>
+<h1>Modelul 3.14 – Coeziunea termică a superaliajelor</h1>
+<h3>(simulare interactivă 800 – 1300 °C)</h3>
 
-<h2>1. Introducere</h2>
-<p>
-Studiul urmărește deducerea, pe baza <strong>Modelului Coeziv 3.14</strong>, a compoziției teoretice a unui superaliaj capabil să funcționeze stabil la ≈1200&nbsp;°C.  
-Modelul 3.14 descrie echilibrul dintre densitatea particulelor (<em>N</em>), energia vibrațională (<em>E</em>) și distanța medie (<em>r</em>) prin relația:
-</p>
-
-<p style="text-align:center;">
+<p style="text-align:center">
   <code>F<sub>c</sub> = (N × n<sub>e⁻</sub> × E) / r²</code>
 </p>
-
-<p>
-unde <em>F<sub>c</sub> ≈ 3.14</em> reprezintă starea de coeziune perfectă a materiei.
-</p>
-
-<h2>2. Fundament teoretic</h2>
-<p>
-Pentru un material aflat în regim termic de 1200&nbsp;°C, energia vibrațională medie <em>E ≈ 0,12 eV/atom</em>.  
-Stabilitatea structurală necesită menținerea raportului <em>n<sub>e⁻</sub>/r²</em> constant.  
-Aliajele cu rețea cubică față-centrată (FCC) și cu densitate electronică medie permit acest echilibru.
-</p>
-
-<h2>3. Aplicarea la temperatura 1200 °C</h2>
-<p>
-Analiza formulei arată că un material cu <em>F<sub>c</sub> ≈ 3.14</em> trebuie să combine:
-</p>
-<ul>
-  <li>conductivitate termică ridicată – flux electronic coerent;</li>
-  <li>energie vibrațională absorbită fără ruperea legăturilor – elasticitate termică;</li>
-  <li>distanță interatomică stabilă – rezistență la fluaj.</li>
-</ul>
-<p>
-Metalele care îndeplinesc aceste condiții sunt <strong>Ni, Cr, Fe, W/Mo, Al, Ti, Si</strong> – caracteristice superaliajelor moderne.
-</p>
-
-<h2>4. Estimarea compoziției coezive</h2>
-
-<table>
-  <tr>
-    <th>Element</th>
-    <th>Rol structural</th>
-    <th>Domeniu procentual estimat</th>
-  </tr>
-  <tr><td><strong>Ni</strong></td><td>matrice coezivă (rețea FCC)</td><td>50 – 60 %</td></tr>
-  <tr><td><strong>Cr</strong></td><td>strat protector de Cr₂O₃</td><td>18 – 25 %</td></tr>
-  <tr><td><strong>Fe</strong></td><td>stabilizare și diluție electronică</td><td>5 – 10 %</td></tr>
-  <tr><td><strong>W / Mo</strong></td><td>densitate vibrațională, duritate</td><td>5 – 10 %</td></tr>
-  <tr><td><strong>Al + Ti + Si</strong></td><td>coerență vibrațională fină</td><td>3 – 5 %</td></tr>
-  <tr><td><strong>Altele (Co, C)</strong></td><td>ajustare locală</td><td>&lt; 2 %</td></tr>
-</table>
-
-<p>
-Aceste proporții definesc zona de echilibru în care <em>F<sub>c</sub> ≈ 3.14</em>; sub acest prag apar fisuri prin pierderea coeziunii, iar peste el materialul devine prea rigid.
-</p>
-
-<h2>5. Diagramă coezivă</h2>
 
 <div class="gauge-container">
   <canvas id="gaugeCanvas"></canvas>
   <div class="gauge-value" id="gaugeValue">F<sub>c</sub> = 0.00</div>
-  <p>Stabilizare la temperatura 1200 °C</p>
+  <label for="tempSlider">Temperatura (°C): <span id="tempLabel">1200</span></label><br>
+  <input type="range" id="tempSlider" min="800" max="1300" value="1200" step="10">
 </div>
 
 <script>
 const canvas = document.getElementById("gaugeCanvas");
 const ctx = canvas.getContext("2d");
-let fc = 0.0;
-function drawGauge(value) {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  const cx = canvas.width / 2;
-  const cy = canvas.height;
-  const radius = 100;
-  const startAngle = Math.PI;
-  const endAngle = 2 * Math.PI;
-  // fundal
-  ctx.beginPath();
-  ctx.arc(cx, cy, radius, startAngle, endAngle);
-  ctx.lineWidth = 15;
-  ctx.strokeStyle = "#ccc";
-  ctx.stroke();
-  // valoare
-  const angle = startAngle + (value / 5) * Math.PI;
-  ctx.beginPath();
-  ctx.arc(cx, cy, radius, startAngle, angle);
-  ctx.strokeStyle = "#26a69a";
-  ctx.lineWidth = 15;
-  ctx.stroke();
-}
-function animateGauge() {
-  if (fc < 3.14) {
-    fc += 0.02;
-    drawGauge(fc);
-    document.getElementById("gaugeValue").innerHTML = "F<sub>c</sub> = " + fc.toFixed(2);
-    requestAnimationFrame(animateGauge);
-  } else {
-    document.getElementById("gaugeValue").innerHTML = "F<sub>c</sub> = 3.14 (echilibru)";
-  }
-}
-animateGauge();
-</script>
+const tempSlider = document.getElementById("tempSlider");
+const tempLabel = document.getElementById("tempLabel");
+const gaugeValue = document.getElementById("gaugeValue");
 
-<h2>6. Concluzii</h2>
-<p>
-Rezultatele confirmă că la ≈1200&nbsp;°C, un aliaj cu bază <strong>Ni–Cr</strong>, echilibrat cu <strong>Fe</strong> și <strong>W/Mo</strong> și stabilizat prin <strong>Al</strong> și <strong>Ti</strong>, menține raportul coeziv ideal.  
-Modelul 3.14 oferă astfel o metodă teoretică de proiectare a materialelor rezistente la temperaturi extreme, explicând comportamentul observat în superaliajele utilizate pentru camere de ardere sau echipamente termice de înalt randament.
-</p>
+function drawGauge(fc){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  const cx=canvas.width/2, cy=canvas.height, r=100;
+  const start=Math.PI, end=2*Math.PI;
+  // fundal
+  ctx.beginPath();ctx.arc(cx,cy,r,start,end);
+  ctx.lineWidth=15;ctx.strokeStyle="#ccc";ctx.stroke();
+  // valoare
+  const ang=start+(fc/5)*Math.PI;
+  ctx.beginPath();ctx.arc(cx,cy,r,start,ang);
+  ctx.strokeStyle="#26a69a";ctx.lineWidth=15;ctx.stroke();
+}
+
+function calcFc(temp){
+  // simulare: valoarea 3.14 atinsă la 1200 °C, scade la extreme
+  const diff=Math.abs(temp-1200);
+  return 3.14 - 0.0015*Math.pow(diff,1.3);
+}
+
+function updateGauge(){
+  const t=parseInt(tempSlider.value);
+  tempLabel.textContent=t;
+  const fc=calcFc(t);
+  const fcClamped=Math.max(0,Math.min(fc,3.14));
+  drawGauge(fcClamped);
+  gaugeValue.innerHTML=`F<sub>c</sub> = ${fcClamped.toFixed(2)}`+
+    (Math.abs(t-1200)<20?" (echilibru coeziune perfectă)":"");
+}
+
+tempSlider.addEventListener("input",updateGauge);
+updateGauge();
+</script>
 
 <footer>
 Sergiu Bulboacă – autor al Modelului Coeziv 3.14<br>
