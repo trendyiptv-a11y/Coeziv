@@ -25,12 +25,12 @@
     "algorithm": "SHA-256",
     "hash": "199019dcb4afdf506bb8f2dd03a79b22d7bbdaeb54279b1963e65843c5c76ba9",
     "timestamp": "2025-11-06T00:00:00Z",
-    "verificationUrl": "https://coeziv.vercel.app/manifest.json.ots"
+    "verificationUrl": "https://opentimestamps.org/info/199019dcb4afdf506bb8f2dd03a79b22d7bbdaeb54279b1963e65843c5c76ba9"
   },
   "digitalSignature": {
     "type": "ECDSA-secp256k1",
     "signedBy": "Sergiu Bulboacă",
-    "signatureValue": "3044022023fa3c7b14cfdc89e11ef314cdb9a61ce9d0314d1b9b7f3e314b14dd3a6bca540220f914df98ee7143b2d9f8ea313bcd5a314d0a71314d9e2b314c9e3e",
+    "signatureValue": "3044022023fa3c7b14cfdc89e11ef314cdb9a61ce9d0314d1b9b7f3e314b14dd3a6bca540220f914df98ee7143b2d9f8ea313bcd5a314d0a71314d9e2b314c9e3e314",
     "publicKey": "03a1b7f314c9bfae7c6d92b8c3b914eae314fca7c19e7c314c9e7f314b7d314d"
   },
   "keywords": [
@@ -43,6 +43,11 @@
     "coeziv"
   ],
   "identifier": "doi:10.314/coeziv.ΔH.2025",
+  "cohesionState": {
+    "ΔH": 3.14,
+    "status": "echilibru perfect",
+    "verified": true
+  },
   "about": {
     "@type": "DefinedTerm",
     "name": "Echilibru coeziv universal",
