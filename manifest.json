@@ -23,7 +23,7 @@
   "blockchainProof": {
     "system": "Bitcoin / OpenTimestamps",
     "algorithm": "SHA-256",
-    "hash": "b2f5c6aee3d41d90a1ef7a9d23691cda7b9e3e6a314dfb56e2f319c63e3e314d",
+    "hash": "199019dcb4afdf506bb8f2dd03a79b22d7bbdaeb54279b1963e65843c5c76ba9",
     "timestamp": "2025-11-06T00:00:00Z",
     "verificationUrl": "https://coeziv.vercel.app/manifest.json.ots"
   },
