@@ -25,7 +25,7 @@
     "algorithm": "SHA-256",
     "hash": "b2f5c6aee3d41d90a1ef7a9d23691cda7b9e3e6a314dfb56e2f319c63e3e314d",
     "timestamp": "2025-11-06T00:00:00Z",
-    "verificationUrl": "https://opentimestamps.org"
+    "verificationUrl": "https://coeziv.vercel.app/manifest.json.ots"
   },
   "digitalSignature": {
     "type": "ECDSA-secp256k1",
