@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Colecții Coezive – Modelul 3.14</title>
+<style>
+:root {
+  --bg:#0d1117;
+  --panel:#161b22;
+  --text:#e9ecf1;
+  --muted:#aab2c6;
+  --accent:#00ffb7;
+  --hover:#ffd166;
+}
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: 'Segoe UI', sans-serif;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+}
+header {
+  padding: 2rem 1rem 1rem;
+}
+h1 {
+  color: var(--accent);
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+p.sub {
+  color: var(--muted);
+  margin-bottom: 2rem;
+}
+.collection-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.2rem;
+  max-width: 920px;
+  margin: 0 auto 3rem;
+  padding: 0 1rem;
+}
+.card {
+  background: var(--panel);
+  border: 1px solid #262b4c;
+  border-radius: 16px;
+  padding: 1.2rem;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+.card:hover {
+  transform: translateY(-4px);
+  border-color: var(--accent);
+}
+.card h3 {
+  color: var(--accent);
+  margin-top: 0;
+}
+.card p {
+  color: var(--muted);
+  font-size: 0.95rem;
+  margin: 0.4rem 0 1rem;
+}
+.card a {
+  background: var(--accent);
+  color: #0b0f1f;
+  text-decoration: none;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  display: inline-block;
+}
+.card a:hover {
+  background: var(--hover);
+  color: #111;
+}
+footer {
+  border-top: 1px solid #262b4c;
+  color: var(--muted);
+  font-size: 0.9rem;
+  padding: 2rem 1rem;
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>🔭 Colecții Coezive</h1>
+  <p class="sub">Interpretări științifice și fenomenologice realizate cu Modelul Coeziv 3.14</p>
+</header>
+
+<div class="collection-grid">
+  <div class="card">
+    <h3>Motorul Magnetic cu Apă</h3>
+    <p>Reconstrucție Coezivă 3.14 după Johann Grander</p>
+    <a href="motor_grander_3.14.html">Deschide</a>
+  </div>
+
+  <div class="card">
+    <h3>Grander – Schauberger – Modelul 3.14</h3>
+    <p>Convergența apei vii și a coeziunii universale</p>
+    <a href="grander_schauberger_3.14.html">Deschide</a>
+  </div>
+
+  <div class="card">
+    <h3>Modelul 3.14 și Respirația Wim Hof</h3>
+    <p>Analiza coezivă a controlului termic uman</p>
+    <a href="wim_hof_3.14.html">Deschide</a>
+  </div>
+
+  <div class="card">
+    <h3>Formula 3.14 – Forța Coeziunii</h3>
+    <p>Documentul de bază al laboratorului 3.14 și aplicațiile sale</p>
+    <a href="formula_3.14.html">Deschide</a>
+  </div>
+</div>
+
+<footer>
+  © Sergiu Bulboacă – Modelul Coeziv 3.14
+</footer>
+</body>
+</html>
