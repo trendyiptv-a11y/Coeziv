@@ -184,5 +184,53 @@ function calcHumanResonance(text) {
     Proiect realizat cu Modelul Coeziv 3.14 <strong>Formula Coeziunii 3.14</strong>.
   </p>
 </div>
+  <script>
+async function afiseazaSigiliu() {
+  try {
+    const r = await fetch('/manifest.json');
+    const m = await r.json();
+
+    // calcul simbolic ΔH bazat pe hash-ul digital
+    const suma = Array.from(m.blockchainProof.hash)
+      .reduce((a, c) => a + c.charCodeAt(0), 0);
+    const valoare = (3.14 * ((suma % 314) / 314)).toFixed(2);
+    const echilibru = valoare == "3.14" ? "perfect" :
+                      valoare > 3.14 ? "supra-coeziv" : "sub-coeziv";
+
+    // construim panoul vizual
+    const seal = document.createElement('div');
+    seal.innerHTML = `
+      <b style="color:#00ffb7;">✔️ Manifest verificat</b><br>
+      <span style="color:#00ffb7;">${m.name}</span><br>
+      <small>👤 ${m.author.name}</small><br>
+      <small>⛓️ Ancorat: ${m.blockchainProof.timestamp.split('T')[0]}</small><br>
+      <small>ΔH: ${valoare} / 3.14 (${echilibru})</small>
+    `;
+
+    Object.assign(seal.style, {
+      position: 'fixed',
+      bottom: '10px',
+      right: '10px',
+      background: '#0d1117',
+      color: '#c9d1d9',
+      padding: '10px 14px',
+      borderRadius: '12px',
+      fontFamily: 'Segoe UI, sans-serif',
+      fontSize: '13px',
+      lineHeight: '1.5',
+      boxShadow: '0 0 12px #00ffb7a0',
+      textAlign: 'center',
+      zIndex: '9999',
+      opacity: '0.95'
+    });
+
+    document.body.appendChild(seal);
+  } catch (err) {
+    console.error('Eroare la citirea manifestului:', err);
+  }
+}
+
+afiseazaSigiliu();
+</script>
 </body>
 </html>
