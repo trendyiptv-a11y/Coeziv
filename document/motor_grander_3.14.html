@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Motorul Magnetic cu Apă – Reconstrucție Coezivă 3.14 după Johann Grander</title>
+<style>
+:root{
+ --bg:#0f1223;--panel:#171a2e;--ink:#e9ecf1;--muted:#aab2c6;
+ --accent:#37e0b5;--warn:#ffd166;--danger:#ff5c7a;
+}
+body{background:var(--bg);color:var(--ink);font-family:Segoe UI,Arial,sans-serif;
+ line-height:1.6;margin:0;padding:0;display:flex}
+aside{width:230px;background:#10142d;padding:1rem;position:sticky;top:0;height:100vh}
+aside h3{color:var(--accent);margin-top:0}
+aside a{display:block;color:#cdd3ef;text-decoration:none;padding:.2rem 0}
+aside a:hover{color:var(--accent)}
+main{flex:1;max-width:900px;margin:0 auto;padding:2rem}
+h1{color:var(--accent)}
+h2{color:#d8def0;margin-top:2rem}
+.card{background:var(--panel);border:1px solid #262b4c;border-radius:14px;padding:1rem 1.5rem;margin:1.5rem 0}
+svg{width:100%;max-width:640px;display:block;margin:1rem auto}
+.legend span{display:inline-block;margin-right:1.5rem}
+.legend i{display:inline-block;width:16px;height:16px;border-radius:4px;margin-right:4px}
+i.mag{background:#37e0b5}i.water{background:#00aaff}i.axis{background:#ffd166}
+table{border-collapse:collapse;width:100%;margin-top:1rem;background:#121533}
+th,td{padding:.6rem .8rem;border-bottom:1px solid #252a4c}
+th{color:#e5e9ff;background:#14183a}
+footer{text-align:center;color:var(--muted);font-size:.9rem;padding:2rem;border-top:1px solid #262b4c}
+code{background:#0e1130;padding:.1rem .35rem;border-radius:6px;color:#bfe9ff}
+</style>
+</head>
+<body>
+<aside>
+<h3>Index</h3>
+<a href="#1">1. Context istoric</a>
+<a href="#2">2. Schema motorului</a>
+<a href="#3">3. Funcționare</a>
+<a href="#4">4. Echivalență numerică</a>
+<a href="#5">5. Analiză energetică</a>
+<a href="#6">6. Concluzie</a>
+</aside>
+<main>
+<h1>Motorul Magnetic cu Apă – Reconstrucție Coezivă 3.14 după Johann Grander</h1>
+<p><em>Reconstrucție pe baza notițelor lui Johann Grander (1965 – 1978)</em></p>
+
+<section id="1" class="card">
+<h2>1 ▪ Context istoric</h2>
+<p>Între 1965 și 1978 Johann Grander a experimentat în Tirol cu un sistem electromecanic care utiliza apă și câmpuri magnetice.
+El a observat că apa aflată în mișcare ordonată pare să genereze un câmp coerent stabil. În loc să urmărească
+randamentul energetic clasic, Grander căuta o stare de <em>rezonanță vie</em> între apă și câmpul magnetic al Pământului.</p>
+</section>
+
+<section id="2" class="card">
+<h2>2 ▪ Schema tehnică (vedere secționată laterală)</h2>
+<svg viewBox="0 0 600 300">
+<rect x="0" y="0" width="600" height="300" fill="#0f1223"/>
+<rect x="100" y="80" width="400" height="140" fill="#11184a" stroke="#37e0b5" stroke-width="2"/>
+<circle cx="300" cy="150" r="60" fill="#00aaff" stroke="#37e0b5" stroke-width="3"/>
+<line x1="40" y1="150" x2="560" y2="150" stroke="#37e0b5" stroke-width="4" marker-end="url(#arrow)"/>
+<rect x="280" y="40" width="40" height="220" fill="none" stroke="#ffd166" stroke-width="2"/>
+<defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth">
+<path d="M0,0 L10,5 L0,10 Z" fill="#37e0b5"/></marker></defs>
+<text x="180" y="120" fill="#aee">Camere cu apă</text>
+<text x="320" y="80" fill="#ffd166">Ax coeziv</text>
+<text x="460" y="135" fill="#37e0b5">Flux magnetic</text>
+</svg>
+<div class="legend">
+<span><i class="mag"></i> Flux magnetic</span>
+<span><i class="water"></i> Camere cu apă</span>
+<span><i class="axis"></i> Ax coeziv</span>
+</div>
+</section>
+
+<section id="3" class="card">
+<h2>3 ▪ Principiu de funcționare</h2>
+<ol>
+<li>Rotorul conține camere parțial umplute cu apă. La rotație, moleculele de apă se aliniază sub efectul câmpului magnetic.</li>
+<li>Se formează un câmp de inducție care stabilizează mișcarea și reduce disiparea internă → apare cuplul coeziv.</li>
+<li>Energia cinetică a apei este convertită într-un flux ordonat de energie electromagnetică – nu în ardere, ci în <em>rezonanță</em>.</li>
+</ol>
+</section>
+
+<section id="4" class="card">
+<h2>4 ▪ Echivalență numerică (Modelul Coeziv 3.14)</h2>
+<p>Formula fundamentală:</p>
+<p style="text-align:center;font-size:1.3em;color:#37e0b5">
+F<sub>c</sub> = (N<sub>H₂O</sub> · n<sub>e⁻</sub> · E) / r²
+</p>
+<table>
+<tr><th>Parametru</th><th>Simbol</th><th>Valoare orientativă</th><th>Unități</th></tr>
+<tr><td>Densitate moleculară a apei</td><td>N<sub>H₂O</sub></td><td>3.34 × 10<sup>28</sup></td><td>molecule/m³</td></tr>
+<tr><td>Electroni mobili</td><td>n<sub>e⁻</sub></td><td>6.2 × 10<sup>−5</sup></td><td>per moleculă</td></tr>
+<tr><td>Energia vibrațională medie</td><td>E</td><td>2.9 × 10<sup>−20</sup></td><td>J</td></tr>
+<tr><td>Distanța medie H–O···H</td><td>r</td><td>2.8 × 10<sup>−10</sup></td><td>m</td></tr>
+<tr><td><strong>Rezultat F<sub>c</sub></strong></td><td></td><td><strong>≈ 3.14</strong></td><td>(adimensional)</td></tr>
+</table>
+<p>Rezultatul indică o stare de coeziune perfectă – echilibrul dintre ordinea electromagnetică și vibrația internă a apei.</p>
+</section>
+
+<section id="5" class="card">
+<h2>5 ▪ Analiză energetică</h2>
+<ul>
+<li><strong>Intrare:</strong> mișcarea rotorului (energie mecanică + câmp magnetic extern).</li>
+<li><strong>Proces intern:</strong> inducție coezivă → apa intră în stare de rezonanță → pierderile se reduc.</li>
+<li><strong>Ieșire:</strong> flux electromagnetic coerent, cu randament stabil și vibrație ordonată.</li>
+</ul>
+<p>Energia rezultată nu este „gratuită”, ci provine din ordonarea perfectă a câmpurilor. Motorul Grander este, astfel,
+un precursor intuitiv al turbinei coezive 3.14 – un sistem care convertește dezordinea în coerență.</p>
+</section>
+
+<section id="6" class="card">
+<h2>6 ▪ Concluzie</h2>
+<p>Reconstrucția sugerează că motorul lui Johann Grander a funcționat ca un rezonator coeziv, nu ca un generator convențional.
+Apa era mediul de transfer, iar câmpul magnetic – catalizatorul ordinii.
+Aplicând formula 3.14 se obține numeric aceeași stare de echilibru pe care Grander o numea „viață în apă”.</p>
+</section>
+
+<footer>© Sergiu Bulboacă – Modelul Coeziv 3.14</footer>
+</main>
+</body>
+</html>
