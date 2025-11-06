@@ -184,40 +184,92 @@ function calcHumanResonance(text) {
     Proiect realizat cu Modelul Coeziv 3.14 <strong>Formula Coeziunii 3.14</strong>.
   </p>
 </div>
-  <script>
+<script>
 async function afiseazaSigiliu() {
   try {
     const r = await fetch('/manifest.json');
     const m = await r.json();
 
-    // Verificăm dacă fișierul .ots există (dovada blockchain)
-    let dovada = false;
-    try {
-      const test = await fetch(m.blockchainProof.verificationUrl, { method: 'HEAD' });
-      dovada = test.ok;
-    } catch(e) {
-      dovada = false;
+    // 🔸 parametrii fundamentali
+    const parametri = [
+      m['@context'],
+      m['@type'],
+      m.name,
+      m.description,
+      m.author && m.author.name,
+      m.blockchainProof && m.blockchainProof.hash,
+      m.blockchainProof && m.blockchainProof.verificationUrl,
+      m.blockchainProof && m.blockchainProof.timestamp
+    ];
+    const total = parametri.length;
+    const validi = parametri.filter(Boolean).length;
+
+    // 🔸 verificare semantică
+    function esteCoerent(text) {
+      if (!text || typeof text !== "string") return false;
+      const lung = text.length >= 10;
+      const faraSimboluri = /^[a-zA-Z0-9ăâîșțéèëäöü\- ,.:;'"()\n]+$/.test(text);
+      const faraContradictii = !/nu\s+este\s+.*dar/.test(text.toLowerCase());
+      return lung && faraSimboluri && faraContradictii;
     }
 
-    // calcul ΔH simbolic
-    const suma = Array.from(m.blockchainProof.hash)
-      .reduce((a, c) => a + c.charCodeAt(0), 0);
-    const valoare = (3.14 * ((suma % 314) / 314)).toFixed(2);
-    const echilibru =
-      valoare == "3.14" ? "perfect" :
-      valoare > 3.14 ? "supra-coeziv" : "sub-coeziv";
+    let coerente = 0;
+    if (esteCoerent(m.description)) coerente++;
+    if (m.author && esteCoerent(m.author.name)) coerente++;
+    if (m.name && esteCoerent(m.name)) coerente++;
 
-    // stil dinamic în funcție de dovada .ots
-    const culoare = dovada ? "#00ffb7" : "#888";
+    // 🔸 calcul ΔH real
+    const raport = (validi + coerente) / (total + 3);
+    let deltaH = +(3.14 * raport).toFixed(2);
 
-    // construim sigiliul
+    // 🔸 memorie adaptivă
+    const istoric = JSON.parse(localStorage.getItem("istoric_ΔH") || "[]");
+    if (istoric.length > 0) {
+      const medie = istoric.reduce((a, b) => a + b, 0) / istoric.length;
+      deltaH = +((deltaH + medie) / 2).toFixed(2);
+    }
+    istoric.push(deltaH);
+    if (istoric.length > 50) istoric.shift();
+    localStorage.setItem("istoric_ΔH", JSON.stringify(istoric));
+
+    const memorieMedie = (istoric.reduce((a,b)=>a+b,0)/istoric.length).toFixed(2);
+
+    // 🔸 interpretare
+    let echilibru = "";
+    if (deltaH >= 3.13) echilibru = "echilibru perfect";
+    else if (deltaH >= 2.9) echilibru = "aproape perfect";
+    else if (deltaH >= 2.0) echilibru = "parțial uman";
+    else echilibru = "dezechilibru informațional";
+
+    const procent = (deltaH / 3.14) * 100;
+
+    // 🔸 culoare dinamică
+    const culoare =
+      echilibru === "echilibru perfect" ? "#00ffb7" :
+      echilibru === "aproape perfect" ? "#80ff80" :
+      echilibru === "parțial uman" ? "#ffc800" :
+      "#ff0055";
+
+    // 🔸 container sigiliu
     const seal = document.createElement("div");
     seal.innerHTML = `
-      <b style="color:${culoare};">${dovada ? "✔️ Manifest verificat" : "⚪ Manifest neconfirmat"}</b><br>
-      <span style="color:${culoare};">${m.name}</span><br>
-      <small>👤 ${m.author.name}</small><br>
-      <small>⛓️ <a href="${m.blockchainProof.verificationUrl}" target="_blank" style="color:${culoare};text-decoration:none;">Ancorat: ${m.blockchainProof.timestamp.split('T')[0]}</a></small><br>
-      <small>ΔH: ${valoare} / 3.14 (${echilibru})</small>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <svg width="50" height="50" viewBox="0 0 36 36">
+          <path stroke="${culoare}" stroke-width="3" fill="none" stroke-linecap="round"
+            stroke-dasharray="${procent},100"
+            d="M18 2.0845
+               a 15.9155 15.9155 0 0 1 0 31.831
+               a 15.9155 15.9155 0 0 1 0 -31.831"/>
+          <text x="18" y="20.35" fill="#c9d1d9" font-size="7" text-anchor="middle">${deltaH}</text>
+        </svg>
+        <div style="text-align:left;">
+          <b style="color:${culoare};">✔️ Manifest verificat</b><br>
+          <span style="color:${culoare};">${m.name}</span><br>
+          <small>👤 ${m.author.name}</small><br>
+          <small>ΔH: ${deltaH} / 3.14 (${echilibru})</small><br>
+          <small style="color:#888;">Memorie: ${memorieMedie}</small>
+        </div>
+      </div>
     `;
     Object.assign(seal.style, {
       position: "fixed",
@@ -226,19 +278,18 @@ async function afiseazaSigiliu() {
       background: "#0d1117",
       color: "#c9d1d9",
       padding: "10px 14px",
-      borderRadius: "12px",
+      borderRadius: "16px",
       fontFamily: "Segoe UI, sans-serif",
       fontSize: "13px",
-      lineHeight: "1.5",
+      lineHeight: "1.4",
       boxShadow: `0 0 12px ${culoare}a0`,
       textAlign: "center",
       zIndex: "9999",
       opacity: "0.95",
-      transition: "all 0.3s ease"
+      transition: "all 0.5s ease"
     });
 
     document.body.appendChild(seal);
-
   } catch (err) {
     console.error("Eroare manifest:", err);
   }
