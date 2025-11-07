@@ -3,125 +3,246 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Motor Coeziv 3.14</title>
+<title>Motor Coeziv 3.14 / ΔH</title>
+<link rel="manifest" href="/manifest.json">
 <style>
-  body {
-    background-color: #0d1117;
-    color: #c9d1d9;
-    font-family: 'Segoe UI', sans-serif;
-    text-align: center;
-    padding: 2rem 1rem;
-    overflow-x: hidden;
-  }
-  h1 {
-    color: #00ffb7;
-    font-size: 2rem;
-    margin-bottom: 0.3rem;
-  }
-  p { color: #9ba1a6; }
+:root {
+  --true: #00ffb7;
+  --false: #ff3b3b;
+  --neutral: #ffc800;
+  --bg: #0d1117;
+  --panel: #161b22;
+  --text: #c9d1d9;
+  --muted: #9ba1a6;
+  --human: #ffda47;
+}
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: 'Segoe UI', sans-serif;
+  text-align: center;
+  padding: 2rem 1rem;
+}
+h1 { color: var(--true); font-size: 2rem; margin-bottom: 0.3rem; }
+h2 { color: var(--muted); font-weight: normal; margin-bottom: 1rem; }
+textarea {
+  width: 90%; max-width: 600px; height: 120px;
+  border-radius: 10px; border: 1px solid #222;
+  background-color: var(--panel); color: var(--text);
+  padding: 0.8rem; font-size: 1rem; resize: vertical;
+}
+button {
+  border: none; border-radius: 10px;
+  color: #000; font-weight: bold; padding: 0.8rem 1.6rem;
+  font-size: 1rem; cursor: pointer; margin-top: 1rem;
+  transition: background-color 0.25s;
+}
+#analyzeBtn { background-color: var(--true); }
+#analyzeBtn:hover { background-color: #00d0a0; }
+#humanBtn { background-color: var(--human); margin-left: 0.5rem; }
+#humanBtn:hover { background-color: #ffe16b; }
+.result-box {
+  background-color: var(--panel); border-radius: 14px; padding: 1.4rem;
+  margin: 1.6rem auto; width: 90%; max-width: 650px; text-align: left;
+  box-shadow: 0 0 14px rgba(0, 255, 183, 0.1);
+}
+.score-bar { height: 6px; border-radius: 3px; background-color: #333; overflow: hidden; margin-top: 6px; }
+.score-bar-inner { height: 6px; transition: width 0.4s ease; border-radius: 3px; }
+.verdict-adevărat { color: var(--true); }
+.verdict-fals { color: var(--false); }
+.verdict-neutru { color: var(--neutral); }
+a.source-link {
+  display: block; text-decoration: none; color: #1e90ff; margin-top: 6px;
+}
+a.source-link:hover { text-decoration: underline; }
 
-  textarea {
-    width: 90%;
-    max-width: 500px;
-    height: 100px;
-    border-radius: 10px;
-    border: none;
-    padding: 10px;
-    background: #161b22;
-    color: #fff;
-    resize: none;
-  }
+/* Stiluri pentru manifest */
+#manifest-panel {
+  background: #0d1117;
+  border-radius: 1rem;
+  padding: 1rem;
+  color: #fff;
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.1);
+  margin: 1rem auto;
+  width: fit-content;
+  transition: all 0.4s ease;
+}
+#manifest-panel.perfect {
+  box-shadow: 0 0 18px #00ffb7;
+  animation: pulse-green 3s infinite ease-in-out;
+}
+#manifest-panel.partial {
+  box-shadow: 0 0 18px #ffc800;
+  animation: pulse-yellow 3s infinite ease-in-out;
+}
+@keyframes pulse-green {
+  0% { box-shadow: 0 0 10px #00ffb7; }
+  50% { box-shadow: 0 0 25px #00ffb7; }
+  100% { box-shadow: 0 0 10px #00ffb7; }
+}
+@keyframes pulse-yellow {
+  0% { box-shadow: 0 0 10px #ffc800; }
+  50% { box-shadow: 0 0 25px #ffc800; }
+  100% { box-shadow: 0 0 10px #ffc800; }
+}
 
-  button {
-    border: none;
-    border-radius: 10px;
-    padding: 10px 20px;
-    margin: 8px 5px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: 0.3s;
-  }
-  .btn-main {
-    background: #00ffb7;
-    color: #000;
-  }
-  .btn-main:hover { background: #00cfa0; }
-
-  .btn-human {
-    background: #ffc800;
-    color: #000;
-  }
-  .btn-human:hover { background: #e6b400; }
-
-  .btn-info {
-    background: transparent;
-    border: 1px solid #00ffb7;
-    color: #00ffb7;
-  }
-  .btn-collections {
-    background: #fff;
-    color: #000;
-  }
-
-  #result { margin-top: 1rem; color: #fff; }
-
-  /* Card mic Stare de funcționare */
-  #coeziv-card {
-    position: fixed;
-    bottom: 10px;
-    right: 10px;
-    background: rgba(15, 17, 21, 0.85);
-    color: #f1f1f1;
-    font-size: 0.8rem;
-    padding: 5px 10px;
-    border-radius: 10px;
-    box-shadow: 0 0 10px 2px #00ff88;
-    z-index: 1000;
-  }
+/* Card mic Stare de funcționare */
+#coeziv-card {
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+  background: rgba(15, 17, 21, 0.85);
+  color: #f1f1f1;
+  font-size: 0.8rem;
+  padding: 5px 10px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px 2px #00ff88;
+  z-index: 1000;
+}
 </style>
 </head>
 <body>
 
-  <h1>Motor Coeziv 3.14</h1>
-  <p>Analiză factuală, logică, semantică și umană</p>
+<h1>Motor Coeziv 3.14</h1>
+<h2>Analiză factuală, logică, semantică și umană</h2>
 
-  <textarea id="inputText" placeholder="Scrie o afirmație..."></textarea><br>
+<textarea id="inputText" placeholder="Scrie o afirmație..."></textarea><br>
+<button id="analyzeBtn" onclick="analyze()">🔬 Analizează afirmația</button>
+<button id="humanBtn" onclick="analyzeHuman()">🌿 Analizează prin ΔH (uman)</button>
 
-  <button class="btn-main" onclick="analizeazaAfirmatia()">🧠 Analizează afirmația</button>
-  <button class="btn-human" onclick="analizeazaUman()">🌿 Analizează prin ΔH (uman)</button><br>
+<div id="result" class="result-box" style="display:none;"></div>
 
-  <button class="btn-info" onclick="window.location='document/model.html'">Despre Modelul Coeziv 3.14</button>
-  <button class="btn-collections" onclick="window.location='collections.html'">🔭 Colecții Coezive</button>
-
-  <div id="result"></div>
-
-  <!-- Panoul manifest corect -->
-  <div id="manifest-panel" class="partial"></div>
-
-  <!-- Card mic de stare -->
-  <div id="coeziv-card">
-    <span id="deltaText">Stare de funcționare: actualizare vie...</span>
+<!-- Panoul manifest corect poziționat -->
+<div id="manifest-panel" class="partial">
+  <div style="display:flex;align-items:center;">
+    <svg width="44" height="44" viewBox="0 0 36 36">
+      <circle cx="18" cy="18" r="16" fill="none" stroke="#ffc800" stroke-width="4"
+        stroke-dasharray="100, 100" stroke-linecap="round" id="manifest-progress"></circle>
+    </svg>
+    <div style="margin-left:12px;">
+      <p style="margin:0;font-weight:bold;color:#00ffb7;">✅ Manifest verificat</p>
+      <p style="margin:0;">Formula Coeziunii 3.14ΔH</p>
+      <p id="manifest-author" style="margin:0;">Sergiu Bulboacă</p>
+      <p id="deltaH" style="margin:0;">ΔH: verificare...</p>
+      <p id="block-info" style="margin:0;color:#888;font-size:0.9em;"></p>
+    </div>
   </div>
+</div>
+
+<!-- Card coeziv -->
+<div id="coeziv-card">
+  <span id="deltaText">Stare de funcționare: actualizare vie...</span>
+</div>
 
 <script>
-function analizeazaAfirmatia() {
+async function analyze() {
   const text = document.getElementById("inputText").value.trim();
-  if (!text) return alert("Scrie o afirmație!");
-  document.getElementById("result").innerHTML = "<p>Analizăm afirmația...</p>";
-  fetch(`/api/analyze?text=${encodeURIComponent(text)}`)
-    .then(r => r.json())
-    .then(d => { document.getElementById("result").innerHTML = d.result; })
-    .catch(() => { document.getElementById("result").innerHTML = "Eroare la analiză."; });
+  const resultBox = document.getElementById("result");
+  if (!text) return alert("Introdu o propoziție pentru analiză.");
+  resultBox.style.display = "block";
+  resultBox.innerHTML = "⏳ Se analizează...";
+  try {
+    const response = await fetch("/api/analyze", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text })
+    });
+    const data = await response.json();
+    if (data.error) throw new Error(data.error);
+    renderResult(data, false, text);
+  } catch (err) {
+    resultBox.innerHTML = `<p style='color: var(--false)'>Eroare: ${err.message}</p>`;
+  }
 }
 
-function analizeazaUman() {
-  document.getElementById("result").innerHTML = "Analiză ΔH (umană) în curs...";
-  fetch(`/api/human?text=${encodeURIComponent(document.getElementById("inputText").value)}`)
-    .then(r => r.json())
-    .then(d => { document.getElementById("result").innerHTML = d.result; })
-    .catch(() => { document.getElementById("result").innerHTML = "Eroare la analiza umană."; });
+async function analyzeHuman() {
+  const text = document.getElementById("inputText").value.trim();
+  const resultBox = document.getElementById("result");
+  if (!text) return alert("Introdu o propoziție pentru analiză.");
+  resultBox.style.display = "block";
+  resultBox.innerHTML = "🌿 Se analizează prin ΔH (uman)...";
+  try {
+    const response = await fetch("/api/analyze", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text })
+    });
+    const data = await response.json();
+    if (data.error) throw new Error(data.error);
+    renderResult(data, true, text);
+  } catch (err) {
+    resultBox.innerHTML = `<p style='color: var(--false)'>Eroare: ${err.message}</p>`;
+  }
 }
 
+function renderResult(data, humanMode = false, text = "") {
+  const resultBox = document.getElementById("result");
+  const F = data.factual_score || 0;
+  const L = data.logic_score || 0;
+  const C = data.semantic_score || 0;
+  let H = 0;
+  if (humanMode) H = calcHumanResonance(text);
+  const V = humanMode ? ((F + L + C + H) / 4).toFixed(2) : ((F + L + C) / 3).toFixed(2);
+  const verdict = humanMode ? (H > 2.5 ? "🌿 Adevăr coeziv uman" : "⚖️ Echilibru parțial uman") : (data.verdict || "Analiză incompletă");
+  const summary = data.summary || "Analiza completă conform Formulei 3.14Δ.";
+  const barWidth = (V / 3.14) * 100;
+  const color = humanMode ? "var(--human)" : "var(--true)";
+  const sourcesHTML = (data.sources || []).map(s => `<a class='source-link' href='${s.link}' target='_blank'>🌐 ${s.title}</a>`).join("") || "<p style='color: var(--muted)'>Nicio sursă relevantă.</p>";
+  resultBox.innerHTML = `
+    <p><b>Formula ${humanMode ? "3.14ΔH" : "3.14Δ"}:</b> F=${F.toFixed(2)}, L=${L.toFixed(2)}, C=${C.toFixed(2)}${humanMode ? `, H=${H.toFixed(2)}` : ""}</p>
+    <p><b>Verdict:</b> ${verdict}</p>
+    <p><b>Scor total V:</b> ${V} / 3.14</p>
+    <div class='score-bar'><div class='score-bar-inner' style='width:${barWidth}%;background-color:${color};'></div></div>
+    <p style='margin-top:1rem;'>${summary}</p>
+    <h4 style='margin-top:1rem;'>🔗 Surse:</h4>${sourcesHTML}`;
+}
+
+function calcHumanResonance(text) {
+  const keywords = ["suflet", "iubire", "armonie", "adevăr", "lumină", "viață", "coeziune", "energie"];
+  let resonance = 0;
+  for (const w of keywords) if (text.toLowerCase().includes(w)) resonance += 0.5;
+  if (!text.match(/nu |rău|fals|ură|greșit/gi)) resonance += 0.5;
+  return Math.min(resonance, 3.14);
+}
+
+// Verificare manifest
+async function sha256(message) {
+  const msgBuffer = new TextEncoder().encode(message);
+  const hashBuffer = await crypto.subtle.digest("SHA-256", msgBuffer);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
+}
+async function verificaManifest() {
+  const targetHash = "199019dcb4afdf506bb8f2dd03a79b22d7bbdaeb54279b1963e65843c5c76ba9";
+  const el = document.getElementById("manifest-panel");
+  const circle = document.getElementById("manifest-progress");
+  const delta = document.getElementById("deltaH");
+  const block = document.getElementById("block-info");
+  try {
+    const res = await fetch("/manifest.json");
+    const text = await res.text();
+    const localHash = await sha256(text.trim());
+    if (localHash === targetHash) {
+      el.classList.add("perfect");
+      el.classList.remove("partial");
+      circle.style.stroke = "#00ffb7";
+      delta.innerHTML = "ΔH: 3.14 / 3.14 (coeziune perfectă)";
+      block.innerHTML = "🔗 Ancorat: 2025-11-06 · Bloc Bitcoin #922515";
+    } else {
+      el.classList.add("partial");
+      el.classList.remove("perfect");
+      circle.style.stroke = "#ffc800";
+      delta.innerHTML = "ΔH: 2.57 / 3.14 (ediție vie)";
+      block.innerHTML = "🕓 Verificat local – neancorat";
+    }
+  } catch (e) {
+    delta.innerHTML = "❌ Eroare la verificare manifest.";
+    console.error(e);
+  }
+}
+document.addEventListener("DOMContentLoaded", verificaManifest);
+
+// Actualizare vie (card mic)
 async function actualizeazaFormulaViva() {
   try {
     const r = await fetch('/manifest.json');
@@ -129,23 +250,18 @@ async function actualizeazaFormulaViva() {
     const dh = parseFloat(manifest.cohesionState?.value || 2.57);
     const text = document.getElementById('deltaText');
     let mesaj = "Stare de funcționare: ";
-
     if (dh < 2.8) mesaj += "instabilă 🟥";
     else if (dh < 3.13) mesaj += "normală 🟨";
     else mesaj += "optimă 🟩";
-
     text.textContent = mesaj;
-
     const card = document.getElementById('coeziv-card');
     if (dh < 2.8) card.style.boxShadow = '0 0 10px 2px #ff4444';
     else if (dh < 3.13) card.style.boxShadow = '0 0 10px 2px #ffbb00';
     else card.style.boxShadow = '0 0 10px 2px #00ff88';
-
     setTimeout(actualizeazaFormulaViva, 30000);
   } catch (e) { console.warn('Eroare actualizare vie:', e); }
 }
 actualizeazaFormulaViva();
 </script>
-
 </body>
 </html>
