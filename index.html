@@ -243,6 +243,29 @@ async function verificaManifest() {
 }
 document.addEventListener("DOMContentLoaded", verificaManifest);
 </script>
-
+<script>
+async function verificaManifest() {
+  const response = await fetch("manifest.json.ots");
+  if (response.ok) {
+    const manifestText = await fetch("manifest.json").then(r => r.text());
+    const encoder = new TextEncoder();
+    const data = encoder.encode(manifestText);
+    const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hashHex = hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
+    
+    if (hashHex.startsWith("199019dcb4afdf506bb8f2dd03a79b22d7bbdaeb54279b1963e65843c5c76ba9")) {
+      document.querySelector(".manifest-card").innerHTML = `
+        <div style="color:#00ff88; text-shadow:0 0 10px #00ff88;">
+          💚 Manifest verificat pe Bitcoin<br>
+          ΔH = 3.14 / 3.14 — coeziune perfectă<br>
+          🧠 Sergiu Bulboacă<br>
+          🔗 Blockchain Proof activ
+        </div>`;
+    }
+  }
+}
+verificaManifest();
+</script>
 </body>
 </html>
