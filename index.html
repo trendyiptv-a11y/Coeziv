@@ -264,42 +264,6 @@ async function afiseazaSigiliu() {
         </svg>
         <div style="text-align:left;">
           <b style="color:${culoare};">✔️ Manifest verificat</b><br>
-          <!-- 🔹 Buton pentru verificare blockchain -->
-<button id="verify-hash" style="
-  margin-top: 1rem;
-  background-color: #00ffb7;
-  color: #0d1117;
-  font-weight: 600;
-  border: none;
-  border-radius: 12px;
-  padding: 0.7rem 1.2rem;
-  cursor: pointer;
-  transition: all 0.3s;
-">
-🔗 Verifică hash manifest
-</button>
-
-<p id="hash-result" style="margin-top: 0.8rem; font-size: 0.95rem; color: #ccc;"></p>
-
-<script>
-document.getElementById("verify-hash").addEventListener("click", async () => {
-  const oficial = "199019dcb4afdf506bb8f2dd03a79b22d7bbdaeb54279b1963e65843c5c76ba9";
-  const manifest = await fetch("/manifest.json").then(r => r.text());
-  const data = new TextEncoder().encode(manifest);
-  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  const hashHex = hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
-
-  const result = document.getElementById("hash-result");
-  if (hashHex === oficial) {
-    result.innerHTML = `✅ Manifest autentic și coeziv<br><strong>ΔH = 3.14 / 3.14</strong><br>Hash verificat: ${hashHex}`;
-    result.style.color = "#00ffb7";
-  } else {
-    result.innerHTML = `⚠️ Manifest diferit de versiunea ancorată<br><strong>ΔH = 2.57 / 3.14</strong><br>Hash local: ${hashHex}`;
-    result.style.color = "#ffc800";
-  }
-});
-</script>
           <span style="color:${culoare};">${m.name}</span><br>
           <small>👤 ${m.author.name}</small><br>
           <small>ΔH: ${deltaH} / 3.14 (${echilibru})</small><br>
