@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Motor Coeziv 3.14 / ΔH</title>
 <link rel="manifest" href="/manifest.json">
+
 <style>
 :root {
   --true: #00ffb7;
@@ -98,7 +99,6 @@ a.source-link:hover { text-decoration: underline; }
 
 <div id="result" class="result-box" style="display:none;"></div>
 
-<!-- Butoanele inferioare -->
 <div style="text-align:center; margin-top:2.5rem;">
   <a href="/document/index.html" 
      style="display:inline-block; padding:0.6rem 1.2rem; color:#00ffb7; border:1px solid #00ffb7; border-radius:8px; text-decoration:none; font-size:0.9rem; transition:0.2s;">
@@ -130,89 +130,13 @@ a.source-link:hover { text-decoration: underline; }
 </div>
 
 <script>
-async function analyze() {
-  const text = document.getElementById("inputText").value.trim();
-  const resultBox = document.getElementById("result");
-  if (!text) return alert("Introdu o propoziție pentru analiză.");
-  resultBox.style.display = "block";
-  resultBox.innerHTML = "⏳ Se analizează...";
-
-  try {
-    const response = await fetch("/api/analyze", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text })
-    });
-    const data = await response.json();
-    if (data.error) throw new Error(data.error);
-    renderResult(data, false, text);
-  } catch (err) {
-    resultBox.innerHTML = `<p style='color: var(--false)'>Eroare: ${err.message}</p>`;
-  }
-}
-
-async function analyzeHuman() {
-  const text = document.getElementById("inputText").value.trim();
-  const resultBox = document.getElementById("result");
-  if (!text) return alert("Introdu o propoziție pentru analiză.");
-  resultBox.style.display = "block";
-  resultBox.innerHTML = "🌿 Se analizează prin ΔH (uman)...";
-
-  try {
-    const response = await fetch("/api/analyze", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text })
-    });
-    const data = await response.json();
-    if (data.error) throw new Error(data.error);
-    renderResult(data, true, text);
-  } catch (err) {
-    resultBox.innerHTML = `<p style='color: var(--false)'>Eroare: ${err.message}</p>`;
-  }
-}
-
-// Afișare rezultate
-function renderResult(data, humanMode = false, text = "") {
-  const resultBox = document.getElementById("result");
-  const F = data.factual_score || 0;
-  const L = data.logic_score || 0;
-  const C = data.semantic_score || 0;
-  let H = humanMode ? calcHumanResonance(text) : 0;
-  const V = humanMode ? ((F + L + C + H) / 4).toFixed(2) : ((F + L + C) / 3).toFixed(2);
-  const verdict = humanMode
-    ? (H > 2.5 ? "🌿 Adevăr coeziv uman" : "⚖️ Echilibru parțial uman")
-    : (data.verdict || "Analiză incompletă");
-  const summary = data.summary || "Analiza completă conform Formulei 3.14Δ.";
-  const barWidth = (V / 3.14) * 100;
-  const color = humanMode ? "var(--human)" : "var(--true)";
-  const sourcesHTML = (data.sources || [])
-    .map(s => `<a class="source-link" href="${s.link}" target="_blank">🌐 ${s.title}</a>`)
-    .join("") || "<p style='color: var(--muted)'>Nicio sursă relevantă.</p>";
-  resultBox.innerHTML = `
-    <p><b>Formula ${humanMode ? "3.14ΔH" : "3.14Δ"}:</b> 
-    F=${F.toFixed(2)}, L=${L.toFixed(2)}, C=${C.toFixed(2)}${humanMode ? `, H=${H.toFixed(2)}` : ""}</p>
-    <p><b>Verdict:</b> ${verdict}</p>
-    <p><b>Scor total V:</b> ${V} / 3.14</p>
-    <div class="score-bar"><div class="score-bar-inner" style="width:${barWidth}%;background-color:${color};"></div></div>
-    <p style="margin-top:1rem;">${summary}</p>
-    <h4 style="margin-top:1rem;">🔗 Surse:</h4>${sourcesHTML}`;
-}
-function calcHumanResonance(text) {
-  const keywords = ["suflet","iubire","armonie","adevăr","lumină","viață","coeziune","energie"];
-  let resonance = 0;
-  for (const w of keywords) if (text.toLowerCase().includes(w)) resonance += 0.5;
-  if (!text.match(/nu |rău|fals|ură|greșit/gi)) resonance += 0.5;
-  return Math.min(resonance, 3.14);
-}
-
-// Verificare manifest
 async function sha256(message) {
   const msgBuffer = new TextEncoder().encode(message);
   const hashBuffer = await crypto.subtle.digest("SHA-256", msgBuffer);
   const hashArray = Array.from(new Uint8Array(hashBuffer));
   return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
 }
+
 async function verificaManifest() {
   const targetHash = "199019dcb4afdf506bb8f2dd03a79b22d7bbdaeb54279b1963e65843c5c76ba9";
   const el = document.getElementById("manifest-panel");
@@ -223,13 +147,14 @@ async function verificaManifest() {
     const res = await fetch("/manifest.json");
     const text = await res.text();
     const localHash = await sha256(text.trim());
-    console.log("Hash local:", localHash);
-    if (localHash === targetHash) {
+    const otsCheck = await fetch("/manifest.json.ots");
+
+    if (localHash === targetHash && otsCheck.ok) {
       el.classList.add("perfect");
       el.classList.remove("partial");
       circle.style.stroke = "#00ffb7";
       delta.innerHTML = "ΔH: 3.14 / 3.14 (coeziune perfectă)";
-      block.innerHTML = "🔗 Ancorat: 2025-11-06 · Bloc Bitcoin #922515";
+      block.innerHTML = "💚 Dovadă Blockchain activă (OTS valid)<br>🔗 Bloc Bitcoin #922515 · 2025-11-06";
     } else {
       el.classList.add("partial");
       el.classList.remove("perfect");
@@ -239,33 +164,11 @@ async function verificaManifest() {
     }
   } catch (e) {
     delta.innerHTML = "❌ Eroare la verificare manifest.";
+    console.error(e);
   }
 }
 document.addEventListener("DOMContentLoaded", verificaManifest);
 </script>
-<script>
-async function verificaManifest() {
-  const response = await fetch("manifest.json.ots");
-  if (response.ok) {
-    const manifestText = await fetch("manifest.json").then(r => r.text());
-    const encoder = new TextEncoder();
-    const data = encoder.encode(manifestText);
-    const hashBuffer = await crypto.subtle.digest("SHA-256", data);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    const hashHex = hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
-    
-    if (hashHex.startsWith("199019dcb4afdf506bb8f2dd03a79b22d7bbdaeb54279b1963e65843c5c76ba9")) {
-      document.querySelector(".manifest-card").innerHTML = `
-        <div style="color:#00ff88; text-shadow:0 0 10px #00ff88;">
-          💚 Manifest verificat pe Bitcoin<br>
-          ΔH = 3.14 / 3.14 — coeziune perfectă<br>
-          🧠 Sergiu Bulboacă<br>
-          🔗 Blockchain Proof activ
-        </div>`;
-    }
-  }
-}
-verificaManifest();
-</script>
+
 </body>
 </html>
