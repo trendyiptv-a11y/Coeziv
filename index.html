@@ -55,15 +55,15 @@ a.source-link {
   display: block; text-decoration: none; color: #1e90ff; margin-top: 6px;
 }
 a.source-link:hover { text-decoration: underline; }
-</style>
-  <style>
+
+/* Panou Manifest */
 #manifest-panel {
   background: #0d1117;
   border-radius: 1rem;
   padding: 1rem;
   color: #fff;
   box-shadow: 0 0 12px rgba(255, 255, 255, 0.1);
-  margin: 1rem auto;
+  margin: 1.5rem auto;
   width: fit-content;
   transition: all 0.4s ease;
 }
@@ -98,123 +98,21 @@ a.source-link:hover { text-decoration: underline; }
 
 <div id="result" class="result-box" style="display:none;"></div>
 
-<script>
-async function analyze() {
-  const text = document.getElementById("inputText").value.trim();
-  const resultBox = document.getElementById("result");
-  if (!text) return alert("Introdu o propoziție pentru analiză.");
-
-  resultBox.style.display = "block";
-  resultBox.innerHTML = "⏳ Se analizează...";
-
-  try {
-    const response = await fetch("/api/analyze", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text })
-    });
-    const data = await response.json();
-    if (data.error) throw new Error(data.error);
-
-    renderResult(data, false, text);
-  } catch (err) {
-    resultBox.innerHTML = `<p style='color: var(--false)'>Eroare: ${err.message}</p>`;
-  }
-}
-
-async function analyzeHuman() {
-  const text = document.getElementById("inputText").value.trim();
-  const resultBox = document.getElementById("result");
-  if (!text) return alert("Introdu o propoziție pentru analiză.");
-
-  resultBox.style.display = "block";
-  resultBox.innerHTML = "🌿 Se analizează prin ΔH (uman)...";
-
-  try {
-    const response = await fetch("/api/analyze", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text })
-    });
-    const data = await response.json();
-    if (data.error) throw new Error(data.error);
-
-    renderResult(data, true, text);
-  } catch (err) {
-    resultBox.innerHTML = `<p style='color: var(--false)'>Eroare: ${err.message}</p>`;
-  }
-}
-
-// Funcție comună de afișare
-function renderResult(data, humanMode = false, text = "") {
-  const resultBox = document.getElementById("result");
-
-  const F = data.factual_score || 0;
-  const L = data.logic_score || 0;
-  const C = data.semantic_score || 0;
-  let H = 0;
-
-  if (humanMode) {
-    H = calcHumanResonance(text);
-  }
-
-  const V = humanMode ? ((F + L + C + H) / 4).toFixed(2) : ((F + L + C) / 3).toFixed(2);
-  const verdict = humanMode
-    ? (H > 2.5 ? "🌿 Adevăr coeziv uman" : "⚖️ Echilibru parțial uman")
-    : (data.verdict || "Analiză incompletă");
-
-  const summary = data.summary || "Analiza completă conform Formulei 3.14Δ.";
-  const barWidth = (V / 3.14) * 100;
-  const color = humanMode ? "var(--human)" : "var(--true)";
-
-  const sourcesHTML = (data.sources || [])
-    .map(s => `<a class="source-link" href="${s.link}" target="_blank">🌐 ${s.title}</a>`)
-    .join("") || "<p style='color: var(--muted)'>Nicio sursă relevantă.</p>";
-
-  resultBox.innerHTML = `
-    <p><b>Formula ${humanMode ? "3.14ΔH" : "3.14Δ"}:</b> 
-    F=${F.toFixed(2)}, L=${L.toFixed(2)}, C=${C.toFixed(2)}${humanMode ? `, H=${H.toFixed(2)}` : ""}</p>
-    <p><b>Verdict:</b> ${verdict}</p>
-    <p><b>Scor total V:</b> ${V} / 3.14</p>
-    <div class="score-bar">
-      <div class="score-bar-inner" style="width:${barWidth}%;background-color:${color};"></div>
-    </div>
-    <p style="margin-top:1rem;">${summary}</p>
-    <h4 style="margin-top:1rem;">🔗 Surse:</h4>
-    ${sourcesHTML}
-  `;
-}
-
-// Calcul local ΔH
-function calcHumanResonance(text) {
-  const keywords = ["suflet", "iubire", "armonie", "adevăr", "lumină", "viață", "coeziune", "energie"];
-  let resonance = 0;
-  for (const w of keywords) if (text.toLowerCase().includes(w)) resonance += 0.5;
-  if (!text.match(/nu |rău|fals|ură|greșit/gi)) resonance += 0.5;
-  return Math.min(resonance, 3.14);
-}
-</script>
-  <div style="text-align:center; margin-top:2.5rem;">
+<!-- Butoanele inferioare -->
+<div style="text-align:center; margin-top:2.5rem;">
   <a href="/document/index.html" 
-     style="
-       display:inline-block;
-       padding:0.6rem 1.2rem;
-       color:#00ffb7;
-       border:1px solid #00ffb7;
-       border-radius:8px;
-       text-decoration:none;
-       font-size:0.9rem;
-       transition:0.2s;">
+     style="display:inline-block; padding:0.6rem 1.2rem; color:#00ffb7; border:1px solid #00ffb7; border-radius:8px; text-decoration:none; font-size:0.9rem; transition:0.2s;">
     Despre Modelul Coeziv 3.14
   </a>
-    <button onclick="window.location.href='document/collections.html'" class="collections-btn">
-  🔭 Colecții Coezive
-</button>
+  <button onclick="window.location.href='document/collections.html'" class="collections-btn">
+    🔭 Colecții Coezive
+  </button>
   <p style="color:#aaa; font-size:0.8rem; margin-top:0.5rem;">
     Proiect realizat cu Modelul Coeziv 3.14 <strong>Formula Coeziunii 3.14</strong>.
   </p>
 </div>
-<script>
+
+<!-- Panoul Manifest -->
 <div id="manifest-panel" class="partial">
   <div style="display:flex;align-items:center;">
     <svg width="44" height="44" viewBox="0 0 36 36">
@@ -230,27 +128,102 @@ function calcHumanResonance(text) {
     </div>
   </div>
 </div>
-          <script>
+
+<script>
+async function analyze() {
+  const text = document.getElementById("inputText").value.trim();
+  const resultBox = document.getElementById("result");
+  if (!text) return alert("Introdu o propoziție pentru analiză.");
+  resultBox.style.display = "block";
+  resultBox.innerHTML = "⏳ Se analizează...";
+
+  try {
+    const response = await fetch("/api/analyze", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text })
+    });
+    const data = await response.json();
+    if (data.error) throw new Error(data.error);
+    renderResult(data, false, text);
+  } catch (err) {
+    resultBox.innerHTML = `<p style='color: var(--false)'>Eroare: ${err.message}</p>`;
+  }
+}
+
+async function analyzeHuman() {
+  const text = document.getElementById("inputText").value.trim();
+  const resultBox = document.getElementById("result");
+  if (!text) return alert("Introdu o propoziție pentru analiză.");
+  resultBox.style.display = "block";
+  resultBox.innerHTML = "🌿 Se analizează prin ΔH (uman)...";
+
+  try {
+    const response = await fetch("/api/analyze", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text })
+    });
+    const data = await response.json();
+    if (data.error) throw new Error(data.error);
+    renderResult(data, true, text);
+  } catch (err) {
+    resultBox.innerHTML = `<p style='color: var(--false)'>Eroare: ${err.message}</p>`;
+  }
+}
+
+// Afișare rezultate
+function renderResult(data, humanMode = false, text = "") {
+  const resultBox = document.getElementById("result");
+  const F = data.factual_score || 0;
+  const L = data.logic_score || 0;
+  const C = data.semantic_score || 0;
+  let H = humanMode ? calcHumanResonance(text) : 0;
+  const V = humanMode ? ((F + L + C + H) / 4).toFixed(2) : ((F + L + C) / 3).toFixed(2);
+  const verdict = humanMode
+    ? (H > 2.5 ? "🌿 Adevăr coeziv uman" : "⚖️ Echilibru parțial uman")
+    : (data.verdict || "Analiză incompletă");
+  const summary = data.summary || "Analiza completă conform Formulei 3.14Δ.";
+  const barWidth = (V / 3.14) * 100;
+  const color = humanMode ? "var(--human)" : "var(--true)";
+  const sourcesHTML = (data.sources || [])
+    .map(s => `<a class="source-link" href="${s.link}" target="_blank">🌐 ${s.title}</a>`)
+    .join("") || "<p style='color: var(--muted)'>Nicio sursă relevantă.</p>";
+  resultBox.innerHTML = `
+    <p><b>Formula ${humanMode ? "3.14ΔH" : "3.14Δ"}:</b> 
+    F=${F.toFixed(2)}, L=${L.toFixed(2)}, C=${C.toFixed(2)}${humanMode ? `, H=${H.toFixed(2)}` : ""}</p>
+    <p><b>Verdict:</b> ${verdict}</p>
+    <p><b>Scor total V:</b> ${V} / 3.14</p>
+    <div class="score-bar"><div class="score-bar-inner" style="width:${barWidth}%;background-color:${color};"></div></div>
+    <p style="margin-top:1rem;">${summary}</p>
+    <h4 style="margin-top:1rem;">🔗 Surse:</h4>${sourcesHTML}`;
+}
+function calcHumanResonance(text) {
+  const keywords = ["suflet","iubire","armonie","adevăr","lumină","viață","coeziune","energie"];
+  let resonance = 0;
+  for (const w of keywords) if (text.toLowerCase().includes(w)) resonance += 0.5;
+  if (!text.match(/nu |rău|fals|ură|greșit/gi)) resonance += 0.5;
+  return Math.min(resonance, 3.14);
+}
+
+// Verificare manifest
 async function sha256(message) {
   const msgBuffer = new TextEncoder().encode(message);
   const hashBuffer = await crypto.subtle.digest("SHA-256", msgBuffer);
   const hashArray = Array.from(new Uint8Array(hashBuffer));
   return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
 }
-
 async function verificaManifest() {
   const targetHash = "199019dcb4afdf506bb8f2dd03a79b22d7bbdaeb54279b1963e65843c5c76ba9";
   const el = document.getElementById("manifest-panel");
   const circle = document.getElementById("manifest-progress");
   const delta = document.getElementById("deltaH");
   const block = document.getElementById("block-info");
-
   try {
     const res = await fetch("/manifest.json");
     const text = await res.text();
     const localHash = await sha256(text.trim());
     console.log("Hash local:", localHash);
-
     if (localHash === targetHash) {
       el.classList.add("perfect");
       el.classList.remove("partial");
@@ -266,11 +239,10 @@ async function verificaManifest() {
     }
   } catch (e) {
     delta.innerHTML = "❌ Eroare la verificare manifest.";
-    console.error(e);
   }
 }
-
 document.addEventListener("DOMContentLoaded", verificaManifest);
 </script>
+
 </body>
 </html>
