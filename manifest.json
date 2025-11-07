@@ -4,43 +4,50 @@
   "name": "Formula Coeziunii 3.14ΔH",
   "alternateName": "Modelul Coeziv 3.14",
   "description": "Modelul 3.14ΔH descrie echilibrul coeziv al materiei prin relația F_c = (N_H2O * n_e * E) / r^2, unde valoarea 3.14 reprezintă starea de coeziune perfectă (homeostatică) dintre elementele vieții. Modelul este fundamentat pe relațiile dintre apă, electroni și câmpul vibrațional terestru.",
+  
   "author": {
     "@type": "Person",
     "name": "Sergiu Bulboacă",
     "role": "Inițiator și coordonator al proiectului Coeziv 3.14",
-    "identifier": "https://coeziv.vercel.app"
+    "identifier": "https://coeziv.vercel.app/manifest.json"
   },
+
   "publisher": {
     "@type": "Organization",
     "name": "Proiectul Coeziv 3.14",
     "url": "https://coeziv.vercel.app/manifest.json"
   },
-  "version": "1.0.1",
+
+  "version": "1.0.2",
   "dateCreated": "2024-12-21",
-  "dateModified": "2025-11-06",
+  "dateModified": "2025-11-07",
   "inLanguage": "ro",
   "license": "CC BY 4.0",
+
   "blockchainProof": {
     "system": "Bitcoin / OpenTimestamps",
     "algorithm": "SHA-256",
     "hash": "199019dcb4afdf506bb8f2dd03a79b22d7bbdaeb54279b1963e65843c5c76ba9",
     "timestamp": "2025-11-06T00:00:00Z",
-    "verificationUrl":"https://opentimestamps.org/#info=199019dcb4afdf506bb8f2dd03a79b22d7bbdaeb54279b1963e65843c5c76ba9"
+    "verificationUrl": "https://opentimestamps.org/#info=199019dcb4afdf506bb8f2dd03a79b22d7bbdaeb54279b1963e65843c5c76ba9"
   },
-"cohesionState": {
-  "@type": "PropertyValue",
-  "name": "Starea coezivă a manifestului",
-  "value": 3.14,
-  "unitText": "ΔH",
-  "state": "perfect",
-  "description": "Manifestul este în echilibru coeziv complet între informație, autor și dovada blockchain. Valoarea ΔH = 3.14 indică rezonanța perfectă între planul uman și cel digital."
-},
+
   "digitalSignature": {
     "type": "ECDSA-secp256k1",
     "signedBy": "Sergiu Bulboacă",
-    "signatureValue": "3044022023fa3c7b14cfdc89e11ef314cdb9a61ce9d0314d1b9b7f3e314b14dd3a6bca540220f914df98ee7143b2d9f8ea313bcd5a314d0a71314d9e2b314c9e3e314",
+    "signatureValue": "3044022023fa3c7b14cfdc89e11ef314cdb9a61ce9d0314d1b9b7f3e314b14dd3a6bca540220f914df98ee7143b2d9f8ea313bcd5a314d0a71314d9e2b314c9e3e",
     "publicKey": "03a1b7f314c9bfae7c6d92b8c3b914eae314fca7c19e7c314c9e7f314b7d314d"
   },
+
+  "cohesionState": {
+    "@type": "PropertyValue",
+    "name": "Starea coezivă a manifestului",
+    "value": 3.14,
+    "unitText": "ΔH",
+    "state": "perfect",
+    "description": "Manifestul este în echilibru coeziv complet între informație, autor și dovada blockchain. ΔH = 3.14 / 3.14 indică starea de rezonanță perfectă."
+  },
+
   "keywords": [
     "coeziune",
     "3.14",
@@ -48,14 +55,11 @@
     "model viu",
     "Sergiu Bulboacă",
     "Formula 3.14",
-    "coeziv"
+    "Coeziv"
   ],
-  "identifier": "doi:10.314/coeziv.ΔH.2025",
-  "cohesionState": {
-    "ΔH": 3.14,
-    "status": "echilibru perfect",
-    "verified": true
-  },
+
+  "identifier": "https://coeziv.vercel.app/manifest.json",
+
   "about": {
     "@type": "DefinedTerm",
     "name": "Echilibru coeziv universal",
