@@ -13,7 +13,7 @@
   "publisher": {
     "@type": "Organization",
     "name": "Proiectul Coeziv 3.14",
-    "url": "https://coeziv.vercel.app"
+    "url": "https://coeziv.vercel.app/manifest.json"
   },
   "version": "1.0.1",
   "dateCreated": "2024-12-21",
@@ -27,6 +27,14 @@
     "timestamp": "2025-11-06T00:00:00Z",
     "verificationUrl":"https://opentimestamps.org/#info=199019dcb4afdf506bb8f2dd03a79b22d7bbdaeb54279b1963e65843c5c76ba9"
   },
+"cohesionState": {
+  "@type": "PropertyValue",
+  "name": "Starea coezivă a manifestului",
+  "value": 3.14,
+  "unitText": "ΔH",
+  "state": "perfect",
+  "description": "Manifestul este în echilibru coeziv complet între informație, autor și dovada blockchain. Valoarea ΔH = 3.14 indică rezonanța perfectă între planul uman și cel digital."
+},
   "digitalSignature": {
     "type": "ECDSA-secp256k1",
     "signedBy": "Sergiu Bulboacă",
