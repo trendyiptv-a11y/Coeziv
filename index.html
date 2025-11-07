@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Formula Coeziunii 3.14ΔH</title>
+<title>Motor Coeziv 3.14</title>
 <style>
   body {
     background-color: #0d1117;
@@ -18,9 +18,8 @@
     font-size: 2rem;
     margin-bottom: 0.3rem;
   }
-  p {
-    color: #9ba1a6;
-  }
+  p { color: #9ba1a6; }
+
   textarea {
     width: 90%;
     max-width: 500px;
@@ -32,94 +31,120 @@
     color: #fff;
     resize: none;
   }
+
   button {
-    background: #00ffb7;
-    color: #000;
     border: none;
     border-radius: 10px;
     padding: 10px 20px;
-    margin-top: 10px;
+    margin: 8px 5px;
     cursor: pointer;
+    font-weight: 600;
     transition: 0.3s;
   }
-  button:hover {
-    background: #00cfa0;
+  .btn-main {
+    background: #00ffb7;
+    color: #000;
   }
-  #result {
-    margin-top: 1rem;
-    color: #fff;
+  .btn-main:hover { background: #00cfa0; }
+
+  .btn-human {
+    background: #ffc800;
+    color: #000;
+  }
+  .btn-human:hover { background: #e6b400; }
+
+  .btn-info {
+    background: transparent;
+    border: 1px solid #00ffb7;
+    color: #00ffb7;
+  }
+  .btn-collections {
+    background: #fff;
+    color: #000;
   }
 
-  /* Card coeziv - mic și discret */
+  #result { margin-top: 1rem; color: #fff; }
+
+  /* Card mic Stare de funcționare */
   #coeziv-card {
     position: fixed;
     bottom: 10px;
     right: 10px;
     background: rgba(15, 17, 21, 0.85);
     color: #f1f1f1;
-    font-size: 0.85rem;
-    padding: 6px 12px;
+    font-size: 0.8rem;
+    padding: 5px 10px;
     border-radius: 10px;
-    box-shadow: 0 0 10px 2px #ffbb00;
-    transition: box-shadow 1s ease, background 1s ease;
+    box-shadow: 0 0 10px 2px #00ff88;
     z-index: 1000;
   }
 </style>
 </head>
 <body>
 
-  <h1>Formula Coeziunii 3.14ΔH</h1>
-  <p>Introduceți o afirmație pentru analiză:</p>
-  <textarea id="inputText" placeholder="Scrie aici afirmația ta..."></textarea><br>
-  <button onclick="analizeazaAfirmatia()">Analizează</button>
+  <h1>Motor Coeziv 3.14</h1>
+  <p>Analiză factuală, logică, semantică și umană</p>
+
+  <textarea id="inputText" placeholder="Scrie o afirmație..."></textarea><br>
+
+  <button class="btn-main" onclick="analizeazaAfirmatia()">🧠 Analizează afirmația</button>
+  <button class="btn-human" onclick="analizeazaUman()">🌿 Analizează prin ΔH (uman)</button><br>
+
+  <button class="btn-info" onclick="window.location='document/model.html'">Despre Modelul Coeziv 3.14</button>
+  <button class="btn-collections" onclick="window.location='collections.html'">🔭 Colecții Coezive</button>
+
   <div id="result"></div>
 
-  <!-- Panoul manifest - corect poziționat -->
+  <!-- Panoul manifest corect -->
   <div id="manifest-panel" class="partial"></div>
 
-  <!-- Card coeziv -->
+  <!-- Card mic de stare -->
   <div id="coeziv-card">
     <span id="deltaText">Stare de funcționare: actualizare vie...</span>
   </div>
 
 <script>
-  // --- Motorul de analiză (nemodificat) ---
-  function analizeazaAfirmatia() {
-    const text = document.getElementById("inputText").value.trim();
-    if (!text) return alert("Scrie o afirmație!");
-    document.getElementById("result").innerHTML = "<p>Se analizează...</p>";
-    fetch(`/api/analyze?text=${encodeURIComponent(text)}`)
-      .then(r => r.json())
-      .then(d => { document.getElementById("result").innerHTML = d.result; })
-      .catch(() => { document.getElementById("result").innerHTML = "Eroare la analiză."; });
-  }
+function analizeazaAfirmatia() {
+  const text = document.getElementById("inputText").value.trim();
+  if (!text) return alert("Scrie o afirmație!");
+  document.getElementById("result").innerHTML = "<p>Analizăm afirmația...</p>";
+  fetch(`/api/analyze?text=${encodeURIComponent(text)}`)
+    .then(r => r.json())
+    .then(d => { document.getElementById("result").innerHTML = d.result; })
+    .catch(() => { document.getElementById("result").innerHTML = "Eroare la analiză."; });
+}
 
-  // --- Actualizarea vie a stării sistemului ---
-  async function actualizeazaFormulaViva() {
-    try {
-      const r = await fetch('/manifest.json');
-      const manifest = await r.json();
-      const dh = parseFloat(manifest.cohesionState?.value || 2.57);
-      const text = document.getElementById('deltaText');
-      let mesaj = "Stare de funcționare: ";
+function analizeazaUman() {
+  document.getElementById("result").innerHTML = "Analiză ΔH (umană) în curs...";
+  fetch(`/api/human?text=${encodeURIComponent(document.getElementById("inputText").value)}`)
+    .then(r => r.json())
+    .then(d => { document.getElementById("result").innerHTML = d.result; })
+    .catch(() => { document.getElementById("result").innerHTML = "Eroare la analiza umană."; });
+}
 
-      if (dh < 2.8) mesaj += "instabilă 🟥";
-      else if (dh < 3.13) mesaj += "normală 🟨";
-      else mesaj += "optimă 🟩";
+async function actualizeazaFormulaViva() {
+  try {
+    const r = await fetch('/manifest.json');
+    const manifest = await r.json();
+    const dh = parseFloat(manifest.cohesionState?.value || 2.57);
+    const text = document.getElementById('deltaText');
+    let mesaj = "Stare de funcționare: ";
 
-      text.textContent = mesaj;
+    if (dh < 2.8) mesaj += "instabilă 🟥";
+    else if (dh < 3.13) mesaj += "normală 🟨";
+    else mesaj += "optimă 🟩";
 
-      const card = document.getElementById('coeziv-card');
-      if (dh < 2.8) card.style.boxShadow = '0 0 10px 2px #ff4444';
-      else if (dh < 3.13) card.style.boxShadow = '0 0 10px 2px #ffbb00';
-      else card.style.boxShadow = '0 0 10px 2px #00ff88';
+    text.textContent = mesaj;
 
-      setTimeout(actualizeazaFormulaViva, 30000);
-    } catch (e) {
-      console.warn('Eroare actualizare vie:', e);
-    }
-  }
-  actualizeazaFormulaViva();
+    const card = document.getElementById('coeziv-card');
+    if (dh < 2.8) card.style.boxShadow = '0 0 10px 2px #ff4444';
+    else if (dh < 3.13) card.style.boxShadow = '0 0 10px 2px #ffbb00';
+    else card.style.boxShadow = '0 0 10px 2px #00ff88';
+
+    setTimeout(actualizeazaFormulaViva, 30000);
+  } catch (e) { console.warn('Eroare actualizare vie:', e); }
+}
+actualizeazaFormulaViva();
 </script>
 
 </body>
