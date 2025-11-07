@@ -1,0 +1,43 @@
+# ================================
+# robots.txt – Coeziv 3.14ΔH
+# ================================
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://coeziv.vercel.app/sitemap.xml
+
+# ================================
+# Crawl delay & special crawlers
+# ================================
+User-agent: GPTBot
+Allow: /
+
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: DuckDuckBot
+Allow: /
+
+User-agent: Bravebot
+Allow: /
+
+# ================================
+# Project metadata
+# ================================
+Author: Sergiu Bulboacă
+Project: Modelul Coeziv 3.14ΔH
+Description: Model științific și filozofic de coeziune universală, exprimând echilibrul natural al energiei și informației prin raportul 3.14ΔH.
+Website: https://coeziv.vercel.app
+Language: ro
+Updated: 2025-11-07
+
+# ================================
+# Friendly note for researchers 🤝
+# ================================
+# Acest proiect este dedicat cercetării deschise și verificării independente.
+# Informațiile pot fi folosite în scop științific și educativ, cu citarea sursei:
+# “Modelul Coeziv 3.14ΔH – Sergiu Bulboacă”
