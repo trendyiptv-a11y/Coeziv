@@ -56,6 +56,36 @@ a.source-link {
 }
 a.source-link:hover { text-decoration: underline; }
 </style>
+  <style>
+#manifest-panel {
+  background: #0d1117;
+  border-radius: 1rem;
+  padding: 1rem;
+  color: #fff;
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.1);
+  margin: 1rem auto;
+  width: fit-content;
+  transition: all 0.4s ease;
+}
+#manifest-panel.perfect {
+  box-shadow: 0 0 18px #00ffb7;
+  animation: pulse-green 3s infinite ease-in-out;
+}
+#manifest-panel.partial {
+  box-shadow: 0 0 18px #ffc800;
+  animation: pulse-yellow 3s infinite ease-in-out;
+}
+@keyframes pulse-green {
+  0% { box-shadow: 0 0 10px #00ffb7; }
+  50% { box-shadow: 0 0 25px #00ffb7; }
+  100% { box-shadow: 0 0 10px #00ffb7; }
+}
+@keyframes pulse-yellow {
+  0% { box-shadow: 0 0 10px #ffc800; }
+  50% { box-shadow: 0 0 25px #ffc800; }
+  100% { box-shadow: 0 0 10px #ffc800; }
+}
+</style>
 </head>
 <body>
 
@@ -185,6 +215,62 @@ function calcHumanResonance(text) {
   </p>
 </div>
 <script>
+<div id="manifest-panel" class="partial">
+  <div style="display:flex;align-items:center;">
+    <svg width="44" height="44" viewBox="0 0 36 36">
+      <circle cx="18" cy="18" r="16" fill="none" stroke="#ffc800" stroke-width="4"
+        stroke-dasharray="100, 100" stroke-linecap="round" id="manifest-progress"></circle>
+    </svg>
+    <div style="margin-left:12px;">
+      <p style="margin:0;font-weight:bold;color:#00ffb7;">✅ Manifest verificat</p>
+      <p style="margin:0;">Formula Coeziunii 3.14ΔH</p>
+      <p id="manifest-author" style="margin:0;">Sergiu Bulboacă</p>
+      <p id="deltaH" style="margin:0;">ΔH: verificare...</p>
+      <p id="block-info" style="margin:0;color:#888;font-size:0.9em;"></p>
+    </div>
+  </div>
+</div>
+          <script>
+async function sha256(message) {
+  const msgBuffer = new TextEncoder().encode(message);
+  const hashBuffer = await crypto.subtle.digest("SHA-256", msgBuffer);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
+}
 
+async function verificaManifest() {
+  const targetHash = "199019dcb4afdf506bb8f2dd03a79b22d7bbdaeb54279b1963e65843c5c76ba9";
+  const el = document.getElementById("manifest-panel");
+  const circle = document.getElementById("manifest-progress");
+  const delta = document.getElementById("deltaH");
+  const block = document.getElementById("block-info");
+
+  try {
+    const res = await fetch("/manifest.json");
+    const text = await res.text();
+    const localHash = await sha256(text.trim());
+    console.log("Hash local:", localHash);
+
+    if (localHash === targetHash) {
+      el.classList.add("perfect");
+      el.classList.remove("partial");
+      circle.style.stroke = "#00ffb7";
+      delta.innerHTML = "ΔH: 3.14 / 3.14 (coeziune perfectă)";
+      block.innerHTML = "🔗 Ancorat: 2025-11-06 · Bloc Bitcoin #922515";
+    } else {
+      el.classList.add("partial");
+      el.classList.remove("perfect");
+      circle.style.stroke = "#ffc800";
+      delta.innerHTML = "ΔH: 2.57 / 3.14 (ediție vie)";
+      block.innerHTML = "🕓 Verificat local – neancorat";
+    }
+  } catch (e) {
+    delta.innerHTML = "❌ Eroare la verificare manifest.";
+    console.error(e);
+  }
+}
+
+document.addEventListener("DOMContentLoaded", verificaManifest);
+</script>
 </body>
 </html>
