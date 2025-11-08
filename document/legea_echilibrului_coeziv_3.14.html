@@ -5,75 +5,119 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Legea Echilibrului Coeziv 3.14 – Formula Vieții și a Echilibrului Molecular</title>
 
-<!-- Stil general -->
+<!-- 🌞 Stil general -->
 <style>
+:root {
+  --accent:#c98000;
+  --bg-light:#fff8e5;
+  --bg-panel:#fffef9;
+  --text-dark:#332200;
+}
 body{
   font-family:'Segoe UI',sans-serif;
-  margin:40px;
-  color:#222;
-  background:radial-gradient(circle at top,#fff6e5,#fbe4b0);
+  margin:0;
+  padding:0;
+  background:var(--bg-light);
+  color:var(--text-dark);
   line-height:1.6;
 }
-h1,h2{text-align:center;color:#552700;}
-h1{font-size:2em;margin-bottom:10px;}
-h2{margin-top:30px;color:#6b3a00;}
+.container{
+  max-width:900px;
+  margin:auto;
+  padding:16px;
+}
+h1,h2{
+  text-align:center;
+  color:var(--accent);
+  margin:16px 0;
+}
+h1{font-size:1.8em;}
+h2{font-size:1.4em;}
 p{text-align:justify;}
-blockquote{
-  background:#fff3d0;
-  border-left:5px solid #e8a200;
-  padding:10px 15px;
+.section{
+  background:var(--bg-panel);
+  border-radius:12px;
+  padding:20px;
   margin:20px 0;
+  box-shadow:0 0 8px rgba(0,0,0,0.1);
+}
+blockquote{
+  background:#fff3d6;
+  border-left:5px solid var(--accent);
+  padding:12px;
   font-style:italic;
 }
-.section{
-  background:#fffdf6;
-  border-radius:14px;
-  padding:25px;
-  box-shadow:0 0 10px rgba(0,0,0,0.15);
-  margin-bottom:40px;
+table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:15px;
+  font-size:0.9em;
 }
-table{border-collapse:collapse;width:100%;margin-top:20px;}
-th,td{border:1px solid #ccc;padding:6px;text-align:center;}
-th{background:#ffefc2;}
-#exportPDF{
-  padding:12px 18px;
-  background:#cc8800;
-  color:white;
-  font-size:1em;
-  border:none;
-  border-radius:6px;
-  cursor:pointer;
-  display:block;
-  margin:20px auto;
+th,td{
+  border:1px solid #ddd;
+  padding:6px;
+  text-align:center;
 }
-#exportPDF:hover{background:#aa6f00;}
-.footer{text-align:center;color:#444;margin-top:60px;font-size:0.9em;}
-.symbol{text-align:center;font-size:4em;color:#cc8800;margin-top:10px;}
-.link{color:#a25d00;text-decoration:none;}
-.link:hover{text-decoration:underline;}
-.inputfield{
+th{background:#ffeebf;}
+input{
   width:90%;
   padding:6px;
-  margin:4px;
   border:1px solid #ddd;
   border-radius:6px;
+}
+button{
+  background:var(--accent);
+  color:white;
+  border:none;
+  border-radius:6px;
+  padding:10px 16px;
+  margin:15px auto;
+  display:block;
+  cursor:pointer;
+  font-size:1em;
+}
+button:hover{background:#a86500;}
+.symbol{
+  text-align:center;
+  font-size:3em;
+  color:var(--accent);
+  margin-top:10px;
+}
+.footer{
+  text-align:center;
+  font-size:0.85em;
+  color:#555;
+  margin:40px 10px;
+}
+@media (max-width:600px){
+  h1{font-size:1.4em;}
+  h2{font-size:1.1em;}
+  .section{padding:14px;}
+  table{font-size:0.8em;}
+  input{font-size:0.85em;}
+  body{line-height:1.4;}
 }
 </style>
 </head>
 
 <body>
-
+<div class="container">
 <h1>Legea Echilibrului Coeziv 3.14</h1>
 <div class="symbol">☀️</div>
 <h2>Formula Vieții și a Echilibrului Molecular</h2>
 
 <div class="section">
 <h2>1. Definiția legii</h2>
-<p><strong>Legea Echilibrului Coeziv 3.14</strong> afirmă că, într-un sistem lichid sau biologic, există o temperatură la care variațiile structurale, electronice și vibraționale se compensează perfect, iar forța internă de coeziune devine constantă. Această stare definește <em>echilibrul coeziv</em>.</p>
+<p>
+<strong>Legea Echilibrului Coeziv 3.14</strong> afirmă că, într-un sistem lichid sau biologic,
+există o temperatură la care variațiile structurale, electronice și vibraționale
+se compensează perfect, iar forța internă de coeziune devine constantă.
+Această stare definește <em>echilibrul coeziv</em>.
+</p>
 
-<p style="text-align:center;font-size:1.2em;color:#8a4f00;">Echilibrul coeziv apare când derivata totală a funcției coezive în raport cu temperatura este nulă:</p>
+<p style="text-align:center;color:#a25d00;"><b>Echilibrul coeziv</b> apare când derivata totală a funcției coezive în raport cu temperatura este nulă:</p>
 
-<p style="text-align:center;font-size:1.3em;">
+<div style="text-align:center;overflow-x:auto;font-size:1.1em;">
 \[
 \frac{dC}{dT} = 0 \Rightarrow 
 \frac{1}{E}\frac{dE}{dT} =
@@ -81,7 +125,7 @@ th{background:#ffefc2;}
 -\frac{1}{\rho}\frac{d\rho}{dT}
 -\frac{1}{n_e}\frac{dn_e}{dT}
 \]
-</p>
+</div>
 
 <ul>
 <li>\(\rho\) – densitatea moleculară (kg/m³)</li>
@@ -90,19 +134,22 @@ th{background:#ffefc2;}
 <li>\(r\) – distanța medie între molecule (m)</li>
 </ul>
 
-<p>În cazul apei pure, această condiție se realizează la <strong>T ≈ 43 °C</strong>,
-unde \(C\) devine constantă, iar raportul \(C(43)/C(25) ≈ π\).</p>
+<p>
+În cazul apei pure, această condiție se realizează la <b>T ≈ 43 °C</b>,
+unde <i>C</i> devine constantă, iar raportul <i>C(43)/C(25) ≈ π</i>.
+</p>
 </div>
 
 <div class="section">
 <h2>2. Expresia fundamentală</h2>
-<p style="text-align:center;font-size:1.3em;">
+<div style="text-align:center;overflow-x:auto;font-size:1.1em;">
 \[
 C(T) = \frac{N_{H_2O}(T)\,n_{e^-}(T)\,E(T)}{r(T)^2}
 \]
+</div>
+<p>
+La echilibru, variațiile acestor patru mărimi se anulează reciproc, iar sistemul intră într-o stare de coerență moleculară perfectă.
 </p>
-
-<p>La echilibru, variațiile acestor patru mărimi se anulează reciproc, iar sistemul intră într-o stare de coerență moleculară perfectă.</p>
 
 <table>
 <tr><th>Mărime</th><th>Unitate SI</th><th>Semnificație</th></tr>
@@ -115,48 +162,15 @@ C(T) = \frac{N_{H_2O}(T)\,n_{e^-}(T)\,E(T)}{r(T)^2}
 </div>
 
 <div class="section">
-<h2>3. Domeniul de aplicare</h2>
-<ul>
-<li>Apă pură și soluții apoase biologice</li>
-<li>Lichide polare și substanțe cu rețea de legături de hidrogen</li>
-<li>Materiale amorfe cu interacții vibraționale dominante</li>
-<li>Modelare biofizică (enzime, celule, ADN, proteine)</li>
-</ul>
-</div>
-
-<div class="section">
-<h2>4. Interpretare</h2>
-<blockquote>
-„Viața există între două stări: ordinea rigidă și haosul complet.
-Echilibrul coeziv 3.14 este punctul în care materia se află exact
-la granița dintre cele două – suficient de ordonată pentru stabilitate,
-dar suficient de liberă pentru mișcare.”
-</blockquote>
-<p>Temperatura de echilibru (~43 °C) marchează tranziția naturală între starea biologic activă (25–37 °C) și repausul termodinamic.</p>
-</div>
-
-<div class="section">
-<h2>5. Surse experimentale</h2>
-<ul>
-<li><a class="link" href="https://iapws.org/relguide/IAPWS95.html" target="_blank">Wagner & Pruß (2002), IAPWS-95 Thermodynamic Properties of Water</a></li>
-<li><a class="link" href="https://webbook.nist.gov/chemistry/" target="_blank">NIST IR Spectra Database (vibrații O–H, 0.46 eV)</a></li>
-<li><a class="link" href="https://link.springer.com/book/10.1007/978-1-4757-0911-2" target="_blank">Zemaitis et al. (1986), Handbook of Aqueous Electrolyte Thermodynamics</a></li>
-</ul>
-</div>
-
-<div class="section">
-<h2>6. Verificare științifică și reproducere experimentală</h2>
-<p>Completează datele măsurate (unități SI) pentru verificarea experimentală a legii:</p>
-
+<h2>3. Verificare experimentală</h2>
+<p>Introduceți valori măsurate pentru testarea legii (unități SI):</p>
 <table>
-<tr><th>Temperatură (°C)</th><th>ρ (kg/m³)</th><th>r (Å)</th><th>E (J)</th><th>nₑ (1/m³)</th><th>Rezultat C(T)</th></tr>
-<tr><td><input class="inputfield"></td><td><input class="inputfield"></td><td><input class="inputfield"></td><td><input class="inputfield"></td><td><input class="inputfield"></td><td><input class="inputfield"></td></tr>
-<tr><td><input class="inputfield"></td><td><input class="inputfield"></td><td><input class="inputfield"></td><td><input class="inputfield"></td><td><input class="inputfield"></td><td><input class="inputfield"></td></tr>
-<tr><td><input class="inputfield"></td><td><input class="inputfield"></td><td><input class="inputfield"></td><td><input class="inputfield"></td><td><input class="inputfield"></td><td><input class="inputfield"></td></tr>
+<tr><th>T (°C)</th><th>ρ (kg/m³)</th><th>r (Å)</th><th>E (J)</th><th>nₑ (1/m³)</th><th>C(T)</th></tr>
+<tr><td><input></td><td><input></td><td><input></td><td><input></td><td><input></td><td><input></td></tr>
+<tr><td><input></td><td><input></td><td><input></td><td><input></td><td><input></td><td><input></td></tr>
+<tr><td><input></td><td><input></td><td><input></td><td><input></td><td><input></td><td><input></td></tr>
 </table>
-
-<p>Pentru fiecare set completat, raportează <strong>C(43 °C)/C(25 °C)</strong> și compară cu valoarea π ≈ 3.14.  
-Rezultatele reproductibile confirmă legea.</p>
+<p>Comparați <b>C(43 °C)/C(25 °C)</b> cu valoarea π ≈ 3.14.</p>
 </div>
 
 <div class="section" style="text-align:center;">
@@ -165,33 +179,32 @@ Rezultatele reproductibile confirmă legea.</p>
 
 <div class="footer">
 Autor: <b>Sergiu Bulboacă</b> — Modelul Coeziv 3.14 (2025)<br>
-Versiune: <i>Release 1.0 – verificare științifică</i><br>
+Versiune: <i>Release 1.1 – Mobile Scientific Edition</i><br>
 Licență: Public Domain – reproducere liberă în scop științific ☀️
 </div>
+</div>
 
-<!-- === MathJax + PDF Scripts === -->
+<!-- MathJax + PDF -->
 <script>
-window.MathJax = { tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}, svg: {fontCache: 'global'} };
+window.MathJax = { tex:{inlineMath:[['$','$'],['\\(','\\)']]}, svg:{fontCache:'global'} };
 </script>
 <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
-document.addEventListener("DOMContentLoaded", function() {
-  if (window.MathJax && window.MathJax.typesetPromise) window.MathJax.typesetPromise();
-  document.getElementById("exportPDF").onclick = () => {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF({unit:"pt",format:"a4"});
-    doc.setFont("helvetica","bold"); doc.setFontSize(16);
+document.addEventListener("DOMContentLoaded",()=>{
+  if(window.MathJax && window.MathJax.typesetPromise) window.MathJax.typesetPromise();
+  const { jsPDF } = window.jspdf;
+  document.getElementById("exportPDF").onclick=()=>{
+    const doc=new jsPDF({unit:"pt",format:"a4"});
+    doc.setFont("helvetica","bold");doc.setFontSize(16);
     doc.text("Legea Echilibrului Coeziv 3.14",60,60);
-    doc.setFont("helvetica","normal"); doc.setFontSize(11);
+    doc.setFont("helvetica","normal");doc.setFontSize(11);
     doc.text("Formula: dC/dT = 0 → Echilibru molecular la 43°C",60,90);
     doc.text("Autor: Sergiu Bulboacă — Modelul Coeziv 3.14 (2025)",60,110);
-    doc.text("Surse: IAPWS-95, Zemaitis, NIST IR Spectra",60,130);
-    doc.text("Rezultate experimentale verificabile – Public Domain",60,150);
-    doc.save("legea_echilibrului_coeziv_3.14.pdf");
+    doc.text("Release 1.1 – Mobile Scientific Edition",60,130);
+    doc.save("legea_coeziv_3.14_mobile.pdf");
   };
 });
 </script>
-
 </body>
 </html>
