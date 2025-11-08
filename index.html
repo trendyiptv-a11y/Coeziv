@@ -296,46 +296,5 @@ function calcHumanResonance(text) {
     Proiect realizat cu Modelul Coeziv 3.14 <strong>Formula Coeziunii</strong>.
   </p>
 
-async function sha256(message) {
-  const msgBuffer = new TextEncoder().encode(message);
-  const hashBuffer = await crypto.subtle.digest("SHA-256", msgBuffer);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
-}
-
-async function verificaManifest() {
-  const targetHash = "199019dcb4afdf506bb8f2dd03a79b22d7bbdaeb54279b1963e65843c5c76ba9";
-  const el = document.getElementById("manifest-panel");
-  const circle = document.getElementById("manifest-progress");
-  const delta = document.getElementById("deltaH");
-  const block = document.getElementById("block-info");
-
-  try {
-    const res = await fetch("/manifest.json");
-    const text = await res.text();
-    const localHash = await sha256(text.trim());
-    console.log("Hash local:", localHash);
-
-    if (localHash === targetHash) {
-      el.classList.add("perfect");
-      el.classList.remove("partial");
-      circle.style.stroke = "#00ffb7";
-      delta.innerHTML = "ΔH:coeziune perfectă";
-      block.innerHTML = "🔗 Ancorat: 2025-11-06 · Bloc Bitcoin #922515";
-    } else {
-      el.classList.add("partial");
-      el.classList.remove("perfect");
-      circle.style.stroke = "#ffc800";
-      delta.innerHTML = "ΔH: 2.57 / 3.14 (ediție vie)";
-      block.innerHTML = "🕓";
-    }
-  } catch (e) {
-    delta.innerHTML = "❌ Eroare la verificare manifest.";
-    console.error(e);
-  }
-}
-
-document.addEventListener("DOMContentLoaded", verificaManifest);
-</script>
 </body>
 </html>
