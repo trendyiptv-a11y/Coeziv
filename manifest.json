@@ -1,25 +1,25 @@
 {
   "@context": "https://schema.org",
   "@type": "CreativeWork",
-  "name": "Formula Coeziunii 3.14ΔH",
-  "alternateName": "Modelul Coeziv 3.14",
-  "description": "Modelul 3.14ΔH descrie echilibrul coeziv al materiei prin relația F_c = (N_H2O * n_e * E) / r^2, unde valoarea 3.14 reprezintă starea de coeziune perfectă (homeostatică) dintre elementele vieții. Modelul este fundamentat pe relațiile dintre apă, electroni și câmpul vibrațional terestru.",
+  "name": "Formula Coeziunii",
+  "alternateName": "Modelul Coeziv",
+  "description": "Modelul descrie echilibrul coeziv al materiei prin relația F_c = (N_H2O * n_e * E) / r^2, care reprezintă starea de coeziune perfectă (homeostatică) dintre elementele vieții. Modelul este fundamentat pe relațiile dintre apă, electroni și câmpul vibrațional terestru.",
   
   "author": {
     "@type": "Person",
     "name": "Sergiu Bulboacă",
-    "role": "Inițiator și coordonator al proiectului Coeziv 3.14",
+    "role": "Inițiator și coordonator al proiectului Coeziv",
     "identifier": "https://coeziv.vercel.app/manifest.json"
   },
 
   "publisher": {
     "@type": "Organization",
-    "name": "Proiectul Coeziv 3.14",
+    "name": "Proiectul Coeziv",
     "url": "https://coeziv.vercel.app/manifest.json"
   },
 
   "version": "1.0.2",
-  "dateCreated": "2024-12-21",
+  "dateCreated": "2025-06-26",
   "dateModified": "2025-11-07",
   "inLanguage": "ro",
   "license": "CC BY 4.0",
