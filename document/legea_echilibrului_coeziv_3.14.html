@@ -3,10 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <title>Legea Echilibrului Coeziv 3.14 – Formula Vieții și a Echilibrului Molecular</title>
-<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-<script id="MathJax-script" async
-src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <style>
 body{
   font-family:'Segoe UI',sans-serif;
@@ -48,14 +46,10 @@ th{background:#ffefc2;}
 }
 #exportPDF:hover{background:#aa6f00;}
 .footer{text-align:center;color:#444;margin-top:60px;font-size:0.9em;}
-.symbol{
-  text-align:center;
-  font-size:4em;
-  color:#cc8800;
-  margin-top:10px;
-}
+.symbol{text-align:center;font-size:4em;color:#cc8800;margin-top:10px;}
 </style>
 </head>
+
 <body>
 
 <h1>Legea Echilibrului Coeziv 3.14</h1>
@@ -75,26 +69,25 @@ Echilibrul coeziv apare când derivata totală a funcției coezive în raport cu
 </p>
 
 <p style="text-align:center;font-size:1.4em;">
-\\[
-\\frac{dC}{dT} = 0
-\\quad \\Rightarrow \\quad
-\\frac{1}{E}\\frac{dE}{dT} =
-2\\frac{1}{r}\\frac{dr}{dT}
--\\frac{1}{\\rho}\\frac{d\\rho}{dT}
--\\frac{1}{n_e}\\frac{dn_e}{dT}
-\\]
+\[ 
+\frac{dC}{dT} = 0 \quad \Rightarrow \quad 
+\frac{1}{E}\frac{dE}{dT} =
+2\frac{1}{r}\frac{dr}{dT}
+-\frac{1}{\rho}\frac{d\rho}{dT}
+-\frac{1}{n_e}\frac{dn_e}{dT}
+\]
 </p>
 
 <p>unde:</p>
 <ul>
-<li>\\(\\rho\\) – densitatea moleculară (kg/m³)</li>
-<li>\\(n_e\\) – densitatea electronilor mobili (1/m³)</li>
-<li>\\(E\\) – energia vibrațională medie (J)</li>
-<li>\\(r\\) – distanța medie între molecule (m)</li>
+<li>\(\rho\) – densitatea moleculară (kg/m³)</li>
+<li>\(n_e\) – densitatea electronilor mobili (1/m³)</li>
+<li>\(E\) – energia vibrațională medie (J)</li>
+<li>\(r\) – distanța medie între molecule (m)</li>
 </ul>
 
 <p>În cazul apei pure, această condiție se realizează la <strong>T ≈ 43 °C</strong>,
-unde \\(C\\) devine constantă, iar raportul \\(C(43)/C(25) ≈ π\\).</p>
+unde \(C\) devine constantă, iar raportul \(C(43)/C(25) ≈ π\).</p>
 </div>
 
 <div class="section">
@@ -102,9 +95,9 @@ unde \\(C\\) devine constantă, iar raportul \\(C(43)/C(25) ≈ π\\).</p>
 <p>Formula generală a coeziunii este:</p>
 
 <p style="text-align:center;font-size:1.3em;">
-\\[
-C(T) = \\frac{N_{H_2O}(T) \\; n_{e^-}(T) \\; E(T)}{r(T)^2}
-\\]
+\[
+C(T) = \frac{N_{H_2O}(T) \; n_{e^-}(T) \; E(T)}{r(T)^2}
+\]
 </p>
 
 <p>
@@ -115,11 +108,11 @@ La echilibru, variațiile acestor patru mărimi se anulează reciproc, iar siste
 
 <table>
 <tr><th>Mărime</th><th>Unitate SI</th><th>Semnificație</th></tr>
-<tr><td>\\(N_{H_2O}\\)</td><td>1/m³</td><td>număr de molecule de apă per volum</td></tr>
-<tr><td>\\(n_{e^-}\\)</td><td>1/m³</td><td>număr de electroni mobili</td></tr>
-<tr><td>\\(E(T)\\)</td><td>J</td><td>energie vibrațională a legăturii O–H</td></tr>
-<tr><td>\\(r(T)\\)</td><td>m</td><td>distanța medie între molecule</td></tr>
-<tr><td>\\(C(T)\\)</td><td>J/m³</td><td>densitate de energie coezivă</td></tr>
+<tr><td>\(N_{H_2O}\)</td><td>1/m³</td><td>număr de molecule de apă per volum</td></tr>
+<tr><td>\(n_{e^-}\)</td><td>1/m³</td><td>număr de electroni mobili</td></tr>
+<tr><td>\(E(T)\)</td><td>J</td><td>energie vibrațională a legăturii O–H</td></tr>
+<tr><td>\(r(T)\)</td><td>m</td><td>distanța medie între molecule</td></tr>
+<tr><td>\(C(T)\)</td><td>J/m³</td><td>densitate de energie coezivă</td></tr>
 </table>
 </div>
 
@@ -173,24 +166,38 @@ Autor: <b>Sergiu Bulboacă</b> — Modelul Coeziv 3.14 (2025)<br>
 Format grafic: Versiunea 3.14 Solar Edition ☀️
 </div>
 
+<!-- === SCRIPT STABIL MATHJAX + PDF === -->
 <script>
-document.getElementById("exportPDF").onclick = () => {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({unit:"pt",format:"a4"});
-  doc.setFont("helvetica","bold");
-  doc.setFontSize(16);
-  doc.text("Legea Echilibrului Coeziv 3.14",60,60);
-  doc.setFont("helvetica","normal");
-  doc.setFontSize(11);
-  doc.text("Formula:  dC/dT = 0  →  Echilibru molecular la 43°C",60,90);
-  doc.text("Autor: Sergiu Bulboacă — Modelul Coeziv 3.14 (2025)",60,110);
-  doc.text("Surse: IAPWS-95, Zemaitis, NIST IR Spectra",60,130);
-  doc.text("Interpretare: Echilibrul coeziv marchează punctul în care",60,160);
-  doc.text("energia vibrațională, densitatea și mobilitatea electronică",60,175);
-  doc.text("se compensează perfect — raport 3 : 1 între viață și echilibru.",60,190);
-  doc.save("legea_echilibrului_coeziv_3.14.pdf");
+window.MathJax = {
+  tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]},
+  svg: {fontCache: 'global'}
 };
 </script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  if (window.MathJax && window.MathJax.typesetPromise) {
+    window.MathJax.typesetPromise();
+  }
+  document.getElementById("exportPDF").onclick = () => {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({unit:"pt",format:"a4"});
+    doc.setFont("helvetica","bold");
+    doc.setFontSize(16);
+    doc.text("Legea Echilibrului Coeziv 3.14",60,60);
+    doc.setFont("helvetica","normal");
+    doc.setFontSize(11);
+    doc.text("Formula: dC/dT = 0 → Echilibru molecular la 43°C",60,90);
+    doc.text("Autor: Sergiu Bulboacă — Modelul Coeziv 3.14 (2025)",60,110);
+    doc.text("Surse: IAPWS-95, Zemaitis, NIST IR Spectra",60,130);
+    doc.text("Interpretare: echilibrul coeziv marchează punctul în care",60,160);
+    doc.text("energia vibrațională, densitatea și mobilitatea electronică",60,175);
+    doc.text("se compensează perfect — raport 3:1 între viață și echilibru.",60,190);
+    doc.save("legea_echilibrului_coeziv_3.14.pdf");
+  };
+});
+</script>
 </body>
 </html>
