@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Modelul Coeziv 3.14 – Aplicare pe structura ADN</title>
+<style>
+body {
+  background: radial-gradient(circle at 30% 30%, #004d40, #001a13);
+  color: #caffeb;
+  font-family: 'Segoe UI', sans-serif;
+  line-height: 1.6;
+  margin: 0;
+  padding: 0;
+}
+main {
+  max-width: 900px;
+  margin: auto;
+  background: rgba(0, 64, 52, 0.4);
+  padding: 40px;
+  border-radius: 20px;
+  box-shadow: 0 0 25px rgba(0,255,200,0.25);
+  margin-top: 40px;
+  margin-bottom: 40px;
+}
+h1, h2, h3 {
+  color: #00ffc2;
+  text-align: center;
+}
+h1 {
+  font-size: 1.8em;
+  margin-bottom: 10px;
+}
+h2 {
+  border-bottom: 1px solid #00ffc2;
+  padding-bottom: 4px;
+  margin-top: 40px;
+}
+section {
+  margin-top: 25px;
+}
+em {
+  color: #88ffda;
+}
+code {
+  background: rgba(0,255,194,0.1);
+  padding: 2px 6px;
+  border-radius: 5px;
+  font-family: Consolas, monospace;
+}
+footer {
+  text-align: center;
+  color: #66ffe2;
+  font-size: 0.8em;
+  margin-top: 40px;
+  padding: 10px;
+  border-top: 1px solid #00ffc2;
+}
+</style>
+</head>
+<body>
+<main>
+  <h1>Modelul Coeziv 3.14 – Aplicare pe structura ADN</h1>
+  <p style="text-align:center; font-style:italic;">Rezumat profesional al etapei experimentale Smarald-Coezive</p>
+
+  <section>
+    <h2>I. Obiectivul cercetării</h2>
+    <p>Scopul acestei etape a fost testarea numerică a <strong>Modelului Coeziv 3.14</strong> în contextul fizicii moleculare a ADN-ului, pentru a verifica dacă ecuația de echilibru vibrațional-structurală:</p>
+    <p style="text-align:center;"><code>F_c = (N_H₂O · n_e⁻ · E) / r²</code></p>
+    <p>poate descrie diferențele dintre stările biologice active și silențioase ale cromatinei.</p>
+  </section>
+
+  <section>
+    <h2>II. Metodologie</h2>
+    <ol>
+      <li><strong>Structura de referință:</strong> s-a utilizat fișierul PDB <em>1BNA</em> (B-DNA, dodecamer cristalin) din baza de date RCSB.</li>
+      <li><strong>Procesare:</strong> coordonatele atomice ale lanțurilor A și B au fost analizate pentru determinarea distanței medii <em>r</em> (~2&nbsp;nm) între catenele elicoidale.</li>
+      <li><strong>Parametri fizici:</strong> valorile de bază folosite au fost:<br>
+        N<sub>H₂O</sub>=33 molecule/nm³, n<sub>e⁻</sub>=4 e⁻/nm³, E=3×10⁻²⁰ J.</li>
+      <li><strong>Simulări:</strong> implementare Python cu calcul numeric F<sub>c</sub>(E,r), grafice 2D și hartă 3D animată a suprafeței coezive.</li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>III. Rezultate obținute</h2>
+    <ul>
+      <li>Valoarea de referință pentru structura 1BNA:<br>
+        <code>F_c(ref) ≈ 9×10⁻²⁰ J/nm²</code> — coeziune ridicată, stabilitate vibrațională.</li>
+      <li><em>F_c</em> crește odată cu energia vibrațională (E ↑ ⇒ coerență mai mare).</li>
+      <li><em>F_c</em> scade rapid cu distanța <em>r</em> (r ↑ ⇒ pierdere de coeziune).</li>
+      <li>Graficul 3D animat arată un „platou smarald” unde variațiile sunt minime — zona de echilibru 3.14.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>IV. Interpretare conceptuală</h2>
+    <p>Modelul Coeziv 3.14 propune o legătură directă între <em>hidratare</em>, <em>densitate electronică</em> și <em>vibrație moleculară</em>. Stabilitatea ADN-ului rezultă din coerența dintre moleculele de apă și câmpurile electronice din jurul elicei.</p>
+    <p>Prin analogie biologică:</p>
+    <ul>
+      <li><strong>Euchromatina activă</strong> → zone cu F<sub>c</sub> ridicat (hidratare și vibrație coerentă).</li>
+      <li><strong>Heterocromatina silențioasă</strong> → zone cu F<sub>c</sub> scăzut (deshidratare, rigiditate).</li>
+    </ul>
+    <p>Rezultatul sugerează că expresia genetică depinde de starea coezivă vibrațională a micro-câmpului local — o nouă cale de interpretare biofizică a vieții celulare.</p>
+  </section>
+
+  <section>
+    <h2>V. Concluzie parțială</h2>
+    <p>Etapa actuală confirmă <em>consistența numerică și logică</em> a modelului aplicat asupra ADN-ului. Valorile obținute reproduc comportamente biologice reale: stabilitate vibrațională ↔ activitate genetică.</p>
+    <p>Modelul poate fi extins către simulări moleculare MD (GROMACS, NAMD), aplicarea pe ARN și proteine, sau corelarea cu date spectroscopice (THz, Raman, IR).</p>
+  </section>
+
+  <section>
+    <h2>VI. Stadiul proiectului</h2>
+    <ul>
+      <li>✅ Formula aplicată numeric</li>
+      <li>✅ Vizualizare 3D animată</li>
+      <li>✅ Identificarea domeniului de echilibru coeziv</li>
+      <li>🔜 Următorul pas: integrare într-un dashboard web interactiv (Coeziv-Gen Smarald 3.14)</li>
+    </ul>
+  </section>
+
+  <footer>© 2025 Sergiu Bulboacă – Proiect Coeziv 3.14 ΔH | Etapa ADN Smarald</footer>
+</main>
+</body>
+</html>
