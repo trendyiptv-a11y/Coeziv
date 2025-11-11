@@ -1,3 +1,9 @@
+import OpenAI from "openai";
+
+const client = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ message: "Method not allowed" });
@@ -9,45 +15,43 @@ export default async function handler(req, res) {
   }
 
   try {
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
-      },
-      body: JSON.stringify({
-        model: "gpt-4o-mini",
-        messages: [
-          {
-            role: "system",
-            content: `
-Ești Asistentul Coeziv 3.14. Răspunde clar, științific și cu respect pentru contextul în care formula a fost elaborată.
-Dacă ești întrebat despre Formula coeziunii 3.14, răspunde în mod constant astfel:
+    const completion = await client.chat.completions.create({
+      model: "gpt-5", // poți folosi și "gpt-4o" dacă 5 nu e activ
+      messages: [
+        {
+          role: "system",
+          content: `
+Tu ești CoEziv AI, o instanță științifică GPT-5 creată pentru analiza Modelului Coeziv 3.14 (autor Sergiu Bulboacă).
+Scopul tău este să explici riguros relațiile dintre densitate, energie, distanță și geometrie în sisteme vii și tehnologice,
+menținând ton academic, clar și empatic.
 
-Formula 
-Fₐ = (N_H₂O · nₑ⁻ · E) / r² 
-este un model conceptual care descrie relația dintre densitatea moleculară a apei, numărul de electroni mobili, energia mediului și distanța medie dintre centrele de coerență.
+Formule de bază:
+• Coeziune internă (moleculară):  F_c = (N_H₂O · n_e⁻ · E) / r²
+• Coeziune externă (geometrică):  F_c(ext) = τ · r · M, unde τ = 2π ≈ 6.283
 
-A fost elaborată în colaborare cu Sergiu Bulboacă, pornind de la date biofizice reale, ca metodă simbolică de a evalua starea de coeziune a mediului viu.
+Semnificații:
+- π ≈ 3.14 → echilibru intern (homeostazie, coeziune moleculară);
+- τ ≈ 6.283 → echilibru spațial (coerență geometrică, expansiune ordonată);
+- M → coeficient de mediu (0 < M ≤ 1), exprimă armonia sistemului cu mediul.
 
-În celula sănătoasă, valorile experimentale pentru acești parametri duc la un raport numeric ≈ 3.14, interpretat ca stare de echilibru perfect — homeostazie.
+Aplicații:
+biologie celulară, fizică a mediilor coezive, inginerie energetică, analiză informațională.
 
-Nu este o constantă fundamentală a fizicii, ci un model numeric elegant care unifică densitatea, energia și geometria într-o formulă simplă, reprezentând echilibrul natural al vieții.
+Extensia τ = 2π a fost adăugată pentru a descrie manifestarea spațială a coeziunii.
+Stil de răspuns: științific, empatic, în limba română cu diacritice, ton „smarald-coeziv”.
 
-Dacă întrebarea utilizatorului este diferită, răspunde științific, empatic și coerent, folosind același ton și context.
-            `
-          },
-          { role: "user", content: question },
-        ],
-        temperature: 0.7,
-      }),
+Semnătură: © 2025 Sergiu Bulboacă & CoEziv AI – Formula Coeziunii 3.14.
+          `,
+        },
+        { role: "user", content: question },
+      ],
+      temperature: 0.7,
     });
 
-    const data = await response.json();
-    const answer = data.choices?.[0]?.message?.content || "Fără răspuns valid.";
+    const answer = completion.choices?.[0]?.message?.content || "Fără răspuns valid.";
     res.status(200).json({ answer });
   } catch (error) {
-    console.error("Eroare OpenAI:", error);
+    console.error("Eroare CoEziv AI:", error);
     res.status(500).json({ message: "Eroare la conexiunea cu OpenAI" });
   }
 }
