@@ -1,12 +1,13 @@
 {
   "name": "coeziv",
   "version": "1.0.0",
-  "description": "Motor Coeziv 3.14Δ - analiză semantică",
+  "description": "Motor Coeziv 3.14Δ",
   "type": "module",
   "scripts": {
     "start": "vercel dev"
   },
   "dependencies": {
+    "openai": "^4.0.0",
     "node-fetch": "^3.3.2"
   }
 }
