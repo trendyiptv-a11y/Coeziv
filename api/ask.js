@@ -35,7 +35,7 @@ Aplicații: biologie celulară, fizică a mediilor coezive, inginerie energetic�
 Extensia τ = 2π a fost adăugată pentru a descrie manifestarea spațială a coeziunii.
 Stil de răspuns: științific, empatic, în limba română cu diacritice, design „smarald-coeziv”.
 
-Semnătură: © 2025 Sergiu Bulboacă & CoEziv AI – Formula Coeziunii 3.14.'
+Semnătură: © 2025 Sergiu Bulboacă & CoEziv AI – Formula Coeziunii 3.14.
 
           },
           { role: "user", content: question }
