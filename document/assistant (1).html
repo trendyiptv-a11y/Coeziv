@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Asistent Coeziv 3.14Δ</title>
+  <style>
+    :root { --emerald:#00ffb7; --bg:#0d1117; --fg:#c9d1d9; --muted:#8b949e; }
+    * { box-sizing: border-box; }
+    body{
+      font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+      background: var(--bg); color: var(--fg);
+      padding: 2rem; margin:0; text-align:center;
+    }
+    h1{ color: var(--emerald); margin:0 0 0.5rem; }
+    p.lead{ color: var(--muted); margin:0 0 1rem; }
+
+    /* zona de chat derulabilă, nu mai taie textul */
+    #chat{
+      margin: 1.25rem auto 0;
+      text-align: left;
+      width: min(720px, 100%);
+      max-height: 70vh;             /* <= cheia */
+      overflow-y: auto;              /* scroll vertical */
+      padding: 1rem;
+      border: 1px solid #1f2937;
+      border-radius: 12px;
+      background: #0b0f14;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.03);
+    }
+
+    .msg{ white-space: pre-wrap; word-break: break-word; line-height:1.6; margin:0 0 0.85rem; }
+    .msg b{ font-weight:600; }
+    .user{ color: var(--emerald); }
+    .ai{ color:#fff; }
+
+    /* gradient subtil jos care indică derulare */
+    #chat-wrap{ position: relative; width: min(720px, 100%); margin: 0 auto 1rem; }
+    #chat-wrap::after{
+      content:""; position: absolute; left:0; right:0; bottom:0; height:28px;
+      background: linear-gradient(to top, rgba(13,17,23,0.92), rgba(13,17,23,0));
+      pointer-events: none;
+    }
+
+    /* input bar */
+    .bar{
+      display:flex; gap:.5rem; justify-content:center; align-items:center;
+      width: min(720px, 100%); margin: 0 auto;
+    }
+    input{
+      flex:1; min-width:0;
+      padding:.8rem .9rem; border-radius:10px; border:1px solid #243041;
+      background:#0b0f14; color:var(--fg); outline:none;
+    }
+    input::placeholder{ color:#5b6675; }
+    button{
+      background:var(--emerald); color:#000; font-weight:700;
+      border:none; border-radius:10px; padding:.85rem 1.2rem; cursor:pointer;
+    }
+    button[disabled]{ opacity:.6; cursor:not-allowed; }
+
+    a{ color:var(--emerald); text-decoration:none; display:inline-block; margin-top:1rem; }
+  </style>
+</head>
+<body>
+  <h1>🤖 Asistent Coeziv 3.14Δ</h1>
+  <p class="lead">Întreabă despre Formula Coeziunii, homeostazie, apă, Δ și interpretări coezive.</p>
+
+  <div id="chat-wrap">
+    <div id="chat" aria-live="polite" aria-label="Istoric conversație"></div>
+  </div>
+
+  <div class="bar">
+    <input id="q" placeholder="Scrie întrebarea ta aici..." autocomplete="off" />
+    <button id="send">Trimite</button>
+  </div>
+
+  <a href="/document/index.html">← Înapoi la arhivă</a>
+
+  <script>
+    const chat = document.getElementById("chat");
+    const qEl  = document.getElementById("q");
+    const btn  = document.getElementById("send");
+
+    function appendMessage(role, text){
+      const p = document.createElement("p");
+      p.className = `msg ${role}`;
+      const label = role === "user" ? "Tu" : "CoEziv AI";
+      // folosim textContent pentru a evita HTML injection
+      const b = document.createElement("b"); b.textContent = `${label}: `;
+      p.appendChild(b);
+      p.append(document.createTextNode(text));
+      chat.appendChild(p);
+      // autoscroll la ultimul mesaj
+      chat.scrollTop = chat.scrollHeight;
+    }
+
+    async function ask(){
+      const q = qEl.value.trim();
+      if(!q) return;
+      appendMessage("user", q);
+      qEl.value = "";
+      btn.disabled = true;
+
+      // mic indicator de "scrie..."
+      const typing = document.createElement("p");
+      typing.className = "msg ai";
+      typing.textContent = "CoEziv AI: …";
+      chat.appendChild(typing);
+      chat.scrollTop = chat.scrollHeight;
+
+      try{
+        const res = await fetch("/api/ask", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ question: q })
+        });
+
+        let data;
+        try { data = await res.json(); }
+        catch {
+          const txt = await res.text();
+          data = { answer: `Eroare: serverul a răspuns non-JSON: ${txt.slice(0,200)}…` };
+        }
+
+        typing.remove();
+        appendMessage("ai", data.answer || "Fără răspuns valid.");
+      } catch (e){
+        typing.remove();
+        appendMessage("ai", "A apărut o eroare de rețea. Încearcă din nou.");
+      } finally {
+        btn.disabled = false;
+        qEl.focus();
+      }
+    }
+
+    btn.addEventListener("click", ask);
+    qEl.addEventListener("keydown", (e)=>{ if(e.key === "Enter") ask(); });
+  </script>
+</body>
+</html>
