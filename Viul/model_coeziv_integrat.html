@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Modelul Coeziv 3.14–6.283 • De la Structură la Flux (v0.9a, intern)</title>
+<meta name="description" content="Document unificat: 3.14 (coeziune statică) + 6.283 (flux dinamic). Continuitate logică: ADN → flux, validare și ghid operațional pentru utilizatori.">
+<meta name="color-scheme" content="dark light">
+<style>
+  /* ——— Stil smarald (armonizat cu rezumat_adn.html) + accesibilitate ——— */
+  :root{
+    --bg1:#001a13; --bg2:#004d40;
+    --ink:#caffeb; --muted:#b6ffe9; --accent:#00ffc2; --line:rgba(0,255,194,0.45);
+    --panel:rgba(0,64,52,0.44); --shadow:0 0 25px rgba(0,255,200,0.25);
+    --chip:#0b2b25; --chipText:#e1fff7;
+    --focus:#e5ff00;
+  }
+  *{box-sizing:border-box}
+  html:focus-within{scroll-behavior:smooth}
+  @media (prefers-reduced-motion: reduce){
+    html:focus-within{scroll-behavior:auto}
+  }
+  html,body{height:100%}
+  body{
+    margin:0; font-family:'Segoe UI', system-ui, -apple-system, Roboto, Arial, "Noto Sans", sans-serif;
+    background: radial-gradient(circle at 30% 30%, var(--bg2), var(--bg1));
+    color:var(--ink); line-height:1.7;
+  }
+
+  /* Skip link pentru tastatură */
+  .skip-link{
+    position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden;
+  }
+  .skip-link:focus{
+    position:fixed; left:12px; top:12px; width:auto; height:auto;
+    background:#002d25; color:#fff; padding:10px 14px; border-radius:8px;
+    outline:3px solid var(--focus); z-index:9999;
+  }
+
+  main{
+    max-width: 1000px; margin: 32px auto; background: var(--panel);
+    padding: 40px 24px; border-radius: 20px; box-shadow: var(--shadow);
+  }
+  h1,h2,h3{ color:var(--accent); text-align:center; margin: 0 0 8px }
+  h1{ font-size:1.9rem; line-height:1.2 }
+  h2{ border-bottom:1px solid var(--accent); padding-bottom:6px; margin-top:38px }
+  h3{ color: var(--ink) }
+  p{ margin:12px 0 }
+  em{ color: var(--muted) }
+  code{ background: rgba(0,255,194,0.12); padding:2px 6px; border-radius:6px; font-family:Consolas, ui-monospace, monospace }
+  a{ color: var(--accent); text-underline-offset:3px }
+  a:focus-visible, button:focus-visible, [role="button"]:focus-visible{
+    outline:3px solid var(--focus); outline-offset:3px; border-radius:8px;
+  }
+  .lead{ text-align:center; font-style:italic; color: var(--muted) }
+
+  /* Navigație */
+  nav[aria-label="Navigație principală"]{
+    position:sticky; top:0; z-index:10; -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+    background: linear-gradient(90deg, rgba(0,26,19,.86), rgba(0,77,64,.86));
+    border-bottom:1px solid var(--line); padding:8px 12px
+  }
+  nav[aria-label="Navigație principală"] a{
+    margin-right:10px; color:var(--muted); text-decoration:none; font-size:.95rem; padding:6px 8px; border-radius:8px
+  }
+  nav[aria-label="Navigație principală"] a:hover{ color:#ffffff }
+  nav[aria-label="Navigație principală"] a:focus-visible{ background:#0b2b25 }
+
+  .nav{
+    display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin:14px 0 22px
+  }
+  .chip{
+    padding:10px 14px; background:var(--chip); color:var(--chipText);
+    border:1px solid var(--line); border-radius:999px; text-decoration:none; font-size:1rem
+  }
+  .chip:hover{ outline:1px solid var(--accent) }
+
+  /* Panouri & tabele */
+  .panel{ background: rgba(0,40,33,0.58); border:1px solid var(--line); border-radius:14px; padding:14px 16px }
+  .callout{ border-left:4px solid var(--accent); background: rgba(0,255,194,0.10); padding:12px 14px; border-radius:10px }
+  .grid{ display:grid; grid-template-columns:1fr; gap:14px }
+  @media (min-width:900px){ .grid{ grid-template-columns:1fr 1fr } }
+
+  table{ width:100%; border-collapse:separate; border-spacing:0; border:1px solid var(--line); border-radius:12px; overflow:hidden }
+  th,td{ padding:12px 12px; border-bottom:1px solid var(--line) }
+  th{ background: rgba(0,255,194,0.09); text-align:left; color: var(--muted) }
+  tr:last-child td{ border-bottom:none }
+
+  footer{
+    text-align:center; color:#d0fff5; font-size:.95rem; margin-top:36px; padding:12px;
+    border-top:1px solid var(--accent)
+  }
+  /* Preferințe utilizator: reduce motion */
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.01ms !important; animation-iteration-count:1 !important; transition-duration:0.01ms !important; scroll-behavior:auto !important}
+  }
+</style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Sari la conținut</a>
+
+  <nav aria-label="Navigație principală">
+    <a href="#intro">Introducere</a>
+    <a href="#part1">Partea I – 3.14</a>
+    <a href="#bridge">Tranziție</a>
+    <a href="#part2">Partea II – 6.283</a>
+    <a href="#validate">Validare</a>
+    <a href="#ops">Ghid operațional</a>
+  </nav>
+
+  <main id="main" role="main">
+    <header role="banner" aria-label="Titlu și lead">
+      <h1>Modelul Coeziv <strong>3.14–6.283</strong></h1>
+      <p class="lead">De la <em>structură</em> (π) la <em>flux</em> (2π) • Document unificat pentru utilizatori – versiune internă (v0.9a)</p>
+    </header>
+
+    <section id="intro" class="panel" aria-labelledby="intro-h">
+      <h2 id="intro-h">Introducere & context</h2>
+      <p>
+        Acest document reunește două fațete ale aceluiași principiu: <strong>3.14</strong> (echilibru intern, static, structural) și <strong>6.283</strong> (echilibru în mișcare, flux, ciclicitate).
+        Împreună, ele conturează <em>echilibrul viu</em> al sistemelor naturale și tehnice. Pentru fundamentul 3.14 aplicat pe ADN, vezi materialul sursă <strong>rezumat_adn.html</strong>.
+      </p>
+      <div class="callout" role="note" aria-label="Rezumat de lectură">
+        <strong>Lectură scurtă:</strong> 3.14 ≈ calitatea structurii; 6.283 ≈ coerența ciclului. Coerența percepută de utilizator apare când ambele se apropie de reperele lor (după normalizările corecte).
+      </div>
+      <nav class="nav" aria-label="Navigator secțiuni">
+        <a class="chip" href="#part1">Partea I – 3.14: ADN (studiu Smarald)</a>
+        <a class="chip" href="#part2">Partea II – 6.283: Flux dinamic & exemple</a>
+        <a class="chip" href="#validate">Validare & falsificabilitate</a>
+        <a class="chip" href="#ops">Ghid operațional pentru utilizatori/GPT</a>
+      </nav>
+    </section>
+
+    <!-- PARTEA I: 3.14 -->
+    <section id="part1" aria-labelledby="p1-h">
+      <h2 id="p1-h">Partea I — Modelul 3.14: Coeziune statică (aplicare pe structura ADN)</h2>
+      <p class="lead">Rezumat profesional al etapei experimentale Smarald-Coezive (ADN)</p>
+
+      <div class="panel" aria-labelledby="p1-obj">
+        <h3 id="p1-obj">I. Obiectivul cercetării</h3>
+        <p>Testarea numerică a <strong>Modelului Coeziv 3.14</strong> în contextul fizicii moleculare a ADN-ului, prin ecuația de echilibru vibrațional-structural:</p>
+        <p style="text-align:center"><code>F_c = (N_H₂O · n_e⁻ · E) / r²</code></p>
+        <p><strong>Notă rigoare:</strong> <em>3.14</em> este utilizat ca <strong>reper de optim adimensional</strong> obținut prin <strong>normalizare pe scara</strong> <code>r</code>; nu este o constantă SI. </p>
+        <p><strong>Definire r (prima apariție):</strong> <code>r</code> este <em>scara/raza de referință pentru normalizarea spațială</em>; în contextul ADN, un exemplu tipic este <em>nanometrul (nm)</em>, de ordinul <em>~2 nm</em> pentru distanța medie între catenele elicoidale.</p>
+      </div>
+
+      <div class="panel grid" aria-label="Metodologie și rezultate">
+        <div>
+          <h3>II. Metodologie</h3>
+          <ol>
+            <li><strong>Structura de referință:</strong> PDB <em>1BNA</em> (B-DNA, dodecamer cristalin).</li>
+            <li><strong>Procesare:</strong> analiză coordonate atomice pentru distanța medie <em>r</em> (~2 nm) între catenele elicoidale.</li>
+            <li><strong>Parametri fizici exemplificativi:</strong> N<sub>H₂O</sub>=33 molecule/nm³; n<sub>e⁻</sub>=4 e⁻/nm³; E=3×10⁻²⁰ J.</li>
+            <li><strong>Simulări:</strong> calcul numeric F<sub>c</sub>(E,r); grafice 2D; hartă 3D a suprafeței coezive.</li>
+          </ol>
+        </div>
+        <div>
+          <h3>III. Rezultate (sinteză)</h3>
+          <ul>
+            <li>Referință 1BNA: <code>F_c(ref) ≈ 9×10⁻²⁰ J/nm²</code> — coeziune ridicată, stabilitate vibrațională.</li>
+            <li><em>F_c</em> ↑ cu E (vibrație coerentă); <em>F_c</em> ↓ rapid cu r (distanță structurală).</li>
+            <li>„Platou smarald”: zonă de variație minimă a F<sub>c</sub> — <em>fereastră de echilibru 3.14</em>.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="panel" aria-labelledby="p1-int">
+        <h3 id="p1-int">IV. Interpretare conceptuală</h3>
+        <p>3.14 propune legătura dintre <em>hidratare</em>, <em>densitate electronică</em> și <em>vibrație moleculară</em>. Stabilitatea ADN-ului rezultă din coerența apei cu câmpurile electronice ale elicei.</p>
+        <ul>
+          <li><strong>Euchromatină activă</strong> → F<sub>c</sub> ridicat (hidratare + vibrație coerentă).</li>
+          <li><strong>Heterocromatină silențioasă</strong> → F<sub>c</sub> scăzut (deshidratare, rigiditate).</li>
+        </ul>
+      </div>
+
+      <div class="panel" aria-labelledby="p1-conc">
+        <h3 id="p1-conc">V. Concluzie parțială & Stadiu</h3>
+        <p>Modelul 3.14 este <em>numeric și logic consistent</em> pe ADN. Următoarele etape vizează extinderi MD (GROMACS/NAMD), ARN/proteine și corelări spectroscopice (THz, Raman, IR). Vezi baza: <strong>rezumat_adn.html</strong>.</p>
+        <ul>
+          <li>✅ Formula aplicată numeric</li>
+          <li>✅ Vizualizare 3D animată</li>
+          <li>✅ Identificarea ferestrei de echilibru</li>
+          <li>🔜 Dashboard web interactiv „Coeziv-Gen 3.14”</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- TRANZIȚIE -->
+    <section id="bridge" aria-labelledby="bridge-h">
+      <h2 id="bridge-h">Tranziție: De la echilibrul structural (3.14) la respirația ciclului (6.283)</h2>
+      <div class="callout" role="note">
+        În natură, <em>stabilitatea</em> singură nu este suficientă. Sistemele vii <strong>respiră</strong>, <strong>oscilează</strong>, <strong>se regenerează</strong>.
+        Aici intră în scenă 6.283: măsura coerenței <em>ciclului</em> pe conturul <code>2πr</code>. Dacă 3.14 este „structura”, 6.283 este „ritmul” ei.
+      </div>
+    </section>
+
+    <!-- PARTEA II: 6.283 -->
+    <section id="part2" aria-labelledby="p2-h">
+      <h2 id="p2-h">Partea II — Modelul 6.283: Flux coeziv dinamic</h2>
+
+      <figure class="panel" role="group" aria-labelledby="fig-cerc-title" aria-describedby="fig-cerc-desc">
+        <svg width="520" height="160" viewBox="0 0 520 160" role="img" aria-labelledby="fig-cerc-title fig-cerc-desc">
+          <title id="fig-cerc-title">Diagramă: π (structură) și 2π (flux)</title>
+          <desc id="fig-cerc-desc">Un cerc mic etichetat π ≈ 3.14 simbolizează structura; un cerc mai mare, conturat, etichetat 2π ≈ 6.283 simbolizează fluxul dinamic. O săgeată indică legătura dintre ele.</desc>
+          <defs>
+            <linearGradient id="g" x1="0" x2="1">
+              <stop offset="0%" stop-color="#1a3a31"/>
+              <stop offset="100%" stop-color="#0e1614"/>
+            </linearGradient>
+            <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+              <path d="M0,0 L0,8 L8,4 z" fill="#00ffc2"/>
+            </marker>
+          </defs>
+          <rect x="0" y="0" width="520" height="160" fill="url(#g)" stroke="#224a3f"/>
+          <circle cx="160" cy="80" r="38" fill="none" stroke="#00ffc2" stroke-width="2"/>
+          <text x="160" y="84" fill="#caffeb" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="14">π ≈ 3.14</text>
+          <text x="160" y="108" fill="#b6ffe9" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12">structură</text>
+          <circle cx="360" cy="80" r="54" fill="none" stroke="#8fffd9" stroke-width="2"/>
+          <path d="M360,26 a54,54 0 1,0 0,108 a54,54 0 1,0 0,-108" fill="none" stroke="#8fffd9" stroke-width="1.5" stroke-dasharray="4 4"/>
+          <text x="360" y="84" fill="#caffeb" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="14">2π ≈ 6.283</text>
+          <text x="360" y="108" fill="#b6ffe9" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12">flux</text>
+          <line x1="208" y1="80" x2="306" y2="80" stroke="#00ffc2" stroke-width="2" marker-end="url(#arrow)"/>
+        </svg>
+      </figure>
+
+      <div class="panel" aria-labelledby="p2-formal">
+        <h3 id="p2-formal">1) Formalism</h3>
+        <p>Definim o mărime dinamică ce cuantifică <em>circulația ordonată</em> a energiei/informației într-o buclă:</p>
+        <p style="text-align:center"><code>Φ_dyn = Γ · ω · τ</code></p>
+        <ul>
+          <li><strong>Γ</strong> – <em>circulație</em>: intensitatea buclei care închide conturul. În practică, poate fi aproximată:
+            <ul>
+              <li>în sisteme fluide: produsul <em>debit mediu pe contur × braț efectiv al momentului</em>;</li>
+              <li>în sisteme informaționale: <em>intensitatea fluxului de feedback</em> (volum × frecvență × retenție).</li>
+            </ul>
+          </li>
+          <li><strong>ω</strong> – viteză unghiulară / frecvență circulară.</li>
+          <li><strong>τ</strong> – coerență temporală (persistență de fază, stabilitatea ritmului în timp).</li>
+        </ul>
+        <p>Normalizat pe conturul <code>2πr</code>, optimul dinamic tinde spre o constantă de ordinul <strong>2π ~ 6.283</strong>.</p>
+        <p><strong>Notă rigoare:</strong> ca și 3.14, <em>6.283</em> funcționează ca <strong>reper de optim adimensional</strong> după normalizări corecte; nu este o constantă SI fixă universală.</p>
+      </div>
+
+      <div class="panel" aria-labelledby="p2-cuplu">
+        <h3 id="p2-cuplu">2) Indicatorul cuplat (π, 2π)</h3>
+        <p style="text-align:center"><code>Σ_coeziv = ( F_c,static , Φ_dyn ) → Țintă: (≈ 3.14, ≈ 6.283)</code></p>
+        <div class="grid" role="list">
+          <div class="panel" role="listitem">
+            <strong>Regulă practică:</strong> ajustezi întâi <em>structura</em> (π) apoi <em>ritmul</em> (2π). O structură instabilă nu poate susține o buclă coerentă.
+          </div>
+          <div class="panel" role="listitem">
+            <strong>Metrică de abatere:</strong> <code>ΔΣ = |π − 3.14| + |2π − 6.283|</code> — simplu de comunicat utilizatorilor ca „distanță față de optim”.
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" aria-labelledby="p2-ex">
+        <h3 id="p2-ex">3) Exemple sintetice (pentru utilizatori)</h3>
+        <div class="grid" role="list">
+          <div class="panel" role="listitem">
+            <strong>Celula</strong>: π – coeziune structurală (hidratare, câmp); 2π – ritmuri ionice, vibrații membranare. <em>Test:</em> mică variație de temperatură/ritm → observă „ferestre” de funcționare optimă.
+          </div>
+          <div class="panel" role="listitem">
+            <strong>Vortex/turbină</strong>: π – geometrie & presiune; 2π – turație/Γ stabilă. <em>Test:</em> curbe cuplu–ω → căutarea unui <em>platou</em> robust.
+          </div>
+          <div class="panel" role="listitem">
+            <strong>Cardio-respirator</strong>: π – integritate structurală; 2π – HRV/BPM sincron cu respirația. <em>Test:</em> respirație ghidată → HRV ↑.
+          </div>
+          <div class="panel" role="listitem">
+            <strong>Flux informațional</strong>: π – ontologie clară; 2π – bucle de feedback. <em>Test:</em> revizie periodică → erori ↓, debit ↑.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VALIDARE -->
+    <section id="validate" aria-labelledby="val-h">
+      <h2 id="val-h">Validare & falsificabilitate</h2>
+      <div class="panel" role="region" aria-label="Tabel validare">
+        <table>
+          <thead><tr><th>Domeniu</th><th>Măsurabil</th><th>Așteptare coezivă</th><th>Criteriu de invalidare</th></tr></thead>
+          <tbody>
+            <tr><td>Vortex</td><td>ω, cuplu, stabilitate nucleu</td><td>Platou robust de performanță în jurul unui ω aproape constant</td><td>Fără fereastră optimă (doar trend monotonic)</td></tr>
+            <tr><td>Cardio-resp.</td><td>HRV, BPM, sincron respirator</td><td>HRV ↑ când respirația intră în fereastra coerentă</td><td>Sincronizarea nu îmbunătățește HRV</td></tr>
+            <tr><td>Celular</td><td>Fereastră termo/frecvențială</td><td>„Sweet spot” de coerență funcțională</td><td>Nu apar zone optime replicabile</td></tr>
+            <tr><td>Informațional</td><td>Debitul, erorile</td><td>Feedback periodic → erori ↓, debit ↑</td><td>Nicio îmbunătățire măsurabilă</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="panel">Observație: pentru credibilitate, ferestrele de coerență trebuie replicate pe serii diferite de experimente și raportate la aceeași <code>scară r</code>.</p>
+    </section>
+
+    <!-- GHID OPERAȚIONAL -->
+    <section id="ops" aria-labelledby="ops-h">
+      <h2 id="ops-h">Ghid operațional (pentru utilizatori & GPT intern)</h2>
+      <ol class="panel">
+        <li><strong>Definește sistemul</strong> (tip + scop) și <strong>scara r</strong>.</li>
+        <li><strong>Estimează π</strong>: evaluează (N<sub>H₂O</sub>, n<sub>e⁻</sub>, E) → calculează <code>F_c,static</code> → compară cu 3.14.</li>
+        <li><strong>Estimează 2π</strong>: identifică bucla (Γ, ω, τ) → calculează <code>Φ_dyn</code> → compară cu 6.283.</li>
+        <li><strong>Calculează abaterea</strong>: <code>ΔΣ = |π−3.14| + |2π−6.283|</code>.</li>
+        <li><strong>Propune intervenții</strong>: întâi structurale (π), apoi ritmice/dinamice (2π).</li>
+        <li><strong>Validează</strong> pe o metrică observabilă (performanță, stabilitate, HRV, cuplu, eroare etc.).</li>
+      </ol>
+
+      <div class="panel" aria-label="Șablon răspuns GPT">
+        <h3>Răspuns standard pentru GPT (șablon)</h3>
+        <pre><code>{
+  "input": {"sistem":"ex: vortex / celulă / flux informațional", "r": 0.30, "parametri_specifici": {...}},
+  "estimari": {
+    "pi_static": 3.08,
+    "two_pi_dynamic": 6.31,
+    "delta_total": 0.17
+  },
+  "recomandari": [
+    "ajustează structura (π): ex. ghidaj laminar / hidratare / ontologie",
+    "finisează ritmul (2π): ex. +4% ω / respirație ghidată / cicluri de revizie"
+  ],
+  "validare": "metrica observabilă: ex. HRV ↑ / cuplu stabil / erori ↓"
+}</code></pre>
+      </div>
+
+      <div class="panel" aria-label="Limite și etică">
+        <h3>Limite, riscuri, etică</h3>
+        <ul>
+          <li>Reperele 3.14 și 6.283 sunt <em>normative după normalizare</em>; nu substituie protocoale clinice/inginerești.</li>
+          <li>Definirea corectă a <code>r</code> și a metodologiei pentru <code>Γ, ω, τ</code> este esențială.</li>
+          <li>Aplicațiile medicale se abordează doar în cadrul standardelor etice/clinice.</li>
+        </ul>
+      </div>
+    </section>
+
+    <footer role="contentinfo">
+      © 2025 Modelul Coeziv 3.14–6.283 • <strong>Model inițiat de Sergiu Bulboacă</strong> (Coeziv 3.14–6.283) — versiune internă v0.9a
+    </footer>
+  </main>
+</body>
+</html>
