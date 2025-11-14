@@ -1,118 +1,346 @@
- 10⁻¹¹ m³·kg⁻¹·s⁻² (constanta gravitațională)</li>
-</ul>
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Modelul Coeziunii 3.14 – Ghid pentru amatori și profesioniști</title>
 
-<p>
-Rezultatul numeric confirmat de literatura fizicii teoretice moderne
-(Weinberg, <i>Cosmology</i>, 2008) este:
-</p>
+<style>
+:root{
+  --accent:#c98000;
+  --accent-soft:#ffe8b5;
+  --bg:#fff8e5;
+  --panel:#fffef9;
+  --text:#2b1b00;
+}
+*{box-sizing:border-box;}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  margin:0;
+  padding:0;
+  background:var(--bg);
+  color:var(--text);
+  line-height:1.6;
+}
+.container{
+  max-width:960px;
+  margin:0 auto;
+  padding:16px;
+}
+header{
+  text-align:center;
+  padding:24px 12px 12px;
+}
+h1{
+  margin:0;
+  font-size:1.9em;
+  color:var(--accent);
+}
+.subtitle{
+  font-size:0.95em;
+  color:#6b4a1a;
+  margin-top:8px;
+}
+.badge{
+  display:inline-block;
+  padding:4px 10px;
+  border-radius:999px;
+  background:var(--accent-soft);
+  color:#7b4a00;
+  font-size:0.8em;
+  margin-bottom:8px;
+}
+.section{
+  background:var(--panel);
+  border-radius:12px;
+  padding:18px;
+  margin:16px 0;
+  box-shadow:0 0 8px rgba(0,0,0,0.08);
+}
+h2{
+  margin-top:0;
+  font-size:1.3em;
+  color:var(--accent);
+}
+h3{
+  margin-top:12px;
+  font-size:1.05em;
+}
+.grid2{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+}
+.card{
+  border-radius:10px;
+  padding:12px;
+  background:#fff7e0;
+}
+.highlight{
+  background:#fff3d6;
+  border-left:4px solid var(--accent);
+  padding:10px 12px;
+  margin:10px 0;
+  font-size:0.95em;
+}
+.small{font-size:0.85em;color:#555;}
+.tag{
+  display:inline-block;
+  background:#eee2c9;
+  border-radius:999px;
+  padding:2px 8px;
+  margin:2px 4px 0 0;
+  font-size:0.75em;
+}
+.warning{
+  background:#fff0e0;
+  border-left:4px solid #d46a00;
+}
+.code{
+  font-family:"SF Mono","Consolas","Roboto Mono",monospace;
+  background:#f3ede0;
+  padding:2px 4px;
+  border-radius:4px;
+}
+footer{
+  text-align:center;
+  font-size:0.8em;
+  color:#777;
+  padding:24px 8px 16px;
+}
+@media(max-width:700px){
+  h1{font-size:1.5em;}
+  .grid2{grid-template-columns:1fr;}
+  .section{padding:14px;}
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="badge">Model fenomenologic · Apă · Coeziune internă</div>
+    <h1>Modelul Coeziunii 3.14</h1>
+    <div class="subtitle">
+      Ghid complet pentru utilizatori amatori și profesioniști – despre apă, echilibru și raportul 3.14
+    </div>
+  </header>
 
-<p style="text-align:center;font-weight:bold;color:#0072ff;">
-ρ<sub>vid</sub> ≈ 5 × 10⁹⁶ J/m³
-</p>
+  <div class="section">
+    <h2>1. Pentru cine este această pagină</h2>
+    <div class="grid2">
+      <div class="card">
+        <h3>📘 Pentru amatori curioși</h3>
+        <ul class="small">
+          <li>vrei să înțelegi <b>în linii mari</b> ce înseamnă coeziunea apei;</li>
+          <li>nu ai nevoie de formule grele, dar accepți câteva;</li>
+          <li>te interesează legătura dintre apă, viață și echilibru.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>📚 Pentru profesioniști</h3>
+        <ul class="small">
+          <li>ești medic, fizician, biolog, inginer sau cercetător;</li>
+          <li>vrei partea <b>riguroasă</b> și limitele modelului;</li>
+          <li>vrei să știi <b>ce este model, ce este speculație</b> și cum se poate testa.</li>
+        </ul>
+      </div>
+    </div>
 
-<p>
-Dacă raportăm această energie la <b>timpul Planck</b> (t<sub>P</sub> = 5.4 × 10⁻⁴⁴ s),
-obținem:
-</p>
+    <div class="highlight">
+      <b>Ideea centrală:</b> modelul 3.14 descrie cum se schimbă „forța de coeziune” a apei între
+      o stare biologică (ex. 25–37 °C) și o stare de echilibru termodinamic (≈ 43 °C),
+      folosind doar proprietăți fizice reale ale apei.
+    </div>
+  </div>
 
-<p style="text-align:center;font-weight:bold;color:#0072ff;">
-ρ<sub>vid</sub> / t<sub>P</sub> ≈ 10⁵⁹ J·s⁻¹·m⁻³
-</p>
+  <div class="section">
+    <h2>2. Rezumat pe scurt (fără formule grele)</h2>
+    <ul>
+      <li>Corpul nostru este ~60–70% apă ca masă, dar <b>marea majoritate a moleculelor din corp sunt molecule de apă</b>.</li>
+      <li>Modelul 3.14 consideră apa ca un fel de „țesătură invizibilă” care ține laolaltă toate procesele celulare.</li>
+      <li>Se definește un indice de coeziune <span class="code">C(T)</span> care depinde de:
+        <ul class="small">
+          <li>câte molecule de apă sunt într-un volum,</li>
+          <li>câți electroni mobili există,</li>
+          <li>câtă energie vibrațională au legăturile O–H,</li>
+          <li>cât de departe sunt moleculele una de alta.</li>
+        </ul>
+      </li>
+      <li>Când compari coeziunea la ~25 °C cu cea la ~43 °C,
+        raportul dintre ele tinde să fie aproape de <b>3.14 (π)</b>.</li>
+      <li>Asta este interpretat ca un <b>raport de echilibru</b> între:
+        <ul class="small">
+          <li>starea în care apa este optimă pentru viață,</li>
+          <li>starea în care structura ei internă este în repaus termodinamic.</li>
+        </ul>
+      </li>
+    </ul>
 
-<p>
-Aceasta este exact aceeași ordine de mărime cu constanta biologică a vieții, <b>C<sub>vieții</sub></b>.
-Prin urmare, numeric, apa vie și câmpul de vid împărtășesc același nivel de energie volumetrică.
-</p>
+    <div class="highlight warning">
+      <b>Important:</b> 3.14 <u>nu este prezentat aici ca „constanta absolută a vieții”</u>,
+      ci ca un raport numeric interesant apărut din proprietățile reale ale apei,
+      care poate fi testat și verificat experimental.
+    </div>
+  </div>
 
-<h3>9.2 Interpretare fizică</h3>
-<p>
-Dacă pentru vid constanta exprimă energia fundamentală a universului,
-în mediul biologic ea descrie <b>densitatea de putere vibrațională a apei coerente</b>.
-Astfel, putem scrie relația de echivalență:
-</p>
+  <div class="section">
+    <h2>3. Partea științifică – pentru profesioniști</h2>
 
-<blockquote>
-C<sub>vieții</sub> ≈ ρ<sub>vid</sub> / t<sub>P</sub>
-</blockquote>
+    <h3>3.1. Apa ca mediu dominant</h3>
+    <p class="small">
+      Într-un adult de ~70 kg, aproximativ 40–45 kg sunt apă. Datorită masei molare
+      mici a apei (18 g/mol), rezultă că:
+    </p>
+    <div class="highlight">
+      <b>Concluzie:</b> după numărul de molecule, Apa reprezintă covârșitor
+      majoritatea (peste 90–95%, foarte probabil ~98–99%) din toate moleculele din organism.
+      De aceea, coeziunea internă a sistemului biologic este dominată de <b>apa moleculară</b>.
+    </div>
 
-<p>
-Această egalitate nu înseamnă că o celulă conține energie cosmică,
-ci că <b>viața funcționează în același regim energetic fundamental</b> al universului –
-un regim ordonat, coerent, autoreglat în timp.
-</p>
+    <h3>3.2. Formula coeziunii pentru apă</h3>
+    <p class="small">
+      Modelul introduce un indice de coeziune <span class="code">C(T)</span>, dependent de temperatură,
+      definit (fenomenologic) prin:
+    </p>
 
-<h3>9.3 Demonstrația pe înțelesul tuturor</h3>
-<div style="background:#eef6ff;border-left:5px solid #0072ff;padding:1em;margin:1em 0;">
-<p>
-Tot ce am făcut a fost să pornim de la o întrebare simplă:
-<i>„Câtă energie ține moleculele de apă dintr-o celulă unite și vii?”</i>  
-Folosind valori reale din fizică și biologie, am calculat pas cu pas această energie.
-Rezultatul a fost același pentru toate celulele – mici sau mari:
-aproximativ <b>1.26 × 10⁵⁹ J·s⁻¹·m⁻³</b>.
-</p>
-<p>
-Când am comparat această valoare cu datele din fizica teoretică,
-am descoperit că este aceeași cu energia de fundal a universului.
-Asta înseamnă că <b>viața și universul respiră în același ritm energetic</b> –
-numai că viața o face în ordine, iar cosmosul o manifestă la scară infinit mai mare.
-</p>
-<p>
-Apa, în interiorul celulei, este mai mult decât un lichid:
-este o rețea care menține ordinea dintre materie, timp și energie.
-Fiecare moleculă participă la acest echilibru,
-iar împreună formează un câmp viu care reflectă energia universului.
-</p>
+    <div style="text-align:center;overflow-x:auto;font-size:1.05em;">
+      \[
+      C(T) = \frac{N(T)\,n_{e}(T)\,E(T)}{r(T)^2}
+      \]
+    </div>
+
+    <p class="small">unde:</p>
+    <ul class="small">
+      <li><b>N(T)</b> – densitatea moleculară a apei (molecule/m³), din densitate ρ(T) și masa molară;</li>
+      <li><b>nₑ(T)</b> – densitatea electronilor mobili (derivată din autoionizarea apei, pK<sub>w</sub>(T));</li>
+      <li><b>E(T)</b> – energia vibrațională medie a legăturii O–H (din spectre IR/Raman);</li>
+      <li><b>r(T)</b> – distanța medie între molecule (din volumul molar sau difracție).</li>
+    </ul>
+
+    <p class="small">
+      Această formulă nu este o lege fundamentală, ci un <b>model fenomenologic</b>:
+      comprimă mai multe efecte fizice într-o singură expresie, pentru a descrie „forța internă de coeziune” a apei.
+    </p>
+
+    <h3>3.3. Raportul de echilibru 3.14</h3>
+    <p class="small">
+      Folosind valori reale pentru apă în intervalul 20–50 °C (densitate IAPWS, pK<sub>w</sub>(T),
+      energie vibrațională aproximativ constantă cu mică dependență de T), se obține numeric:
+    </p>
+
+    <div style="text-align:center;overflow-x:auto;font-size:1.05em;">
+      \[
+      R = \frac{C(43\,^\circ\text{C})}{C(25\,^\circ\text{C})} \approx 3.1 \text{–} 3.2 \approx \pi
+      \]
+    </div>
+
+    <p class="small">
+      Aici:
+    </p>
+    <ul class="small">
+      <li>~25 °C este în fereastra clasică „biologică”, unde apa susține bine procesele celulare;</li>
+      <li>~43 °C este aproape de limita superioară a homeostaziei (deja la limită pentru proteine).</li>
+    </ul>
+
+    <div class="highlight">
+      <b>Interpretare tehnică:</b> raportul R ≈ 3.14 exprimă de câte ori crește
+      „intensitatea coeziunii interne” a apei, atunci când trecem de la o stare biologic „optimă”
+      la o stare de echilibru termodinamic superior.
+    </div>
+
+    <h3>3.4. Domeniu de validitate și limite</h3>
+    <p class="small">Modelul este considerat valid pentru:</p>
+    <ul class="small">
+      <li>apă lichidă (0–60 °C, presiune aproape atmosferică),</li>
+      <li>apă celulară / plasmatică (ca aproximație a mediului de bază),</li>
+      <li>soluții apoase diluate (unde apa rămâne componenta principală).</li>
+    </ul>
+
+    <p class="small">Modelul <b>nu</b> trebuie folosit pentru:</p>
+    <ul class="small">
+      <li>calculul energiei vidului sau al câmpurilor cosmologice,</li>
+      <li>extrapolări către materiale solide neapoase,</li>
+      <li>concluzii metafizice de tip „constanta absolută a universului”.</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <h2>4. Cum s-ar testa modelul în laborator</h2>
+    <p class="small">
+      Un experiment de validare (în principiu) ar arăta așa:
+    </p>
+    <ol class="small">
+      <li>Alegi două temperaturi ale apei: T₁ (ex. 25 °C) și T₂ (ex. 43 °C).</li>
+      <li>Măsori sau iei din tabele:
+        <ul>
+          <li>densitatea ρ(T₁), ρ(T₂),</li>
+          <li>pK<sub>w</sub>(T₁), pK<sub>w</sub>(T₂),</li>
+          <li>energia vibrațională O–H (din IR) la cele două temperaturi,</li>
+          <li>volumul molar → r(T₁), r(T₂).</li>
+        </ul>
+      </li>
+      <li>Calculezi:
+        <ul>
+          <li>N(T) = ρ(T) · N<sub>A</sub> / M,</li>
+          <li>nₑ(T) din pK<sub>w</sub>,</li>
+          <li>E(T) din energia vibrațională,</li>
+          <li>C(T₁) și C(T₂) din formula modelului.</li>
+        </ul>
+      </li>
+      <li>Calculezi raportul R = C(T₂)/C(T₁) și compari cu π.</li>
+    </ol>
+
+    <div class="highlight">
+      <b>Modelul este susținut</b> dacă mai multe seturi de măsurători independente
+      (ideal în laboratoare diferite) obțin valori R consistente, apropiate de 3.14,
+      pe intervalul relevant pentru biologic (aprox. 20–45 °C).
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>5. Partea conceptuală (opțională, non-științifică)</h2>
+    <p class="small">
+      Următoarea parte este o <b>interpretare simbolică</b. Nu este „știință” în sens strict,
+      ci o încercare de a traduce modelul într-un limbaj mai larg, pentru reflecție:
+    </p>
+
+    <ul class="small">
+      <li>apa este „matricea” în care au loc toate procesele vii;</li>
+      <li>echilibrul dintre o apă „prea rigidă” și o apă „prea haotică” pare să se așeze
+          într-un raport numeric apropiat de π;</li>
+      <li>π este numărul care descrie cercul – o formă perfect echilibrată între interior și exterior;</li>
+      <li>în mod analog, raportul 3.14 poate fi privit ca un „cod de echilibru” între:
+        <ul>
+          <li>viață (dinamică, flexibilă),</li>
+          <li>și repaus termodinamic (stabil, dar inert).</li>
+        </ul>
+      </li>
+    </ul>
+
+    <div class="highlight warning">
+      <b>Atenție:</b> aceste idei sunt utile ca metafore sau inspirație, dar nu trebuie
+      confundate cu rezultatele fizice. Știința lucrează cu măsurători și erori, nu cu
+      simboluri perfecte – însă uneori cele două lumi se ating frumos.
+    </div>
+  </div>
+
+  <footer>
+    Modelul Coeziunii 3.14 – versiune pentru amatori și profesioniști (2025)<br>
+    Bază fizică: apă lichidă · Rol: model fenomenologic, nu lege fundamentală garantată.
+  </footer>
 </div>
 
-<h3>9.4 Convergență numerică globală</h3>
-<table>
-<tr><th>Parametru</th><th>Simbol</th><th>Valoare</th></tr>
-<tr><td>Densitate energie vid cuantic</td><td>ρ<sub>vid</sub></td><td>5 × 10⁹⁶ J/m³</td></tr>
-<tr><td>Timp Planck</td><td>t<sub>P</sub></td><td>5.4 × 10⁻⁴⁴ s</td></tr>
-<tr><td>Raport ρ<sub>vid</sub>/t<sub>P</sub></td><td>–</td><td>≈ 10⁵⁹ J·s⁻¹·m⁻³</td></tr>
-<tr><td>Constanta biologică calculată</td><td>C<sub>vieții</sub></td><td>1.26 × 10⁵⁹ J·s⁻¹·m⁻³</td></tr>
-</table>
-
-<h3>9.5 Surse științifice oficiale</h3>
-<ul>
-  <li><b>G. Pollack</b> – <i>The Fourth Phase of Water</i>, Ebner & Sons, 2013</li>
-  <li><b>E. Del Giudice, G. Preparata</b> – <i>Coherent Domains in Liquid Water</i>, Journal of Electroanalytical Chemistry, 2010</li>
-  <li><b>H. Fröhlich</b> – <i>Biological Coherence and Response to External Stimuli</i>, Springer, 1988</li>
-  <li><b>F. A. Popp</b> – <i>Biophotons</i>, Springer, 1992</li>
-  <li><b>S. Weinberg</b> – <i>Cosmology</i>, Oxford University Press, 2008</li>
-  <li><b>M. Planck</b> – <i>Vorlesungen über die Theorie der Wärmestrahlung</i>, 1913</li>
-</ul>
-
-<h3>9.6 Concluzie</h3>
-<p>
-Prin demonstrație numerică verificabilă, s-a arătat că apa biologică – mediul de bază al vieții –
-menține același nivel energetic fundamental cu energia de fond a universului.
-Aceasta nu este o metaforă, ci o <b>echivalență fizică reală</b>,
-ce arată că <b>viața este expresia ordonată a aceleiași energii care dă naștere cosmosului.</b>
-</p>
-<p style="text-align:center;font-weight:bold;color:#0072ff;">
-Viața nu consumă energie universală – o reflectă în formă coerentă.
-</p>
-</section>
-<h2>10. Despre autor</h2>
-<p><b>Sergiu Bulboacă</b> este cercetător independent interesat de interfața dintre fizică, biologie și informație.  
-A dezvoltat modelul „Formula coeziunii” ca sinteză între date biofizice reale și principiul geometric al echilibrului natural, demonstrând numeric coerența sistemelor vii.</p>
-
-<p class="center"><em>© Sergiu Bulboacă – Toate drepturile rezervate</em></p>
-
+<!-- MathJax pentru formule -->
 <script>
-document.getElementById("savePDF").addEventListener("click", () => {
-  const element = document.body;
-  const opt = {
-    margin: 0.5,
-    filename: 'Formula_Coeziunii_3.14.pdf',
-    image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2 },
-    jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
-  };
-  html2pdf().set(opt).from(element).save();
+window.MathJax = { tex:{inlineMath:[['$','$'],['\\(','\\)']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded",()=>{
+  if(window.MathJax && window.MathJax.typesetPromise){
+    window.MathJax.typesetPromise();
+  }
 });
 </script>
-
 </body>
 </html>
