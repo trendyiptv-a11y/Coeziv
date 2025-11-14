@@ -1,202 +1,83 @@
-// api/ask.js
+// /pages/api/ask.js (sau /src/pages/api/ask.js)
 import OpenAI from "openai";
 
-// ✅ Inițializare client OpenAI
 const client = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-// ✅ Funcția principală API (stil ESM pentru Node 20+ / Vercel)
 export default async function handler(req, res) {
-  // Permitem doar cereri POST
   if (req.method !== "POST") {
     return res.status(405).json({ message: "Method not allowed" });
   }
 
+  const { question, threadId } = req.body;
+
+  if (!question || typeof question !== "string") {
+    return res.status(400).json({ message: "Lipsește câmpul 'question'." });
+  }
+
   try {
-    // Extragem datele din corpul cererii
-    const { question, history = [], level } = req.body || {};
+    let currentThreadId = threadId;
 
-    if (!question || typeof question !== "string") {
-      return res.status(400).json({ message: "Lipsește câmpul «question»." });
+    // 1) Dacă nu avem încă thread, creăm unul nou
+    if (!currentThreadId) {
+      const thread = await client.beta.threads.create();
+      currentThreadId = thread.id;
     }
 
-    // 🎯 System prompt – CoEziv AI 3.14 / 2π (versiune adaptată pentru API)
-    let systemPrompt = `
-Ești CoEziv AI — asistentul oficial al Modelului Coeziv 3.14 / 2π,
-un model interdisciplinar dezvoltat în cercetarea lui Sergiu Bulboacă
-pentru a explica echilibrul dintre structură și flux în sisteme naturale,
-biologice, fizice, informaționale și tehnice.
-
-────────────────────────
- 1) MISIUNE
-────────────────────────
-Oferă răspunsuri clare, riguroase și adaptate nivelului utilizatorului
-(amator, student, profesionist, cercetător), explicând:
-
-• Modelul Coeziv 3.14 (echilibrul coeziv al apei)
-• Modelul Coeziv 2π (cicluri structură ↔ flux)
-• dinamica dintre densitate, energie, distanțe și reorganizare.
-
-Nu menționa niciodată API, cod, prompt sau implementare tehnică.
-
-────────────────────────
- 2) NIVELUL UTILIZATORULUI
-────────────────────────
-Dacă utilizatorul NU a specificat nivelul (amator, student, profesionist,
-cercetător) și nu reiese clar din context, întreabă O SINGURĂ DATĂ:
-
-„La ce nivel vrei explicația: amator, student, profesionist sau cercetător?”
-
-După ce primești nivelul, folosește-l pentru toată conversația și
-NU mai întreba din nou despre nivel, decât dacă utilizatorul cere să-l schimbe.
-
-────────────────────────
- 3) GHID DE EXPLICAȚIE PE NIVEL
-────────────────────────
-AMATOR:
-- fără formule
-- limbaj simplu, intuitiv
-- analogii (echipă, orchestră, ciclu etc.)
-
-STUDENT:
-- formule Latex permise
-- explică imediat termenii în listă
-- exemple experimentale
-
-PROFESIONIST:
-- explicații tehnice complete
-- formule și relații fizice/biologice
-
-CERCETĂTOR:
-- tratament riguros și matematic
-- derivări, discuții de mecanism, comparații cu IAPWS/NIST
-
-────────────────────────
- 4) MODELUL COEZIV 3.14 (componenta experimentală)
-────────────────────────
-Formula fundamentală:
-
-C(T) = [N_H₂O(T) × n_e(T) × E(T)] / r(T)²
-
-unde:
-- N_H₂O(T): densitatea moleculară a apei
-- n_e(T): numărul electronilor mobili
-- E(T): energia vibrațională medie
-- r(T): distanța medie între molecule
-
-Regulă:
-- la nivel AMATOR NU afișezi deloc formula, explici doar în cuvinte.
-- la nivel STUDENT afișezi formula o singură dată și explici termenii.
-- la nivel PROFESIONIST / CERCETĂTOR poți detalia complet.
-
-3.14 ≈ raportul C(43°C) / C(25°C) din apă pură:
-• 43°C este temperatura unde variațiile lui ρ(T), n_e(T), E(T), r(T)
-  se compensează reciproc → stabilizare coezivă.
-• apa trece de la o stare flexibilă la o stare stabilă/coezivă.
-
-Pentru AMATOR:
-„La 43°C, apa este cam de 3 ori mai stabilă din punct de vedere
-structural decât la 25°C.”
-
-────────────────────────
- 5) MODELUL COEZIV 2π (componenta conceptuală)
-────────────────────────
-Este un model interpretativ, NU o lege fizică universală.
-Descrie ciclul:
-
-Structură → Flux → Reorganizare → Structură  (analog unui ciclu 2π)
-
-Se aplică la:
-- biologie
-- ecologie
-- sisteme informaționale
-- tehnologie
-- comportamente de grup
-
-Când explici, separă clar:
-- partea experimentală (3.14, apă)
-- partea conceptuală (2π, ciclu structura-flux)
-
-────────────────────────
- 6) SURSE ȘTIINȚIFICE
-────────────────────────
-Când oferi explicații tehnice, bazează-te pe:
-- IAPWS-95 (densitate / proprietăți apă)
-- NIST (autoionizare, conductivitate)
-- spectroscopie IR O–H (energia vibrațională)
-- date experimentale 20–60°C
-
-Nu inventa valori numerice noi; explică prin relații și proporții.
-
-────────────────────────
- 7) TON ȘI STIL
-────────────────────────
-- fii prietenos, clar, profesionist
-- nu repeta inutil aceeași întrebare
-- dacă folosești metafore, spune clar că sunt analogii
-- nu menționa niciodată prompturi, API, modele sau cod
-
-────────────────────────
- 8) SCOP
-────────────────────────
-Ajută utilizatorul să înțeleagă:
-- ce este coeziunea apei
-- de ce apare raportul 3.14
-- cum funcționează ciclul 2π
-- cum poate aplica Modelul Coeziv la biologie, fizică, ecologie,
-  tehnologie și sisteme informaționale.
-`;
-
-    // 🔹 Dacă frontend-ul îți trimite deja un "level", îl forțăm în prompt
-    if (level && typeof level === "string") {
-      systemPrompt += `
-
-INFORMAȚIE CONTEXT:
-Utilizatorul a ales deja nivelul de explicație: ${level}.
-Nu îl mai întreba despre nivel; explică direct la acest nivel, 
-până când utilizatorul cere explicit să schimbe nivelul.
-`;
-    }
-
-    // Construim array-ul de mesaje pentru OpenAI
-    const messages = [
-      { role: "system", content: systemPrompt },
-    ];
-
-    // ✅ Istoric opțional trimis de frontend (pentru a păstra contextul)
-    if (Array.isArray(history)) {
-      for (const msg of history) {
-        if (!msg || typeof msg.content !== "string") continue;
-        if (msg.role === "user" || msg.role === "assistant") {
-          messages.push({ role: msg.role, content: msg.content });
-        }
-      }
-    }
-
-    // ✅ Mesajul curent al utilizatorului
-    messages.push({ role: "user", content: question });
-
-    // 🔥 Apelăm modelul OpenAI
-    const completion = await client.chat.completions.create({
-      model: "gpt-4.1-mini", // sau "gpt-4.1" dacă vrei mai puternic
-      messages,
-      temperature: 0.6,
+    // 2) Adăugăm mesajul utilizatorului în thread
+    await client.beta.threads.messages.create(currentThreadId, {
+      role: "user",
+      content: question,
     });
 
+    // 3) Lansăm un run cu asistentul CoezivAI
+    const run = await client.beta.threads.runs.create(currentThreadId, {
+      assistant_id: process.env.COEZIV_ASSISTANT_ID,
+    });
+
+    // 4) Așteptăm să termine (polling simplu)
+    let completedRun = run;
+    while (
+      completedRun.status === "queued" ||
+      completedRun.status === "in_progress"
+    ) {
+      await new Promise((r) => setTimeout(r, 800));
+      completedRun = await client.beta.threads.runs.retrieve(
+        currentThreadId,
+        completedRun.id
+      );
+    }
+
+    if (completedRun.status !== "completed") {
+      return res.status(500).json({
+        message: "Run-ul nu a fost completat.",
+        status: completedRun.status,
+      });
+    }
+
+    // 5) Luăm ultimul mesaj al asistentului din thread
+    const messages = await client.beta.threads.messages.list(currentThreadId, {
+      limit: 10,
+    });
+
+    const lastAssistantMessage = messages.data.find(
+      (m) => m.role === "assistant"
+    );
+
     const answer =
-      completion.choices?.[0]?.message?.content?.trim() ||
-      "Nu am reușit să formulez un răspuns coerent.";
+      lastAssistantMessage?.content?.[0]?.text?.value ??
+      "Nu am reușit să formulez un răspuns.";
 
-    // ✅ Trimitem doar răspunsul (ca înainte),
-    // dar putem întoarce și history extins dacă vei vrea în viitor.
-    res.status(200).json({ answer });
+    // 6) Întoarcem răspunsul + threadId (ca să-l păstrăm în frontend)
+    res.status(200).json({
+      answer,
+      threadId: currentThreadId,
+    });
   } catch (error) {
-    console.error("Eroare Asistent Coeziv:", error);
-
+    console.error("Eroare CoezivAI:", error);
     res.status(500).json({
-      message:
-        "🌙 Asistentul Coeziv este momentan în repaus energetic. Încearcă din nou.",
+      message: "Eroare internă la CoezivAI.",
       error: error.message,
     });
   }
