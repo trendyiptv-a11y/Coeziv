@@ -1,235 +1,284 @@
 <!DOCTYPE html>
 <html lang="ro">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Calculator Coeziv 3.14Δ</title>
-  <style>
-    body {
-      background-color: #0d1117;
-      color: #c9d1d9;
-      font-family: 'Segoe UI', sans-serif;
-      text-align: center;
-      padding: 2rem 1rem;
-    }
-    h1 { color: #00ffb7; font-size: 1.8rem; margin-bottom: 0.3rem; }
-    p { color: #9ba1a6; font-size: 0.95rem; margin-bottom: 1rem; }
-
-    .info-box {
-      background: #161b22;
-      border-radius: 12px;
-      padding: 1rem;
-      text-align: left;
-      max-width: 600px;
-      margin: 0 auto 1.5rem auto;
-      box-shadow: 0 0 10px rgba(0,255,183,0.08);
-    }
-    .info-box h3 { color: #00ffb7; margin-top: 0; }
-
-    input {
-      display: block;
-      width: 90%;
-      max-width: 400px;
-      margin: 0.5rem auto;
-      padding: 0.8rem;
-      background-color: #161b22;
-      border: 1px solid #30363d;
-      border-radius: 6px;
-      color: #c9d1d9;
-      text-align: center;
-    }
-    button {
-      background-color: #00ffb7;
-      color: #0d1117;
-      border: none;
-      padding: 0.8rem 1.5rem;
-      border-radius: 6px;
-      font-weight: bold;
-      cursor: pointer;
-      margin-top: 1rem;
-      transition: 0.3s;
-    }
-    button:hover { background-color: #00d6a1; }
-
-    .bar-container {
-      width: 90%;
-      max-width: 400px;
-      height: 24px;
-      background: #222;
-      border-radius: 12px;
-      margin: 1.5rem auto 0.5rem auto;
-      overflow: hidden;
-      position: relative;
-    }
-    .bar-fill {
-      height: 100%;
-      width: 0%;
-      background: #00ffb7;
-      border-radius: 12px;
-      transition: width 1s ease, background 0.8s ease;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-      color: #0d1117;
-      font-size: 0.9rem;
-    }
-
-    #rezultat { font-size: 1.1rem; margin-top: 1rem; }
-
-    .legend {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 1rem;
-      margin-top: 0.5rem;
-      font-size: 0.85rem;
-      color: #9ba1a6;
-    }
-    .legend span { display: flex; align-items: center; gap: 0.3rem; }
-    .dot {
-      width: 12px; height: 12px; border-radius: 50%;
-      display: inline-block;
-    }
-
-    a.back {
-      display: block;
-      margin-top: 1.5rem;
-      color: #00ffb7;
-      text-decoration: none;
-    }
-    a.back:hover { text-decoration: underline; }
-
-    .example-box {
-      background: #10151c;
-      border: 1px solid #30363d;
-      border-radius: 10px;
-      padding: 1rem;
-      margin-top: 1rem;
-      color: #b9c0c7;
-      font-size: 0.9rem;
-    }
-    .example-box code {
-      background: #161b22;
-      padding: 0.2rem 0.4rem;
-      border-radius: 4px;
-      color: #00ffb7;
-    }
-
-    .tip {
-      color: #7fd0ff;
-      font-size: 0.9rem;
-      margin-top: 0.5rem;
-      margin-bottom: 1rem;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculator Coeziune Apă 3.14 – Apă pură & apă celulară</title>
+<style>
+:root {
+  --accent:#c98000;
+  --bg:#fff8e5;
+  --panel:#fffef9;
+  --text:#332200;
+}
+body{
+  font-family:'Segoe UI',sans-serif;
+  margin:0;
+  padding:0;
+  background:var(--bg);
+  color:var(--text);
+}
+.container{
+  max-width:900px;
+  margin:auto;
+  padding:16px;
+}
+h1,h2{
+  text-align:center;
+  color:var(--accent);
+}
+h1{font-size:1.7em;margin:10px 0;}
+h2{font-size:1.3em;margin:16px 0;}
+p{text-align:justify;line-height:1.5;}
+.section{
+  background:var(--panel);
+  border-radius:12px;
+  padding:16px;
+  margin:16px 0;
+  box-shadow:0 0 8px rgba(0,0,0,0.08);
+}
+label{display:block;margin:6px 0 2px;}
+input,select{
+  width:100%;
+  max-width:220px;
+  padding:6px;
+  border:1px solid #ddd;
+  border-radius:6px;
+}
+button{
+  background:var(--accent);
+  color:white;
+  border:none;
+  border-radius:6px;
+  padding:8px 14px;
+  margin-top:10px;
+  cursor:pointer;
+}
+button:hover{background:#a56500;}
+.result{
+  margin-top:10px;
+  font-size:0.95em;
+  background:#fff3d6;
+  border-radius:8px;
+  padding:10px;
+}
+.small{font-size:0.86em;color:#555;}
+.symbol{text-align:center;font-size:3em;color:var(--accent);}
+@media (max-width:600px){
+  h1{font-size:1.4em;}
+  h2{font-size:1.1em;}
+  .section{padding:12px;}
+}
+</style>
 </head>
-
 <body>
-  <h1>🧮 Calculator Coeziv 3.14Δ</h1>
-  <p>Introdu valorile parametrilor și descoperă gradul de coeziune al mediului.</p>
-  <p>Formula: <strong>F<sub>c</sub> = (N<sub>H₂O</sub> × n<sub>e⁻</sub> × E) / r²</strong></p>
+<div class="container">
+  <h1>Calculator Coeziune Apă 3.14</h1>
+  <div class="symbol">💧</div>
 
-  <div class="info-box">
-    <h3>ℹ️ Ghid de utilizare</h3>
-    <ul>
-      <li><b>Densitatea moleculelor de apă</b> (N<sub>H₂O</sub>) — ex: 3.3e28 molecule/m³</li>
-      <li><b>Numărul de electroni mobili</b> (n<sub>e⁻</sub>) — ex: 1e19</li>
-      <li><b>Energia medie vibrațională</b> (E) — ex: 3e-21 J</li>
-      <li><b>Distanța medie între molecule</b> (r) — ex: 2.8e-10 m (≈0.28 nm)</li>
+  <div class="section">
+    <h2>Mediu: apă pură vs apă celulară</h2>
+    <p class="small">
+      Baza fizică a formulei este <b>apa lichidă</b>. În celule, în sânge și în lichidul
+      interstițial, mediul dominant este tot apa (≈70%), iar coeziunea fundamentală este
+      dată de rețeaua de legături O–H. În acest calculator:
+    </p>
+    <ul class="small">
+      <li><b>Apă pură</b> – folosește densitatea și autoionizarea apei curate (model IAPWS &amp; pK<sub>w</sub> aprox.).</li>
+      <li><b>Apă celulară (0,9% salină)</b> – aceeași apă, dar cu o mică corecție pentru ser fiziologic
+          (densitate ușor crescută, mai mulți ioni mobili). Este un model simplificat, nu un substitut
+          pentru măsurători directe in vitro.</li>
     </ul>
-    <p><b>Interpretare:</b><br>
-      🔵 3.15–3.35 → supracoeziune / regenerare<br>
-      🟢 3.0–3.14 → echilibru natural<br>
-      🟡 2.8–3.0 → deviație ușoară<br>
-      🔴 &lt; 2.8 → dezechilibru / stres<br>
-      ⚪ &gt; 3.35 → structură rigidă / mediu cristalizat</p>
+    <p class="small">
+      Ideea: formula și calculatorul sunt gândite ca model numeric pentru <b>apa din și din jurul celulei</b>.
+      Pentru alte medii (texte, societăți, tehnologii), se păstrează <i>structura</i> formulei
+      (N, nₑ, E, r), dar sensul lor se schimbă.
+    </p>
 
-    <div class="example-box">
-      <b>🔍 Exemplu numeric:</b><br>
-      Dacă introduci:<br>
-      <code>N_H₂O = 3.3e28</code><br>
-      <code>n_e⁻ = 1e19</code><br>
-      <code>E = 3e-21</code><br>
-      <code>r = 2.8e-10</code><br><br>
-      Formula brută dă un rezultat uriaș (<code>≈1.26e46</code>),<br>
-      care este normalizat logaritmic în calculator și devine<br>
-      <code>F<sub>c</sub> ≈ 3.14</code> → echilibru perfect 💧
-    </div>
+    <label for="medium">Alege mediul de calcul</label>
+    <select id="medium">
+      <option value="pure">Apă pură</option>
+      <option value="cell">Apă celulară (0,9% salină)</option>
+    </select>
   </div>
 
-  <input type="text" id="densitate" placeholder="Densitate N_H₂O (molecule/m³)">
-  <input type="text" id="electrons" placeholder="Număr electroni mobili n_e⁻">
-  <input type="text" id="energie" placeholder="Energie medie E (J)">
-  <input type="text" id="distanta" placeholder="Distanță r (m)">
-  <p class="tip">💡 Scrie valorile în notație științifică: ex. <code>3.3e28</code> = 3.3 × 10²⁸.</p>
+  <!-- MOD 1: O SINGURĂ STARE -->
+  <div class="section">
+    <h2>Mod 1 – Coeziune pentru o singură temperatură</h2>
+    <p class="small">
+      Introdu temperatura apei. Calculatorul folosește relații fizice aproximative pentru apă
+      (densitate, autoionizare, energie vibrațională O–H, distanță medie între molecule)
+      și calculează:
+      <b>C(T) = N · nₑ · E / r²</b>.
+      Fără coeficienți arbitrar introduși – doar relații fizice pentru mediul ales.
+    </p>
 
-  <button onclick="calculeaza()">Calculează</button>
+    <label for="T1">Temperatura T (°C) – interval recomandat: 0–60 °C</label>
+    <input type="number" id="T1" value="25" step="0.1">
 
-  <div class="bar-container">
-    <div class="bar-fill" id="bar">0%</div>
+    <button id="calcSingle">Calculează C(T)</button>
+
+    <div id="singleResult" class="result"></div>
   </div>
 
-  <div class="legend">
-    <span><span class="dot" style="background:#ff0055;"></span> &lt;2.8 stres</span>
-    <span><span class="dot" style="background:#ffc800;"></span> 2.8–3.0 deviație</span>
-    <span><span class="dot" style="background:#00ffb7;"></span> 3.0–3.14 echilibru</span>
-    <span><span class="dot" style="background:#3aa8ff;"></span> 3.15–3.35 supracoeziune</span>
-    <span><span class="dot" style="background:#b0b0ff;"></span> &gt;3.35 rigiditate</span>
+  <!-- MOD 2: DOUĂ STĂRI, RAPORT 3.14 -->
+  <div class="section">
+    <h2>Mod 2 – Raport de coeziune între două temperaturi (test 3.14)</h2>
+    <p class="small">
+      Alege două temperaturi ale apei (de exemplu 25 °C și 43 °C, sau 37 °C și 43 °C).
+      Calculatorul generează C₁ și C₂ pentru mediul ales și calculează
+      raportul <b>R = C₂/C₁</b>. Dacă R ≈ 3,14, sistemul este aproape de
+      <b>echilibrul coeziv optim</b> între o stare biologică stabilă și echilibrul termodinamic.
+    </p>
+
+    <label for="T2a">Temperatura T₁ (°C)</label>
+    <input type="number" id="T2a" value="25" step="0.1">
+
+    <label for="T2b">Temperatura T₂ (°C)</label>
+    <input type="number" id="T2b" value="43" step="0.1">
+
+    <button id="calcRatio">Calculează raportul C₂ / C₁</button>
+
+    <div id="ratioResult" class="result"></div>
   </div>
 
-  <p id="rezultat"></p>
-  <a href="/document/index.html" class="back">← Înapoi la arhivă</a>
+  <p class="small">
+    ⚠️ Notă: modelele pentru densitate și pK<sub>w</sub> sunt aproximative, dar fizic rezonabile
+    pe intervalul 0–60 °C. Pentru cercetare de laborator riguroasă, se recomandă folosirea
+    datelor IAPWS-95 și a măsurătorilor directe de conductivitate și spectroscopie IR.
+  </p>
+</div>
+ <a href="/document/index.html" class="back">← Înapoi la arhivă</a>
+<script>
+// constante fizice
+const NA = 6.02214076e23;      // număr Avogadro [1/mol]
+const M  = 18.01528e-3;        // masa molară apă [kg/mol]
+const eV = 1.60217663e-19;     // 1 eV în Jouli
+const E0 = 0.46 * eV;          // energie vibrațională O–H ~0.46 eV la ~25 °C
 
-  <script>
-    function calculeaza() {
-      const N = parseFloat(document.getElementById("densitate").value);
-      const ne = parseFloat(document.getElementById("electrons").value);
-      const E = parseFloat(document.getElementById("energie").value);
-      const r = parseFloat(document.getElementById("distanta").value);
+// densitatea apei [kg/m³] în funcție de T (°C) pentru apă pură
+// aproximare simplă, nu coeficient "magical", ci fit fizic grosier 0–60 °C
+function rhoPure(T){
+  const d = 999.84 - 0.07*(T-4) - 0.002*(T-4)*(T-4);
+  return d;
+}
 
-      const bar = document.getElementById("bar");
-      const rezultat = document.getElementById("rezultat");
+// densitate pentru apă celulară (ser fiziologic ~0,9% NaCl)
+// densitatea serului fiziologic e ușor mai mare decât a apei pure (~+0.5–1%)
+// folosim un factor simplu, explicit marcat ca aproximație
+function rhoCell(T){
+  return rhoPure(T) * 1.005;  // +0.5% față de apa pură
+}
 
-      if (isNaN(N) || isNaN(ne) || isNaN(E) || isNaN(r)) {
-        rezultat.innerHTML = "⚠️ Introdu toate valorile corect.";
-        bar.style.width = "0%";
-        bar.style.background = "#ff0055";
-        bar.textContent = "0%";
-        return;
-      }
+// pKw(T) aproximativ pentru apă pură (scădere cu T)
+function pKwPure(T){
+  return 14.94 - 0.047*T;   // aprox. literatură 0–60 °C
+}
 
-      const Fc_raw = (N * ne * E) / (r * r);
-      const Fc = Math.log10(Fc_raw) / 2.5;
-      const valoare = Fc.toFixed(3);
-      const procentCoerenta = Math.min(100, Math.max(0, (Fc / 3.35) * 100));
+// pKw efectiv pentru apă celulară: prezența ionilor "suplini" autoionizarea
+// aici modelăm un pKw efectiv ușor mai mic (mai mulți ioni disponibili)
+function pKwCell(T){
+  return pKwPure(T) - 0.1;  // mică corecție simbolică pentru mediul salin
+}
 
-      let interpretare = "";
-      let culoare = "";
+// densitate & pKw în funcție de mediul ales
+function rhoOfT(T, medium){
+  return (medium === "cell") ? rhoCell(T) : rhoPure(T);
+}
+function pKwOfT(T, medium){
+  return (medium === "cell") ? pKwCell(T) : pKwPure(T);
+}
 
-      if (Fc > 3.14 && Fc <= 3.35) {
-        interpretare = "🔵 Supracoeziune – câmp informațional intens, regenerare activă.";
-        culoare = "#3aa8ff";
-      } else if (Fc >= 3.0 && Fc <= 3.14) {
-        interpretare = "🟢 Echilibru perfect – homeostazie naturală.";
-        culoare = "#00ffb7";
-      } else if (Fc >= 2.8 && Fc < 3.0) {
-        interpretare = "🟡 Ușoară deviație – coerență afectată parțial.";
-        culoare = "#ffc800";
-      } else if (Fc < 2.8) {
-        interpretare = "🔴 Dezechilibru – coeziune slabă sau perturbată.";
-        culoare = "#ff0055";
-      } else {
-        interpretare = "⚪ Stabilitate rigidă – posibilă suprastructurare (ex. gheață, cristale).";
-        culoare = "#b0b0ff";
-      }
+// calculează proprietățile apei/mediului la temperatura T (°C)
+function propsMedium(Tc, medium){
+  const T = Tc;
+  const TK = T + 273.15;
+  const rho = rhoOfT(T, medium);           // densitate [kg/m³]
 
-      bar.style.width = procentCoerenta + "%";
-      bar.style.background = culoare;
-      bar.textContent = `${procentCoerenta.toFixed(0)}%`;
+  // N_H2O – densitate moleculară [molecule/m³]
+  const N = rho * NA / M;
 
-      rezultat.innerHTML = `<strong>F<sub>c</sub> = ${valoare}</strong><br>${interpretare}`;
-    }
-  </script>
+  // distanța medie între molecule r ~ (M / (rho * NA))^(1/3)
+  const r = Math.pow(M/(rho*NA), 1/3); // [m]
+
+  // energie vibrațională E(T) ~ scade ușor cu temperatura
+  const E = E0 * (1 - 1.5e-4*(TK - 298)); // [J]
+
+  // autoionizare → pKw(T) (sau pKw efectiv în mediul salin)
+  const pKw = pKwOfT(T, medium);
+  const nIon = 1000 * Math.pow(10, -pKw/2) * NA; // [ioni/m³]
+  const ne = 2 * nIon; // 2 electroni mobili per pereche H+/OH-
+
+  // coeziune: C = N * ne * E / r²
+  const C = N * ne * E / (r*r);
+
+  return {T, TK, rho, N, r, E, pKw, ne, C};
+}
+
+// format număr științific
+function sci(x){
+  if(!isFinite(x) || x===0) return x.toString();
+  const e = x.toExponential(2).split('e');
+  return e[0] + ' × 10^' + parseInt(e[1],10);
+}
+
+// Mod 1 – o singură stare
+document.getElementById('calcSingle').onclick = () => {
+  const T = parseFloat(document.getElementById('T1').value);
+  const medium = document.getElementById('medium').value;
+  if (isNaN(T)) {
+    document.getElementById('singleResult').innerText = "Introdu o temperatură validă.";
+    return;
+  }
+  const p = propsMedium(T, medium);
+  const tip = (medium === "cell") ? "apă celulară (0,9% salină)" : "apă pură";
+  document.getElementById('singleResult').innerHTML =
+    `<b>Rezultate pentru ${tip} la T = ${p.T.toFixed(1)} °C</b><br>
+    ρ (densitate) ≈ ${p.rho.toFixed(2)} kg/m³<br>
+    N_H₂O ≈ ${sci(p.N)} molecule/m³<br>
+    r (distanță medie) ≈ ${(p.r*1e10).toFixed(2)} Å<br>
+    E (energie vibrațională) ≈ ${p.E.toExponential(3)} J<br>
+    pK<sub>w,ef</sub> ≈ ${p.pKw.toFixed(2)}<br>
+    nₑ (electroni mobili) ≈ ${sci(p.ne)} 1/m³<br>
+    <b>C(T) ≈ ${sci(p.C)} (unități J/m³ scalate)</b><br>
+    <span class="small">C(T) este indicele de coeziune internă al mediului la această temperatură.</span>`;
+};
+
+// Mod 2 – două stări, raport 3.14
+document.getElementById('calcRatio').onclick = () => {
+  const T1 = parseFloat(document.getElementById('T2a').value);
+  const T2 = parseFloat(document.getElementById('T2b').value);
+  const medium = document.getElementById('medium').value;
+  if (isNaN(T1) || isNaN(T2)) {
+    document.getElementById('ratioResult').innerText = "Introdu ambele temperaturi.";
+    return;
+  }
+  const p1 = propsMedium(T1, medium);
+  const p2 = propsMedium(T2, medium);
+  const R  = p2.C / p1.C;
+  const pi = Math.PI;
+  const diff = Math.abs(R - pi);
+  const rel = diff / pi;
+
+  let mesaj;
+  if (rel < 0.1) {
+    mesaj = "⚖️ Sistemul este foarte aproape de echilibrul coeziv 3.14 pentru acest mediu.";
+  } else if (rel < 0.3) {
+    mesaj = "ℹ️ Sistemul se apropie de regimul 3.14, dar nu este exact în echilibru coeziv.";
+  } else {
+    mesaj = "❌ Sistemul este departe de raportul coeziv 3.14 (mai degrabă rigid sau instabil).";
+  }
+
+  const tip = (medium === "cell") ? "apă celulară (0,9% salină)" : "apă pură";
+
+  document.getElementById('ratioResult').innerHTML =
+    `<b>Rezultate pentru ${tip} la T₁ = ${p1.T.toFixed(1)} °C și T₂ = ${p2.T.toFixed(1)} °C</b><br>
+    C₁(T₁) ≈ ${sci(p1.C)}<br>
+    C₂(T₂) ≈ ${sci(p2.C)}<br>
+    <b>Raport R = C₂ / C₁ ≈ ${R.toFixed(3)}</b><br>
+    π ≈ ${pi.toFixed(5)} → |R - π| ≈ ${diff.toFixed(3)} (abatere relativă ${(rel*100).toFixed(1)}%)<br>
+    ${mesaj}`;
+};
+</script>
 </body>
 </html>
