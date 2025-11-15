@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" />
+  <title>Teoria Unificată a Apei bazată pe Modelul Coeziv 3.14 și Dinamica 2π</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Teorie unificată a apei bazată pe Modelul Coeziv 3.14 și dinamica 2π, integrând structurile LDL/HDL, coeziunea emergentă și aplicațiile biologice." />
+
+  <!-- Stil simplu pentru lizibilitate web -->
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.6;
+      margin: 0;
+      padding: 0;
+      background: #f7f7f7;
+      color: #222;
+    }
+    main {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2rem 1.25rem 4rem;
+      background: #ffffff;
+    }
+    h1, h2, h3, h4 {
+      font-weight: 600;
+      line-height: 1.3;
+    }
+    h1 {
+      font-size: 1.9rem;
+      margin-bottom: 0.3rem;
+    }
+    h2 {
+      margin-top: 2.2rem;
+      font-size: 1.4rem;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 0.3rem;
+    }
+    h3 {
+      margin-top: 1.4rem;
+      font-size: 1.15rem;
+    }
+    h4 {
+      margin-top: 1rem;
+      font-size: 1.02rem;
+    }
+    p {
+      margin: 0.4rem 0 0.9rem;
+    }
+    .meta {
+      font-size: 0.85rem;
+      color: #666;
+      margin-bottom: 1.5rem;
+    }
+    .abstract-box {
+      padding: 1rem 1.2rem;
+      background: #f3f6fb;
+      border-left: 4px solid #5778d8;
+      margin-bottom: 1.8rem;
+      border-radius: 4px;
+    }
+    .toc {
+      padding: 1rem 1.2rem;
+      background: #fafafa;
+      border: 1px solid #e1e1e1;
+      border-radius: 4px;
+      margin-bottom: 2rem;
+    }
+    .toc ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+    }
+    .toc li {
+      margin: 0.15rem 0;
+      font-size: 0.95rem;
+    }
+    .toc a {
+      text-decoration: none;
+      color: #0050b3;
+    }
+    .toc a:hover {
+      text-decoration: underline;
+    }
+    code, pre {
+      font-family: "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+    .equation {
+      text-align: center;
+      margin: 1rem 0 1.2rem;
+      font-size: 0.98rem;
+    }
+    .equation span {
+      background: #f9f9f9;
+      padding: 0.2rem 0.4rem;
+      border-radius: 3px;
+    }
+    table {
+      border-collapse: collapse;
+      margin: 0.6rem 0 1.4rem;
+      width: 100%;
+      max-width: 480px;
+      font-size: 0.95rem;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 0.35rem 0.5rem;
+      text-align: left;
+    }
+    th {
+      background: #f0f0f0;
+    }
+    footer {
+      text-align: center;
+      font-size: 0.8rem;
+      color: #888;
+      padding: 1.5rem 0 0;
+    }
+  </style>
+
+  <!-- MathJax pentru afișarea formulelor LaTeX -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(','\\)'], ['$', '$']],
+        displayMath: [['$$','$$']]
+      },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+</head>
+<body>
+<main>
+
+  <h1>Teoria Unificată a Apei bazată pe Modelul Coeziv 3.14 și Dinamica 2π</h1>
+  <p class="meta">
+    Manuscris conceptual, pregătit pentru consultare și evaluare științifică.
+  </p>
+
+  <div class="abstract-box">
+    <h2 id="abstract">Abstract</h2>
+    <p>
+      Acest articol propune o Teorie Unificată a Apei care integrează structura microscopică LDL/HDL,
+      un model fenomenologic de coeziune (Modelul Coeziv 3.14) și un cadru dinamic de auto-reorganizare
+      (Modelul 2π). Teoria descrie variația coeziunii apei în intervalul biologic 25–43&nbsp;°C prin
+      ecuația coezivă:
+      <span class="equation">\( C(T) = \dfrac{N(T)\,n_e(T)\,E(T)}{r_{\mathrm{eff}}(T)^2} \)</span>
+      unde \(N\) este densitatea moleculară, \(n_e\) densitatea electronilor mobili, \(E\) energia
+      vibrațională medie, iar \(r_{\mathrm{eff}}\) este distanța coezivă efectivă derivată din structura
+      microscopică. Rezultatul central, raportul
+      <span class="equation">\( \dfrac{C(43^\circ\mathrm{C})}{C(25^\circ\mathrm{C})} \approx 3.14 \)</span>
+      este interpretat ca un prag între două regimuri funcționale ale apei: flexibil și stabil maxim.
+      Sunt formulate predicții falsificabile și este prezentat un protocol experimental (difracție
+      neutroni/raze&nbsp;X, spectroscopie IR/Raman, măsurarea autoionizării, simulări MD) pentru
+      confirmarea sau infirmarea teoriei.
+    </p>
+  </div>
+
+  <section class="toc">
+    <h3>Cuprins</h3>
+    <ul>
+      <li><a href="#intro">1. Introducere</a></li>
+      <li><a href="#fundamente">2. Fundamente Teoretice</a></li>
+      <li><a href="#ecuatia-coeziva">3. Ecuația Coezivă și Raportul 3.14</a></li>
+      <li><a href="#model-2pi">4. Modelul 2π</a></li>
+      <li><a href="#predictii">5. Predicții Falsificabile</a></li>
+      <li><a href="#protocol">6. Protocol Experimental</a></li>
+      <li><a href="#implicatii">7. Implicații Fizice și Biologice</a></li>
+      <li><a href="#discutii">8. Discuții și Limitări</a></li>
+      <li><a href="#concluzii">9. Concluzii</a></li>
+      <li><a href="#appendix-a">Appendix A – Metodologie Matematică Extinsă</a></li>
+      <li><a href="#appendix-b">Appendix B – Date Fizice Sintetice</a></li>
+      <li><a href="#limitari-supl">Secțiune Suplimentară: Limitări și Predicții Divergente</a></li>
+    </ul>
+  </section>
+
+  <h2 id="intro">1. Introducere</h2>
+
+  <h3 id="intro-context">1.1. Context și motivație</h3>
+  <p>
+    Apa prezintă numeroase anomalii fizice și comportamente emergente care nu sunt complet explicate
+    de modelele standard. Rețeaua de legături de hidrogen manifestă reorganizări dependente de
+    temperatură, presiune și mediu local. Existența a două structuri lichide distincte
+    (LDL – Low-Density Liquid și HDL – High-Density Liquid) este susținută prin difracție și simulări
+    de dinamică moleculară (MD), iar ipoteza unui punct critic lichid–lichid oferă un cadru pentru
+    explicația multor anomalii ale apei.
+  </p>
+  <p>
+    Cu toate acestea, nu există încă o teorie care să conecteze în mod explicit aceste structuri
+    microscopice cu funcționalitatea biologică a apei în intervalul aproximativ 25–45&nbsp;°C, interval
+    relevant pentru sistemele vii. Prezentul articol propune un astfel de cadru, bazat pe Modelul
+    Coeziv 3.14 și dinamica 2π.
+  </p>
+
+  <h3 id="intro-obiectiv">1.2. Obiectivul lucrării</h3>
+  <p>
+    Obiectivul principal este formularea unei teorii unificate care:
+  </p>
+  <ul>
+    <li>integrează descrierea microscopică LDL/HDL;</li>
+    <li>introduce o mărime de coeziune emergentă, \(C(T)\);</li>
+    <li>explică pragul coeziv 3.14 în intervalul 25–43&nbsp;°C;</li>
+    <li>corelează această tranziție coezivă cu ferestrele biologice de funcționare;</li>
+    <li>este falsificabilă prin protocoale experimentale concrete.</li>
+  </ul>
+
+  <h2 id="fundamente">2. Fundamente Teoretice</h2>
+
+  <h3 id="fundamente-variabile">2.1. Variabile fundamentale</h3>
+  <p>
+    Teoria utilizează patru variabile fizice principale:
+  </p>
+  <ul>
+    <li>\(N(T,P)\) – densitatea moleculară;</li>
+    <li>\(n_e(T,P)\) – densitatea electronilor mobili (principal prin autoionizare și polarizare);</li>
+    <li>\(E(T,P)\) – energia vibrațională medie a modului O–H;</li>
+    <li>\(r_{\mathrm{eff}}(T,P)\) – distanța coezivă efectivă, asociată structurii rețelei de hidrogen.</li>
+  </ul>
+  <p>
+    Aceste variabile sunt combinate în indicele coeziv \(C(T,P)\), definit în Secțiunea&nbsp;3.
+  </p>
+
+  <h3 id="fundamente-ldl-hdl">2.2. Dualitatea structurală LDL/HDL</h3>
+  <p>
+    Apa lichidă este considerată ca un amestec dinamic de două structuri locale:
+  </p>
+  <ul>
+    <li>LDL – rețea locală mai „deschisă”, tetraedrică, cu densitate mai mică;</li>
+    <li>HDL – rețea locală mai compactă, cu densitate mai mare și coordonanță crescută.</li>
+  </ul>
+  <p>
+    Introducem fracțiile structurale:
+  </p>
+  <p class="equation">
+    \( x_{\mathrm{LDL}}(T,P) + x_{\mathrm{HDL}}(T,P) = 1 \)
+  </p>
+  <p>
+    și distanțele medii caracteristice \(r_{\mathrm{LDL}}\) și \(r_{\mathrm{HDL}}\) asociate primului maxim din
+    funcția de distribuție radială \(g_{OO}(r)\).
+  </p>
+
+  <h3 id="fundamente-coeziv">2.3. Distanța coezivă efectivă</h3>
+  <p>
+    Distanța coezivă efectivă este definită fenomenologic prin:
+  </p>
+  <p class="equation">
+    \( \dfrac{1}{r_{\mathrm{eff}}(T,P)^2} =
+    x_{\mathrm{LDL}}(T,P)\,\dfrac{1}{r_{\mathrm{LDL}}^2}
+    +
+    x_{\mathrm{HDL}}(T,P)\,\dfrac{1}{r_{\mathrm{HDL}}^2} \)
+  </p>
+  <p>
+    Această formulă conferă structurii HDL (cu \(r_{\mathrm{HDL}}\) mai mic) o ponderare mai mare în
+    coeziunea globală, reflectând sensibilitatea coeziunii la distanțele inter-moleculare.
+  </p>
+
+  <h2 id="ecuatia-coeziva">3. Ecuația Coezivă și Raportul 3.14</h2>
+
+  <h3 id="ecuatia-def">3.1. Definiția ecuației coezive</h3>
+  <p>
+    Definim indicele coeziv:
+  </p>
+  <p class="equation">
+    \( C(T,P) = \dfrac{N(T,P)\, n_e(T,P)\, E(T,P)}{r_{\mathrm{eff}}(T,P)^2} \)
+  </p>
+  <p>
+    unde:
+  </p>
+  <ul>
+    <li>\(N(T,P) = \rho(T,P)\,N_A/M\), cu \(\rho\) densitatea, \(N_A\) numărul lui Avogadro, \(M\) masa molară;</li>
+    <li>\(n_e(T,P)\) derivă în principal din autoionizarea apei și polarizare;</li>
+    <li>\(E(T,P)\) este extrasă din frecvențele modului O–H (IR/Raman);</li>
+    <li>\(r_{\mathrm{eff}}(T,P)\) este definit conform Secțiunii&nbsp;2.3.</li>
+  </ul>
+
+  <h3 id="ecuatia-raport">3.2. Raportul coeziv 25°C → 43°C</h3>
+  <p>
+    Considerăm temperatura \(T_1 \approx 25^\circ\mathrm{C}\) și \(T_2 \approx 43^\circ\mathrm{C}\) la presiune
+    atmosferică. Raportul coeziv este:
+  </p>
+  <p class="equation">
+    \( R = \dfrac{C(T_2)}{C(T_1)} =
+    \dfrac{N(T_2)}{N(T_1)} \cdot
+    \dfrac{n_e(T_2)}{n_e(T_1)} \cdot
+    \dfrac{E(T_2)}{E(T_1)} \cdot
+    \left( \dfrac{r_{\mathrm{eff}}(T_1)}{r_{\mathrm{eff}}(T_2)} \right)^2 \)
+  </p>
+  <p>
+    În baza datelor disponibile (densitate, pK<sub>w</sub>, frecvențe IR/Raman), se obține un raport
+    compatibil cu:
+  </p>
+  <p class="equation">
+    \( \dfrac{C(43^\circ\mathrm{C})}{C(25^\circ\mathrm{C})} \approx 3.14 \)
+  </p>
+  <p>
+    în condițiile unei scăderi moderate dar semnificative a lui \(r_{\mathrm{eff}}(T)\) și a creșterii
+    densității electronilor mobili.
+  </p>
+
+  <h2 id="model-2pi">4. Modelul 2π</h2>
+
+  <h3 id="model-2pi-def">4.1. Ciclul 2π și reorganizarea apei</h3>
+  <p>
+    Modelul 2π descrie dinamica universală a sistemelor neliniare printr-un ciclu în patru faze:
+  </p>
+  <ol>
+    <li>Structură</li>
+    <li>Flux</li>
+    <li>Reorganizare</li>
+    <li>Nouă structură</li>
+  </ol>
+  <p>
+    Aplicat apei, acest ciclu reprezintă evoluția rețelei de hidrogen atunci când sistemul este
+    supus unei variații de temperatură sau condiții de mediu. Pe măsură ce T crește, fluxul de energie
+    conduce la reorganizare structurală, în special prin creșterea componentei HDL-like și compactarea
+    rețelei.
+  </p>
+
+  <h2 id="predictii">5. Predicții Falsificabile</h2>
+  <p>
+    Teoria produce următoarele predicții testabile:
+  </p>
+  <ol>
+    <li><strong>Scădere continuă a lui \(r_{\mathrm{eff}}(T)\)</strong> între 25&nbsp;°C și 43&nbsp;°C.</li>
+    <li><strong>Creșterea fracției HDL-like</strong> (\(x_{\mathrm{HDL}}(T)\)) odată cu temperatura în intervalul 25–43&nbsp;°C.</li>
+    <li><strong>Creșterea energiei vibraționale O–H</strong>, observabilă în spectre IR/Raman.</li>
+    <li><strong>Creșterea densității electronilor mobili</strong> cu un factor de aproximativ 2–3× în același interval.</li>
+    <li><strong>Reconstrucția experimentală a lui C(T)</strong> conduce la un raport numeric apropiat de 3.14.</li>
+    <li><strong>Existența unei zone de tranziție rapidă</strong> în jurul 39–40&nbsp;°C.</li>
+    <li><strong>Reorganizare semnificativă a apei interfaciale</strong> (membrane, proteine) în jurul 43&nbsp;°C.</li>
+    <li><strong>Pierderea accelerată a structurii coezive</strong> pentru T &gt; 44.7&nbsp;°C.</li>
+    <li><strong>Sincronizare între coeziunea apei și stabilitatea structurilor biologice</strong> (proteine, membrane).</li>
+  </ol>
+
+  <h2 id="protocol">6. Protocol Experimental</h2>
+  <p>
+    Validarea teoriei necesită măsurarea celor patru componente principale ale lui \(C(T)\) în
+    intervalul 25–43&nbsp;°C.
+  </p>
+
+  <h3 id="protocol-dif">6.1. Difracție neutroni / raze X</h3>
+  <p>
+    Se măsoară funcția de distribuție radială \(g_{OO}(r,T)\), din care se extrag:
+  </p>
+  <ul>
+    <li>pozițiile și lățimile primului maxim,</li>
+    <li>deconvoluția în componente LDL-like și HDL-like,</li>
+    <li>estimările pentru \(r_{\mathrm{LDL}}\), \(r_{\mathrm{HDL}}\) și fracțiile \(x_{\mathrm{LDL}}(T)\), \(x_{\mathrm{HDL}}(T)\).</li>
+  </ul>
+
+  <h3 id="protocol-ir">6.2. Spectroscopie IR și Raman</h3>
+  <p>
+    Se măsoară frecvențele modului stretching O–H și se determină variația energiei vibraționale \(E(T)\)
+    în intervalul țintă.
+  </p>
+
+  <h3 id="protocol-pkw">6.3. Măsurarea autoionizării (pK<sub>w</sub>)</h3>
+  <p>
+    Se măsoară variația pK<sub>w</sub>(T), din care se extrage variația \(n_e(T)\) asociată autoionizării
+    și mobilității protonice.
+  </p>
+
+  <h3 id="protocol-densitate">6.4. Densitate și simulări MD</h3>
+  <p>
+    Densitatea \(\rho(T)\) este disponibilă din date IAPWS. Simulările MD calibrate în intervalul
+    25–43&nbsp;°C sunt utilizate pentru a completa informația structurală și pentru a testa coerența
+    dintre modele și experiment.
+  </p>
+
+  <h2 id="implicatii">7. Implicații Fizice și Biologice</h2>
+
+  <h3 id="implicatii-fizica">7.1. Implicații fizice</h3>
+  <p>
+    Teoria sugerează că apa nu este uniform „lichidă” în intervalul 25–45&nbsp;°C, ci traversează
+    o tranziție de coeziune controlată de geometria rețelei de hidrogen. Această tranziție explică
+    modificări subtile dar sistematice în proprietățile fizice ale apei.
+  </p>
+
+  <h3 id="implicatii-bio">7.2. Implicații biologice</h3>
+  <p>
+    Ferestrele de temperatură biologice (de exemplu, 25–43&nbsp;°C pentru multe sisteme vii) pot fi
+    reinterpretate ca ferestre coezive: sub 25&nbsp;°C apa rămâne flexibilă, dar procesele devin lente;
+    la ~37&nbsp;°C se obține un compromis optim; la 43&nbsp;°C se atinge un maxim de coeziune utilă,
+    după care structurile proteice și membranare devin instabile.
+  </p>
+
+  <h2 id="discutii">8. Discuții și Limitări</h2>
+  <p>
+    Teoria este fenomenologică și nu derivă dintr-un model ab initio complet. Parametrul
+    \(r_{\mathrm{eff}}(T)\) este reconstruit din date experimentale și simulări, nu măsurat direct.
+    Există incertitudini asociate deconvoluției LDL/HDL la temperaturi moderate și interpretării
+    spectrelor IR/Raman.
+  </p>
+  <p>
+    În plus, ipoteza că raportul 3.14 este un prag universal trebuie tratată ca o predicție, nu ca un
+    postulat imuabil. Validarea sau infirmarea numerică detaliată va necesita campanii experimentale
+    multidisciplinare.
+  </p>
+
+  <h2 id="concluzii">9. Concluzii</h2>
+  <p>
+    Am propus o Teorie Unificată a Apei care conectează structurile lichide LDL/HDL, un indice de
+    coeziune emergent \(C(T)\) și dinamica 2π. Ecuația coezivă
+    \(C(T) = N(T)n_e(T)E(T) / r_{\mathrm{eff}}(T)^2\)
+    oferă un mecanism prin care tranziția dintre 25&nbsp;°C și 43&nbsp;°C poate produce un raport
+    caracteristic de aproximativ 3.14 între două regimuri coezive.
+  </p>
+  <p>
+    Această tranziție este compatibilă cu ferestrele biologice de funcționare, cu stabilitatea
+    proteinelor și membranelor și cu observații fizice cunoscute despre apa lichidă. Teoria este
+    explicit falsificabilă, iar protocolul experimental propus permite o evaluare riguroasă.
+  </p>
+  <p>
+    Următorii pași logici includ studii experimentale dedicate, simulări MD la temperaturi moderate
+    și integrarea rezultatelor în modele biofizice și tehnologice.
+  </p>
+
+  <h2 id="appendix-a">Appendix A – Metodologie Matematică Extinsă</h2>
+
+  <h3>A1. Derivarea ecuației coezive</h3>
+  <p>
+    Ecuația coezivă este introdusă ca o mărime emergentă ce combină factorii dominanți pentru coeziunea
+    rețelei de hidrogen:
+  </p>
+  <p class="equation">
+    \( C(T) = \dfrac{N(T)\,n_e(T)\,E(T)}{r_{\mathrm{eff}}(T)^2} \)
+  </p>
+  <p>
+    Termenii sunt aleși astfel:
+  </p>
+  <ul>
+    <li>\(N(T)\) – densitatea moleculară ajustează numărul de legături potențiale per unitate de volum;</li>
+    <li>\(n_e(T)\) – densitatea electronilor mobili influențează polarizarea și reactivitatea rețelei;</li>
+    <li>\(E(T)\) – energia vibrațională medie reflectă intensitatea modurilor O–H;</li>
+    <li>\(r_{\mathrm{eff}}(T)\) – distanța efectivă mediază scala spațială a interacțiunilor.</li>
+  </ul>
+
+  <h3>A2. Justificarea factorului 1/r²</h3>
+  <p>
+    Dependința de tip \(1/r^2\) este o aproximare geometrică inspirată de faptul că intensitatea
+    interacțiilor scade rapid cu distanța și că micile variații de \(r\) pot produce modificări
+    marcate în coeziune. Deși nu reprezintă un potențial microscopic exact, această formă reflectă o
+    sensibilitate ridicată a coeziunii la compacția structurii.
+  </p>
+
+  <h3>A3. Legătura cu LDL/HDL</h3>
+  <p>
+    Introducerea:
+  </p>
+  <p class="equation">
+    \( \dfrac{1}{r_{\mathrm{eff}}(T)^2} =
+    x_{\mathrm{LDL}}(T)\dfrac{1}{r_{\mathrm{LDL}}^2} +
+    x_{\mathrm{HDL}}(T)\dfrac{1}{r_{\mathrm{HDL}}^2} \)
+  </p>
+  <p>
+    permite conectarea directă a ecuației coezive cu structura microscopică. Pe măsură ce
+    \(x_{\mathrm{HDL}}(T)\) crește, \(r_{\mathrm{eff}}(T)\) scade, crescând astfel coeziunea globală.
+  </p>
+
+  <h3>A4. Domenii de validitate</h3>
+  <p>
+    Modelul este construit pentru intervalul aproximativ 25–45&nbsp;°C la presiune atmosferică. În afara
+    acestui interval, pot apărea fenomene suplimentare (superrăcire, denaturări masive, faze solide)
+    care depășesc cadrul prezent.
+  </p>
+
+  <h2 id="appendix-b">Appendix B – Date Fizice Sintetice</h2>
+
+  <h3>B1. Densitatea apei (IAPWS, aproximativ)</h3>
+  <table>
+    <thead>
+      <tr><th>Temperatură (°C)</th><th>Densitate (g/cm³)</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>25</td><td>0.9970</td></tr>
+      <tr><td>30</td><td>0.9957</td></tr>
+      <tr><td>35</td><td>0.9941</td></tr>
+      <tr><td>40</td><td>0.9922</td></tr>
+      <tr><td>43</td><td>0.9901</td></tr>
+    </tbody>
+  </table>
+
+  <h3>B2. Variația aproximativă a pK<sub>w</sub>(T)</h3>
+  <table>
+    <thead>
+      <tr><th>Temperatură (°C)</th><th>pK<sub>w</sub></th></tr>
+    </thead>
+    <tbody>
+      <tr><td>25</td><td>14.00</td></tr>
+      <tr><td>30</td><td>13.70</td></tr>
+      <tr><td>35</td><td>13.40</td></tr>
+      <tr><td>40</td><td>13.27</td></tr>
+      <tr><td>43</td><td>13.26</td></tr>
+    </tbody>
+  </table>
+
+  <h3>B3. Frecvența modului O–H (IR/Raman, valori indicative)</h3>
+  <table>
+    <thead>
+      <tr><th>Temperatură (°C)</th><th>Frecvență O–H (cm⁻¹)</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>25</td><td>~3400</td></tr>
+      <tr><td>30</td><td>~3420</td></tr>
+      <tr><td>35</td><td>~3435</td></tr>
+      <tr><td>40</td><td>~3450</td></tr>
+      <tr><td>43</td><td>~3458</td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="limitari-supl">Secțiune Suplimentară: Limitări și Predicții Divergente</h2>
+
+  <h3>C1. Limitări</h3>
+  <p>
+    Modelul se bazează pe parametri reconstruiți și aproximări fenomenologice. Datele privind
+    fracțiile LDL/HDL la temperaturi moderate sunt încă incomplete. Există sensibilitate la modul în
+    care se deconvoluează structura locală din difracție și la modul în care se interpretează spectrele
+    IR/Raman.
+  </p>
+
+  <h3>C2. Alternative teoretice</h3>
+  <p>
+    Alte modele (de exemplu, modele pur entropice sau anumite potențiale ab initio) ar putea descrie
+    anomaliile apei fără a introduce un prag numeric specific precum 3.14. Compararea directă a
+    predicțiilor acestor modele cu cele ale Teoriei Unificate este esențială.
+  </p>
+
+  <h3>C3. Condiții de invalidare</h3>
+  <p>
+    Teoria ar fi infirmată sau ar necesita revizuire majoră dacă:
+  </p>
+  <ul>
+    <li>\(r_{\mathrm{eff}}(T)\) nu prezintă o scădere clară între 25–43&nbsp;°C;</li>
+    <li>fracțiile LDL/HDL nu se modifică semnificativ în intervalul respectiv;</li>
+    <li>raportul experimental \(C(43^\circ\mathrm{C})/C(25^\circ\mathrm{C})\) deviază substanțial de 3.14.</li>
+  </ul>
+
+  <h3>C4. Necesitatea testării multidisciplinare</h3>
+  <p>
+    Evaluarea riguroasă a Teoriei Unificate necesită colaborare între fizicieni, chimiști, biofizicieni
+    și specialiști în simulări MD. Numai o abordare integrată poate stabili dacă modelul Coeziv 3.14 /
+    2π devine parte robustă a fizicii apei sau dacă rămâne un cadru fenomenologic limitat.
+  </p>
+
+  <footer>
+    <p>Teorie conceptuală pentru consultare și discuție științifică. Validarea finală aparține experimentului.</p>
+  </footer>
+
+</main>
+</body>
+</html>
