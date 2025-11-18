@@ -1,0 +1,76 @@
+<!DOCTYPE html><html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Structural Invariants and Phase Analysis for P vs NP — A Coherent Framework</title>
+<style>
+  body { font-family: Arial, sans-serif; line-height: 1.6; margin: 40px; }
+  h1, h2, h3 { font-weight: 600; }
+  code { background: #f2f2f2; padding: 2px 4px; }
+  .section { margin-bottom: 35px; }
+</style>
+</head>
+<body>
+<h1>Invarianți structurali și analiză de fază pentru P vs NP — Un cadru coerent</h1>
+<h2>Rezumat</h2>
+<p>Acest draft introduce un cadru structural pentru examinarea diferențelor dintre clasele de complexitate P și NP-complet. În locul analizării directe a algoritmilor, asociem fiecărei instanțe un profil structural și derivăm un invariant care reflectă tensiunea combinatorială internă. Explorăm apoi modul în care acest invariant organizează spațiul tuturor instanțelor în faze distincte, posibil relevând limite geometrice sau structurale între clase. Cadrul nu pretinde rezolvarea problemei P vs NP, dar oferă o structură analitică disciplinată și extensibilă.</p><div class="section">
+<h2>1. Introducere</h2>
+<p>Problema P vs NP este în mod tradițional formulată în termeni de eficiență algoritmică: dacă orice problemă verificabilă eficient este și rezolvabilă eficient. Abordările clasice implică reduceri, complexitate de circuite, geometrie algebrică sau teoria demonstrării. Această lucrare propune o perspectivă structurală: analizarea organizării interne a instanțelor prin invarianți măsurabili.</p>
+<p>Folosind elemente din teoria sistemelor, teoria grafurilor și analiza structurală, definim o mapare de la instanțe la un spațiu multidimensional de caracteristici și introducem un invariant sintetic <code>J</code> care aproximează tensiunea structurală. Scopul nu este separarea directă, ci identificarea unor diferențe structurale profunde între clase.</p>
+</div><div class="section">
+<h2>2. Profilul structural al unei instanțe</h2>
+<p>Fiecărei instanțe <code>I</code> îi asociem un profil structural:</p>
+<pre>
+ρ_struct(I) = (VarDeg(I), CycleDensity(I), LocalConflict(I), CommunityOverlap(I), ...)
+</pre>
+<p>Fiecare componentă reprezintă un atribut structural distinct, aplicabil reprezentărilor grafice, logice sau pe bază de constrângeri.</p>
+<h3>2.1 Componente</h3>
+<ul>
+  <li><strong>VarDeg(I)</strong>: Măsoară variația gradelor în graful asociat instanței.</li>
+  <li><strong>CycleDensity(I)</strong>: Cantitatea ciclurilor scurte (triunghiuri, cicluri de lungime 4).</li>
+  <li><strong>LocalConflict(I)</strong>: Măsoară nivelul de conflict local între constrângeri.</li>
+  <li><strong>CommunityOverlap(I)</strong>: Suprapunerea substructurilor dense.</li>
+</ul>
+</div><div class="section">
+<h2>3. Invariantul structural J</h2>
+<p>Invariantul <code>J(I)</code> este definit ca o combinație ponderată a componentelor structurale:</p>
+<pre>
+J(I) = α·VarDeg(I) + β·CycleDensity(I) + γ·LocalConflict(I) + δ·CommunityOverlap(I)
+</pre>
+<p>Coefficienții <code>α, β, γ, δ</code> sunt pozitivi. Invariantul funcționează ca un indicator al tensiunii structurale. Instanțele cu <code>J</code> redus au structuri ordonate; cele cu <code>J</code> mare sunt dense și tensionate.</p>
+</div><div class="section">
+<h2>4. Comportamentul structural al claselor P și NP-complet</h2>
+<h3>4.1 Instanțe în P</h3>
+<p>Problemele din P tind să genereze instanțe cu structuri regulate. De exemplu, 2-SAT și 2-colorare produc grafuri cu densitate redusă de cicluri și conflict local mic. Ipoteza:</p>
+<pre>
+Pentru orice Π ∈ P, există C_Π astfel încât J(I) ≤ C_Π pentru toate instanțele I.
+</pre><h3>4.2 Instanțe în NP-complet</h3>
+<p>Problemele NP-complete pot genera instanțe cu valori arbitrar de mari ale lui <code>J</code>:</p>
+<pre>
+∀K > 0, ∃ instanță I_K de tip NP-complet cu J(I_K) > K.
+</pre>
+<p>Aceasta sugerează că aceste clase ocupă regiuni structurale inaccesibile problemelor din P.</p>
+</div><div class="section">
+<h2>5. Spațiul structural H</h2>
+<p>Definim:</p>
+<pre>
+H = { (ρ_struct(I), J(I)) | I instanță validă }.
+</pre>
+<p>Regiuni în <code>H</code>:</p>
+<ul>
+  <li><strong>Regiune ordonată (J mic)</strong>: asociată cu P.</li>
+  <li><strong>Frontieră critică</strong>: instanțe sensibile, tranziții de fază.</li>
+  <li><strong>Regiune tensionată (J mare)</strong>: instanțe NP-complete dense.</li>
+</ul>
+</div><div class="section">
+<h2>6. Direcții de cercetare</h2>
+<ul>
+  <li>Definirea riguroasă și standardizarea lui <code>ρ_struct</code> pentru familii multiple.</li>
+  <li>Stabilirea de limite superioare ale lui <code>J</code> pentru clase din P.</li>
+  <li>Identificarea familiilor NP-complete cu <code>J</code> neacotat.</li>
+  <li>Studierea tranzițiilor de fază în <code>H</code>.</li>
+</ul>
+</div><div class="section">
+<h2>7. Concluzii</h2>
+<p>Acest draft oferă un cadru structural coerent pentru investigarea diferențelor dintre P și NP-complet. Prin mutarea atenției de la comportamentul algoritmic la invarianți structurali și geometria spațiului de instanțe, este posibilă formularea unor noi ipoteze și direcții formale de cercetare. Deși nu adresează direct întrebarea P vs NP, cadrul are potențial ca instrument unificator și generator de conjecturi.</p>
+</div></body>
+</html>
