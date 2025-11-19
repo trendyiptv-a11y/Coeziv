@@ -1,24 +1,25 @@
-// api/btc.js
+// api/btc.js — variantă BYBIT (recomandată)
 
 export default async function handler(req, res) {
   try {
     const url =
-      "https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1d&limit=1000";
+      "https://api.bybit.com/v5/market/kline?category=linear&symbol=BTCUSDT&interval=D&limit=1000";
 
     const r = await fetch(url);
     if (!r.ok) {
       return res
         .status(502)
-        .json({ error: "Eroare Binance: " + r.status + " " + r.statusText });
+        .json({ error: "Eroare BYBIT: " + r.status + " " + r.statusText });
     }
 
-    const data = await r.json();
-    if (!Array.isArray(data)) {
-      return res.status(500).json({ error: "Format răspuns Binance invalid" });
+    const json = await r.json();
+
+    if (!json.result || !json.result.list) {
+      return res.status(500).json({ error: "Format invalid BYBIT" });
     }
 
-    const candles = data.map(c => ({
-      timestamp: c[0],
+    const candles = json.result.list.map(c => ({
+      timestamp: parseInt(c[0]),
       open: parseFloat(c[1]),
       high: parseFloat(c[2]),
       low: parseFloat(c[3]),
@@ -26,9 +27,8 @@ export default async function handler(req, res) {
       volume: parseFloat(c[5])
     }));
 
-    res.status(200).json(candles);
+    res.status(200).json(candles.reverse()); // Bybit trimite invers
   } catch (e) {
-    console.error(e);
     res.status(500).json({ error: "Server error", details: e.message });
   }
 }
