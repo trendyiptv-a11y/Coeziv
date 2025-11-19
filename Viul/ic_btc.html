@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" />
+  <title>Indice Coeziv Bitcoin LT – Live</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #050609;
+      color: #e4e4e4;
+    }
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 1.2rem;
+    }
+    h1 {
+      font-size: 1.45rem;
+      margin-bottom: 0.2rem;
+    }
+    .subtitle {
+      font-size: 0.85rem;
+      opacity: 0.7;
+      margin-bottom: 0.8rem;
+    }
+    .card {
+      background: #11141b;
+      border-radius: 12px;
+      padding: 1rem 1.1rem;
+      margin-top: 0.9rem;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.45);
+    }
+    label {
+      font-size: 0.85rem;
+    }
+    input, select {
+      width: 100%;
+      box-sizing: border-box;
+      margin-top: 0.3rem;
+      padding: 0.45rem 0.5rem;
+      border-radius: 8px;
+      border: 1px solid #374151;
+      background: #020617;
+      color: #e5e7eb;
+      font-size: 0.85rem;
+    }
+    input::placeholder {
+      color: #6b7280;
+    }
+    button {
+      margin-top: 0.8rem;
+      width: 100%;
+      padding: 0.6rem 1rem;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      background: #2563eb;
+      color: white;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .small {
+      font-size: 0.8rem;
+      opacity: 0.7;
+    }
+    canvas {
+      margin-top: 0.8rem;
+      background: #050609;
+      border-radius: 8px;
+    }
+    .info {
+      font-size: 0.85rem;
+      margin-top: 0.5rem;
+    }
+    .badge {
+      display: inline-block;
+      padding: 0.15rem 0.55rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      margin-left: 0.4rem;
+    }
+    .badge-green { background:#064e3b; color:#a7f3d0; }
+    .badge-yellow{ background:#78350f; color:#facc15; }
+    .badge-red   { background:#7f1d1d; color:#fecaca; }
+    .row {
+      display: flex;
+      gap: 0.6rem;
+      margin-top: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .col {
+      flex: 1 1 130px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Indice Coeziv Bitcoin LT (live)</h1>
+    <div class="subtitle">
+      Date BTC luate automat de la CoinGecko (OHLCV aproximat din preț & volum).
+    </div>
+
+    <div class="card">
+      <label for="apiKey">CoinGecko Demo API key:</label>
+      <input id="apiKey" type="text" placeholder="lipeste aici cheia ta demo..." />
+
+      <div class="row">
+        <div class="col">
+          <label for="days">Număr de zile istorice:</label>
+          <select id="days">
+            <option value="90">90 zile</option>
+            <option value="180">180 zile</option>
+            <option value="365" selected>365 zile</option>
+            <option value="max">max (cât permite demo)</option>
+          </select>
+        </div>
+        <div class="col">
+          <label for="currency">Monedă:</label>
+          <select id="currency">
+            <option value="usd" selected>USD</option>
+            <option value="eur">EUR</option>
+          </select>
+        </div>
+      </div>
+
+      <button id="runBtn">Ia date & calculează indicele</button>
+      <div id="status" class="info small"></div>
+    </div>
+
+    <div class="card">
+      <canvas id="chart" height="280"></canvas>
+      <div id="latest" class="info"></div>
+    </div>
+
+    <div class="card small">
+      <strong>Notă:</strong> modelul este conceptual, nu un „oracol de preț”.  
+      Folosește structura (trend + volum) și tensiunea (volatilitate) pentru un scor 0–100:
+      &lt;20 = fază critică, 20–80 = tranziție, &gt;80 = regim coeziv stabil.
+    </div>
+  </div>
+
+  <script>
+    // ---------- Utilitare matematice ----------
+    function ema(values, length) {
+      const out = new Array(values.length).fill(null);
+      const k = 2 / (length + 1);
+      let emaVal = null;
+      for (let i = 0; i < values.length; i++) {
+        const v = values[i];
+        if (v == null || isNaN(v)) {
+          out[i] = null;
+          continue;
+        }
+        if (emaVal === null) {
+          emaVal = v;
+        } else {
+          emaVal = v * k + emaVal * (1 - k);
+        }
+        out[i] = emaVal;
+      }
+      return out;
+    }
+
+    function rollingMean(arr, len) {
+      const out = new Array(arr.length).fill(null);
+      let sum = 0, count = 0;
+      for (let i = 0; i < arr.length; i++) {
+        const v = arr[i];
+        if (v != null && !isNaN(v)) {
+          sum += v;
+          count++;
+        }
+        if (i >= len) {
+          const old = arr[i - len];
+          if (old != null && !isNaN(old)) {
+            sum -= old;
+            count--;
+          }
+        }
+        if (i >= len - 1 && count > 0) {
+          out[i] = sum / count;
+        }
+      }
+      return out;
+    }
+
+    function rollingStd(arr, len) {
+      const out = new Array(arr.length).fill(null);
+      for (let i = 0; i < arr.length; i++) {
+        if (i < len - 1) continue;
+        let vals = [];
+        for (let j = i - len + 1; j <= i; j++) {
+          const v = arr[j];
+          if (v != null && !isNaN(v)) vals.push(v);
+        }
+        if (!vals.length) continue;
+        const m = vals.reduce((a, b) => a + b, 0) / vals.length;
+        const v = vals.reduce((s, x) => s + (x - m) ** 2, 0) / vals.length;
+        out[i] = Math.sqrt(v);
+      }
+      return out;
+    }
+
+    function atrFromClose(close, length) {
+      // ATR aproximat doar din close (fără high/low reale), suficient pentru model conceptual.
+      const n = close.length;
+      const tr = new Array(n).fill(null);
+      for (let i = 0; i < n; i++) {
+        if (i === 0) {
+          tr[i] = 0;
+        } else {
+          tr[i] = Math.abs(close[i] - close[i-1]);
+        }
+      }
+      return ema(tr, length);
+    }
+
+    // ---------- Calcul IC_BTC (versiunea LT simplificată) ----------
+    function computeICFromSeries(closes, volumes) {
+      const n = closes.length;
+      if (!n) return [];
+
+      const params = {
+        lenTrend: 200,    // mai scurt decât 400, pentru că uneori demo-ul nu dă foarte mult istoric
+        lenShort: 60,
+        lenVol: 30,
+        lenATR: 20,
+        lenFlux: 40,
+        smoothLen: 15,
+        alpha: 0.65,
+        beta: 0.35
+      };
+
+      // Open aproximat: open[i] = close[i-1]
+      const open = closes.map((c, i) => i === 0 ? c : closes[i-1]);
+
+      // STRUCTURĂ (C_core)
+      const emaLong  = ema(closes, params.lenTrend);
+      const emaShort = ema(closes, params.lenShort);
+
+      const trendStrengthRaw = closes.map((_, i) => {
+        if (!emaLong[i] || !emaShort[i]) return null;
+        return Math.abs(emaShort[i] - emaLong[i]) / emaLong[i];
+      });
+      const trendStrength = trendStrengthRaw.map(v => v == null ? null : Math.min(v / 0.10, 1.0));
+
+      const ret = closes.map((c, i) => i === 0 ? null : c - closes[i-1]);
+      const retPos = ret.map(v => v != null && v > 0 ? v : 0);
+      const retNeg = ret.map(v => v != null && v < 0 ? -v : 0);
+      const dirPos = ema(retPos, params.lenShort);
+      const dirNeg = ema(retNeg, params.lenShort);
+      const directionality = dirPos.map((v, i) =>
+        v == null ? null : v / (v + (dirNeg[i] || 0) + 1e-10)
+      );
+      const cleanTrend = directionality.map(v => v == null ? null : Math.abs(v - 0.5) * 2.0);
+
+      const C_core = trendStrength.map((v, i) => {
+        if (v == null || cleanTrend[i] == null) return null;
+        return 0.7 * v + 0.3 * cleanTrend[i];
+      });
+
+      // ECONOMIE (C_eco)
+      const volMA = rollingMean(volumes, params.lenVol);
+      const volRelRaw = volumes.map((v, i) =>
+        volMA[i] == null ? null : v / (volMA[i] + 1e-10)
+      );
+      const volRelClipped = volRelRaw.map(v => v == null ? null : Math.min(v, 4.0));
+      const volRelNorm = volRelClipped.map(v => v == null ? null : v / 4.0);
+
+      const isUp = closes.map((c, i) => c > open[i]);
+      const volUp = volumes.map((v, i) => isUp[i] ? v : 0);
+      const volDn = volumes.map((v, i) => isUp[i] ? 0 : v);
+      const volUpMA = rollingMean(volUp, params.lenVol);
+      const volDnMA = rollingMean(volDn, params.lenVol);
+      const volQuality = volUpMA.map((v, i) => {
+        if (v == null) return null;
+        return v / (v + (volDnMA[i] || 0) + 1e-10);
+      });
+
+      const atrSeries = atrFromClose(closes, params.lenATR);
+      const atrRel = atrSeries.map((v, i) => v == null ? null : v / closes[i]);
+      const atrClamped = atrRel.map(v => v == null ? null : Math.min(v, 0.16));
+      const atrNorm = atrClamped.map(v => v == null ? null : v / 0.08);
+      const atrHealthy = atrNorm.map(v => v == null ? null : 1.0 - Math.abs(v - 1.0));
+
+      const C_eco = volRelNorm.map((v, i) => {
+        if (v == null || volQuality[i] == null || atrHealthy[i] == null) return null;
+        return 0.4 * v + 0.4 * volQuality[i] + 0.2 * atrHealthy[i];
+      });
+
+      // TENSIUNE
+      const C_core_diff = rollingStd(C_core, params.lenFlux);
+      const C_eco_diff  = rollingStd(C_eco,  params.lenFlux);
+      const atrRel_change = rollingStd(atrRel, params.lenFlux);
+
+      const rawFlux = C_core_diff.map((v, i) => {
+        if (v == null || C_eco_diff[i] == null || atrRel_change[i] == null) return null;
+        return v + C_eco_diff[i] + atrRel_change[i];
+      });
+      const T_flux = rawFlux.map(v => v == null ? null : Math.min(v / 0.03, 1.0));
+
+      const C_struct = C_core.map((v, i) => {
+        if (v == null || C_eco[i] == null) return null;
+        return params.alpha * v + (1 - params.alpha) * C_eco[i];
+      });
+
+      const rawIndex = C_struct.map((v, i) => {
+        if (v == null || T_flux[i] == null) return null;
+        return v - params.beta * T_flux[i];
+      });
+      const rawIndexClipped = rawIndex.map(v => {
+        if (v == null) return null;
+        return Math.max(0, Math.min(1, v));
+      });
+
+      const IC_raw = rawIndexClipped.map(v => v == null ? null : v * 100);
+      const IC_BTC = ema(IC_raw, params.smoothLen);
+      return IC_BTC;
+    }
+
+    // ---------- Fetch de la CoinGecko ----------
+    async function fetchBTCMarketChart(apiKey, currency, days) {
+      const base = "https://api.coingecko.com/api/v3";
+      const url = `${base}/coins/bitcoin/market_chart?vs_currency=${currency}&days=${days}&interval=daily&precision=full&x_cg_demo_api_key=${encodeURIComponent(apiKey)}`;
+      const res = await fetch(url);
+      if (!res.ok) {
+        throw new Error("Eroare API CoinGecko: " + res.status);
+      }
+      const data = await res.json();
+      // data.prices: [ [ts, price], ... ]
+      // data.total_volumes: [ [ts, volume], ... ]
+      const prices = data.prices || [];
+      const volumes = data.total_volumes || [];
+      const n = Math.min(prices.length, volumes.length);
+      const out = [];
+      for (let i = 0; i < n; i++) {
+        const [ts, price] = prices[i];
+        const [, vol] = volumes[i];
+        const d = new Date(ts);
+        const datestr = d.toISOString().slice(0,10);
+        out.push({
+          date: datestr,
+          close: price,
+          volume: vol
+        });
+      }
+      return out;
+    }
+
+    // ---------- UI & Chart ----------
+    const apiKeyInput = document.getElementById("apiKey");
+    const daysSelect = document.getElementById("days");
+    const currencySelect = document.getElementById("currency");
+    const runBtn = document.getElementById("runBtn");
+    const statusEl = document.getElementById("status");
+    const latestEl = document.getElementById("latest");
+    const ctx = document.getElementById("chart").getContext("2d");
+    let chart = null;
+
+    // încearcă să recuperezi cheia din localStorage
+    apiKeyInput.value = localStorage.getItem("cg_demo_key") || "";
+
+    runBtn.addEventListener("click", async () => {
+      const key = apiKeyInput.value.trim();
+      const days = daysSelect.value;
+      const cur = currencySelect.value;
+
+      if (!key) {
+        alert("Introdu un CoinGecko Demo API key.");
+        return;
+      }
+
+      localStorage.setItem("cg_demo_key", key);
+
+      runBtn.disabled = true;
+      statusEl.textContent = "Încărc date de la CoinGecko...";
+      latestEl.textContent = "";
+
+      try {
+        const rawData = await fetchBTCMarketChart(key, cur, days);
+        if (!rawData.length) {
+          statusEl.textContent = "Nu am primit date valide.";
+          runBtn.disabled = false;
+          return;
+        }
+
+        const closes  = rawData.map(r => r.close);
+        const volumes = rawData.map(r => r.volume);
+        const labels  = rawData.map(r => r.date);
+
+        const ic = computeICFromSeries(closes, volumes);
+        const dataIC = ic.map(v => v != null ? v : null);
+
+        if (chart) chart.destroy();
+        chart = new Chart(ctx, {
+          type: "line",
+          data: {
+            labels: labels,
+            datasets: [{
+              label: "IC_BTC (0–100)",
+              data: dataIC,
+              borderWidth: 1.6,
+              pointRadius: 0,
+              tension: 0.18,
+              borderColor: "rgba(248,250,252,0.9)"
+            }]
+          },
+          options: {
+            plugins: {
+              legend: { labels: { color: "#e4e4e4" } }
+            },
+            scales: {
+              x: {
+                ticks: { color: "#9ca3af", maxTicksLimit: 8 }
+              },
+              y: {
+                ticks: { color: "#9ca3af" },
+                min: 0,
+                max: 100
+              }
+            }
+          }
+        });
+
+        const lastValidIndex = [...dataIC].reverse().findIndex(v => v != null);
+        if (lastValidIndex !== -1) {
+          const idx = dataIC.length - 1 - lastValidIndex;
+          const lastVal = dataIC[idx].toFixed(2);
+          const lastDate = labels[idx];
+          let badge = "";
+          const v = dataIC[idx];
+          if (v >= 80) badge = ' <span class="badge badge-green">fază coezivă</span>';
+          else if (v <= 20) badge = ' <span class="badge badge-red">fază critică</span>';
+          else badge = ' <span class="badge badge-yellow">tranziție</span>';
+          latestEl.innerHTML = `Ultima valoare IC_BTC: <strong>${lastVal}</strong> la ${lastDate}${badge}`;
+        }
+
+        statusEl.textContent = "Gata.";
+      } catch (err) {
+        console.error(err);
+        statusEl.textContent = "Eroare: " + err.message;
+      } finally {
+        runBtn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
