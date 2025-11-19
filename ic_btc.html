@@ -542,7 +542,7 @@
         <div class="meta-row">
           <span><span class="meta-dot"></span>Istoric extins (~14 ani, din 2010)</span>
           <span><span class="meta-dot"></span>Fără chei API, fără conturi</span>
-          <span><span class="meta-dot"></span>Calcul local, browser</span>
+          <span><span class="meta-dot"></span>Calcul local, în browser</span>
         </div>
 
         <p id="status" class="status-line">
@@ -725,7 +725,7 @@
             <li>Volatilitate relativă: deviere standard pe ~30 zile a randamentelor logaritmice.</li>
             <li>
               Direcționalitate: alinierea semnului randamentelor zilnice cu direcția trendului
-              dominant.
+              dominant (ferestră ~20 zile).
             </li>
             <li>Netezire suplimentară: EMA moderată pe seriile de indici.</li>
           </ul>
@@ -791,10 +791,6 @@
       return out;
     }
 
-    function clamp(v, min, max) {
-      return Math.min(max, Math.max(min, v));
-    }
-
     function smoothPoints(points, span) {
       if (!points.length || span <= 1) return points.slice();
       const alpha = 2 / (span + 1);
@@ -807,6 +803,13 @@
         }
         return { x: p.x, y: prev };
       });
+    }
+
+    function clampSeries(points) {
+      return points.map(p => ({
+        x: p.x,
+        y: Math.min(100, Math.max(0, p.y))
+      }));
     }
 
     // ----------------- MODEL COEZIV -----------------
@@ -885,7 +888,6 @@
           throw new Error("Nu am găsit date valide în btc_ohlc.json.");
         }
 
-        // Calcul IC
         computeIndices(fullCandles);
 
         const lastCandle = fullCandles[fullCandles.length - 1];
@@ -903,19 +905,16 @@
         statusEl.classList.add("status-ok");
         statusEl.classList.remove("status-error");
 
-        // Chart init/update
         if (!chartStructDir || !chartFluxCycle) {
           initCharts();
         } else {
           updateChartsData();
         }
 
-        // set default range
         const activeRangeBtn =
           document.querySelector(".btn-range.active") || rangeButtons[0];
         applyRange(activeRangeBtn.dataset.range || "all");
 
-        // update metric tiles & regim
         updateMetricsUI();
       } catch (err) {
         console.error(err);
@@ -928,6 +927,7 @@
       }
     }
 
+    // 🔥 computeIndices cu clamp 0–100
     function computeIndices(candles) {
       const closes = candles.map((c) => c.close);
       const logRet = closes.map((c, i) =>
@@ -936,12 +936,12 @@
 
       const ema50 = ema(closes, 50);
       const ema200 = ema(closes, 200);
+
       const vol30 = rollingStd(logRet, 30).map((v) =>
         v == null ? null : v * Math.sqrt(365) * 100
       ); // anualizat %
 
       const len = candles.length;
-
       const rawStruct = [];
       const rawDir = [];
       const rawFlux = [];
@@ -957,18 +957,18 @@
         const long = ema200[i];
         const vol = vol30[i];
 
-        if (short == null || long == null || vol == null) continue;
+        if (!short || !long || !vol) continue;
 
+        // --- IC STRUCTURAL: trend vs volatilitate ---
         const trendDiff = short - long;
         const trendStrength = (Math.abs(trendDiff) / Math.max(long, 1e-8)) * 100; // %
-        const volNow = Math.max(vol, 1e-6);
+        const structRaw = 50 + (trendStrength - vol) * 0.6;
 
-        // IC_BTC structural: 50 + (trendStrength - volNow) * factor
-        const structScore = clamp(50 + (trendStrength - volNow) * 0.6, 0, 100);
-
-        // ICD_BTC direcțional: aliniere semn randamente cu direcția trendului
+        // --- IC DIRECȚIONAL: aliniere semn randamente cu trend ---
         let trendDir = Math.sign(trendDiff || 0);
-        if (trendDir === 0) trendDir = Math.sign(ema50[i] - ema50[i - 5] || 0) || 1;
+        if (trendDir === 0) {
+          trendDir = Math.sign(ema50[i] - ema50[i - 5] || 0) || 1;
+        }
 
         let match = 0;
         let total = 0;
@@ -979,29 +979,35 @@
           if (Math.sign(r) === trendDir) match++;
         }
         const align = total ? match / total : 0.5;
-        const dirScore = clamp(align * 100, 0, 100);
+        const dirRaw = align * 100;
 
-        // ICF_BTC flux: 100 - vol normalizat
+        // --- IC FLUX: 100 - vol normalizat ---
         const volLow = 25;
         const volHigh = 130;
-        const normVol = clamp((volNow - volLow) / (volHigh - volLow), 0, 1);
-        const fluxScore = clamp(100 - normVol * 100, 0, 100);
+        const normVol = Math.max(0, Math.min(1, (vol - volLow) / (volHigh - volLow)));
+        const fluxRaw = 100 - normVol * 100;
 
-        // ICC_BTC ciclu: funcție de raportul EMA50 / EMA200
+        // --- IC CICLU: funcție de raport EMA50 / EMA200 ---
         const ratio = short / Math.max(long, 1e-8);
-        const cycleScore = clamp(50 + 35 * Math.tanh((ratio - 1) * 4), 0, 100);
+        const cycleRaw = 50 + 35 * Math.tanh((ratio - 1) * 4);
 
-        rawStruct.push({ x: t, y: structScore });
-        rawDir.push({ x: t, y: dirScore });
-        rawFlux.push({ x: t, y: fluxScore });
-        rawCycle.push({ x: t, y: cycleScore });
+        rawStruct.push({ x: t, y: structRaw });
+        rawDir.push({ x: t, y: dirRaw });
+        rawFlux.push({ x: t, y: fluxRaw });
+        rawCycle.push({ x: t, y: cycleRaw });
       }
 
-      // netezire ușoară
-      seriesStruct = smoothPoints(rawStruct, 16);
-      seriesDir = smoothPoints(rawDir, 16);
-      seriesFlux = smoothPoints(rawFlux, 12);
-      seriesCycle = smoothPoints(rawCycle, 20);
+      // clamp 0–100
+      let cStruct = clampSeries(rawStruct);
+      let cDir = clampSeries(rawDir);
+      let cFlux = clampSeries(rawFlux);
+      let cCycle = clampSeries(rawCycle);
+
+      // smooth vizual
+      seriesStruct = smoothPoints(cStruct, 16);
+      seriesDir = smoothPoints(cDir, 16);
+      seriesFlux = smoothPoints(cFlux, 12);
+      seriesCycle = smoothPoints(cCycle, 20);
     }
 
     // ----------------- CHARTS -----------------
@@ -1012,6 +1018,12 @@
       const commonOptions = {
         responsive: true,
         maintainAspectRatio: false,
+        layout: {
+          padding: {
+            top: 0,
+            bottom: 10, // puțin spațiu vizual sub axă
+          },
+        },
         interaction: {
           mode: "index",
           intersect: false,
@@ -1159,14 +1171,10 @@
           fromX = seriesStruct[0].x;
       }
 
-      function filterRange(points) {
-        return points.filter((p) => p.x >= fromX && p.x <= lastX);
-      }
-
-      const sStruct = filterRange(seriesStruct);
-      const sDir = filterRange(seriesDir);
-      const sFlux = filterRange(seriesFlux);
-      const sCycle = filterRange(seriesCycle);
+      const sStruct = seriesStruct.filter((p) => p.x >= fromX && p.x <= lastX);
+      const sDir = seriesDir.filter((p) => p.x >= fromX && p.x <= lastX);
+      const sFlux = seriesFlux.filter((p) => p.x >= fromX && p.x <= lastX);
+      const sCycle = seriesCycle.filter((p) => p.x >= fromX && p.x <= lastX);
 
       chartStructDir.data.datasets[0].data = sStruct;
       chartStructDir.data.datasets[1].data = sDir;
@@ -1262,4 +1270,3 @@
   </script>
 </body>
 </html>
-```0
