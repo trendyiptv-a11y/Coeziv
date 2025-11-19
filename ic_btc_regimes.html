@@ -9,7 +9,7 @@
       color-scheme: dark;
       --bg: #040712;
       --bg-card: #0b1020;
-      --bg-card-soft: #11182b;
+      --bg-card-soft: #111827;
       --accent: #3b82f6;
       --accent-soft: rgba(59,130,246,0.2);
       --text: #e5e7eb;
@@ -91,15 +91,7 @@
       gap: 6px;
       text-decoration: none;
     }
-    .btn-primary {
-      border-color: transparent;
-      background: linear-gradient(135deg,#2563eb,#4f46e5);
-      box-shadow: 0 10px 30px rgba(37,99,235,0.35);
-    }
-    .btn span.icon {
-      font-size: 1rem;
-      opacity: 0.9;
-    }
+    .btn span.icon { font-size: 1rem; opacity: 0.9; }
 
     .card {
       background: radial-gradient(circle at top left,#111827 0,#020617 70%);
@@ -254,7 +246,7 @@
 <body>
   <div class="page">
     <header>
-      <h1>Regimuri bull / bear – model coeziv BTC</h1>
+      <h1>Regimuri Bull / Bear – model coeziv BTC</h1>
       <p>
         Perioade de bull market și bear market estimate automat din indicii
         coezivi <b>IC_BTC structural</b> și <b>ICD_BTC direcțional</b>, calculați pe date
@@ -263,13 +255,13 @@
       <div class="pill-row">
         <div class="pill">
           <span class="pill-dot"></span>
-          Model coeziv – structură vs direcționalitate
+          Model coeziv – structură &amp; direcționalitate
         </div>
         <div class="pill">
-          • Bull: structură puternică + mișcări aliniate trendului
+          • Bull: IC_BTC ≥ 45 și ICD_BTC ≥ 55
         </div>
         <div class="pill">
-          • Bear: structură puternică + mișcări contra trendului
+          • Bear: IC_BTC ≤ 35 și ICD_BTC ≤ 45
         </div>
       </div>
       <div class="actions">
@@ -281,10 +273,10 @@
 
     <section class="card">
       <div class="card-header">
-        <div class="card-title">Regimuri bull & bear (0–100, model coeziv)</div>
+        <div class="card-title">Regimuri bull &amp; bear (0–100, model coeziv)</div>
         <div class="card-subtitle">
           Fundal verde = bull market, fundal roșu = bear market. Liniile reprezintă
-          IC_BTC structural și ICD_BTC direcțional (0–100).
+          IC_BTC structural și ICD_BTC direcțional (0–100), calculate automat din preț.
         </div>
       </div>
 
@@ -338,9 +330,10 @@
       </div>
 
       <p class="footnote">
-        <b>Notă:</b> Pragurile sunt aproximative și conceptuale (nu recomandare financiară):
-        bull ≈ structură IC_BTC &gt;= 45 și ICD_BTC &gt;= 55, bear ≈ structură &gt;= 45 și
-        ICD_BTC &lt;= 45, cu durată minimă ~30 zile.
+        <b>Notă:</b> praguri conceptuale pentru regimuri:
+        bull ≈ IC_BTC structural ≥ 45 și ICD_BTC direcțional ≥ 55,
+        bear ≈ IC_BTC structural ≤ 35 și ICD_BTC direcțional ≤ 45,
+        cu durată minimă ~30 de zile consecutive. Model orientativ, nu recomandare financiară.
       </p>
     </section>
   </div>
@@ -384,28 +377,37 @@
       });
     }
 
-    // ---------- IC structural + direcțional (simplificat, dar coeziv) ----------
+    // ---------- IC structural + direcțional (coeziv, din OHLC) ----------
 
     function computeICFromOHLC(bars) {
       const closes = bars.map(b => b.close);
       const ranges = bars.map(b => (b.high - b.low) || 0);
 
+      // flux local de preț
       const atr20 = ema(ranges, 20);
       const fastTrend = ema(closes, 50);
       const slowTrend = ema(closes, 200);
 
+      // IC structural brut: raport trend / flux
       const structRaw = closes.map((_, i) => {
-        if (fastTrend[i] == null || slowTrend[i] == null || atr20[i] == null || atr20[i] === 0) {
+        if (
+          fastTrend[i] == null ||
+          slowTrend[i] == null ||
+          atr20[i] == null ||
+          atr20[i] === 0
+        ) {
           return null;
         }
         return (fastTrend[i] - slowTrend[i]) / atr20[i];
       });
 
+      // randamente zilnice
       const returns = closes.map((c, i) => {
         if (i === 0 || c == null || closes[i-1] == null) return null;
         return (c - closes[i-1]) / closes[i-1];
       });
 
+      // direcțional: randament aliniat cu direcția trendului
       const dirAligned = returns.map((r, i) => {
         if (r == null || fastTrend[i] == null || slowTrend[i] == null) return null;
         const trendSign = Math.sign(fastTrend[i] - slowTrend[i]) || 1;
@@ -431,21 +433,31 @@
       return { structSeries, dirSeries };
     }
 
-    // ---------- Detectare regimuri bull / bear din IC (versiunea mai flexibilă) ----------
+    // ---------- Detectare regimuri bull / bear din IC ----------
 
+    // Praguri confirmate:
+    // Bull: IC_struct >= 45 și IC_dir >= 55
+    // Bear: IC_struct <= 35 și IC_dir <= 45
+    // Min. durată: 30 zile
     function detectRegimesFromIC(structSeries, dirSeries) {
       const n = Math.min(structSeries.length, dirSeries.length);
       const segments = [];
-      const MIN_LEN = 30; // minim ~30z
+      const MIN_LEN = 30;
 
       function labelFor(s, d) {
         if (s == null || d == null || Number.isNaN(s) || Number.isNaN(d)) {
           return "neutral";
         }
-        const strongStruct = s >= 45;
-        if (strongStruct && d >= 55) return "bull";
-        if (strongStruct && d <= 45) return "bear";
+
+        const isBull = (s >= 45 && d >= 55);
+        const isBear = (s <= 35 && d <= 45);
+
+        if (isBull) return "bull";
+        if (isBear) return "bear";
+
+        // structură foarte joasă, dar direcționalul nu confirmă bear -> tranziție
         if (s < 35) return "transition";
+
         return "neutral";
       }
 
@@ -512,7 +524,9 @@
           const width  = xEnd - xStart;
           if (!isFinite(width) || width <= 0) continue;
 
-          ctx.fillStyle = r.type === "bull" ? "rgba(16,185,129,0.14)" : "rgba(248,113,113,0.15)";
+          ctx.fillStyle = r.type === "bull"
+            ? "rgba(16,185,129,0.14)"
+            : "rgba(248,113,113,0.16)";
           ctx.fillRect(xStart, chartArea.top, width, chartArea.bottom - chartArea.top);
         }
         ctx.restore();
@@ -623,15 +637,19 @@
                 label: "IC_BTC structural (0–100)",
                 data: structSeries,
                 borderWidth: 2,
+                borderColor: "rgba(56,189,248,1)",
+                backgroundColor: "rgba(56,189,248,0.15)",
                 pointRadius: 0,
-                tension: 0.2
+                tension: 0.22
               },
               {
                 label: "ICD_BTC direcțional (0–100)",
                 data: dirSeries,
                 borderWidth: 2,
+                borderColor: "rgba(248,113,113,1)",
+                backgroundColor: "rgba(248,113,113,0.15)",
                 pointRadius: 0,
-                tension: 0.2
+                tension: 0.22
               }
             ]
           },
@@ -648,7 +666,8 @@
                 time: { unit: "year" },
                 ticks: {
                   maxRotation: 0,
-                  autoSkipPadding: 20
+                  autoSkipPadding: 20,
+                  color: "#9ca3af"
                 },
                 grid: {
                   color: "rgba(55,65,81,0.7)"
@@ -658,7 +677,8 @@
                 min: 0,
                 max: 100,
                 ticks: {
-                  stepSize: 20
+                  stepSize: 20,
+                  color: "#9ca3af"
                 },
                 grid: {
                   color: "rgba(55,65,81,0.75)"
@@ -673,7 +693,8 @@
                 labels: {
                   usePointStyle: true,
                   boxWidth: 8,
-                  font: { size: 11 }
+                  font: { size: 11 },
+                  color: "#e5e7eb"
                 }
               },
               tooltip: {
