@@ -507,31 +507,40 @@
 
     // ---------- Plugin Chart.js pentru fundal bull / bear ----------
 
-    const regimeBackgroundPlugin = {
-      id: "regimeBackground",
-      beforeDraw(chart, args, options) {
-        const regimes = options && options.regimes;
-        if (!regimes || !regimes.length) return;
+const regimeBackgroundPlugin = {
+  id: "regimeBackground",
+  // desenăm DUPĂ axă și grid, dar ÎNAINTE de linii
+  beforeDatasetsDraw(chart, args, options) {
+    const regimes = options && options.regimes;
+    if (!regimes || !regimes.length) return;
 
-        const { ctx, chartArea, scales } = chart;
-        const xAxis = scales.x;
-        if (!xAxis) return;
+    const { ctx, chartArea, scales } = chart;
+    if (!chartArea) return;
+    const xAxis = scales.x;
+    if (!xAxis) return;
 
-        ctx.save();
-        for (const r of regimes) {
-          const xStart = xAxis.getPixelForValue(r.startTs);
-          const xEnd   = xAxis.getPixelForValue(r.endTs);
-          const width  = xEnd - xStart;
-          if (!isFinite(width) || width <= 0) continue;
+    ctx.save();
+    for (const r of regimes) {
+      const xStart = xAxis.getPixelForValue(r.startTs);
+      const xEnd   = xAxis.getPixelForValue(r.endTs);
+      const width  = xEnd - xStart;
+      if (!isFinite(width) || width <= 0) continue;
 
-          ctx.fillStyle = r.type === "bull"
-            ? "rgba(16,185,129,0.14)"
-            : "rgba(248,113,113,0.16)";
-          ctx.fillRect(xStart, chartArea.top, width, chartArea.bottom - chartArea.top);
-        }
-        ctx.restore();
-      }
-    };
+      // opacitate mai vizibilă
+      ctx.fillStyle = r.type === "bull"
+        ? "rgba(16,185,129,0.28)"   // verde bull
+        : "rgba(248,113,113,0.30)"; // roșu bear
+
+      ctx.fillRect(
+        xStart,
+        chartArea.top,
+        width,
+        chartArea.bottom - chartArea.top
+      );
+    }
+    ctx.restore();
+  }
+};
 
     Chart.register(regimeBackgroundPlugin);
 
