@@ -818,6 +818,7 @@
     let seriesDir = [];
     let seriesFlux = [];
     let seriesCycle = [];
+    let marketRegimes = []; // segmente bull / bear pentru fundal
 
     let chartStructDir = null;
     let chartFluxCycle = null;
@@ -889,6 +890,9 @@
         }
 
         computeIndices(fullCandles);
+
+        // detectăm regimurile bull/bear pe baza IC-ului
+        marketRegimes = detectRegimesFromIC(seriesStruct, seriesDir);
 
         const lastCandle = fullCandles[fullCandles.length - 1];
         const formatter = new Intl.DateTimeFormat("ro-RO", { dateStyle: "medium" });
@@ -1010,6 +1014,120 @@
       seriesCycle = smoothPoints(cCycle, 20);
     }
 
+    // ---------- Detectare regimuri bull / bear din IC (model coeziv) ----------
+    function detectRegimesFromIC(structSeries, dirSeries) {
+      const n = Math.min(structSeries.length, dirSeries.length);
+      const segments = [];
+      const MIN_LEN = 45; // minim ~45z ca să fie regim semnificativ
+
+      function labelFor(s, d) {
+        if (s == null || d == null || Number.isNaN(s) || Number.isNaN(d)) {
+          return "neutral";
+        }
+        // structură mare + direcțional bun => bull
+        if (s >= 60 && d >= 55) return "bull";
+        // structură mare + direcțional slab => bear coerent
+        if (s >= 60 && d <= 45) return "bear";
+        // structură foarte joasă => tranziție / reset
+        if (s < 40) return "transition";
+        return "neutral";
+      }
+
+      let current = null;
+
+      function closeSegment(endIdx) {
+        if (!current) return;
+        const length = endIdx - current.startIdx + 1;
+        if (length >= MIN_LEN && (current.type === "bull" || current.type === "bear")) {
+          const startPoint = structSeries[current.startIdx];
+          const endPoint   = structSeries[endIdx];
+          segments.push({
+            type: current.type,
+            startIdx: current.startIdx,
+            endIdx,
+            startTs: startPoint.x,
+            endTs: endPoint.x,
+            length
+          });
+        }
+        current = null;
+      }
+
+      for (let i = 0; i < n; i++) {
+        const s = structSeries[i]?.y;
+        const d = dirSeries[i]?.y;
+        const label = labelFor(s, d);
+
+        if (!current) {
+          if (label === "bull" || label === "bear") {
+            current = { type: label, startIdx: i };
+          }
+        } else {
+          if (label === current.type) {
+            continue;
+          } else {
+            closeSegment(i - 1);
+            if (label === "bull" || label === "bear") {
+              current = { type: label, startIdx: i };
+            }
+          }
+        }
+      }
+
+      if (current) closeSegment(n - 1);
+
+      return segments;
+    }
+
+    // ---------- Plugin Chart.js: colorare fundal bull / bear ----------
+    const regimeBackgroundPlugin = {
+      id: "regimeBackground",
+      beforeDatasetsDraw(chart, args, opts) {
+        if (!marketRegimes.length) return;
+
+        const { ctx, chartArea, scales } = chart;
+        const xScale = scales.x;
+        if (!xScale || !chartArea) return;
+
+        const xMin = xScale.min;
+        const xMax = xScale.max;
+        if (xMin == null || xMax == null) return;
+
+        ctx.save();
+
+        marketRegimes.forEach(seg => {
+          if (seg.endTs < xMin || seg.startTs > xMax) return;
+
+          const startVal = Math.max(seg.startTs, xMin);
+          const endVal   = Math.min(seg.endTs, xMax);
+
+          const xStart = xScale.getPixelForValue(startVal);
+          const xEnd   = xScale.getPixelForValue(endVal);
+          const width  = xEnd - xStart;
+          if (width <= 0) return;
+
+          if (seg.type === "bull") {
+            ctx.fillStyle = "rgba(34,197,94,0.08)";
+          } else if (seg.type === "bear") {
+            ctx.fillStyle = "rgba(248,113,113,0.08)";
+          } else {
+            return;
+          }
+
+          ctx.fillRect(
+            xStart,
+            chartArea.top,
+            width,
+            chartArea.bottom - chartArea.top
+          );
+        });
+
+        ctx.restore();
+      }
+    };
+
+    Chart.register(regimeBackgroundPlugin);
+
     // ----------------- CHARTS -----------------
     function initCharts() {
       const ctx1 = document.getElementById("chartStructDir").getContext("2d");
@@ -1021,7 +1139,7 @@
         layout: {
           padding: {
             top: 0,
-            bottom: 10, // puțin spațiu vizual sub axă
+            bottom: 10,
           },
         },
         interaction: {
@@ -1053,6 +1171,7 @@
               },
             },
           },
+          regimeBackground: {} // plugin-ul folosește marketRegimes global
         },
         scales: {
           x: {
@@ -1171,10 +1290,13 @@
           fromX = seriesStruct[0].x;
       }
 
-      const sStruct = seriesStruct.filter((p) => p.x >= fromX && p.x <= lastX);
-      const sDir = seriesDir.filter((p) => p.x >= fromX && p.x <= lastX);
-      const sFlux = seriesFlux.filter((p) => p.x >= fromX && p.x <= lastX);
-      const sCycle = seriesCycle.filter((p) => p.x >= fromX && p.x <= lastX);
+      const filterRange = (points) =>
+        points.filter((p) => p.x >= fromX && p.x <= lastX);
+
+      const sStruct = filterRange(seriesStruct);
+      const sDir = filterRange(seriesDir);
+      const sFlux = filterRange(seriesFlux);
+      const sCycle = filterRange(seriesCycle);
 
       chartStructDir.data.datasets[0].data = sStruct;
       chartStructDir.data.datasets[1].data = sDir;
