@@ -1,1 +1,38 @@
+name: Update BTC JSON
 
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - "data/btc_daily.csv"
+      - "scripts/csv_to_json.py"
+  workflow_dispatch: {}
+
+jobs:
+  build-json:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Generate btc_ohlc.json
+        run: |
+          python scripts/csv_to_json.py
+
+      - name: Commit JSON if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if git status --porcelain | grep "btc_ohlc.json"; then
+            git add btc_ohlc.json
+            git commit -m "Update btc_ohlc.json from btc_daily.csv"
+            git push
+          else
+            echo "Nimic de comis."
+          fi
