@@ -124,13 +124,19 @@ function computeIC(close, volume) {
   return ema(clipped.map(v=>v*100),p.smooth);
 }
 
-// ----------- FETCH STABIL (BONSAI API) -----------
+// ----------- FETCH din BACKEND-ul Vercel (/api/btc) -----------
 async function fetchBTC() {
-  const url = "https://api.bonsai.uno/v1/candles/binance/BTCUSDT/1d";
-  const res = await fetch(url);
-  if(!res.ok) throw new Error("Nu pot accesa Bonsai API");
+  const res = await fetch("/api/btc"); // absolut, nu ./api/btc
+  if (!res.ok) {
+    throw new Error("Backend error: " + res.status);
+  }
+
   const data = await res.json();
-  if(!Array.isArray(data)) throw new Error("Date invalide");
+  if (!Array.isArray(data)) {
+    throw new Error("Date invalide de la backend");
+  }
+
+  // data = [{timestamp, open, high, low, close, volume}, ...]
   return data;
 }
 
