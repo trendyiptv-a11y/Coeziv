@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" />
+  <title>Regimuri Bull / Bear – Model coeziv BTC</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #040712;
+      --bg-card: #0b1020;
+      --bg-card-soft: #11182b;
+      --accent: #3b82f6;
+      --accent-soft: rgba(59,130,246,0.2);
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --bull: rgba(16,185,129,0.12);
+      --bear: rgba(248,113,113,0.12);
+      --bull-border: rgba(16,185,129,0.8);
+      --bear-border: rgba(248,113,113,0.8);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+      background: radial-gradient(circle at top, #111827 0, #020617 55%, #000 100%);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    .page {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 16px 16px 40px;
+    }
+    header {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+    header h1 {
+      font-size: 1.45rem;
+      font-weight: 650;
+      letter-spacing: 0.03em;
+    }
+    header p {
+      font-size: 0.85rem;
+      color: var(--muted);
+      max-width: 720px;
+      line-height: 1.5;
+    }
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 4px;
+    }
+    .pill {
+      font-size: 0.75rem;
+      padding: 4px 9px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.35);
+      background: rgba(15,23,42,0.85);
+      color: var(--muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+    .pill-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: var(--accent);
+      box-shadow: 0 0 0 3px rgba(59,130,246,0.35);
+    }
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 6px;
+    }
+    .btn {
+      border-radius: 999px;
+      padding: 8px 14px;
+      font-size: 0.82rem;
+      border: 1px solid rgba(148,163,184,0.4);
+      background: rgba(15,23,42,0.9);
+      color: var(--text);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+    }
+    .btn-primary {
+      border-color: transparent;
+      background: linear-gradient(135deg,#2563eb,#4f46e5);
+      box-shadow: 0 10px 30px rgba(37,99,235,0.35);
+    }
+    .btn span.icon {
+      font-size: 1rem;
+      opacity: 0.9;
+    }
+
+    .card {
+      background: radial-gradient(circle at top left,#111827 0,#020617 70%);
+      border-radius: 20px;
+      padding: 18px 14px 18px;
+      border: 1px solid rgba(148,163,184,0.25);
+      box-shadow: 0 18px 45px rgba(15,23,42,0.7);
+      margin-bottom: 18px;
+    }
+    .card-header {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-bottom: 12px;
+    }
+    .card-title {
+      font-size: 1rem;
+      font-weight: 600;
+    }
+    .card-subtitle {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit,minmax(220px,1fr));
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+    .summary-box {
+      background: var(--bg-card-soft);
+      border-radius: 14px;
+      padding: 10px 10px 11px;
+      border: 1px solid rgba(148,163,184,0.3);
+      font-size: 0.85rem;
+    }
+    .summary-label {
+      color: var(--muted);
+      font-size: 0.78rem;
+      margin-bottom: 3px;
+    }
+    .summary-value-row {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+    }
+    .summary-value {
+      font-size: 1.05rem;
+      font-weight: 600;
+    }
+    .badge {
+      padding: 2px 7px;
+      font-size: 0.7rem;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.4);
+      text-transform: lowercase;
+    }
+    .badge-bull {
+      border-color: var(--bull-border);
+      color: #bbf7d0;
+      background: rgba(22,163,74,0.15);
+    }
+    .badge-bear {
+      border-color: var(--bear-border);
+      color: #fecaca;
+      background: rgba(220,38,38,0.15);
+    }
+
+    .chart-wrapper {
+      position: relative;
+      height: 340px;
+      width: 100%;
+    }
+
+    .table-wrapper {
+      margin-top: 10px;
+      max-height: 260px;
+      overflow-y: auto;
+      border-radius: 14px;
+      border: 1px solid rgba(55,65,81,0.8);
+      background: radial-gradient(circle at top,#020617 0,#020617 45%,#000 100%);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+    }
+    thead {
+      position: sticky;
+      top: 0;
+      background: rgba(15,23,42,0.98);
+      backdrop-filter: blur(10px);
+      z-index: 2;
+    }
+    th, td {
+      padding: 6px 8px;
+      text-align: left;
+      border-bottom: 1px solid rgba(31,41,55,0.9);
+    }
+    th {
+      font-size: 0.75rem;
+      color: var(--muted);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    tbody tr:nth-child(even) {
+      background: rgba(15,23,42,0.65);
+    }
+    tbody tr:hover {
+      background: rgba(30,64,175,0.35);
+    }
+    .regime-pill {
+      font-size: 0.72rem;
+      padding: 1px 7px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.6);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .regime-pill span.dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+    }
+    .dot-bull { background: #22c55e; }
+    .dot-bear { background: #f97373; }
+
+    .footnote {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-top: 8px;
+      line-height: 1.5;
+    }
+    .footnote b {
+      color: #e5e7eb;
+      font-weight: 500;
+    }
+    @media (max-width: 640px) {
+      header h1 { font-size: 1.25rem; }
+      .chart-wrapper { height: 320px; }
+    }
+  </style>
+
+  <!-- Chart.js + adaptor pentru axa de timp -->
+  <script src="https://cdn.jsdelivr.net/npm/luxon@3"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1"></script>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>Regimuri bull / bear – model coeziv BTC</h1>
+      <p>
+        Perioade de bull market și bear market estimate automat din indicii
+        coezivi <b>IC_BTC structural</b> și <b>ICD_BTC direcțional</b>, calculați pe date
+        zilnice BTCUSDT (~2010–prezent).
+      </p>
+      <div class="pill-row">
+        <div class="pill">
+          <span class="pill-dot"></span>
+          Model coeziv – structură vs direcționalitate
+        </div>
+        <div class="pill">
+          • Bull: structură puternică + mișcări aliniate trendului
+        </div>
+        <div class="pill">
+          • Bear: structură puternică + mișcări contra trendului
+        </div>
+      </div>
+      <div class="actions">
+        <a href="ic_btc.html" class="btn">
+          <span class="icon">←</span> Înapoi la indice IC_BTC
+        </a>
+      </div>
+    </header>
+
+    <section class="card">
+      <div class="card-header">
+        <div class="card-title">Regimuri bull & bear (0–100, model coeziv)</div>
+        <div class="card-subtitle">
+          Fundal verde = bull market, fundal roșu = bear market. Liniile reprezintă
+          IC_BTC structural și ICD_BTC direcțional (0–100).
+        </div>
+      </div>
+
+      <div class="summary-grid">
+        <div class="summary-box">
+          <div class="summary-label">Număr regimuri bull detectate</div>
+          <div class="summary-value-row">
+            <div id="bullCount" class="summary-value">–</div>
+            <span class="badge badge-bull">bull</span>
+          </div>
+        </div>
+        <div class="summary-box">
+          <div class="summary-label">Număr regimuri bear detectate</div>
+          <div class="summary-value-row">
+            <div id="bearCount" class="summary-value">–</div>
+            <span class="badge badge-bear">bear</span>
+          </div>
+        </div>
+        <div class="summary-box">
+          <div class="summary-label">Cel mai lung bull (zile)</div>
+          <div class="summary-value-row">
+            <div id="maxBullLen" class="summary-value">–</div>
+          </div>
+        </div>
+        <div class="summary-box">
+          <div class="summary-label">Cel mai lung bear (zile)</div>
+          <div class="summary-value-row">
+            <div id="maxBearLen" class="summary-value">–</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-wrapper">
+        <canvas id="regimeChart"></canvas>
+      </div>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Tip</th>
+              <th>Început</th>
+              <th>Sfârșit</th>
+              <th>Durată (zile)</th>
+            </tr>
+          </thead>
+          <tbody id="regimeTableBody">
+            <!-- rânduri generate din JS -->
+          </tbody>
+        </table>
+      </div>
+
+      <p class="footnote">
+        <b>Notă:</b> Pragurile sunt aproximative și conceptuale (nu recomandare financiară):
+        bull ≈ structură IC_BTC &gt;= 45 și ICD_BTC &gt;= 55, bear ≈ structură &gt;= 45 și
+        ICD_BTC &lt;= 45, cu durată minimă ~30 zile.
+      </p>
+    </section>
+  </div>
+
+  <script>
+    // ---------- Utilitare ----------
+
+    function ema(values, period) {
+      const k = 2 / (period + 1);
+      const out = new Array(values.length).fill(null);
+      let emaPrev = null;
+      for (let i = 0; i < values.length; i++) {
+        const v = values[i];
+        if (v == null || Number.isNaN(v)) {
+          out[i] = emaPrev;
+          continue;
+        }
+        if (emaPrev == null) {
+          emaPrev = v;
+        } else {
+          emaPrev = v * k + emaPrev * (1 - k);
+        }
+        out[i] = emaPrev;
+      }
+      return out;
+    }
+
+    function normalizeTo0100(raw) {
+      const vals = raw.filter(v => v != null && !Number.isNaN(v));
+      if (!vals.length) return raw.map(() => null);
+      const mean = vals.reduce((a,b) => a+b,0) / vals.length;
+      const variance = vals.reduce((a,b) => a + Math.pow(b-mean,2),0) / vals.length;
+      const std = Math.sqrt(variance) || 1;
+      return raw.map(v => {
+        if (v == null || Number.isNaN(v)) return null;
+        const z = (v - mean) / std;
+        let score = 50 + 18 * z; // 50 ± ~36 (2σ)
+        if (score < 0) score = 0;
+        if (score > 100) score = 100;
+        return score;
+      });
+    }
+
+    // ---------- IC structural + direcțional (simplificat, dar coeziv) ----------
+
+    function computeICFromOHLC(bars) {
+      const closes = bars.map(b => b.close);
+      const ranges = bars.map(b => (b.high - b.low) || 0);
+
+      const atr20 = ema(ranges, 20);
+      const fastTrend = ema(closes, 50);
+      const slowTrend = ema(closes, 200);
+
+      const structRaw = closes.map((_, i) => {
+        if (fastTrend[i] == null || slowTrend[i] == null || atr20[i] == null || atr20[i] === 0) {
+          return null;
+        }
+        return (fastTrend[i] - slowTrend[i]) / atr20[i];
+      });
+
+      const returns = closes.map((c, i) => {
+        if (i === 0 || c == null || closes[i-1] == null) return null;
+        return (c - closes[i-1]) / closes[i-1];
+      });
+
+      const dirAligned = returns.map((r, i) => {
+        if (r == null || fastTrend[i] == null || slowTrend[i] == null) return null;
+        const trendSign = Math.sign(fastTrend[i] - slowTrend[i]) || 1;
+        return r * trendSign;
+      });
+
+      const dirSmoothed = ema(dirAligned, 30);
+
+      const structNorm = normalizeTo0100(structRaw);
+      const dirNorm = normalizeTo0100(dirSmoothed);
+
+      const structSeries = [];
+      const dirSeries = [];
+      for (let i = 0; i < bars.length; i++) {
+        const ts = bars[i].timestamp;
+        const s = structNorm[i];
+        const d = dirNorm[i];
+        if (s != null && d != null) {
+          structSeries.push({ x: ts, y: s });
+          dirSeries.push({ x: ts, y: d });
+        }
+      }
+      return { structSeries, dirSeries };
+    }
+
+    // ---------- Detectare regimuri bull / bear din IC (versiunea mai flexibilă) ----------
+
+    function detectRegimesFromIC(structSeries, dirSeries) {
+      const n = Math.min(structSeries.length, dirSeries.length);
+      const segments = [];
+      const MIN_LEN = 30; // minim ~30z
+
+      function labelFor(s, d) {
+        if (s == null || d == null || Number.isNaN(s) || Number.isNaN(d)) {
+          return "neutral";
+        }
+        const strongStruct = s >= 45;
+        if (strongStruct && d >= 55) return "bull";
+        if (strongStruct && d <= 45) return "bear";
+        if (s < 35) return "transition";
+        return "neutral";
+      }
+
+      let current = null;
+
+      function closeSegment(endIdx) {
+        if (!current) return;
+        const length = endIdx - current.startIdx + 1;
+        if (length >= MIN_LEN && (current.type === "bull" || current.type === "bear")) {
+          const startPoint = structSeries[current.startIdx];
+          const endPoint   = structSeries[endIdx];
+          segments.push({
+            type: current.type,
+            startIdx: current.startIdx,
+            endIdx,
+            startTs: startPoint.x,
+            endTs: endPoint.x,
+            length
+          });
+        }
+        current = null;
+      }
+
+      for (let i = 0; i < n; i++) {
+        const s = structSeries[i]?.y;
+        const d = dirSeries[i]?.y;
+        const label = labelFor(s, d);
+
+        if (!current) {
+          if (label === "bull" || label === "bear") {
+            current = { type: label, startIdx: i };
+          }
+        } else {
+          if (label === current.type) {
+            continue;
+          } else {
+            closeSegment(i - 1);
+            if (label === "bull" || label === "bear") {
+              current = { type: label, startIdx: i };
+            }
+          }
+        }
+      }
+      if (current) closeSegment(n - 1);
+      return segments;
+    }
+
+    // ---------- Plugin Chart.js pentru fundal bull / bear ----------
+
+    const regimeBackgroundPlugin = {
+      id: "regimeBackground",
+      beforeDraw(chart, args, options) {
+        const regimes = options && options.regimes;
+        if (!regimes || !regimes.length) return;
+
+        const { ctx, chartArea, scales } = chart;
+        const xAxis = scales.x;
+        if (!xAxis) return;
+
+        ctx.save();
+        for (const r of regimes) {
+          const xStart = xAxis.getPixelForValue(r.startTs);
+          const xEnd   = xAxis.getPixelForValue(r.endTs);
+          const width  = xEnd - xStart;
+          if (!isFinite(width) || width <= 0) continue;
+
+          ctx.fillStyle = r.type === "bull" ? "rgba(16,185,129,0.14)" : "rgba(248,113,113,0.15)";
+          ctx.fillRect(xStart, chartArea.top, width, chartArea.bottom - chartArea.top);
+        }
+        ctx.restore();
+      }
+    };
+
+    Chart.register(regimeBackgroundPlugin);
+
+    // ---------- UI helper ----------
+
+    function formatDate(ts) {
+      return luxon.DateTime.fromMillis(ts).toFormat("yyyy-LL-dd");
+    }
+
+    function fillRegimeTable(regimes) {
+      const tbody = document.getElementById("regimeTableBody");
+      tbody.innerHTML = "";
+      if (!regimes.length) {
+        const tr = document.createElement("tr");
+        const td = document.createElement("td");
+        td.colSpan = 4;
+        td.textContent = "Nu au fost detectate regimuri bull / bear (după pragurile curente).";
+        td.style.color = "var(--muted)";
+        tr.appendChild(td);
+        tbody.appendChild(tr);
+        return;
+      }
+
+      for (const r of regimes) {
+        const tr = document.createElement("tr");
+
+        const tdType = document.createElement("td");
+        const pill = document.createElement("span");
+        pill.className = "regime-pill";
+        const dot = document.createElement("span");
+        dot.className = "dot " + (r.type === "bull" ? "dot-bull" : "dot-bear");
+        pill.appendChild(dot);
+        const txt = document.createElement("span");
+        txt.textContent = r.type === "bull" ? "bull market" : "bear market";
+        pill.appendChild(txt);
+        tdType.appendChild(pill);
+
+        const tdStart = document.createElement("td");
+        tdStart.textContent = formatDate(r.startTs);
+
+        const tdEnd = document.createElement("td");
+        tdEnd.textContent = formatDate(r.endTs);
+
+        const tdLen = document.createElement("td");
+        tdLen.textContent = r.length.toString();
+
+        tr.appendChild(tdType);
+        tr.appendChild(tdStart);
+        tr.appendChild(tdEnd);
+        tr.appendChild(tdLen);
+
+        tbody.appendChild(tr);
+      }
+    }
+
+    function updateSummary(regimes) {
+      const bull = regimes.filter(r => r.type === "bull");
+      const bear = regimes.filter(r => r.type === "bear");
+
+      document.getElementById("bullCount").textContent = bull.length || "0";
+      document.getElementById("bearCount").textContent = bear.length || "0";
+      document.getElementById("maxBullLen").textContent =
+        bull.length ? Math.max(...bull.map(r => r.length)) : "–";
+      document.getElementById("maxBearLen").textContent =
+        bear.length ? Math.max(...bear.map(r => r.length)) : "–";
+    }
+
+    // ---------- Main ----------
+
+    async function main() {
+      try {
+        const res = await fetch("btc_ohlc.json");
+        if (!res.ok) throw new Error("Nu pot încărca btc_ohlc.json");
+        const raw = await res.json();
+
+        const bars = raw
+          .map(d => ({
+            timestamp: d.timestamp,
+            open: Number(d.open),
+            high: Number(d.high),
+            low: Number(d.low),
+            close: Number(d.close),
+            volume: Number(d.volume ?? 0)
+          }))
+          .filter(b => b.timestamp != null && !Number.isNaN(b.close))
+          .sort((a,b) => a.timestamp - b.timestamp);
+
+        const { structSeries, dirSeries } = computeICFromOHLC(bars);
+        const regimes = detectRegimesFromIC(structSeries, dirSeries);
+
+        console.log("Regimuri detectate:", regimes);
+
+        updateSummary(regimes);
+        fillRegimeTable(regimes);
+
+        const ctx = document.getElementById("regimeChart").getContext("2d");
+
+        new Chart(ctx, {
+          type: "line",
+          data: {
+            datasets: [
+              {
+                label: "IC_BTC structural (0–100)",
+                data: structSeries,
+                borderWidth: 2,
+                pointRadius: 0,
+                tension: 0.2
+              },
+              {
+                label: "ICD_BTC direcțional (0–100)",
+                data: dirSeries,
+                borderWidth: 2,
+                pointRadius: 0,
+                tension: 0.2
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+              mode: "index",
+              intersect: false
+            },
+            scales: {
+              x: {
+                type: "time",
+                time: { unit: "year" },
+                ticks: {
+                  maxRotation: 0,
+                  autoSkipPadding: 20
+                },
+                grid: {
+                  color: "rgba(55,65,81,0.7)"
+                }
+              },
+              y: {
+                min: 0,
+                max: 100,
+                ticks: {
+                  stepSize: 20
+                },
+                grid: {
+                  color: "rgba(55,65,81,0.75)"
+                }
+              }
+            },
+            plugins: {
+              regimeBackground: {
+                regimes
+              },
+              legend: {
+                labels: {
+                  usePointStyle: true,
+                  boxWidth: 8,
+                  font: { size: 11 }
+                }
+              },
+              tooltip: {
+                callbacks: {
+                  title(items) {
+                    if (!items.length) return "";
+                    const ts = items[0].parsed.x;
+                    return luxon.DateTime.fromMillis(ts).toFormat("yyyy-LL-dd");
+                  }
+                }
+              }
+            }
+          }
+        });
+      } catch (err) {
+        console.error(err);
+        alert("Eroare la încărcarea datelor sau la calculul regimurilor.");
+      }
+    }
+
+    window.addEventListener("load", main);
+  </script>
+</body>
+</html>
