@@ -1,57 +1,128 @@
+#!/usr/bin/env python3
 import csv
-import urllib.request
+import json
+import time
+from datetime import datetime, timezone
+from urllib import request, parse, error
+from pathlib import Path
 
-# Alege sursa:
-#  - Binance_BTCUSDT_d.csv  -> date din 2017 până azi (USDT)
-#  - Bitstamp_BTCUSD_d.csv  -> date ~din 2011 până azi (USD)
+# ---------------------------------------
+# Config
+# ---------------------------------------
+SYMBOL = "BTCUSDT"
+INTERVAL = "1d"
+LIMIT = 1000  # maxim permis de Binance
+# Pornim "din trecut", Binance va ignora perioada fără date
+START_TIMESTAMP_MS = int(datetime(2010, 1, 1, tzinfo=timezone.utc).timestamp() * 1000)
 
-SRC_URL = "https://www.cryptodatadownload.com/cdd/Bitstamp_BTCUSD_d.csv"
-OUT_PATH = "data/btc_daily.csv"
+API_URL = "https://api.binance.com/api/v3/klines"
+
+OUT_PATH = Path("data") / "btc_daily.csv"
 
 
-def download_text(url: str) -> list[str]:
-    """Descarcă fișierul CSV ca listă de linii (stringuri)."""
-    with urllib.request.urlopen(url) as resp:
-        raw = resp.read().decode("utf-8", errors="replace")
-    return raw.splitlines()
+def fetch_klines(symbol: str, interval: str, start_time_ms: int, limit: int = 1000):
+    """
+    Ia un batch de candlestick-uri de la Binance.
+    Returnează lista de rânduri brute (list of lists).
+    """
+    params = {
+        "symbol": symbol,
+        "interval": interval,
+        "limit": limit,
+        "startTime": start_time_ms,
+    }
+    url = API_URL + "?" + parse.urlencode(params)
+
+    for attempt in range(5):
+        try:
+            with request.urlopen(url, timeout=20) as resp:
+                if resp.status != 200:
+                    raise RuntimeError(f"Binance HTTP {resp.status}")
+                data = resp.read().decode("utf-8")
+                klines = json.loads(data)
+                if not isinstance(klines, list):
+                    raise RuntimeError(f"Format neașteptat: {klines}")
+                return klines
+        except Exception as e:
+            print(f"[WARN] Eroare la fetch (încercarea {attempt+1}/5): {e}")
+            time.sleep(2)
+
+    raise RuntimeError("Nu am reușit să iau date de la Binance după 5 încercări.")
 
 
-def main() -> None:
-    print(f"Descarc date BTC de la: {SRC_URL}")
-    lines = download_text(SRC_URL)
+def ms_to_date(ms: int) -> str:
+    return datetime.utcfromtimestamp(ms / 1000).strftime("%Y-%m-%d")
 
-    # CryptoDataDownload pune câteva linii de comentariu la început (# ...)
-    data_lines = [ln for ln in lines if not ln.startswith("#") and ln.strip()]
 
-    reader = csv.DictReader(data_lines)
+def main():
+    OUT_PATH.parent.mkdir(parents=True, exist_ok=True)
 
-    # Datele sunt în ordine inversă (cel mai nou → cel mai vechi)
-    rows = list(reader)
-    rows.reverse()
+    all_rows = []
 
-    # Scriem în formatul tău obișnuit:
-    # date,open,high,low,close,volume
-    with open(OUT_PATH, "w", newline="") as f_out:
-        writer = csv.writer(f_out)
-        writer.writerow(["date", "open", "high", "low", "close", "volume"])
+    start = START_TIMESTAMP_MS
+    print(f"[INFO] Încep descărcarea BTCUSDT {INTERVAL} de la {ms_to_date(start)}...")
 
-        for r in rows:
-            # Coloanele din CryptoDataDownload:
-            # unix, date, symbol, open, high, low, close, Volume BTC, Volume USD/USDT, tradecount
-            date = r.get("date") or r.get("Date")
-            open_ = r.get("open") or r.get("Open")
-            high = r.get("high") or r.get("High")
-            low = r.get("low") or r.get("Low")
-            close = r.get("close") or r.get("Close")
-            volume_btc = r.get("Volume BTC") or r.get("Volume.BTC")
+    while True:
+        klines = fetch_klines(SYMBOL, INTERVAL, start, LIMIT)
+        if not klines:
+            print("[INFO] Nu am mai primit date, mă opresc.")
+            break
 
-            if not date:
-                # sărim orice linie ciudată
-                continue
+        print(f"[INFO] Batch cu {len(klines)} lumânări, de la {ms_to_date(klines[0][0])} "
+              f"până la {ms_to_date(klines[-1][0])}")
 
-            writer.writerow([date, open_, high, low, close, volume_btc])
+        for k in klines:
+            open_time = k[0]  # ms
+            open_price = float(k[1])
+            high_price = float(k[2])
+            low_price = float(k[3])
+            close_price = float(k[4])
+            volume = float(k[5])
 
-    print(f"Gata. Am scris CSV în: {OUT_PATH}")
+            all_rows.append({
+                "date": ms_to_date(open_time),
+                "open": open_price,
+                "high": high_price,
+                "low": low_price,
+                "close": close_price,
+                "volume": volume,
+            })
+
+        # Pregătim următorul batch
+        last_open_time = klines[-1][0]
+        # +1 ms ca să nu repetăm ultima lumânare
+        start = last_open_time + 1
+
+        # Mică pauză ca să nu spamăm API-ul
+        time.sleep(0.3)
+
+        # Safety: dacă suntem foarte aproape de prezent, ieșim
+        now_ms = int(datetime.now(tz=timezone.utc).timestamp() * 1000)
+        if start >= now_ms:
+            print("[INFO] Am ajuns la zi, mă opresc.")
+            break
+
+    if not all_rows:
+        raise RuntimeError("Nu am primit niciun rând de la Binance. Verifică simbolul / API-ul.")
+
+    # Eliminăm eventualele duplicate după dată (dacă apar)
+    dedup = {}
+    for row in all_rows:
+        dedup[row["date"]] = row
+    final_rows = [dedup[d] for d in sorted(dedup.keys())]
+
+    print(f"[INFO] Scriu {len(final_rows)} rânduri în {OUT_PATH} ...")
+
+    with OUT_PATH.open("w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(
+            f,
+            fieldnames=["date", "open", "high", "low", "close", "volume"]
+        )
+        writer.writeheader()
+        for r in final_rows:
+            writer.writerow(r)
+
+    print("[INFO] Gata, CSV actualizat.")
 
 
 if __name__ == "__main__":
