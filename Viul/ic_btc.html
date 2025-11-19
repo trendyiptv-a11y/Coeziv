@@ -73,7 +73,7 @@
 <body>
 
 <h2>Indice Coeziv Bitcoin – LIVE & GRATUIT</h2>
-<p class="small">Fără chei, fără conturi. Datele vin din Binance (BTCUSDT 1D) prin corsproxy.io.</p>
+<p class="small">Fără chei, fără conturi. Datele vin din Binance (BTCUSDT 1D) prin AllOrigins.</p>
 
 <div class="card">
   <button id="loadBtn">Încarcă date BTC & calculează IC</button>
@@ -89,7 +89,9 @@
   <strong>Interpretare rapidă:</strong><br/>
   &gt; 80 – regim coeziv stabil (trend consistent, flux controlat).<br/>
   20 – 80 – fază de tranziție / reorganizare.<br/>
-  &lt; 20 – fază critică (stres sistemic, volatilitate mare).
+  &lt; 20 – fază critică (stres sistemic, volatilitate mare).<br/>
+  <br/>
+  Model conceptual pe structură (trend + volum) și flux (volatilitate), NU oracol de preț.
 </div>
 
 <script>
@@ -140,7 +142,7 @@ function computeIC(close, volume) {
     beta: 0.35
   };
 
-  // aproximăm open[i] = close[i-1]
+  // approx open[i] = close[i-1]
   const open = close.map((c, i) => (i === 0 ? c : close[i-1]));
 
   // structură: C_core
@@ -224,18 +226,28 @@ function computeIC(close, volume) {
   return ema(ic_raw, p.smooth);
 }
 
-// ---------- fetch Binance prin corsproxy.io ----------
+// ---------- fetch Binance prin AllOrigins (/get + contents) ----------
 async function fetchBinanceDaily() {
   const url =
-    "https://corsproxy.io/?" +
+    "https://api.allorigins.win/get?url=" +
     encodeURIComponent(
       "https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1d&limit=1000"
     );
 
   const res = await fetch(url);
-  if (!res.ok) throw new Error("Nu pot accesa Binance");
-  const data = await res.json();
-  if (!Array.isArray(data)) throw new Error("Date invalide de la Binance");
+  if (!res.ok) throw new Error("Nu pot accesa proxy-ul (AllOrigins)");
+
+  const wrapper = await res.json();
+  if (!wrapper.contents) throw new Error("Răspuns invalid de la proxy");
+
+  let data;
+  try {
+    data = JSON.parse(wrapper.contents);
+  } catch (e) {
+    throw new Error("Nu pot parsa datele Binance");
+  }
+
+  if (!Array.isArray(data)) throw new Error("Format date invalid");
   return data;
 }
 
@@ -301,6 +313,7 @@ btn.onclick = async () => {
     }
     statusEl.textContent = "Gata.";
   } catch (e) {
+    console.error(e);
     statusEl.textContent = "Eroare: " + e.message;
   } finally {
     btn.disabled = false;
