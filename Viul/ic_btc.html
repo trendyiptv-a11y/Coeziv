@@ -9,23 +9,15 @@
   body {
     background: #020617;
     color: #e5e7eb;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-family: system-ui, sans-serif;
     margin: 0;
     padding: 1rem;
-  }
-  h2 {
-    margin: 0 0 0.2rem 0;
-    font-size: 1.4rem;
-  }
-  p {
-    margin: 0.25rem 0;
   }
   .card {
     background: #0b1120;
     padding: 1rem;
     margin-top: 0.9rem;
     border-radius: 12px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.4);
   }
   button {
     width: 100%;
@@ -37,43 +29,17 @@
     font-weight: 600;
     font-size: 0.95rem;
   }
-  button:disabled {
-    opacity: 0.55;
-  }
-  #status {
-    font-size: 0.85rem;
-    margin-top: 0.5rem;
-    color: #9ca3af;
-  }
-  #lastVal {
-    font-size: 0.9rem;
-    margin-top: 0.6rem;
-  }
-  .badge {
-    display: inline-block;
-    padding: 0.1rem 0.55rem;
-    border-radius: 999px;
-    font-size: 0.75rem;
-    margin-left: 0.4rem;
-  }
+  canvas { margin-top: 1rem; }
+  .badge { padding: 0.1rem 0.5rem; border-radius: 999px; }
   .badge-green { background:#065f46; color:#a7f3d0; }
   .badge-yellow{ background:#78350f; color:#fde68a; }
   .badge-red   { background:#7f1d1d; color:#fecaca; }
-  canvas {
-    margin-top: 0.8rem;
-    background: #020617;
-    border-radius: 8px;
-  }
-  .small {
-    font-size: 0.8rem;
-    color: #9ca3af;
-  }
 </style>
 </head>
 <body>
 
 <h2>Indice Coeziv Bitcoin – LIVE & GRATUIT</h2>
-<p class="small">Fără chei, fără conturi. Datele vin din Binance (BTCUSDT 1D) prin AllOrigins.</p>
+<p>Date live din Binance prin Bonsai API (gratuit, fără chei, fără proxy).</p>
 
 <div class="card">
   <button id="loadBtn">Încarcă date BTC & calculează IC</button>
@@ -85,238 +51,144 @@
   <p id="lastVal"></p>
 </div>
 
-<div class="card small">
-  <strong>Interpretare rapidă:</strong><br/>
-  &gt; 80 – regim coeziv stabil (trend consistent, flux controlat).<br/>
-  20 – 80 – fază de tranziție / reorganizare.<br/>
-  &lt; 20 – fază critică (stres sistemic, volatilitate mare).<br/>
-  <br/>
-  Model conceptual pe structură (trend + volum) și flux (volatilitate), NU oracol de preț.
-</div>
-
 <script>
-// ---------- utilitare ----------
+// ------------ UTILITARE ----------------
 function ema(vals, len) {
-  const k = 2 / (len + 1);
-  let emaVal = null;
-  return vals.map(v => {
-    if (emaVal === null) emaVal = v;
-    else emaVal = v * k + emaVal * (1 - k);
-    return emaVal;
+  const k = 2/(len+1); 
+  let e=null; 
+  return vals.map(v=>{ if(e===null)e=v; else e=v*k+e*(1-k); return e; });
+}
+function rollingMean(a,l){
+  return a.map((_,i)=> i<l?null:a.slice(i-l,i).reduce((s,x)=>s+x,0)/l);
+}
+function rollingStd(a,l){
+  return a.map((_,i)=>{
+    if(i<l)return null;
+    let s=a.slice(i-l,i).filter(x=>x!=null);
+    let m=s.reduce((x,y)=>x+y,0)/s.length;
+    let v=s.reduce((x,y)=>x+(y-m)**2,0)/s.length;
+    return Math.sqrt(v);
   });
 }
 
-function rollingMean(arr, len) {
-  const out = [];
-  for (let i = 0; i < arr.length; i++) {
-    if (i < len) { out.push(null); continue; }
-    const slice = arr.slice(i - len, i);
-    const m = slice.reduce((a,b)=>a+b,0) / slice.length;
-    out.push(m);
-  }
-  return out;
-}
-
-function rollingStd(arr, len) {
-  const out = [];
-  for (let i = 0; i < arr.length; i++) {
-    if (i < len) { out.push(null); continue; }
-    const slice = arr.slice(i - len, i).filter(v => v != null);
-    const m = slice.reduce((a,b)=>a+b,0) / slice.length;
-    const v = slice.reduce((s,x)=> s + (x - m) ** 2, 0) / slice.length;
-    out.push(Math.sqrt(v));
-  }
-  return out;
-}
-
-// ---------- calcul IC ----------
+// ------------ COMPUTE IC ---------------
 function computeIC(close, volume) {
-  const p = {
-    lenTrend: 200,
-    lenShort: 60,
-    lenVol: 30,
-    lenATR: 20,
-    lenFlux: 40,
-    smooth: 10,
-    alpha: 0.65,
-    beta: 0.35
-  };
+  const p={ lenTrend:200,lenShort:60,lenVol:30,lenATR:20,lenFlux:40,smooth:10,alpha:0.65,beta:0.35 };
 
-  // approx open[i] = close[i-1]
-  const open = close.map((c, i) => (i === 0 ? c : close[i-1]));
+  const open = close.map((c,i)=> i===0?c:close[i-1]);
 
-  // structură: C_core
-  const emaLong  = ema(close, p.lenTrend);
-  const emaShort = ema(close, p.lenShort);
+  const emaLong  = ema(close,p.lenTrend);
+  const emaShort = ema(close,p.lenShort);
 
-  const trendStrength = emaShort.map((v, i) => {
-    const base = emaLong[i];
-    if (!base) return null;
-    const raw = Math.abs(v - base) / base;
-    return Math.min(raw / 0.10, 1);
-  });
+  const trend = emaShort.map((v,i)=> Math.min(Math.abs(v-emaLong[i])/emaLong[i]/0.1,1));
 
-  const ret = close.map((c, i) => (i === 0 ? 0 : c - close[i-1]));
-  const pos = ret.map(v => (v > 0 ? v : 0));
-  const neg = ret.map(v => (v < 0 ? -v : 0));
-  const dirPos = ema(pos, p.lenShort);
-  const dirNeg = ema(neg, p.lenShort);
-  const cleanTrend = dirPos.map((v, i) => {
-    const den = v + (dirNeg[i] || 0) + 1e-9;
-    const d = v / den;
-    return Math.abs(d - 0.5) * 2;
-  });
+  const ret = close.map((c,i)=> i===0?0:c-close[i-1]);
+  const pos = ret.map(v=>v>0?v:0);
+  const neg = ret.map(v=>v<0?-v:0);
 
-  const C_core = trendStrength.map((v, i) =>
-    v == null || cleanTrend[i] == null ? null : 0.7 * v + 0.3 * cleanTrend[i]
-  );
+  const dirPos=ema(pos,p.lenShort);
+  const dirNeg=ema(neg,p.lenShort);
+  const clean=dirPos.map((v,i)=>Math.abs((v/(v+dirNeg[i]+1e-9))-0.5)*2);
 
-  // economie: C_eco
-  const volMA = rollingMean(volume, p.lenVol);
-  const volRel = volume.map((v, i) =>
-    volMA[i] ? Math.min(v / volMA[i], 4) / 4 : null
-  );
+  const C_core = trend.map((v,i)=>0.7*v+0.3*clean[i]);
 
-  const isUp = close.map((c, i) => c > open[i]);
-  const volUp = volume.map((v, i) => (isUp[i] ? v : 0));
-  const volDn = volume.map((v, i) => (isUp[i] ? 0 : v));
-  const volUpMA = rollingMean(volUp, p.lenVol);
-  const volDnMA = rollingMean(volDn, p.lenVol);
-  const volQuality = volUpMA.map((v, i) =>
-    v ? v / (v + (volDnMA[i] || 0) + 1e-9) : null
-  );
+  const volMA = rollingMean(volume,p.lenVol);
+  const volRel = volume.map((v,i)=>volMA[i]?Math.min(v/volMA[i],4)/4:null);
 
-  const tr = ret.map(v => Math.abs(v));
-  const ATR = ema(tr, p.lenATR);
-  const atrRel = ATR.map((v, i) => v / close[i]);
-  const atrHealthy = atrRel.map(v =>
-    1 - Math.abs(Math.min(v, 0.16) / 0.08 - 1)
-  );
+  const isUp = close.map((c,i)=>c>open[i]);
+  const volUp = volume.map((v,i)=>isUp[i]?v:0);
+  const volDn = volume.map((v,i)=>isUp[i]?0:v);
+  const volUpMA = rollingMean(volUp,p.lenVol);
+  const volDnMA = rollingMean(volDn,p.lenVol);
+  const volQuality = volUpMA.map((v,i)=> v? v/(v+(volDnMA[i]||0)+1e-9):null);
 
-  const C_eco = volRel.map((v, i) =>
-    v && volQuality[i] && atrHealthy[i]
-      ? 0.4 * v + 0.4 * volQuality[i] + 0.2 * atrHealthy[i]
-      : null
-  );
+  const ATR = ema(ret.map(v=>Math.abs(v)),p.lenATR);
+  const atrRel = ATR.map((v,i)=>v/close[i]);
+  const atrHealthy = atrRel.map(v=> 1-Math.abs(Math.min(v,0.16)/0.08-1) );
 
-  // tensiune: T_flux
-  const C_core_std = rollingStd(C_core, p.lenFlux);
-  const C_eco_std  = rollingStd(C_eco,  p.lenFlux);
-  const atr_std    = rollingStd(atrRel, p.lenFlux);
+  const C_eco = volRel.map((v,i)=>v&&volQuality[i]&&atrHealthy[i]
+      ?0.4*v+0.4*volQuality[i]+0.2*atrHealthy[i]:null);
 
-  const flux = C_core_std.map((v, i) =>
-    v && C_eco_std[i] && atr_std[i]
-      ? Math.min((v + C_eco_std[i] + atr_std[i]) / 0.03, 1)
-      : null
-  );
+  const C_core_std=rollingStd(C_core,p.lenFlux);
+  const C_eco_std=rollingStd(C_eco,p.lenFlux);
+  const atr_std=rollingStd(atrRel,p.lenFlux);
 
-  const C_struct = C_core.map((v, i) =>
-    v && C_eco[i] ? p.alpha * v + (1 - p.alpha) * C_eco[i] : null
-  );
+  const flux = C_core_std.map((v,i)=> v&&C_eco_std[i]&&atr_std[i]
+      ?Math.min((v+C_eco_std[i]+atr_std[i])/0.03,1):null);
 
-  const raw = C_struct.map((v, i) =>
-    v && flux[i] ? v - p.beta * flux[i] : null
-  );
+  const C_struct = C_core.map((v,i)=> v&&C_eco[i]? p.alpha*v+(1-p.alpha)*C_eco[i]:null);
 
-  const clipped = raw.map(v =>
-    v == null ? null : Math.max(0, Math.min(1, v))
-  );
+  const raw = C_struct.map((v,i)=> v&&flux[i]? v - p.beta*flux[i] : null);
 
-  const ic_raw = clipped.map(v => (v == null ? null : v * 100));
-  return ema(ic_raw, p.smooth);
+  const clipped = raw.map(v=> v==null?null:Math.max(0,Math.min(1,v)));
+  return ema(clipped.map(v=>v*100),p.smooth);
 }
 
-// ---------- fetch Binance prin AllOrigins (/get + contents) ----------
-async function fetchBinanceDaily() {
-  const url =
-    "https://api.allorigins.win/get?url=" +
-    encodeURIComponent(
-      "https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1d&limit=1000"
-    );
-
+// ----------- FETCH STABIL (BONSAI API) -----------
+async function fetchBTC() {
+  const url = "https://api.bonsai.uno/v1/candles/binance/BTCUSDT/1d";
   const res = await fetch(url);
-  if (!res.ok) throw new Error("Nu pot accesa proxy-ul (AllOrigins)");
-
-  const wrapper = await res.json();
-  if (!wrapper.contents) throw new Error("Răspuns invalid de la proxy");
-
-  let data;
-  try {
-    data = JSON.parse(wrapper.contents);
-  } catch (e) {
-    throw new Error("Nu pot parsa datele Binance");
-  }
-
-  if (!Array.isArray(data)) throw new Error("Format date invalid");
+  if(!res.ok) throw new Error("Nu pot accesa Bonsai API");
+  const data = await res.json();
+  if(!Array.isArray(data)) throw new Error("Date invalide");
   return data;
 }
 
-// ---------- UI ----------
-const btn = document.getElementById("loadBtn");
-const statusEl = document.getElementById("status");
-const lastValEl = document.getElementById("lastVal");
-const ctx = document.getElementById("chart").getContext("2d");
-let chart = null;
+// ---------------- UI ----------------
+const btn=document.getElementById("loadBtn");
+const status=document.getElementById("status");
+const last=document.getElementById("lastVal");
+const ctx=document.getElementById("chart").getContext("2d");
+let chart=null;
 
-btn.onclick = async () => {
-  statusEl.textContent = "Încarc date BTC din Binance...";
-  lastValEl.textContent = "";
-  btn.disabled = true;
+btn.onclick = async ()=>{
+  btn.disabled=true;
+  status.textContent="Încarc date BTC...";
+  last.textContent="";
 
-  try {
-    const raw = await fetchBinanceDaily();
-    const close = raw.map(c => parseFloat(c[4]));
-    const vol   = raw.map(c => parseFloat(c[5]));
-    const dates = raw.map(c => new Date(c[0]).toISOString().slice(0,10));
+  try{
+    const raw = await fetchBTC();
+    const close = raw.map(x=>x.close);
+    const vol   = raw.map(x=>x.volume);
+    const dates = raw.map(x=> new Date(x.timestamp).toISOString().slice(0,10));
 
-    statusEl.textContent = "Calculez indicele coeziv...";
-    const ic = computeIC(close, vol);
+    status.textContent="Calculez indicele...";
+    const ic = computeIC(close,vol);
 
-    if (chart) chart.destroy();
-    chart = new Chart(ctx, {
-      type: "line",
-      data: {
-        labels: dates,
-        datasets: [{
-          data: ic,
-          label: "IC_BTC (0–100)",
-          borderColor: "#f9fafb",
-          borderWidth: 1.6,
-          pointRadius: 0,
-          tension: 0.16
+    if(chart) chart.destroy();
+    chart=new Chart(ctx,{
+      type:"line",
+      data:{
+        labels:dates,
+        datasets:[{
+          data:ic,
+          label:"IC_BTC (0–100)",
+          borderColor:"#f8fafc",
+          borderWidth:1.6,
+          pointRadius:0,
+          tension:0.15
         }]
       },
-      options: {
-        plugins: {
-          legend: { labels: { color: "#e5e7eb" } }
-        },
-        scales: {
-          x: {
-            ticks: { color: "#9ca3af", maxTicksLimit: 8 }
-          },
-          y: {
-            ticks: { color: "#9ca3af" },
-            min: 0, max: 100
-          }
+      options:{
+        scales:{
+          y:{min:0,max:100}
         }
       }
     });
 
-    const last = ic[ic.length - 1];
-    if (last != null) {
-      const v = last.toFixed(2);
-      let badge = "";
-      if (last >= 80) badge = '<span class="badge badge-green">fază coezivă</span>';
-      else if (last <= 20) badge = '<span class="badge badge-red">fază critică</span>';
-      else badge = '<span class="badge badge-yellow">tranziție</span>';
-      lastValEl.innerHTML = `Ultima valoare IC_BTC: <strong>${v}</strong> ${badge}`;
-    }
-    statusEl.textContent = "Gata.";
-  } catch (e) {
-    console.error(e);
-    statusEl.textContent = "Eroare: " + e.message;
-  } finally {
-    btn.disabled = false;
+    const lastVal = ic.at(-1).toFixed(2);
+    let badge="";
+    if(lastVal>=80) badge='<span class="badge badge-green">fază coezivă</span>';
+    else if(lastVal<=20) badge='<span class="badge badge-red">critic</span>';
+    else badge='<span class="badge badge-yellow">tranziție</span>';
+
+    last.innerHTML = `Ultima valoare IC_BTC: <strong>${lastVal}</strong> ${badge}`;
+    status.textContent="Gata.";
+
+  }catch(e){
+    status.textContent="Eroare: "+e.message;
+  }finally{
+    btn.disabled=false;
   }
 };
 </script>
