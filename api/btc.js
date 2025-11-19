@@ -1,34 +1,36 @@
-// api/btc.js — variantă BYBIT (recomandată)
+// api/btc.js – BTC OHLC daily din Coinpaprika
 
 export default async function handler(req, res) {
   try {
+    // Istoric BTC din 2013 până azi, OHLC daily
     const url =
-      "https://api.bybit.com/v5/market/kline?category=linear&symbol=BTCUSDT&interval=D&limit=1000";
+      "https://api.coinpaprika.com/v1/coins/btc-bitcoin/ohlcv/historical?start=2013-01-01&limit=5000";
 
     const r = await fetch(url);
     if (!r.ok) {
       return res
         .status(502)
-        .json({ error: "Eroare BYBIT: " + r.status + " " + r.statusText });
+        .json({ error: "Eroare Coinpaprika: " + r.status + " " + r.statusText });
     }
 
-    const json = await r.json();
-
-    if (!json.result || !json.result.list) {
-      return res.status(500).json({ error: "Format invalid BYBIT" });
+    const data = await r.json();
+    if (!Array.isArray(data)) {
+      return res.status(500).json({ error: "Date invalide Coinpaprika" });
     }
 
-    const candles = json.result.list.map(c => ({
-      timestamp: parseInt(c[0]),
-      open: parseFloat(c[1]),
-      high: parseFloat(c[2]),
-      low: parseFloat(c[3]),
-      close: parseFloat(c[4]),
-      volume: parseFloat(c[5])
+    // Coinpaprika dă: { time_open, open, high, low, close, volume, ... }
+    const candles = data.map(c => ({
+      timestamp: new Date(c.time_open).getTime(),  // ms
+      open: c.open,
+      high: c.high,
+      low: c.low,
+      close: c.close,
+      volume: c.volume
     }));
 
-    res.status(200).json(candles.reverse()); // Bybit trimite invers
+    res.status(200).json(candles);
   } catch (e) {
+    console.error(e);
     res.status(500).json({ error: "Server error", details: e.message });
   }
 }
