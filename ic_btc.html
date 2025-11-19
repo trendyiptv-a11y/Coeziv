@@ -124,16 +124,16 @@ function computeIC(close, volume) {
   return ema(clipped.map(v=>v*100),p.smooth);
 }
 
-// ----------- FETCH din BACKEND-ul Vercel (/api/btc) -----------
+// --------- FETCH STATIC din btc_ohlc.json ---------
 async function fetchBTC() {
-  const res = await fetch("/api/btc"); // absolut, nu ./api/btc
+  const res = await fetch("btc_ohlc.json"); // fișierul din același folder
   if (!res.ok) {
-    throw new Error("Backend error: " + res.status);
+    throw new Error("Nu pot încărca btc_ohlc.json (" + res.status + ")");
   }
 
   const data = await res.json();
   if (!Array.isArray(data)) {
-    throw new Error("Date invalide de la backend");
+    throw new Error("Format invalid în btc_ohlc.json");
   }
 
   // data = [{timestamp, open, high, low, close, volume}, ...]
