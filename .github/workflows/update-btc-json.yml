@@ -5,6 +5,7 @@ on:
     paths:
       - "data/btc_daily.csv"
       - "scripts/csv_to_json.py"
+  workflow_dispatch:
 
 jobs:
   build:
