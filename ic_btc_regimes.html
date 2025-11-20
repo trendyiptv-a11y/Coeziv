@@ -788,15 +788,50 @@
       const lastTs = timestamps[timestamps.length - 1];
       const lastDate = DateTime.fromMillis(lastTs).toISODate();
 
-      // regimul care include ultima dată
-      const current = regimes.find(r => lastTs >= r.start && lastTs <= r.end);
+      // -------- Regim curent bazat pe model coeziv (nu pe regimuri istorice) --------
 
-      if (!current) {
-        labelEl.textContent = "neutru";
-        labelEl.className = "current-regime-value current-regime-value--neutral";
-        metaEl.textContent = `Ultima dată (${lastDate}) nu se încadrează într-un regim bull / bear clar după modelul coeziv.`;
-        return;
-      }
+// extragem ultimul punct
+const lastIdx = timestamps.length - 1;
+const lastPriceTs = timestamps[lastIdx];
+const lastDateObj = DateTime.fromMillis(lastPriceTs).toFormat("yyyy-MM-dd");
+
+// indicatorii coezivi (ultimele valori)
+const lastStruct = ic_struct[ic_struct.length - 1];
+const lastDir    = ic_dir[ic_dir.length - 1];
+
+// praguri folosite de model (aceleași ca la detecția istorică)
+const structHigh = structThresholdHigh;
+const dirHigh    = dirThresholdHigh;
+const dirLow     = dirThresholdLow;
+
+let currentType = "neutral";
+
+if (lastStruct >= structHigh && lastDir >= dirHigh) {
+    currentType = "bull";
+}
+else if (lastStruct >= structHigh && lastDir <= dirLow) {
+    currentType = "bear";
+}
+
+// ---------------------------------------------------
+// Afișare în UI
+// ---------------------------------------------------
+
+if (currentType === "bull") {
+    labelEl.textContent = "bull market";
+    labelEl.className = "current-regime-value current-regime-bull";
+    metaEl.textContent = `Structură ridicată + direcționalitate puternic pozitivă (${lastDateObj}).`;
+}
+else if (currentType === "bear") {
+    labelEl.textContent = "bear market";
+    labelEl.className = "current-regime-value current-regime-bear";
+    metaEl.textContent = `Structură ridicată + direcționalitate foarte scăzută (${lastDateObj}).`;
+}
+else {
+    labelEl.textContent = "neutru";
+    labelEl.className = "current-regime-value current-regime-neutral";
+    metaEl.textContent = `Structură / direcționalitate mixte (${lastDateObj}).`;
+}
 
       const start = DateTime.fromMillis(current.start).toISODate();
       const end   = DateTime.fromMillis(current.end).toISODate();
