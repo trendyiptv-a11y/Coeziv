@@ -672,9 +672,32 @@
           startIndex = label ? i : null;
         }
       }
+// După parcurgerea tuturor punctelor:
+  // dacă mai există un regim "deschis" (bull sau bear),
+  // îl închidem la ultima dată din serie.
+  if (currentType && startIndex != null) {
+    const endIndex = timestamps.length - 1;
+    const startTs = timestamps[startIndex];
+    const endTs = timestamps[endIndex];
 
-      return regimes;
+    if (startTs != null && endTs != null) {
+      const days =
+        (endTs - startTs) / (1000 * 60 * 60 * 24);
+      if (days >= MIN_DAYS) {
+        regimes.push({
+          type: currentType,
+          startIndex,
+          endIndex,
+          start: startTs,
+          end: endTs,
+          durationDays: Math.round(days),
+        });
+      }
     }
+  }
+
+  return regimes;
+}
 
     // --------- Plugin Chart.js pentru fundal bull / bear ---------
 
