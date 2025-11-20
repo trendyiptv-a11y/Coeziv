@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta
     name="description"
-    content="Regimuri bull & bear pentru BTCUSDT detectate automat cu modelul coeziv (structură + direcționalitate), pe date zilnice (~2010–prezent)."
+    content="Regimuri bull & bear și cicluri coezive complete pentru BTCUSDT detectate automat cu modelul coeziv (structură + direcționalitate), pe date zilnice (~2010–prezent)."
   />
 
   <!-- Luxon + Chart.js -->
@@ -426,6 +426,22 @@
     body.no-scroll {
       overflow: hidden;
     }
+
+    /* ciclu coeziv tag */
+    .cycle-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.8rem;
+      color: var(--text-soft);
+    }
+
+    .cycle-swatch {
+      width: 0.8rem;
+      height: 0.8rem;
+      border-radius: 0.2rem;
+      background: linear-gradient(135deg, #22d3ee, #a855f7);
+    }
   </style>
 </head>
 <body>
@@ -459,7 +475,7 @@
       </a>
     </header>
 
-    <!-- Switch mod -->
+    <!-- Switch mod bull/bear -->
     <div class="mode-toggle">
       <button id="modeConservative" class="mode-btn active">
         Conservator
@@ -471,7 +487,7 @@
       </button>
     </div>
 
-    <!-- Statistici -->
+    <!-- Statistici bull/bear -->
     <section class="grid">
       <article class="card">
         <div class="card-title">Număr regimuri bull detectate</div>
@@ -510,7 +526,7 @@
       </article>
     </section>
 
-    <!-- Grafic -->
+    <!-- Grafic bull/bear -->
     <section class="card chart-card">
       <div class="chart-title">Regimuri bull &amp; bear pe preț BTC</div>
       <div class="chart-sub">
@@ -534,7 +550,7 @@
       </div>
     </section>
 
-    <!-- Tabel -->
+    <!-- Tabel bull/bear -->
     <section class="card">
       <div class="chart-title">Perioade bull &amp; bear detectate</div>
       <div class="chart-sub">
@@ -563,16 +579,66 @@
         Nu reprezintă recomandare financiară.
       </p>
     </section>
+
+    <!-- Cicluri coezive complete -->
+    <section class="card chart-card">
+      <div class="chart-title">
+        Cicluri coezive complete BTC
+      </div>
+      <div class="chart-sub">
+        Cicluri mari între două baze structurale consecutive (Faza 0): de la o zonă de structură minimă și direcție neutră, prin bull/bear interne, până la următoarea zonă stabilă.
+      </div>
+
+      <div class="chart-wrapper">
+        <div class="legend-inline">
+          <span class="legend-color price"></span> BTCUSDT close (1D)
+          <span class="cycle-label">
+            <span class="cycle-swatch"></span> cicluri coezive (C1, C2, C3…)
+          </span>
+        </div>
+        <canvas id="cycleChart"></canvas>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="chart-title">Cicluri coezive complete – structură</div>
+      <div class="chart-sub">
+        Intervalele dintre două baze structurale consecutive, estimate din IC_BTC structural și ICD_BTC direcțional. Un ciclu complet include faze de acumulare, bull, bear și reechilibrare.
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Ciclu</th>
+            <th>Început</th>
+            <th>Sfârșit</th>
+            <th>Durată (zile)</th>
+          </tr>
+        </thead>
+        <tbody id="cycleTableBody">
+          <tr>
+            <td colspan="4">Se încarcă ciclurile coezive...</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p class="note">
+        Ciclurile coezive sunt nivelul „macro” al modelului: agregă mai multe regimuri bull/bear interne într-o singură structură de tip 2π (bază → acumulare → bull → top → bear → reechilibrare → nouă bază).
+        Sunt utile pentru înțelegerea marilor faze ale Bitcoin, nu pentru timing pe termen scurt.
+      </p>
+    </section>
   </main>
 
   <script>
     const DateTime = luxon.DateTime;
 
-    // globale pentru moduri
+    // globale pentru moduri și cicluri
     let regimesConservative = [];
     let regimesPractical = [];
     let timestampsGlobal = [];
     let priceChart = null;
+    let cycleChart = null;
+    let cyclesCohesive = [];
     let currentMode = "conservative";
 
     const MS_PER_DAY = 1000 * 60 * 60 * 24;
@@ -835,6 +901,89 @@
       return practical;
     }
 
+    // ---------- detectare cicluri coezive complete ----------
+    function computeCohesiveCycles(icStruct, icDir, timestamps) {
+      const n = icStruct.length;
+      const cycles = [];
+      if (!n) return cycles;
+
+      const structVals = icStruct.filter(v => Number.isFinite(v));
+      if (!structVals.length) return cycles;
+
+      const q25Struct = quantile(structVals, 0.25);
+      const BASE_MIN_DAYS = 14;
+
+      const baseFlags = new Array(n).fill(false);
+
+      for (let i = 0; i < n; i++) {
+        const s = icStruct[i];
+        const d = icDir[i];
+        if (!Number.isFinite(s) || !Number.isFinite(d)) continue;
+        if (s < q25Struct && d > 45 && d < 55) {
+          baseFlags[i] = true;
+        }
+      }
+
+      // identificăm segmente de bază consecutive
+      const bases = [];
+      let segStart = null;
+
+      for (let i = 0; i < n; i++) {
+        if (baseFlags[i]) {
+          if (segStart == null) segStart = i;
+        } else {
+          if (segStart != null) {
+            const segEnd = i - 1;
+            const lenDays =
+              (timestamps[segEnd] - timestamps[segStart]) / MS_PER_DAY;
+            if (lenDays >= BASE_MIN_DAYS) {
+              const midIndex = Math.floor((segStart + segEnd) / 2);
+              bases.push({
+                startIndex: segStart,
+                endIndex: segEnd,
+                midIndex,
+                midTs: timestamps[midIndex],
+              });
+            }
+            segStart = null;
+          }
+        }
+      }
+      // cazul în care segmentul continuă până la final
+      if (segStart != null) {
+        const segEnd = n - 1;
+        const lenDays =
+          (timestamps[segEnd] - timestamps[segStart]) / MS_PER_DAY;
+        if (lenDays >= BASE_MIN_DAYS) {
+          const midIndex = Math.floor((segStart + segEnd) / 2);
+          bases.push({
+            startIndex: segStart,
+            endIndex: segEnd,
+            midIndex,
+            midTs: timestamps[midIndex],
+          });
+        }
+      }
+
+      if (bases.length < 2) return cycles;
+
+      // construim cicluri între baze consecutive
+      for (let i = 0; i < bases.length - 1; i++) {
+        const startTs = bases[i].midTs;
+        const endTs = bases[i + 1].midTs;
+        if (startTs >= endTs) continue;
+        const days = (endTs - startTs) / MS_PER_DAY;
+        cycles.push({
+          index: i + 1,
+          start: startTs,
+          end: endTs,
+          durationDays: Math.round(days),
+        });
+      }
+
+      return cycles;
+    }
+
     // ---------- plugin fundal bull/bear ----------
     const regimeBackgroundPlugin = {
       id: "regimeBackground",
@@ -868,7 +1017,41 @@
       },
     };
 
-    Chart.register(regimeBackgroundPlugin);
+    // ---------- plugin fundal cicluri coezive ----------
+    const cycleBackgroundPlugin = {
+      id: "cycleBackground",
+      beforeDraw(chart, args, opts) {
+        const cycles = opts && opts.cycles;
+        if (!cycles || !cycles.length) return;
+        const { ctx, chartArea, scales } = chart;
+        const xScale = scales.x;
+        if (!xScale) return;
+
+        ctx.save();
+        cycles.forEach((c, idx) => {
+          const xStart = xScale.getPixelForValue(c.start);
+          const xEnd = xScale.getPixelForValue(c.end);
+          if (!Number.isFinite(xStart) || !Number.isFinite(xEnd)) return;
+          const width = xEnd - xStart;
+          if (!Number.isFinite(width) || width <= 0) return;
+
+          // alternăm nuanțele pentru cicluri
+          const even = idx % 2 === 0;
+          ctx.fillStyle = even
+            ? "rgba(56,189,248,0.10)"
+            : "rgba(168,85,247,0.10)";
+          ctx.fillRect(
+            xStart,
+            chartArea.top,
+            width,
+            chartArea.bottom - chartArea.top
+          );
+        });
+        ctx.restore();
+      },
+    };
+
+    Chart.register(regimeBackgroundPlugin, cycleBackgroundPlugin);
 
     // ---------- UI helpers ----------
     function updateStats(regimes) {
@@ -983,6 +1166,44 @@
       }
     }
 
+    function updateCycleTable(cycles) {
+      const tbody = document.getElementById("cycleTableBody");
+      tbody.innerHTML = "";
+
+      if (!cycles.length) {
+        const tr = document.createElement("tr");
+        const td = document.createElement("td");
+        td.colSpan = 4;
+        td.textContent =
+          "Nu au fost identificate cicluri coezive complete pentru datele curente.";
+        tr.appendChild(td);
+        tbody.appendChild(tr);
+        return;
+      }
+
+      cycles.forEach(c => {
+        const tr = document.createElement("tr");
+
+        const tdIdx = document.createElement("td");
+        tdIdx.textContent = "Ciclu " + c.index;
+        tr.appendChild(tdIdx);
+
+        const tdStart = document.createElement("td");
+        tdStart.textContent = formatDate(c.start);
+        tr.appendChild(tdStart);
+
+        const tdEnd = document.createElement("td");
+        tdEnd.textContent = formatDate(c.end);
+        tr.appendChild(tdEnd);
+
+        const tdDur = document.createElement("td");
+        tdDur.textContent = c.durationDays.toString();
+        tr.appendChild(tdDur);
+
+        tbody.appendChild(tr);
+      });
+    }
+
     function renderForMode(mode) {
       const regimes =
         mode === "practical" ? regimesPractical : regimesConservative;
@@ -1035,6 +1256,9 @@
           timestamps
         );
 
+        cyclesCohesive = computeCohesiveCycles(icStruct, icDir, timestamps);
+
+        // grafic bull/bear
         const ctx = document.getElementById("regimeChart");
         const chartData = points.map(p => ({ x: p.t, y: p.c }));
 
@@ -1046,7 +1270,7 @@
                 label: "BTCUSDT close (1D)",
                 data: chartData,
                 borderColor: "rgba(56,189,248,1)",
-                borderWidth: 1.4,
+                borderWidth: 1.6,
                 pointRadius: 0,
                 pointHitRadius: 6,
                 tension: 0.08,
@@ -1118,6 +1342,91 @@
             },
           },
         });
+
+        // grafic cicluri
+        const ctxCycle = document.getElementById("cycleChart");
+        if (ctxCycle) {
+          cycleChart = new Chart(ctxCycle, {
+            type: "line",
+            data: {
+              datasets: [
+                {
+                  label: "BTCUSDT close (1D)",
+                  data: chartData,
+                  borderColor: "rgba(56,189,248,1)",
+                  borderWidth: 1.6,
+                  pointRadius: 0,
+                  pointHitRadius: 6,
+                  tension: 0.08,
+                },
+              ],
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              interaction: {
+                mode: "index",
+                intersect: false,
+              },
+              plugins: {
+                legend: { display: false },
+                tooltip: {
+                  callbacks: {
+                    title(items) {
+                      if (!items.length) return "";
+                      const ts = items[0].parsed.x;
+                      return DateTime.fromMillis(ts).toFormat("dd LLL yyyy");
+                    },
+                    label(ctx) {
+                      const v = ctx.parsed.y;
+                      if (!Number.isFinite(v)) return "";
+                      return (
+                        " BTCUSDT close: " +
+                        v.toLocaleString("en-US", {
+                          maximumFractionDigits: 2,
+                        })
+                      );
+                    },
+                  },
+                },
+                cycleBackground: {
+                  cycles: cyclesCohesive,
+                },
+              },
+              scales: {
+                x: {
+                  type: "time",
+                  time: { unit: "year" },
+                  ticks: {
+                    maxRotation: 0,
+                    autoSkipPadding: 24,
+                    color: "rgba(148,163,184,0.9)",
+                    font: { size: 11 },
+                  },
+                  grid: {
+                    color: "rgba(30,64,175,0.18)",
+                  },
+                },
+                y: {
+                  ticks: {
+                    color: "rgba(148,163,184,0.9)",
+                    callback(value) {
+                      if (!Number.isFinite(value)) return "";
+                      return value.toLocaleString("en-US", {
+                        maximumFractionDigits: 0,
+                      });
+                    },
+                  },
+                  grid: {
+                    color: "rgba(30,64,175,0.15)",
+                  },
+                },
+              },
+            },
+          });
+        }
+
+        updateCycleTable(cyclesCohesive);
 
         // ------- Fullscreen pentru graficul de preț -------
         const wrapperEl = document.getElementById("priceChartWrapper");
