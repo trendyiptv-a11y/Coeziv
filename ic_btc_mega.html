@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" />
+  <title>Mega-ciclul coeziv BTC – poziția actuală (2014–2025)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta
+    name="description"
+    content="Mega-ciclul coeziv al Bitcoin (2014–2025) în Modelul Coeziv: structură, direcționalitate și faza actuală (bull târziu / început de top structural)."
+  />
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg:#020617; --card:#020617;
+      --card-border:rgba(148,163,184,.35);
+      --text-main:#e5e7eb; --text-soft:#94a3b8; --muted:#64748b;
+      --accent:#4f46e5; --success:#22c55e; --cyan:#22d3ee; --violet:#a855f7;
+    }
+    *{box-sizing:border-box;}
+    body{
+      margin:0;min-height:100vh;
+      font-family:system-ui,-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-serif;
+      background:radial-gradient(circle at top,#020617 0,#000 55%,#020617 100%);
+      color:var(--text-main);-webkit-font-smoothing:antialiased;
+    }
+    .page{max-width:960px;margin:0 auto;padding:1.5rem 1.5rem 3rem;}
+    header h1{margin:0 0 .5rem;font-size:1.7rem;letter-spacing:.02em;}
+    header p{margin:0;font-size:.92rem;color:var(--text-soft);max-width:720px;}
+    .pill-row{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.9rem;}
+    .pill{
+      display:inline-flex;align-items:center;gap:.35rem;
+      padding:.35rem .9rem;border-radius:999px;
+      border:1px solid rgba(148,163,184,.3);
+      font-size:.78rem;color:var(--text-soft);
+      background:radial-gradient(circle at top,#020617,#020617);
+    }
+    .pill-dot{width:.55rem;height:.55rem;border-radius:999px;background:var(--accent);}
+    .pill.macro .pill-dot{background:var(--violet);}
+    .pill.phase .pill-dot{background:var(--cyan);}
+    .pill.coheziv .pill-dot{background:var(--success);}
+    .back-row{display:flex;flex-wrap:wrap;gap:.5rem;margin:1.2rem 0 .9rem;}
+    .back-btn{
+      display:inline-flex;align-items:center;gap:.35rem;
+      font-size:.8rem;padding:.45rem .9rem;border-radius:999px;
+      border:1px solid rgba(148,163,184,.4);
+      background:rgba(15,23,42,.9);color:var(--text-main);
+      text-decoration:none;
+    }
+    .back-btn .icon{font-size:1rem;}
+    .section-title{margin-top:1.6rem;margin-bottom:.4rem;font-size:1.1rem;font-weight:600;}
+    .section-sub{margin:0;font-size:.85rem;color:var(--text-soft);max-width:720px;}
+    .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.9rem;margin-top:1rem;}
+    @media(max-width:768px){.grid{grid-template-columns:1fr;}}
+    .card{
+      border-radius:1rem;padding:.9rem 1rem;
+      background:radial-gradient(circle at top,#020617,#020617);
+      border:1px solid var(--card-border);
+      box-shadow:0 18px 45px rgba(15,23,42,.85);
+    }
+    .card-header{display:flex;justify-content:space-between;align-items:center;gap:.75rem;margin-bottom:.3rem;}
+    .card-tag{font-size:.7rem;text-transform:uppercase;letter-spacing:.14em;color:var(--muted);}
+    .card-chip{
+      padding:.25rem .65rem;border-radius:999px;font-size:.7rem;
+      border:1px solid rgba(148,163,184,.4);color:var(--text-soft);
+    }
+    .card-chip.phase-now{border-color:var(--success);}
+    .card-chip.mega{border-color:var(--violet);}
+    .card-title{font-size:.96rem;font-weight:600;margin-bottom:.25rem;}
+    .card-period{font-size:.8rem;color:var(--muted);margin-bottom:.35rem;}
+    .card-body{font-size:.82rem;color:var(--text-soft);line-height:1.5;}
+    .card-body strong{color:var(--text-main);font-weight:500;}
+    .badge{
+      display:inline-flex;align-items:center;
+      padding:.18rem .65rem;border-radius:999px;
+      font-size:.72rem;border:1px solid rgba(148,163,184,.4);
+      color:var(--text-soft);margin-right:.35rem;margin-top:.2rem;
+    }
+    .badge.struct{border-color:#22c55e;color:#bbf7d0;}
+    .badge.dir{border-color:#22d3ee;color:#a5f3fc;}
+    .badge.reg{border-color:#f97316;color:#fed7aa;}
+    .badge.macro{border-color:#a855f7;color:#e9d5ff;}
+    .note{margin-top:1.1rem;font-size:.8rem;color:var(--text-soft);line-height:1.5;}
+    .note strong{color:var(--text-main);font-weight:500;}
+    .timeline{position:relative;margin-top:1.1rem;padding-left:1.5rem;border-left:1px dashed rgba(148,163,184,.4);}
+    .timeline-item{position:relative;margin-bottom:1rem;padding-left:.6rem;}
+    .timeline-dot{
+      position:absolute;left:-1.05rem;top:.22rem;
+      width:.7rem;height:.7rem;border-radius:999px;
+      background:radial-gradient(circle at 30% 20%,#22d3ee,#4f46e5);
+      box-shadow:0 0 0 3px rgba(59,130,246,.28);
+    }
+    .timeline-label{font-size:.78rem;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:.1rem;}
+    .timeline-title{font-size:.9rem;font-weight:600;margin-bottom:.15rem;}
+    .timeline-body{font-size:.8rem;color:var(--text-soft);max-width:680px;}
+    table{width:100%;border-collapse:collapse;margin-top:.7rem;font-size:.8rem;}
+    th,td{padding:.45rem .55rem;text-align:left;}
+    thead tr{background:rgba(15,23,42,.95);}
+    th{
+      font-size:.72rem;text-transform:uppercase;
+      letter-spacing:.14em;color:var(--muted);
+      border-bottom:1px solid rgba(51,65,85,.9);
+    }
+    tbody tr:nth-child(odd){background:rgba(15,23,42,.5);}
+    tbody tr:nth-child(even){background:rgba(15,23,42,.8);}
+    td{border-bottom:1px solid rgba(30,41,59,.75);color:#e5e7eb;}
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>Mega-ciclul coeziv BTC (2014–2025)</h1>
+      <p>
+        Interpretare macro a pieței Bitcoin în Modelul Coeziv: cum arată mega-ciclul
+        început după 2014 și unde ne aflăm acum, pe baza indicilor IC_BTC (structural),
+        ICD_BTC (direcțional) și a regimurilor bull/bear interne.
+      </p>
+
+      <div class="pill-row">
+        <div class="pill macro">
+          <span class="pill-dot"></span>
+          <span>Mega-ciclu structural BTC (după 2014)</span>
+        </div>
+        <div class="pill phase">
+          <span class="pill-dot"></span>
+          <span>Faza actuală: bull târziu / început de top structural (macro)</span>
+        </div>
+        <div class="pill coheziv">
+          <span class="pill-dot"></span>
+          <span>Model Coeziv – structură + direcționalitate, nu narațiune clasică</span>
+        </div>
+      </div>
+
+      <div class="back-row">
+        <a href="ic_btc.html" class="back-btn">
+          <span class="icon">←</span><span>Indice IC_BTC</span>
+        </a>
+        <a href="ic_btc_regimes.html" class="back-btn">
+          <span class="icon">📈</span><span>Regimuri Bull/Bear</span>
+        </a>
+        <a href="ic_btc_map.html" class="back-btn">
+          <span class="icon">🗺️</span><span>Harta coezivă</span>
+        </a>
+      </div>
+    </header>
+
+    <!-- 1. Poziția actuală -->
+    <section>
+      <h2 class="section-title">1. Unde suntem acum în mega-ciclu</h2>
+      <p class="section-sub">
+        Ne uităm la mega-ciclul BTC post-2014 ca la un singur arc structural. Întrebarea:
+        în acest arc, Modelul Coeziv unde plasează starea actuală a pieței?
+      </p>
+
+      <div class="grid" style="margin-top:1rem;">
+        <article class="card">
+          <div class="card-header">
+            <div class="card-tag">Faza curentă</div>
+            <span class="card-chip phase-now">stare macro</span>
+          </div>
+          <div class="card-title">Bull târziu / început de top structural</div>
+          <div class="card-period">În interiorul mega-ciclului post-2014.</div>
+          <div class="card-body">
+            Pe baza indicilor coezivi:
+            <div class="badges">
+              <span class="badge struct">Structură ridicată, în răcire</span>
+              <span class="badge dir">Direcționalitate pozitivă, dar instabilă</span>
+              <span class="badge reg">Sub-cicluri bull/bear dese</span>
+            </div>
+            <br/>
+            Asta indică o zonă în care:
+            <ul style="margin:.25rem 0 0 1rem;padding:0;">
+              <li><strong>nu</strong> suntem în acumulare timpurie,</li>
+              <li><strong>nu</strong> suntem într-o bază structurală nouă,</li>
+              <li><strong>nu</strong> avem încă o capitulație finală clară,</li>
+              <li>dar intrăm într-o fază de <strong>bull târziu / pre-top macro</strong>.</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="card-header">
+            <div class="card-tag">Poziție relativă</div>
+            <span class="card-chip mega">mega-ciclu</span>
+          </div>
+          <div class="card-title">~ 70–85% din mega-ciclu (estimativ)</div>
+          <div class="card-period">0% = baza 2014–2015, 100% = baza următoare.</div>
+          <div class="card-body">
+            Conceptual, mega-ciclul este normalizat:
+            <ul style="margin:.25rem 0 0 1rem;padding:0;">
+              <li><strong>0%</strong> – baza structurală profundă de după 2014,</li>
+              <li><strong>100%</strong> – viitoarea bază structurală (încă neobservată).</li>
+            </ul>
+            Structura și direcționalitatea actuale sugerează o poziție
+            aproximativă în intervalul <strong>70–85%</strong> – suficient
+            de avansat pentru a vorbi de o fază superioară, dar fără a declara
+            mega-ciclul închis.
+          </div>
+        </article>
+      </div>
+
+      <p class="note">
+        <strong>Notă:</strong> modelul nu „prezice prețul”, ci descrie starea
+        structurală a sistemului: cât de organizat este trendul, cum se aliniază
+        fluxul și cât de aproape suntem de o nouă bază profundă.
+      </p>
+    </section>
+
+    <!-- 2. Ce înseamnă mega-ciclu coeziv -->
+    <section>
+      <h2 class="section-title">2. Ce este un mega-ciclu coeziv BTC</h2>
+      <p class="section-sub">
+        Un mega-ciclu coeziv nu este „un bull market de câțiva ani”, ci un arc complet
+        între două baze structurale mari (Faza 0 → Faza 0), în sensul Modelului Coeziv.
+      </p>
+
+      <div class="card" style="margin-top:1rem;">
+        <div class="card-header">
+          <div class="card-tag">Definiție coezivă</div>
+        </div>
+        <div class="card-title">Arc complet între două baze structurale profunde</div>
+        <div class="card-body">
+          Mega-ciclul BTC este considerat complet doar dacă:
+          <ul style="margin:.35rem 0 0 1rem;padding:0;">
+            <li><strong>IC_BTC structural</strong> revine într-o zonă foarte joasă
+                (structură minimă, lipsă de trend coerent),</li>
+            <li><strong>ICD_BTC direcțional</strong> devine aproape neutru
+                (flux dispersat, fără direcție clară),</li>
+            <li>piața intră într-o <strong>fază de compresie și stabilizare</strong>,</li>
+            <li>după care pornește un nou arc: acumulare → bull → top → bear → reechilibrare.</li>
+          </ul>
+          Între 2010–2014, acest tipar a fost atins de mai multe ori (cicluri complete).
+          După 2014, modelul observă un singur <strong>mega-ciclu deschis</strong>, la
+          care încă nu s-a format o bază nouă echivalentă cu cele din perioada timpurie.
+          <div style="margin-top:.4rem;">
+            <span class="badge struct">IC_BTC – structură</span>
+            <span class="badge dir">ICD_BTC – direcționalitate</span>
+            <span class="badge macro">Bază coezivă – Faza 0</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. Faze interne (simplificat) -->
+    <section>
+      <h2 class="section-title">3. Faze interne ale mega-ciclului post-2014</h2>
+      <p class="section-sub">
+        Regimurile bull/bear pe care le vezi în pagina de regimuri sunt
+        sub-cicluri interne ale unui singur mega-ciclu structural, nu
+        mega-cicluri separate.
+      </p>
+
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-label">Faza A</div>
+          <div class="timeline-title">Baza post-2014 și noua acumulare</div>
+          <div class="timeline-body">
+            Sistemul iese din structura „primitivă” 2010–2014 și intră într-o
+            <strong>bază mai înaltă</strong>: structură joasă, dar mai matură,
+            direcționalitate care se reconfigurează, început de mega-ciclu.
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-label">Faza B</div>
+          <div class="timeline-title">Expansiuni și corecții interne</div>
+          <div class="timeline-body">
+            În interiorul mega-ciclului apar:
+            <ul style="margin:.25rem 0 0 1rem;padding:0;">
+              <li>faze de <strong>bull structural</strong> (IC ridicat, direcție aliniată),</li>
+              <li>faze de <strong>bear structural</strong> (IC ridicat, direcție inversă),</li>
+              <li>perioade de consolidare.</li>
+            </ul>
+            Toate acestea sunt <strong>sub-cicluri</strong>, nu mega-cicluri
+            separate – ele descriu „respirația internă” a sistemului.
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-label">Faza C</div>
+          <div class="timeline-title">Faza superioară – bull târziu / pre-top</div>
+          <div class="timeline-body">
+            Structura rămâne ridicată, dar începe să se răcească; direcționalitatea
+            devine mai instabilă; apar mai multe inversări locale bull/bear.
+            Modelul interpretează această configurație ca o fază de
+            <strong>bull târziu / început de top structural macro</strong>.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. Rezumat tabelar -->
+    <section>
+      <h2 class="section-title">4. Rezumat coeziv</h2>
+      <p class="section-sub">
+        Sinteza poziției actuale, în termenii Modelului Coeziv, fără a intra
+        în predicții de preț sau recomandări.
+      </p>
+
+      <div class="card" style="margin-top:.9rem;">
+        <table>
+          <thead>
+            <tr>
+              <th>Dimensiune</th>
+              <th>Interpretare</th>
+              <th>Stare aproximativă (2025)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Mega-ciclu BTC</td>
+              <td>Arc structural între două baze profunde.</td>
+              <td>Un singur mega-ciclu post-2014, încă deschis.</td>
+            </tr>
+            <tr>
+              <td>Poziție în mega-ciclu</td>
+              <td>0% = baza 2014–2015, 100% = baza următoare.</td>
+              <td>~70–85% – zonă superioară / pre-top structural.</td>
+            </tr>
+            <tr>
+              <td>Structură (IC_BTC)</td>
+              <td>Calitatea și persistența trendului macro.</td>
+              <td>Ridicată, în răcire; departe de o bază nouă.</td>
+            </tr>
+            <tr>
+              <td>Direcționalitate (ICD_BTC)</td>
+              <td>Alinierea fluxului cu trendul.</td>
+              <td>Predominant pozitivă, dar fragmentată.</td>
+            </tr>
+            <tr>
+              <td>Regimuri bull/bear</td>
+              <td>Sub-cicluri interne ale mega-ciclului.</td>
+              <td>Multiple, dese, fără resetare structurală completă.</td>
+            </tr>
+            <tr>
+              <td>Mesaj coeziv</td>
+              <td>Stare structurală, nu predicție de preț.</td>
+              <td><strong>Bull târziu / început de top structural macro</strong>.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <p class="note">
+          <strong>Concluzie:</strong> Modelul Coeziv nu spune „urmează sigur X sau Y”.
+          El spune că, în termenii structurii și direcționalității, Bitcoin se află
+          într-o fază superioară a mega-ciclului început după 2014, mai aproape de
+          o viitoare resetare structurală decât de o nouă acumulare timpurie.
+        </p>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
