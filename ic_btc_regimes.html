@@ -4,25 +4,33 @@
   <meta charset="UTF-8" />
   <title>Regimuri bull / bear – model coeziv BTC</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <!-- Luxon + Chart.js + adapter -->
-  <script src="https://cdn.jsdelivr.net/npm/luxon@3/build/global/luxon.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Chart.js + Luxon (pentru axa de timp) -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/luxon@3.4.4/build/global/luxon.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.3.1/dist/chartjs-adapter-luxon.umd.min.js"></script>
 
   <style>
     :root {
-      color-scheme: dark;
-      --bg: #020617;
-      --bg-card: #020617;
-      --bg-card-soft: #020617;
-      --fg: #e5e7eb;
-      --fg-muted: #9ca3af;
-      --accent: #38bdf8;
-      --accent-soft: rgba(56,189,248,0.15);
-      --bull: #22c55e;
-      --bear: #f97373;
-      --border-soft: rgba(148,163,184,0.3);
-      --shadow-soft: 0 18px 40px rgba(15,23,42,0.9);
+      --bg: #050816;
+      --bg-soft: #0b1020;
+      --card: #111827;
+      --card-soft: #1f2937;
+      --border-subtle: rgba(156, 163, 175, 0.18);
+      --accent: #2563eb;
+      --accent-soft: rgba(37, 99, 235, 0.15);
+      --text-main: #f9fafb;
+      --text-muted: #9ca3af;
+      --bull: rgba(34, 197, 94, 0.18);
+      --bear: rgba(248, 113, 113, 0.18);
+      --bull-pill-bg: rgba(34, 197, 94, 0.16);
+      --bull-pill-text: #bbf7d0;
+      --bear-pill-bg: rgba(248, 113, 113, 0.16);
+      --bear-pill-text: #fecaca;
+      --shadow-soft: 0 18px 45px rgba(15, 23, 42, 0.9);
       --radius-xl: 22px;
     }
 
@@ -32,662 +40,660 @@
 
     body {
       margin: 0;
-      min-height: 100vh;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
-        "Inter", sans-serif;
-      background: radial-gradient(circle at 10% 0%, #0f172a 0, #020617 40%, #000 100%);
-      color: var(--fg);
-      padding: 16px;
+      padding: 24px 12px 42px;
+      font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #0b1120 0, #020617 55%, #000 100%);
+      color: var(--text-main);
+      -webkit-font-smoothing: antialiased;
     }
 
-    .shell {
-      max-width: 1080px;
-      margin: 0 auto 80px auto;
+    .page {
+      max-width: 1160px;
+      margin: 0 auto;
     }
 
     h1 {
-      font-size: 1.6rem;
-      letter-spacing: 0.02em;
-      margin: 0;
+      font-size: 1.7rem;
+      margin: 0 0 6px;
+      letter-spacing: 0.01em;
     }
 
-    .subtitle {
-      margin-top: 10px;
-      color: var(--fg-muted);
+    .subheadline {
       font-size: 0.9rem;
+      color: var(--text-muted);
       line-height: 1.5;
+      max-width: 720px;
     }
 
-    .pill {
+    .badge-row {
+      margin-top: 18px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .badge {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       padding: 6px 12px;
       border-radius: 999px;
-      border: 1px solid rgba(148,163,184,0.5);
-      background: radial-gradient(circle at 0 0, rgba(56,189,248,0.35), transparent 55%);
-      font-size: 0.8rem;
-      color: #e5f3ff;
-      margin-top: 14px;
+      font-size: 0.78rem;
+      letter-spacing: 0.02em;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      background: radial-gradient(circle at top left, rgba(79, 70, 229, 0.3), rgba(15, 23, 42, 0.9));
+      color: #e5e7eb;
     }
 
-    .pill-dot {
-      width: 8px;
-      height: 8px;
+    .dot {
+      width: 7px;
+      height: 7px;
       border-radius: 999px;
-      background: #4ade80;
-      box-shadow: 0 0 12px rgba(74,222,128,0.65);
+      background: #60a5fa;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.35);
     }
 
-    .section-card {
-      position: relative;
-      margin-top: 20px;
-      padding: 18px 16px 18px 16px;
-      border-radius: var(--radius-xl);
-      border: 1px solid rgba(148,163,184,0.35);
-      background:
-        radial-gradient(circle at 0 0, rgba(56,189,248,0.12), transparent 55%),
-        radial-gradient(circle at 100% 0, rgba(126,34,206,0.12), transparent 55%),
-        linear-gradient(145deg, rgba(15,23,42,0.98), #020617);
-      box-shadow: var(--shadow-soft);
-      backdrop-filter: blur(18px);
+    .note-pill {
+      background: rgba(15, 23, 42, 0.85);
+      border-color: rgba(55, 65, 81, 0.8);
+      color: #e5e7eb;
     }
 
-    .section-title {
-      font-size: 1.1rem;
-      font-weight: 600;
-      margin-bottom: 4px;
+    .pill-bull {
+      background: var(--bull-pill-bg);
+      border-color: rgba(34, 197, 94, 0.4);
+      color: var(--bull-pill-text);
     }
 
-    .section-subtitle {
-      font-size: 0.9rem;
-      color: var(--fg-muted);
-      margin-bottom: 12px;
+    .pill-bear {
+      background: var(--bear-pill-bg);
+      border-color: rgba(248, 113, 113, 0.4);
+      color: var(--bear-pill-text);
     }
 
-    .chips-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-
-    .chip {
-      font-size: 0.8rem;
-      padding: 6px 10px;
+    .pill-bull::before,
+    .pill-bear::before {
+      content: "";
+      width: 7px;
+      height: 7px;
       border-radius: 999px;
-      border: 1px solid rgba(148,163,184,0.45);
-      color: var(--fg-muted);
-      background: rgba(15,23,42,0.9);
+    }
+
+    .pill-bull::before {
+      background: #22c55e;
+      box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.35);
+    }
+
+    .pill-bear::before {
+      background: #f97373;
+      box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.35);
+    }
+
+    .pill-bull,
+    .pill-bear {
       display: inline-flex;
       align-items: center;
       gap: 6px;
     }
 
-    .chip-bullet {
-      width: 6px;
-      height: 6px;
-      border-radius: 999px;
-      background: rgba(148,163,184,0.9);
-    }
-
     .back-row {
-      margin-top: 18px;
-      display: flex;
-      justify-content: flex-start;
+      margin: 24px 0 14px;
     }
 
     .back-btn {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
-      padding: 7px 12px;
+      gap: 6px;
+      padding: 8px 14px;
       border-radius: 999px;
-      border: 1px solid rgba(148,163,184,0.5);
-      background: rgba(15,23,42,0.96);
-      color: var(--fg);
-      font-size: 0.83rem;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      background: rgba(15, 23, 42, 0.9);
+      color: #e5e7eb;
+      font-size: 0.82rem;
       cursor: pointer;
       text-decoration: none;
     }
 
-    .back-btn span.icon {
-      font-size: 0.8rem;
-      translate: 0 0.5px;
+    .back-btn span:first-child {
+      font-size: 1rem;
+      transform: translateY(-0.5px);
     }
 
-    .grid-two {
+    .back-btn:hover {
+      border-color: rgba(248, 250, 252, 0.85);
+      background: radial-gradient(circle at top left, rgba(248, 250, 252, 0.06), rgba(15, 23, 42, 0.95));
+    }
+
+    .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-      gap: 10px;
-      margin-top: 14px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 14px;
     }
 
-    .metric-card {
-      border-radius: 18px;
-      border: 1px solid rgba(148,163,184,0.4);
-      background: radial-gradient(circle at 0 0, rgba(56,189,248,0.08), transparent 55%),
-                  rgba(15,23,42,0.98);
-      padding: 12px 12px 12px 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
+    @media (max-width: 840px) {
+      .grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
     }
 
-    .metric-label {
-      font-size: 0.77rem;
-      color: var(--fg-muted);
+    .card {
+      background: radial-gradient(circle at top left, rgba(30, 64, 175, 0.25), rgba(15, 23, 42, 0.96));
+      border-radius: var(--radius-xl);
+      border: 1px solid var(--border-subtle);
+      padding: 16px 18px 14px;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .card-muted {
+      background: radial-gradient(circle at top left, rgba(15, 23, 42, 0.85), rgba(2, 6, 23, 0.98));
+    }
+
+    .card-label {
+      font-size: 0.78rem;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
-    }
-
-    .metric-value-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .metric-value {
-      font-size: 1.2rem;
-      font-weight: 600;
-    }
-
-    .metric-pill {
-      padding: 4px 9px;
-      border-radius: 999px;
-      font-size: 0.75rem;
-      border: 1px solid rgba(148,163,184,0.4);
-      background: rgba(15,23,42,0.98);
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .metric-pill.bull {
-      border-color: rgba(34,197,94,0.6);
-      color: #bbf7d0;
-      background: radial-gradient(circle at 0 0, rgba(34,197,94,0.25), transparent 55%);
-    }
-
-    .metric-pill.bear {
-      border-color: rgba(248,113,113,0.6);
-      color: #fecaca;
-      background: radial-gradient(circle at 0 0, rgba(248,113,113,0.25), transparent 55%);
-    }
-
-    .metric-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 999px;
-    }
-
-    .metric-dot.bull {
-      background: #22c55e;
-      box-shadow: 0 0 12px rgba(34,197,94,0.7);
-    }
-
-    .metric-dot.bear {
-      background: #f97373;
-      box-shadow: 0 0 12px rgba(248,113,113,0.7);
-    }
-
-    .chart-card {
-      margin-top: 18px;
-      padding: 14px 10px 14px 10px;
-      border-radius: 20px;
-      border: 1px solid rgba(148,163,184,0.4);
-      background: radial-gradient(circle at 0 0, rgba(56,189,248,0.08), transparent 55%),
-                  radial-gradient(circle at 100% 0, rgba(168,85,247,0.08), transparent 55%),
-                  rgba(15,23,42,0.98);
-    }
-
-    .chart-header {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
+      letter-spacing: 0.14em;
+      color: var(--text-muted);
       margin-bottom: 10px;
     }
 
-    .chart-title {
-      font-size: 0.94rem;
-      font-weight: 500;
-    }
-
-    .legend-inline {
+    .card-value-row {
       display: flex;
-      flex-wrap: wrap;
-      gap: 14px;
-      font-size: 0.78rem;
-      color: var(--fg-muted);
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 8px;
     }
 
-    .legend-row {
+    .card-value {
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+
+    .pill-small {
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      border: 1px solid transparent;
       display: inline-flex;
       align-items: center;
       gap: 6px;
     }
 
-    .legend-swatch {
-      width: 10px;
-      height: 10px;
+    .pill-small.bull {
+      background: var(--bull-pill-bg);
+      border-color: rgba(34, 197, 94, 0.4);
+      color: var(--bull-pill-text);
+    }
+
+    .pill-small.bear {
+      background: var(--bear-pill-bg);
+      border-color: rgba(248, 113, 113, 0.4);
+      color: var(--bear-pill-text);
+    }
+
+    .pill-dot {
+      width: 7px;
+      height: 7px;
       border-radius: 999px;
-      border: 2px solid transparent;
     }
 
-    .legend-swatch.struct {
-      border-color: rgba(56,189,248,1);
+    .pill-dot.bull {
+      background: #22c55e;
     }
 
-    .legend-swatch.dir {
-      border-color: rgba(248,113,113,1);
+    .pill-dot.bear {
+      background: #f97373;
     }
 
-    .legend-label {
-      white-space: nowrap;
+    .card-help {
+      margin-top: 8px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      line-height: 1.45;
+    }
+
+    .chart-card {
+      margin-top: 12px;
+      padding: 18px 18px 18px;
+    }
+
+    .chart-title {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .chart-subtitle {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+
+    .chart-wrapper {
+      position: relative;
+      height: 360px;
+    }
+
+    @media (min-width: 900px) {
+      .chart-wrapper {
+        height: 420px;
+      }
     }
 
     canvas {
-      width: 100%;
-      max-height: 420px;
+      border-radius: 18px;
+      background: radial-gradient(circle at top, #020617, #020617);
+    }
+
+    .table-card {
+      margin-top: 16px;
+    }
+
+    .table-header {
+      font-size: 0.92rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .table-sub {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+
+    .table-wrap {
+      max-height: 260px;
+      overflow: auto;
+      border-radius: 18px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(15, 23, 42, 0.96);
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 14px;
       font-size: 0.8rem;
     }
 
     thead {
-      background: rgba(15,23,42,0.98);
+      position: sticky;
+      top: 0;
+      background: rgba(15, 23, 42, 0.98);
+      backdrop-filter: blur(10px);
+      z-index: 2;
     }
 
     th, td {
-      padding: 8px 9px;
-      border-bottom: 1px solid rgba(51,65,85,0.9);
+      padding: 8px 10px;
       text-align: left;
-      white-space: nowrap;
+      border-bottom: 1px solid rgba(31, 41, 55, 0.85);
     }
 
     th {
-      font-size: 0.78rem;
+      font-weight: 500;
+      color: var(--text-muted);
       text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--fg-muted);
+      letter-spacing: 0.12em;
+      font-size: 0.74rem;
+    }
+
+    tbody tr:last-child td {
+      border-bottom: none;
     }
 
     tbody tr:nth-child(even) {
-      background: rgba(15,23,42,0.7);
+      background: rgba(15, 23, 42, 0.7);
     }
 
-    .regime-badge {
+    .regime-type-pill {
       display: inline-flex;
       align-items: center;
       gap: 6px;
+      padding: 3px 9px;
       border-radius: 999px;
-      padding: 4px 9px;
-      font-size: 0.75rem;
-      border: 1px solid rgba(148,163,184,0.5);
-      background: rgba(15,23,42,0.9);
+      font-size: 0.76rem;
     }
 
-    .regime-badge.bull {
-      border-color: rgba(34,197,94,0.6);
-      color: #bbf7d0;
+    .regime-type-pill.bull {
+      background: var(--bull-pill-bg);
+      color: var(--bull-pill-text);
     }
 
-    .regime-badge.bear {
-      border-color: rgba(248,113,113,0.6);
-      color: #fecaca;
+    .regime-type-pill.bear {
+      background: var(--bear-pill-bg);
+      color: var(--bear-pill-text);
     }
 
-    .regime-dot {
-      width: 8px;
-      height: 8px;
+    .legend-dot {
+      width: 7px;
+      height: 7px;
       border-radius: 999px;
+      background: #22c55e;
     }
 
-    .regime-dot.bull {
-      background: var(--bull);
+    .legend-dot.bear {
+      background: #f97373;
     }
 
-    .regime-dot.bear {
-      background: var(--bear);
+    .legend-inline {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
     }
 
-    .note {
-      margin-top: 14px;
-      font-size: 0.77rem;
-      color: var(--fg-muted);
-      line-height: 1.5;
-    }
-
-    .note strong {
-      color: #e5e7eb;
-      font-weight: 500;
-    }
-
-    .note code {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      font-size: 0.75rem;
-      background: rgba(15,23,42,0.9);
-      padding: 1px 4px;
-      border-radius: 4px;
-    }
-
-    @media (min-width: 900px) {
-      body {
-        padding-top: 28px;
-      }
-      h1 {
-        font-size: 1.9rem;
-      }
+    .footnote {
+      margin-top: 10px;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      line-height: 1.4;
     }
   </style>
 </head>
 <body>
-  <div class="shell">
-    <!-- Header -->
-    <div>
-      <h1>Regimuri bull / bear – model coeziv BTC</h1>
-      <p class="subtitle">
-        Perioade estimate de <strong>bull market</strong> și <strong>bear market</strong> pe baza indicilor
-        coezivi <code>IC_BTC structural</code> și <code>ICD_BTC direcțional</code>, calculați din date zilnice
-        BTCUSDT (timeframe 1D, ~2010–prezent). Model conceptual, nu recomandare financiară.
-      </p>
-      <div class="pill">
-        <span class="pill-dot"></span>
-        <span>Model coeziv – structură vs direcționalitate</span>
+  <div class="page">
+    <h1>Regimuri bull / bear – model coeziv BTC</h1>
+    <p class="subheadline">
+      Perioadele bull și bear sunt estimate automat din indicii coezivi interni
+      (structură vs direcționalitate), calculați pe date zilnice BTCUSDT (~2010–prezent).
+      Pe grafic vezi doar <strong>prețul BTC</strong>, cu fundal verde pentru bull market și roșu pentru bear market.
+      Nu este recomandare financiară.
+    </p>
+
+    <div class="badge-row">
+      <div class="badge note-pill">
+        <span class="dot"></span>
+        <span>Model coeziv – structură &amp; direcționalitate, praguri adaptate la date</span>
+      </div>
+      <div class="badge pill-bull">
+        Bull: structură puternică + mișcări în direcția trendului
+      </div>
+      <div class="badge pill-bear">
+        Bear: structură puternică + mișcări contra trendului
       </div>
     </div>
 
-    <!-- Explicații scurte -->
-    <div class="section-card">
-      <div class="section-title">Model coeziv – structură &amp; direcționalitate</div>
-      <div class="section-subtitle">
-        Regimuri bull/bear sunt detectate automat acolo unde <strong>structura</strong> este puternică și
-        <strong>direcționalitatea</strong> susține sau contrazice trendul dominant.
-      </div>
-      <div class="chips-row">
-        <div class="chip">
-          <span class="chip-bullet"></span>
-          <span><strong>Bull</strong>: structură IC_BTC ridicată + mișcări aliniate trendului (ICD_BTC ridicat).</span>
+    <div class="back-row">
+      <button class="back-btn" onclick="window.location.href='ic_btc.html';">
+        <span>←</span><span>Înapoi la indice IC_BTC</span>
+      </button>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <div class="card-label">Număr regimuri bull detectate</div>
+        <div class="card-value-row">
+          <div class="card-value" id="bullCount">0</div>
+          <div class="pill-small bull">
+            <span class="pill-dot bull"></span>
+            bull
+          </div>
         </div>
-        <div class="chip">
-          <span class="chip-bullet"></span>
-          <span><strong>Bear</strong>: structură IC_BTC ridicată + mișcări contra trendului (ICD_BTC foarte scăzut).</span>
+        <div class="card-help">
+          Perioade în care structura este ridicată iar direcționalitatea
+          favorizează trendul principal. Durata minimă ≈ 20 zile.
         </div>
       </div>
 
-      <div class="back-row">
-        <a href="ic_btc.html" class="back-btn">
-          <span class="icon">←</span>
-          <span>Înapoi la indice IC_BTC</span>
-        </a>
+      <div class="card card-muted">
+        <div class="card-label">Număr regimuri bear detectate</div>
+        <div class="card-value-row">
+          <div class="card-value" id="bearCount">0</div>
+          <div class="pill-small bear">
+            <span class="pill-dot bear"></span>
+            bear
+          </div>
+        </div>
+        <div class="card-help">
+          Perioade în care structura rămâne ridicată, dar direcționalitatea
+          este inversă față de trendul dominant (presiune descendentă).
+        </div>
       </div>
 
-      <!-- Metrici -->
-      <div class="grid-two" id="summary-cards">
-        <div class="metric-card">
-          <div class="metric-label">Număr regimuri bull detectate</div>
-          <div class="metric-value-row">
-            <div class="metric-value" id="bullCount">–</div>
-            <div class="metric-pill bull">
-              <span class="metric-dot bull"></span>
-              <span>bull</span>
-            </div>
-          </div>
+      <div class="card card-muted">
+        <div class="card-label">Cel mai lung bull (zile)</div>
+        <div class="card-value-row">
+          <div class="card-value" id="longestBull">–</div>
         </div>
-        <div class="metric-card">
-          <div class="metric-label">Număr regimuri bear detectate</div>
-          <div class="metric-value-row">
-            <div class="metric-value" id="bearCount">–</div>
-            <div class="metric-pill bear">
-              <span class="metric-dot bear"></span>
-              <span>bear</span>
-            </div>
-          </div>
+        <div class="card-help">
+          Durata aproximativă a celui mai lung regim bull detectat pe BTCUSDT.
         </div>
-        <div class="metric-card">
-          <div class="metric-label">Cel mai lung bull (zile)</div>
-          <div class="metric-value-row">
-            <div class="metric-value" id="longestBull">–</div>
-          </div>
+      </div>
+
+      <div class="card card-muted">
+        <div class="card-label">Cel mai lung bear (zile)</div>
+        <div class="card-value-row">
+          <div class="card-value" id="longestBear">–</div>
         </div>
-        <div class="metric-card">
-          <div class="metric-label">Cel mai lung bear (zile)</div>
-          <div class="metric-value-row">
-            <div class="metric-value" id="longestBear">–</div>
-          </div>
+        <div class="card-help">
+          Durata aproximativă a celui mai lung regim bear detectat.
         </div>
       </div>
     </div>
 
-    <!-- Grafic + tabel -->
-    <div class="chart-card">
-      <div class="chart-header">
-        <div class="chart-title">
-          Regimuri bull &amp; bear (0–100, model coeziv)
-        </div>
-        <div class="legend-inline">
-          <div class="legend-row">
-            <span class="legend-swatch struct"></span>
-            <span class="legend-label">IC_BTC structural (0–100)</span>
-          </div>
-          <div class="legend-row">
-            <span class="legend-swatch dir"></span>
-            <span class="legend-label">ICD_BTC direcțional (0–100)</span>
-          </div>
-        </div>
+    <div class="card chart-card">
+      <div class="chart-title">Regimuri bull &amp; bear pe preț BTC</div>
+      <div class="chart-subtitle">
+        Fundal verde = bull market, fundal roșu = bear market.
+        Linia albastră reprezintă prețul BTCUSDT (close, timeframe 1D).
       </div>
-      <p class="section-subtitle">
-        Fundal verde = bull market, fundal roșu = bear market. Liniile reprezintă indicii IC_BTC structural și
-        ICD_BTC direcțional (0–100), calculați automat din preț.
+      <div class="chart-wrapper">
+        <canvas id="regimeChart"></canvas>
+      </div>
+    </div>
+
+    <div class="card table-card">
+      <div class="table-header">Perioade bull &amp; bear detectate</div>
+      <div class="table-sub">
+        <span class="legend-inline">
+          <span class="legend-dot"></span><span>bull market</span>
+        </span>
+        &nbsp;·&nbsp;
+        <span class="legend-inline">
+          <span class="legend-dot bear"></span><span>bear market</span>
+        </span>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Tip</th>
+              <th>Început</th>
+              <th>Sfârșit</th>
+              <th>Durată (zile)</th>
+            </tr>
+          </thead>
+          <tbody id="regimeTableBody">
+            <!-- rânduri generate din JS -->
+          </tbody>
+        </table>
+      </div>
+
+      <p class="footnote">
+        Pragurile sunt adaptate automat la distribuția indicilor coezivi (nu valori fixe).
+        Bull ≈ structură IC_BTC în percentila superioară + direcționalitate ridicată,
+        bear ≈ structură la fel de ridicată dar direcționalitate foarte scăzută,
+        cu durată minimă ≈ 20 zile. Nu reprezintă recomandare financiară.
       </p>
-
-      <canvas id="regimesChart"></canvas>
-
-      <!-- Tabel regimuri -->
-      <table>
-        <thead>
-          <tr>
-            <th>Tip</th>
-            <th>Început</th>
-            <th>Sfârșit</th>
-            <th>Durată<br />(zile)</th>
-          </tr>
-        </thead>
-        <tbody id="regimesTableBody">
-          <!-- completat din JS -->
-        </tbody>
-      </table>
-
-      <div class="note">
-        <strong>Notă</strong>: Pragurile sunt aproximative și conceptuale (nu recomandare financiară):
-        <code>bull ≈ structură IC_BTC ≥ 45</code> și <code>ICD_BTC ≥ 55</code>,
-        <code>bear ≈ structură ≥ 45</code> și <code>ICD_BTC ≤ 45</code>,
-        cu durată minimă ~30 zile. Modelul este gândit mai mult ca un
-        <em>„detector de regimuri”</em> bazat pe structură &amp; direcționalitate, nu ca sistem de semnale.
-      </div>
     </div>
   </div>
 
   <script>
     const DateTime = luxon.DateTime;
+    const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
-    // ---------- Utilitare numerice ----------
-    function ema(prev, value, alpha) {
-      if (prev == null || !isFinite(prev)) return value;
-      return alpha * value + (1 - alpha) * prev;
-    }
+    // ---------------- Utilitare math / statistici ----------------
 
-    function normalizeTo01(arr) {
-      let min = Infinity;
-      let max = -Infinity;
-      for (const v of arr) {
-        if (!isFinite(v)) continue;
-        if (v < min) min = v;
-        if (v > max) max = v;
-      }
-      if (!isFinite(min) || !isFinite(max) || max - min === 0) {
-        return arr.map(() => 0.5);
-      }
-      return arr.map(v => (v - min) / (max - min));
-    }
-
-    // ---------- Calcul IC_BTC structural & direcțional ----------
-    function computeCoeziveIndices(ohlc) {
-      if (!ohlc || ohlc.length < 60) return [];
-
-      const alphaShort = 2 / (20 + 1); // ~1 lună
-      const alphaLong = 2 / (100 + 1); // ~5 luni
-      const alphaTrendShort = 2 / (30 + 1);
-      const alphaTrendLong = 2 / (120 + 1);
-
-      const res = [];
-
-      let prevClose = null;
-      let volShort = null;
-      let volLong = null;
-      let trendShort = null;
-      let trendLong = null;
-
-      for (let i = 0; i < ohlc.length; i++) {
-        const row = ohlc[i];
-        const close = Number(row.close);
-        const ts = Number(row.timestamp);
-
-        if (!isFinite(close) || !isFinite(ts)) continue;
-
-        let ret = 0;
-        if (prevClose != null && prevClose > 0) {
-          ret = Math.log(close / prevClose);
+    function ema(values, period) {
+      const k = 2 / (period + 1);
+      const out = new Array(values.length).fill(null);
+      let emaPrev = null;
+      for (let i = 0; i < values.length; i++) {
+        const v = values[i];
+        if (v == null || isNaN(v)) continue;
+        if (emaPrev == null) {
+          emaPrev = v;
+        } else {
+          emaPrev = v * k + emaPrev * (1 - k);
         }
-        prevClose = close;
+        out[i] = emaPrev;
+      }
+      return out;
+    }
 
-        const absRet = Math.abs(ret);
+    function rollingStd(values, window) {
+      const out = new Array(values.length).fill(null);
+      let sum = 0;
+      let sumSq = 0;
+      const q = [];
+      for (let i = 0; i < values.length; i++) {
+        const v = values[i];
+        if (v == null || isNaN(v)) {
+          q.push(0);
+          sum += 0;
+          sumSq += 0;
+        } else {
+          q.push(v);
+          sum += v;
+          sumSq += v * v;
+        }
+        if (q.length > window) {
+          const old = q.shift();
+          sum -= old;
+          sumSq -= old * old;
+        }
+        if (q.length === window) {
+          const mean = sum / window;
+          const variance = sumSq / window - mean * mean;
+          out[i] = Math.sqrt(Math.max(variance, 0));
+        }
+      }
+      return out;
+    }
 
-        volShort = ema(volShort, absRet, alphaShort);
-        volLong = ema(volLong, absRet, alphaLong);
-        trendShort = ema(trendShort, close, alphaTrendShort);
-        trendLong = ema(trendLong, close, alphaTrendLong);
+    function percentile(arr, p) {
+      const clean = arr.filter(v => Number.isFinite(v)).sort((a, b) => a - b);
+      if (!clean.length) return null;
+      const idx = Math.floor((clean.length - 1) * (p / 100));
+      return clean[idx];
+    }
 
-        if (
-          volShort == null ||
-          volLong == null ||
-          trendShort == null ||
-          trendLong == null
-        ) {
+    function clamp(v, min, max) {
+      return Math.min(max, Math.max(min, v));
+    }
+
+    // ---------------- Model coeziv: calcul IC structural & direcțional ----------------
+
+    function computeCohesiveIndices(ohlc) {
+      const closes = ohlc.map(d => d.close);
+      const timestamps = ohlc.map(d => d.timestamp);
+
+      // Volatilitate relativă pe randamente logaritmice (fereastră 20 zile)
+      const logReturns = [null];
+      for (let i = 1; i < closes.length; i++) {
+        const r = Math.log(closes[i] / closes[i - 1]);
+        logReturns.push(r);
+      }
+      const vol20 = rollingStd(logReturns, 20);
+
+      // EMA-uri pentru trend scurt / lung
+      const emaShort = ema(closes, 30);
+      const emaLong = ema(closes, 90);
+
+      // Normalizăm volatilitatea în [0, 1]
+      const maxVol = Math.max(...vol20.filter(v => Number.isFinite(v))) || 1;
+      const minVol = Math.min(...vol20.filter(v => Number.isFinite(v))) || 0;
+
+      const icStruct = new Array(closes.length).fill(null);
+      const icDir = new Array(closes.length).fill(null);
+
+      for (let i = 0; i < closes.length; i++) {
+        const v = vol20[i];
+        const es = emaShort[i];
+        const el = emaLong[i];
+
+        if (!Number.isFinite(v) || !Number.isFinite(es) || !Number.isFinite(el)) {
           continue;
         }
 
-        // structură: cât de "calm" este fluxul relativ la context
-        let structRaw = 1 - Math.min(1, volShort / Math.max(volLong, 1e-8));
+        // IC_BTC structural: coeziunea trendului vs flux total (volatilitate)
+        const volNorm = clamp((v - minVol) / (maxVol - minVol || 1), 0, 1);
+        const struct = 100 * (1 - volNorm); // volatilitate mică => structură mare
+        icStruct[i] = struct;
 
-        // direcțional: cât de mult sunt mișcările aliniate cu direcția trendului mare
-        const bigTrendDir = trendShort >= trendLong ? 1 : -1;
-        const dailyDir = ret >= 0 ? 1 : -1;
-        const align = bigTrendDir * dailyDir; // 1 = aliniat, -1 = contra
+        // IC_BTC direcțional: cât de bine se aliniază mișcările cu trendul mare
+        const trendDir = es - el;        // diferența EMA scurtă vs EMA lungă
+        const dailyMove = closes[i] - closes[i - 1] || 0;
+        // produsul dintre direcția trendului și mișcarea zilnică
+        const align = trendDir * dailyMove;
 
-        // smooth alignment via EMA pentru a nu fi zgomot de zi cu zi
-        const prev = res.length ? res[res.length - 1] : null;
-        let alignSmooth = align;
-        if (prev) {
-          alignSmooth = ema(prev._alignSmooth, align, 0.15);
-        }
-
-        res.push({
-          timestamp: ts,
-          close,
-          structRaw,
-          alignRaw: alignSmooth,
-          _alignSmooth: alignSmooth
-        });
+        // normalizare aproximativă în [0, 1]
+        const alignNorm = 0.5 + 0.5 * Math.tanh(align / (closes[i] * 0.001 || 1));
+        const dir = clamp(alignNorm * 100, 0, 100);
+        icDir[i] = dir;
       }
 
-      // normalizare 0–100
-      const structArr = res.map(r => r.structRaw);
-      const alignArr = res.map(r => r.alignRaw);
-
-      const structNorm = normalizeTo01(structArr);
-      const alignNorm = normalizeTo01(alignArr);
-
-      return res.map((r, idx) => ({
-        timestamp: r.timestamp,
-        close: r.close,
-        ic_struct: Math.round(structNorm[idx] * 10000) / 100,
-        ic_dir: Math.round(alignNorm[idx] * 10000) / 100
-      }));
+      return { timestamps, closes, icStruct, icDir };
     }
 
-    // ---------- Detecție regimuri bull / bear ----------
-    function detectRegimes(indices, config = {}) {
-      const {
-        structBull = 45,
-        dirBull = 55,
-        structBear = 45,
-        dirBear = 45,
-        minDays = 30
-      } = config;
+    // ---------------- Detectare regimuri bull / bear ----------------
 
-      const regimes = [];
-      let currentType = null; // "bull" | "bear" | null
+    function detectRegimes(data, thresholds) {
+      const { timestamps, icStruct, icDir } = data;
+      const segments = [];
+
+      let currentType = null;
       let startIdx = null;
 
-      function closeRegime(endIdx) {
+      function closeSegment(endIdx) {
         if (currentType == null || startIdx == null) return;
-        const start = indices[startIdx];
-        const end = indices[endIdx];
-        if (!start || !end) return;
-        const days =
-          Math.round(
-            (end.timestamp - start.timestamp) / (1000 * 60 * 60 * 24)
-          ) + 1;
-        if (days >= minDays) {
-          regimes.push({
+        const startTs = timestamps[startIdx];
+        const endTs = timestamps[endIdx];
+        const durationDays = Math.round((endTs - startTs) / MS_PER_DAY) + 1;
+        if (durationDays >= thresholds.minDays) {
+          segments.push({
             type: currentType,
-            start: start.timestamp,
-            end: end.timestamp,
-            days
+            start: startTs,
+            end: endTs,
+            duration: durationDays
           });
         }
       }
 
-      for (let i = 0; i < indices.length; i++) {
-        const p = indices[i];
-        const s = p.ic_struct;
-        const d = p.ic_dir;
+      for (let i = 0; i < timestamps.length; i++) {
+        const s = icStruct[i];
+        const d = icDir[i];
+        if (!Number.isFinite(s) || !Number.isFinite(d)) continue;
 
-        const isBull = s >= structBull && d >= dirBull;
-        const isBear = s >= structBear && d <= dirBear;
+        const isBull = s >= thresholds.structBull && d >= thresholds.dirBull;
+        const isBear = s >= thresholds.structBear && d <= thresholds.dirBear;
 
         let newType = null;
         if (isBull && !isBear) newType = "bull";
         else if (isBear && !isBull) newType = "bear";
 
-        if (newType === currentType) continue;
-
-        if (currentType !== null && newType !== currentType) {
-          closeRegime(i - 1);
+        if (newType !== currentType) {
+          if (currentType !== null && startIdx !== null) {
+            closeSegment(i - 1);
+          }
+          currentType = newType;
+          startIdx = newType ? i : null;
         }
-
-        currentType = newType;
-        startIdx = newType ? i : null;
       }
 
-      if (currentType !== null && startIdx != null) {
-        closeRegime(indices.length - 1);
+      if (currentType !== null && startIdx !== null) {
+        closeSegment(timestamps.length - 1);
       }
 
-      return regimes;
+      return segments;
     }
 
-    // ---------- Plugin Chart.js pentru fundal bull/bear ----------
+    // ---------------- Plugin Chart.js pentru fundal bull / bear ----------------
+
     const regimeBackgroundPlugin = {
       id: "regimeBackground",
-      beforeDraw(chart, args, pluginOptions) {
-        const regimes = pluginOptions && pluginOptions.regimes;
+      beforeDraw(chart, args, opts) {
+        const regimes = opts && opts.regimes;
         if (!regimes || !regimes.length) return;
 
         const { ctx, chartArea, scales } = chart;
@@ -695,22 +701,15 @@
         if (!xAxis) return;
 
         ctx.save();
-
         for (const r of regimes) {
-          // IMPORTANT: convertim timestamp → Date pentru getPixelForValue
-          const startDate = DateTime.fromMillis(r.start).toJSDate();
-          const endDate = DateTime.fromMillis(r.end).toJSDate();
-
-          const xStart = xAxis.getPixelForValue(startDate);
-          const xEnd = xAxis.getPixelForValue(endDate);
+          const xStart = xAxis.getPixelForValue(r.start);
+          const xEnd = xAxis.getPixelForValue(r.end);
           const width = xEnd - xStart;
-
           if (!isFinite(width) || width <= 0) continue;
 
-          ctx.fillStyle =
-            r.type === "bull"
-              ? "rgba(34,197,94,0.13)"  // verde soft
-              : "rgba(248,113,113,0.13)"; // roșu soft
+          ctx.fillStyle = r.type === "bull"
+            ? "rgba(34,197,94,0.16)"
+            : "rgba(248,113,113,0.16)";
 
           ctx.fillRect(
             xStart,
@@ -719,205 +718,233 @@
             chartArea.bottom - chartArea.top
           );
         }
-
         ctx.restore();
       }
     };
 
     Chart.register(regimeBackgroundPlugin);
 
-    // ---------- Helper UI ----------
+    // ---------------- Helpers UI ----------------
+
     function formatDate(ts) {
       return DateTime.fromMillis(ts).toFormat("yyyy-LL-dd");
     }
 
-    // ---------- Main ----------
-    async function main() {
-      try {
-        const resp = await fetch("btc_ohlc.json");
-        if (!resp.ok) {
-          throw new Error("Nu pot încărca btc_ohlc.json: " + resp.status);
-        }
-        const raw = await resp.json();
+    function updateStats(regimes) {
+      const bull = regimes.filter(r => r.type === "bull");
+      const bear = regimes.filter(r => r.type === "bear");
 
-        const indices = computeCoeziveIndices(raw);
-        if (!indices.length) throw new Error("Nu s-au putut calcula indicii coezivi.");
+      const bullCountEl = document.getElementById("bullCount");
+      const bearCountEl = document.getElementById("bearCount");
+      const longestBullEl = document.getElementById("longestBull");
+      const longestBearEl = document.getElementById("longestBear");
 
-        const regimes = detectRegimes(indices, {
-          structBull: 45,
-          dirBull: 55,
-          structBear: 45,
-          dirBear: 45,
-          minDays: 30
-        });
+      bullCountEl.textContent = bull.length;
+      bearCountEl.textContent = bear.length;
 
-        // Statistici
-        const bullCount = regimes.filter(r => r.type === "bull").length;
-        const bearCount = regimes.filter(r => r.type === "bear").length;
-        const longestBull = Math.max(
-          0,
-          ...regimes.filter(r => r.type === "bull").map(r => r.days)
-        );
-        const longestBear = Math.max(
-          0,
-          ...regimes.filter(r => r.type === "bear").map(r => r.days)
-        );
+      const longestBull = bull.reduce((max, r) => Math.max(max, r.duration), 0);
+      const longestBear = bear.reduce((max, r) => Math.max(max, r.duration), 0);
 
-        document.getElementById("bullCount").textContent = bullCount;
-        document.getElementById("bearCount").textContent = bearCount;
-        document.getElementById("longestBull").textContent =
-          longestBull > 0 ? longestBull : "–";
-        document.getElementById("longestBear").textContent =
-          longestBear > 0 ? longestBear : "–";
+      longestBullEl.textContent = longestBull ? longestBull : "–";
+      longestBearEl.textContent = longestBear ? longestBear : "–";
+    }
 
-        // Date pentru grafic
-        const structPoints = indices.map(p => ({
-          x: DateTime.fromMillis(p.timestamp).toJSDate(),
-          y: p.ic_struct
-        }));
-        const dirPoints = indices.map(p => ({
-          x: DateTime.fromMillis(p.timestamp).toJSDate(),
-          y: p.ic_dir
-        }));
+    function renderRegimeTable(regimes) {
+      const tbody = document.getElementById("regimeTableBody");
+      tbody.innerHTML = "";
 
-        // Chart
-        const ctx = document.getElementById("regimesChart").getContext("2d");
-        new Chart(ctx, {
-          type: "line",
-          data: {
-            datasets: [
-              {
-                label: "IC_BTC structural (0–100)",
-                data: structPoints,
-                parsing: false,
-                borderColor: "rgba(56,189,248,1)",
-                backgroundColor: "rgba(56,189,248,0.0)",
-                borderWidth: 1.6,
-                pointRadius: 0,
-                tension: 0.2
-              },
-              {
-                label: "ICD_BTC direcțional (0–100)",
-                data: dirPoints,
-                parsing: false,
-                borderColor: "rgba(248,113,113,1)",
-                backgroundColor: "rgba(248,113,113,0.0)",
-                borderWidth: 1.3,
-                pointRadius: 0,
-                tension: 0.15
-              }
-            ]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            interaction: {
-              mode: "index",
-              intersect: false
-            },
-            scales: {
-              x: {
-                type: "time",
-                time: {
-                  unit: "year",
-                  tooltipFormat: "yyyy-LL-dd"
-                },
-                grid: {
-                  color: "rgba(30,64,175,0.5)",
-                  tickLength: 4
-                },
-                ticks: {
-                  color: "rgba(148,163,184,0.9)",
-                  maxTicksLimit: 9
-                }
-              },
-              y: {
-                min: 0,
-                max: 100,
-                grid: {
-                  color: "rgba(31,41,55,0.9)"
-                },
-                ticks: {
-                  color: "rgba(148,163,184,0.9)",
-                  callback: (v) => v
-                }
-              }
-            },
-            plugins: {
-              legend: {
-                display: false
-              },
-              tooltip: {
-                backgroundColor: "rgba(15,23,42,0.98)",
-                borderColor: "rgba(148,163,184,0.7)",
-                borderWidth: 1,
-                padding: 10,
-                titleFont: { size: 12, weight: "600" },
-                bodyFont: { size: 11 },
-                callbacks: {
-                  title: (items) => {
-                    if (!items.length) return "";
-                    const ts = items[0].parsed.x;
-                    return DateTime.fromMillis(ts).toFormat("yyyy-LL-dd");
-                  },
-                  label: (item) => {
-                    const label = item.dataset.label || "";
-                    const v = item.parsed.y != null ? item.parsed.y.toFixed(2) : "";
-                    return `${label}: ${v}`;
-                  }
-                }
-              },
-              regimeBackground: {
-                regimes
-              }
-            }
-          }
-        });
+      if (!regimes.length) {
+        const tr = document.createElement("tr");
+        const td = document.createElement("td");
+        td.colSpan = 4;
+        td.style.color = "var(--text-muted)";
+        td.textContent = "Nu au fost detectate regimuri bull / bear pentru pragurile curente.";
+        tr.appendChild(td);
+        tbody.appendChild(tr);
+        return;
+      }
 
-        // Tabel regimuri
-        const tbody = document.getElementById("regimesTableBody");
-        tbody.innerHTML = "";
+      for (const r of regimes) {
+        const tr = document.createElement("tr");
 
-        regimes.forEach((r) => {
-          const tr = document.createElement("tr");
+        const tdType = document.createElement("td");
+        const pill = document.createElement("span");
+        pill.className = "regime-type-pill " + r.type;
+        pill.innerHTML = `<span class="pill-dot ${r.type}"></span>${r.type} market`;
+        tdType.appendChild(pill);
 
-          const tdType = document.createElement("td");
-          const badge = document.createElement("span");
-          badge.className = "regime-badge " + (r.type === "bull" ? "bull" : "bear");
-          const dot = document.createElement("span");
-          dot.className = "regime-dot " + (r.type === "bull" ? "bull" : "bear");
-          const label = document.createElement("span");
-          label.textContent = r.type + " market";
-          badge.appendChild(dot);
-          badge.appendChild(label);
-          tdType.appendChild(badge);
+        const tdStart = document.createElement("td");
+        tdStart.textContent = formatDate(r.start);
 
-          const tdStart = document.createElement("td");
-          tdStart.textContent = formatDate(r.start);
+        const tdEnd = document.createElement("td");
+        tdEnd.textContent = formatDate(r.end);
 
-          const tdEnd = document.createElement("td");
-          tdEnd.textContent = formatDate(r.end);
+        const tdDur = document.createElement("td");
+        tdDur.textContent = r.duration;
 
-          const tdDays = document.createElement("td");
-          tdDays.textContent = r.days;
-
-          tr.appendChild(tdType);
-          tr.appendChild(tdStart);
-          tr.appendChild(tdEnd);
-          tr.appendChild(tdDays);
-
-          tbody.appendChild(tr);
-        });
-      } catch (err) {
-        console.error(err);
-        document.getElementById("bullCount").textContent = "–";
-        document.getElementById("bearCount").textContent = "–";
-        document.getElementById("longestBull").textContent = "–";
-        document.getElementById("longestBear").textContent = "–";
+        tr.appendChild(tdType);
+        tr.appendChild(tdStart);
+        tr.appendChild(tdEnd);
+        tr.appendChild(tdDur);
+        tbody.appendChild(tr);
       }
     }
 
-    main();
+    function createPriceChart(ctx, data, regimes) {
+      const { timestamps, closes } = data;
+
+      const chart = new Chart(ctx, {
+        type: "line",
+        data: {
+          labels: timestamps,
+          datasets: [
+            {
+              label: "BTCUSDT close",
+              data: closes,
+              yAxisID: "y",
+              tension: 0.18,
+              borderWidth: 2,
+              pointRadius: 0,
+              pointHitRadius: 4,
+              borderColor: "rgba(96,165,250,1)",
+              backgroundColor: "rgba(59,130,246,0.12)"
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: true,
+              labels: {
+                color: "#e5e7eb",
+                usePointStyle: true,
+                font: { size: 11 }
+              }
+            },
+            tooltip: {
+              mode: "index",
+              intersect: false,
+              callbacks: {
+                title(items) {
+                  if (!items.length) return "";
+                  const ts = items[0].parsed.x;
+                  return DateTime.fromMillis(ts).toFormat("yyyy-LL-dd");
+                },
+                label(ctx) {
+                  const v = ctx.parsed.y;
+                  if (!Number.isFinite(v)) return "";
+                  return " Preț BTC: " + v.toLocaleString("en-US", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                  }) + " USDT";
+                }
+              }
+            },
+            regimeBackground: {
+              regimes
+            }
+          },
+          scales: {
+            x: {
+              type: "time",
+              time: {
+                unit: "year",
+                tooltipFormat: "yyyy-LL-dd"
+              },
+              grid: {
+                color: "rgba(55,65,81,0.7)",
+                drawBorder: false
+              },
+              ticks: {
+                color: "#9ca3af",
+                maxRotation: 0,
+                autoSkipPadding: 16
+              }
+            },
+            y: {
+              position: "left",
+              grid: {
+                color: "rgba(31,41,55,0.8)",
+                drawBorder: false
+              },
+              ticks: {
+                color: "#9ca3af",
+                callback(value) {
+                  if (value >= 1000) {
+                    return value.toLocaleString("en-US", {
+                      maximumFractionDigits: 0
+                    });
+                  }
+                  return value;
+                }
+              },
+              title: {
+                display: true,
+                text: "Preț BTCUSDT (close, 1D)",
+                color: "#e5e7eb",
+                font: { size: 11 }
+              }
+            }
+          },
+          interaction: {
+            mode: "index",
+            intersect: false
+          }
+        }
+      });
+
+      return chart;
+    }
+
+    // ---------------- Initializare: încărcăm btc_ohlc.json, calculăm IC, praguri & regimuri ----------------
+
+    async function init() {
+      try {
+        const res = await fetch("btc_ohlc.json", { cache: "no-store" });
+        if (!res.ok) {
+          throw new Error("Nu pot încărca btc_ohlc.json");
+        }
+        const json = await res.json();
+
+        // sortăm după timp, doar ca siguranță
+        const ohlc = json
+          .slice()
+          .sort((a, b) => a.timestamp - b.timestamp);
+
+        const modelData = computeCohesiveIndices(ohlc);
+
+        // praguri adaptate automat la distribuția indicilor
+        const sVals = modelData.icStruct.filter(v => Number.isFinite(v));
+        const dVals = modelData.icDir.filter(v => Number.isFinite(v));
+
+        const structP70 = percentile(sVals, 70);
+        const dirP60 = percentile(dVals, 60);
+        const dirP40 = percentile(dVals, 40);
+
+        const thresholds = {
+          structBull: structP70,
+          structBear: structP70,
+          dirBull: dirP60,
+          dirBear: dirP40,
+          minDays: 20
+        };
+
+        const regimes = detectRegimes(modelData, thresholds);
+
+        updateStats(regimes);
+        renderRegimeTable(regimes);
+
+        const ctx = document.getElementById("regimeChart").getContext("2d");
+        createPriceChart(ctx, modelData, regimes);
+      } catch (err) {
+        console.error(err);
+        alert("Nu am putut încărca datele pentru regimuri bull/bear. Verifică fișierul btc_ohlc.json.");
+      }
+    }
+
+    init();
   </script>
 </body>
 </html>
