@@ -430,13 +430,17 @@
       </article>
 
       <!-- Card regim curent -->
-      <article class="card current-regime-card">
-        <div class="card-title">Regim curent (model coeziv)</div>
-        <div id="currentRegimeLabel" class="current-regime-value current-regime-value--neutral">–</div>
-        <div id="currentRegimeMeta" class="current-regime-meta">
-          Se calculează automat din indicii IC_BTC structural și ICD_BTC direcțional.
-        </div>
-      </article>
+<article class="card current-regime-card">
+  <div class="card-title">Regim curent (model coeziv)</div>
+
+  <!-- Valoarea regimului curent: bull / bear / neutru -->
+  <div id="currentRegimeValue" class="current-regime-value">-</div>
+
+  <!-- Text explicativ -->
+  <div id="currentRegimeMeta" class="current-regime-meta">
+      Se calculează automat din indicii IC_BTC structural și ICD_BTC direcțional.
+  </div>
+</article>
     </section>
 
     <!-- Grafic preț BTC + fundal bull/bear -->
@@ -774,48 +778,45 @@
 function updateCurrentRegime(regimes, timestamps) {
   const labelEl = document.getElementById("currentRegimeValue");
   const metaEl  = document.getElementById("currentRegimeMeta");
+
   if (!labelEl || !metaEl) return;
 
-  // Fără date / eroare: neutru + mesaj clar
-  if (!Array.isArray(regimes) || regimes.length === 0 ||
-      !Array.isArray(timestamps) || timestamps.length === 0) {
+  if (!Array.isArray(regimes) || !regimes.length ||
+      !Array.isArray(timestamps) || !timestamps.length) {
     labelEl.textContent = "-";
-    labelEl.className = "current-regime-value current-regime-neutral";
-    metaEl.textContent = "Nu există suficiente date pentru a evalua regimul curent.";
+    labelEl.className   = "current-regime-value";
+    metaEl.textContent  = "Nu există suficiente date pentru determinarea regimului curent.";
     return;
   }
 
-  // Ultima dată disponibilă în serie
   const lastTs   = timestamps[timestamps.length - 1];
-  const lastDate = DateTime.fromMillis(lastTs).toFormat("d LLL yyyy");
+  const lastDate = luxon.DateTime.fromMillis(lastTs).toISODate();
 
-  // Căutăm regimul care include ultima dată
   const current = regimes.find(r => lastTs >= r.startTs && lastTs <= r.endTs);
 
-  // Dacă ultima zi nu se află într-un regim -> neutru
   if (!current) {
     labelEl.textContent = "neutru";
-    labelEl.className = "current-regime-value current-regime-neutral";
-    metaEl.textContent = `Ultima dată (${lastDate}) nu se încadrează clar într-un regim bull / bear după modelul coeziv.`;
+    labelEl.className   = "current-regime-value current-neutral";
+    metaEl.textContent  = `Ultima dată (${lastDate}) nu se încadrează într-un regim bull / bear clar după modelul coeziv.`;
     return;
   }
 
-  const start = DateTime.fromMillis(current.startTs).toFormat("d LLL yyyy");
-  const end   = DateTime.fromMillis(current.endTs).toFormat("d LLL yyyy");
-  const days  = current.durationDays;
+  const start = luxon.DateTime.fromMillis(current.startTs).toISODate();
+  const end   = luxon.DateTime.fromMillis(current.endTs).toISODate();
+  const days  = Math.round(current.durationDays ?? 0);
 
   if (current.type === "bull") {
     labelEl.textContent = "bull market";
-    labelEl.className = "current-regime-value current-regime-bull";
-    metaEl.textContent =
-      `Regim bull estimat de la ${start} până la ${end} (~${days} zile), ` +
-      "cu structură ridicată și mișcări aliniate trendului.";
-  } else {
+    labelEl.className   = "current-regime-value current-bull";
+    metaEl.textContent  = `Modelul coeziv estimează un regim bull activ (~${days} zile), de la ${start} până la ${end === lastDate ? "prezent" : end}.`;
+  } else if (current.type === "bear") {
     labelEl.textContent = "bear market";
-    labelEl.className = "current-regime-value current-regime-bear";
-    metaEl.textContent =
-      `Regim bear estimat de la ${start} până la ${end} (~${days} zile), ` +
-      "cu structură ridicată și presiune descendentă dominantă.";
+    labelEl.className   = "current-regime-value current-bear";
+    metaEl.textContent  = `Modelul coeziv estimează un regim bear activ (~${days} zile), de la ${start} până la ${end === lastDate ? "prezent" : end}.`;
+  } else {
+    labelEl.textContent = "neutru";
+    labelEl.className   = "current-regime-value current-neutral";
+    metaEl.textContent  = `Ultima dată (${lastDate}) nu se încadrează într-un regim bull / bear clar după modelul coeziv.`;
   }
 }
 
