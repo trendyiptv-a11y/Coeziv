@@ -817,7 +817,9 @@
 
     async function init() {
       try {
-        const resp = await fetch("btc_ohlc.json");
+        const resp = await fetch("btc_ohlc.json?ts=" + Date.now(), {
+  cache: "no-store",
+});
         if (!resp.ok) throw new Error("Nu am putut încărca btc_ohlc.json");
         const raw = await resp.json();
 
