@@ -770,85 +770,54 @@
         tbody.appendChild(tr);
       }
     }
+// ---------- Regim curent (model coeziv) ----------
+function updateCurrentRegime(regimes, timestamps) {
+  const labelEl = document.getElementById("currentRegimeValue");
+  const metaEl  = document.getElementById("currentRegimeMeta");
+  if (!labelEl || !metaEl) return;
 
-    // --------- Regim curent (model coeziv) ---------
+  // Fără date / eroare: neutru + mesaj clar
+  if (!Array.isArray(regimes) || regimes.length === 0 ||
+      !Array.isArray(timestamps) || timestamps.length === 0) {
+    labelEl.textContent = "-";
+    labelEl.className = "current-regime-value current-regime-neutral";
+    metaEl.textContent = "Nu există suficiente date pentru a evalua regimul curent.";
+    return;
+  }
 
-    function updateCurrentRegime(regimes, timestamps) {
-      const labelEl = document.getElementById("currentRegimeLabel");
-      const metaEl  = document.getElementById("currentRegimeMeta");
-      if (!labelEl || !metaEl) return;
+  // Ultima dată disponibilă în serie
+  const lastTs   = timestamps[timestamps.length - 1];
+  const lastDate = DateTime.fromMillis(lastTs).toFormat("d LLL yyyy");
 
-      if (!regimes || !regimes.length || !timestamps || !timestamps.length) {
-        labelEl.textContent = "–";
-        labelEl.className = "current-regime-value current-regime-value--neutral";
-        metaEl.textContent = "Nu există suficiente date pentru a estima un regim curent.";
-        return;
-      }
+  // Căutăm regimul care include ultima dată
+  const current = regimes.find(r => lastTs >= r.startTs && lastTs <= r.endTs);
 
-      const lastTs = timestamps[timestamps.length - 1];
-      const lastDate = DateTime.fromMillis(lastTs).toISODate();
-
-      // -------- Regim curent bazat pe model coeziv (nu pe regimuri istorice) --------
-
-// extragem ultimul punct
-const lastIdx = timestamps.length - 1;
-const lastPriceTs = timestamps[lastIdx];
-const lastDateObj = DateTime.fromMillis(lastPriceTs).toFormat("yyyy-MM-dd");
-
-// indicatorii coezivi (ultimele valori)
-const lastStruct = ic_struct[ic_struct.length - 1];
-const lastDir    = ic_dir[ic_dir.length - 1];
-
-// praguri folosite de model (aceleași ca la detecția istorică)
-const structHigh = structThresholdHigh;
-const dirHigh    = dirThresholdHigh;
-const dirLow     = dirThresholdLow;
-
-let currentType = "neutral";
-
-if (lastStruct >= structHigh && lastDir >= dirHigh) {
-    currentType = "bull";
-}
-else if (lastStruct >= structHigh && lastDir <= dirLow) {
-    currentType = "bear";
-}
-
-// ---------------------------------------------------
-// Afișare în UI
-// ---------------------------------------------------
-
-if (currentType === "bull") {
-    labelEl.textContent = "bull market";
-    labelEl.className = "current-regime-value current-regime-bull";
-    metaEl.textContent = `Structură ridicată + direcționalitate puternic pozitivă (${lastDateObj}).`;
-}
-else if (currentType === "bear") {
-    labelEl.textContent = "bear market";
-    labelEl.className = "current-regime-value current-regime-bear";
-    metaEl.textContent = `Structură ridicată + direcționalitate foarte scăzută (${lastDateObj}).`;
-}
-else {
+  // Dacă ultima zi nu se află într-un regim -> neutru
+  if (!current) {
     labelEl.textContent = "neutru";
     labelEl.className = "current-regime-value current-regime-neutral";
-    metaEl.textContent = `Structură / direcționalitate mixte (${lastDateObj}).`;
+    metaEl.textContent = `Ultima dată (${lastDate}) nu se încadrează clar într-un regim bull / bear după modelul coeziv.`;
+    return;
+  }
+
+  const start = DateTime.fromMillis(current.startTs).toFormat("d LLL yyyy");
+  const end   = DateTime.fromMillis(current.endTs).toFormat("d LLL yyyy");
+  const days  = current.durationDays;
+
+  if (current.type === "bull") {
+    labelEl.textContent = "bull market";
+    labelEl.className = "current-regime-value current-regime-bull";
+    metaEl.textContent =
+      `Regim bull estimat de la ${start} până la ${end} (~${days} zile), ` +
+      "cu structură ridicată și mișcări aliniate trendului.";
+  } else {
+    labelEl.textContent = "bear market";
+    labelEl.className = "current-regime-value current-regime-bear";
+    metaEl.textContent =
+      `Regim bear estimat de la ${start} până la ${end} (~${days} zile), ` +
+      "cu structură ridicată și presiune descendentă dominantă.";
+  }
 }
-
-      const start = DateTime.fromMillis(current.start).toISODate();
-      const end   = DateTime.fromMillis(current.end).toISODate();
-      const days  = current.durationDays;
-
-      if (current.type === "bull") {
-        labelEl.textContent = "bull market";
-        labelEl.className = "current-regime-value current-regime-value--bull";
-        metaEl.textContent = `Regim bull estimat de la ${start}, ~${days} zile până la ${end === lastDate ? "astăzi" : end}.`;
-      } else {
-        labelEl.textContent = "bear market";
-        labelEl.className = "current-regime-value current-regime-value--bear";
-        metaEl.textContent = `Regim bear estimat de la ${start}, ~${days} zile până la ${end === lastDate ? "astăzi" : end}.`;
-      }
-    }
-
-    // --------- Main: fetch + calcul + chart ---------
 
     async function init() {
       try {
