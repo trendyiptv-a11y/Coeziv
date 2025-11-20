@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" />
+  <title>Harta coezivă a pieței crypto – Model Coeziv BTC</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta
+    name="description"
+    content="Harta coezivă a pieței crypto (2010–2025) interpretată prin Modelul Coeziv: structură, flux, reorganizare și mega-cicluri BTC–ETH."
+  />
+
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #020617;
+      --card: #020617;
+      --card-border: rgba(148, 163, 184, 0.35);
+      --text-main: #e5e7eb;
+      --text-soft: #94a3b8;
+      --muted: #64748b;
+      --accent: #4f46e5;
+      --accent-soft: rgba(79, 70, 229, 0.25);
+      --success: #22c55e;
+      --danger: #ef4444;
+      --cyan: #22d3ee;
+      --violet: #a855f7;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+        "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #020617 0, #000 55%, #020617 100%);
+      color: var(--text-main);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .page {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 1.5rem 1.5rem 3rem;
+    }
+
+    header h1 {
+      margin: 0 0 0.5rem;
+      font-size: 1.7rem;
+      letter-spacing: 0.02em;
+    }
+
+    header p {
+      margin: 0;
+      font-size: 0.92rem;
+      color: var(--text-soft);
+      max-width: 680px;
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.9rem;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.35rem 0.9rem;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      font-size: 0.78rem;
+      color: var(--text-soft);
+      background: radial-gradient(circle at top, #020617, #020617);
+    }
+
+    .pill-dot {
+      width: 0.55rem;
+      height: 0.55rem;
+      border-radius: 999px;
+      background: var(--accent);
+    }
+
+    .pill.btc .pill-dot { background: #f97316; }
+    .pill.eth .pill-dot { background: #22d3ee; }
+    .pill.struct .pill-dot { background: #22c55e; }
+
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      margin-top: 1.2rem;
+      margin-bottom: 0.9rem;
+      font-size: 0.8rem;
+      padding: 0.45rem 0.9rem;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      background: rgba(15, 23, 42, 0.9);
+      color: var(--text-main);
+      text-decoration: none;
+    }
+
+    .back-btn span.icon {
+      font-size: 1rem;
+    }
+
+    .section-title {
+      margin-top: 1.6rem;
+      margin-bottom: 0.4rem;
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    .section-sub {
+      margin: 0;
+      font-size: 0.85rem;
+      color: var(--text-soft);
+      max-width: 720px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.9rem;
+      margin-top: 1rem;
+    }
+
+    @media (max-width: 768px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      border-radius: 1rem;
+      padding: 0.9rem 1rem;
+      background: radial-gradient(circle at top, #020617, #020617);
+      border: 1px solid var(--card-border);
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.85);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .card-tag {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--muted);
+    }
+
+    .card-chip {
+      padding: 0.25rem 0.65rem;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      color: var(--text-soft);
+    }
+
+    .card-chip.mono { border-color: #f97316; }
+    .card-chip.poly { border-color: #22d3ee; }
+    .card-chip.mega { border-color: #a855f7; }
+
+    .card-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+
+    .card-period {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 0.4rem;
+    }
+
+    .card-body {
+      font-size: 0.82rem;
+      color: var(--text-soft);
+      line-height: 1.5;
+    }
+
+    .card-body strong {
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    .list-inline {
+      margin: 0.2rem 0 0;
+      padding-left: 1rem;
+    }
+
+    .list-inline li {
+      margin-bottom: 0.12rem;
+    }
+
+    /* Timeline coeziv */
+    .timeline {
+      position: relative;
+      margin-top: 1.2rem;
+      padding-left: 1.5rem;
+      border-left: 1px dashed rgba(148, 163, 184, 0.4);
+    }
+
+    .timeline-item {
+      position: relative;
+      margin-bottom: 1.2rem;
+      padding-left: 0.6rem;
+    }
+
+    .timeline-dot {
+      position: absolute;
+      left: -1.05rem;
+      top: 0.22rem;
+      width: 0.7rem;
+      height: 0.7rem;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 20%, #22d3ee, #4f46e5);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.28);
+    }
+
+    .timeline-label {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+      margin-bottom: 0.15rem;
+    }
+
+    .timeline-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 0.15rem;
+    }
+
+    .timeline-meta {
+      font-size: 0.78rem;
+      color: var(--text-soft);
+      margin-bottom: 0.15rem;
+    }
+
+    .timeline-body {
+      font-size: 0.8rem;
+      color: var(--text-soft);
+      max-width: 680px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.18rem 0.65rem;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      color: var(--text-soft);
+      margin-right: 0.35rem;
+      margin-top: 0.2rem;
+    }
+
+    .badge.btc { border-color: #f97316; color: #fed7aa; }
+    .badge.eth { border-color: #22d3ee; color: #a5f3fc; }
+    .badge.defi { border-color: #22c55e; color: #bbf7d0; }
+    .badge.mega { border-color: #a855f7; color: #e9d5ff; }
+
+    .note {
+      margin-top: 1.1rem;
+      font-size: 0.8rem;
+      color: var(--text-soft);
+      line-height: 1.5;
+    }
+
+    .note strong {
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 0.7rem;
+      font-size: 0.8rem;
+    }
+
+    th, td {
+      padding: 0.45rem 0.55rem;
+      text-align: left;
+    }
+
+    thead tr {
+      background: rgba(15, 23, 42, 0.95);
+    }
+
+    th {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--muted);
+      border-bottom: 1px solid rgba(51, 65, 85, 0.9);
+    }
+
+    tbody tr:nth-child(odd) {
+      background: rgba(15, 23, 42, 0.5);
+    }
+
+    tbody tr:nth-child(even) {
+      background: rgba(15, 23, 42, 0.8);
+    }
+
+    td {
+      border-bottom: 1px solid rgba(30, 41, 59, 0.75);
+      color: #e5e7eb;
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>Harta coezivă a pieței crypto (2010–2025)</h1>
+      <p>
+        Interpretare structurală a pieței crypto prin Modelul Coeziv: de la perioada
+        monocentrică BTC, la arhitectura policentrică BTC–ETH–DeFi și mega-ciclul
+        structural început după 2014.
+      </p>
+
+      <div class="pill-row">
+        <div class="pill btc">
+          <span class="pill-dot"></span>
+          <span>Monocentru: Bitcoin ca singur nucleu structural (2010–2014)</span>
+        </div>
+        <div class="pill eth">
+          <span class="pill-dot"></span>
+          <span>Policentrizare: Ethereum și execuția programabilă (după 2015)</span>
+        </div>
+        <div class="pill struct">
+          <span class="pill-dot"></span>
+          <span>Model Coeziv: structură → flux → reorganizare → noua structură (2π)</span>
+        </div>
+      </div>
+
+      <a href="ic_btc.html" class="back-btn">
+        <span class="icon">←</span>
+        <span>Înapoi la indicele IC_BTC</span>
+      </a>
+    </header>
+
+    <!-- Secțiune faze mari -->
+    <section>
+      <h2 class="section-title">Fazele mari ale pieței crypto în modelul coeziv</h2>
+      <p class="section-sub">
+        Fiecare fază descrie cum se schimbă <strong>structura</strong> pieței, modul în care
+        circulă <strong>fluxul</strong> (capitalul) și cum apar <strong>reorganizările</strong>.
+        Ciclurile coezive complete apar doar când sistemul revine la o bază structurală
+        similară cu cea inițială – lucru rar după 2014.
+      </p>
+
+      <div class="grid">
+        <!-- Faza 0 -->
+        <article class="card">
+          <div class="card-header">
+            <div class="card-tag">Faza 0</div>
+            <span class="card-chip mono">monocentru BTC</span>
+          </div>
+          <div class="card-title">Monocentrul Bitcoin (2010–2014)</div>
+          <div class="card-period">Bitcoin este singurul nucleu structural al pieței.</div>
+          <div class="card-body">
+            <strong>Structură:</strong> hashing, securitate și lichiditate concentrate doar în BTC.<br />
+            <strong>Flux:</strong> direcționalitate aproape pură – orice mișcare este „despre BTC”.<br />
+            <strong>Reorganizare:</strong> 3 cicluri coezive complete (2010–2014), cu resetări aproape totale ale structurii.<br />
+            <strong>Noua structură:</strong> BTC devine un centru robust, dar încă izolat.
+          </div>
+        </article>
+
+        <!-- Faza 1 -->
+        <article class="card">
+          <div class="card-header">
+            <div class="card-tag">Faza 1</div>
+            <span class="card-chip poly">tranziție policentrică</span>
+          </div>
+          <div class="card-title">Tranziția BTC → BTC+ETH (2014–2016)</div>
+          <div class="card-period">Ethereum introduce execuția programabilă (smart contracts).</div>
+          <div class="card-body">
+            <strong>Structură:</strong> apare al doilea nucleu: Ethereum, cu nou tip de structură – execuție, nu doar stocare de valoare.<br />
+            <strong>Flux:</strong> capitalul începe să se împartă între BTC și ETH/ICO-uri.<br />
+            <strong>Reorganizare:</strong> sistemul trece de la 1 centru la 2 centre – nu mai poate reveni complet la „zero”.<br />
+            <strong>Noua structură:</strong> arhitectură policentrică BTC–ETH în formare.
+          </div>
+        </article>
+
+        <!-- Faza 2 -->
+        <article class="card">
+          <div class="card-header">
+            <div class="card-tag">Faza 2</div>
+            <span class="card-chip poly">expansiune policentrică</span>
+          </div>
+          <div class="card-title">Expansiune policentrică (2017–2020)</div>
+          <div class="card-period">ICO-uri, altcoins timpurii, primele stablecoins.</div>
+          <div class="card-body">
+            <strong>Structură:</strong> apar mai multe centre slabe (ICO-uri, prime L1), dar BTC și ETH rămân axele principale.<br />
+            <strong>Flux:</strong> direcționalitatea devine turbulență multi-asset, nu mai este pur BTC.<br />
+            <strong>Reorganizare:</strong> bear marketul 2018 resetează proiectele slabe, dar nu resetează baza structurală BTC–ETH.<br />
+            <strong>Noua structură:</strong> sistem crypto cu mai multe niveluri, imposibil de redus la „1 ciclu BTC”.
+          </div>
+        </article>
+
+        <!-- Faza 3 -->
+        <article class="card">
+          <div class="card-header">
+            <div class="card-tag">Faza 3</div>
+            <span class="card-chip poly">rețele compozabile</span>
+          </div>
+          <div class="card-title">Era rețelelor compozabile (2020–2022)</div>
+          <div class="card-period">DeFi, stablecoins, NFT – compoziție financiară programabilă.</div>
+          <div class="card-body">
+            <strong>Structură:</strong> Ethereum devine strat de execuție, BTC colateral global, stablecoins lichiditate de fundal.<br />
+            <strong>Flux:</strong> fluxurile se compun (DEX ↔ lending ↔ farming), direcționalitatea devine emergentă.<br />
+            <strong>Reorganizare:</strong> 2021–2022 produce o curățare masivă (Luna, 3AC etc.), dar nu o revenire la bază zero.<br />
+            <strong>Noua structură:</strong> un ecosistem meta – greu de „închis” într-un singur ciclu clasic.
+          </div>
+        </article>
+
+        <!-- Faza 4 -->
+        <article class="card">
+          <div class="card-header">
+            <div class="card-tag">Faza 4</div>
+            <span class="card-chip mega">mega-ciclu structural</span>
+          </div>
+          <div class="card-title">Maturizare + mega-ciclu (2023–2025)</div>
+          <div class="card-period">ETF-uri BTC, L2 pe ETH, flux instituțional.</div>
+          <div class="card-body">
+            <strong>Structură:</strong> BTC se ancorează în sistemul financiar global, ETH devine strat modular (L2), Solana și altele captează flux specific.<br />
+            <strong>Flux:</strong> tot mai mult capital instituțional, volatilitate structurală redusă comparativ cu începutul.<br />
+            <strong>Reorganizare:</strong> corecțiile nu mai resetează structura, doar o redistribuie.<br />
+            <strong>Noua structură:</strong> mega-ciclu structural pornit după 2014, încă în desfășurare – cu multe sub-cicluri bull/bear interne.
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- Timeline coeziv -->
+    <section>
+      <h2 class="section-title">Timeline coeziv: de la 3 cicluri complete la un mega-ciclu</h2>
+      <p class="section-sub">
+        Modelul coeziv vede clar <strong>3 cicluri coezive complete</strong> în perioada 2010–2014,
+        apoi un <strong>singur mega-ciclu structural</strong> în desfășurare după apariția Ethereum
+        și a rețelelor compozabile. Regimurile bull/bear interne există, dar sunt sub-cicluri.
+      </p>
+
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-label">2010–2014</div>
+          <div class="timeline-title">Cicluri coezive complete BTC (monocentru)</div>
+          <div class="timeline-meta">
+            3 cicluri coezive complete detectate; fiecare conține mai multe bull/bear,
+            dar structura poate reveni aproape la zero între ele.
+          </div>
+          <div class="timeline-body">
+            <span class="badge btc">BTC unic nucleu</span>
+            <span class="badge mega">3 cicluri complete</span><br />
+            Bitcoin poate „respira” complet: se umflă, se golește și reia ciclul structural fără interferențe de la alte rețele.
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-label">2014–2015</div>
+          <div class="timeline-title">Apariția Ethereum – începutul arhitecturii policentrice</div>
+          <div class="timeline-meta">
+            ICO ETH (2014), lansare mainnet (2015) – apare un al doilea centru structural în sistem.
+          </div>
+          <div class="timeline-body">
+            <span class="badge eth">ETH – execuție programabilă</span>
+            <span class="badge mega">ruperea monocentrului</span><br />
+            Direcționalitatea pieței nu mai poate fi descrisă doar prin BTC; fluxul începe să fie împărțit între două rețele majore.
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-label">2017–2020</div>
+          <div class="timeline-title">Expansiune policentrică – ICO-uri, prime alt L1, stablecoins</div>
+          <div class="timeline-meta">
+            Zeci de sub-cicluri bull/bear apar în interiorul aceluiași mega-ciclu structural.
+          </div>
+          <div class="timeline-body">
+            <span class="badge btc">BTC trend structural</span>
+            <span class="badge eth">ETH infrastructură</span><br />
+            Ciclurile clasice „bull 2017 / bear 2018” sunt, în modelul coeziv, sub-cicluri ale aceluiași cadru structural BTC–ETH.
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-label">2020–2022</div>
+          <div class="timeline-title">Rețele compozabile – DeFi, NFT, lichiditate programabilă</div>
+          <div class="timeline-meta">
+            Sistemul intră într-o fază meta: fluxurile trec prin contracte, nu doar prin prețuri.
+          </div>
+          <div class="timeline-body">
+            <span class="badge defI">DeFi &amp; stablecoins</span>
+            <span class="badge mega">sub-cicluri multiple</span><br />
+            Curățarea 2022 nu resetează structura la nivelul 2010–2014; doar reorganizează un sistem cu multe centre.
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-label">2023–2025</div>
+          <div class="timeline-title">Maturizare – ETF-uri BTC, L2, flux instituțional</div>
+          <div class="timeline-meta">
+            Mega-ciclul structural este încă deschis; regimurile bull/bear interne există, dar nu închid ciclul.
+          </div>
+          <div class="timeline-body">
+            <span class="badge btc">BTC finanțe tradiționale</span>
+            <span class="badge eth">ETH + L2 execuție</span>
+            <span class="badge mega">mega-ciclu continuu</span><br />
+            Din perspectiva modelului coeziv, nu a mai existat o „bază 0” clară după 2014 – doar reorganizări în interiorul aceluiași cadru structural extins.
+          </div>
+        </div>
+      </div>
+
+      <p class="note">
+        <strong>Important:</strong> Ciclurile coezive complete (2010–2014) descriu doar nivelul structural
+        profund al BTC. Regimurile bull/bear pe care le vezi în <code>ic_btc_regimes.html</code> sunt
+        sub-cicluri interne (mai fine) ale acestor structuri. După 2014, modelul coeziv indică un singur
+        mega-ciclu structural, cu multe regimuri bull/bear în interior, influențat de apariția Ethereum,
+        DeFi și lichidității programabile.
+      </p>
+    </section>
+
+    <!-- tabel scurt rezumat -->
+    <section>
+      <h2 class="section-title">Rezumat coeziv pe perioade</h2>
+      <p class="section-sub">
+        O sinteză a transformării pieței din perspectivă coezivă: unde apar cicluri complete și unde avem doar sub-cicluri într-un mega-ciclu.
+      </p>
+
+      <div class="card" style="margin-top:0.9rem;">
+        <table>
+          <thead>
+            <tr>
+              <th>Perioadă</th>
+              <th>Tip fază</th>
+              <th>Structură dominantă</th>
+              <th>Cicluri coezive complete</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>2010–2014</td>
+              <td>Monocentru BTC</td>
+              <td>BTC unic nucleu (hashing, securitate, lichiditate)</td>
+              <td>≈ 3 cicluri complete</td>
+            </tr>
+            <tr>
+              <td>2014–2016</td>
+              <td>Tranziție policentrică</td>
+              <td>BTC + ETH (apariția execuției programabile)</td>
+              <td>0 cicluri noi (structură nu revine la zero)</td>
+            </tr>
+            <tr>
+              <td>2017–2020</td>
+              <td>Expansiune policentrică</td>
+              <td>BTC + ETH + ICO/alt L1 + stablecoins timpurii</td>
+              <td>Sub-cicluri interne (bull/bear), niciun ciclu complet nou</td>
+            </tr>
+            <tr>
+              <td>2020–2022</td>
+              <td>Rețele compozabile</td>
+              <td>DeFi, NFT, stablecoins ca infrastructură</td>
+              <td>Sub-cicluri în mega-ciclu, fără bază 0 clară</td>
+            </tr>
+            <tr>
+              <td>2023–2025</td>
+              <td>Mega-ciclu structural</td>
+              <td>BTC + ETH + L2 + flux instituțional</td>
+              <td>Mega-ciclu deschis, regimuri bull/bear multiple în interior</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <p class="note">
+          Această hartă nu înlocuiește regimurile bull/bear și indicii IC_BTC, ci le pune
+          într-un <strong>context macro-coeziv</strong>: ce este un ciclu complet, ce este un
+          sub-ciclu și de ce după 2014 avem mai degrabă un <strong>mega-ciclu structural</strong>
+          decât „4 bull markets separate”.
+        </p>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
