@@ -908,43 +908,452 @@
         }
         const json = await res.json();
 
-        // sortăm după timp, doar ca siguranță
-        const ohlc = json
-          .slice()
-          .sort((a, b) => a.timestamp - b.timestamp);
+        // sortăm după timp, doar ca s<script>
+  const DateTime = luxon.DateTime;
+  const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
-        const modelData = computeCohesiveIndices(ohlc);
+  // ---------- Utilitare numerice ----------
 
-        // praguri adaptate automat la distribuția indicilor
-        const sVals = modelData.icStruct.filter(v => Number.isFinite(v));
-        const dVals = modelData.icDir.filter(v => Number.isFinite(v));
+  function emaArray(values, period) {
+    const k = 2 / (period + 1);
+    const out = new Array(values.length).fill(null);
+    let emaPrev = null;
+    for (let i = 0; i < values.length; i++) {
+      const v = values[i];
+      if (v == null || isNaN(v)) {
+        out[i] = emaPrev;
+        continue;
+      }
+      if (emaPrev == null) {
+        emaPrev = v;
+      } else {
+        emaPrev = k * v + (1 - k) * emaPrev;
+      }
+      out[i] = emaPrev;
+    }
+    return out;
+  }
 
-        const structP70 = percentile(sVals, 70);
-        const dirP60 = percentile(dVals, 60);
-        const dirP40 = percentile(dVals, 40);
+  function rollingStd(values, window) {
+    const out = new Array(values.length).fill(null);
+    let sum = 0;
+    let sumSq = 0;
+    const buf = [];
+    for (let i = 0; i < values.length; i++) {
+      const v = values[i];
+      if (v == null || isNaN(v)) {
+        buf.push(0);
+        sum += 0;
+        sumSq += 0;
+      } else {
+        buf.push(v);
+        sum += v;
+        sumSq += v * v;
+      }
+      if (buf.length > window) {
+        const old = buf.shift();
+        sum -= old;
+        sumSq -= old * old;
+      }
+      if (buf.length === window) {
+        const mean = sum / window;
+        const variance = sumSq / window - mean * mean;
+        out[i] = Math.sqrt(Math.max(variance, 0));
+      }
+    }
+    return out;
+  }
 
-        const thresholds = {
-          structBull: structP70,
-          structBear: structP70,
-          dirBull: dirP60,
-          dirBear: dirP40,
-          minDays: 20
-        };
+  function percentile(arr, p) {
+    const clean = arr.filter(v => Number.isFinite(v)).sort((a,b) => a - b);
+    if (!clean.length) return null;
+    const idx = Math.floor((clean.length - 1) * (p / 100));
+    return clean[idx];
+  }
 
-        const regimes = detectRegimes(modelData, thresholds);
+  function clamp(v, min, max) {
+    return Math.min(max, Math.max(min, v));
+  }
 
-        updateStats(regimes);
-        renderRegimeTable(regimes);
+  // ---------- Model coeziv: IC_BTC structural & direcțional (din OHLC) ----------
 
-        const ctx = document.getElementById("regimeChart").getContext("2d");
-        createPriceChart(ctx, modelData, regimes);
-      } catch (err) {
-        console.error(err);
-        alert("Nu am putut încărca datele pentru regimuri bull/bear. Verifică fișierul btc_ohlc.json.");
+  function computeCohesiveIndices(ohlc) {
+    const n = ohlc.length;
+    const timestamps = [];
+    const closes = [];
+    for (let i = 0; i < n; i++) {
+      timestamps.push(Number(ohlc[i].timestamp));
+      closes.push(Number(ohlc[i].close));
+    }
+
+    // randamente logaritmice
+    const logRet = new Array(n).fill(null);
+    for (let i = 1; i < n; i++) {
+      if (closes[i] > 0 && closes[i-1] > 0) {
+        logRet[i] = Math.log(closes[i] / closes[i-1]);
       }
     }
 
-    init();
-  </script>
+    // volatilitate locală pe 20 zile
+    const vol20 = rollingStd(logRet, 20);
+
+    // trend de preț pe 50 / 200 zile
+    const ema50 = emaArray(closes, 50);
+    const ema200 = emaArray(closes, 200);
+
+    // IC structural: invers de volatilitate normalizată
+    const volClean = vol20.filter(v => Number.isFinite(v));
+    const volMin = volClean.length ? Math.min.apply(null, volClean) : 0;
+    const volMax = volClean.length ? Math.max.apply(null, volClean) : 1;
+    const icStruct = new Array(n).fill(null);
+
+    for (let i = 0; i < n; i++) {
+      const v = vol20[i];
+      if (!Number.isFinite(v)) continue;
+      const norm = (v - volMin) / (volMax - volMin || 1);
+      const struct = 100 * (1 - clamp(norm, 0, 1)); // volatilitate mică => structură mare
+      icStruct[i] = struct;
+    }
+
+    // IC direcțional: alinierea mișcării zilnice cu trendul mare
+    const icDirRaw = new Array(n).fill(null);
+    for (let i = 1; i < n; i++) {
+      const es = ema50[i];
+      const el = ema200[i];
+      if (!Number.isFinite(es) || !Number.isFinite(el)) continue;
+      const trendSign = es >= el ? 1 : -1;           // direcția trendului dominant
+      const move = closes[i] - closes[i-1];          // mișcarea din ziua curentă
+      const daySign = move >= 0 ? 1 : -1;
+      const align = trendSign * daySign;             // +1 = aliniat, -1 = contra
+      // map [-1,1] -> [0,100]
+      const score = 50 + 50 * align;
+      icDirRaw[i] = score;
+    }
+
+    // netezim indicii (coeziv: structură în timp, nu zgomot de zi cu zi)
+    const icStructSmooth = emaArray(icStruct, 10);
+    const icDirSmooth = emaArray(icDirRaw, 10);
+
+    return {
+      timestamps,
+      closes,
+      icStructSmooth,
+      icDirSmooth
+    };
+  }
+
+  // ---------- Detectare regimuri bull / bear conform modelului coeziv ----------
+
+  // Bull = structură în percentila 65–70 + direcționalitate în percentila 65–70
+  // Bear = structură în percentila 65–70 + direcționalitate în percentila 30–35
+  // Durată minimă: ~20 zile (regim, nu zgomot)
+  function detectRegimes(data) {
+    const t = data.timestamps;
+    const s = data.icStructSmooth;
+    const d = data.icDirSmooth;
+    const n = t.length;
+
+    const sVals = s.filter(v => Number.isFinite(v));
+    const dVals = d.filter(v => Number.isFinite(v));
+
+    const structHigh = percentile(sVals, 68); // ~65–70
+    const dirHigh    = percentile(dVals, 68);
+    const dirLow     = percentile(dVals, 32); // ~30–35
+
+    // fallback dacă nu avem destule valori
+    const thresholds = {
+      structHigh: structHigh != null ? structHigh : 60,
+      dirHigh:    dirHigh    != null ? dirHigh    : 60,
+      dirLow:     dirLow     != null ? dirLow     : 40,
+      minDays: 20
+    };
+
+    const regimes = [];
+    let currentType = null; // "bull" | "bear" | null
+    let startIdx = null;
+
+    function closeSegment(endIdx) {
+      if (currentType == null || startIdx == null) return;
+      const startTs = t[startIdx];
+      const endTs   = t[endIdx];
+      const days = Math.round((endTs - startTs) / MS_PER_DAY) + 1;
+      if (days >= thresholds.minDays) {
+        regimes.push({
+          type: currentType,
+          start: startTs,
+          end: endTs,
+          duration: days
+        });
+      }
+    }
+
+    for (let i = 0; i < n; i++) {
+      const si = s[i];
+      const di = d[i];
+      if (!Number.isFinite(si) || !Number.isFinite(di)) continue;
+
+      const isBull = si >= thresholds.structHigh && di >= thresholds.dirHigh;
+      const isBear = si >= thresholds.structHigh && di <= thresholds.dirLow;
+
+      let newType = null;
+      if (isBull && !isBear) newType = "bull";
+      else if (isBear && !isBull) newType = "bear";
+
+      if (newType === currentType) {
+        continue;
+      }
+
+      // s-a schimbat regimul sau am ieșit din bull/bear
+      if (currentType !== null) {
+        closeSegment(i - 1);
+      }
+
+      currentType = newType;
+      startIdx = newType ? i : null;
+    }
+
+    if (currentType !== null && startIdx !== null) {
+      closeSegment(n - 1);
+    }
+
+    return regimes;
+  }
+
+  // ---------- Plugin Chart.js pentru fundal bull / bear ----------
+
+  const regimeBackgroundPlugin = {
+    id: "regimeBackground",
+    beforeDraw(chart, args, opts) {
+      const regimes = opts && opts.regimes;
+      if (!regimes || !regimes.length) return;
+
+      const ctx = chart.ctx;
+      const chartArea = chart.chartArea;
+      const xAxis = chart.scales.x;
+      if (!chartArea || !xAxis) return;
+
+      ctx.save();
+      for (let i = 0; i < regimes.length; i++) {
+        const r = regimes[i];
+        const xStart = xAxis.getPixelForValue(r.start);
+        const xEnd   = xAxis.getPixelForValue(r.end);
+        const width  = xEnd - xStart;
+        if (!isFinite(width) || width <= 0) continue;
+
+        ctx.fillStyle = r.type === "bull"
+          ? "rgba(34,197,94,0.18)"   // verde bull
+          : "rgba(248,113,113,0.18)"; // roșu bear
+
+        ctx.fillRect(
+          xStart,
+          chartArea.top,
+          width,
+          chartArea.bottom - chartArea.top
+        );
+      }
+      ctx.restore();
+    }
+  };
+
+  Chart.register(regimeBackgroundPlugin);
+
+  // ---------- UI helpers ----------
+
+  function formatDate(ts) {
+    return DateTime.fromMillis(ts).toFormat("yyyy-LL-dd");
+  }
+
+  function updateStats(regimes) {
+    const bull = regimes.filter(r => r.type === "bull");
+    const bear = regimes.filter(r => r.type === "bear");
+
+    const bullCountEl   = document.getElementById("bullCount");
+    const bearCountEl   = document.getElementById("bearCount");
+    const longestBullEl = document.getElementById("longestBull");
+    const longestBearEl = document.getElementById("longestBear");
+
+    bullCountEl.textContent   = bull.length;
+    bearCountEl.textContent   = bear.length;
+
+    const longestBull = bull.reduce((max, r) => Math.max(max, r.duration), 0);
+    const longestBear = bear.reduce((max, r) => Math.max(max, r.duration), 0);
+
+    longestBullEl.textContent = longestBull || "–";
+    longestBearEl.textContent = longestBear || "–";
+  }
+
+  function renderRegimeTable(regimes) {
+    const tbody = document.getElementById("regimeTableBody");
+    tbody.innerHTML = "";
+
+    if (!regimes.length) {
+      const tr = document.createElement("tr");
+      const td = document.createElement("td");
+      td.colSpan = 4;
+      td.textContent = "Nu au fost detectate regimuri bull / bear pentru pragurile curente.";
+      td.style.color = "var(--text-muted)";
+      tr.appendChild(td);
+      tbody.appendChild(tr);
+      return;
+    }
+
+    regimes.forEach(r => {
+      const tr = document.createElement("tr");
+
+      const tdType = document.createElement("td");
+      const pill = document.createElement("span");
+      pill.className = "regime-type-pill " + r.type;
+      pill.innerHTML = '<span class="pill-dot ' + r.type + '"></span>' + r.type + " market";
+      tdType.appendChild(pill);
+
+      const tdStart = document.createElement("td");
+      tdStart.textContent = formatDate(r.start);
+
+      const tdEnd = document.createElement("td");
+      tdEnd.textContent = formatDate(r.end);
+
+      const tdDur = document.createElement("td");
+      tdDur.textContent = r.duration;
+
+      tr.appendChild(tdType);
+      tr.appendChild(tdStart);
+      tr.appendChild(tdEnd);
+      tr.appendChild(tdDur);
+      tbody.appendChild(tr);
+    });
+  }
+
+  function createPriceChart(canvas, data, regimes) {
+    const points = data.timestamps.map((ts, i) => ({
+      x: ts,
+      y: data.closes[i]
+    }));
+
+    return new Chart(canvas.getContext("2d"), {
+      type: "line",
+      data: {
+        datasets: [{
+          label: "BTCUSDT close",
+          data: points,
+          parsing: false,
+          borderColor: "rgba(96,165,250,1)",
+          backgroundColor: "rgba(59,130,246,0.10)",
+          borderWidth: 2,
+          pointRadius: 0,
+          tension: 0.18
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            labels: {
+              color: "#e5e7eb",
+              usePointStyle: true,
+              font: { size: 11 }
+            }
+          },
+          tooltip: {
+            mode: "index",
+            intersect: false,
+            callbacks: {
+              title(items) {
+                if (!items.length) return "";
+                const ts = items[0].parsed.x;
+                return DateTime.fromMillis(ts).toFormat("yyyy-LL-dd");
+              },
+              label(ctx) {
+                const v = ctx.parsed.y;
+                if (!Number.isFinite(v)) return "";
+                return " Preț BTC: " + v.toLocaleString("en-US", {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2
+                }) + " USDT";
+              }
+            }
+          },
+          regimeBackground: {
+            regimes: regimes
+          }
+        },
+        scales: {
+          x: {
+            type: "time",
+            time: {
+              unit: "year",
+              tooltipFormat: "yyyy-LL-dd"
+            },
+            grid: {
+              color: "rgba(55,65,81,0.7)",
+              drawBorder: false
+            },
+            ticks: {
+              color: "#9ca3af",
+              maxRotation: 0,
+              autoSkipPadding: 16
+            }
+          },
+          y: {
+            position: "left",
+            grid: {
+              color: "rgba(31,41,55,0.8)",
+              drawBorder: false
+            },
+            ticks: {
+              color: "#9ca3af",
+              callback(value) {
+                if (value >= 1000) {
+                  return value.toLocaleString("en-US", { maximumFractionDigits: 0 });
+                }
+                return value;
+              }
+            },
+            title: {
+              display: true,
+              text: "Preț BTCUSDT (close, 1D)",
+              color: "#e5e7eb",
+              font: { size: 11 }
+            }
+          }
+        },
+        interaction: {
+          mode: "index",
+          intersect: false
+        }
+      }
+    });
+  }
+
+  // ---------- Init: încărcăm btc_ohlc.json, calculăm IC, regimuri, grafic ----------
+
+  async function initRegimes() {
+    try {
+      const res = await fetch("btc_ohlc.json", { cache: "no-store" });
+      if (!res.ok) {
+        throw new Error("Nu pot încărca btc_ohlc.json");
+      }
+      const raw = await res.json();
+
+      const ohlc = raw.slice().sort((a,b) => a.timestamp - b.timestamp);
+
+      const modelData = computeCohesiveIndices(ohlc);
+      const regimes = detectRegimes(modelData);
+
+      updateStats(regimes);
+      renderRegimeTable(regimes);
+
+      const canvas = document.getElementById("regimeChart");
+      createPriceChart(canvas, modelData, regimes);
+
+      console.log("Regimuri detectate:", regimes);
+    } catch (err) {
+      console.error(err);
+      alert("Eroare la încărcarea datelor sau la calculul regimurilor bull/bear.");
+    }
+  }
+
+  initRegimes();
+</script>
 </body>
 </html>
