@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" />
+  <title>Probabilitatea coezivă de preț BTC – Model fuzionat Global–BTC</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta
+    name="description"
+    content="Probabilitatea coezivă de preț BTC, calculată conceptual prin Modelul Coeziv Fuzionat: structură globală, structură internă BTC și regimuri bull/bear majore."
+  />
+
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #020617;
+      --card: #020617;
+      --card-border: rgba(148, 163, 184, 0.35);
+      --text-main: #e5e7eb;
+      --text-soft: #94a3b8;
+      --muted: #64748b;
+      --accent: #4f46e5;
+      --accent-soft: rgba(79, 70, 229, 0.25);
+      --success: #22c55e;
+      --danger: #ef4444;
+      --cyan: #22d3ee;
+      --violet: #a855f7;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont,
+        "SF Pro Text", "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #020617 0, #000 55%, #020617 100%);
+      color: var(--text-main);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .page {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 1.5rem 1.5rem 3rem;
+    }
+
+    header h1 {
+      margin: 0 0 0.5rem;
+      font-size: 1.7rem;
+      letter-spacing: 0.02em;
+    }
+
+    header p {
+      margin: 0;
+      font-size: 0.92rem;
+      color: var(--text-soft);
+      max-width: 720px;
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.9rem;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.35rem 0.9rem;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      font-size: 0.78rem;
+      color: var(--text-soft);
+      background: radial-gradient(circle at top, #020617, #020617);
+    }
+
+    .pill-dot {
+      width: 0.55rem;
+      height: 0.55rem;
+      border-radius: 999px;
+      background: var(--accent);
+    }
+
+    .pill.global .pill-dot { background: var(--cyan); }
+    .pill.btc    .pill-dot { background: #f97316; }
+    .pill.fuz    .pill-dot { background: var(--violet); }
+
+    .back-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin: 1.2rem 0 0.9rem;
+    }
+
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.8rem;
+      padding: 0.45rem 0.9rem;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      background: rgba(15, 23, 42, 0.9);
+      color: var(--text-main);
+      text-decoration: none;
+    }
+
+    .back-btn .icon { font-size: 1rem; }
+
+    .section-title {
+      margin-top: 1.6rem;
+      margin-bottom: 0.4rem;
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    .section-sub {
+      margin: 0;
+      font-size: 0.85rem;
+      color: var(--text-soft);
+      max-width: 730px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.9rem;
+      margin-top: 1rem;
+    }
+
+    @media (max-width: 768px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+
+    .card {
+      border-radius: 1rem;
+      padding: 0.9rem 1rem;
+      background: radial-gradient(circle at top, #020617, #020617);
+      border: 1px solid var(--card-border);
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.85);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.3rem;
+    }
+
+    .card-tag {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--muted);
+    }
+
+    .card-chip {
+      padding: 0.25rem 0.65rem;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      color: var(--text-soft);
+    }
+
+    .card-chip.global { border-color: var(--cyan); }
+    .card-chip.btc    { border-color: #f97316; }
+    .card-chip.fuz    { border-color: var(--violet); }
+    .card-chip.realist{ border-color: var(--success); }
+
+    .card-title {
+      font-size: 0.96rem;
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+
+    .card-period {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 0.35rem;
+    }
+
+    .card-body {
+      font-size: 0.82rem;
+      color: var(--text-soft);
+      line-height: 1.5;
+    }
+
+    .card-body strong {
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.18rem 0.65rem;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      color: var(--text-soft);
+      margin-right: 0.35rem;
+      margin-top: 0.2rem;
+    }
+
+    .badge.struct { border-color: #22c55e; color: #bbf7d0; }
+    .badge.dir    { border-color: #22d3ee; color: #a5f3fc; }
+    .badge.macro  { border-color: #a855f7; color: #e9d5ff; }
+    .badge.equity { border-color: #38bdf8; color: #bae6fd; }
+    .badge.credit { border-color: #f97316; color: #fed7aa; }
+
+    .note {
+      margin-top: 1.1rem;
+      font-size: 0.8rem;
+      color: var(--text-soft);
+      line-height: 1.5;
+    }
+
+    .note strong {
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    /* pseudo-bar pentru probabilități */
+    .prob-row {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      margin-top: 0.6rem;
+    }
+
+    .prob-label {
+      font-size: 0.8rem;
+      color: var(--text-soft);
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .prob-bar {
+      width: 100%;
+      height: 0.55rem;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.9);
+      overflow: hidden;
+      border: 1px solid rgba(51, 65, 85, 0.9);
+    }
+
+    .prob-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #22c55e, #4f46e5);
+      width: 40%; /* placeholder; de modificat când vei avea valori reale */
+    }
+
+    .prob-fill.mid {
+      background: linear-gradient(90deg, #eab308, #4f46e5);
+      width: 30%;
+    }
+
+    .prob-fill.low {
+      background: linear-gradient(90deg, #ef4444, #a855f7);
+      width: 20%;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 0.7rem;
+      font-size: 0.8rem;
+    }
+
+    th, td {
+      padding: 0.45rem 0.55rem;
+      text-align: left;
+    }
+
+    thead tr {
+      background: rgba(15, 23, 42, 0.95);
+    }
+
+    th {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--muted);
+      border-bottom: 1px solid rgba(51, 65, 85, 0.9);
+    }
+
+    tbody tr:nth-child(odd) {
+      background: rgba(15, 23, 42, 0.5);
+    }
+
+    tbody tr:nth-child(even) {
+      background: rgba(15, 23, 42, 0.8);
+    }
+
+    td {
+      border-bottom: 1px solid rgba(30, 41, 59, 0.75);
+      color: #e5e7eb;
+    }
+
+    .placeholder-chart {
+      margin-top: 0.7rem;
+      padding: 0.7rem 0.8rem;
+      border-radius: 0.8rem;
+      border: 1px dashed rgba(148, 163, 184, 0.4);
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>Probabilitatea coezivă de preț BTC</h1>
+      <p>
+        Pagina de probabilitate de preț BTC în Modelul Coeziv Fuzionat: combină
+        structura macro globală (IC_GLOBAL, ICD_GLOBAL) cu structura internă a
+        Bitcoin (IC_BTC, ICD_BTC) și regimurile bull/bear coezive. Această pagină
+        descrie cadrul probabilistic – nu dă ținte precise de preț, ci
+        intervale și faze structurale.
+      </p>
+
+      <div class="pill-row">
+        <div class="pill global">
+          <span class="pill-dot"></span>
+          <span>IC_GLOBAL &amp; ICD_GLOBAL – structura și direcția macro mondială</span>
+        </div>
+        <div class="pill btc">
+          <span class="pill-dot"></span>
+          <span>IC_BTC &amp; ICD_BTC – structura internă a Bitcoin</span>
+        </div>
+        <div class="pill fuz">
+          <span class="pill-dot"></span>
+          <span>IC_FUZ &amp; ICD_FUZ – model fuzionat Global–BTC</span>
+        </div>
+      </div>
+
+      <div class="back-row">
+        <a href="ic_btc.html" class="back-btn">
+          <span class="icon">←</span><span>Indice IC_BTC</span>
+        </a>
+        <a href="ic_btc_regimes.html" class="back-btn">
+          <span class="icon">📈</span><span>Regimuri Bull/Bear</span>
+        </a>
+        <a href="ic_btc_mega.html" class="back-btn">
+          <span class="icon">🟣</span><span>Mega-ciclu BTC</span>
+        </a>
+        <a href="ic_btc_map.html" class="back-btn">
+          <span class="icon">🗺️</span><span>Harta coezivă</span>
+        </a>
+      </div>
+    </header>
+
+    <!-- 1. Conceptul de probabilitate coezivă -->
+    <section>
+      <h2 class="section-title">1. Ce înseamnă „probabilitatea coezivă de preț”</h2>
+      <p class="section-sub">
+        Modelul Coeziv nu oferă ținte magice de preț („BTC la X”), ci estimează
+        <strong>probabilitatea de a ne afla într-o anumită fază structurală</strong>.
+        Din fază derivă <strong>intervale de preț</strong>, nu valori punctuale.
+      </p>
+
+      <div class="grid" style="margin-top:1rem;">
+        <article class="card">
+          <div class="card-header">
+            <div class="card-tag">Nivel 1</div>
+            <span class="card-chip global">macro global</span>
+          </div>
+          <div class="card-title">Structură &amp; direcționalitate globală</div>
+          <div class="card-period">IC_GLOBAL și ICD_GLOBAL</div>
+          <div class="card-body">
+            Modelul măsoară starea macro mondială prin:
+            <ul style="margin:0.3rem 0 0 1rem; padding:0;">
+              <li>trendul pe indici globali (S&amp;P 500, NASDAQ, MSCI World),</li>
+              <li>regimul de volatilitate (VIX, MOVE),</li>
+              <li>regimul de dobânzi (US10Y),</li>
+              <li>starea dolarului (DXY) și a creditului (IG vs HY).</li>
+            </ul>
+            Din aceste componente se extrage:
+            <div style="margin-top:0.35rem;">
+              <span class="badge struct">IC_GLOBAL – structură macro</span>
+              <span class="badge dir">ICD_GLOBAL – direcție macro</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="card-header">
+            <div class="card-tag">Nivel 2</div>
+            <span class="card-chip btc">BTC intern</span>
+          </div>
+          <div class="card-title">Structura &amp; direcția BTC</div>
+          <div class="card-period">IC_BTC, ICD_BTC, regimuri bull/bear</div>
+          <div class="card-body">
+            Pentru Bitcoin, Modelul Coeziv utilizează:
+            <ul style="margin:0.3rem 0 0 1rem; padding:0;">
+              <li><strong>IC_BTC</strong> – calitatea și persistența trendului BTC,</li>
+              <li><strong>ICD_BTC</strong> – cât de mult se aliniază mișcările zilnice cu trendul,</li>
+              <li><strong>regimurile bull/bear</strong> – respiratia internă a pieței.</li>
+            </ul>
+            Acest nivel spune cât de „ordonat” sau „fracturat” este comportamentul intern al BTC.
+          </div>
+        </article>
+      </div>
+
+      <p class="note">
+        <strong>Probabilitatea coezivă de preț</strong> apare abia la
+        <strong>nivelul 3</strong>, când sistemul global și cel BTC sunt fuzionate
+        într-un singur indice structural (IC_FUZ) și un singur indice direcțional
+        (ICD_FUZ).
+      </p>
+    </section>
+
+    <!-- 2. Fuziunea Global–BTC -->
+    <section>
+      <h2 class="section-title">2. Fuziunea Global–BTC: IC_FUZ și ICD_FUZ</h2>
+      <p class="section-sub">
+        Nivelul fuzionat combină informația macro (IC_GLOBAL, ICD_GLOBAL) cu
+        informația internă BTC (IC_BTC, ICD_BTC). Rezultatul: IC_FUZ și ICD_FUZ,
+        folosiți pentru a determina regimul coeziv fuzionat.
+      </p>
+
+      <div class="grid" style="margin-top:1rem;">
+        <article class="card">
+          <div class="card-header">
+            <div class="card-tag">Indice structural fuzionat</div>
+            <span class="card-chip fuz">IC_FUZ</span>
+          </div>
+          <div class="card-title">IC_FUZ = 0.65·IC_GLOBAL + 0.35·IC_BTC</div>
+          <div class="card-period">Varianta realistă (ponderi moderate)</div>
+          <div class="card-body">
+            <strong>IC_FUZ</strong> reprezintă cât de coeziv este trendul, simultan:
+            <ul style="margin:0.3rem 0 0 1rem; padding:0;">
+              <li>în piața globală (acțiuni, credit, dobânzi, USD),</li>
+              <li>în structura internă a Bitcoin.</li>
+            </ul>
+            Ponderile (0.65 macro, 0.35 BTC) reflectă faptul că
+            <strong>climatul global condiționează</strong> mișcările mari de preț
+            ale BTC, dar structura internă BTC contează în continuare.
+            <div style="margin-top:0.35rem;">
+              <span class="badge struct">IC_GLOBAL – 65%</span>
+              <span class="badge.struct">IC_BTC – 35%</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="card-header">
+            <div class="card-tag">Indice direcțional fuzionat</div>
+            <span class="card-chip fuz">ICD_FUZ</span>
+          </div>
+          <div class="card-title">ICD_FUZ = 0.60·ICD_GLOBAL + 0.40·ICD_BTC</div>
+          <div class="card-period">Sens și forță a fluxului global–BTC</div>
+          <div class="card-body">
+            <strong>ICD_FUZ</strong> măsoară direcția efectivă a fluxului:
+            <ul style="margin:0.3rem 0 0 1rem; padding:0;">
+              <li>dacă piața globală este în <em>risk-on</em> sau <em>risk-off</em>,</li>
+              <li>dacă BTC se mișcă în acord cu acest climat sau împotriva lui.</li>
+            </ul>
+            Un <strong>ICD_FUZ ridicat</strong> indică un mediu favorabil pentru
+            continuarea unui trend de creștere BTC; un nivel foarte scăzut
+            sugerează presiune consistentă de scădere.
+          </div>
+        </article>
+      </div>
+
+      <p class="note">
+        În practică, IC_FUZ și ICD_FUZ se calculează zilnic din date reale
+        macro și BTC (CSV-uri). În această etapă, pagina descrie cadrul
+        conceptual și modul în care modelul va folosi acești indici pentru a
+        estima intervale de preț probabil.
+      </p>
+    </section>
+
+    <!-- 3. Regimuri fuzionate și amplitudini -->
+    <section>
+      <h2 class="section-title">3. Regimuri fuzionate și amplitudini tipice BTC</h2>
+      <p class="section-sub">
+        Regimul coeziv fuzionat este stabilit din IC_FUZ și ICD_FUZ. Fiecare
+        regim are amplitudini și durate tipice, calibrate pe istoric (varianta
+        realistă).
+      </p>
+
+      <div class="card" style="margin-top:1rem;">
+        <table>
+          <thead>
+            <tr>
+              <th>Regim fuzionat</th>
+              <th>Condiții IC_FUZ / ICD_FUZ</th>
+              <th>Amplitudine BTC tipică</th>
+              <th>Durată tipică (zile)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Bull major fuzionat</td>
+              <td>IC_FUZ &gt; 70, ICD_FUZ &gt; 65</td>
+              <td>+55% → +120%</td>
+              <td>~30–90</td>
+            </tr>
+            <tr>
+              <td>Bull local fuzionat</td>
+              <td>IC_FUZ 60–70, ICD_FUZ &gt; 55</td>
+              <td>+15% → +45%</td>
+              <td>~15–40</td>
+            </tr>
+            <tr>
+              <td>Tranziție / top structural</td>
+              <td>IC_FUZ &gt; 70, ICD_FUZ 45–55</td>
+              <td>–10% → +25%</td>
+              <td>~20–60</td>
+            </tr>
+            <tr>
+              <td>Bear local fuzionat</td>
+              <td>IC_FUZ 60–70, ICD_FUZ &lt; 45</td>
+              <td>–15% → –35%</td>
+              <td>~10–30</td>
+            </tr>
+            <tr>
+              <td>Bear major fuzionat</td>
+              <td>IC_FUZ &gt; 75, ICD_FUZ &lt; 30</td>
+              <td>–35% → –65%</td>
+              <td>~30–120</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <p class="note">
+          Amplitudinile și duratele sunt <strong>intervale istorice realiste</strong>,
+          nu promisiuni. Ele descriu ce s-a întâmplat, în medie, în regimuri
+          similare de structură și direcționalitate, nu ce „trebuie” să se
+          întâmple. Modelul folosește aceste intervale pentru a construi o
+          distribuție probabilistică a prețului.
+        </p>
+      </div>
+    </section>
+
+    <!-- 4. Probabilități și intervale de preț (schemă) -->
+    <section>
+      <h2 class="section-title">4. Probabilități de faze și intervale de preț</h2>
+      <p class="section-sub">
+        Din IC_FUZ și ICD_FUZ se extrage probabilitatea fiecărui regim fuzionat.
+        Din regim și amplitudini se obțin <strong>intervale de preț probabil</strong>
+        pentru BTC, pe orizonturi de timp alese (de ex. 30/90 zile).
+      </p>
+
+      <div class="grid" style="margin-top:1rem;">
+        <article class="card">
+          <div class="card-header">
+            <div class="card-tag">Exemplu schematic</div>
+            <span class="card-chip realist">fără date reale încă</span>
+          </div>
+          <div class="card-title">Probabilități de faze (schematice)</div>
+          <div class="card-period">Modul în care va arăta output-ul</div>
+          <div class="card-body">
+            Valorile de mai jos sunt <strong>doar exemplu vizual</strong>. Când
+            datele macro și BTC vor fi conectate, aceste bare vor reflecta
+            probabilități reale:
+            <div class="prob-row">
+              <div class="prob-label">
+                <span>Bull major fuzionat</span><span>≈ 40% (exemplu)</span>
+              </div>
+              <div class="prob-bar"><div class="prob-fill"></div></div>
+
+              <div class="prob-label">
+                <span>Tranziție / top structural</span><span>≈ 35% (exemplu)</span>
+              </div>
+              <div class="prob-bar"><div class="prob-fill mid"></div></div>
+
+              <div class="prob-label">
+                <span>Bear local / major combinat</span><span>≈ 25% (exemplu)</span>
+              </div>
+              <div class="prob-bar"><div class="prob-fill low"></div></div>
+            </div>
+            <div class="placeholder-chart">
+              Placeholder: aici se poate integra, ulterior, un mic grafic care
+              arată distribuția probabilistică a prețului pentru diferite orizonturi
+              (30 / 90 / 180 zile), în funcție de regimurile fuzionate.
+            </div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="card-header">
+            <div class="card-tag">Intervale de preț</div>
+            <span class="card-chip fuz">estimare probabilistică</span>
+          </div>
+          <div class="card-title">Cum se ajunge la un interval de preț</div>
+          <div class="card-period">Conceptual, fără target fix</div>
+          <div class="card-body">
+            Pentru un preț curent <strong>P₀</strong> și un orizont T zile, modelul
+            estimează:
+            <ul style="margin:0.3rem 0 0.2rem 1rem; padding:0;">
+              <li>probabilitatea fiecărui regim fuzionat (Bull major, Bear local etc.),</li>
+              <li>amplitudinile tipice ale fiecărui regim (ex: +55–120% pentru Bull major),</li>
+              <li>distribuția rezultată a prețurilor posibile.</li>
+            </ul>
+            Rezultatul este un <strong>interval probabil de preț</strong>:
+            <ul style="margin:0.3rem 0 0.2rem 1rem; padding:0;">
+              <li>zonă minimă probabilă (de ex. 0–20% scenariu negativ),</li>
+              <li>zonă mediană (scenariul cel mai plauzibil în termeni coezivi),</li>
+              <li>zonă maximă probabilă (extensii ale fazei dominante).</li>
+            </ul>
+            Modelul oferă astfel <strong>un cadru de probabilitate</strong>, nu
+            o predicție punctuală de tip „va fi exact X USD”.
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- 5. Concluzie coezivă -->
+    <section>
+      <h2 class="section-title">5. Concluzie coezivă</h2>
+      <p class="section-sub">
+        Modelul Coeziv Fuzionat Global–BTC transformă analiza de preț din „ținte”
+        în <strong>faze, probabilități și intervale structurale</strong>.
+      </p>
+
+      <div class="card" style="margin-top:0.9rem;">
+        <div class="card-body">
+          <ul style="margin:0.2rem 0 0.4rem 1rem; padding:0;">
+            <li>nu se bazează pe halving-uri sau narațiuni populare,</li>
+            <li>nu oferă prețuri exacte pe date exacte,</li>
+            <li>nu confundă zgomotul (mișcări mici) cu structura (regimuri mari),</li>
+            <li>integrează <strong>atât macro global, cât și structura internă BTC</strong>,</li>
+            <li>oferă o <strong>lentilă probabilistică disciplinată</strong> asupra prețului.</li>
+          </ul>
+          Pentru ca această pagină să afișeze valori numerice reale, este
+          suficient să fie conectate:
+          <ul style="margin:0.2rem 0 0.2rem 1rem; padding:0;">
+            <li>CSV-urile macro (S&amp;P, NASDAQ, MSCI, VIX, MOVE, US10Y, DXY, credit),</li>
+            <li>seria BTC (preț + indicii IC_BTC, ICD_BTC),</li>
+            <li>implementarea formulelor pentru IC_GLOBAL, ICD_GLOBAL, IC_FUZ, ICD_FUZ.</li>
+          </ul>
+          Până atunci, această pagină servește ca <strong>hartă conceptuală</strong>:
+          explică exact cum va gândi Modelul Coeziv atunci când va estima
+          probabilitatea de preț BTC în contextul pieței financiare globale.
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
