@@ -383,6 +383,49 @@
       color: #e5e7eb;
       font-weight: 500;
     }
+
+    /* ===== FULLSCREEN CHART MODE ===== */
+    .chart-toolbar {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .fullscreen-btn {
+      padding: 0.3rem 0.9rem;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      background: radial-gradient(circle at top, #020617, #020617);
+      color: var(--text-soft);
+      font-size: 0.75rem;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+    }
+
+    .fullscreen-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 0 0 1px rgba(148, 163, 184, 0.4);
+      border-color: rgba(148, 163, 184, 0.7);
+      background: radial-gradient(circle at top, #020617, #020617);
+    }
+
+    .chart-wrapper.chart-fullscreen {
+      position: fixed;
+      inset: 0.7rem;
+      z-index: 999;
+      border-radius: 1.25rem;
+      box-shadow: 0 30px 90px rgba(15, 23, 42, 0.95);
+      max-width: none;
+      max-height: none;
+    }
+
+    body.no-scroll {
+      overflow: hidden;
+    }
   </style>
 </head>
 <body>
@@ -475,7 +518,13 @@
         Regimurile se pot vizualiza în modul conservator sau practic.
       </div>
 
-      <div class="chart-wrapper">
+      <div class="chart-toolbar">
+        <button id="toggleFullscreenBtn" class="fullscreen-btn">
+          Extinde graficul ⤢
+        </button>
+      </div>
+
+      <div class="chart-wrapper" id="priceChartWrapper">
         <div class="legend-inline">
           <span class="legend-color price"></span> BTCUSDT close (1D)
           <span class="legend-color bull"></span> bull market
@@ -509,7 +558,7 @@
       </table>
 
       <p class="note">
-        <strong>Mod conservator</strong>: detectează doar regimuri cu structură și direcționalitate foarte clare (mai puține, dar robuste).<br/>
+        <strong>Mod conservator</strong>: detectează doar regimuri cu structură și direcționalitate foarte clare (mai puține, dar robuste).<br />
         <strong>Mod practic (trader)</strong>: pornește de la aceleași regimuri și prelungește ultimul bull / bear dacă indicii coezivi sugerează continuarea trendului.
         Nu reprezintă recomandare financiară.
       </p>
@@ -806,8 +855,8 @@
 
           ctx.fillStyle =
             r.type === "bull"
-              ? "rgba(0,200,0,0.18)"
-              : "rgba(255,60,60,0.18)";
+              ? "rgba(16,185,129,0.30)"
+              : "rgba(248,113,113,0.28)";
           ctx.fillRect(
             xStart,
             chartArea.top,
@@ -1069,6 +1118,36 @@
             },
           },
         });
+
+        // ------- Fullscreen pentru graficul de preț -------
+        const wrapperEl = document.getElementById("priceChartWrapper");
+        const fsBtnEl = document.getElementById("toggleFullscreenBtn");
+
+        if (wrapperEl && fsBtnEl && priceChart) {
+          let isFullscreen = false;
+
+          function updateFsButton() {
+            fsBtnEl.textContent = isFullscreen
+              ? "Închide graficul ⤡"
+              : "Extinde graficul ⤢";
+          }
+
+          fsBtnEl.addEventListener("click", () => {
+            isFullscreen = !isFullscreen;
+            wrapperEl.classList.toggle("chart-fullscreen", isFullscreen);
+            document.body.classList.toggle("no-scroll", isFullscreen);
+
+            updateFsButton();
+
+            setTimeout(() => {
+              try {
+                priceChart.resize();
+              } catch (e) {}
+            }, 80);
+          });
+
+          updateFsButton();
+        }
 
         // butoane mod
         const btnCons = document.getElementById("modeConservative");
