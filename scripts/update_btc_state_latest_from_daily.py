@@ -141,35 +141,28 @@ def main():
     candles = []
 
     for row in raw:
-        # Formatul tău real: [time, open, high, low, close, volume]
-        if isinstance(row, list) and len(row) >= 5:
-            date_str = row[0]
-            try:
-                dt = parse_date(date_str)
-            except ValueError:
-                continue
+    # 1️⃣ întâi încercăm timestamp (milisecunde Unix)
+    ts = row.get("timestamp")
+    if ts is not None:
+        try:
+            dt = datetime.utcfromtimestamp(int(ts) / 1000)
+        except (ValueError, OSError):
+            continue
+    else:
+        # 2️⃣ fallback: încearcă time/date/t ca text
+        date_str = row.get("time") or row.get("date") or row.get("t")
+        if not date_str:
+            continue
+        try:
+            dt = parse_date(str(date_str))
+        except ValueError:
+            continue
 
-            try:
-                close = float(row[4])
-            except Exception:
-                continue
+    close = row.get("close")
+    if close is None:
+        continue
 
-            candles.append({"dt": dt, "close": close})
-
-        # fallback: suport pentru format dict, dacă vreodată se schimbă sursa
-        elif isinstance(row, dict):
-            date_str = row.get("time") or row.get("date") or row.get("t")
-            if not date_str:
-                continue
-            try:
-                dt = parse_date(date_str)
-            except ValueError:
-                continue
-            close = row.get("close")
-            if close is None:
-                continue
-            candles.append({"dt": dt, "close": float(close)})
-
+    candles.append({"dt": dt, "close": float(close)})
     if len(candles) < 260:
         raise RuntimeError("Prea puține date BTC pentru a calcula IC (minim ~260 zile).")
 
