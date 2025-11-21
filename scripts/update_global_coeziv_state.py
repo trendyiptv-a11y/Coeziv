@@ -22,13 +22,15 @@ import json
 # ------------------------
 
 DATA_START = "2010-01-01"
-OUTPUT_DIR = Path("public/data")
+
+# 📌 Salvăm în root/data/
+OUTPUT_DIR = Path("data")
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 MACRO_SYMBOLS = {
     "spx": "^GSPC",         # S&P 500
     "vix": "^VIX",          # Volatility index
-    "dxy": "DX-Y.NYB",      # Dollar index (sau alternativ ^DXY)
+    "dxy": "DX-Y.NYB",      # Dollar index (alternativ ^DXY)
     "gold": "GC=F",         # Gold futures
     "oil": "CL=F",          # Crude oil futures
 }
@@ -59,17 +61,12 @@ def fetch_series_yahoo(symbol: str, column="Adj Close"):
     s.index.name = "date"
     s = s.reset_index()
 
-    # Convertim datele la date ISO coerente
     s["date"] = pd.to_datetime(s["date"]).dt.strftime("%Y-%m-%d")
 
     return s
 
 
 def normalize_series(df):
-    """
-    Normalizează 'close' în intervalul 0–100 pentru a putea
-    combina seriile macro diferite în IC_GLOBAL.
-    """
     x = df["close"].astype(float)
     norm = 100 * (x - x.min()) / (x.max() - x.min() + 1e-9)
     df["norm"] = norm
@@ -77,9 +74,6 @@ def normalize_series(df):
 
 
 def compute_cohesive_index(series_list):
-    """
-    Calculează IC_GLOBAL ca media normalizată a seriilor.
-    """
     df = series_list[0][["date"]].copy()
     for name, s in series_list:
         df[name] = s["norm"]
@@ -89,26 +83,20 @@ def compute_cohesive_index(series_list):
 
 
 def compute_directional_index(series_list):
-    """
-    ICD_GLOBAL = coerența direcțiilor zilnice dintre serii.
-    Valoare între 0 și 100.
-    """
     df = series_list[0][["date"]].copy()
 
-    # Rată de schimb (derivată discrete)
-    for name, s in series_list:
-        df[name] = s["close"].pct_change().fillna(0)
-
-    # Direcție: +1, -1
+    # direcții pct-change
     directions = []
     for name, s in series_list:
-        directions.append(np.sign(s["close"].pct_change().fillna(0)))
+        pct = s["close"].pct_change().fillna(0)
+        directions.append(np.sign(pct))
+        df[name] = pct
 
-    # Coerența direcțională
+    # coerența direcțională
     directions = np.vstack(directions)
     agree = np.mean(directions == np.sign(np.sum(directions, axis=0)), axis=0)
-    df["ICD_GLOBAL"] = (agree * 100).round(2)
 
+    df["ICD_GLOBAL"] = (agree * 100).round(2)
     return df[["date", "ICD_GLOBAL"]]
 
 # ------------------------
@@ -120,14 +108,12 @@ def main():
 
     series = {}
 
-    # Descarcă și normalizează fiecare simbol
     for key, symbol in MACRO_SYMBOLS.items():
         print(f"   → {key}: {symbol}")
         df = fetch_series_yahoo(symbol)
         df = normalize_series(df)
         series[key] = df
 
-    # În formatul cerut de funcțiile de mai sus
     series_list = [(name, df) for name, df in series.items()]
 
     print("📊 Calculez IC_GLOBAL...")
@@ -136,10 +122,9 @@ def main():
     print("📊 Calculez ICD_GLOBAL...")
     icd = compute_directional_index(series_list)
 
-    # Unim într-un singur tabel
     merged = ic.merge(icd, on="date")
 
-    # Salvare JSON pentru frontend HTML
+    # 📌 Salvare în root/data/global_coeziv_state.json
     output_file = OUTPUT_DIR / "global_coeziv_state.json"
     merged.to_json(output_file, orient="records", indent=2)
 
