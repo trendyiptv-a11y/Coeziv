@@ -11,6 +11,7 @@
     :root {
       --bg: #050814;
       --bg-elevated: #0b1020;
+      --bg-soft: #111629;
       --accent: #3b82f6;
       --accent-soft: rgba(59, 130, 246, 0.16);
       --accent-strong: #60a5fa;
@@ -29,7 +30,9 @@
         "Segoe UI", sans-serif;
     }
 
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
 
     body {
       margin: 0;
@@ -92,9 +95,17 @@
       background: var(--accent-soft);
     }
 
-    .pill.up .pill-dot { background: var(--up); }
-    .pill.down .pill-dot { background: var(--down); }
-    .pill.macro .pill-dot { background: var(--accent); }
+    .pill.up .pill-dot {
+      background: var(--up);
+    }
+
+    .pill.down .pill-dot {
+      background: var(--down);
+    }
+
+    .pill.macro .pill-dot {
+      background: var(--accent);
+    }
 
     section.grid {
       display: grid;
@@ -104,7 +115,9 @@
     }
 
     @media (max-width: 900px) {
-      section.grid { grid-template-columns: minmax(0, 1fr); }
+      section.grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
     }
 
     .card {
@@ -148,7 +161,10 @@
       color: var(--muted);
     }
 
-    .card-body { position: relative; z-index: 1; }
+    .card-body {
+      position: relative;
+      z-index: 1;
+    }
 
     .value-main {
       font-size: 2.0rem;
@@ -184,7 +200,9 @@
       text-transform: lowercase;
     }
 
-    .badge-label { font-weight: 500; }
+    .badge-label {
+      font-weight: 500;
+    }
 
     .badge-dot {
       width: 0.45rem;
@@ -192,10 +210,21 @@
       border-radius: 999px;
     }
 
-    .badge.up .badge-dot { background: var(--up); }
-    .badge.down .badge-dot { background: var(--down); }
-    .badge.neutral .badge-dot { background: var(--muted); }
-    .badge.macro .badge-dot { background: var(--accent); }
+    .badge.up .badge-dot {
+      background: var(--up);
+    }
+
+    .badge.down .badge-dot {
+      background: var(--down);
+    }
+
+    .badge.neutral .badge-dot {
+      background: var(--muted);
+    }
+
+    .badge.macro .badge-dot {
+      background: var(--accent);
+    }
 
     .meta-row {
       display: grid;
@@ -207,7 +236,9 @@
     }
 
     @media (max-width: 600px) {
-      .meta-row { grid-template-columns: minmax(0, 1fr); }
+      .meta-row {
+        grid-template-columns: minmax(0, 1fr);
+      }
     }
 
     .meta-label {
@@ -223,11 +254,13 @@
       color: #e5e7eb;
     }
 
+    /* Prob bar */
+
     .prob-bar {
       position: relative;
       margin-top: 0.9rem;
       border-radius: var(--radius-pill);
-      background: rgba(15, 23, 42, 0.95);
+      background: #020617; /* fundal simplu, ca să lase culorile clare */
       border: 1px solid var(--border);
       height: 1.1rem;
       overflow: hidden;
@@ -241,14 +274,16 @@
       transition: transform 0.6s cubic-bezier(0.22, 0.61, 0.36, 1);
     }
 
+    /* aici era prea „soft”, am făcut culori clare */
+
     .prob-up {
       flex: 0 0 auto;
-      background: linear-gradient(90deg, var(--up-soft), var(--up));
+      background: linear-gradient(90deg, #16a34a, #22c55e);
     }
 
     .prob-down {
       flex: 0 0 auto;
-      background: linear-gradient(90deg, var(--down), var(--down-soft));
+      background: linear-gradient(90deg, #b91c1c, #ef4444);
     }
 
     .prob-labels {
@@ -602,7 +637,6 @@
       return { last: objLast, prev: objPrev };
     }
 
-    // Macro score
     function computeMacroScore(seriesReturns) {
       const spx = seriesReturns.spx ?? 0;
       const dxy = seriesReturns.dxy ?? 0;
