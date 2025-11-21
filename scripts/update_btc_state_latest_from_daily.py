@@ -7,7 +7,7 @@ from datetime import datetime
 ROOT = Path(__file__).resolve().parent.parent  # rădăcina repo-ului
 DATA_BTC = ROOT / "data"
 
-INPUT_FILE = DATA_BTC / "btc_ohlc.json"      # ajustează dacă la tine are alt nume
+INPUT_FILE = DATA_BTC / "btc_ohlc.json"       # ← AICI folosim btc_ohlc.json
 OUTPUT_FILE = DATA_BTC / "btc_state_latest.json"
 
 
@@ -75,12 +75,12 @@ def clamp(x, lo, hi):
 def main():
     if not INPUT_FILE.exists():
         raise FileNotFoundError(
-            f"Nu am găsit {INPUT_FILE}. Ajustează numele fișierului BTC daily dacă e altul."
+            f"Nu am găsit {INPUT_FILE}. Ajustează numele dacă fișierul e altfel."
         )
 
     raw = json.loads(INPUT_FILE.read_text(encoding="utf-8"))
     if not isinstance(raw, list):
-        raise ValueError("btc_daily.json trebuie să fie o listă de obiecte (candles).")
+        raise ValueError("btc_ohlc.json trebuie să fie o listă de obiecte (candles).")
 
     # Extragem (date, close)
     candles = []
@@ -99,7 +99,7 @@ def main():
         candles.append({"dt": dt, "close": float(close)})
 
     if len(candles) < 260:
-        raise RuntimeError("Prea puține date BTC pentru a calcula IC.")
+        raise RuntimeError("Prea puține date BTC pentru a calcula IC (minim ~260 zile).")
 
     # sortăm după dată
     candles.sort(key=lambda c: c["dt"])
@@ -155,7 +155,6 @@ def main():
         elif trend_diff < 0:
             trend_dir = -1.0
         else:
-            # fallback: diferența EMA50 pe 5 zile, ca în JS
             j = max(0, i - 5)
             diff50 = (ema50[i] or 0.0) - (ema50[j] or 0.0)
             if diff50 > 0:
@@ -180,8 +179,6 @@ def main():
         align = (match / total) if total > 0 else 0.5
         dir_score = clamp(align * 100.0, 0.0, 100.0)
 
-        # (Flux și ciclu există și în HTML, dar pentru btc_state_latest
-        #  ne interesează IC_BTC și ICD_BTC)
         last_struct = struct_score
         last_dir = dir_score
         last_price = closes[i]
@@ -200,7 +197,7 @@ def main():
     OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
     OUTPUT_FILE.write_text(json.dumps(state, ensure_ascii=False, indent=2), encoding="utf-8")
 
-    print("✅ btc_state_latest.json generat din btc_daily.json:")
+    print("✅ btc_state_latest.json generat din btc_ohlc.json:")
     print(json.dumps(state, ensure_ascii=False, indent=2))
 
 
