@@ -1,199 +1,929 @@
 <!DOCTYPE html>
 <html lang="ro">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Probabilitate BTC – Modelul Coeziv</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Probabilitate direcțională BTC – Model Coeziv</title>
 
-<!-- Stil general -->
-<style>
-    body {
-        background: #0e1117;
-        color: #e5e5e5;
-        font-family: Arial, sans-serif;
-        margin: 0;
-        padding: 20px;
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  <style>
+    :root {
+      --bg: #050814;
+      --bg-elevated: #0b1020;
+      --bg-soft: #111629;
+      --accent: #3b82f6;
+      --accent-soft: rgba(59, 130, 246, 0.16);
+      --accent-strong: #60a5fa;
+      --up: #22c55e;
+      --up-soft: rgba(34, 197, 94, 0.16);
+      --down: #ef4444;
+      --down-soft: rgba(239, 68, 68, 0.16);
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --border: #1f2937;
+      --radius-xl: 1.5rem;
+      --radius-lg: 1.1rem;
+      --radius-pill: 999px;
+      --shadow-soft: 0 18px 45px rgba(0, 0, 0, 0.55);
+      --font-main: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+        "Segoe UI", sans-serif;
     }
 
-    h1, h2 {
-        font-weight: 700;
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: var(--font-main);
+      background: radial-gradient(circle at top, #020617, #020617 35%, #020617);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    main.page {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 1.75rem 1.2rem 2.75rem;
+    }
+
+    header.hero {
+      margin-bottom: 1.75rem;
+    }
+
+    header.hero h1 {
+      margin: 0 0 0.6rem;
+      font-size: 1.65rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #f9fafb;
+    }
+
+    header.hero p {
+      margin: 0;
+      font-size: 0.92rem;
+      color: var(--muted);
+      max-width: 46rem;
+      line-height: 1.5;
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.55rem;
+      margin-top: 0.9rem;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.35rem 0.8rem;
+      border-radius: var(--radius-pill);
+      font-size: 0.78rem;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      color: var(--muted);
+    }
+
+    .pill-dot {
+      width: 0.45rem;
+      height: 0.45rem;
+      border-radius: 999px;
+      background: var(--accent-soft);
+    }
+
+    .pill.up .pill-dot {
+      background: var(--up);
+    }
+
+    .pill.down .pill-dot {
+      background: var(--down);
+    }
+
+    .pill.macro .pill-dot {
+      background: var(--accent);
+    }
+
+    section.grid {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+      margin-bottom: 1.35rem;
+    }
+
+    @media (max-width: 900px) {
+      section.grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
     }
 
     .card {
-        background: #111827;
-        border-radius: 18px;
-        padding: 20px;
-        margin-top: 20px;
-        border: 1px solid #1f2937;
+      position: relative;
+      border-radius: var(--radius-xl);
+      background: radial-gradient(circle at top left, #020617, #020617 25%, #020617);
+      padding: 1.15rem 1.2rem 1.2rem;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-soft);
+      overflow: hidden;
     }
 
-    .tag {
-        display: inline-block;
-        padding: 6px 12px;
-        margin: 5px 5px 0 0;
-        border-radius: 12px;
-        font-size: 0.9rem;
-        background: #1f2937;
-        border: 1px solid #374151;
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      background: radial-gradient(circle at 0% -20%, var(--accent-soft), transparent 55%);
+      opacity: 0.7;
+      pointer-events: none;
     }
 
-    .tag.green { background: #065f46; }
-    .tag.red { background: #7f1d1d; }
-    .tag.blue { background: #1e3a8a; }
-
-    /* Bara probabilități */
-    .bar-container {
-        width: 100%;
-        height: 26px;
-        border-radius: 20px;
-        overflow: hidden;
-        background: #222;
-        margin: 20px 0 10px 0;
-        display: flex;
+    .card-header {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
     }
 
-    .bar-up {
-        background: #16a34a; /* verde */
-        height: 100%;
-        transition: width 0.6s ease;
+    .card-title {
+      font-size: 0.83rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--muted);
+      margin-bottom: 0.15rem;
     }
 
-    .bar-down {
-        background: #dc2626; /* roșu */
-        height: 100%;
-        transition: width 0.6s ease;
+    .card-sub {
+      font-size: 0.78rem;
+      color: var(--muted);
     }
 
-    /* Regim */
-    .regime-box {
-        font-size: 1.2rem;
-        font-weight: bold;
-        color: #facc15;
+    .card-body {
+      position: relative;
+      z-index: 1;
     }
-</style>
+
+    .value-main {
+      font-size: 2.0rem;
+      font-weight: 650;
+      margin-bottom: 0.1rem;
+      color: #f9fafb;
+    }
+
+    .value-unit {
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin-left: 0.15rem;
+    }
+
+    .value-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem 0.8rem;
+      margin-bottom: 0.5rem;
+      align-items: baseline;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.25rem 0.7rem;
+      border-radius: var(--radius-pill);
+      font-size: 0.75rem;
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      background: rgba(15, 23, 42, 0.85);
+      color: #e5e7eb;
+      text-transform: lowercase;
+    }
+
+    .badge-label {
+      font-weight: 500;
+    }
+
+    .badge-dot {
+      width: 0.45rem;
+      height: 0.45rem;
+      border-radius: 999px;
+    }
+
+    .badge.up .badge-dot {
+      background: var(--up);
+    }
+
+    .badge.down .badge-dot {
+      background: var(--down);
+    }
+
+    .badge.neutral .badge-dot {
+      background: var(--muted);
+    }
+
+    .badge.macro .badge-dot {
+      background: var(--accent);
+    }
+
+    .meta-row {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.6rem;
+      margin-top: 0.4rem;
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    @media (max-width: 600px) {
+      .meta-row {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .meta-label {
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      letter-spacing: 0.13em;
+      color: #6b7280;
+      margin-bottom: 0.15rem;
+    }
+
+    .meta-value {
+      font-weight: 500;
+      color: #e5e7eb;
+    }
+
+    /* Prob bar */
+
+    .prob-bar {
+      position: relative;
+      margin-top: 0.9rem;
+      border-radius: var(--radius-pill);
+      background: #020617; /* fundal simplu, ca să lase culorile clare */
+      border: 1px solid var(--border);
+      height: 1.1rem;
+      overflow: hidden;
+    }
+
+    .prob-bar-fill {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      transform-origin: left center;
+      transition: transform 0.6s cubic-bezier(0.22, 0.61, 0.36, 1);
+    }
+
+    /* aici era prea „soft”, am făcut culori clare */
+
+    .prob-up {
+      flex: 0 0 auto;
+      background: linear-gradient(90deg, #16a34a, #22c55e);
+    }
+
+    .prob-down {
+      flex: 0 0 auto;
+      background: linear-gradient(90deg, #b91c1c, #ef4444);
+    }
+
+    .prob-labels {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 0.35rem;
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    .prob-labels span strong {
+      color: #e5e7eb;
+      font-weight: 600;
+    }
+
+    .chart-card {
+      border-radius: var(--radius-xl);
+      background: radial-gradient(circle at top, rgba(15, 23, 42, 0.3), #020617);
+      padding: 1.1rem 1.15rem 1.25rem;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-soft);
+      margin-bottom: 1.2rem;
+    }
+
+    .chart-title {
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--muted);
+      margin-bottom: 0.35rem;
+    }
+
+    .chart-sub {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 0.85rem;
+    }
+
+    .chart-wrapper {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      border-radius: 1.2rem;
+      background: radial-gradient(circle at top, #020617, #020617 40%, #020617);
+      border: 1px solid #1f2937;
+      overflow: hidden;
+    }
+
+    .chart-wrapper canvas {
+      position: absolute;
+      inset: 0;
+      width: 100% !important;
+      height: 100% !important;
+    }
+
+    section.note {
+      margin-top: 0.5rem;
+      font-size: 0.82rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    section.note strong {
+      color: #e5e7eb;
+      font-weight: 500;
+    }
+
+    .small-muted {
+      margin-top: 0.8rem;
+      font-size: 0.73rem;
+      color: #6b7280;
+    }
+
+    .error-box {
+      margin-top: 0.65rem;
+      padding: 0.6rem 0.75rem;
+      border-radius: var(--radius-lg);
+      background: rgba(127, 29, 29, 0.2);
+      border: 1px solid rgba(248, 113, 113, 0.5);
+      font-size: 0.78rem;
+      color: #fecaca;
+      display: none;
+    }
+  </style>
 </head>
-
 <body>
+  <main class="page">
+    <header class="hero">
+      <h1>Probabilitate direcțională BTC – model coeziv</h1>
+      <p>
+        Estimare zilnică a probabilității ca BTC să continue în sens
+        <strong>UP</strong> sau <strong>DOWN</strong> în următoarele săptămâni,
+        pe baza indicatorilor coezivi (IC_BTC structural &amp; direcțional),
+        a structurii trendului (EMA50 / EMA200, volatilitate) și a
+        contextului macro global (SPX, DXY, Gold, VIX, Oil).
+      </p>
 
-<h1>PROBABILITATE BTC – MODEL COEZIV</h1>
+      <div class="pill-row">
+        <div class="pill">
+          <span class="pill-dot"></span>
+          <span>Timeframe: daily BTCUSDT (~ultimele 260 zile)</span>
+        </div>
+        <div class="pill up">
+          <span class="pill-dot"></span>
+          <span>IC_BTC structural &gt; structură / trend</span>
+        </div>
+        <div class="pill down">
+          <span class="pill-dot"></span>
+          <span>ICD_BTC direcțional &gt; presiune bull / bear</span>
+        </div>
+        <div class="pill macro">
+          <span class="pill-dot"></span>
+          <span>Context global: SPX, DXY, Gold, VIX, Oil</span>
+        </div>
+      </div>
+    </header>
 
-<div id="status"></div>
+    <section class="grid">
+      <!-- Card probabilități -->
+      <article class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Probabilități coezive BTC</div>
+            <div class="card-sub">
+              Ultima zi: <span id="lastDateLabel">–</span>
+            </div>
+          </div>
+          <div class="badge neutral" id="biasBadge">
+            <span class="badge-dot"></span>
+            <span class="badge-label" id="biasLabel">neutru</span>
+          </div>
+        </div>
 
-<div class="card">
-    <h2>Probabilități Coezive BTC</h2>
-    <p><strong>Ultima zi:</strong> <span id="last-date">–</span></p>
+        <div class="card-body">
+          <div class="value-row">
+            <div>
+              <div class="value-main">
+                <span id="probUpValue">–</span><span class="value-unit">%</span>
+              </div>
+              <div class="card-sub">
+                Probabilitate continuare trend <strong>UP</strong>
+              </div>
+            </div>
+            <div>
+              <div class="value-main" style="font-size:1.4rem;">
+                <span id="probDownValue">–</span><span class="value-unit">%</span>
+              </div>
+              <div class="card-sub">
+                Probabilitate continuare trend <strong>DOWN</strong>
+              </div>
+            </div>
+          </div>
 
-    <h1 id="p_up">– %</h1>
-    <p>Probabilitate continuare trend <strong>UP</strong></p>
+          <div class="prob-bar" aria-hidden="true">
+            <div class="prob-bar-fill" id="probBarFill">
+              <div class="prob-up"></div>
+              <div class="prob-down"></div>
+            </div>
+          </div>
+          <div class="prob-labels">
+            <span>UP: <strong id="probUpLabel">–%</strong></span>
+            <span>DOWN: <strong id="probDownLabel">–%</strong></span>
+          </div>
 
-    <h1 id="p_down">– %</h1>
-    <p>Probabilitate continuare trend <strong>DOWN</strong></p>
+          <div class="meta-row">
+            <div>
+              <div class="meta-label">Nivel încredere</div>
+              <div class="meta-value">
+                <span id="confidenceValue">–</span>%
+              </div>
+              <div class="card-sub">
+                Combinație între claritatea structurii (IC_BTC structural),
+                volatilitate și coerența macro (risk-on / risk-off).
+              </div>
+            </div>
+            <div>
+              <div class="meta-label">Regim coeziv BTC</div>
+              <div class="meta-value">
+                <span id="regimeLabel">–</span>
+              </div>
+              <div class="card-sub">
+                Derivat din IC/ICD &amp; raportul la EMA50 / EMA200
+                (bază, acumulare, bull structural, bull târziu / top,
+                bear, reechilibrare).
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
 
-    <div class="bar-container">
-        <div id="barUp" class="bar-up" style="width: 50%"></div>
-        <div id="barDown" class="bar-down" style="width: 50%"></div>
-    </div>
+      <!-- Card macro -->
+      <article class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Context macro global</div>
+            <div class="card-sub">
+              Scor agregat din SPX, DXY, Gold, VIX, Oil (risk-on vs risk-off).
+            </div>
+          </div>
+          <div class="badge macro" id="macroBadge">
+            <span class="badge-dot"></span>
+            <span class="badge-label" id="macroLabel">se încarcă...</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="meta-row">
+            <div>
+              <div class="meta-label">Scor risc global</div>
+              <div class="meta-value">
+                <span id="macroScoreValue">–</span>
+              </div>
+              <div class="card-sub">
+                &gt; 0: risk-on (favorabil activelor de risc),
+                &lt; 0: risk-off (aversiune la risc).
+              </div>
+            </div>
+            <div>
+              <div class="meta-label">Semnal macro</div>
+              <div class="meta-value">
+                <span id="macroSignalValue">–</span>
+              </div>
+              <div class="card-sub">
+                Se uită la direcția pe termen scurt a SPX, DXY, Gold, VIX, Oil.
+              </div>
+            </div>
+          </div>
 
-    <p>UP: <span id="upVal">–</span>%  
-       <span style="float:right;">DOWN: <span id="downVal">–</span>%</span></p>
+          <div class="small-muted">
+            <strong>Notă:</strong> contextul macro nu „dictează” BTC, dar
+            influențează încrederea în semnalul coeziv. Un macro foarte
+            risk-off poate tăia din probabilitatea bull, chiar dacă
+            structura BTC este puternică.
+          </div>
+        </div>
+      </article>
+    </section>
 
-    <h3>Nivel încredere</h3>
-    <p id="conf">–</p>
+    <!-- Chart preț BTC -->
+    <section class="chart-card">
+      <div class="chart-title">Preț BTC &amp; structură trend (daily)</div>
+      <div class="chart-sub">
+        Linia reprezintă prețul de închidere BTCUSDT (1D). Ultimele
+        ~260 de zile sunt folosite pentru a calcula indicatorii coezivi
+        și probabilitățile de mai sus.
+      </div>
+      <div class="chart-wrapper">
+        <canvas id="btcPriceChart"></canvas>
+      </div>
+    </section>
 
-    <h3>Regim Coeziv BTC</h3>
-    <p class="regime-box" id="regim">–</p>
-</div>
+    <section class="note">
+      <p>
+        <strong>Cum gândește modelul coeziv această probabilitate?</strong>
+        Pe scurt, pornește de la doi piloni:
+      </p>
+      <ul>
+        <li>
+          <strong>IC_BTC structural (0–100):</strong> măsoară cât de coerentă
+          este structura trendului (raport trend vs flux total &amp; volatilitate
+          relativă). Valori mari ≈ trend clar, valori mici ≈ piață haotică.
+        </li>
+        <li>
+          <strong>ICD_BTC direcțional (0–100):</strong> măsoară cât de aliniate
+          sunt mișcările zilnice cu direcția dominantă (bull vs bear).
+          &gt; 50 favorizează bull, &lt; 50 favorizează bear.
+        </li>
+      </ul>
 
+      <p>
+        Din aceste două componente, modelul derivă un
+        <strong>bias direcțional intern</strong>. Apoi îl ajustează cu:
+      </p>
+      <ul>
+        <li>
+          <strong>Poziția față de EMA50 / EMA200:</strong> cât de departe este
+          prețul de mediile importante (supra-încălzire sau sub-evaluare).
+        </li>
+        <li>
+          <strong>Volatilitatea pe 30 de zile (vol30):</strong> trendurile
+          foarte volatile sau foarte plate reduc încrederea în semnal.
+        </li>
+        <li>
+          <strong>Scorul macro global:</strong> combinația dintre SPX, DXY,
+          Gold, VIX și Oil (risk-on vs risk-off). Un macro coerent cu BTC
+          crește încrederea; unul contrar o reduce.
+        </li>
+      </ul>
 
-<script>
-async function loadBTC() {
-    try {
-        const resp = await fetch("btc_state_latest.json");
-        const data = await resp.json();
+      <p>
+        Rezultatul este o <strong>probabilitate up / down</strong> ancorată în
+        structura coezivă a BTC, nu în pattern-uri fixe de preț. Nu este un
+        sistem de semnale rapide de trading, ci o lentilă de
+        <strong>probabilitate structurală</strong> pe următoarele săptămâni.
+      </p>
 
-        const { 
-            date,
-            ic_struct,
-            ic_dir,
-            ema50_pos,
-            ema200_pos,
-            vol30,
-            macro_score
-        } = data;
+      <p class="small-muted">
+        Nu reprezintă recomandare financiară. Folosește modelul doar ca
+        instrument informativ, împreună cu propriul management de risc.
+      </p>
 
-        document.getElementById("last-date").textContent = date;
+      <div class="error-box" id="errorBox"></div>
+    </section>
+  </main>
 
-        /* -----------------------------
-            1. Calcul probabilități
-        ------------------------------ */
-
-        const base = (ic_struct * 0.55 + ic_dir * 0.45) / 100;
-
-        const ema_bias =
-            ema50_pos > 0 && ema200_pos > 0 ? +0.04 :
-            ema50_pos > 0 && ema200_pos < 0 ? +0.015 :
-            ema50_pos < 0 && ema200_pos < 0 ? -0.04 :
-            -0.015;
-
-        const vol_bias = vol30 > 0.06 ? -0.035 :
-                         vol30 < 0.03 ? +0.02 :
-                         0;
-
-        const macro_bias = macro_score * 0.10;
-
-        let p_up = base + ema_bias + vol_bias + macro_bias;
-        p_up = Math.min(0.97, Math.max(0.03, p_up));
-        const p_down = 1 - p_up;
-
-        const upPct = Math.round(p_up * 100);
-        const downPct = Math.round(p_down * 100);
-
-        document.getElementById("p_up").textContent = upPct + "%";
-        document.getElementById("p_down").textContent = downPct + "%";
-
-        document.getElementById("upVal").textContent = upPct;
-        document.getElementById("downVal").textContent = downPct;
-
-        document.getElementById("barUp").style.width = upPct + "%";
-        document.getElementById("barDown").style.width = downPct + "%";
-
-        const confidence =
-            Math.round(
-                (Math.abs(ic_struct - 50) * 0.5 +
-                 Math.abs(ic_dir - 50) * 0.3 +
-                 Math.abs(macro_score) * 20) / 2
-            );
-
-        document.getElementById("conf").textContent = confidence + "%";
-
-
-        /* -----------------------------
-            2. Regim Coeziv
-        ------------------------------ */
-
-        let regime = "neclar";
-
-        if (ic_struct > 70 && ic_dir > 55 && ema50_pos > 0 && ema200_pos > 0)
-            regime = "Bull structural";
-        else if (ic_struct > 70 && ic_dir < 45 && ema50_pos > 0)
-            regime = "Top / bull tardiv";
-        else if (ic_struct < 40 && ema50_pos < 0 && ema200_pos < 0)
-            regime = "Bear structural";
-        else if (ic_struct > 55 && Math.abs(ic_dir - 50) < 8)
-            regime = "Fază laterală coerentă";
-        else
-            regime = "Regim mixt / tranziție";
-
-        document.getElementById("regim").textContent = regime;
-
-    } catch (err) {
-        document.getElementById("status").textContent =
-            "Eroare la citirea datelor: " + err;
+  <script>
+    function clamp(x, min, max) {
+      return Math.min(max, Math.max(min, x));
     }
-}
 
-loadBTC();
-</script>
+    function safeNumber(v) {
+      const n = Number(v);
+      return Number.isFinite(n) ? n : null;
+    }
 
+    function sigmoid(x) {
+      return 1 / (1 + Math.exp(-x));
+    }
+
+    function showError(msg) {
+      const box = document.getElementById("errorBox");
+      if (!box) return;
+      box.style.display = "block";
+      box.textContent = msg;
+      console.error("[Coeziv BTC]", msg);
+    }
+
+    async function fetchJson(url) {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`Nu pot încărca ${url} (${res.status})`);
+      return res.json();
+    }
+
+    async function fetchCsvLastTwo(url) {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`Nu pot încărca ${url} (${res.status})`);
+      const text = await res.text();
+      const lines = text.trim().split(/\r?\n/);
+      if (lines.length < 3) throw new Error(`Prea puține linii în ${url}`);
+
+      const header = lines[0].split(",");
+      const last = lines[lines.length - 1].split(",");
+      const prev = lines[lines.length - 2].split(",");
+
+      const objLast = {};
+      const objPrev = {};
+      header.forEach((h, i) => {
+        objLast[h.trim()] = last[i] !== undefined ? last[i].trim() : "";
+        objPrev[h.trim()] = prev[i] !== undefined ? prev[i].trim() : "";
+      });
+
+      return { last: objLast, prev: objPrev };
+    }
+
+    function computeMacroScore(seriesReturns) {
+      const spx = seriesReturns.spx ?? 0;
+      const dxy = seriesReturns.dxy ?? 0;
+      const gold = seriesReturns.gold ?? 0;
+      const vix = seriesReturns.vix ?? 0;
+      const oil = seriesReturns.oil ?? 0;
+
+      const riskOn =
+        spx * 1.3 + gold * 0.6 + oil * 0.7 - dxy * 0.7 - vix * 1.0;
+
+      const scaled = clamp(riskOn * 4, -1, 1);
+
+      let label = "echilibrat";
+      if (scaled > 0.25) label = "risk-on (favorabil risc)";
+      else if (scaled < -0.25) label = "risk-off (aversiune la risc)";
+
+      return { score: scaled, label };
+    }
+
+    function computeCoezivProb(btcState, macroState) {
+      const icStruct = safeNumber(btcState.ic_struct) ?? 0;
+      const icDir = safeNumber(btcState.ic_dir) ?? 50;
+      const vol30 = safeNumber(btcState.vol30);
+      const close = safeNumber(btcState.close);
+      const ema50 = safeNumber(btcState.ema50);
+      const ema200 = safeNumber(btcState.ema200);
+      const regime = btcState.regime_coeziv_label || null;
+
+      const trendStrength = clamp(icStruct / 100, 0, 1);
+      const directionBias = clamp((icDir - 50) / 50, -1, 1);
+
+      let maBias = 0;
+      if (close != null && ema50 != null && ema200 != null) {
+        const dist50 = (close - ema50) / ema50;
+        const dist200 = (close - ema200) / ema200;
+        const s50 = sigmoid(dist50 * 8) * 2 - 1;
+        const s200 = sigmoid(dist200 * 6) * 2 - 1;
+        maBias = clamp(0.6 * s50 + 0.4 * s200, -1, 1);
+      }
+
+      let volFactor = 1.0;
+      if (vol30 != null) {
+        if (vol30 > 140) volFactor = 0.65;
+        else if (vol30 > 110) volFactor = 0.8;
+        else if (vol30 < 30) volFactor = 0.85;
+      }
+
+      let macroBias = 0;
+      let macroConf = 0;
+      if (macroState && Number.isFinite(macroState.score)) {
+        macroBias = clamp(macroState.score, -1, 1);
+        macroConf = clamp(Math.abs(macroBias) * 1.3, 0, 1);
+      }
+
+      const combinedBias = clamp(
+        0.5 * directionBias + 0.25 * maBias + 0.25 * macroBias,
+        -1,
+        1
+      );
+
+      const probUpRaw = 0.5 + 0.5 * combinedBias;
+
+      const baseConf =
+        macroConf > 0 ? trendStrength * 0.6 + macroConf * 0.4 : trendStrength;
+      const confidence = clamp(baseConf * volFactor, 0, 1);
+
+      const probUp = clamp(
+        probUpRaw * confidence + 0.5 * (1 - confidence),
+        0,
+        1
+      );
+      const probDown = 1 - probUp;
+
+      let biasLabel = "neutru";
+      if (probUp > 0.6) biasLabel = "bullish";
+      else if (probUp < 0.4) biasLabel = "bearish";
+
+      return {
+        probUp,
+        probDown,
+        confidence,
+        regime,
+        icStruct,
+        icDir,
+        close,
+        ema50,
+        ema200,
+        vol30,
+        biasLabel
+      };
+    }
+
+    let btcChart = null;
+    function buildPriceChart(ctx, points) {
+      if (btcChart) btcChart.destroy();
+
+      btcChart = new Chart(ctx, {
+        type: "line",
+        data: {
+          labels: points.map((p) => p.t),
+          datasets: [
+            {
+              label: "BTCUSDT close (1D)",
+              data: points.map((p) => p.c),
+              borderWidth: 2,
+              tension: 0.18,
+              pointRadius: 0,
+              borderColor: "#60a5fa",
+              backgroundColor: "rgba(96,165,250,0.18)"
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: "index", intersect: false },
+          plugins: {
+            legend: {
+              display: true,
+              labels: { color: "#9ca3af", font: { size: 11 } }
+            },
+            tooltip: {
+              callbacks: {
+                label: (ctx) =>
+                  ` BTC close: ${ctx.parsed.y.toLocaleString("en-US", {
+                    maximumFractionDigits: 2
+                  })}`
+              }
+            }
+          },
+          scales: {
+            x: {
+              ticks: {
+                maxTicksLimit: 8,
+                color: "#6b7280",
+                font: { size: 10 }
+              },
+              grid: { color: "rgba(31,41,55,0.6)" }
+            },
+            y: {
+              ticks: {
+                color: "#6b7280",
+                font: { size: 10 },
+                callback: (v) =>
+                  v >= 1000
+                    ? v.toLocaleString("en-US", { maximumFractionDigits: 0 })
+                    : v
+              },
+              grid: { color: "rgba(31,41,55,0.6)" }
+            }
+          }
+        }
+      });
+    }
+
+    async function main() {
+      try {
+        const [
+          btcState,
+          btcOhlc,
+          spxData,
+          dxyData,
+          goldData,
+          vixData,
+          oilData
+        ] = await Promise.all([
+          fetchJson("data/btc_state_latest.json"),
+          fetchJson("data/btc_ohlc.json"),
+          fetchCsvLastTwo("data_global/spx.csv"),
+          fetchCsvLastTwo("data_global/dxy.csv"),
+          fetchCsvLastTwo("data_global/gold.csv"),
+          fetchCsvLastTwo("data_global/vix.csv"),
+          fetchCsvLastTwo("data_global/oil.csv")
+        ]);
+
+        function pctChange(lastObj, prevObj) {
+          const keys = ["close", "Adj Close", "adj_close", "value"];
+          let last = null;
+          let prev = null;
+          for (const k of keys) {
+            if (last === null && lastObj[k] !== undefined) {
+              last = safeNumber(lastObj[k]);
+            }
+            if (prev === null && prevObj[k] !== undefined) {
+              prev = safeNumber(prevObj[k]);
+            }
+          }
+          if (last == null || prev == null || prev === 0) return 0;
+          return (last - prev) / prev;
+        }
+
+        const macroReturns = {
+          spx: pctChange(spxData.last, spxData.prev),
+          dxy: pctChange(dxyData.last, dxyData.prev),
+          gold: pctChange(goldData.last, goldData.prev),
+          vix: pctChange(vixData.last, vixData.prev),
+          oil: pctChange(oilData.last, oilData.prev)
+        };
+
+        const macro = computeMacroScore(macroReturns);
+        const model = computeCoezivProb(btcState, macro);
+
+        const lastDate = btcState.date || "–";
+        document.getElementById("lastDateLabel").textContent = lastDate;
+
+        const probUpPct = Math.round(model.probUp * 100);
+        const probDownPct = Math.round(model.probDown * 100);
+        const confPct = Math.round(model.confidence * 100);
+
+        document.getElementById("probUpValue").textContent = probUpPct;
+        document.getElementById("probDownValue").textContent = probDownPct;
+        document.getElementById("probUpLabel").textContent = probUpPct + "%";
+        document.getElementById("probDownLabel").textContent =
+          probDownPct + "%";
+        document.getElementById("confidenceValue").textContent = confPct;
+
+        document.getElementById("regimeLabel").textContent =
+          model.regime || "regim neclar";
+
+        const biasBadge = document.getElementById("biasBadge");
+        biasBadge.classList.remove("up", "down", "neutral");
+        let biasClass = "neutral";
+        if (model.biasLabel === "bullish") biasClass = "up";
+        else if (model.biasLabel === "bearish") biasClass = "down";
+        biasBadge.classList.add(biasClass);
+        document.getElementById("biasLabel").textContent = model.biasLabel;
+
+        document.getElementById("macroScoreValue").textContent =
+          macro.score.toFixed(2);
+        document.getElementById("macroSignalValue").textContent = macro.label;
+
+        const macroBadge = document.getElementById("macroBadge");
+        const macroLabel = document.getElementById("macroLabel");
+        macroBadge.classList.remove("up", "down", "neutral");
+        if (macro.score > 0.2) {
+          macroBadge.classList.add("up");
+          macroLabel.textContent = "risk-on";
+        } else if (macro.score < -0.2) {
+          macroBadge.classList.add("down");
+          macroLabel.textContent = "risk-off";
+        } else {
+          macroBadge.classList.add("neutral");
+          macroLabel.textContent = "echilibrat";
+        }
+
+        const points = (btcOhlc || [])
+          .map((row) => {
+            const t =
+              row.timestamp ??
+              row.time ??
+              row.t ??
+              row.date ??
+              row.dt ??
+              null;
+            const c = row.close ?? row.c ?? null;
+            if (t == null || c == null) return null;
+
+            let label;
+            if (String(t).length > 10 && Number.isFinite(Number(t))) {
+              label = new Date(Number(t)).toISOString().slice(0, 10);
+            } else if (Number.isFinite(Number(t)) && Number(t) > 10_000_000_000) {
+              label = new Date(Number(t) * 1000).toISOString().slice(0, 10);
+            } else {
+              label = String(t).slice(0, 10);
+            }
+            return { t: label, c: Number(c) };
+          })
+          .filter((p) => p && Number.isFinite(p.c));
+
+        const maxPoints = 800;
+        const sliced =
+          points.length > maxPoints
+            ? points.slice(points.length - maxPoints)
+            : points;
+
+        const ctx = document.getElementById("btcPriceChart").getContext("2d");
+        buildPriceChart(ctx, sliced);
+      } catch (err) {
+        console.error(err);
+        showError(
+          "A apărut o eroare la încărcarea datelor pentru modelul coeziv. " +
+            "Verifică fișierele din data/ și data_global/ sau încearcă din nou."
+        );
+      }
+    }
+
+    main();
+  </script>
 </body>
 </html>
