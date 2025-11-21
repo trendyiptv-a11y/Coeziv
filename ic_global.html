@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" />
+  <title>Indice coeziv global – stare macro</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta
+    name="description"
+    content="Modelul coeziv global: structură & direcționalitate pentru piața financiară mondială."
+  />
+
+  <!-- Chart.js + Luxon (la fel ca pe celelalte pagini) -->
+  <script src="https://cdn.jsdelivr.net/npm/luxon@3/build/global/luxon.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1"></script>
+
+  <style>
+    :root {
+      --bg: #020617;
+      --bg-soft: #02091c;
+      --bg-elevated: #050b1f;
+      --card-bg: #050b1f;
+      --card-border: rgba(148, 163, 184, 0.15);
+      --accent: #4f46e5;
+      --accent-soft: rgba(79, 70, 229, 0.15);
+      --accent-strong: #a855f7;
+      --text: #e5e7eb;
+      --text-strong: #f9fafb;
+      --text-soft: #9ca3af;
+      --muted: #6b7280;
+      --success: #22c55e;
+      --success-soft: rgba(34, 197, 94, 0.18);
+      --danger: #fb7185;
+      --danger-soft: rgba(248, 113, 113, 0.18);
+      --warn: #eab308;
+      --warn-soft: rgba(234, 179, 8, 0.18);
+      --radius-card: 1.4rem;
+      --radius-pill: 999px;
+      --shadow-soft: 0 22px 55px rgba(15, 23, 42, 0.85);
+      --font-main: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+        "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top, #020617 0, #020617 35%, #000 100%);
+      color: var(--text);
+      font-family: var(--font-main);
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+    }
+
+    .page {
+      width: 100%;
+      max-width: 1120px;
+      padding: 1.25rem 1.1rem 2.5rem;
+    }
+
+    @media (min-width: 768px) {
+      .page {
+        padding: 1.8rem 1.4rem 2.8rem;
+      }
+    }
+
+    header {
+      margin-bottom: 1.5rem;
+    }
+
+    h1 {
+      margin: 0 0 0.55rem;
+      font-size: 1.25rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-strong);
+    }
+
+    header p {
+      margin: 0;
+      font-size: 0.9rem;
+      color: var(--text-soft);
+      max-width: 720px;
+      line-height: 1.5;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      margin-bottom: 1rem;
+      padding: 0.45rem 0.9rem;
+      border-radius: 999px;
+      text-decoration: none;
+      color: var(--text-soft);
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .back-link span.icon {
+      font-size: 0.9rem;
+      transform: translateY(-0.5px);
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      margin-top: 0.95rem;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.3rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.76rem;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      background: rgba(15, 23, 42, 0.85);
+      color: var(--text-soft);
+    }
+
+    .pill-dot {
+      width: 0.45rem;
+      height: 0.45rem;
+      border-radius: 999px;
+      background: var(--accent-strong);
+    }
+
+    .pill.bull .pill-dot {
+      background: var(--success);
+    }
+
+    .pill.bear .pill-dot {
+      background: var(--danger);
+    }
+
+    .pill.struct {
+      border-color: rgba(129, 140, 248, 0.7);
+      background: rgba(79, 70, 229, 0.18);
+    }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.4rem;
+    }
+
+    @media (min-width: 720px) {
+      .card-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+
+    .card {
+      background: radial-gradient(circle at top left, #020617 0, #020617 28%, #020617 100%);
+      border-radius: var(--radius-card);
+      border: 1px solid var(--card-border);
+      box-shadow: var(--shadow-soft);
+      padding: 1.15rem 1.25rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      opacity: 0.18;
+      background: radial-gradient(circle at 10% 0, rgba(56, 189, 248, 0.5) 0, transparent 50%);
+      pointer-events: none;
+      mix-blend-mode: soft-light;
+    }
+
+    .card-title {
+      position: relative;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--muted);
+      margin-bottom: 0.4rem;
+    }
+
+    .card-value {
+      position: relative;
+      font-size: 2rem;
+      font-weight: 650;
+      color: var(--text-strong);
+      margin-bottom: 0.25rem;
+    }
+
+    .card-label {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.2rem 0;
+      font-size: 0.78rem;
+      font-weight: 500;
+      margin-bottom: 0.2rem;
+    }
+
+    .label-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.25rem 0.7rem;
+      border-radius: var(--radius-pill);
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      background: rgba(15, 23, 42, 0.9);
+      color: var(--text-soft);
+      font-size: 0.76rem;
+    }
+
+    .label-pill.bull {
+      background: var(--success-soft);
+      border-color: rgba(34, 197, 94, 0.7);
+      color: var(--success);
+    }
+
+    .label-pill.bear {
+      background: var(--danger-soft);
+      border-color: rgba(248, 113, 113, 0.7);
+      color: var(--danger);
+    }
+
+    .label-pill.neutral {
+      background: rgba(30, 64, 175, 0.24);
+      border-color: rgba(129, 140, 248, 0.7);
+      color: #c4b5fd;
+    }
+
+    .label-pill .dot {
+      width: 0.42rem;
+      height: 0.42rem;
+      border-radius: 999px;
+      background: currentColor;
+    }
+
+    .card-meta {
+      position: relative;
+      margin-top: 0.3rem;
+      font-size: 0.8rem;
+      color: var(--text-soft);
+      line-height: 1.45;
+    }
+
+    .chart-card {
+      margin-top: 0.8rem;
+      margin-bottom: 1.2rem;
+    }
+
+    .chart-title {
+      font-size: 0.9rem;
+      font-weight: 500;
+      margin-bottom: 0.2rem;
+      color: var(--text-strong);
+    }
+
+    .chart-sub {
+      font-size: 0.8rem;
+      color: var(--text-soft);
+      margin-bottom: 0.7rem;
+    }
+
+    .chart-wrapper {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      border-radius: 1.4rem;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      background: radial-gradient(circle at top, #020617 0, #020617 40%, #020617 100%);
+      overflow: hidden;
+      padding: 0.4rem 0.4rem 0.6rem;
+    }
+
+    .chart-wrapper canvas {
+      width: 100% !important;
+      height: 100% !important;
+    }
+
+    .note {
+      font-size: 0.82rem;
+      color: var(--text-soft);
+      line-height: 1.6;
+      margin-top: 0.25rem;
+    }
+
+    .note strong {
+      color: #e5e7eb;
+      font-weight: 500;
+    }
+
+    .macro-card {
+      margin-top: 0.8rem;
+    }
+
+    .macro-card p {
+      position: relative;
+      margin: 0.25rem 0;
+      font-size: 0.82rem;
+      color: var(--text-soft);
+      line-height: 1.6;
+    }
+
+    .macro-card em {
+      font-style: italic;
+    }
+
+    .macro-card strong {
+      color: var(--text-strong);
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <a href="index.html" class="back-link">
+      <span class="icon">←</span>
+      <span>Înapoi la indice IC_BTC</span>
+    </a>
+
+    <header>
+      <h1>Indice coeziv global – stare macro</h1>
+      <p>
+        Model coeziv extins la piața financiară mondială (SPX, VIX, DXY, aur, petrol). Indicii sunt normalizați în
+        intervalul 0–100 și urmăresc echilibrul structural global și direcționalitatea riscului.
+      </p>
+
+      <div class="pill-row">
+        <div class="pill struct">
+          <span class="pill-dot"></span>
+          <span>IC_GLOBAL structural – stabilitate vs. fragilitate globală</span>
+        </div>
+        <div class="pill">
+          <span class="pill-dot"></span>
+          <span>ICD_GLOBAL direcțional – apetit vs. aversiune la risc</span>
+        </div>
+        <div class="pill bull">
+          <span class="pill-dot"></span>
+          <span>Regim bullish global – risc susținut</span>
+        </div>
+        <div class="pill bear">
+          <span class="pill-dot"></span>
+          <span>Regim bearish global – stres & de-leverage</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Carduri metrice -->
+    <section class="card-grid">
+      <article class="card">
+        <div class="card-title">IC_GLOBAL structural (0–100)</div>
+        <div id="icGlobalValue" class="card-value">–</div>
+        <div class="card-label">
+          <span id="icGlobalLabel" class="label-pill neutral">
+            <span class="dot"></span>
+            <span>Se încarcă…</span>
+          </span>
+        </div>
+        <div id="icGlobalMeta" class="card-meta">
+          Evaluare structurală globală în curs de încărcare.
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-title">ICD_GLOBAL direcțional (0–100)</div>
+        <div id="icdGlobalValue" class="card-value">–</div>
+        <div class="card-label">
+          <span id="icdGlobalLabel" class="label-pill neutral">
+            <span class="dot"></span>
+            <span>Se încarcă…</span>
+          </span>
+        </div>
+        <div id="icdGlobalMeta" class="card-meta">
+          Direcționalitatea agregată a pieței (risk-on vs. risk-off).
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-title">Regim global curent (model coeziv)</div>
+        <div id="regimeValue" class="card-value">–</div>
+        <div class="card-label">
+          <span id="regimePill" class="label-pill neutral">
+            <span class="dot"></span>
+            <span>Se calculează…</span>
+          </span>
+        </div>
+        <div id="regimeMeta" class="card-meta">
+          Regim agregat estimat din IC_GLOBAL structural și ICD_GLOBAL direcțional.
+        </div>
+      </article>
+    </section>
+
+    <!-- Grafic global -->
+    <section class="card chart-card">
+      <div class="chart-title">Indice structural & direcțional global (0–100)</div>
+      <div class="chart-sub">
+        Linia albastră reprezintă IC_GLOBAL structural, linia roz reprezintă ICD_GLOBAL direcțional (agregat macro).
+        Date zilnice, normalizate în 0–100.
+      </div>
+
+      <div class="chart-wrapper">
+        <canvas id="globalChart"></canvas>
+      </div>
+
+      <p class="note" id="lastUpdateNote">
+        Se încarcă datele globale...
+      </p>
+    </section>
+
+    <!-- Explicații macro -->
+    <section class="card macro-card">
+      <div class="card-title">Cum interpretăm indicele coeziv global?</div>
+      <p>
+        <strong>IC_GLOBAL structural</strong> măsoară cât de „aliniate” sunt marile fluxuri ale pieței – indice bursier
+        global (SPX), volatilitate (VIX), dolar (DXY), aur și petrol. Valori ridicate sugerează o structură
+        coerentă și stabilă, valori foarte scăzute indică fragilitate sistemică.
+      </p>
+      <p>
+        <strong>ICD_GLOBAL direcțional</strong> combină informația de trend a acelorași serii. Niveluri ridicate
+        sugerează un mediu <em>risk-on</em> (fluxuri orientate către risc), iar niveluri foarte reduse un mediu
+        <em>risk-off</em> (aversiune la risc, de-leverage).
+      </p>
+      <p>
+        <strong>Regimul global coeziv</strong> este derivat din combinația celor doi indici:
+        structură puternică + direcționalitate pro-risc ≈ regim bullish global;
+        structură ridicată dar direcționalitate defensivă ≈ regim bearish; valori amestecate ≈
+        faze de tranziție / reorganizare.
+      </p>
+      <p>
+        Modelul nu încearcă să „prezică” mișcări zilnice, ci să ofere o lentilă macro asupra
+        <strong>contextului structural</strong> în care se află Bitcoin și restul pieței. Nu reprezintă
+        recomandare financiară.
+      </p>
+    </section>
+  </main>
+
+  <script>
+    const { DateTime } = luxon;
+
+    function classifyLevel(value, low, high) {
+      if (value == null || !Number.isFinite(value)) return { label: "necunoscut", mode: "neutral" };
+      if (value >= high) return { label: "ridicat", mode: "bull" };
+      if (value <= low) return { label: "scăzut", mode: "bear" };
+      return { label: "mediu", mode: "neutral" };
+    }
+
+    function describeIC(value, low, high) {
+      if (value == null || !Number.isFinite(value)) return "Indice structural indisponibil.";
+      if (value >= high) {
+        return "Structură globală coerentă, fluxurile mari sunt bine aliniate. Context macro relativ stabil.";
+      }
+      if (value <= low) {
+        return "Structură fragilă: corelații tensionate între acțiuni, volatilitate, dolar, aur și petrol.";
+      }
+      return "Structură mixtă: piața oscilează între episoade de stabilitate și tensiuni punctuale.";
+    }
+
+    function describeICD(value, low, high) {
+      if (value == null || !Number.isFinite(value)) return "Indice direcțional indisponibil.";
+      if (value >= high) {
+        return "Regim global orientat spre risc (risk-on) – fluxuri pro-ciclice, apetit pentru active riscante.";
+      }
+      if (value <= low) {
+        return "Regim defensiv (risk-off) – creștere de aversiune la risc, căutare de refugii și reducere de expuneri.";
+      }
+      return "Direcționalitate neutră sau mixtă: piața încă testează un scenariu dominant.";
+    }
+
+    function describeRegime(regime, lastDate) {
+      const d = lastDate ? DateTime.fromMillis(lastDate).toFormat("dd LLL yyyy") : "ultima dată";
+      if (regime === "bull") {
+        return `Regim global bullish coeziv: structură solidă + fluxuri pro-risc, valabil aproximativ la ${d}.`;
+      }
+      if (regime === "bear") {
+        return `Regim global bearish coeziv: structură ridicată dar orientare defensivă a fluxurilor, valabil la ${d}.`;
+      }
+      return `Fază de tranziție / reorganizare globală detectată la ${d}: structura și direcția nu indică încă un regim clar.`;
+    }
+
+    function setPillClass(el, mode) {
+      el.classList.remove("bull", "bear", "neutral");
+      if (mode === "bull") el.classList.add("bull");
+      else if (mode === "bear") el.classList.add("bear");
+      else el.classList.add("neutral");
+    }
+
+    async function init() {
+      const icValueEl = document.getElementById("icGlobalValue");
+      const icLabelEl = document.getElementById("icGlobalLabel");
+      const icMetaEl = document.getElementById("icGlobalMeta");
+
+      const icdValueEl = document.getElementById("icdGlobalValue");
+      const icdLabelEl = document.getElementById("icdGlobalLabel");
+      const icdMetaEl = document.getElementById("icdGlobalMeta");
+
+      const regimeValueEl = document.getElementById("regimeValue");
+      const regimePillEl = document.getElementById("regimePill");
+      const regimeMetaEl = document.getElementById("regimeMeta");
+      const lastUpdateNote = document.getElementById("lastUpdateNote");
+
+      try {
+        const resp = await fetch("data/global_coeziv_state.json");
+        if (!resp.ok) throw new Error("Nu am putut încărca global_coeziv_state.json");
+        const data = await resp.json();
+
+        const series = Array.isArray(data.series) ? data.series : [];
+        if (!series.length) {
+          lastUpdateNote.textContent = "global_coeziv_state.json nu conține serii valabile.";
+          return;
+        }
+
+        const thresholds = data.thresholds || {};
+        const icLow = thresholds.ic_low ?? 35;
+        const icHigh = thresholds.ic_high ?? 65;
+        const icdLow = thresholds.icd_low ?? 40;
+        const icdHigh = thresholds.icd_high ?? 60;
+
+        const current = data.current || series[series.length - 1];
+        const lastTs = current.t ?? series[series.length - 1].t;
+        const lastDate = DateTime.fromMillis(lastTs);
+        const lastDateLabel = lastDate.toFormat("dd LLL yyyy");
+
+        const icVal = Number(current.ic_global);
+        const icdVal = Number(current.icd_global);
+
+        // IC_GLOBAL card
+        icValueEl.textContent = Number.isFinite(icVal) ? icVal.toFixed(2) : "–";
+        const icLevel = classifyLevel(icVal, icLow, icHigh);
+        setPillClass(icLabelEl, icLevel.mode);
+        icLabelEl.querySelector("span:last-child").textContent = `IC_GLOBAL ${icLevel.label}`;
+        icMetaEl.textContent = describeIC(icVal, icLow, icHigh);
+
+        // ICD_GLOBAL card
+        icdValueEl.textContent = Number.isFinite(icdVal) ? icdVal.toFixed(2) : "–";
+        const icdLevel = classifyLevel(icdVal, icdLow, icdHigh);
+        setPillClass(icdLabelEl, icdLevel.mode);
+        icdLabelEl.querySelector("span:last-child").textContent = `ICD_GLOBAL ${icdLevel.label}`;
+        icdMetaEl.textContent = describeICD(icdVal, icdLow, icdHigh);
+
+        // Regim global
+        const regime = current.regime || "neutral";
+        if (regime === "bull") {
+          regimeValueEl.textContent = "bullish global";
+          setPillClass(regimePillEl, "bull");
+          regimePillEl.querySelector("span:last-child").textContent = "Regim coeziv bullish";
+        } else if (regime === "bear") {
+          regimeValueEl.textContent = "bearish global";
+          setPillClass(regimePillEl, "bear");
+          regimePillEl.querySelector("span:last-child").textContent = "Regim coeziv bearish";
+        } else {
+          regimeValueEl.textContent = "tranziție / neutru";
+          setPillClass(regimePillEl, "neutral");
+          regimePillEl.querySelector("span:last-child").textContent = "Fază de tranziție globală";
+        }
+        regimeMetaEl.textContent = describeRegime(regime, lastTs);
+
+        lastUpdateNote.textContent = `Ultima dată de actualizare: ${lastDateLabel}. Pragurile sunt adaptate automat la distribuția indicilor globali.`;
+
+        // Grafic
+        const labels = series.map(d => d.t);
+        const icSeries = series.map(d => d.ic_global ?? null);
+        const icdSeries = series.map(d => d.icd_global ?? null);
+
+        const ctx = document.getElementById("globalChart").getContext("2d");
+        new Chart(ctx, {
+          type: "line",
+          data: {
+            labels,
+            datasets: [
+              {
+                label: "IC_GLOBAL structural (0–100)",
+                data: icSeries,
+                borderWidth: 1.8,
+                tension: 0.22,
+                pointRadius: 0,
+              },
+              {
+                label: "ICD_GLOBAL direcțional (0–100)",
+                data: icdSeries,
+                borderWidth: 1.4,
+                borderDash: [4, 3],
+                tension: 0.18,
+                pointRadius: 0,
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+              mode: "index",
+              intersect: false
+            },
+            plugins: {
+              legend: {
+                display: true,
+                labels: {
+                  color: "#cbd5f5",
+                  font: { size: 11 }
+                }
+              },
+              tooltip: {
+                callbacks: {
+                  title(items) {
+                    if (!items.length) return "";
+                    const t = items[0].parsed.x;
+                    return DateTime.fromMillis(t).toFormat("dd LLL yyyy");
+                  },
+                  label(item) {
+                    const v = item.parsed.y;
+                    if (v == null || !Number.isFinite(v)) return "";
+                    return `${item.dataset.label}: ${v.toFixed(2)}`;
+                  }
+                }
+              }
+            },
+            scales: {
+              x: {
+                type: "time",
+                time: { unit: "year" },
+                grid: { display: false },
+                ticks: {
+                  color: "#9ca3af",
+                  maxRotation: 0,
+                  autoSkipPadding: 24
+                }
+              },
+              y: {
+                min: 0,
+                max: 100,
+                grid: {
+                  color: "rgba(148, 163, 184, 0.28)",
+                  drawBorder: false
+                },
+                ticks: {
+                  color: "#9ca3af",
+                  stepSize: 20
+                }
+              }
+            }
+          }
+        });
+      } catch (err) {
+        console.error(err);
+        lastUpdateNote.textContent =
+          "Eroare la încărcarea datelor globale. Verifică existența fișierului data/global_coeziv_state.json.";
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>
