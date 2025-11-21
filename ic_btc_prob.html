@@ -11,7 +11,6 @@
     :root {
       --bg: #050814;
       --bg-elevated: #0b1020;
-      --bg-soft: #111629;
       --accent: #3b82f6;
       --accent-soft: rgba(59, 130, 246, 0.16);
       --accent-strong: #60a5fa;
@@ -30,9 +29,7 @@
         "Segoe UI", sans-serif;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
@@ -95,19 +92,9 @@
       background: var(--accent-soft);
     }
 
-    .pill.up .pill-dot {
-      background: var(--up);
-    }
-
-    .pill.down .pill-dot {
-      background: var(--down);
-    }
-
-    .pill.macro .pill-dot {
-      background: var(--accent);
-    }
-
-    /* Layout secțiuni */
+    .pill.up .pill-dot { background: var(--up); }
+    .pill.down .pill-dot { background: var(--down); }
+    .pill.macro .pill-dot { background: var(--accent); }
 
     section.grid {
       display: grid;
@@ -117,9 +104,7 @@
     }
 
     @media (max-width: 900px) {
-      section.grid {
-        grid-template-columns: minmax(0, 1fr);
-      }
+      section.grid { grid-template-columns: minmax(0, 1fr); }
     }
 
     .card {
@@ -163,12 +148,7 @@
       color: var(--muted);
     }
 
-    .card-body {
-      position: relative;
-      z-index: 1;
-    }
-
-    /* Carduri valori */
+    .card-body { position: relative; z-index: 1; }
 
     .value-main {
       font-size: 2.0rem;
@@ -204,9 +184,7 @@
       text-transform: lowercase;
     }
 
-    .badge-label {
-      font-weight: 500;
-    }
+    .badge-label { font-weight: 500; }
 
     .badge-dot {
       width: 0.45rem;
@@ -214,21 +192,10 @@
       border-radius: 999px;
     }
 
-    .badge.up .badge-dot {
-      background: var(--up);
-    }
-
-    .badge.down .badge-dot {
-      background: var(--down);
-    }
-
-    .badge.neutral .badge-dot {
-      background: var(--muted);
-    }
-
-    .badge.macro .badge-dot {
-      background: var(--accent);
-    }
+    .badge.up .badge-dot { background: var(--up); }
+    .badge.down .badge-dot { background: var(--down); }
+    .badge.neutral .badge-dot { background: var(--muted); }
+    .badge.macro .badge-dot { background: var(--accent); }
 
     .meta-row {
       display: grid;
@@ -240,9 +207,7 @@
     }
 
     @media (max-width: 600px) {
-      .meta-row {
-        grid-template-columns: minmax(0, 1fr);
-      }
+      .meta-row { grid-template-columns: minmax(0, 1fr); }
     }
 
     .meta-label {
@@ -257,8 +222,6 @@
       font-weight: 500;
       color: #e5e7eb;
     }
-
-    /* Bară probabilități */
 
     .prob-bar {
       position: relative;
@@ -301,8 +264,6 @@
       font-weight: 600;
     }
 
-    /* Chart card */
-
     .chart-card {
       border-radius: var(--radius-xl);
       background: radial-gradient(circle at top, rgba(15, 23, 42, 0.3), #020617);
@@ -343,8 +304,6 @@
       height: 100% !important;
     }
 
-    /* Text explicativ */
-
     section.note {
       margin-top: 0.5rem;
       font-size: 0.82rem;
@@ -355,15 +314,6 @@
     section.note strong {
       color: #e5e7eb;
       font-weight: 500;
-    }
-
-    a.inline-link {
-      color: var(--accent-strong);
-      text-decoration: none;
-    }
-
-    a.inline-link:hover {
-      text-decoration: underline;
     }
 
     .small-muted {
@@ -390,7 +340,7 @@
       <h1>Probabilitate direcțională BTC – model coeziv</h1>
       <p>
         Estimare zilnică a probabilității ca BTC să continue în sens
-        <strong>up</strong> sau <strong>down</strong> în următoarele săptămâni,
+        <strong>UP</strong> sau <strong>DOWN</strong> în următoarele săptămâni,
         pe baza indicatorilor coezivi (IC_BTC structural &amp; direcțional),
         a structurii trendului (EMA50 / EMA200, volatilitate) și a
         contextului macro global (SPX, DXY, Gold, VIX, Oil).
@@ -403,7 +353,7 @@
         </div>
         <div class="pill up">
           <span class="pill-dot"></span>
-          <span>IC_BTC structural &gt; trend / structură</span>
+          <span>IC_BTC structural &gt; structură / trend</span>
         </div>
         <div class="pill down">
           <span class="pill-dot"></span>
@@ -416,7 +366,6 @@
       </div>
     </header>
 
-    <!-- Grid: card probabilități + card macro -->
     <section class="grid">
       <!-- Card probabilități -->
       <article class="card">
@@ -439,13 +388,17 @@
               <div class="value-main">
                 <span id="probUpValue">–</span><span class="value-unit">%</span>
               </div>
-              <div class="card-sub">Probabilitate continuare trend <strong>UP</strong></div>
+              <div class="card-sub">
+                Probabilitate continuare trend <strong>UP</strong>
+              </div>
             </div>
             <div>
               <div class="value-main" style="font-size:1.4rem;">
                 <span id="probDownValue">–</span><span class="value-unit">%</span>
               </div>
-              <div class="card-sub">Probabilitate continuare trend <strong>DOWN</strong></div>
+              <div class="card-sub">
+                Probabilitate continuare trend <strong>DOWN</strong>
+              </div>
             </div>
           </div>
 
@@ -477,8 +430,9 @@
                 <span id="regimeLabel">–</span>
               </div>
               <div class="card-sub">
-                Derivat din ICC/ICF &amp; raportul la EMA50 / EMA200
-                (accumulare, bull, top, bear, reechilibrare).
+                Derivat din IC/ICD &amp; raportul la EMA50 / EMA200
+                (bază, acumulare, bull structural, bull târziu / top,
+                bear, reechilibrare).
               </div>
             </div>
           </div>
@@ -545,7 +499,6 @@
       </div>
     </section>
 
-    <!-- Explicație text model -->
     <section class="note">
       <p>
         <strong>Cum gândește modelul coeziv această probabilitate?</strong>
@@ -601,7 +554,6 @@
   </main>
 
   <script>
-    // ========= Helpers =========
     function clamp(x, min, max) {
       return Math.min(max, Math.max(min, x));
     }
@@ -623,25 +575,19 @@
       console.error("[Coeziv BTC]", msg);
     }
 
-    // ========= Fetch helpers =========
     async function fetchJson(url) {
       const res = await fetch(url);
-      if (!res.ok) {
-        throw new Error(`Nu pot încărca ${url} (${res.status})`);
-      }
+      if (!res.ok) throw new Error(`Nu pot încărca ${url} (${res.status})`);
       return res.json();
     }
 
     async function fetchCsvLastTwo(url) {
       const res = await fetch(url);
-      if (!res.ok) {
-        throw new Error(`Nu pot încărca ${url} (${res.status})`);
-      }
+      if (!res.ok) throw new Error(`Nu pot încărca ${url} (${res.status})`);
       const text = await res.text();
       const lines = text.trim().split(/\r?\n/);
-      if (lines.length < 3) {
-        throw new Error(`Prea puține linii în ${url}`);
-      }
+      if (lines.length < 3) throw new Error(`Prea puține linii în ${url}`);
+
       const header = lines[0].split(",");
       const last = lines[lines.length - 1].split(",");
       const prev = lines[lines.length - 2].split(",");
@@ -656,85 +602,54 @@
       return { last: objLast, prev: objPrev };
     }
 
-    // ========= Probability model =========
+    // Macro score
+    function computeMacroScore(seriesReturns) {
+      const spx = seriesReturns.spx ?? 0;
+      const dxy = seriesReturns.dxy ?? 0;
+      const gold = seriesReturns.gold ?? 0;
+      const vix = seriesReturns.vix ?? 0;
+      const oil = seriesReturns.oil ?? 0;
+
+      const riskOn =
+        spx * 1.3 + gold * 0.6 + oil * 0.7 - dxy * 0.7 - vix * 1.0;
+
+      const scaled = clamp(riskOn * 4, -1, 1);
+
+      let label = "echilibrat";
+      if (scaled > 0.25) label = "risk-on (favorabil risc)";
+      else if (scaled < -0.25) label = "risk-off (aversiune la risc)";
+
+      return { score: scaled, label };
+    }
+
     function computeCoezivProb(btcState, macroState) {
-      const icStruct =
-        safeNumber(
-          btcState.ic_struct ??
-            btcState.icStruct ??
-            btcState.IC_STRUCT ??
-            btcState.ic_s
-        ) ?? 0;
+      const icStruct = safeNumber(btcState.ic_struct) ?? 0;
+      const icDir = safeNumber(btcState.ic_dir) ?? 50;
+      const vol30 = safeNumber(btcState.vol30);
+      const close = safeNumber(btcState.close);
+      const ema50 = safeNumber(btcState.ema50);
+      const ema200 = safeNumber(btcState.ema200);
+      const regime = btcState.regime_coeziv_label || null;
 
-      const icDir =
-        safeNumber(
-          btcState.ic_dir ??
-            btcState.icDir ??
-            btcState.IC_DIR ??
-            btcState.ic_d
-        ) ?? 50;
-
-      const vol30 =
-        safeNumber(
-          btcState.vol30 ??
-            btcState.vol_30 ??
-            btcState.vol ??
-            btcState.volatility_30
-        ) ?? null;
-
-      const close =
-        safeNumber(
-          btcState.close ??
-            btcState.price ??
-            btcState.last_close ??
-            btcState.c
-        ) ?? null;
-
-      const ema50 =
-        safeNumber(
-          btcState.ema50 ?? btcState.ema_50 ?? btcState.EMA50
-        ) ?? null;
-
-      const ema200 =
-        safeNumber(
-          btcState.ema200 ?? btcState.ema_200 ?? btcState.EMA200
-        ) ?? null;
-
-      const regime =
-        btcState.regime ??
-        btcState.regim ??
-        btcState.cohesive_regime ??
-        null;
-
-      // 1) Trend strength din IC structural (0–1)
       const trendStrength = clamp(icStruct / 100, 0, 1);
-
-      // 2) Bias direcțional intern din ICD (−1..1)
       const directionBias = clamp((icDir - 50) / 50, -1, 1);
 
-      // 3) Bias din poziția față de EMA50 / 200
-      let maBias = 0; // −1 bear, +1 bull
+      let maBias = 0;
       if (close != null && ema50 != null && ema200 != null) {
         const dist50 = (close - ema50) / ema50;
         const dist200 = (close - ema200) / ema200;
-        const s50 = sigmoid(dist50 * 8) * 2 - 1; // map la −1..1
+        const s50 = sigmoid(dist50 * 8) * 2 - 1;
         const s200 = sigmoid(dist200 * 6) * 2 - 1;
         maBias = clamp(0.6 * s50 + 0.4 * s200, -1, 1);
       }
 
-      // 4) Volatility factor (penalizăm extremele)
       let volFactor = 1.0;
       if (vol30 != null) {
-        if (vol30 > 140) {
-          volFactor = 0.65; // foarte volatil
-        } else if (vol30 > 110) {
-          volFactor = 0.8;
-        } else if (vol30 < 30) {
-          volFactor = 0.85; // prea „mort”
-        }
+        if (vol30 > 140) volFactor = 0.65;
+        else if (vol30 > 110) volFactor = 0.8;
+        else if (vol30 < 30) volFactor = 0.85;
       }
 
-      // 5) Macro bias (−1..1) și confidence
       let macroBias = 0;
       let macroConf = 0;
       if (macroState && Number.isFinite(macroState.score)) {
@@ -742,22 +657,18 @@
         macroConf = clamp(Math.abs(macroBias) * 1.3, 0, 1);
       }
 
-      // 6) Bias combinat
       const combinedBias = clamp(
         0.5 * directionBias + 0.25 * maBias + 0.25 * macroBias,
         -1,
         1
       );
 
-      // 7) Probabilitate brută up
-      const probUpRaw = 0.5 + 0.5 * combinedBias; // 0..1
+      const probUpRaw = 0.5 + 0.5 * combinedBias;
 
-      // 8) Încredere (0–1) din trend + macro + vol
       const baseConf =
-        macroConf > 0 ? (trendStrength * 0.6 + macroConf * 0.4) : trendStrength;
+        macroConf > 0 ? trendStrength * 0.6 + macroConf * 0.4 : trendStrength;
       const confidence = clamp(baseConf * volFactor, 0, 1);
 
-      // 9) Mic „shrink” către 50% când încrederea e mică
       const probUp = clamp(
         probUpRaw * confidence + 0.5 * (1 - confidence),
         0,
@@ -784,38 +695,9 @@
       };
     }
 
-    // ========= Macro model =========
-    function computeMacroScore(seriesReturns) {
-      // așteptăm un obiect de forma:
-      // { spx: r, dxy: r, gold: r, vix: r, oil: r } în procente (−0.02 = −2%)
-      const spx = seriesReturns.spx ?? 0;
-      const dxy = seriesReturns.dxy ?? 0;
-      const gold = seriesReturns.gold ?? 0;
-      const vix = seriesReturns.vix ?? 0;
-      const oil = seriesReturns.oil ?? 0;
-
-      // SPX, Gold, Oil: + => risk-on
-      // DXY, VIX: + => risk-off
-      const riskOn =
-        spx * 1.3 + gold * 0.6 + oil * 0.7 - dxy * 0.7 - vix * 1.0;
-
-      // normalizăm un pic pentru a rămâne într-un interval −1..1
-      const scaled = clamp(riskOn * 4, -1, 1); // ~±2.5% mișcare combinată => cap
-
-      let label = "echilibrat";
-      if (scaled > 0.25) label = "risk-on (favorabil risc)";
-      else if (scaled < -0.25) label = "risk-off (aversiune la risc)";
-
-      return { score: scaled, label };
-    }
-
-    // ========= Chart =========
     let btcChart = null;
-
-    function buildPriceChart(ctx, points, latestState) {
-      if (btcChart) {
-        btcChart.destroy();
-      }
+    function buildPriceChart(ctx, points) {
+      if (btcChart) btcChart.destroy();
 
       btcChart = new Chart(ctx, {
         type: "line",
@@ -836,17 +718,11 @@
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          interaction: {
-            mode: "index",
-            intersect: false
-          },
+          interaction: { mode: "index", intersect: false },
           plugins: {
             legend: {
               display: true,
-              labels: {
-                color: "#9ca3af",
-                font: { size: 11 }
-              }
+              labels: { color: "#9ca3af", font: { size: 11 } }
             },
             tooltip: {
               callbacks: {
@@ -864,9 +740,7 @@
                 color: "#6b7280",
                 font: { size: 10 }
               },
-              grid: {
-                color: "rgba(31,41,55,0.6)"
-              }
+              grid: { color: "rgba(31,41,55,0.6)" }
             },
             y: {
               ticks: {
@@ -874,21 +748,16 @@
                 font: { size: 10 },
                 callback: (v) =>
                   v >= 1000
-                    ? v.toLocaleString("en-US", {
-                        maximumFractionDigits: 0
-                      })
+                    ? v.toLocaleString("en-US", { maximumFractionDigits: 0 })
                     : v
               },
-              grid: {
-                color: "rgba(31,41,55,0.6)"
-              }
+              grid: { color: "rgba(31,41,55,0.6)" }
             }
           }
         }
       });
     }
 
-    // ========= Main loader =========
     async function main() {
       try {
         const [
@@ -909,10 +778,8 @@
           fetchCsvLastTwo("data_global/oil.csv")
         ]);
 
-        // === Macro returns (ultimele 2 zile) ===
         function pctChange(lastObj, prevObj) {
-          // încercăm coloane standard: close, adj_close, value etc.
-          const keys = ["close", "adj_close", "Adj Close", "Adj_Close", "value"];
+          const keys = ["close", "Adj Close", "adj_close", "value"];
           let last = null;
           let prev = null;
           for (const k of keys) {
@@ -936,19 +803,9 @@
         };
 
         const macro = computeMacroScore(macroReturns);
-
-        // === Probabilități BTC ===
         const model = computeCoezivProb(btcState, macro);
 
-        // === Update UI: header & card probabilități ===
-        const lastDate =
-          btcState.date ??
-          btcState.dt ??
-          btcState.last_date ??
-          (btcState.timestamp
-            ? new Date(btcState.timestamp * 1000).toISOString().slice(0, 10)
-            : "–");
-
+        const lastDate = btcState.date || "–";
         document.getElementById("lastDateLabel").textContent = lastDate;
 
         const probUpPct = Math.round(model.probUp * 100);
@@ -963,9 +820,8 @@
         document.getElementById("confidenceValue").textContent = confPct;
 
         document.getElementById("regimeLabel").textContent =
-          model.regime || "neprecizat";
+          model.regime || "regim neclar";
 
-        // Bias badge
         const biasBadge = document.getElementById("biasBadge");
         biasBadge.classList.remove("up", "down", "neutral");
         let biasClass = "neutral";
@@ -974,15 +830,6 @@
         biasBadge.classList.add(biasClass);
         document.getElementById("biasLabel").textContent = model.biasLabel;
 
-        // Bară probabilități
-        const barFill = document.getElementById("probBarFill");
-        const upWidth = model.probUp;
-        const downWidth = model.probDown;
-        barFill.querySelector(".prob-up").style.width = upWidth * 100 + "%";
-        barFill.querySelector(".prob-down").style.width =
-          downWidth * 100 + "%";
-
-        // === Update UI: macro card ===
         document.getElementById("macroScoreValue").textContent =
           macro.score.toFixed(2);
         document.getElementById("macroSignalValue").textContent = macro.label;
@@ -1001,7 +848,6 @@
           macroLabel.textContent = "echilibrat";
         }
 
-        // === Chart preț BTC ===
         const points = (btcOhlc || [])
           .map((row) => {
             const t =
@@ -1016,10 +862,8 @@
 
             let label;
             if (String(t).length > 10 && Number.isFinite(Number(t))) {
-              // probabil timestamp ms
               label = new Date(Number(t)).toISOString().slice(0, 10);
             } else if (Number.isFinite(Number(t)) && Number(t) > 10_000_000_000) {
-              // timestamp sec
               label = new Date(Number(t) * 1000).toISOString().slice(0, 10);
             } else {
               label = String(t).slice(0, 10);
@@ -1028,7 +872,6 @@
           })
           .filter((p) => p && Number.isFinite(p.c));
 
-        // folosim ultimele ~800 puncte ca să nu încărcăm graficul excesiv
         const maxPoints = 800;
         const sliced =
           points.length > maxPoints
@@ -1036,7 +879,7 @@
             : points;
 
         const ctx = document.getElementById("btcPriceChart").getContext("2d");
-        buildPriceChart(ctx, sliced, btcState);
+        buildPriceChart(ctx, sliced);
       } catch (err) {
         console.error(err);
         showError(
