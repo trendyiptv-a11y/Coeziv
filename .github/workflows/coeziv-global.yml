@@ -28,13 +28,14 @@ jobs:
 
       - name: Run BTC Latest State from btc_ohlc
         run: |
-          python scripts/update_btc_state_latest_from_data.py
+          python scripts/update_btc_state_latest_from_daily.py
 
       - name: Commit changes
         run: |
           git config user.name "coeziv-bot"
           git config user.email "coeziv-bot@example.com"
           git add data_global/*.csv
+          git add data/*.json
           git add data/btc_state_latest.json
           git commit -m "Update coeziv global & btc state" || echo "No changes"
 
