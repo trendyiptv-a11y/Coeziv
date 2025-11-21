@@ -4,108 +4,180 @@ from pathlib import Path
 from datetime import datetime
 
 
-ROOT = Path(__file__).resolve().parent.parent  # rădăcina repo-ului
+# ---------- Căi fișiere ----------
+
+ROOT = Path(__file__).resolve().parent.parent
 DATA_BTC = ROOT / "data"
 
-INPUT_FILE = DATA_BTC / "btc_ohlc.json"       # ← AICI folosim btc_ohlc.json
+INPUT_FILE = DATA_BTC / "btc_ohlc.json"
 OUTPUT_FILE = DATA_BTC / "btc_state_latest.json"
 
 
+# ---------- Funcții utilitare ----------
+
 def parse_date(s: str) -> datetime:
-    for fmt in ("%Y-%m-%d", "%Y-%m-%dT%H:%M:%S", "%Y-%m-%d %H:%M:%S"):
+    """
+    Încearcă mai multe formate de dată.
+    Acceptă:
+      - 'YYYY-MM-DD'
+      - 'YYYY-MM-DDTHH:MM:SS'
+      - 'YYYY-MM-DDTHH:MM:SSZ'
+      - timestamp în milisecunde (string / număr)
+    """
+    if s is None:
+        raise ValueError("dată lipsă")
+
+    # dacă arată ca numeric (ex. 1708387200000)
+    try:
+        if isinstance(s, (int, float)):
+            return datetime.utcfromtimestamp(float(s) / 1000.0)
+        # string numeric lung => probabil ms
+        if isinstance(s, str) and s.isdigit() and len(s) >= 10:
+            return datetime.utcfromtimestamp(float(s) / 1000.0)
+    except Exception:
+        pass
+
+    if not isinstance(s, str):
+        s = str(s)
+
+    fmts = [
+        "%Y-%m-%d",
+        "%Y-%m-%dT%H:%M:%S",
+        "%Y-%m-%dT%H:%M:%SZ",
+        "%Y-%m-%d %H:%M:%S",
+    ]
+    last_err = None
+    for fmt in fmts:
         try:
             return datetime.strptime(s, fmt)
-        except ValueError:
+        except ValueError as e:
+            last_err = e
             continue
-    raise ValueError(f"Format de dată necunoscut: {s!r}")
+    raise last_err or ValueError(f"Nu pot parsa data: {s}")
 
 
-def ema(series, period):
-    """EMA ca în JS: alpha = 2 / (period + 1)."""
-    alpha = 2.0 / (period + 1.0)
+def ema(series, window: int):
+    """
+    EMA simplă, ignoră valorile None la început.
+    """
+    k = 2.0 / (window + 1.0)
     out = [None] * len(series)
-    prev = None
-    for i, v in enumerate(series):
-        if v is None:
+    ema_val = None
+    for i, x in enumerate(series):
+        if x is None:
             out[i] = None
             continue
-        if prev is None:
-            prev = v
+        if ema_val is None:
+            ema_val = float(x)
         else:
-            prev = alpha * v + (1 - alpha) * prev
-        out[i] = prev
+            ema_val = k * float(x) + (1.0 - k) * ema_val
+        out[i] = ema_val
     return out
 
 
-def rolling_std(values, window):
-    """STD rulant simplu, ca în JS (pe log-returnuri)."""
-    out = [None] * len(values)
-    if window <= 1:
-        return out
-    from collections import deque
+def rolling_std(series, window: int):
+    """
+    Deviație standard rulantă (simplă, ne-optimizată).
+    Folosește doar valori non-None.
+    """
+    out = [None] * len(series)
+    buf = []
 
-    q = deque()
-    sum_ = 0.0
-    sum_sq = 0.0
-
-    for i, v in enumerate(values):
-        v = 0.0 if v is None else float(v)
-        q.append(v)
-        sum_ += v
-        sum_sq += v * v
-
-        if len(q) > window:
-            old = q.popleft()
-            sum_ -= old
-            sum_sq -= old * old
-
-        if len(q) == window:
-            mean = sum_ / window
-            var = sum_sq / window - mean * mean
-            out[i] = sqrt(max(var, 0.0))
+    for i, x in enumerate(series):
+        if x is None:
+            buf.append(None)
         else:
+            buf.append(float(x))
+
+        if len(buf) > window:
+            buf.pop(0)
+
+        clean = [v for v in buf if v is not None]
+        if len(clean) < window:
             out[i] = None
+            continue
+
+        m = sum(clean) / len(clean)
+        var = sum((v - m) ** 2 for v in clean) / len(clean)
+        out[i] = sqrt(var)
+
     return out
 
 
-def clamp(x, lo, hi):
-    return max(lo, min(hi, x))
+def min_max_norm(series, floor=0.0, ceil=100.0):
+    """
+    Normalizează o serie numerică la [floor, ceil], ignorând None.
+    """
+    vals = [x for x in series if x is not None]
+    if not vals:
+        return [None] * len(series)
 
+    mn = min(vals)
+    mx = max(vals)
+    if mx == mn:
+        return [50.0 if x is not None else None for x in series]
+
+    out = []
+    for x in series:
+        if x is None:
+            out.append(None)
+        else:
+            z = (x - mn) / (mx - mn)
+            out.append(floor + z * (ceil - floor))
+    return out
+
+
+# ---------- Main logic ----------
 
 def main():
+    # 1) Încarcă btc_ohlc.json
     if not INPUT_FILE.exists():
-        raise FileNotFoundError(
-            f"Nu am găsit {INPUT_FILE}. Ajustează numele dacă fișierul e altfel."
-        )
+        raise FileNotFoundError(f"Lipsește fișierul: {INPUT_FILE}")
 
-    raw = json.loads(INPUT_FILE.read_text(encoding="utf-8"))
-    if not isinstance(raw, list):
-        raise ValueError("btc_ohlc.json trebuie să fie o listă de obiecte (candles).")
+    with INPUT_FILE.open("r", encoding="utf-8") as f:
+        raw = json.load(f)
 
-    # Extragem (date, close)
+    # 2) Transformăm în candles cu dt + close
     candles = []
+
     for row in raw:
-        # încearcă time/date/t
-        date_str = row.get("time") or row.get("date") or row.get("t")
-        if not date_str:
-            continue
-        try:
-            dt = parse_date(str(date_str))
-        except ValueError:
-            continue
-        close = row.get("close")
-        if close is None:
-            continue
-        candles.append({"dt": dt, "close": float(close)})
+        # Formatul tău real: [time, open, high, low, close, volume]
+        if isinstance(row, list) and len(row) >= 5:
+            date_str = row[0]
+            try:
+                dt = parse_date(date_str)
+            except ValueError:
+                continue
+
+            try:
+                close = float(row[4])
+            except Exception:
+                continue
+
+            candles.append({"dt": dt, "close": close})
+
+        # fallback: suport pentru format dict, dacă vreodată se schimbă sursa
+        elif isinstance(row, dict):
+            date_str = row.get("time") or row.get("date") or row.get("t")
+            if not date_str:
+                continue
+            try:
+                dt = parse_date(date_str)
+            except ValueError:
+                continue
+            close = row.get("close")
+            if close is None:
+                continue
+            candles.append({"dt": dt, "close": float(close)})
 
     if len(candles) < 260:
         raise RuntimeError("Prea puține date BTC pentru a calcula IC (minim ~260 zile).")
 
-    # sortăm după dată
+    # 3) Sortăm după dată
     candles.sort(key=lambda c: c["dt"])
     closes = [c["close"] for c in candles]
 
-    # log-return-uri
+    # 4) Log-return-uri zilnice
     log_ret = [None] * len(closes)
     for i in range(1, len(closes)):
         if closes[i - 1] > 0 and closes[i] > 0:
@@ -113,92 +185,75 @@ def main():
         else:
             log_ret[i] = None
 
-    # EMA50, EMA200
+    # 5) EMA50 / EMA200 pe preț
     ema50 = ema(closes, 50)
     ema200 = ema(closes, 200)
 
-    # vol pe 30 de zile, anualizat *100 (ca %)
+    # 6) Volatilitate 30 zile, anualizată (%)
     std30 = rolling_std(log_ret, 30)
     vol30 = [
         None if s is None else s * sqrt(365.0) * 100.0
         for s in std30
     ]
 
-    dir_window = 20
-    last_struct = None
-    last_dir = None
-    last_price = None
-    last_date = None
-
+    # 7) IC structural – "cât de ordonat / trenduit" e prețul
+    #    - diferență dintre EMA50 și EMA200
+    #    - cum stă prețul față de EMA-uri
+    struct_raw = []
     for i in range(len(closes)):
-        # replicăm condițiile din HTML:
-        if i < 200 or i < 30 or i < dir_window + 200:
+        p = closes[i]
+        e50 = ema50[i]
+        e200 = ema200[i]
+        if p is None or e50 is None or e200 is None:
+            struct_raw.append(None)
             continue
+        # măsură simplă de trend + structură
+        slope = e50 - e200
+        dist = (p - e50) / e50 if e50 != 0 else 0.0
+        struct_raw.append(abs(slope) + abs(dist) * 0.5)
 
-        short = ema50[i]
-        long = ema200[i]
-        vol_now = vol30[i]
+    ic_struct = min_max_norm(struct_raw, 0.0, 100.0)
 
-        if short is None or long is None or vol_now is None:
-            continue
-
-        # IC_BTC structural
-        trend_diff = short - long
-        trend_strength = (abs(trend_diff) / max(long, 1e-8)) * 100.0
-        vol_now = max(vol_now, 1e-6)
-        struct_score = clamp(50.0 + (trend_strength - vol_now) * 0.6, 0.0, 100.0)
-
-        # ICD_BTC direcțional
-        trend_dir = 0.0
-        if trend_diff > 0:
-            trend_dir = 1.0
-        elif trend_diff < 0:
-            trend_dir = -1.0
+    # 8) IC direcțional – "cât de coerentă" e direcția
+    #    - log-return-uri netezite
+    #    - semn + magnitudine
+    smooth_ret = ema(log_ret, 10)
+    dir_raw = []
+    for r in smooth_ret:
+        if r is None:
+            dir_raw.append(None)
         else:
-            j = max(0, i - 5)
-            diff50 = (ema50[i] or 0.0) - (ema50[j] or 0.0)
-            if diff50 > 0:
-                trend_dir = 1.0
-            elif diff50 < 0:
-                trend_dir = -1.0
-            else:
-                trend_dir = 1.0  # fallback
+            # tanh pentru a comprima extremele
+            dir_raw.append(tanh(r * 20.0))
 
-        match = 0
-        total = 0
-        for j in range(i - dir_window + 1, i + 1):
-            if j < 0 or j >= len(log_ret):
-                continue
-            r = log_ret[j]
-            if not r:
-                continue
-            total += 1
-            if (r > 0 and trend_dir > 0) or (r < 0 and trend_dir < 0):
-                match += 1
+    # mapăm [-1, 1] -> [0, 100]
+    ic_dir = []
+    for x in dir_raw:
+        if x is None:
+            ic_dir.append(None)
+        else:
+            ic_dir.append(50.0 + 50.0 * x)
 
-        align = (match / total) if total > 0 else 0.5
-        dir_score = clamp(align * 100.0, 0.0, 100.0)
-
-        last_struct = struct_score
-        last_dir = dir_score
-        last_price = closes[i]
-        last_date = candles[i]["dt"]
-
-    if last_struct is None or last_dir is None or last_date is None:
-        raise RuntimeError("Nu s-a putut calcula niciun punct valid pentru IC_BTC/ICD_BTC.")
+    # 9) Selectăm ultima zi pentru state-ul "latest"
+    last = candles[-1]
+    last_dt = last["dt"]
+    last_close = last["close"]
+    last_ic_struct = ic_struct[-1]
+    last_ic_dir = ic_dir[-1]
 
     state = {
-        "date": last_date.strftime("%Y-%m-%d"),
-        "ic_btc": round(last_struct, 2),
-        "icd_btc": round(last_dir, 2),
-        "price": round(last_price, 2),
+        "last_date": last_dt.strftime("%Y-%m-%d"),
+        "last_close": last_close,
+        "ic_struct": last_ic_struct,
+        "ic_dir": last_ic_dir,
+        "n_points": len(candles),
     }
 
     OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
-    OUTPUT_FILE.write_text(json.dumps(state, ensure_ascii=False, indent=2), encoding="utf-8")
+    with OUTPUT_FILE.open("w", encoding="utf-8") as f:
+        json.dump(state, f, ensure_ascii=False, indent=2)
 
-    print("✅ btc_state_latest.json generat din btc_ohlc.json:")
-    print(json.dumps(state, ensure_ascii=False, indent=2))
+    print(f"✅ Scris {OUTPUT_FILE} pentru data {state['last_date']}")
 
 
 if __name__ == "__main__":
