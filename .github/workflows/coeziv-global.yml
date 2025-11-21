@@ -19,24 +19,24 @@ jobs:
           python-version: "3.11"
 
       - name: Install dependencies
-        run: |
-          pip install pandas yfinance
+  run: |
+    pip install pandas yfinance
 
-      - name: Run Coeziv Global Script
-        run: |
-          python scripts/update_global_coeziv_state.py
+- name: Run Coeziv Global Script
+  run: |
+    python scripts/update_global_coeziv_state.py
 
-      - name: Run BTC Latest State from btc_ohlc
-        run: |
-          python scripts/update_btc_state_latest_from_daily.py
+- name: Run BTC Latest State from btc_ohlc
+  run: |
+    python scripts/update_btc_state_latest_from_data.py
 
-      - name: Commit changes
-        run: |
-          git config user.name "coeziv-bot"
-          git config user.email "coeziv-bot@example.com"
-          git add data_global/global_coeziv_state.json
-          git add data/btc_state_latest.json
-          git commit -m "Update coeziv global & btc state" || echo "No changes to commit"
+- name: Commit changes
+  run: |
+    git config user.name "coeziv-bot"
+    git config user.email "coeziv-bot@example.com"
+    git add data_global/*.csv
+    git add data/btc_state_latest.json
+    git commit -m "Update coeziv global & btc state" || echo "No changes to commit"
 
       - name: Push changes
         uses: ad-m/github-push-action@v0.8.0
