@@ -1,136 +1,122 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
+#!/usr/bin/env python
 """
 update_global_coeziv_state.py
-Actualizează indicii globali (IC_GLOBAL și ICD_GLOBAL)
-folosind date live Yahoo Finance.
 
-Compatibil 100% cu workflow GitHub.
-Nu necesită fișiere CSV.
+Script simplu care descarcă serii macro zilnice din Yahoo Finance
+și le salvează în data_global/*.csv în format:
+
+    timestamp,close
+
+timestamp = milisecunde UNIX (UTC)
 """
 
-import yfinance as yf
-import pandas as pd
-import numpy as np
-from datetime import datetime
+from __future__ import annotations
+
+import sys
 from pathlib import Path
-import json
+from datetime import datetime
+from typing import Dict
 
-# ------------------------
-# Configurări principale
-# ------------------------
+import pandas as pd
+import yfinance as yf
 
-DATA_START = "2010-01-01"
 
-# 📌 Salvăm în root/data/
-OUTPUT_DIR = Path("data")
-OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+# Rădăcina repo-ului (../ față de scripts/)
+ROOT = Path(__file__).resolve().parents[1]
 
-MACRO_SYMBOLS = {
-    "spx": "^GSPC",         # S&P 500
-    "vix": "^VIX",          # Volatility index
-    "dxy": "DX-Y.NYB",      # Dollar index (alternativ ^DXY)
-    "gold": "GC=F",         # Gold futures
-    "oil": "CL=F",          # Crude oil futures
+# Folder unde salvăm seriile globale
+DATA_GLOBAL = ROOT / "data_global"
+
+# Serii macro pe care le luăm din Yahoo Finance
+SERIES: Dict[str, str] = {
+    "spx": "^GSPC",   # S&P 500 index
+    "vix": "^VIX",    # Volatilitate
+    "dxy": "DX-Y.NYB",  # Dollar Index (poți schimba în "^DXY" dacă preferi)
+    "gold": "GC=F",   # Gold futures
+    "oil": "CL=F",    # Crude oil futures
 }
 
-# ------------------------
-# Funcții utilitare
-# ------------------------
+START_DATE = "2009-01-01"  # punct de start (poți ajusta)
 
-def fetch_series_yahoo(symbol: str, column="Adj Close"):
+
+def log(msg: str) -> None:
+    """Mic helper pentru mesaje frumoase în logul GitHub Actions."""
+    now = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+    print(f"[{now}] {msg}", flush=True)
+
+
+def fetch_series_yahoo(symbol: str, start: str) -> pd.DataFrame:
     """
-    Descarcă date daily de la Yahoo Finance și returnează
-    DataFrame cu: date, close.
+    Descarcă o serie zilnică de la Yahoo Finance.
+
+    Returnează un DataFrame cu coloanele:
+        - timestamp (ms UNIX)
+        - close
     """
-    end = datetime.utcnow().strftime("%Y-%m-%d")
-    df = yf.download(
-        symbol,
-        start=DATA_START,
-        end=end,
-        interval="1d",
-        progress=False
-    )
+    log(f"  • Descarc {symbol} din Yahoo Finance (începând cu {start})...")
+    data = yf.download(symbol, start=start, progress=False)
 
-    if df.empty:
-        raise RuntimeError(f"Nu am primit date pentru {symbol}.")
+    if data is None or data.empty:
+        raise RuntimeError(f"Nu am primit date pentru simbolul '{symbol}'")
 
-    # Normalizează seria
-    s = df[column].rename("close").to_frame()
-    s.index.name = "date"
-    s = s.reset_index()
+    # Folosim coloana Close
+    if "Close" not in data.columns:
+        raise RuntimeError(f"Răspunsul pentru '{symbol}' nu are coloana 'Close'")
 
-    s["date"] = pd.to_datetime(s["date"]).dt.strftime("%Y-%m-%d")
+    df = data[["Close"]].copy()
+    df.rename(columns={"Close": "close"}, inplace=True)
 
-    return s
+    # Indexul este data; îl transformăm în timestamp ms
+    df.index = pd.to_datetime(df.index, utc=True)
+    df.reset_index(inplace=True)
+    df.rename(columns={"Date": "date"}, inplace=True)
 
+    # timestamp în milisecunde
+    df["timestamp"] = (df["date"].view("int64") // 10**6).astype("int64")
 
-def normalize_series(df):
-    x = df["close"].astype(float)
-    norm = 100 * (x - x.min()) / (x.max() - x.min() + 1e-9)
-    df["norm"] = norm
+    # Păstrăm doar ce ne interesează
+    df = df[["timestamp", "close"]].sort_values("timestamp")
     return df
 
 
-def compute_cohesive_index(series_list):
-    df = series_list[0][["date"]].copy()
-    for name, s in series_list:
-        df[name] = s["norm"]
+def save_series_csv(name: str, df: pd.DataFrame) -> Path:
+    """
+    Salvează seria în data_global/<name>.csv și întoarce calea fișierului.
+    """
+    DATA_GLOBAL.mkdir(parents=True, exist_ok=True)
+    out_path = DATA_GLOBAL / f"{name}.csv"
+    df.to_csv(out_path, index=False)
+    log(f"  ✔ Salvat {name}.csv cu {len(df)} puncte în {out_path.relative_to(ROOT)}")
+    return out_path
 
-    df["IC_GLOBAL"] = df[[name for name, _ in series_list]].mean(axis=1)
-    return df[["date", "IC_GLOBAL"]]
 
+def main() -> int:
+    log("🚀 Pornesc update_global_coeziv_state.py")
+    log(f"Rădăcina repo-ului: {ROOT}")
+    log(f"Folder data_global: {DATA_GLOBAL}")
 
-def compute_directional_index(series_list):
-    df = series_list[0][["date"]].copy()
+    created_files = []
 
-    # direcții pct-change
-    directions = []
-    for name, s in series_list:
-        pct = s["close"].pct_change().fillna(0)
-        directions.append(np.sign(pct))
-        df[name] = pct
+    for name, symbol in SERIES.items():
+        try:
+            df = fetch_series_yahoo(symbol, START_DATE)
+        except Exception as e:
+            log(f"  ⚠ Eroare la descărcarea '{symbol}' pentru '{name}': {e}")
+            continue
 
-    # coerența direcțională
-    directions = np.vstack(directions)
-    agree = np.mean(directions == np.sign(np.sum(directions, axis=0)), axis=0)
+        try:
+            path = save_series_csv(name, df)
+            created_files.append(path)
+        except Exception as e:
+            log(f"  ⚠ Eroare la salvarea '{name}.csv': {e}")
 
-    df["ICD_GLOBAL"] = (agree * 100).round(2)
-    return df[["date", "ICD_GLOBAL"]]
+    if not created_files:
+        log("❌ Nu am reușit să actualizez nicio serie. Verifică simbolurile / conexiunea.")
+        return 1
 
-# ------------------------
-# Pipeline principal
-# ------------------------
-
-def main():
-    print("📡 Descarc seriile macro live din Yahoo Finance...")
-
-    series = {}
-
-    for key, symbol in MACRO_SYMBOLS.items():
-        print(f"   → {key}: {symbol}")
-        df = fetch_series_yahoo(symbol)
-        df = normalize_series(df)
-        series[key] = df
-
-    series_list = [(name, df) for name, df in series.items()]
-
-    print("📊 Calculez IC_GLOBAL...")
-    ic = compute_cohesive_index(series_list)
-
-    print("📊 Calculez ICD_GLOBAL...")
-    icd = compute_directional_index(series_list)
-
-    merged = ic.merge(icd, on="date")
-
-    # 📌 Salvare în root/data/global_coeziv_state.json
-    output_file = OUTPUT_DIR / "global_coeziv_state.json"
-    merged.to_json(output_file, orient="records", indent=2)
-
-    print(f"✅ Salvat: {output_file}")
-    print("✨ Actualizare completă!")
+    log("✅ Update global coeziv – serii macro descărcate cu succes.")
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())
