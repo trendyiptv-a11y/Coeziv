@@ -2,8 +2,8 @@ name: Update Coeziv Global & BTC State
 
 on:
   schedule:
-    - cron: "0 3 * * *"   # Rulează zilnic la 03:00 UTC
-  workflow_dispatch:       # Poți să-l pornești și manual din GitHub
+    - cron: "0 3 * * *"
+  workflow_dispatch:
 
 jobs:
   update-coeziv:
@@ -18,27 +18,28 @@ jobs:
         with:
           python-version: "3.11"
 
-- name: Install dependencies
-  run: |
-    pip install pandas yfinance
+      - name: Install dependencies
+        run: |
+          pip install pandas yfinance
 
-- name: Run Coeziv Global Script
-  run: |
-    python scripts/update_global_coeziv_state.py
+      - name: Run Coeziv Global Script
+        run: |
+          python scripts/update_global_coeziv_state.py
 
-- name: Run BTC Latest State from btc_ohlc
-  run: |
-    python scripts/update_btc_state_latest_from_data.py
+      - name: Run BTC Latest State from btc_ohlc
+        run: |
+          python scripts/update_btc_state_latest_from_data.py
 
-- name: Commit changes
-  run: |
-    git config user.name "coeziv-bot"
-    git config user.email "coeziv-bot@example.com"
-    git add data_global/*.csv
-    git add data/btc_state_latest.json
-    git commit -m "Update coeziv global & btc state" || echo "No changes to commit"
+      - name: Commit changes
+        run: |
+          git config user.name "coeziv-bot"
+          git config user.email "coeziv-bot@example.com"
+          git add data_global/*.csv
+          git add data/btc_state_latest.json
+          git commit -m "Update coeziv global & btc state" || echo "No changes"
 
       - name: Push changes
         uses: ad-m/github-push-action@v0.8.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: main
