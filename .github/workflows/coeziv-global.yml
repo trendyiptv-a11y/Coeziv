@@ -20,7 +20,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install pandas requests
+          pip install pandas yfinance
 
       - name: Run Coeziv Global Script
         run: |
