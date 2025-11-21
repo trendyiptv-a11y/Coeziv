@@ -140,7 +140,7 @@ def main():
     # 2) Transformăm în candles cu dt + close
     candles = []
 
-    for row in raw:
+for row in raw:
     # 1️⃣ întâi încercăm timestamp (milisecunde Unix)
     ts = row.get("timestamp")
     if ts is not None:
