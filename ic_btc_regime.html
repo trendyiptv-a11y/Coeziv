@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Regim Coeziv BTC – Modelul Coeziv</title>
+
+  <style>
+    :root {
+      --bg: #050816;
+      --card: #0b1020;
+      --border: #1f2937;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --bull: #22c55e;
+      --bull-soft: rgba(34, 197, 94, 0.16);
+      --bear: #ef4444;
+      --bear-soft: rgba(239, 68, 68, 0.16);
+      --mixed: #eab308;
+      --mixed-soft: rgba(234, 179, 8, 0.18);
+      --neutral: #60a5fa;
+      --neutral-soft: rgba(96, 165, 250, 0.16);
+      --radius-xl: 1.5rem;
+      --radius-pill: 999px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+        "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #020617 0, #020617 40%, #020617);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    main.page {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 1.75rem 1.2rem 2.75rem;
+    }
+
+    header.hero {
+      margin-bottom: 1.5rem;
+    }
+
+    header.hero h1 {
+      margin: 0 0 0.6rem;
+      font-size: 1.8rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    header.hero p {
+      margin: 0;
+      font-size: 0.92rem;
+      color: var(--muted);
+      max-width: 42rem;
+      line-height: 1.6;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.35rem 0.75rem;
+      border-radius: var(--radius-pill);
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      font-size: 0.8rem;
+      color: var(--muted);
+      text-decoration: none;
+      margin-bottom: 0.75rem;
+    }
+
+    .back-link span.icon {
+      font-size: 1rem;
+      transform: translateY(-1px);
+    }
+
+    .layout {
+      display: grid;
+      gap: 1.25rem;
+      grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+    }
+
+    @media (max-width: 900px) {
+      .layout {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .card {
+      border-radius: var(--radius-xl);
+      background: radial-gradient(circle at top left, #020617, #020617 35%, #020617);
+      border: 1px solid var(--border);
+      padding: 1.3rem 1.25rem 1.35rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      background: radial-gradient(circle at 0% -20%, rgba(59,130,246,0.2), transparent 55%);
+      opacity: 0.7;
+      pointer-events: none;
+    }
+
+    .card-inner {
+      position: relative;
+      z-index: 1;
+    }
+
+    .card-title {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--muted);
+      margin-bottom: 0.25rem;
+    }
+
+    .card-sub {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 0.8rem;
+    }
+
+    /* Regim mare central */
+
+    .regime-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.4rem 0.9rem;
+      border-radius: var(--radius-pill);
+      font-size: 0.8rem;
+      margin-bottom: 0.7rem;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      background: rgba(15, 23, 42, 0.75);
+      color: var(--muted);
+    }
+
+    .regime-dot {
+      width: 0.55rem;
+      height: 0.55rem;
+      border-radius: 999px;
+      background: var(--neutral);
+    }
+
+    .regime-dot.bull {
+      background: var(--bull);
+    }
+
+    .regime-dot.bear {
+      background: var(--bear);
+    }
+
+    .regime-dot.mixed {
+      background: var(--mixed);
+    }
+
+    .regime-dot.neutral {
+      background: var(--neutral);
+    }
+
+    .regime-label-main {
+      font-size: 1.6rem;
+      font-weight: 650;
+      margin: 0.1rem 0 0.4rem;
+    }
+
+    .regime-label-secondary {
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin: 0;
+    }
+
+    .regime-banner {
+      border-radius: 1.2rem;
+      padding: 1.0rem 1.0rem;
+      margin-top: 0.7rem;
+      margin-bottom: 0.8rem;
+      border: 1px solid rgba(148,163,184,0.25);
+      background: radial-gradient(circle at top left, rgba(96,165,250,0.15), rgba(15,23,42,0.95));
+    }
+
+    .regime-banner.bull {
+      border-color: var(--bull-soft);
+      background: radial-gradient(circle at top left, var(--bull-soft), #020617);
+    }
+
+    .regime-banner.bear {
+      border-color: var(--bear-soft);
+      background: radial-gradient(circle at top left, var(--bear-soft), #020617);
+    }
+
+    .regime-banner.mixed {
+      border-color: var(--mixed-soft);
+      background: radial-gradient(circle at top left, var(--mixed-soft), #020617);
+    }
+
+    .regime-banner.neutral {
+      border-color: var(--neutral-soft);
+      background: radial-gradient(circle at top left, var(--neutral-soft), #020617);
+    }
+
+    .regime-banner-title {
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 0.2rem;
+      color: #e5e7eb;
+    }
+
+    .regime-banner-text {
+      font-size: 0.86rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    /* Metrici IC */
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 0.75rem;
+      margin-top: 0.4rem;
+    }
+
+    @media (max-width: 600px) {
+      .metrics {
+        grid-template-columns: minmax(0,1fr);
+      }
+    }
+
+    .metric-card {
+      border-radius: 1rem;
+      padding: 0.7rem 0.8rem 0.75rem;
+      background: rgba(15,23,42,0.9);
+      border: 1px solid var(--border);
+    }
+
+    .metric-label {
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      letter-spacing: 0.13em;
+      color: #9ca3af;
+      margin-bottom: 0.15rem;
+    }
+
+    .metric-value-row {
+      display: flex;
+      align-items: baseline;
+      gap: 0.3rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .metric-value-main {
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+
+    .metric-value-unit {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .metric-bar {
+      position: relative;
+      width: 100%;
+      height: 0.45rem;
+      border-radius: 999px;
+      background: #020617;
+      overflow: hidden;
+      border: 1px solid rgba(15,23,42,0.9);
+    }
+
+    .metric-bar-fill {
+      position: absolute;
+      inset: 0;
+      width: 0%;
+      transition: width 0.6s ease;
+    }
+
+    .metric-bar-fill.struct {
+      background: linear-gradient(90deg, var(--neutral-soft), var(--neutral));
+    }
+
+    .metric-bar-fill.dir.bull {
+      background: linear-gradient(90deg, var(--bull-soft), var(--bull));
+    }
+
+    .metric-bar-fill.dir.bear {
+      background: linear-gradient(90deg, var(--bear-soft), var(--bear));
+    }
+
+    .metric-bar-fill.dir.neutral {
+      background: linear-gradient(90deg, var(--mixed-soft), var(--mixed));
+    }
+
+    .metric-caption {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 0.35rem;
+    }
+
+    /* Context scurt */
+
+    .context-list {
+      list-style: none;
+      padding: 0;
+      margin: 0.4rem 0 0;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .context-list li {
+      margin-bottom: 0.25rem;
+    }
+
+    .context-label {
+      color: #9ca3af;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 0.2rem;
+    }
+
+    .badge-small {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.2rem 0.6rem;
+      border-radius: var(--radius-pill);
+      font-size: 0.75rem;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      background: rgba(15, 23, 42, 0.9);
+      color: var(--muted);
+    }
+
+    .badge-dot {
+      width: 0.42rem;
+      height: 0.42rem;
+      border-radius: 999px;
+      background: var(--neutral);
+    }
+
+    .badge-dot.up { background: var(--bull); }
+    .badge-dot.down { background: var(--bear); }
+    .badge-dot.mixed { background: var(--mixed); }
+
+    .error-box {
+      margin-top: 0.8rem;
+      font-size: 0.78rem;
+      padding: 0.6rem 0.8rem;
+      border-radius: 0.9rem;
+      border: 1px solid rgba(248,113,113,0.7);
+      background: rgba(127,29,29,0.22);
+      color: #fecaca;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <a href="ic_btc_prob.html" class="back-link">
+      <span class="icon">←</span>
+      <span>Înapoi la probabilități BTC</span>
+    </a>
+
+    <header class="hero">
+      <h1>Regimul Coeziv BTC</h1>
+      <p>
+        Vizualizare dedicată pentru <strong>regimul coeziv</strong> al Bitcoin: cum arată
+        structura (IC_BTC structural), direcționalitatea (ICD_BTC) și în ce tip de
+        fază ne aflăm (acumulare, bull structural, tranziție, top etc.).
+      </p>
+    </header>
+
+    <section class="layout">
+      <!-- Card regim mare -->
+      <article class="card">
+        <div class="card-inner">
+          <div class="card-title">Regim coeziv actual BTC</div>
+          <div class="card-sub">
+            Ultima zi: <span id="lastDate">–</span>
+          </div>
+
+          <div class="regime-chip">
+            <span id="regimeDot" class="regime-dot neutral"></span>
+            <span id="regimeShort">–</span>
+          </div>
+
+          <h2 class="regime-label-main" id="regimeLabel">–</h2>
+          <p class="regime-label-secondary" id="regimeSecondary">Se încarcă interpretarea...</p>
+
+          <div id="regimeBanner" class="regime-banner neutral">
+            <div class="regime-banner-title">Interpretare coezivă a regimului</div>
+            <p class="regime-banner-text" id="regimeExplanation">
+              Modelul așteaptă datele din structura BTC pentru a putea descrie regimul curent.
+            </p>
+          </div>
+
+          <div class="error-box" id="errorBox"></div>
+        </div>
+      </article>
+
+      <!-- Card metrici IC -->
+      <article class="card">
+        <div class="card-inner">
+          <div class="card-title">Structură &amp; direcționalitate BTC</div>
+          <div class="card-sub">
+            Cum vede modelul coeziv starea internă a pieței: cât de coerent este trendul
+            și cât de aliniate sunt mișcările zilnice cu direcția dominantă.
+          </div>
+
+          <div class="metrics">
+            <div class="metric-card">
+              <div class="metric-label">IC_BTC structural</div>
+              <div class="metric-value-row">
+                <span id="icStructVal" class="metric-value-main">–</span>
+                <span class="metric-value-unit">/ 100</span>
+              </div>
+              <div class="metric-bar">
+                <div id="icStructBar" class="metric-bar-fill struct"></div>
+              </div>
+              <div class="metric-caption">
+                Cât de coerent este <strong>trendul structural</strong> (0 = haos, 100 = trend extrem de clar).
+              </div>
+            </div>
+
+            <div class="metric-card">
+              <div class="metric-label">ICD_BTC direcțional</div>
+              <div class="metric-value-row">
+                <span id="icDirVal" class="metric-value-main">–</span>
+                <span class="metric-value-unit">/ 100</span>
+              </div>
+              <div class="metric-bar">
+                <div id="icDirBar" class="metric-bar-fill dir neutral"></div>
+              </div>
+              <div class="metric-caption">
+                <strong>&gt; 50</strong> înclină spre bull, <strong>&lt; 50</strong> spre bear;
+                valori apropiate de 50 indică o direcție mai puțin clară.
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-top: 0.85rem;">
+            <div class="context-label">Context scurt</div>
+            <ul class="context-list">
+              <li>
+                <span class="badge-small">
+                  <span class="badge-dot up"></span>
+                  <span id="contextTrend">Trend: –</span>
+                </span>
+              </li>
+              <li>
+                <span class="badge-small">
+                  <span class="badge-dot mixed"></span>
+                  <span id="contextVol">Volatilitate relativă: –</span>
+                </span>
+              </li>
+              <li>
+                <span class="badge-small">
+                  <span class="badge-dot down"></span>
+                  <span id="contextMacro">Macro (scurt): –</span>
+                </span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    function clamp(x, min, max) {
+      return Math.min(max, Math.max(min, x));
+    }
+
+    function safeNum(v) {
+      const n = Number(v);
+      return Number.isFinite(n) ? n : null;
+    }
+
+    function showError(msg) {
+      const box = document.getElementById("errorBox");
+      if (!box) return;
+      box.style.display = "block";
+      box.textContent = msg;
+      console.error("[Regim BTC]", msg);
+    }
+
+    function classifyRegime(icStruct, icDir) {
+      const s = icStruct;
+      const d = icDir;
+
+      if (s == null || d == null) {
+        return {
+          key: "unknown",
+          short: "neprecizat",
+          label: "Regim neprecizat",
+          secondary: "Modelul nu are suficiente date coerente pentru a eticheta regimul.",
+          explanation: "Valorile IC_BTC structural sau ICD_BTC direcțional lipsesc sau sunt invalide. Verifică sursa datelor.",
+          color: "neutral"
+        };
+      }
+
+      const isBull = d > 55;
+      const isBear = d < 45;
+      const isNeutralDir = !isBull && !isBear;
+
+      // 1) Bază / acumulare
+      if (s < 20) {
+        if (isNeutralDir) {
+          return {
+            key: "base_neutral",
+            short: "bază / acumulare",
+            label: "Bază / acumulare neutră",
+            secondary: "Structură foarte slabă, fără direcție dominantă clară.",
+            explanation:
+              "IC_BTC structural sub 20 sugerează o piață încă dezorganizată sau în fază incipientă de construire a unei baze. " +
+              "Lipsa unui bias direcțional puternic indică mai mult o zonă de acumulare probabil distribuită, nu un trend clar bull sau bear.",
+            color: "neutral"
+          };
+        }
+        if (isBull) {
+          return {
+            key: "base_bull",
+            short: "acumulare bullish",
+            label: "Acumulare bullish",
+            secondary: "Structură slabă, dar cu flux ușor orientat în sus.",
+            explanation:
+              "IC_BTC structural foarte mic, dar ICD_BTC peste 55: presiunea fluxului tinde ușor spre bull, deși structura este încă fragilă. " +
+              "Poate fi începutul unei faze de construcție bull sau doar un raliu într-un context încă dezordonat.",
+            color: "bull"
+          };
+        }
+        if (isBear) {
+          return {
+            key: "base_bear",
+            short: "acumulare bearish",
+            label: "Acumulare bearish / bază descendentă",
+            secondary: "Structură slabă, cu flux ușor orientat în jos.",
+            explanation:
+              "IC_BTC structural foarte mic, iar ICD_BTC sub 45: presiunea fluxului tinde ușor spre bear, fără trend clar. " +
+              "Poate fi o zonă de descărcare lentă sau o fază prelungită de slăbiciune.",
+            color: "bear"
+          };
+        }
+      }
+
+      // 2) Structură medie
+      if (s >= 20 && s < 40) {
+        if (isBull) {
+          return {
+            key: "bull_struct_early",
+            short: "bull structural (timpuriu)",
+            label: "Bull structural timpuriu",
+            secondary: "Trend ascendent în formare, dar încă relativ fragil.",
+            explanation:
+              "IC_BTC structural între 20 și 40, iar ICD_BTC peste 55: trendul bull începe să fie recunoscut de model ca structură, " +
+              "însă nu este încă într-o fază matură. Corecțiile pot fi violente, iar confirmarea bull depinde de consolidarea acestei structuri.",
+            color: "bull"
+          };
+        }
+        if (isBear) {
+          return {
+            key: "bear_struct_early",
+            short: "bear structural (timpuriu)",
+            label: "Bear structural timpuriu",
+            secondary: "Trend descendent în formare, dar încă nu extrem de coerent.",
+            explanation:
+              "IC_BTC structural între 20 și 40, iar ICD_BTC sub 45: mișcările descendente încep să domine, " +
+              "iar sistemul intră într-o fază bear de construcție, cu episoade bull mai scurte.",
+            color: "bear"
+          };
+        }
+        return {
+          key: "consolidare_struct",
+          short: "consolidare structurată",
+          label: "Consolidare structurată",
+          secondary: "Structură medie, direcție aproape neutră.",
+          explanation:
+            "IC_BTC structural în zona 20–40, iar ICD_BTC aproape de 50: piața lucrează într-un interval relativ coerent, " +
+            "fără o direcție decisă. Poate preceda fie o ieșire bull, fie bear, în funcție de cum se rearanjează fluxul.",
+          color: "mixed"
+        };
+      }
+
+      // 3) Structură ridicată
+      if (s >= 40 && s < 70) {
+        if (isBull) {
+          return {
+            key: "bull_struct",
+            short: "bull structural",
+            label: "Bull structural",
+            secondary: "Trend ascendent coerent, cu structură clară.",
+            explanation:
+              "IC_BTC structural peste 40 și ICD_BTC peste 55: modelul vede o structură bullish bine conturată. " +
+              "Mișcările corective fac parte, de regulă, din trend, nu îl invalidează imediat.",
+            color: "bull"
+          };
+        }
+        if (isBear) {
+          return {
+            key: "bear_struct",
+            short: "bear structural",
+            label: "Bear structural",
+            secondary: "Trend descendent coerent, presiune clară de vânzare.",
+            explanation:
+              "IC_BTC structural peste 40, ICD_BTC sub 45: modelul detectează un regim bear clar. " +
+              "Raliurile sunt adesea corecții contra trendului, nu început de bull sustenabil.",
+            color: "bear"
+          };
+        }
+        return {
+          key: "mixed_transition",
+          short: "regim mixt / tranziție",
+          label: "Regim mixt / de tranziție",
+          secondary: "Structură ridicată, dar direcție amestecată.",
+          explanation:
+            "IC_BTC structural ridicat, dar ICD_BTC apropiat de 50: sistemul are structură, însă fluxul nu mai împinge clar nici bull nici bear. " +
+            "Adesea corespunde unor faze de rotație, distributie sau reconfigurare internă.",
+          color: "mixed"
+        };
+      }
+
+      // 4) Structură foarte ridicată
+      if (s >= 70) {
+        if (isBull) {
+          return {
+            key: "bull_late",
+            short: "bull târziu / pre-top",
+            label: "Bull târziu / pre-top structural",
+            secondary: "Trend bull foarte avansat, sensibil la inversări.",
+            explanation:
+              "IC_BTC structural peste 70 și ICD_BTC peste 55: trendul bull este extrem de clar, aproape de zone de epuizare structurală. " +
+              "Modelul consideră că ne aflăm într-o fază superioară a ciclului bull, unde riscul de top crește.",
+            color: "bull"
+          };
+        }
+        if (isBear) {
+          return {
+            key: "bear_extreme",
+            short: "extensie bear / capitulare",
+            label: "Extensie bear / capitulare",
+            secondary: "Fază bear extremă, adesea aproape de capitulare sau formare de bază.",
+            explanation:
+              "IC_BTC structural peste 70 și ICD_BTC sub 45: presiune descendentă extrem de coerentă. " +
+              "Istoric, aceste zone coincid adesea cu faze de capitulare sau de final de macro-bear.",
+            color: "bear"
+          };
+        }
+        return {
+          key: "top_reechilibrare",
+          short: "top volatil / reechilibrare",
+          label: "Top volatil / reechilibrare",
+          secondary: "Structură extrem de ridicată, dar flux indecis.",
+          explanation:
+            "IC_BTC structural peste 70, însă ICD_BTC aproape de neutru: sistemul este într-o zonă de top sau reechilibrare, " +
+            "unde fluxurile bull și bear se ciocnesc. Adesea corespunde unor momente cheie de schimbare de regim.",
+          color: "mixed"
+        };
+      }
+
+      return {
+        key: "unknown_fallback",
+        short: "neprecizat",
+        label: "Regim neprecizat",
+        secondary: "Configurație în afara zonelor standard.",
+        explanation:
+          "Valorile IC_BTC structural / ICD_BTC nu se încadrează în maparea standard de regim. " +
+          "Modelul recomandă prudență și verificarea datelor.",
+        color: "neutral"
+      };
+    }
+
+    function updateContext(btcState) {
+      const icStruct = safeNum(btcState.ic_struct) ?? safeNum(btcState.ic_structural);
+      const icDir = safeNum(btcState.ic_dir) ?? safeNum(btcState.ic_directional);
+      const vol30 = safeNum(btcState.vol30);
+      const macroScore = safeNum(btcState.macro_score);
+
+      const trendEl = document.getElementById("contextTrend");
+      const volEl = document.getElementById("contextVol");
+      const macroEl = document.getElementById("contextMacro");
+
+      // trend (IC & ICD)
+      let trendText = "Trend: –";
+      if (icStruct != null && icDir != null) {
+        if (icStruct < 25) {
+          trendText = "Trend: structură slabă (IC " + icStruct.toFixed(0) + ")";
+        } else if (icStruct < 50) {
+          trendText = "Trend: structură medie (IC " + icStruct.toFixed(0) + ")";
+        } else {
+          trendText = "Trend: structură puternică (IC " + icStruct.toFixed(0) + ")";
+        }
+        if (icDir > 55) trendText += ", bias bull (ICD " + icDir.toFixed(0) + ")";
+        else if (icDir < 45) trendText += ", bias bear (ICD " + icDir.toFixed(0) + ")";
+        else trendText += ", bias neutru (ICD " + icDir.toFixed(0) + ")";
+      }
+      trendEl.textContent = trendText;
+
+      // vol
+      let volText = "Volatilitate relativă: –";
+      if (vol30 != null) {
+        if (vol30 < 0.03) volText = "Volatilitate relativă: joasă (vol30 ~ " + (vol30*100).toFixed(1) + "%)";
+        else if (vol30 < 0.07) volText = "Volatilitate relativă: moderată (vol30 ~ " + (vol30*100).toFixed(1) + "%)";
+        else volText = "Volatilitate relativă: ridicată (vol30 ~ " + (vol30*100).toFixed(1) + "%)";
+      }
+      volEl.textContent = volText;
+
+      // macro
+      let macroText = "Macro (scurt): –";
+      if (macroScore != null) {
+        if (macroScore > 0.25) macroText = "Macro (scurt): risk-on (scor " + macroScore.toFixed(2) + ")";
+        else if (macroScore < -0.25) macroText = "Macro (scurt): risk-off (scor " + macroScore.toFixed(2) + ")";
+        else macroText = "Macro (scurt): echilibrat (scor " + macroScore.toFixed(2) + ")";
+      }
+      macroEl.textContent = macroText;
+    }
+
+    async function main() {
+      try {
+        // 🔴 dacă fișierul tău e în root, schimbă linia de mai jos în: "btc_state_latest.json"
+        const res = await fetch("data/btc_state_latest.json");
+        if (!res.ok) throw new Error("Nu pot încărca btc_state_latest.json (" + res.status + ")");
+        const btcState = await res.json();
+
+        const lastDate = btcState.date || btcState.last_date || "–";
+        document.getElementById("lastDate").textContent = lastDate;
+
+        const icStruct = safeNum(btcState.ic_struct) ?? safeNum(btcState.ic_structural);
+        const icDir = safeNum(btcState.ic_dir) ?? safeNum(btcState.ic_directional);
+
+        const regime = classifyRegime(icStruct, icDir);
+
+        const regimeShortEl = document.getElementById("regimeShort");
+        const regimeLabelEl = document.getElementById("regimeLabel");
+        const regimeSecondaryEl = document.getElementById("regimeSecondary");
+        const regimeExplanationEl = document.getElementById("regimeExplanation");
+        const regimeDotEl = document.getElementById("regimeDot");
+        const regimeBannerEl = document.getElementById("regimeBanner");
+
+        regimeShortEl.textContent = regime.short;
+        regimeLabelEl.textContent = regime.label;
+        regimeSecondaryEl.textContent = regime.secondary;
+        regimeExplanationEl.textContent = regime.explanation;
+
+        // culori
+        regimeDotEl.classList.remove("bull", "bear", "mixed", "neutral");
+        regimeBannerEl.classList.remove("bull", "bear", "mixed", "neutral");
+        const c = regime.color;
+        if (c === "bull") {
+          regimeDotEl.classList.add("bull");
+          regimeBannerEl.classList.add("bull");
+        } else if (c === "bear") {
+          regimeDotEl.classList.add("bear");
+          regimeBannerEl.classList.add("bear");
+        } else if (c === "mixed") {
+          regimeDotEl.classList.add("mixed");
+          regimeBannerEl.classList.add("mixed");
+        } else {
+          regimeDotEl.classList.add("neutral");
+          regimeBannerEl.classList.add("neutral");
+        }
+
+        // metrici IC
+        const icStructValEl = document.getElementById("icStructVal");
+        const icDirValEl = document.getElementById("icDirVal");
+        const icStructBarEl = document.getElementById("icStructBar");
+        const icDirBarEl = document.getElementById("icDirBar");
+
+        if (icStruct != null) {
+          icStructValEl.textContent = icStruct.toFixed(0);
+          icStructBarEl.style.width = clamp(icStruct, 0, 100) + "%";
+        } else {
+          icStructValEl.textContent = "–";
+          icStructBarEl.style.width = "0%";
+        }
+
+        if (icDir != null) {
+          icDirValEl.textContent = icDir.toFixed(0);
+          icDirBarEl.style.width = clamp(Math.abs(icDir - 50) * 2, 0, 100) + "%";
+          icDirBarEl.classList.remove("bull", "bear", "neutral");
+          if (icDir > 55) icDirBarEl.classList.add("bull");
+          else if (icDir < 45) icDirBarEl.classList.add("bear");
+          else icDirBarEl.classList.add("neutral");
+        } else {
+          icDirValEl.textContent = "–";
+          icDirBarEl.style.width = "0%";
+          icDirBarEl.classList.add("neutral");
+        }
+
+        updateContext(btcState);
+      } catch (err) {
+        showError("Eroare la încărcarea datelor sau la calculul regimului coeziv: " + err.message);
+      }
+    }
+
+    main();
+  </script>
+</body>
+</html>
