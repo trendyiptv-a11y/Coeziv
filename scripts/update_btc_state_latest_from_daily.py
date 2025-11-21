@@ -7,7 +7,7 @@ from datetime import datetime
 ROOT = Path(__file__).resolve().parent.parent  # rădăcina repo-ului
 DATA_BTC = ROOT / "data"
 
-INPUT_FILE = DATA_BTC / "btc_daily.json"      # ajustează dacă la tine are alt nume
+INPUT_FILE = DATA_BTC / "btc_ohlc.json"      # ajustează dacă la tine are alt nume
 OUTPUT_FILE = DATA_BTC / "btc_state_latest.json"
 
 
