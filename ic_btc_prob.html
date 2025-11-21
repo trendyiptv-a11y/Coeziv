@@ -254,13 +254,13 @@
       color: #e5e7eb;
     }
 
-    /* Prob bar */
+    /* === BARA PROBABILITĂȚI – REPARATĂ ȘI VIZIBILĂ === */
 
     .prob-bar {
       position: relative;
       margin-top: 0.9rem;
       border-radius: var(--radius-pill);
-      background: #020617; /* fundal simplu, ca să lase culorile clare */
+      background: #020617;
       border: 1px solid var(--border);
       height: 1.1rem;
       overflow: hidden;
@@ -270,20 +270,23 @@
       position: absolute;
       inset: 0;
       display: flex;
-      transform-origin: left center;
-      transition: transform 0.6s cubic-bezier(0.22, 0.61, 0.36, 1);
+      height: 100%;
     }
-
-    /* aici era prea „soft”, am făcut culori clare */
 
     .prob-up {
       flex: 0 0 auto;
+      width: 0%;
+      height: 100%;
       background: linear-gradient(90deg, #16a34a, #22c55e);
+      transition: width 0.6s ease;
     }
 
     .prob-down {
       flex: 0 0 auto;
-      background: linear-gradient(90deg, #b91c1c, #ef4444);
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, #ef4444, #b91c1c);
+      transition: width 0.6s ease;
     }
 
     .prob-labels {
@@ -298,6 +301,8 @@
       color: #e5e7eb;
       font-weight: 600;
     }
+
+    /* Chart card */
 
     .chart-card {
       border-radius: var(--radius-xl);
@@ -657,15 +662,50 @@
     }
 
     function computeCoezivProb(btcState, macroState) {
-      const icStruct = safeNumber(btcState.ic_struct) ?? 0;
-      const icDir = safeNumber(btcState.ic_dir) ?? 50;
-      const vol30 = safeNumber(btcState.vol30);
-      const close = safeNumber(btcState.close);
-      const ema50 = safeNumber(btcState.ema50);
-      const ema200 = safeNumber(btcState.ema200);
-      const regime = btcState.regime_coeziv_label || null;
+      const icStruct =
+        safeNumber(
+          btcState.ic_struct ??
+            btcState.icStruct ??
+            btcState.IC_STRUCT ??
+            btcState.ic_s
+        ) ?? 0;
+
+      const icDir =
+        safeNumber(
+          btcState.ic_dir ??
+            btcState.icDir ??
+            btcState.IC_DIR ??
+            btcState.ic_d
+        ) ?? 50;
+
+      const vol30 =
+        safeNumber(
+          btcState.vol30 ?? btcState.vol_30 ?? btcState.VOL30
+        ) ?? null;
+
+      const close =
+        safeNumber(
+          btcState.close ?? btcState.c ?? btcState.price
+        ) ?? null;
+
+      const ema50 =
+        safeNumber(
+          btcState.ema50 ?? btcState.ema_50 ?? btcState.EMA50
+        ) ?? null;
+
+      const ema200 =
+        safeNumber(
+          btcState.ema200 ?? btcState.ema_200 ?? btcState.EMA200
+        ) ?? null;
+
+      const regime =
+        btcState.regime ??
+        btcState.regim ??
+        btcState.cohesive_regime ??
+        null;
 
       const trendStrength = clamp(icStruct / 100, 0, 1);
+
       const directionBias = clamp((icDir - 50) / 50, -1, 1);
 
       let maBias = 0;
@@ -679,9 +719,13 @@
 
       let volFactor = 1.0;
       if (vol30 != null) {
-        if (vol30 > 140) volFactor = 0.65;
-        else if (vol30 > 110) volFactor = 0.8;
-        else if (vol30 < 30) volFactor = 0.85;
+        if (vol30 > 140) {
+          volFactor = 0.65;
+        } else if (vol30 > 110) {
+          volFactor = 0.8;
+        } else if (vol30 < 30) {
+          volFactor = 0.85;
+        }
       }
 
       let macroBias = 0;
@@ -730,8 +774,10 @@
     }
 
     let btcChart = null;
-    function buildPriceChart(ctx, points) {
-      if (btcChart) btcChart.destroy();
+    function buildPriceChart(ctx, points, latestState) {
+      if (btcChart) {
+        btcChart.destroy();
+      }
 
       btcChart = new Chart(ctx, {
         type: "line",
@@ -813,7 +859,7 @@
         ]);
 
         function pctChange(lastObj, prevObj) {
-          const keys = ["close", "Adj Close", "adj_close", "value"];
+          const keys = ["close", "adj_close", "Adj Close", "Adj_Close", "value"];
           let last = null;
           let prev = null;
           for (const k of keys) {
@@ -837,9 +883,15 @@
         };
 
         const macro = computeMacroScore(macroReturns);
+
         const model = computeCoezivProb(btcState, macro);
 
-        const lastDate = btcState.date || "–";
+        const lastDate =
+          btcState.date ||
+          (btcState.timestamp
+            ? new Date(btcState.timestamp * 1000).toISOString().slice(0, 10)
+            : "–");
+
         document.getElementById("lastDateLabel").textContent = lastDate;
 
         const probUpPct = Math.round(model.probUp * 100);
@@ -854,7 +906,7 @@
         document.getElementById("confidenceValue").textContent = confPct;
 
         document.getElementById("regimeLabel").textContent =
-          model.regime || "regim neclar";
+          model.regime || "neprecizat";
 
         const biasBadge = document.getElementById("biasBadge");
         biasBadge.classList.remove("up", "down", "neutral");
@@ -863,6 +915,17 @@
         else if (model.biasLabel === "bearish") biasClass = "down";
         biasBadge.classList.add(biasClass);
         document.getElementById("biasLabel").textContent = model.biasLabel;
+
+        // AICI se colorează efectiv bara UP/DOWN
+        const barFill = document.getElementById("probBarFill");
+        if (barFill) {
+          const upDiv = barFill.querySelector(".prob-up");
+          const downDiv = barFill.querySelector(".prob-down");
+          if (upDiv && downDiv) {
+            upDiv.style.width = probUpPct + "%";
+            downDiv.style.width = probDownPct + "%";
+          }
+        }
 
         document.getElementById("macroScoreValue").textContent =
           macro.score.toFixed(2);
@@ -913,7 +976,7 @@
             : points;
 
         const ctx = document.getElementById("btcPriceChart").getContext("2d");
-        buildPriceChart(ctx, sliced);
+        buildPriceChart(ctx, sliced, btcState);
       } catch (err) {
         console.error(err);
         showError(
