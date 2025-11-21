@@ -1,0 +1,39 @@
+name: Update Global Coeziv State
+
+on:
+  schedule:
+    - cron: "0 3 * * *"   # Rulează zilnic la 03:00 UTC
+  workflow_dispatch:       # Poți să-l pornești și manual din GitHub
+
+jobs:
+  update-global-coeziv:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install pandas requests
+
+      - name: Run Coeziv Global Script
+        run: |
+          python scripts/update_global_coeziv_state.py
+
+      - name: Commit changes
+        run: |
+          git config user.name "coeziv-bot"
+          git config user.email "coeziv-bot@example.com"
+          git add data_global/global_coeziv_state.json
+          git commit -m "Update global coeziv state" || echo "No changes to commit"
+
+      - name: Push changes
+        uses: ad-m/github-push-action@v0.8.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
