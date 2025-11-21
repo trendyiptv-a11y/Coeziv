@@ -1,145 +1,150 @@
-import json
-from pathlib import Path
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 
-import pandas as pd
+"""
+update_global_coeziv_state.py
+Actualizează indicii globali (IC_GLOBAL și ICD_GLOBAL)
+folosind date live Yahoo Finance.
+
+Compatibil 100% cu workflow GitHub.
+Nu necesită fișiere CSV.
+"""
 
 import yfinance as yf
+import pandas as pd
+import numpy as np
 from datetime import datetime
+from pathlib import Path
+import json
 
-# === 1. CĂI DE BAZĂ ===
+# ------------------------
+# Configurări principale
+# ------------------------
 
-ROOT = Path(__file__).resolve().parent.parent  # rădăcina repo-ului
-DATA_GLOBAL = ROOT / "data_global"
+DATA_START = "2010-01-01"
+OUTPUT_DIR = Path("public/data")
+OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
-# CSV-urile așteptate în data_global/:
-FILES = {
-    "spx":   ("spx.csv",   "close"),   # S&P 500
-    "nasdaq":("nasdaq.csv","close"),   # NASDAQ
-    "msci":  ("msci.csv",  "close"),   # MSCI World / URTH
-    "vix":   ("vix.csv",   "close"),   # VIX
-    "move":  ("move.csv",  "close"),   # MOVE index
-    "us10y": ("us10y.csv", "yield"),   # randament obligațiuni 10Y
-    "dxy":   ("dxy.csv",   "close"),   # Index USD
-    "credit":("credit_spread.csv","spread"),  # spread IG–HY
+MACRO_SYMBOLS = {
+    "spx": "^GSPC",         # S&P 500
+    "vix": "^VIX",          # Volatility index
+    "dxy": "DX-Y.NYB",      # Dollar index (sau alternativ ^DXY)
+    "gold": "GC=F",         # Gold futures
+    "oil": "CL=F",          # Crude oil futures
 }
 
+# ------------------------
+# Funcții utilitare
+# ------------------------
 
-def load_series(path: Path, value_col: str) -> pd.DataFrame:
-    """Încarcă un CSV cu coloane: date, <value_col>."""
-    if not path.exists():
-        raise FileNotFoundError(f"Lipsește fișierul: {path}")
-    df = pd.read_csv(path)
-    if "date" not in df.columns:
-        raise ValueError(f"{path} trebuie să aibă o coloană 'date'")
-    if value_col not in df.columns:
-        raise ValueError(f"{path} trebuie să aibă o coloană '{value_col}'")
-    df["date"] = pd.to_datetime(df["date"])
-    df = df[["date", value_col]].dropna()
-    return df.sort_values("date")
+def fetch_series_yahoo(symbol: str, column="Adj Close"):
+    """
+    Descarcă date daily de la Yahoo Finance și returnează
+    DataFrame cu: date, close.
+    """
+    end = datetime.utcnow().strftime("%Y-%m-%d")
+    df = yf.download(
+        symbol,
+        start=DATA_START,
+        end=end,
+        interval="1d",
+        progress=False
+    )
+
+    if df.empty:
+        raise RuntimeError(f"Nu am primit date pentru {symbol}.")
+
+    # Normalizează seria
+    s = df[column].rename("close").to_frame()
+    s.index.name = "date"
+    s = s.reset_index()
+
+    # Convertim datele la date ISO coerente
+    s["date"] = pd.to_datetime(s["date"]).dt.strftime("%Y-%m-%d")
+
+    return s
 
 
-def norm_0_100(series: pd.Series) -> pd.Series:
-    """Normalizează o serie la [0, 100]."""
-    s = series.astype("float64")
-    s_min = s.min()
-    s_max = s.max()
-    if pd.isna(s_min) or pd.isna(s_max) or s_max == s_min:
-        return pd.Series(50.0, index=s.index)  # fallback neutru
-    return 100.0 * (s - s_min) / (s_max - s_min)
+def normalize_series(df):
+    """
+    Normalizează 'close' în intervalul 0–100 pentru a putea
+    combina seriile macro diferite în IC_GLOBAL.
+    """
+    x = df["close"].astype(float)
+    norm = 100 * (x - x.min()) / (x.max() - x.min() + 1e-9)
+    df["norm"] = norm
+    return df
 
+
+def compute_cohesive_index(series_list):
+    """
+    Calculează IC_GLOBAL ca media normalizată a seriilor.
+    """
+    df = series_list[0][["date"]].copy()
+    for name, s in series_list:
+        df[name] = s["norm"]
+
+    df["IC_GLOBAL"] = df[[name for name, _ in series_list]].mean(axis=1)
+    return df[["date", "IC_GLOBAL"]]
+
+
+def compute_directional_index(series_list):
+    """
+    ICD_GLOBAL = coerența direcțiilor zilnice dintre serii.
+    Valoare între 0 și 100.
+    """
+    df = series_list[0][["date"]].copy()
+
+    # Rată de schimb (derivată discrete)
+    for name, s in series_list:
+        df[name] = s["close"].pct_change().fillna(0)
+
+    # Direcție: +1, -1
+    directions = []
+    for name, s in series_list:
+        directions.append(np.sign(s["close"].pct_change().fillna(0)))
+
+    # Coerența direcțională
+    directions = np.vstack(directions)
+    agree = np.mean(directions == np.sign(np.sum(directions, axis=0)), axis=0)
+    df["ICD_GLOBAL"] = (agree * 100).round(2)
+
+    return df[["date", "ICD_GLOBAL"]]
+
+# ------------------------
+# Pipeline principal
+# ------------------------
 
 def main():
-    # === 2. ÎNCĂRCĂM SERIILE ===
-    print("⏳ Încarc seriile macro din data_global/ ...")
-    data = {}
-    for key, (filename, col) in FILES.items():
-        df = load_series(DATA_GLOBAL / filename, col)
-        data[key] = df.rename(columns={col: key})
+    print("📡 Descarc seriile macro live din Yahoo Finance...")
 
-    # === 3. MERGE PE DATA COMUNĂ ===
-    base = None
-    for key, df in data.items():
-        if base is None:
-            base = df
-        else:
-            base = base.merge(df, on="date", how="inner")
+    series = {}
 
-    if base is None or base.empty:
-        raise RuntimeError("Nu s-a putut construi un DataFrame comun cu seriile macro.")
+    # Descarcă și normalizează fiecare simbol
+    for key, symbol in MACRO_SYMBOLS.items():
+        print(f"   → {key}: {symbol}")
+        df = fetch_series_yahoo(symbol)
+        df = normalize_series(df)
+        series[key] = df
 
-    df = base.copy().sort_values("date")
-    df = df.set_index("date")
+    # În formatul cerut de funcțiile de mai sus
+    series_list = [(name, df) for name, df in series.items()]
 
-    # === 4. CALCUL TRENDURI STRUCTURALE PE ACȚIUNI ===
-    # Trend relativ: preț / EMA200 - 1
-    for idx in ["spx", "nasdaq", "msci"]:
-        ema = df[idx].ewm(span=200, min_periods=50).mean()
-        df[f"ret_{idx}"] = df[idx] / ema - 1.0
+    print("📊 Calculez IC_GLOBAL...")
+    ic = compute_cohesive_index(series_list)
 
-    trend_spx = norm_0_100(df["ret_spx"])
-    trend_nas = norm_0_100(df["ret_nasdaq"])
-    trend_msci = norm_0_100(df["ret_msci"])
+    print("📊 Calculez ICD_GLOBAL...")
+    icd = compute_directional_index(series_list)
 
-    # === 5. VIX & CREDIT – inversăm (valori mari = stres) ===
-    vix_score = 100.0 - norm_0_100(df["vix"])
-    cred_score = 100.0 - norm_0_100(df["credit"])
+    # Unim într-un singur tabel
+    merged = ic.merge(icd, on="date")
 
-    # === 6. CORELAȚII – simplificat: placeholder stabilitate = 50 ===
-    # Poți în viitor să calculezi rolling correlations și variabilitatea lor.
-    corel_score = pd.Series(50.0, index=df.index)
+    # Salvare JSON pentru frontend HTML
+    output_file = OUTPUT_DIR / "global_coeziv_state.json"
+    merged.to_json(output_file, orient="records", indent=2)
 
-    # === 7. IC_GLOBAL ===
-    df["ic_global"] = (
-        0.30 * trend_spx +
-        0.15 * trend_nas +
-        0.15 * trend_msci +
-        0.15 * corel_score +
-        0.15 * vix_score +
-        0.10 * cred_score
-    )
-
-    # === 8. ICD_GLOBAL – direcționalitatea globală ===
-    # Mișcări zilnice normalizate (semn + magnitudine)
-    def dir_score(series: pd.Series) -> pd.Series:
-        pct = series.pct_change().fillna(0.0)
-        return norm_0_100(pct)
-
-    dir_eq   = dir_score(df["spx"] + df["nasdaq"] + df["msci"])
-    dir_vix  = 100.0 - dir_score(df["vix"])      # scădere VIX = calm = pozitiv
-    dir_cred = 100.0 - dir_score(df["credit"])   # scădere spread = încredere = pozitiv
-    dir_dxy  = 100.0 - dir_score(df["dxy"])      # de multe ori, slăbire USD = risk-on
-    dir_us10 = 100.0 - dir_score(df["us10y"])    # scăderea randamentelor = risk-on
-
-    df["icd_global"] = (
-        0.35 * dir_eq +
-        0.20 * dir_dxy +
-        0.20 * dir_us10 +
-        0.15 * dir_cred +
-        0.10 * dir_vix
-    )
-
-    df = df.dropna(subset=["ic_global", "icd_global"])
-    if df.empty:
-        raise RuntimeError("După calcule, nu au rămas rânduri valide pentru ic_global/icd_global.")
-
-    last_date = df.index[-1]
-    ic_global_last = float(df["ic_global"].iloc[-1])
-    icd_global_last = float(df["icd_global"].iloc[-1])
-
-    state = {
-        "date": last_date.strftime("%Y-%m-%d"),
-        "ic_global": round(ic_global_last, 2),
-        "icd_global": round(icd_global_last, 2)
-    }
-
-    # === 9. SCRIEM JSON-UL ===
-    out_path = DATA_GLOBAL / "global_coeziv_state.json"
-    out_path.parent.mkdir(parents=True, exist_ok=True)
-    with out_path.open("w", encoding="utf-8") as f:
-        json.dump(state, f, ensure_ascii=False, indent=2)
-
-    print("✅ global_coeziv_state.json actualizat:")
-    print(json.dumps(state, ensure_ascii=False, indent=2))
+    print(f"✅ Salvat: {output_file}")
+    print("✨ Actualizare completă!")
 
 
 if __name__ == "__main__":
