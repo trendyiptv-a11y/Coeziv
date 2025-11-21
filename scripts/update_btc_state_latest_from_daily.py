@@ -140,29 +140,29 @@ def main():
     # 2) Transformăm în candles cu dt + close
     candles = []
 
-for row in raw:
+    for row in raw:
     # 1️⃣ întâi încercăm timestamp (milisecunde Unix)
-    ts = row.get("timestamp")
-    if ts is not None:
-        try:
+       ts = row.get("timestamp")
+       if ts is not None:
+          try:
             dt = datetime.utcfromtimestamp(int(ts) / 1000)
-        except (ValueError, OSError):
+          except (ValueError, OSError):
             continue
-    else:
+       else:
         # 2️⃣ fallback: încearcă time/date/t ca text
         date_str = row.get("time") or row.get("date") or row.get("t")
-        if not date_str:
+          if not date_str:
             continue
-        try:
+          try:
             dt = parse_date(str(date_str))
-        except ValueError:
+          except ValueError:
             continue
 
-    close = row.get("close")
-    if close is None:
-        continue
+       close = row.get("close")
+       if close is None:
+          continue
 
-    candles.append({"dt": dt, "close": float(close)})
+       candles.append({"dt": dt, "close": float(close)})
     if len(candles) < 260:
         raise RuntimeError("Prea puține date BTC pentru a calcula IC (minim ~260 zile).")
 
