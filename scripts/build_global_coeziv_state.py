@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
-import os
 import json
 from pathlib import Path
 
-import pandas as pd
 import numpy as np
+import pandas as pd
 
 
 # ------------------------------------------------------
-# CONFIG – adaptează doar dacă ai alte nume de fișiere
+# CONFIG – adaptează doar dacă schimbi structura repo-ului
 # ------------------------------------------------------
 DATA_GLOBAL_DIR = Path("data_global")
 
@@ -20,62 +19,48 @@ ASSETS = {
     "oil": DATA_GLOBAL_DIR / "oil.csv",   # petrol
 }
 
-# fereastră pentru medii mobile
-FAST_WINDOW = 20
-SLOW_WINDOW = 100
+FAST_WINDOW = 20   # SMA rapid
+SLOW_WINDOW = 100  # SMA lent
 
-# câte zile maxime păstrăm în seria globală (optional)
-MAX_DAYS = 2000  # ~8 ani de date (la 250 zile tranzacționabile / an)
+MAX_DAYS = 2000    # opcțional: limităm seria globală
 
 
 # ------------------------------------------------------
-# UTILS
+# UTILITARE
 # ------------------------------------------------------
-def load_price_series(path: Path) -> pd.DataFrame:
+def load_price_series_from_timestamp_csv(path: Path) -> pd.DataFrame:
     """
-    Încarcă un CSV cu coloane:
-      - 'date' sau 'Date'
-      - 'close' sau 'Close' sau 'Adj Close'
-    Întoarce DataFrame cu coloane: ['date', 'close'].
+    CSV-urile tale au schema:
+      - timestamp (ms, float)
+      - close (string, cu prima linie simbol: 'DX-Y.NYB', '^VIX', etc.)
+    Întoarce un DataFrame cu:
+      - date (datetime)
+      - close (float)
     """
     if not path.exists():
         raise FileNotFoundError(f"Fișier lipsă: {path}")
 
     df = pd.read_csv(path)
 
-    # normalizare nume coloană dată
-    date_col = None
-    for cand in ["date", "Date", "DATE"]:
-        if cand in df.columns:
-            date_col = cand
-            break
-    if date_col is None:
-        raise ValueError(f"Nu am găsit coloană de dată în {path} (aștept 'date' sau 'Date').")
+    # aruncăm rândurile fără timestamp
+    df = df.dropna(subset=["timestamp"])
 
-    # normalizare nume coloană close
-    close_col = None
-    for cand in ["close", "Close", "Adj Close", "adj_close", "AdjClose"]:
-        if cand in df.columns:
-            close_col = cand
-            break
-    if close_col is None:
-        # fallback: ultima coloană numerică
-        numeric_cols = df.select_dtypes(include=[np.number]).columns
-        if len(numeric_cols) == 0:
-            raise ValueError(f"Nu am găsit coloană numerică de preț în {path}.")
-        close_col = numeric_cols[-1]
+    # convertim timestamp (ms) -> datetime
+    df["date"] = pd.to_datetime(df["timestamp"], unit="ms", errors="coerce")
 
-    out = df[[date_col, close_col]].copy()
-    out.columns = ["date", "close"]
-    out["date"] = pd.to_datetime(out["date"], errors="coerce")
-    out = out.dropna(subset=["date"]).sort_values("date")
-    out = out.dropna(subset=["close"])
-    return out
+    # convertim close la numeric; prima linie cu simbol va deveni NaN
+    df["close"] = pd.to_numeric(df["close"], errors="coerce")
+
+    df = df.dropna(subset=["date", "close"]).copy()
+    df = df.sort_values("date")
+
+    return df[["date", "close"]]
 
 
 def add_trend_features(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Adaugă medii mobile rapide și lente și coloane:
+    Adaugă:
+      - sma_fast, sma_slow
       - above_slow: preț > SMA(100)  (structură)
       - trend_up: SMA(20) > SMA(100) (direcționalitate)
     """
@@ -92,19 +77,17 @@ def add_trend_features(df: pd.DataFrame) -> pd.DataFrame:
 # LOGICĂ GLOBALĂ
 # ------------------------------------------------------
 def build_global_state():
-    # 1. Încarcă toate seriile și adaugă trend features
+    # 1. Încarcă seriile și adaugă trend features
     asset_frames = {}
     for name, path in ASSETS.items():
-        df = load_price_series(path)
+        df = load_price_series_from_timestamp_csv(path)
         df = add_trend_features(df)
-        # păstrăm doar coloanele relevante
         asset_frames[name] = df[["date", "close", "above_slow", "trend_up"]].copy()
 
-    # 2. Facem merge pe dată (inner join – doar zile comune)
+    # 2. Merge pe dată (doar zile comune tuturor activelor)
     merged = None
     for name, df in asset_frames.items():
-        df_local = df.copy()
-        df_local = df_local.rename(
+        df_local = df.rename(
             columns={
                 "close": f"{name}_close",
                 "above_slow": f"{name}_above_slow",
@@ -117,14 +100,12 @@ def build_global_state():
             merged = pd.merge(merged, df_local, on="date", how="inner")
 
     if merged is None or merged.empty:
-        raise RuntimeError("Nu am reușit să fuzionez seriile globale (fără interval comun).")
+        raise RuntimeError("Nu am obținut niciun interval comun de date pentru seriile globale.")
 
-    # opțional limităm la ultimele MAX_DAYS
     merged = merged.sort_values("date")
     if MAX_DAYS is not None and len(merged) > MAX_DAYS:
         merged = merged.iloc[-MAX_DAYS:]
 
-    # 3. Calculăm IC_GLOBAL și ICD_GLOBAL pe bază de proporții
     asset_names = list(ASSETS.keys())
     above_cols = [f"{a}_above_slow" for a in asset_names]
     trend_cols = [f"{a}_trend_up" for a in asset_names]
@@ -133,17 +114,16 @@ def build_global_state():
     merged["n_struct_strong"] = merged[above_cols].sum(axis=1)
     merged["n_trend_up"] = merged[trend_cols].sum(axis=1)
 
-    # IC_GLOBAL structural = proporție de active peste SMA_slow * 100
+    # IC_GLOBAL structural = proporție active peste SMA_slow * 100
     merged["ic_global"] = (merged["n_struct_strong"] / merged["n_assets"]) * 100.0
-    # ICD_GLOBAL direcțional = proporție de active cu trend_up * 100
+    # ICD_GLOBAL direcțional = proporție active cu trend_up * 100
     merged["icd_global"] = (merged["n_trend_up"] / merged["n_assets"]) * 100.0
 
-    # 4. Praguri (thresholds) din distribuția istorică
+    # 4. Praguri din distribuția istorică
     ic_series = merged["ic_global"].dropna()
     icd_series = merged["icd_global"].dropna()
 
     if len(ic_series) < 10 or len(icd_series) < 10:
-        # fallback simplu
         ic_low, ic_high = 35.0, 65.0
         icd_low, icd_high = 40.0, 60.0
     else:
@@ -159,7 +139,7 @@ def build_global_state():
         "icd_high": round(icd_high, 2),
     }
 
-    # 5. Clasificăm regimul global
+    # 5. Clasificare regim global
     def classify_regime(row):
         ic = row["ic_global"]
         icd = row["icd_global"]
@@ -169,26 +149,29 @@ def build_global_state():
             return "bull"
         if ic >= ic_high and icd <= icd_low:
             return "bear"
-        # poți complica logică mai târziu (ex: ic foarte mic + icd mic = bear)
+        # alte combinații = tranziție / neutru
         return "neutral"
 
     merged["regime"] = merged.apply(classify_regime, axis=1)
 
-    # 6. Construim structura JSON: series + current + thresholds
+    # 6. Construim JSON: series + current + thresholds
     series = []
     for _, row in merged.iterrows():
-        ts = int(pd.Timestamp(row["date"]).timestamp() * 1000)
+        ts_ms = int(pd.Timestamp(row["date"]).timestamp() * 1000)
+        ic_val = row["ic_global"]
+        icd_val = row["icd_global"]
+
         series.append(
             {
-                "t": ts,
-                "ic_global": round(float(row["ic_global"]), 2) if np.isfinite(row["ic_global"]) else None,
-                "icd_global": round(float(row["icd_global"]), 2) if np.isfinite(row["icd_global"]) else None,
+                "t": ts_ms,
+                "ic_global": round(float(ic_val), 2) if np.isfinite(ic_val) else None,
+                "icd_global": round(float(icd_val), 2) if np.isfinite(icd_val) else None,
                 "regime": row["regime"],
             }
         )
 
     if not series:
-        raise RuntimeError("Nu am obținut niciun punct valid pentru seria globală.")
+        raise RuntimeError("Nu am generat niciun punct valid în series.")
 
     current = series[-1]
 
@@ -198,7 +181,7 @@ def build_global_state():
         "thresholds": thresholds,
     }
 
-    # 7. Scriem în data/global_coeziv_state.json
+    # 7. Scriem în data/global_coeziv_state.json (exact ce citește ic_global.html)
     out_dir = Path("data")
     out_dir.mkdir(parents=True, exist_ok=True)
     out_path = out_dir / "global_coeziv_state.json"
@@ -206,7 +189,7 @@ def build_global_state():
     with out_path.open("w", encoding="utf-8") as f:
         json.dump(global_state, f, ensure_ascii=False)
 
-    print(f"[OK] Scris {out_path} cu {len(series)} puncte; current date = {current['t']}.")
+    print(f"[OK] Scris {out_path} cu {len(series)} puncte; ultima dată = {current['t']}.")
 
 
 if __name__ == "__main__":
