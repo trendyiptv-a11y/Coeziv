@@ -1,333 +1,453 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+"""
+update_btc_state_latest_from_daily.py
+
+Script Coeziv: calculează starea BTC pe baza datelor daily
+și salvează un snapshot "btc_state_latest.json" folosit în front-end.
+
+Pași (backend pur, fără dependențe exotice):
+- citește data/btc_daily.csv (minim coloanele: date, close)
+- calculează log-return-uri, EMA50 / EMA200, volatilitate pe 30 de zile
+- derivă indici IC_BTC structural & ICD_BTC direcțional (0–100)
+  folosind normalizare pe istoric (percentile)
+- clasifică regimul coeziv (acumulare, bull structural, bear structural etc.)
+- sintetizează un context scurt (trend, volatilitate, macro)
+- scrie rezultatul în data/btc_state_latest.json
+
+Important: nu modifică alte fișiere și nu descarcă date noi.
+Rulezi scriptul după ce ai actualizat deja btc_daily.csv.
+"""
+
+from __future__ import annotations
+
 import json
-from math import log, sqrt, tanh
-from pathlib import Path
+import math
+from dataclasses import dataclass
 from datetime import datetime
+from pathlib import Path
+from statistics import mean, stdev
+from typing import Dict, List, Optional, Tuple
 
 
 ROOT = Path(__file__).resolve().parent.parent
 DATA_BTC = ROOT / "data"
-
-INPUT_FILE = DATA_BTC / "btc_ohlc.json"
-OUTPUT_FILE = DATA_BTC / "btc_state_latest.json"
-
-
-# ---------- Utilitare ----------
-
-def ema(series, window):
-    alpha = 2.0 / (window + 1.0)
-    out = [None] * len(series)
-    ema_val = None
-    for i, x in enumerate(series):
-        if x is None:
-            out[i] = None
-            continue
-        x = float(x)
-        if ema_val is None:
-            ema_val = x
-        else:
-            ema_val = alpha * x + (1.0 - alpha) * ema_val
-        out[i] = ema_val
-    return out
+DATA_GLOBAL = ROOT / "data_global"
+INPUT_DAILY = DATA_BTC / "btc_daily.csv"
+OUTPUT_STATE = DATA_BTC / "btc_state_latest.json"
+GLOBAL_STATE_FILE = DATA_GLOBAL / "global_coeziv_state.json"
 
 
-def rolling_std(series, window):
-    out = [None] * len(series)
-    buf = []
-    for i, x in enumerate(series):
-        if x is None:
-            buf.append(None)
-        else:
-            buf.append(float(x))
-        if len(buf) > window:
-            buf.pop(0)
+# ---------- utilitare numerice ----------
 
-        clean = [v for v in buf if v is not None]
-        if len(clean) < window:
-            out[i] = None
-            continue
-        m = sum(clean) / len(clean)
-        var = sum((v - m) ** 2 for v in clean) / len(clean)
-        out[i] = sqrt(var)
-    return out
-
-
-def min_max_norm(series, floor=0.0, ceil=100.0):
-    vals = [x for x in series if x is not None]
-    if not vals:
-        return [None] * len(series)
-    mn = min(vals)
-    mx = max(vals)
-    if mx == mn:
-        return [50.0 if x is not None else None for x in series]
-
-    out = []
-    for x in series:
-        if x is None:
-            out.append(None)
-        else:
-            z = (x - mn) / (mx - mn)
-            out.append(floor + z * (ceil - floor))
-    return out
-
-
-# ---------- Regim coeziv ----------
-
-def infer_coeziv_regime(last_point: dict) -> dict:
+def ema(series: List[float], period: int) -> List[Optional[float]]:
     """
-    Primește ultimul punct cu:
-      - close, ema50, ema200, vol30, ic_struct, ic_dir
-    Întoarce:
-      - label: descriere completă
-      - short: etichetă scurtă
+    EMA clasică. Returnează o listă de aceeași lungime cu valori None la început
+    până când se umple fereastra.
     """
+    if period <= 0:
+        raise ValueError("period trebuie să fie > 0")
+    if len(series) == 0:
+        return []
 
-    ic = last_point.get("ic_struct")
-    icd = last_point.get("ic_dir")
-    close = last_point.get("close")
-    ema50 = last_point.get("ema50")
-    ema200 = last_point.get("ema200")
-    vol30 = last_point.get("vol30")
+    k = 2 / (period + 1.0)
+    out: List[Optional[float]] = [None] * len(series)
 
-    if (
-        ic is None
-        or icd is None
-        or close is None
-        or ema50 is None
-        or ema200 is None
-        or vol30 is None
-    ):
-        return {
-            "label": "Regim neclar (date insuficiente pentru structură completă)",
-            "short": "neclar",
-        }
+    # seed = media simplă pe primele `period` valori
+    if len(series) < period:
+        return out
 
-    ic = float(ic)
-    icd = float(icd)
-    close = float(close)
-    ema50 = float(ema50)
-    ema200 = float(ema200)
-    vol30 = float(vol30)
+    sma = sum(series[:period]) / period
+    out[period - 1] = sma
+    prev = sma
 
-    rel50 = (close - ema50) / ema50 * 100.0
-    rel200 = (close - ema200) / ema200 * 100.0
+    for i in range(period, len(series)):
+        price = series[i]
+        prev = price * k + prev * (1 - k)
+        out[i] = prev
 
-    ic_low = 35.0
-    ic_mid = 55.0
-    ic_high = 70.0
-
-    def is_bull_trend():
-        return rel50 > 3.0 and ema50 > ema200 and rel200 > 0.0
-
-    def is_bear_trend():
-        return rel50 < -3.0 and ema50 < ema200 and rel200 < 0.0
-
-    def is_flat_zone():
-        return abs(rel50) <= 3.0 and abs(rel200) <= 3.0
-
-    low_vol = vol30 < 35.0
-    high_vol = vol30 >= 70.0
-
-    # 1) Bază / compresie structurală
-    if ic < ic_low and 45.0 <= icd <= 55.0 and is_flat_zone() and low_vol:
-        return {
-            "label": "Bază / compresie structurală (Faza 0)",
-            "short": "bază / compresie",
-        }
-
-    # 2) Acumulare timpurie
-    if ic_low <= ic < ic_mid and icd >= 48.0 and rel200 <= 5.0:
-        return {
-            "label": "Acumulare timpurie în interiorul mega-ciclului",
-            "short": "acumulare",
-        }
-
-    # 3) Bull structural
-    if ic >= ic_mid and icd > 55.0 and is_bull_trend() and not high_vol:
-        return {
-            "label": "Bull structural (trend ascendent coerent)",
-            "short": "bull structural",
-        }
-
-    # 4) Bull târziu / pre-top structural
-    if ic >= ic_mid and icd > 50.0 and is_bull_trend() and high_vol:
-        return {
-            "label": "Bull târziu / început de top structural (pre-top)",
-            "short": "bull târziu / pre-top",
-        }
-
-    # 5) Top structural / distribuție
-    if ic >= ic_mid and icd < 50.0 and is_flat_zone() and high_vol:
-        return {
-            "label": "Top structural / distribuție (tranziție bull → bear)",
-            "short": "top / distribuție",
-        }
-
-    # 6) Bear structural
-    if ic >= ic_mid and icd < 45.0 and is_bear_trend():
-        return {
-            "label": "Bear structural (trend descendent coerent)",
-            "short": "bear structural",
-        }
-
-    # 7) Reechilibrare / post-bear
-    if ic < ic_mid and 45.0 <= icd <= 55.0 and not high_vol and not is_bull_trend():
-        return {
-            "label": "Reechilibrare post-bear / tranziție spre nouă bază",
-            "short": "reechilibrare",
-        }
-
-    # fallback
-    return {
-        "label": "Regim mixt / de tranziție (configurație neclară)",
-        "short": "mixt / tranziție",
-    }
+    return out
 
 
-# ---------- MAIN ----------
+def rolling_std(series: List[float], window: int) -> List[Optional[float]]:
+    """
+    Deviație standard rulantă (similar cu pandas.Series.rolling.std).
+    """
+    if window <= 1:
+        raise ValueError("window trebuie să fie > 1")
+    n = len(series)
+    out: List[Optional[float]] = [None] * n
+    if n < window:
+        return out
 
-def main():
-    print(f"[BTC] Încarc {INPUT_FILE} ...")
-    if not INPUT_FILE.exists():
-        raise FileNotFoundError(f"Lipsește fișierul: {INPUT_FILE}")
+    for i in range(window - 1, n):
+        chunk = series[i - window + 1 : i + 1]
+        if len(chunk) < 2:
+            out[i] = None
+        else:
+            out[i] = stdev(chunk)  # type: ignore[arg-type]
+    return out
 
-    with INPUT_FILE.open("r", encoding="utf-8") as f:
-        raw = json.load(f)
 
-    candles = []
-    for row in raw:
-        # Așteptăm dict cu timestamp (ms) și close
-        if not isinstance(row, dict):
-            continue
+def percentile_rank(history: List[float], value: float) -> float:
+    """
+    Percentila poziției lui `value` într-un istoric.
+    0 = cel mai mic, 100 = cel mai mare.
+    """
+    if not history:
+        return 50.0
+    sorted_vals = sorted(history)
+    # număr de valori <= value
+    count = 0
+    for v in sorted_vals:
+        if v <= value:
+            count += 1
+        else:
+            break
+    return 100.0 * count / len(sorted_vals)
 
-        ts = row.get("timestamp")
-        if ts is None:
-            # fallback: dată textuală
-            date_str = (
-                row.get("time")
-                or row.get("date")
-                or row.get("t")
-                or row.get("dt")
-            )
-            if not date_str:
+
+def clamp(x: float, lo: float, hi: float) -> float:
+    return max(lo, min(hi, x))
+
+
+# ---------- structuri pentru regim ----------
+
+@dataclass
+class Regime:
+    code: str
+    label: str
+    short: str
+    color: str  # doar pentru front-end: "green", "red", "orange", etc.
+
+
+def classify_regime(ic_struct: float, ic_dir: float) -> Regime:
+    """
+    Clasificare coezivă a regimului BTC pe baza indicilor structurali & direcționali.
+
+    Convenție:
+    - IC struct < 20  => structură foarte slabă / bază
+    - 20–60          => tranziție / trend în formare
+    - > 60           => trend structural puternic / fază superioară
+    - ICD < 45       => bias bear
+    - 45–55          => mixt / de tranziție
+    - > 55           => bias bull
+    """
+    struct = ic_struct
+    dir_ = ic_dir
+
+    if struct < 20 and dir_ < 45:
+        return Regime(
+            code="accum_bear",
+            label="Acumulare bearish / bază descendentă",
+            short="Structură foarte slabă, cu flux ușor orientat în jos.",
+            color="red",
+        )
+    if struct < 20 and dir_ > 55:
+        return Regime(
+            code="accum_bull",
+            label="Acumulare bullish / bază ascendentă",
+            short="Bază slabă, dar cu bias ușor pozitiv al fluxului.",
+            color="green",
+        )
+    if 20 <= struct < 60 and dir_ > 55:
+        return Regime(
+            code="bull_struct",
+            label="Bull structural",
+            short="Trend ascendent în formare / consolidare structurală.",
+            color="green",
+        )
+    if 20 <= struct < 60 and dir_ < 45:
+        return Regime(
+            code="bear_struct",
+            label="Bear structural",
+            short="Trend descendent în formare / structură în răcire.",
+            color="red",
+        )
+    if struct >= 60 and dir_ > 55:
+        return Regime(
+            code="bull_late",
+            label="Bull târziu / început de top structural",
+            short="Structură puternic ascendentă, dar matură, cu risc de epuizare.",
+            color="orange",
+        )
+    if struct >= 60 and dir_ < 45:
+        return Regime(
+            code="bear_late",
+            label="Bear târziu / capitulare",
+            short="Structură descendentă avansată, cu risc de mișcări extreme.",
+            color="orange",
+        )
+    # fallback – când ICD ~ 50 sau struct între zone
+    return Regime(
+        code="mixed",
+        label="Regim mixt / de tranziție",
+        short="Configurație neclară: structură și direcționalitate amestecate.",
+        color="grey",
+    )
+
+
+# ---------- citire date BTC ----------
+
+def read_btc_daily(path: Path) -> Tuple[List[datetime], List[float]]:
+    if not path.exists():
+        raise FileNotFoundError(f"Nu am găsit fișierul {path}")
+
+    dates: List[datetime] = []
+    closes: List[float] = []
+
+    with path.open("r", encoding="utf-8") as f:
+        header = f.readline().strip().split(",")
+        # căutăm coloanele de interes
+        try:
+            date_idx = header.index("date")
+        except ValueError:
+            date_idx = header.index("Date")  # alternativă
+        try:
+            close_idx = header.index("close")
+        except ValueError:
+            close_idx = header.index("Close")
+
+        for line in f:
+            if not line.strip():
                 continue
+            parts = line.strip().split(",")
             try:
-                dt = datetime.fromisoformat(str(date_str).replace("Z", ""))
+                d = datetime.fromisoformat(parts[date_idx])
+            except Exception:
+                # suport și pentru format gen 2025-01-31 00:00:00
+                d = datetime.strptime(parts[date_idx].split()[0], "%Y-%m-%d")
+            try:
+                c = float(parts[close_idx])
             except ValueError:
                 continue
-        else:
-            # timestamp în milisecunde
-            try:
-                dt = datetime.utcfromtimestamp(int(ts) / 1000.0)
-            except (ValueError, OSError):
-                continue
+            dates.append(d)
+            closes.append(c)
 
-        close = row.get("close")
-        if close is None:
-            continue
+    # sortăm în caz că nu sunt deja ordonate
+    combined = sorted(zip(dates, closes), key=lambda x: x[0])
+    dates_sorted, closes_sorted = zip(*combined)
+    return list(dates_sorted), list(closes_sorted)
 
-        candles.append({"dt": dt, "close": float(close)})
 
-    if len(candles) < 260:
-        raise RuntimeError(
-            f"Prea puține date BTC pentru a calcula IC (minim ~260 zile, avem {len(candles)})"
-        )
+# ---------- calcule pentru IC / volatilitate ----------
 
-    # sortăm
-    candles.sort(key=lambda c: c["dt"])
-    closes = [c["close"] for c in candles]
+def compute_state_from_prices(
+    dates: List[datetime], closes: List[float]
+) -> Dict[str, float]:
+    if len(dates) != len(closes):
+        raise ValueError("dates și closes trebuie să aibă aceeași lungime")
+    if len(closes) < 260:
+        raise RuntimeError("Prea puține date BTC pentru a calcula indicii (~260 zile).")
 
-    # log-returns
-    log_ret = [None] * len(closes)
+    # log-return-uri
+    log_ret: List[float] = [0.0]
     for i in range(1, len(closes)):
-        p0 = closes[i - 1]
-        p1 = closes[i]
-        if p0 > 0 and p1 > 0:
-            log_ret[i] = log(p1 / p0)
+        if closes[i - 1] <= 0 or closes[i] <= 0:
+            log_ret.append(0.0)
         else:
-            log_ret[i] = None
+            log_ret.append(math.log(closes[i] / closes[i - 1]))
 
-    # EMA-uri
+    # EMA-uri pentru structură
     ema50 = ema(closes, 50)
     ema200 = ema(closes, 200)
 
-    # vol 30 zile anualizată
-    std30 = rolling_std(log_ret, 30)
-    vol30 = [
-        None if s is None else s * sqrt(365.0) * 100.0
-        for s in std30
-    ]
-
-    # IC structural
-    struct_raw = []
+    # "trend_strength" ca distanță EMA50–EMA200 raportată la volatilitatea pe 200 zile
+    spread: List[float] = []
     for i in range(len(closes)):
-        p = closes[i]
-        e50 = ema50[i]
-        e200 = ema200[i]
-        if p is None or e50 is None or e200 is None:
-            struct_raw.append(None)
+        if ema50[i] is None or ema200[i] is None:
+            spread.append(0.0)
+        else:
+            spread.append(abs(ema50[i] - ema200[i]))
+
+    vol200 = rolling_std(closes, 200)
+    trend_strength_hist: List[float] = []
+    for i in range(len(closes)):
+        if vol200[i] is None or vol200[i] == 0:
             continue
-        slope = (e50 - e200) / max(abs(e200), 1e-9)
-        dist = (p - e50) / max(abs(e50), 1e-9)
-        struct_raw.append(abs(slope) + 0.5 * abs(dist))
+        trend_strength_hist.append(spread[i] / vol200[i])
 
-    ic_struct_series = min_max_norm(struct_raw, 0.0, 100.0)
+    if not trend_strength_hist:
+        raise RuntimeError("Nu am putut calcula trend_strength_hist.")
 
-    # IC direcțional
-    # netezim log_ret cu EMA 10
-    smooth_ret = ema(log_ret, 10)
-    dir_raw = []
-    for r in smooth_ret:
-        if r is None:
-            dir_raw.append(None)
-        else:
-            dir_raw.append(tanh(r * 20.0))  # comprimăm extremele
+    latest_trend_strength = trend_strength_hist[-1]
+    ic_struct = percentile_rank(trend_strength_hist, latest_trend_strength)
 
-    ic_dir_series = []
-    for x in dir_raw:
-        if x is None:
-            ic_dir_series.append(None)
-        else:
-            ic_dir_series.append(50.0 + 50.0 * x)  # map [-1,1] -> [0,100]
+    # directionalitate: folosim randamentul cumulat pe 60 de zile, normalizat pe istoric
+    window_dir = 60
+    cum_ret_hist: List[float] = []
+    for i in range(window_dir, len(closes)):
+        base = closes[i - window_dir]
+        if base <= 0:
+            continue
+        cum_ret_hist.append(closes[i] / base - 1.0)
 
-    # construim punctele extinse
-    extended = []
-    for i, c in enumerate(candles):
-        extended.append(
-            {
-                "dt": c["dt"],
-                "close": c["close"],
-                "ema50": ema50[i],
-                "ema200": ema200[i],
-                "vol30": vol30[i],
-                "ic_struct": ic_struct_series[i],
-                "ic_dir": ic_dir_series[i],
-            }
-        )
+    if not cum_ret_hist:
+        raise RuntimeError("Nu am putut calcula istoric pentru ICD_BTC.")
 
-    last = extended[-1]
+    latest_base = closes[-window_dir]
+    latest_cum_ret = closes[-1] / latest_base - 1.0
+    pct = percentile_rank(cum_ret_hist, latest_cum_ret)
+    # transformăm percentila 0–100 într-un index 0–100, dar centrat în jurul lui 50
+    ic_dir = pct
 
-    # infer regim
-    regime_info = infer_coeziv_regime(last)
+    # volatilitate pe 30 de zile (annualizată, %)
+    if len(log_ret) < 30:
+        raise RuntimeError("Prea puține date pentru volatilitate 30d.")
+    vol30_hist: List[float] = []
+    window_vol = 30
+    for i in range(window_vol, len(log_ret)):
+        chunk = log_ret[i - window_vol + 1 : i + 1]
+        if len(chunk) < 2:
+            continue
+        s = stdev(chunk)  # type: ignore[arg-type]
+        vol30_hist.append(s * math.sqrt(365.0) * 100.0)
 
-    state = {
-        "date": last["dt"].strftime("%Y-%m-%d"),
-        "close": last["close"],
-        "ema50": last["ema50"],
-        "ema200": last["ema200"],
-        "vol30": last["vol30"],
-        "ic_struct": last["ic_struct"],
-        "ic_dir": last["ic_dir"],
-        "regime_coeziv_label": regime_info["label"],
-        "regime_coeziv_short": regime_info["short"],
-        "n_points": len(extended),
+    latest_chunk = log_ret[-window_vol:]
+    latest_std = stdev(latest_chunk)  # type: ignore[arg-type]
+    latest_vol30 = latest_std * math.sqrt(365.0) * 100.0
+
+    vol30_index = percentile_rank(vol30_hist, latest_vol30)
+
+    return {
+        "ic_struct": clamp(ic_struct, 0.0, 100.0),
+        "ic_dir": clamp(ic_dir, 0.0, 100.0),
+        "vol30_ann_pct": max(latest_vol30, 0.0),
+        "vol30_index": clamp(vol30_index, 0.0, 100.0),
     }
 
-    OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
-    with OUTPUT_FILE.open("w", encoding="utf-8") as f:
+
+# ---------- integrare cu macro global (opțional) ----------
+
+def read_global_macro_state(path: Path) -> Dict[str, Optional[float]]:
+    """
+    Încearcă să citească scorul de risc global & semnal macro
+    din fișierul generat de scriptul global (dacă există).
+    Structura exactă poate fi adaptată ușor – aici folosim un format generic:
+    {
+        "as_of": "...",
+        "risk_score": float (-1..1),
+        "macro_signal": "echilibrat" / "risk-on" / "risk-off"
+    }
+    """
+    if not path.exists():
+        return {"risk_score": None}
+
+    try:
+        with path.open("r", encoding="utf-8") as f:
+            data = json.load(f)
+    except Exception:
+        return {"risk_score": None}
+
+    # suportăm fie obiect simplu, fie listă de snapshot-uri
+    if isinstance(data, list) and data:
+        last = data[-1]
+    elif isinstance(data, dict):
+        last = data
+    else:
+        return {"risk_score": None}
+
+    risk = last.get("risk_score")
+    macro_signal = last.get("macro_signal") or last.get("macro_label")
+    return {
+        "risk_score": float(risk) if isinstance(risk, (int, float)) else None,
+        "macro_signal": macro_signal,
+    }
+
+
+# ---------- asamblare snapshot & salvare ----------
+
+def build_context_short(
+    ic_struct: float,
+    ic_dir: float,
+    vol30_ann_pct: float,
+    vol30_index: float,
+    global_macro: Dict[str, Optional[float]],
+) -> Dict[str, Dict[str, str]]:
+    # Trend
+    if ic_struct < 20:
+        trend_txt = f"Trend: structură slabă (IC {ic_struct:.0f}), bias {'bear' if ic_dir < 50 else 'bull'} (ICD {ic_dir:.0f})."
+        trend_color = "red" if ic_dir < 50 else "orange"
+    elif ic_struct < 60:
+        trend_txt = f"Trend: zonă de tranziție (IC {ic_struct:.0f}), bias direcțional {('bull' if ic_dir > 50 else 'bear')} (ICD {ic_dir:.0f})."
+        trend_color = "orange"
+    else:
+        trend_txt = f"Trend: structură ridicată (IC {ic_struct:.0f}), bias {'bull' if ic_dir >= 50 else 'bear'} (ICD {ic_dir:.0f})."
+        trend_color = "green" if ic_dir >= 50 else "red"
+
+    # Volatilitate
+    if vol30_index < 33:
+        vol_label = "scăzută"
+        vol_color = "green"
+    elif vol30_index < 66:
+        vol_label = "moderată"
+        vol_color = "orange"
+    else:
+        vol_label = "ridicată"
+        vol_color = "red"
+    vol_txt = f"Volatilitate relativă: {vol_label} (vol30 ~ {vol30_ann_pct:.1f}%)."
+
+    # Macro
+    risk_score = global_macro.get("risk_score")
+    macro_signal = global_macro.get("macro_signal") or "–"
+    if risk_score is None:
+        macro_txt = f"Macro (scurt): {macro_signal}."
+        macro_color = "grey"
+    else:
+        if risk_score > 0.15:
+            macro_color = "green"
+        elif risk_score < -0.15:
+            macro_color = "red"
+        else:
+            macro_color = "orange"
+        macro_txt = f"Macro (scurt): {macro_signal or 'echilibrat'} (scor risc {risk_score:.2f})."
+
+    return {
+        "trend": {"text": trend_txt, "color": trend_color},
+        "volatility": {"text": vol_txt, "color": vol_color},
+        "macro": {"text": macro_txt, "color": macro_color},
+    }
+
+
+def main() -> None:
+    dates, closes = read_btc_daily(INPUT_DAILY)
+    metrics = compute_state_from_prices(dates, closes)
+    ic_struct = metrics["ic_struct"]
+    ic_dir = metrics["ic_dir"]
+    vol30_ann_pct = metrics["vol30_ann_pct"]
+    vol30_index = metrics["vol30_index"]
+
+    regime = classify_regime(ic_struct, ic_dir)
+    global_macro = read_global_macro_state(GLOBAL_STATE_FILE)
+    context_short = build_context_short(
+        ic_struct, ic_dir, vol30_ann_pct, vol30_index, global_macro
+    )
+
+    last_date = dates[-1]
+    last_close = closes[-1]
+
+    state = {
+        "as_of": last_date.strftime("%Y-%m-%d"),
+        "close": round(last_close, 2),
+        # indici coezivi
+        "ic_struct": round(ic_struct, 2),
+        "ic_dir": round(ic_dir, 2),
+        "vol30_ann_pct": round(vol30_ann_pct, 2),
+        "vol30_index": round(vol30_index, 2),
+        # regim
+        "regime_code": regime.code,
+        "regime_label": regime.label,
+        "regime_short": regime.short,
+        "regime_color": regime.color,
+        # context scurt pentru front-end
+        "context_short": context_short,
+    }
+
+    OUTPUT_STATE.parent.mkdir(parents=True, exist_ok=True)
+    with OUTPUT_STATE.open("w", encoding="utf-8") as f:
         json.dump(state, f, ensure_ascii=False, indent=2)
 
-    print(f"[BTC] Scris {OUTPUT_FILE} pentru data {state['date']}")
-    print(json.dumps(state, indent=2, ensure_ascii=False))
+    print(f"[Coeziv] Am salvat starea BTC în {OUTPUT_STATE}")
 
 
 if __name__ == "__main__":
