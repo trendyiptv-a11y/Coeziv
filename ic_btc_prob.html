@@ -860,9 +860,13 @@
         const macro = computeMacroScore(macroReturns);
         const model = computeCoezivProb(btcState, macro);
 
-        const lastDate = btcState.date || "–";
-        document.getElementById("lastDateLabel").textContent = lastDate;
+        const lastDate =
+  btcState.date ||
+  btcState.last_date ||
+  btcState.as_of ||   // <- aici se potrivește cu json-ul tău
+  "–";
 
+document.getElementById("lastDateLabel").textContent = lastDate;
         const probUpPct = Math.round(model.probUp * 100);
         const probDownPct = Math.round(model.probDown * 100);
         const confPct = Math.round(model.confidence * 100);
