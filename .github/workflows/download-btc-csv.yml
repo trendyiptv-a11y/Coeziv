@@ -1,9 +1,12 @@
 name: Download full BTC CSV
 
 on:
-  workflow_dispatch:      # îl poți rula manual din tab-ul Actions
+  workflow_dispatch:        # poți rula manual
   schedule:
-    - cron: "0 3 * * *"   # opțional: în fiecare luni la 03:00 UTC
+    - cron: "0 3 * * *"     # ZILNIC la 03:00 UTC
+
+permissions:
+  contents: write           # necesar pentru commit & push
 
 jobs:
   fetch-btc:
@@ -23,8 +26,8 @@ jobs:
 
       - name: Commit updated CSV
         run: |
-          git config --global user.email "action@github.com"
-          git config --global user.name "GitHub Action"
+          git config user.email "actions@github.com"
+          git config user.name "GitHub Actions"
           git add data/btc_daily.csv
-          git commit -m "Update btc_daily.csv (full history)" || echo "No changes"
+          git commit -m "Update btc_daily.csv (scheduled)" || echo "No changes to commit"
           git push
