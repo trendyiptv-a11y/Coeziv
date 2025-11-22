@@ -825,7 +825,7 @@
           oilData
         ] = await Promise.all([
           fetchJson("data/btc_state_latest.json"),
-          fetchJson("data/btc_ohlc.json"),
+          fetchJson("btc_ohlc.json"),
           fetchCsvLastTwo("data_global/spx.csv"),
           fetchCsvLastTwo("data_global/dxy.csv"),
           fetchCsvLastTwo("data_global/gold.csv"),
