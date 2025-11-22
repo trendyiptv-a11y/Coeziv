@@ -4,8 +4,10 @@ on:
   push:
     paths:
       - "data/btc_daily.csv"
-      - "scripts/csv_to_json.py"
-  workflow_dispatch:
+      - "scripts/csv_to_json.py"   # dacă modifici scriptul, se regenerează JSON
+  workflow_dispatch:               # poți rula manual
+  schedule:
+    - cron: "10 3 * * *"          # ZILNIC la 03:10 UTC (după download)
 
 permissions:
   contents: write
@@ -13,9 +15,10 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Python
         uses: actions/setup-python@v4
@@ -27,8 +30,8 @@ jobs:
 
       - name: Commit JSON
         run: |
-          git config --global user.email "action@github.com"
-          git config --global user.name "GitHub Action"
+          git config user.email "actions@github.com"
+          git config user.name "GitHub Actions"
           git add btc_ohlc.json
-          git commit -m "Update btc_ohlc.json" || echo "No changes"
+          git commit -m "Update btc_ohlc.json (scheduled)" || echo "No changes to commit"
           git push
