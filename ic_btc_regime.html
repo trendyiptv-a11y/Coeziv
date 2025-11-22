@@ -733,8 +733,13 @@
         if (!res.ok) throw new Error("Nu pot încărca btc_state_latest.json (" + res.status + ")");
         const btcState = await res.json();
 
-        const lastDate = btcState.date || btcState.last_date || "–";
-        document.getElementById("lastDate").textContent = lastDate;
+        const lastDate =
+  btcState.date ||
+  btcState.last_date ||
+  btcState.as_of ||  // <- cheie existentă în json-ul tău
+  "–";
+
+document.getElementById("lastDate").textContent = lastDate;
 
         const icStruct = safeNum(btcState.ic_struct) ?? safeNum(btcState.ic_structural);
         const icDir = safeNum(btcState.ic_dir) ?? safeNum(btcState.ic_directional);
