@@ -20,23 +20,51 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install pandas yfinance
+          pip install pandas numpy yfinance
 
+      # ----------------------------------------------------
+      # 1️⃣ Actualizează datele globale în data_global/*.csv
+      # ----------------------------------------------------
       - name: Run Coeziv Global Script
         run: |
           python scripts/update_global_coeziv_state.py
 
+
+      # ----------------------------------------------------
+      # 2️⃣ Construiește global_coeziv_state.json
+      #    din SPX, DXY, GOLD, VIX, OIL
+      # ----------------------------------------------------
+      - name: Build Global Coeziv State JSON
+        run: |
+          python scripts/build_global_coeziv_state.py
+
+
+      # ----------------------------------------------------
+      # 3️⃣ Actualizează btc_state_latest.json
+      # ----------------------------------------------------
       - name: Run BTC Latest State from btc_ohlc
         run: |
           python scripts/update_btc_state_latest_from_daily.py
 
+
+      # ----------------------------------------------------
+      # 4️⃣ Commit & push (global + btc)
+      # ----------------------------------------------------
       - name: Commit changes
         run: |
           git config user.name "coeziv-bot"
           git config user.email "coeziv-bot@example.com"
+
+          # CSV-urile globale
           git add data_global/*.csv
-          git add data/*.json
+
+          # JSON-urile nou generate
+          git add data/global_coeziv_state.json
           git add data/btc_state_latest.json
+
+          # orice alte fișiere JSON
+          git add data/*.json
+
           git commit -m "Update coeziv global & btc state" || echo "No changes"
 
       - name: Push changes
