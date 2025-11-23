@@ -1,13 +1,16 @@
 name: Update Coeziv Global & BTC State
 
 on:
-  schedule:
-    - cron: "0 3 * * *"
-  workflow_dispatch:
+  workflow_run:
+    workflows: ["Convert CSV to JSON"]    # EXACT numele din fișierul 2
+    types:
+      - completed
+  workflow_dispatch:                      # să îl poți rula manual
 
 jobs:
   update-coeziv:
     runs-on: ubuntu-latest
+    # ... restul pașilor (checkout, setup python, scripturi, commit etc.) rămân la fel
 
     steps:
       - name: Checkout repo
