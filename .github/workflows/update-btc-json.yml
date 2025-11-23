@@ -1,13 +1,11 @@
 name: Convert CSV to JSON
 
 on:
-  push:
-    paths:
-      - "data/btc_daily.csv"
-      - "scripts/csv_to_json.py"   # dacă modifici scriptul, se regenerează JSON
-  workflow_dispatch:               # poți rula manual
-  schedule:
-    - cron: "10 3 * * *"          # ZILNIC la 03:10 UTC (după download)
+  workflow_run:
+    workflows: ["Download full BTC CSV"]   # EXACT numele din primul fișier
+    types:
+      - completed
+  workflow_dispatch:                       # opțional, pentru rulare manuală
 
 permissions:
   contents: write
@@ -15,6 +13,7 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    # ... restul pașilor tăi (checkout, python, csv_to_json.py etc.) rămân la fel
 
     steps:
       - name: Checkout repo
