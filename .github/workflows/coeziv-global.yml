@@ -48,9 +48,16 @@ jobs:
       - name: Run BTC Latest State from btc_ohlc
         run: |
           python scripts/update_btc_state_latest_from_daily.py
+          
 
 
       # ----------------------------------------------------
+      # 3️⃣ bis – Construiește seria IC BTC
+      # ----------------------------------------------------
+      - name: Export IC BTC Series
+        run: |
+          python scripts/export_ic_btc_series.py   # ----------------------------------------------------
+     
       # 4️⃣ Commit & push (global + btc)
       # ----------------------------------------------------
       - name: Commit changes
