@@ -1,176 +1,119 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-"""
-export_ic_btc_series.py
-
-Seria istorică oficială IC_BTC, sincronizată 1:1 cu modelul Python
-din update_btc_state_latest_from_daily.py.
-
-Ce face:
-- citește data/btc_daily.csv (același input ca snapshot-ul live)
-- pentru fiecare zi cu cel puțin ~260 de zile în urmă:
-    - cheamă compute_state_from_prices(...) pe tot istoricul până în acea zi
-    - calculează IC_BTC structural & direcțional exact ca snapshot-ul
-    - derivă un indice de flux (ICF_BTC) și un indice de ciclu (ICC_BTC)
-    - clasifică regimul coeziv cu classify_regime(...)
-- scrie rezultatul în data/ic_btc_series.json:
-
-{
-  "meta": {...},
-  "series": [
-    {
-      "t": <timestamp_ms>,
-      "close": <float>,
-      "ic_struct": <0-100>,
-      "ic_dir": <0-100>,
-      "ic_flux": <0-100>,
-      "ic_cycle": <0-100>,
-      "regime": "<code>",
-      "regime_label": "<label>"
-    },
-    ...
-  ]
-}
-"""
-
-from __future__ import annotations
-
 import json
 from pathlib import Path
-from typing import List, Dict, Tuple
 from datetime import datetime
 
-# importăm modelul oficial
-from update_btc_state_latest_from_daily import (
-    read_btc_daily,
-    compute_state_from_prices,
-    classify_regime,
-)
+import numpy as np
+import pandas as pd
 
-# ---------- config ----------
+from update_btc_state_latest_from_daily import classify_regime
 
-ROOT = Path(__file__).resolve().parent.parent
-DATA_BTC = ROOT / "data"
-INPUT_DAILY = DATA_BTC / "btc_daily.csv"
-OUT_PATH = DATA_BTC / "ic_btc_series.json"
-
-# fereastra minimă cerută de model (~260 zile)
-MIN_WINDOW_DAYS = 260
+ROOT = Path(__file__).resolve().parents[1]
+BTC_OHLC_PATH = ROOT / "btc_ohlc.json"
+OUT_PATH = ROOT / "data" / "ic_btc_series.json"
 
 
-def clamp(x: float, lo: float, hi: float) -> float:
-    return max(lo, min(hi, x))
-
-
-def compute_flux_and_cycle(
-    ic_struct: float, ic_dir: float, vol30_index: float
-) -> Tuple[float, float]:
+def percentile_rank_vector(hist: np.ndarray, current: np.ndarray) -> np.ndarray:
     """
-    Model conceptual pentru:
-      - ICF_BTC (flux)
-      - ICC_BTC (ciclu)
-
-    Nu introduce date empirice noi, doar combină:
-    - structura (IC_BTC structural)
-    - direcționalitatea (ICD_BTC)
-    - volatilitatea (vol30_index din modelul oficial)
+    Vectorized percentile rank similar cu logica oficială.
     """
-
-    # 1) Intensitatea direcției față de neutru (50)
-    dir_strength = abs(ic_dir - 50.0)  # 0..50
-    dir_strength_pct = clamp(dir_strength * 2.0, 0.0, 100.0)  # 0..100
-
-    # 2) Fluxul: combinație între direcție și volatilitate
-    #    - dacă direcția e clară și volat, fluxul e mare
-    #    - dacă direcția e difuză și vol mică, fluxul e mic
-    ic_flux = clamp(0.6 * dir_strength_pct + 0.4 * vol30_index, 0.0, 100.0)
-
-    # 3) Ciclu: poziție de fază în raport cu:
-    #    - structură (baza vs maturitate)
-    #    - direcție (bear vs bull)
-    #    - flux (accelerare vs liniștire)
-    struct_c = ic_struct - 50.0
-    dir_c = ic_dir - 50.0
-    flux_c = ic_flux - 50.0
-
-    phase_raw = 0.5 * struct_c + 0.2 * dir_c + 0.3 * flux_c
-    ic_cycle = clamp(50.0 + phase_raw, 0.0, 100.0)
-
-    return ic_flux, ic_cycle
+    ranks = np.searchsorted(np.sort(hist), current, side="right")
+    return (ranks / len(hist)) * 100.0
 
 
-def main() -> None:
-    # 1) citim exact același input ca snapshot-ul live
-    dates, closes = read_btc_daily(INPUT_DAILY)
+def main():
+    with BTC_OHLC_PATH.open("r", encoding="utf-8") as f:
+        raw = json.load(f)
 
-    if len(dates) < MIN_WINDOW_DAYS:
-        raise RuntimeError(
-            f"Prea puține puncte în {INPUT_DAILY} "
-            f"({len(dates)} < {MIN_WINDOW_DAYS}) pentru seria IC_BTC."
-        )
+    df = pd.DataFrame(raw)
 
-    records: List[Dict] = []
+    # Detect time col
+    time_col = None
+    for c in ["timestamp", "time", "t", "date"]:
+        if c in df.columns:
+            time_col = c
+            break
+    if not time_col:
+        raise ValueError("Nu am găsit coloană timp")
 
-    # 2) reconstituim "timeline-ul" modelului:
-    #    pentru fiecare zi i, calculăm starea așa cum ar fi văzut-o
-    #    modelul având la dispoziție doar datele până în ziua i.
-    for i in range(len(dates)):
-        window_len = i + 1
-        if window_len < MIN_WINDOW_DAYS:
-            continue  # încă nu avem destule date pentru model
+    # Parse datetime
+    if pd.api.types.is_numeric_dtype(df[time_col]):
+        sample = float(df[time_col].iloc[0])
+        unit = "ms" if sample > 10_000_000_000 else "s"
+        df["t"] = pd.to_datetime(df[time_col], unit=unit, utc=True)
+    else:
+        df["t"] = pd.to_datetime(df[time_col], utc=True)
 
-        window_dates = dates[: window_len]
-        window_closes = closes[: window_len]
+    df = df.sort_values("t").set_index("t")
 
-        # calcule oficiale (aceleași ca snapshot-ul)
-        metrics = compute_state_from_prices(window_dates, window_closes)
-        ic_struct = float(metrics["ic_struct"])
-        ic_dir = float(metrics["ic_dir"])
-        vol30_index = float(metrics["vol30_index"])
+    close = df["close"].astype(float)
+    logret = np.log(close / close.shift(1))
 
-        ic_flux, ic_cycle = compute_flux_and_cycle(
-            ic_struct=ic_struct,
-            ic_dir=ic_dir,
-            vol30_index=vol30_index,
-        )
+    # --- Vectorized indicators (identic conceptual cu modelul oficial) ---
+
+    ema50 = close.ewm(span=50, adjust=False).mean()
+    ema200 = close.ewm(span=200, adjust=False).mean()
+
+    spread = (ema50 - ema200).abs()
+    vol200 = close.rolling(200).std()
+    trend_strength = spread / vol200
+
+    cumret60 = (close / close.shift(60)) - 1.0
+
+    vol30 = logret.rolling(30).std() * np.sqrt(365) * 100.0
+
+    # Drop NaNs pentru distribuții
+    ts_hist = trend_strength.dropna().to_numpy()
+    cr_hist = cumret60.dropna().to_numpy()
+    vol_hist = vol30.dropna().to_numpy()
+
+    # Percentile pentru fiecare punct
+    ic_struct_series = percentile_rank_vector(ts_hist, trend_strength.to_numpy())
+    ic_dir_series = percentile_rank_vector(cr_hist, cumret60.to_numpy())
+    vol_index_series = percentile_rank_vector(vol_hist, vol30.to_numpy())
+
+    # Flux derivat
+    ic_flux_series = np.clip(100.0 - vol_index_series, 0, 100)
+
+    records = []
+
+    for i, ts in enumerate(df.index):
+        if np.isnan(ic_struct_series[i]) or np.isnan(ic_dir_series[i]):
+            continue
+
+        ic_struct = float(ic_struct_series[i])
+        ic_dir = float(ic_dir_series[i])
+        vol30_ann = float(vol30.iloc[i]) if not np.isnan(vol30.iloc[i]) else None
+        vol30_index = float(vol_index_series[i])
 
         regime = classify_regime(ic_struct, ic_dir)
 
-        ts = window_dates[-1]
-        close = window_closes[-1]
-
         rec = {
             "t": int(ts.timestamp() * 1000),
-            "close": float(close),
+            "close": float(close.iloc[i]),
             "ic_struct": ic_struct,
             "ic_dir": ic_dir,
-            "ic_flux": ic_flux,
-            "ic_cycle": ic_cycle,
+            "ic_flux": float(ic_flux_series[i]),
+            "ic_cycle": 50.0,
+            "vol30_ann_pct": vol30_ann,
+            "vol30_index": vol30_index,
             "regime": regime.code,
             "regime_label": regime.label,
+            "regime_short": regime.short,
+            "regime_color": regime.color,
         }
         records.append(rec)
 
-    if not records:
-        raise RuntimeError("Nu am reușit să calculez nicio stare pentru seria IC_BTC.")
-
     meta = {
-        "as_of": dates[-1].date().isoformat(),
+        "as_of": datetime.utcfromtimestamp(records[-1]["t"] / 1000).strftime("%Y-%m-%d"),
         "points": len(records),
-        "min_window_days": MIN_WINDOW_DAYS,
-        "source": "coeziv-btc-official-python",
-        "note": (
-            "Seria IC_BTC/ICD_BTC/flux/ciclu calculată cu modelul oficial "
-            "compute_state_from_prices + classify_regime, pe ferestre rulante "
-            "de minim 260 zile din data/btc_daily.csv."
-        ),
+        "source": "coeziv-btc-python-fast",
     }
 
     OUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     with OUT_PATH.open("w", encoding="utf-8") as f:
-        json.dump({"meta": meta, "series": records}, f, ensure_ascii=False, indent=2)
+        json.dump({"meta": meta, "series": records}, f, ensure_ascii=False)
 
-    print(f"[Coeziv] Am scris {len(records)} puncte în {OUT_PATH}")
+    print(f"Generated {len(records)} points")
 
 
 if __name__ == "__main__":
