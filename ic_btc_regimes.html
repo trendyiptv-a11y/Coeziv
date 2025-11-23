@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta
     name="description"
-    content="Regimuri bull & bear și cicluri coezive complete pentru BTCUSDT detectate automat cu modelul coeziv (structură + direcționalitate), pe date zilnice (~2010–prezent)."
+    content="Regimuri bull & bear și cicluri coezive interne pentru BTCUSDT, afișate pe baza indicilor IC_BTC și ICD_BTC calculați în backend (Python, model coeziv oficial)."
   />
 
   <!-- Luxon + Chart.js -->
@@ -113,7 +113,6 @@
       font-size: 1rem;
     }
 
-    /* SWITCH mod conservator / practic */
     .mode-toggle {
       display: flex;
       flex-wrap: wrap;
@@ -384,7 +383,6 @@
       font-weight: 500;
     }
 
-    /* ===== FULLSCREEN CHART MODE ===== */
     .chart-toolbar {
       display: flex;
       justify-content: flex-end;
@@ -427,7 +425,6 @@
       overflow: hidden;
     }
 
-    /* ciclu coeziv tag */
     .cycle-label {
       display: inline-flex;
       align-items: center;
@@ -449,23 +446,23 @@
     <header>
       <h1>Regimuri bull &amp; bear – model coeziv BTC</h1>
       <p>
-        Perioade de bull market și bear market estimate automat din indicii
-        coezivi IC_BTC structural și ICD_BTC direcțional, calculați pe date
-        zilnice BTCUSDT (~2010–prezent).
+        Perioade bull și bear agregate din regimurile Coeziv calculate în Python
+        (IC_BTC structural și ICD_BTC direcțional). Browserul doar afișează datele din
+        <code>data/ic_btc_series.json</code>.
       </p>
 
       <div class="pill-row">
         <div class="pill">
           <span class="pill-dot"></span>
-          <span>Model coeziv – structură &amp; direcționalitate, praguri adaptate la date</span>
+          <span>IC_BTC &amp; ICD_BTC calculați în backend (model oficial, percentile pe istoric)</span>
         </div>
         <div class="pill bull">
           <span class="pill-dot"></span>
-          <span>Bull: structură puternică + mișcări aliniate trendului</span>
+          <span>Bull: combinații de regimuri Coeziv de tip bull</span>
         </div>
         <div class="pill bear">
           <span class="pill-dot"></span>
-          <span>Bear: structură puternică + mișcări contra trendului</span>
+          <span>Bear: combinații de regimuri Coeziv de tip bear</span>
         </div>
       </div>
 
@@ -479,11 +476,11 @@
     <div class="mode-toggle">
       <button id="modeConservative" class="mode-btn active">
         Conservator
-        <span class="sub">regimuri clare, filtrate</span>
+        <span class="sub">agregă strict regimurile bull/bear din JSON</span>
       </button>
       <button id="modePractical" class="mode-btn">
         Practic (trader)
-        <span class="sub">prelungește ultimul bull / bear dacă trendul continuă</span>
+        <span class="sub">prelungește ultimul bull / bear dacă IC-urile susțin trendul</span>
       </button>
     </div>
 
@@ -493,35 +490,34 @@
         <div class="card-title">Număr regimuri bull detectate</div>
         <div class="card-value" id="bullCount">0</div>
         <span class="badge bull">bull</span>
-        <small>Perioade în care structura este ridicată, iar direcționalitatea
-          favorizează trendul principal (durată minimă ≈ 20 zile).</small>
+        <small>Intervale în care regimurile Coeziv zilnice sunt de tip bull (comasate în episoade).</small>
       </article>
 
       <article class="card">
         <div class="card-title">Număr regimuri bear detectate</div>
         <div class="card-value" id="bearCount">0</div>
         <span class="badge bear">bear</span>
-        <small>Perioade în care structura rămâne ridicată, dar direcționalitatea
-          este inversă față de trendul dominant (presiune descendentă).</small>
+        <small>Intervale în care regimurile Coeziv zilnice sunt de tip bear (comasate în episoade).</small>
       </article>
 
       <article class="card">
         <div class="card-title">Cel mai lung bull (zile)</div>
         <div class="card-value" id="longestBull">–</div>
-        <small>Durata aproximativă a celui mai lung regim bull detectat.</small>
+        <small>Durata aproximativă a celui mai lung episod bull agregat.</small>
       </article>
 
       <article class="card">
         <div class="card-title">Cel mai lung bear (zile)</div>
         <div class="card-value" id="longestBear">–</div>
-        <small>Durata aproximativă a celui mai lung regim bear detectat.</small>
+        <small>Durata aproximativă a celui mai lung episod bear agregat.</small>
       </article>
 
       <article class="card current-regime-card">
-        <div class="card-title">Regim curent (model coeziv)</div>
+        <div class="card-title">Regim curent (model Coeziv)</div>
         <div id="currentRegimeValue" class="current-regime-value current-neutral">-</div>
         <div id="currentRegimeMeta" class="current-regime-meta">
-          Se calculează automat din indicii IC_BTC structural și ICD_BTC direcțional pentru ultima zi din serie.
+          Determinat din ultimul punct din <code>ic_btc_series.json</code>
+          (regime_code &amp; IC-uri oficiale).
         </div>
       </article>
     </section>
@@ -530,8 +526,8 @@
     <section class="card chart-card">
       <div class="chart-title">Regimuri bull &amp; bear pe preț BTC</div>
       <div class="chart-sub">
-        Fundal verde = bull market, fundal roșu = bear market. Linia albastră reprezintă prețul BTCUSDT (close, timeframe 1D).
-        Regimurile se pot vizualiza în modul conservator sau practic.
+        Fundal verde = intervale bull aggregate, fundal roșu = intervale bear aggregate.
+        Linia albastră reprezintă prețul BTC (close, 1D) din aceeași serie Coeziv.
       </div>
 
       <div class="chart-toolbar">
@@ -542,9 +538,9 @@
 
       <div class="chart-wrapper" id="priceChartWrapper">
         <div class="legend-inline">
-          <span class="legend-color price"></span> BTCUSDT close (1D)
-          <span class="legend-color bull"></span> bull market
-          <span class="legend-color bear"></span> bear market
+          <span class="legend-color price"></span> BTC close (1D)
+          <span class="legend-color bull"></span> bull
+          <span class="legend-color bear"></span> bear
         </div>
         <canvas id="regimeChart"></canvas>
       </div>
@@ -552,9 +548,9 @@
 
     <!-- Tabel bull/bear -->
     <section class="card">
-      <div class="chart-title">Perioade bull &amp; bear detectate</div>
+      <div class="chart-title">Perioade bull &amp; bear agregate</div>
       <div class="chart-sub">
-        Lista intervalelor detectate de modelul coeziv pentru modul selectat (conservator / practic).
+        Intervalele bull/bear rezultate din regimurile zilnice Coeziv (conservator / practic).
       </div>
 
       <table>
@@ -574,44 +570,31 @@
       </table>
 
       <p class="note">
-        <strong>Mod conservator</strong>: detectează doar regimuri cu structură și direcționalitate foarte clare (mai puține, dar robuste).<br />
-        <strong>Mod practic (trader)</strong>: pornește de la aceleași regimuri și prelungește ultimul bull / bear dacă indicii coezivi sugerează continuarea trendului.
-        Nu reprezintă recomandare financiară.
+        <strong>Mod conservator</strong>: folosește direct regimurile Coeziv de tip bull / bear din JSON, agregate în episoade continue.<br />
+        <strong>Mod practic (trader)</strong>: pornește de la aceleași episoade și prelungește ultimul bull / bear dacă
+        media recentă a IC_BTC &amp; ICD_BTC rămâne compatibilă cu direcția episodului.
       </p>
     </section>
-<div class="note" style="margin-top:1.2rem; font-size:0.82rem; color:#94a3b8; line-height:1.55;">
-  <strong>Notă coezivă:</strong> Regimurile Bull și Bear din această pagină sunt 
-  <strong>sub-cicluri interne</strong> ale pieței Bitcoin. 
-  Ele arată tranzițiile dinamice dintre structură și direcționalitate, dar 
-  <strong>nu reprezintă cicluri coezive complete</strong>.
-  <br><br>
-  Conform <em>Hărții Coezive a Pieței Crypto (2010–2025)</em>, după apariția 
-  Ethereum (2014–2015), piața a devenit un sistem policentric. Din această 
-  cauză, modelul coeziv detectează multe bull/bear interne, dar 
-  <strong>nu mai identifică baze structurale suficiente pentru a închide cicluri 
-  coezive complete</strong>, cum s-a întâmplat în perioada 2010–2014.
-  <br><br>
-  Regimurile din această pagină arată <strong>respirația internă</strong> a pieței 
-  în cadrul unui <strong>mega-ciclu structural</strong> început după 2014. 
-  Pentru contextul macro complet, vezi 
-  <a href="ic_btc_map.html" style="color:#22d3ee; text-decoration:none;">
-    Harta coezivă a pieței
-  </a> și <a href="https://coeziv.vercel.app/ic_btc_mega.html" style="color:#22d3ee; text-decoration:none;">
-    Mega ciclu structural
-  </a>.
-</div>
+
+    <!-- Notă despre cicluri -->
+    <div class="note" style="margin-top:1.2rem; font-size:0.82rem; color:#94a3b8; line-height:1.55;">
+      <strong>Notă coezivă:</strong> Regimurile Bull și Bear de aici sunt
+      <strong>sub-cicluri interne</strong> ale pieței Bitcoin. IC_BTC și ICD_BTC sunt calculați exclusiv în backend (Python),
+      iar această pagină doar îi folosește pentru agregare și vizualizare.
+    </div>
+
     <!-- Cicluri coezive complete -->
     <section class="card chart-card">
       <div class="chart-title">
-        Cicluri coezive complete BTC
+        Cicluri coezive interne BTC
       </div>
       <div class="chart-sub">
-        Cicluri mari între două baze structurale consecutive (Faza 0): de la o zonă de structură minimă și direcție neutră, prin bull/bear interne, până la următoarea zonă stabilă.
+        Intervalele dintre două „baze” structurale consecutive estimate din IC_BTC &amp; ICD_BTC oficiale.
       </div>
 
       <div class="chart-wrapper">
         <div class="legend-inline">
-          <span class="legend-color price"></span> BTCUSDT close (1D)
+          <span class="legend-color price"></span> BTC close (1D)
           <span class="cycle-label">
             <span class="cycle-swatch"></span> cicluri coezive (C1, C2, C3…)
           </span>
@@ -621,9 +604,10 @@
     </section>
 
     <section class="card">
-      <div class="chart-title">Cicluri coezive complete – structură</div>
+      <div class="chart-title">Cicluri coezive – sumar</div>
       <div class="chart-sub">
-        Intervalele dintre două baze structurale consecutive, estimate din IC_BTC structural și ICD_BTC direcțional. Un ciclu complet include faze de acumulare, bull, bear și reechilibrare.
+        Cicluri interne definite ca intervale între baze structurale consecutive (IC_BTC jos, ICD_BTC aproape neutru).
+        IC-urile sunt cele oficiale, preluate din JSON; browserul doar identifică aceste intervale.
       </div>
 
       <table>
@@ -641,66 +625,26 @@
           </tr>
         </tbody>
       </table>
-
-      <p class="note">
-        Ciclurile coezive sunt nivelul „macro” al modelului: agregă mai multe regimuri bull/bear interne într-o singură structură de tip 2π (bază → acumulare → bull → top → bear → reechilibrare → nouă bază).
-        Sunt utile pentru înțelegerea marilor faze ale Bitcoin, nu pentru timing pe termen scurt.
-      </p>
     </section>
   </main>
 
   <script>
     const DateTime = luxon.DateTime;
 
-    // globale pentru moduri și cicluri
-    let regimesConservative = [];
-    let regimesPractical = [];
-    let timestampsGlobal = [];
-    let priceChart = null;
-    let cycleChart = null;
-    let cyclesCohesive = [];
-    let currentMode = "conservative";
-
     const MS_PER_DAY = 1000 * 60 * 60 * 24;
 
-    // ---------- helpers numeric ----------
-    function ema(values, period) {
-      const out = new Array(values.length).fill(null);
-      if (!values.length) return out;
-      const k = 2 / (period + 1);
-      let prev = values[0] ?? 0;
-      out[0] = prev;
-      for (let i = 1; i < values.length; i++) {
-        const v = values[i] ?? prev;
-        prev = v * k + prev * (1 - k);
-        out[i] = prev;
-      }
-      return out;
-    }
+    let seriesGlobal = [];
+    let timestampsGlobal = [];
+    let regimesConservative = [];
+    let regimesPractical = [];
+    let cyclesCohesive = [];
+    let priceChart = null;
+    let cycleChart = null;
+    let currentMode = "conservative";
 
-    function rollingMean(values, window) {
-      const n = values.length;
-      const out = new Array(n).fill(null);
-      let sum = 0;
-      let count = 0;
-      for (let i = 0; i < n; i++) {
-        const v = values[i];
-        if (Number.isFinite(v)) {
-          sum += v;
-          count++;
-        }
-        if (i >= window) {
-          const old = values[i - window];
-          if (Number.isFinite(old)) {
-            sum -= old;
-            count--;
-          }
-        }
-        if (i >= window - 1 && count > 0) {
-          out[i] = sum / count;
-        }
-      }
-      return out;
+    // ---------- helpers ----------
+    function formatDate(ts) {
+      return DateTime.fromMillis(ts).toFormat("yyyy-LL-dd");
     }
 
     function quantile(arr, p) {
@@ -714,97 +658,33 @@
       return vals[lo] * (1 - w) + vals[hi] * w;
     }
 
-    function clamp(v, min, max) {
-      return Math.min(max, Math.max(min, v));
+    function macroRegimeFromCode(code) {
+      if (!code) return null;
+      const c = String(code).toLowerCase();
+      if (c.includes("bull")) return "bull";
+      if (c.includes("bear")) return "bear";
+      return null; // neutru / mixt
     }
 
-    // ---------- Indici coezivi ----------
-    function computeCohesiveIndices(closes, timestamps) {
-      const n = closes.length;
-      if (!n) return { icStruct: [], icDir: [] };
-
-      const returns = new Array(n).fill(0);
-      for (let i = 1; i < n; i++) {
-        const cPrev = closes[i - 1];
-        const cNow = closes[i];
-        if (cPrev > 0 && cNow > 0) {
-          returns[i] = Math.log(cNow / cPrev) * 100;
-        } else {
-          returns[i] = 0;
-        }
-      }
-
-      const absReturns = returns.map(v => Math.abs(v));
-
-      const ema50 = ema(closes, 50);
-      const ema200 = ema(closes, 200);
-      const trendStrength = ema50.map((v, i) =>
-        v != null && ema200[i] != null ? v - ema200[i] : null
-      );
-
-      const vol30 = rollingMean(absReturns, 30);
-
-      const rawStruct = trendStrength.map((t, i) => {
-        const vol = vol30[i];
-        if (t == null || vol == null || vol <= 0) return null;
-        return Math.abs(t) / (vol + 1e-6);
-      });
-
-      const scaleStruct = quantile(rawStruct, 0.9) || 1;
-      const icStruct = rawStruct.map(v =>
-        v == null ? null : clamp((v / scaleStruct) * 100, 0, 100)
-      );
-
-      const meanRet30 = rollingMean(returns, 30);
-      const meanAbs30 = rollingMean(absReturns, 30);
-
-      const icDir = meanRet30.map((m, i) => {
-        const ma = meanAbs30[i];
-        if (m == null || ma == null || ma <= 0) return null;
-        const ratio = m / ma; // [-1,1] aproximativ
-        const val = 50 * (1 + ratio); // [0,100]
-        return clamp(val, 0, 100);
-      });
-
-      return { icStruct, icDir };
-    }
-
-    // ---------- detectare regimuri (conservator) ----------
-    function detectRegimes(icStruct, icDir, timestamps) {
-      const n = icStruct.length;
+    // ---------- agregare regimuri din JSON ----------
+    function detectRegimesFromOfficial(series) {
       const regimes = [];
-      if (!n) return regimes;
+      if (!series.length) return regimes;
 
-      const structVals = icStruct.filter(v => Number.isFinite(v));
-      const dirVals = icDir.filter(v => Number.isFinite(v));
-      if (!structVals.length || !dirVals.length) return regimes;
+      const labels = series.map(p => macroRegimeFromCode(p.regime || p.regime_code || p.regime_short));
+      const timestamps = series.map(p => p.t);
 
-      const structHigh = quantile(structVals, 0.6);
-      const dirHigh = quantile(dirVals, 0.6);
-      const dirLow = quantile(dirVals, 0.4);
       const MIN_DAYS = 20;
-
-      const labels = new Array(n).fill(null);
-      for (let i = 0; i < n; i++) {
-        const s = icStruct[i];
-        const d = icDir[i];
-        if (!Number.isFinite(s) || !Number.isFinite(d)) continue;
-
-        if (s >= structHigh && d >= dirHigh) {
-          labels[i] = "bull";
-        } else if (s >= structHigh && d <= dirLow) {
-          labels[i] = "bear";
-        }
-      }
 
       let currentType = null;
       let startIndex = null;
 
-      for (let i = 0; i < n; i++) {
+      for (let i = 0; i < labels.length; i++) {
         const label = labels[i];
+
         if (label === currentType) continue;
 
-        // s-a schimbat regimul
+        // închidem episodul anterior
         if (currentType && startIndex != null) {
           const endIndex = i - 1;
           const startTs = timestamps[startIndex];
@@ -828,9 +708,9 @@
         startIndex = label ? i : null;
       }
 
-      // închidem regimul care a rămas deschis până la capăt
+      // episod final
       if (currentType && startIndex != null) {
-        const endIndex = n - 1;
+        const endIndex = labels.length - 1;
         const startTs = timestamps[startIndex];
         const endTs = timestamps[endIndex];
         if (startTs != null && endTs != null) {
@@ -851,56 +731,37 @@
       return regimes;
     }
 
-    // ---------- derivare regimuri "practice" ----------
-    function derivePracticalRegimes(regimes, icStruct, icDir, timestamps) {
-      if (!regimes || !regimes.length || !timestamps.length) return [];
+    // ---------- regimuri practice (prelungire ultim episod) ----------
+    function derivePracticalRegimes(regimes, series) {
+      if (!regimes || !regimes.length || !series.length) return [];
 
       const practical = regimes.map(r => ({ ...r }));
-      const n = timestamps.length;
-      const lastTs = timestamps[n - 1];
-
+      const n = series.length;
+      const lastTs = series[n - 1].t;
       const last = practical[practical.length - 1];
       if (!last) return practical;
 
-      // dacă deja ajunge la final, nu facem nimic
       if (last.end >= lastTs) return practical;
 
-      // analizăm ultimele ~40 zile după end
-      let endIndex = last.endIndex ?? null;
-      if (endIndex == null) {
-        for (let i = n - 1; i >= 0; i--) {
-          if (timestamps[i] === last.end) {
-            endIndex = i;
-            break;
-          }
-        }
-        if (endIndex == null) endIndex = n - 1;
-      }
+      // medie IC_BTC & ICD_BTC pe ultimele 40 de zile
+      const window = 40;
+      const startIdx = Math.max(0, n - window);
+      let sSum = 0, dSum = 0, count = 0;
 
-      const tailStart = Math.min(n - 1, endIndex + 1);
-      if (tailStart >= n) return practical;
-
-      const lookbackStart = Math.max(tailStart, n - 40);
-
-      let sumStruct = 0;
-      let sumDir = 0;
-      let count = 0;
-
-      for (let i = lookbackStart; i < n; i++) {
-        const s = icStruct[i];
-        const d = icDir[i];
+      for (let i = startIdx; i < n; i++) {
+        const p = series[i];
+        const s = p.ic_struct;
+        const d = p.ic_dir;
         if (!Number.isFinite(s) || !Number.isFinite(d)) continue;
-        sumStruct += s;
-        sumDir += d;
-        count++;
+        sSum += s; dSum += d; count++;
       }
 
       if (!count) return practical;
 
-      const avgStruct = sumStruct / count;
-      const avgDir = sumDir / count;
+      const avgStruct = sSum / count;
+      const avgDir = dSum / count;
 
-      const minStruct = 35; // mai permisiv
+      const minStruct = 35;
       const bullDir = 55;
       const bearDir = 45;
 
@@ -921,11 +782,15 @@
       return practical;
     }
 
-    // ---------- detectare cicluri coezive complete ----------
-    function computeCohesiveCycles(icStruct, icDir, timestamps) {
-      const n = icStruct.length;
+    // ---------- cicluri coezive din IC oficial ----------
+    function computeCohesiveCycles(series) {
+      const n = series.length;
       const cycles = [];
       if (!n) return cycles;
+
+      const icStruct = series.map(p => p.ic_struct);
+      const icDir = series.map(p => p.ic_dir);
+      const timestamps = series.map(p => p.t);
 
       const structVals = icStruct.filter(v => Number.isFinite(v));
       if (!structVals.length) return cycles;
@@ -944,7 +809,6 @@
         }
       }
 
-      // identificăm segmente de bază consecutive
       const bases = [];
       let segStart = null;
 
@@ -954,13 +818,10 @@
         } else {
           if (segStart != null) {
             const segEnd = i - 1;
-            const lenDays =
-              (timestamps[segEnd] - timestamps[segStart]) / MS_PER_DAY;
+            const lenDays = (timestamps[segEnd] - timestamps[segStart]) / MS_PER_DAY;
             if (lenDays >= BASE_MIN_DAYS) {
               const midIndex = Math.floor((segStart + segEnd) / 2);
               bases.push({
-                startIndex: segStart,
-                endIndex: segEnd,
                 midIndex,
                 midTs: timestamps[midIndex],
               });
@@ -969,16 +830,13 @@
           }
         }
       }
-      // cazul în care segmentul continuă până la final
+
       if (segStart != null) {
         const segEnd = n - 1;
-        const lenDays =
-          (timestamps[segEnd] - timestamps[segStart]) / MS_PER_DAY;
+        const lenDays = (timestamps[segEnd] - timestamps[segStart]) / MS_PER_DAY;
         if (lenDays >= BASE_MIN_DAYS) {
           const midIndex = Math.floor((segStart + segEnd) / 2);
           bases.push({
-            startIndex: segStart,
-            endIndex: segEnd,
             midIndex,
             midTs: timestamps[midIndex],
           });
@@ -987,7 +845,6 @@
 
       if (bases.length < 2) return cycles;
 
-      // construim cicluri între baze consecutive
       for (let i = 0; i < bases.length - 1; i++) {
         const startTs = bases[i].midTs;
         const endTs = bases[i + 1].midTs;
@@ -1004,7 +861,7 @@
       return cycles;
     }
 
-    // ---------- plugin fundal bull/bear ----------
+    // ---------- plugins Chart.js ----------
     const regimeBackgroundPlugin = {
       id: "regimeBackground",
       beforeDraw(chart, args, opts) {
@@ -1015,12 +872,12 @@
         if (!xScale) return;
 
         ctx.save();
-        for (const r of regimes) {
+        regimes.forEach(r => {
           const xStart = xScale.getPixelForValue(r.start);
           const xEnd = xScale.getPixelForValue(r.end);
-          if (!Number.isFinite(xStart) || !Number.isFinite(xEnd)) continue;
+          if (!Number.isFinite(xStart) || !Number.isFinite(xEnd)) return;
           const width = xEnd - xStart;
-          if (!Number.isFinite(width) || width <= 0) continue;
+          if (!Number.isFinite(width) || width <= 0) return;
 
           ctx.fillStyle =
             r.type === "bull"
@@ -1032,12 +889,11 @@
             width,
             chartArea.bottom - chartArea.top
           );
-        }
+        });
         ctx.restore();
       },
     };
 
-    // ---------- plugin fundal cicluri coezive ----------
     const cycleBackgroundPlugin = {
       id: "cycleBackground",
       beforeDraw(chart, args, opts) {
@@ -1055,7 +911,6 @@
           const width = xEnd - xStart;
           if (!Number.isFinite(width) || width <= 0) return;
 
-          // alternăm nuanțele pentru cicluri
           const even = idx % 2 === 0;
           ctx.fillStyle = even
             ? "rgba(56,189,248,0.10)"
@@ -1073,7 +928,7 @@
 
     Chart.register(regimeBackgroundPlugin, cycleBackgroundPlugin);
 
-    // ---------- UI helpers ----------
+    // ---------- UI update ----------
     function updateStats(regimes) {
       const bullCount = regimes.filter(r => r.type === "bull").length;
       const bearCount = regimes.filter(r => r.type === "bear").length;
@@ -1094,10 +949,6 @@
         longestBear > 0 ? longestBear.toString() : "–";
     }
 
-    function formatDate(ts) {
-      return DateTime.fromMillis(ts).toFormat("yyyy-LL-dd");
-    }
-
     function updateTable(regimes) {
       const tbody = document.getElementById("regimeTableBody");
       tbody.innerHTML = "";
@@ -1107,7 +958,7 @@
         const td = document.createElement("td");
         td.colSpan = 4;
         td.textContent =
-          "Nu au fost detectate regimuri bull / bear pentru pragurile curente.";
+          "Nu au fost detectate regimuri bull / bear pentru datele curente.";
         tr.appendChild(td);
         tbody.appendChild(tr);
         return;
@@ -1141,12 +992,12 @@
       });
     }
 
-    function updateCurrentRegime(regimes, timestamps) {
+    function updateCurrentRegime(regimes, series) {
       const labelEl = document.getElementById("currentRegimeValue");
       const metaEl = document.getElementById("currentRegimeMeta");
       if (!labelEl || !metaEl) return;
 
-      if (!regimes.length || !timestamps.length) {
+      if (!series.length) {
         labelEl.textContent = "-";
         labelEl.className = "current-regime-value current-neutral";
         metaEl.textContent =
@@ -1154,35 +1005,45 @@
         return;
       }
 
-      const lastTs = timestamps[timestamps.length - 1];
+      const last = series[series.length - 1];
+      const lastTs = last.t;
       const lastDate = DateTime.fromMillis(lastTs).toISODate();
+      const macro = macroRegimeFromCode(last.regime || last.regime_code || last.regime_short);
 
       const current = regimes.find(
         r => lastTs >= r.start && lastTs <= r.end
       );
 
-      if (!current) {
-        labelEl.textContent = "neutru";
+      if (!macro || !current) {
+        labelEl.textContent = last.regime_label || last.regime_short || "neutru / mixt";
         labelEl.className = "current-regime-value current-neutral";
         metaEl.textContent =
-          `Ultima dată (${lastDate}) nu se încadrează într-un regim bull / bear clar după modelul coeziv.`;
+          `Ultima dată (${lastDate}) nu se află într-un episod bull/bear agregat clar; regim Coeziv: ${last.regime || "-"
+          }.`;
         return;
       }
 
-      const start = DateTime.fromMillis(current.start).toISODate();
-      const end = DateTime.fromMillis(current.end).toISODate();
+      const start = formatDate(current.start);
+      const end = formatDate(current.end);
       const days = current.durationDays;
 
-      if (current.type === "bull") {
-        labelEl.textContent = "bull market";
+      if (macro === "bull") {
+        labelEl.textContent = last.regime_label || "bull market";
         labelEl.className = "current-regime-value current-bull";
         metaEl.textContent =
-          `Regim bull estimat de la ${start} până la ${end === lastDate ? "prezent" : end} (~${days} zile).`;
-      } else {
-        labelEl.textContent = "bear market";
+          `Regim Coeziv curent (macro bull) de la ${start} până la ${end === lastDate ? "prezent" : end} (~${days} zile). Cod: ${last.regime || "-"
+          }.`;
+      } else if (macro === "bear") {
+        labelEl.textContent = last.regime_label || "bear market";
         labelEl.className = "current-regime-value current-bear";
         metaEl.textContent =
-          `Regim bear estimat de la ${start} până la ${end === lastDate ? "prezent" : end} (~${days} zile).`;
+          `Regim Coeziv curent (macro bear) de la ${start} până la ${end === lastDate ? "prezent" : end} (~${days} zile). Cod: ${last.regime || "-"
+          }.`;
+      } else {
+        labelEl.textContent = last.regime_label || last.regime || "neutru / mixt";
+        labelEl.className = "current-regime-value current-neutral";
+        metaEl.textContent =
+          `Ultima dată (${lastDate}) are regim Coeziv: ${last.regime || "-"} (neutru/mixt la nivel macro bull/bear).`;
       }
     }
 
@@ -1195,7 +1056,7 @@
         const td = document.createElement("td");
         td.colSpan = 4;
         td.textContent =
-          "Nu au fost identificate cicluri coezive complete pentru datele curente.";
+          "Nu au fost identificate cicluri coezive interne pentru datele curente.";
         tr.appendChild(td);
         tbody.appendChild(tr);
         return;
@@ -1225,12 +1086,10 @@
     }
 
     function renderForMode(mode) {
-      const regimes =
-        mode === "practical" ? regimesPractical : regimesConservative;
-
+      const regimes = mode === "practical" ? regimesPractical : regimesConservative;
       updateStats(regimes);
       updateTable(regimes);
-      updateCurrentRegime(regimes, timestampsGlobal);
+      updateCurrentRegime(regimes, seriesGlobal);
 
       if (priceChart) {
         priceChart.options.plugins.regimeBackground.regimes = regimes;
@@ -1241,54 +1100,39 @@
     // ---------- init ----------
     async function init() {
       try {
-        const resp = await fetch("btc_ohlc.json?ts=" + Date.now(), {
+        const resp = await fetch("data/ic_btc_series.json?ts=" + Date.now(), {
           cache: "no-store",
         });
-        if (!resp.ok) throw new Error("Nu pot încărca btc_ohlc.json");
-        const raw = await resp.json();
+        if (!resp.ok) throw new Error("Nu pot încărca data/ic_btc_series.json");
+        const data = await resp.json();
 
-        const points = raw
-          .map(row => {
-            const t = row.timestamp ?? row.time ?? row.t;
-            const c = row.close ?? row.c;
-            if (t == null || c == null) return null;
-            return { t: Number(t), c: Number(c) };
-          })
-          .filter(p => p && Number.isFinite(p.t) && Number.isFinite(p.c))
+        const series = (data.series || [])
+          .filter(p => p && p.t != null && p.close != null)
           .sort((a, b) => a.t - b.t);
 
-        if (!points.length) {
-          console.error("btc_ohlc.json nu conține puncte valide");
+        if (!series.length) {
+          console.error("ic_btc_series.json nu conține puncte valide");
           return;
         }
 
-        const timestamps = points.map(p => p.t);
-        const closes = points.map(p => p.c);
-        timestampsGlobal = timestamps;
+        seriesGlobal = series;
+        timestampsGlobal = series.map(p => p.t);
 
-        const { icStruct, icDir } = computeCohesiveIndices(closes, timestamps);
-
-        regimesConservative = detectRegimes(icStruct, icDir, timestamps);
-        regimesPractical = derivePracticalRegimes(
-          regimesConservative,
-          icStruct,
-          icDir,
-          timestamps
-        );
-
-        cyclesCohesive = computeCohesiveCycles(icStruct, icDir, timestamps);
+        regimesConservative = detectRegimesFromOfficial(series);
+        regimesPractical = derivePracticalRegimes(regimesConservative, series);
+        cyclesCohesive = computeCohesiveCycles(series);
 
         // grafic bull/bear
         const ctx = document.getElementById("regimeChart");
-        const chartData = points.map(p => ({ x: p.t, y: p.c }));
+        const priceData = series.map(p => ({ x: p.t, y: p.close }));
 
         priceChart = new Chart(ctx, {
           type: "line",
           data: {
             datasets: [
               {
-                label: "BTCUSDT close (1D)",
-                data: chartData,
+                label: "BTC close (1D)",
+                data: priceData,
                 borderColor: "rgba(56,189,248,1)",
                 borderWidth: 1.6,
                 pointRadius: 0,
@@ -1319,7 +1163,7 @@
                     const v = ctx.parsed.y;
                     if (!Number.isFinite(v)) return "";
                     return (
-                      " BTCUSDT close: " +
+                      " BTC close: " +
                       v.toLocaleString("en-US", {
                         maximumFractionDigits: 2,
                       })
@@ -1371,8 +1215,8 @@
             data: {
               datasets: [
                 {
-                  label: "BTCUSDT close (1D)",
-                  data: chartData,
+                  label: "BTC close (1D)",
+                  data: priceData,
                   borderColor: "rgba(56,189,248,1)",
                   borderWidth: 1.6,
                   pointRadius: 0,
@@ -1401,7 +1245,7 @@
                       const v = ctx.parsed.y;
                       if (!Number.isFinite(v)) return "";
                       return (
-                        " BTCUSDT close: " +
+                        " BTC close: " +
                         v.toLocaleString("en-US", {
                           maximumFractionDigits: 2,
                         })
@@ -1448,10 +1292,9 @@
 
         updateCycleTable(cyclesCohesive);
 
-        // ------- Fullscreen pentru graficul de preț -------
+        // fullscreen
         const wrapperEl = document.getElementById("priceChartWrapper");
         const fsBtnEl = document.getElementById("toggleFullscreenBtn");
-
         if (wrapperEl && fsBtnEl && priceChart) {
           let isFullscreen = false;
 
@@ -1469,9 +1312,7 @@
             updateFsButton();
 
             setTimeout(() => {
-              try {
-                priceChart.resize();
-              } catch (e) {}
+              try { priceChart.resize(); } catch (e) {}
             }, 80);
           });
 
@@ -1498,7 +1339,7 @@
           });
         }
 
-        // rand inițial (conservator)
+        // rand inițial
         renderForMode(currentMode);
       } catch (err) {
         console.error("Eroare la inițializarea paginii bull/bear:", err);
