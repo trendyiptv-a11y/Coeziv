@@ -1,16 +1,17 @@
 name: Download full BTC CSV
 
 on:
-  workflow_dispatch:        # poți rula manual
   schedule:
-    - cron: "0 3 * * *"     # ZILNIC la 03:00 UTC
+    - cron: "0 3 * * *"   # zilnic, ora 03:00 UTC
+  workflow_dispatch:       # ca să îl poți rula manual
 
 permissions:
-  contents: write           # necesar pentru commit & push
+  contents: write          # restul fișierului rămâne la fel
 
 jobs:
   fetch-btc:
     runs-on: ubuntu-latest
+    # ... restul pașilor tăi exact cum sunt acum
 
     steps:
       - name: Checkout repo
