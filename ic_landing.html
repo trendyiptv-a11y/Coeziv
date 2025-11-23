@@ -616,53 +616,64 @@
       </div>
 
       <aside class="hero-card" aria-label="Exemplu de panou IC_BTC">
-        <div class="hero-card-title">Panou exemplu IC_BTC</div>
+        <div class="hero-card-title">BTC coeziv – snapshot live</div>
+
         <div class="hero-metrics">
           <div class="metric">
             <div class="metric-label">IC_BTC structural</div>
             <div class="metric-value-row">
-              <div class="metric-value">74</div>
+              <div class="metric-value" id="icStructValue">–</div>
               <div class="metric-unit">/ 100</div>
             </div>
-            <div class="metric-caption">Structură sănătoasă, piață în regim de creștere.</div>
+            <div class="metric-caption" id="icStructCaption">
+              Structură de trend – se încarcă…
+            </div>
           </div>
+
           <div class="metric">
             <div class="metric-label">ICD_BTC direcțional</div>
             <div class="metric-value-row">
-              <div class="metric-value">68</div>
+              <div class="metric-value" id="icDirValue">–</div>
               <div class="metric-unit">/ 100</div>
             </div>
-            <div class="metric-caption">Mișcările zilnice susțin trendul actual.</div>
+            <div class="metric-caption" id="icDirCaption">
+              Direcționalitate bull / bear – se încarcă…
+            </div>
           </div>
         </div>
 
         <div class="hero-metrics">
           <div class="metric">
-            <div class="metric-label">ICF_BTC flux</div>
+            <div class="metric-label">Volatilitate 30D (index)</div>
             <div class="metric-value-row">
-              <div class="metric-value">59</div>
+              <div class="metric-value" id="vol30IndexValue">–</div>
               <div class="metric-unit">/ 100</div>
             </div>
-            <div class="metric-caption">Flux moderat: nici panică, nici euforie excesivă.</div>
+            <div class="metric-caption" id="vol30Caption">
+              Volatilitate relativă – se încarcă…
+            </div>
           </div>
+
           <div class="metric">
-            <div class="metric-label">ICC_BTC ciclu</div>
+            <div class="metric-label">Preț BTC (close)</div>
             <div class="metric-value-row">
-              <div class="metric-value">81</div>
-              <div class="metric-unit">/ 100</div>
+              <div class="metric-value" id="priceValue">–</div>
+              <div class="metric-unit">USD</div>
             </div>
-            <div class="metric-caption">Fază avansată de ciclu – nu suntem la început.</div>
+            <div class="metric-caption">
+              Ultimul close folosit în modelul coeziv.
+            </div>
           </div>
         </div>
 
-        <div class="regime-chip">
+        <div class="regime-chip" id="regimeChip">
           <span class="regime-dot"></span>
-          Regim curent: Bull structural cu risc de „partea superioară de ciclu”
+          <span id="regimeChipLabel">Regim coeziv – se încarcă…</span>
         </div>
 
         <div class="hero-card-footer">
-          Valorile de mai sus sunt doar de prezentare. Pentru date reale,
-          deschide panoul complet:
+          Datele sunt citite din <code>data/btc_state_latest.json</code> (actualizat
+          automat daily). Pentru detalii complete:
           <a href="ic_btc.html">IC_BTC – pagina principală</a>.
         </div>
       </aside>
@@ -939,6 +950,94 @@
       </div>
     </div>
   </footer>
+<script>
+    function niceNumber(x, decimals = 1) {
+      const n = Number(x);
+      if (!Number.isFinite(n)) return "–";
+      return n.toFixed(decimals);
+    }
 
+    function formatUsd(x) {
+      const n = Number(x);
+      if (!Number.isFinite(n)) return "–";
+      return n.toLocaleString("en-US", {
+        maximumFractionDigits: 0
+      });
+    }
+
+    function describeStruct(v) {
+      if (!Number.isFinite(v)) return "Structură indisponibilă.";
+      if (v >= 70) return "Structură puternică, trend bine definit.";
+      if (v >= 50) return "Structură sănătoasă, dar cu episoade mai volatile.";
+      if (v >= 30) return "Structură în răcire – tranziție posibilă de ciclu.";
+      return "Structură foarte slabă – zonă tipică pentru baze profunde de ciclu.";
+    }
+
+    function describeDir(v) {
+      if (!Number.isFinite(v)) return "Direcționalitate indisponibilă.";
+      if (v >= 60) return "Presiune bull dominantă – mișcări orientate în sus.";
+      if (v >= 40) return "Direcționalitate mixtă, fără un trend clar.";
+      return "Presiune bear dominantă – mișcări descendente predominante.";
+    }
+
+    function describeVol(volIndex) {
+      if (!Number.isFinite(volIndex)) return "Volatilitate indisponibilă.";
+      if (volIndex >= 70) return "Volatilitate ridicată – mișcări ample, bruște.";
+      if (volIndex >= 40) return "Volatilitate moderată – context normal de trend.";
+      return "Volatilitate foarte scăzută – apatie sau consolidare prelungită.";
+    }
+
+    async function initLandingSnapshot() {
+      try {
+        const resp = await fetch("data/btc_state_latest.json");
+        if (!resp.ok) throw new Error("Nu pot încărca btc_state_latest.json");
+        const data = await resp.json();
+
+        const icStruct = Number(data.ic_struct);
+        const icDir = Number(data.ic_dir);
+        const vol30Index = Number(data.vol30_index ?? data.vol30_ann_pct);
+        const close = Number(data.close);
+        const regimeLabel = data.regime_label || "regim neclar";
+        const regimeShort = data.regime_short || "";
+
+        // valori numerice
+        document.getElementById("icStructValue").textContent = niceNumber(icStruct);
+        document.getElementById("icDirValue").textContent = niceNumber(icDir);
+        document.getElementById("vol30IndexValue").textContent = niceNumber(vol30Index);
+        document.getElementById("priceValue").textContent = formatUsd(close);
+
+        // descrieri
+        document.getElementById("icStructCaption").textContent = describeStruct(icStruct);
+        document.getElementById("icDirCaption").textContent = describeDir(icDir);
+        document.getElementById("vol30Caption").textContent = describeVol(vol30Index);
+
+        // regim
+        const chipLabel = document.getElementById("regimeChipLabel");
+        chipLabel.textContent = regimeShort || ("Regim coeziv curent: " + regimeLabel);
+
+        const chip = document.getElementById("regimeChip");
+        chip.classList.remove("bull", "bear", "neutral");
+        const regimeCode = (data.regime_code || "").toString();
+        if (regimeCode.startsWith("bull")) {
+          chip.style.borderColor = "rgba(34,197,94,0.7)";
+          chip.style.backgroundColor = "rgba(22,163,74,0.16)";
+        } else if (regimeCode.startsWith("bear")) {
+          chip.style.borderColor = "rgba(248,113,113,0.7)";
+          chip.style.backgroundColor = "rgba(248,113,113,0.12)";
+        } else {
+          chip.style.borderColor = "rgba(148,163,184,0.6)";
+          chip.style.backgroundColor = "rgba(15,23,42,0.95)";
+        }
+      } catch (err) {
+        console.error("[IC_BTC landing]", err);
+        document.getElementById("icStructCaption").textContent =
+          "Nu am putut încărca snapshot-ul coeziv. Verifică fișierul data/btc_state_latest.json.";
+      }
+    }
+
+    initLandingSnapshot();
+  </script>
+</body>
+</html>
 </body>
 </html>
