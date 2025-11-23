@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Indicele Coeziv Bitcoin – Panou clar pentru piața BTC</title>
+  <meta name="description" content="Indicele Coeziv Bitcoin (IC_BTC) îți arată simplu și vizual starea reală a pieței: structură, direcție, flux, cicluri, mega-ciclu și context global.">
+
+  <style>
+    :root {
+      --bg: #020617;
+      --bg-soft: #02091c;
+      --card: #0b1120;
+      --accent: #38bdf8;
+      --accent-strong: #0ea5e9;
+      --accent-soft: rgba(56, 189, 248, 0.12);
+      --text: #e5e7eb;
+      --muted: #94a3b8;
+      --border: rgba(148, 163, 184, 0.35);
+      --radius-card: 1.4rem;
+      --radius-pill: 999px;
+      --shadow: 0 22px 55px rgba(15, 23, 42, 0.9);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #020617 0, #000 60%, #020617 100%);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    /* NAVBAR */
+
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      background: linear-gradient(to bottom, rgba(15,23,42,0.92), rgba(15,23,42,0.82), transparent);
+      border-bottom: 1px solid rgba(15,23,42,0.9);
+    }
+
+    .nav-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 0.65rem 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .nav-brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.55rem;
+    }
+
+    .logo-mark {
+      width: 1.9rem;
+      height: 1.9rem;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 20%, #38bdf8, #0f172a);
+      box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+
+    .logo-text-main {
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+    }
+
+    .logo-text-sub {
+      font-size: 0.7rem;
+      color: var(--muted);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 0.9rem;
+      font-size: 0.85rem;
+    }
+
+    .nav-link {
+      padding: 0.35rem 0.2rem;
+      color: var(--muted);
+    }
+
+    .nav-link:hover {
+      color: var(--text);
+    }
+
+    .nav-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.45rem 0.95rem;
+      border-radius: var(--radius-pill);
+      border: 1px solid rgba(56, 189, 248, 0.6);
+      background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.25), rgba(15, 23, 42, 0.95));
+      font-size: 0.8rem;
+    }
+
+    .nav-cta span.icon {
+      font-size: 0.95rem;
+    }
+
+    @media (max-width: 768px) {
+      .nav-inner {
+        padding: 0.6rem 0.9rem;
+      }
+      .nav-links {
+        display: none;
+      }
+    }
+
+    /* HERO */
+
+    .page {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 1.6rem 1.2rem 3rem;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+      gap: 1.8rem;
+      align-items: center;
+      margin-top: 1.6rem;
+    }
+
+    @media (max-width: 880px) {
+      .hero {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .hero-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.25rem 0.75rem;
+      border-radius: var(--radius-pill);
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      font-size: 0.76rem;
+      color: var(--muted);
+      background: rgba(15,23,42,0.95);
+    }
+
+    .hero-tag-dot {
+      width: 0.5rem;
+      height: 0.5rem;
+      border-radius: 999px;
+      background: var(--accent);
+      box-shadow: 0 0 8px rgba(56, 189, 248, 0.85);
+    }
+
+    .hero-title {
+      margin-top: 1rem;
+      font-size: clamp(2rem, 2.6vw + 1.2rem, 2.6rem);
+      letter-spacing: 0.02em;
+    }
+
+    .hero-title span.highlight {
+      color: var(--accent-strong);
+    }
+
+    .hero-sub {
+      margin-top: 0.6rem;
+      font-size: 0.98rem;
+      color: var(--muted);
+      max-width: 540px;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-top: 1.4rem;
+    }
+
+    .btn-primary {
+      padding: 0.8rem 1.4rem;
+      border-radius: 0.9rem;
+      background: linear-gradient(135deg, #0ea5e9, #2563eb);
+      border: none;
+      color: #f9fafb;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      box-shadow: 0 18px 40px rgba(37, 99, 235, 0.6);
+    }
+
+    .btn-primary:hover {
+      filter: brightness(1.05);
+    }
+
+    .btn-ghost {
+      padding: 0.78rem 1.2rem;
+      border-radius: 0.9rem;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      background: rgba(15,23,42,0.9);
+      color: var(--muted);
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+
+    .btn-ghost:hover {
+      color: var(--text);
+      border-color: rgba(148, 163, 184, 0.9);
+    }
+
+    .hero-mini {
+      margin-top: 1.1rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.7rem;
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    .mini-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.25rem 0.7rem;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      background: rgba(15,23,42,0.9);
+    }
+
+    .mini-dot {
+      width: 0.42rem;
+      height: 0.42rem;
+      border-radius: 999px;
+    }
+
+    .mini-dot.struct { background: #22c55e; }
+    .mini-dot.dir { background: #f97316; }
+    .mini-dot.cycle { background: #a855f7; }
+
+    /* HERO CARD */
+
+    .hero-card {
+      background: radial-gradient(circle at top, rgba(56,189,248,0.12), #020617);
+      border-radius: var(--radius-card);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      padding: 1.1rem 1.3rem;
+    }
+
+    .hero-card-title {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--muted);
+      margin-bottom: 0.45rem;
+    }
+
+    .hero-metrics {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 0.7rem;
+      margin-bottom: 0.4rem;
+    }
+
+    @media (max-width: 480px) {
+      .hero-metrics {
+        grid-template-columns: minmax(0,1fr);
+      }
+    }
+
+    .metric {
+      padding: 0.55rem 0.6rem;
+      border-radius: 0.9rem;
+      background: rgba(15,23,42,0.96);
+      border: 1px solid rgba(30,64,175,0.6);
+    }
+
+    .metric-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: #9ca3af;
+      margin-bottom: 0.15rem;
+    }
+
+    .metric-value-row {
+      display: flex;
+      align-items: baseline;
+      gap: 0.35rem;
+    }
+
+    .metric-value {
+      font-size: 1.4rem;
+      font-weight: 600;
+    }
+
+    .metric-unit {
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    .metric-caption {
+      margin-top: 0.2rem;
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    .regime-chip {
+      margin-top: 0.5rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.3rem 0.7rem;
+      border-radius: 999px;
+      border: 1px solid rgba(34,197,94,0.6);
+      background: rgba(22,163,74,0.12);
+      font-size: 0.78rem;
+      color: #bbf7d0;
+    }
+
+    .regime-dot {
+      width: 0.48rem;
+      height: 0.48rem;
+      border-radius: 999px;
+      background: #22c55e;
+    }
+
+    .hero-card-footer {
+      margin-top: 0.7rem;
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    .hero-card-footer a {
+      color: #38bdf8;
+      text-decoration: underline;
+      text-decoration-style: dotted;
+    }
+
+    /* SECTIONS */
+
+    .section {
+      margin-top: 3rem;
+    }
+
+    .section-header {
+      margin-bottom: 1.2rem;
+      text-align: left;
+    }
+
+    .section-title {
+      font-size: 1.4rem;
+      margin-bottom: 0.3rem;
+    }
+
+    .section-sub {
+      font-size: 0.9rem;
+      color: var(--muted);
+      max-width: 620px;
+    }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1rem;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: var(--radius-card);
+      border: 1px solid var(--border);
+      padding: 1rem 1.1rem 1.2rem;
+      box-shadow: var(--shadow);
+    }
+
+    .card h3 {
+      margin: 0 0 0.35rem;
+      font-size: 1rem;
+    }
+
+    .card p {
+      margin: 0;
+      font-size: 0.86rem;
+      color: var(--muted);
+    }
+
+    .card-link {
+      display: inline-flex;
+      margin-top: 0.7rem;
+      font-size: 0.82rem;
+      color: var(--accent);
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .card-link span.icon {
+      font-size: 0.9rem;
+      transform: translateY(1px);
+    }
+
+    /* CTA BAND */
+
+    .cta-band {
+      margin-top: 3.2rem;
+      padding: 2.3rem 1.5rem;
+      border-radius: 1.6rem;
+      background: linear-gradient(135deg, #1e3a8a, #0f766e);
+      box-shadow: var(--shadow);
+      text-align: center;
+    }
+
+    .cta-band h2 {
+      margin: 0 0 0.6rem;
+      font-size: 1.6rem;
+    }
+
+    .cta-band p {
+      margin: 0 0 1.5rem;
+      font-size: 0.95rem;
+      color: #e5e7eb;
+      opacity: 0.95;
+    }
+
+    .cta-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.8rem;
+    }
+
+    .cta-primary {
+      padding: 0.85rem 1.5rem;
+      border-radius: 0.9rem;
+      background: #fefce8;
+      color: #1e293b;
+      font-weight: 600;
+      font-size: 0.96rem;
+    }
+
+    .cta-secondary {
+      padding: 0.8rem 1.3rem;
+      border-radius: 0.9rem;
+      border: 1px solid rgba(248, 250, 252, 0.65);
+      color: #e5e7eb;
+      font-size: 0.9rem;
+      background: rgba(15,23,42,0.35);
+    }
+
+    /* FAQ / ABOUT */
+
+    .faq-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+      gap: 1.6rem;
+      margin-top: 1.2rem;
+    }
+
+    @media (max-width: 900px) {
+      .faq-grid {
+        grid-template-columns: minmax(0,1fr);
+      }
+    }
+
+    .faq-item {
+      border-bottom: 1px solid rgba(30,41,59,0.85);
+      padding: 0.7rem 0 0.9rem;
+    }
+
+    .faq-q {
+      font-size: 0.95rem;
+      font-weight: 500;
+      margin-bottom: 0.2rem;
+    }
+
+    .faq-a {
+      font-size: 0.86rem;
+      color: var(--muted);
+    }
+
+    .about-box {
+      background: #02091c;
+      border-radius: 1.2rem;
+      border: 1px solid rgba(148,163,184,0.4);
+      padding: 1rem 1.1rem 1.2rem;
+      font-size: 0.86rem;
+      color: var(--muted);
+    }
+
+    .about-tag {
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: #cbd5f5;
+      margin-bottom: 0.4rem;
+    }
+
+    /* FOOTER */
+
+    footer {
+      margin-top: 3rem;
+      padding: 2rem 1.2rem 2.5rem;
+      border-top: 1px solid rgba(15, 23, 42, 0.9);
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .footer-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.9rem;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .footer-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.7rem;
+    }
+
+    .footer-links a {
+      color: var(--muted);
+      font-size: 0.78rem;
+    }
+
+    .footer-links a:hover {
+      color: var(--text);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="#top" class="nav-brand">
+        <div class="logo-mark">IC</div>
+        <div>
+          <div class="logo-text-main">Indice Coeziv Bitcoin</div>
+          <div class="logo-text-sub">panou clar pentru piața BTC</div>
+        </div>
+      </a>
+      <div class="nav-links">
+        <a class="nav-link" href="ic_btc">Indici</a>
+        <a class="nav-link" href="ic_btc_regimes">Regimuri</a>
+        <a class="nav-link" href="ic_btc_mega">Mega-ciclu</a>
+        <a class="nav-link" href="ic_global">Global</a>
+        <a class="nav-cta" href="ic_btc.html">
+          <span class="icon">⬈</span>
+          Deschide IC_BTC
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <main id="top" class="page">
+
+    <!-- HERO -->
+    <section class="hero">
+      <div>
+        <div class="hero-tag">
+          <span class="hero-tag-dot"></span>
+          Panou coeziv pentru utilizatori amatori
+        </div>
+        <h1 class="hero-title">
+          Vezi <span class="highlight">starea reală</span> a pieței Bitcoin,
+          fără să fii trader profesionist.
+        </h1>
+        <p class="hero-sub">
+          Indicele Coeziv Bitcoin (IC_BTC) îți arată, într-un mod simplu și vizual,
+          cât de sănătoasă este piața, în ce direcție se mișcă și în ce fază a
+          ciclului mare ne aflăm.
+        </p>
+        <div class="hero-actions">
+          <a href="ic_btc.html" class="btn-primary">Deschide IC_BTC acum</a>
+          <a href="#indici" class="btn-ghost">Află cum funcționează</a>
+        </div>
+        <div class="hero-mini">
+          <div class="mini-pill">
+            <span class="mini-dot struct"></span>
+            Structură & sănătate piață
+          </div>
+          <div class="mini-pill">
+            <span class="mini-dot dir"></span>
+            Direcție & regim bull / bear
+          </div>
+          <div class="mini-pill">
+            <span class="mini-dot cycle"></span>
+            Cicluri & mega-ciclu BTC
+          </div>
+        </div>
+      </div>
+
+      <aside class="hero-card" aria-label="Exemplu de panou IC_BTC">
+        <div class="hero-card-title">BTC coeziv – snapshot live</div>
+
+        <div class="hero-metrics">
+          <div class="metric">
+            <div class="metric-label">IC_BTC structural</div>
+            <div class="metric-value-row">
+              <div class="metric-value" id="icStructValue">–</div>
+              <div class="metric-unit">/ 100</div>
+            </div>
+            <div class="metric-caption" id="icStructCaption">
+              Structură de trend – se încarcă…
+            </div>
+          </div>
+
+          <div class="metric">
+            <div class="metric-label">ICD_BTC direcțional</div>
+            <div class="metric-value-row">
+              <div class="metric-value" id="icDirValue">–</div>
+              <div class="metric-unit">/ 100</div>
+            </div>
+            <div class="metric-caption" id="icDirCaption">
+              Direcționalitate bull / bear – se încarcă…
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-metrics">
+          <div class="metric">
+            <div class="metric-label">Volatilitate 30D (index)</div>
+            <div class="metric-value-row">
+              <div class="metric-value" id="vol30IndexValue">–</div>
+              <div class="metric-unit">/ 100</div>
+            </div>
+            <div class="metric-caption" id="vol30Caption">
+              Volatilitate relativă – se încarcă…
+            </div>
+          </div>
+
+          <div class="metric">
+            <div class="metric-label">Preț BTC (close)</div>
+            <div class="metric-value-row">
+              <div class="metric-value" id="priceValue">–</div>
+              <div class="metric-unit">USD</div>
+            </div>
+            <div class="metric-caption">
+              Ultimul close folosit în modelul coeziv.
+            </div>
+          </div>
+        </div>
+
+        <div class="regime-chip" id="regimeChip">
+          <span class="regime-dot"></span>
+          <span id="regimeChipLabel">Regim coeziv – se încarcă…</span>
+        </div>
+
+        <div class="hero-card-footer">
+          Datele sunt citite din <code>data/btc_state_latest.json</code> (actualizat
+          automat daily). Pentru detalii complete:
+          <a href="ic_btc.html">IC_BTC – pagina principală</a>.
+        </div>
+      </aside>
+    </section>
+
+    <!-- INDICI -->
+    <section id="indici" class="section">
+      <div class="section-header">
+        <h2 class="section-title">Indicii principali IC_BTC</h2>
+        <p class="section-sub">
+          Patru indicatori, scalați 0–100, care îți arată starea pieței din patru unghiuri:
+          structură, direcție, flux și ciclu. Prezentare simplă, fără formule.
+        </p>
+      </div>
+
+      <div class="card-grid">
+        <article class="card">
+          <h3>IC_BTC structural</h3>
+          <p>
+            Măsoară cât de solidă este piața la nivel de structură: trend general, stabilitate
+            și echilibru între mișcări. Te ajută să vezi dacă piața „ține” sau este fragilă.
+          </p>
+          <a class="card-link" href="ic_btc.html">
+            Deschide IC_BTC structural
+            <span class="icon">⬈</span>
+          </a>
+        </article>
+
+        <article class="card">
+          <h3>ICD_BTC direcțional</h3>
+          <p>
+            Arată dacă mișcările de preț recente merg, în mare, în aceeași direcție sau
+            dacă piața este haotică. Util pentru a înțelege „vântul” direcțional.
+          </p>
+          <a class="card-link" href="ic_btc.html#directional">
+            Vezi direcționalitatea
+            <span class="icon">⬈</span>
+          </a>
+        </article>
+
+        <article class="card">
+          <h3>ICF_BTC flux</h3>
+          <p>
+            Indică puterea fluxului: cât de intens este contextul – volatilitate,
+            mișcare, implicare. Nu te ajută să „ghicești”, ci să vezi cât de agitată este piața.
+          </p>
+          <a class="card-link" href="ic_btc.html#flux">
+            Deschide indicatorul de flux
+            <span class="icon">⬈</span>
+          </a>
+        </article>
+
+        <article class="card">
+          <h3>ICC_BTC ciclu</h3>
+          <p>
+            Te ajută să poziționezi piața într-un ciclu: început, creștere, partea de sus,
+            scădere sau resetare. Ideal pentru a nu confunda o mică corecție cu „sfârșitul lumii”.
+          </p>
+          <a class="card-link" href="ic_btc.html#cycle">
+            Vezi indicatorul de ciclu
+            <span class="icon">⬈</span>
+          </a>
+        </article>
+      </div>
+    </section>
+
+    <!-- REGIMURI & HARTA -->
+    <section id="regimuri" class="section">
+      <div class="section-header">
+        <h2 class="section-title">Regimuri bull & bear și harta pieței crypto</h2>
+        <p class="section-sub">
+          Dincolo de preț, sistemul detectează regimuri bull / bear și construiește
+          o hartă a evoluției pieței crypto: de la Bitcoin dominant la faze policentrice.
+        </p>
+      </div>
+
+      <div class="card-grid">
+        <article class="card">
+          <h3>Regim Coeziv BTC (azi)</h3>
+          <p>
+            Pagina care arată regimul curent al Bitcoin: bull, bear, mixt sau neutru,
+            pe baza indicilor IC_BTC și ICD_BTC. Explicații clare, în limbaj simplu.
+          </p>
+          <a class="card-link" href="ic_btc_regime.html">
+            Vezi regimul BTC acum
+            <span class="icon">⬈</span>
+          </a>
+        </article>
+
+        <article class="card">
+          <h3>Regimuri bull & bear în istorie</h3>
+          <p>
+            Vizualizare a tuturor regimurilor bull și bear detectate automat pe
+            istoria Bitcoin (date zilnice). Două moduri: conservator și practic.
+          </p>
+          <a class="card-link" href="ic_btc_regimes.html">
+            Explorează regimurile bull/bear
+            <span class="icon">⬈</span>
+          </a>
+        </article>
+
+        <article class="card">
+          <h3>Harta coezivă a pieței crypto</h3>
+          <p>
+            O privire de ansamblu asupra transformărilor mari din piața crypto:
+            perioade dominate de BTC, perioade BTC + ETH, valuri DeFi și faze mixte.
+          </p>
+          <a class="card-link" href="ic_btc_map.html">
+            Deschide harta pieței crypto
+            <span class="icon">⬈</span>
+          </a>
+        </article>
+      </div>
+    </section>
+
+    <!-- MEGA-CICLU & PROBABILITATE -->
+    <section id="mega" class="section">
+      <div class="section-header">
+        <h2 class="section-title">Mega-ciclul Bitcoin & probabilitatea direcției</h2>
+        <p class="section-sub">
+          Un nivel mai sus: cum arată ciclul mare al Bitcoin (pe ani) și care este
+          probabilitatea curentă ca piața să urce sau să scadă, conform modelului.
+        </p>
+      </div>
+
+      <div class="card-grid">
+        <article class="card">
+          <h3>Mega-ciclul coeziv BTC</h3>
+          <p>
+            O analiză macro (2014–prezent) care arată unde ne aflăm într-un
+            mega-ciclu: cât de departe suntem de „bază” și cât de aproape de
+            partea superioară a ciclului.
+          </p>
+          <a class="card-link" href="ic_btc_mega.html">
+            Vezi mega-ciclul Bitcoin
+            <span class="icon">⬈</span>
+          </a>
+        </article>
+
+        <article class="card">
+          <h3>Probabilitate direcțională BTC</h3>
+          <p>
+            Un panou simplu cu șanse (% estimative) de mișcare în sus sau în jos,
+            bazate pe structura și direcționalitatea actuală. Nu e oracol – e context.
+          </p>
+          <a class="card-link" href="ic_btc_prob.html">
+            Deschide probabilitatea direcției
+            <span class="icon">⬈</span>
+          </a>
+        </article>
+      </div>
+    </section>
+
+    <!-- GLOBAL -->
+    <section id="global" class="section">
+      <div class="section-header">
+        <h2 class="section-title">Indice Coeziv Global</h2>
+        <p class="section-sub">
+          Bitcoin nu trăiește într-un vid. Indicele coeziv global arată cum arată
+          „starea de spirit” a pieței financiare mondiale, din același unghi: structură și direcție.
+        </p>
+      </div>
+
+      <div class="card-grid">
+        <article class="card">
+          <h3>Stare macro globală</h3>
+          <p>
+            Un tablou simplu, cu indici structurali și direcționali pentru piețele
+            globale. Te ajută să vezi dacă mediul este mai degrabă favorabil sau tensionat.
+          </p>
+          <a class="card-link" href="ic_global.html">
+            Vezi indicele coeziv global
+            <span class="icon">⬈</span>
+          </a>
+        </article>
+      </div>
+    </section>
+
+    <!-- CTA BAND -->
+    <section class="cta-band">
+      <h2>Începe să privești Bitcoin printr-un „ochi coeziv”</h2>
+      <p>
+        Nu trebuie să fii trader profesionist ca să înțelegi piața. Deschide panoul,
+        urmărește indicii 0–100 și vezi în ce regim și fază se află Bitcoin astăzi.
+      </p>
+      <div class="cta-actions">
+        <a class="cta-primary" href="ic_btc.html">
+          Deschide IC_BTC – panoul principal
+        </a>
+        <a class="cta-secondary" href="ic_btc_regime.html">
+          Vezi regimul BTC dintr-o privire
+        </a>
+      </div>
+    </section>
+
+    <!-- FAQ & ABOUT -->
+    <section class="section">
+      <div class="section-header">
+        <h2 class="section-title">Întrebări frecvente</h2>
+        <p class="section-sub">
+          Câteva clarificări pentru utilizatorii amatori care descoperă pentru prima dată
+          Indicele Coeziv Bitcoin.
+        </p>
+      </div>
+
+      <div class="faq-grid">
+        <div>
+          <div class="faq-item">
+            <div class="faq-q">Trebuie să știu analiză tehnică ca să folosesc IC_BTC?</div>
+            <div class="faq-a">
+              Nu. Tocmai asta este ideea: indicii sunt scalați 0–100, cu explicații simple.
+              Nu e nevoie să cunoști pattern-uri complicate sau indicatori clasici.
+            </div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-q">Indicele îmi spune ce să cumpăr sau să vând?</div>
+            <div class="faq-a">
+              Nu. Sistemul arată starea și faza pieței, nu este o recomandare financiară.
+              Deciziile îți aparțin – modelul doar îți oferă o hartă mai clară.
+            </div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-q">De ce sunt importante ciclurile și mega-ciclul?</div>
+            <div class="faq-a">
+              Pentru că te ajută să nu confunzi o corecție normală cu un „sfârșit de lume”
+              și să vezi dacă ești la începutul unui drum sau deja într-o zonă avansată de ciclu.
+            </div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-q">Ce înseamnă „coeziune” în acest context?</div>
+            <div class="faq-a">
+              Înseamnă cât de „strâns legată” este piața: cât de coerent se mișcă structura,
+              direcția și fluxul. Un mod de a vorbi despre ordine vs haos în mișcările pieței.
+            </div>
+          </div>
+        </div>
+
+        <aside class="about-box">
+          <div class="about-tag">Despre model</div>
+          <p>
+            Indicele Coeziv Bitcoin este inspirat de un cadru conceptual numit
+            „Modelul Coeziv”, care privește sistemele complexe printr-o secvență:
+            <strong>Structură → Flux → Reorganizare → Noua structură</strong>.
+          </p>
+          <p>
+            Pentru utilizatorul amator, asta se traduce simplu:
+            <strong>cum este piața construită acum</strong>,
+            <strong>cum se mișcă</strong> și
+            <strong>în ce fază intră mai departe</strong>.
+          </p>
+          <p>
+            Pagina aceasta este un punct de intrare simplu: de aici poți naviga către
+            toate sub-paginile: panoul principal IC_BTC, regimuri bull/bear, mega-ciclu,
+            probabilitate direcțională și indicele global.
+          </p>
+        </aside>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <div>© 2025 – Indicele Coeziv Bitcoin. Nu reprezintă recomandare financiară.</div>
+      <div class="footer-links">
+        <a href="#top">Înapoi sus</a>
+        <a href="ic_btc.html">IC_BTC</a>
+        <a href="ic_btc_regime.html">Regim BTC</a>
+        <a href="ic_btc_regimes.html">Regimuri bull/bear</a>
+        <a href="ic_btc_map.html">Hartă crypto</a>
+        <a href="ic_btc_mega.html">Mega-ciclu</a>
+        <a href="ic_btc_prob.html">Probabilitate BTC</a>
+        <a href="ic_global.html">Indice global</a>
+      </div>
+    </div>
+  </footer>
+<script>
+    function niceNumber(x, decimals = 1) {
+      const n = Number(x);
+      if (!Number.isFinite(n)) return "–";
+      return n.toFixed(decimals);
+    }
+
+    function formatUsd(x) {
+      const n = Number(x);
+      if (!Number.isFinite(n)) return "–";
+      return n.toLocaleString("en-US", {
+        maximumFractionDigits: 0
+      });
+    }
+
+    function describeStruct(v) {
+      if (!Number.isFinite(v)) return "Structură indisponibilă.";
+      if (v >= 70) return "Structură puternică, trend bine definit.";
+      if (v >= 50) return "Structură sănătoasă, dar cu episoade mai volatile.";
+      if (v >= 30) return "Structură în răcire – tranziție posibilă de ciclu.";
+      return "Structură foarte slabă – zonă tipică pentru baze profunde de ciclu.";
+    }
+
+    function describeDir(v) {
+      if (!Number.isFinite(v)) return "Direcționalitate indisponibilă.";
+      if (v >= 60) return "Presiune bull dominantă – mișcări orientate în sus.";
+      if (v >= 40) return "Direcționalitate mixtă, fără un trend clar.";
+      return "Presiune bear dominantă – mișcări descendente predominante.";
+    }
+
+    function describeVol(volIndex) {
+      if (!Number.isFinite(volIndex)) return "Volatilitate indisponibilă.";
+      if (volIndex >= 70) return "Volatilitate ridicată – mișcări ample, bruște.";
+      if (volIndex >= 40) return "Volatilitate moderată – context normal de trend.";
+      return "Volatilitate foarte scăzută – apatie sau consolidare prelungită.";
+    }
+
+    async function initLandingSnapshot() {
+      try {
+        const resp = await fetch("data/btc_state_latest.json");
+        if (!resp.ok) throw new Error("Nu pot încărca btc_state_latest.json");
+        const data = await resp.json();
+
+        const icStruct = Number(data.ic_struct);
+        const icDir = Number(data.ic_dir);
+        const vol30Index = Number(data.vol30_index ?? data.vol30_ann_pct);
+        const close = Number(data.close);
+        const regimeLabel = data.regime_label || "regim neclar";
+        const regimeShort = data.regime_short || "";
+
+        // valori numerice
+        document.getElementById("icStructValue").textContent = niceNumber(icStruct);
+        document.getElementById("icDirValue").textContent = niceNumber(icDir);
+        document.getElementById("vol30IndexValue").textContent = niceNumber(vol30Index);
+        document.getElementById("priceValue").textContent = formatUsd(close);
+
+        // descrieri
+        document.getElementById("icStructCaption").textContent = describeStruct(icStruct);
+        document.getElementById("icDirCaption").textContent = describeDir(icDir);
+        document.getElementById("vol30Caption").textContent = describeVol(vol30Index);
+
+        // regim
+        const chipLabel = document.getElementById("regimeChipLabel");
+        chipLabel.textContent = regimeShort || ("Regim coeziv curent: " + regimeLabel);
+
+        const chip = document.getElementById("regimeChip");
+        chip.classList.remove("bull", "bear", "neutral");
+        const regimeCode = (data.regime_code || "").toString();
+        if (regimeCode.startsWith("bull")) {
+          chip.style.borderColor = "rgba(34,197,94,0.7)";
+          chip.style.backgroundColor = "rgba(22,163,74,0.16)";
+        } else if (regimeCode.startsWith("bear")) {
+          chip.style.borderColor = "rgba(248,113,113,0.7)";
+          chip.style.backgroundColor = "rgba(248,113,113,0.12)";
+        } else {
+          chip.style.borderColor = "rgba(148,163,184,0.6)";
+          chip.style.backgroundColor = "rgba(15,23,42,0.95)";
+        }
+      } catch (err) {
+        console.error("[IC_BTC landing]", err);
+        document.getElementById("icStructCaption").textContent =
+          "Nu am putut încărca snapshot-ul coeziv. Verifică fișierul data/btc_state_latest.json.";
+      }
+    }
+
+    initLandingSnapshot();
+  </script>
+</body>
+</html>
+</body>
+</html>
