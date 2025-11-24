@@ -17,48 +17,63 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
+      # 0️⃣ Checkout repo cu tot istoricul (necesar pentru pull --rebase)
+      - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
+      # 1️⃣ Set up Python
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
+      # 2️⃣ Instalează dependențele (ajustează dacă nu folosești requirements.txt)
       - name: Install dependencies
         run: |
-          pip install pandas numpy yfinance
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          else
+            pip install pandas
+          fi
 
-      # 1️⃣ Actualizează datele globale
-      - name: Run Coeziv Global Script
+      # 3️⃣ Update global state (dacă ai un script global)
+      #   Ajustează numele scriptului sau elimină acest pas dacă nu îl folosești.
+      - name: Update Global State from daily
         run: |
-          python scripts/update_global_coeziv_state.py
+          if [ -f scripts/update_global_state_from_daily.py ]; then
+            python scripts/update_global_state_from_daily.py
+          else
+            echo "scripts/update_global_state_from_daily.py nu există – sar peste pas."
+          fi
 
-      # 2️⃣ Construiește global_coeziv_state.json
-      - name: Build Global Coeziv State JSON
-        run: |
-          python scripts/build_global_coeziv_state.py
-
-      # 3️⃣ Actualizează btc_state_latest.json
-      - name: Run BTC Latest State from btc_ohlc
+      # 3️⃣ bis – Update BTC state (snapshot Coeziv oficial)
+      - name: Update BTC State Latest from daily
         run: |
           python scripts/update_btc_state_latest_from_daily.py
 
-      # 3️⃣ bis – Construiește seria IC BTC
+      # 3️⃣ ter – Construiește seria IC BTC (istoric IC/ICD/flux)
       - name: Export IC BTC Series
         run: |
           python scripts/export_ic_btc_series.py
 
-      # 4️⃣ Commit
-      - name: Commit changes
+      # 3️⃣ quater – Build Mega Cycle Coeziv (BTC)
+      # Folosește scriptul build_ic_btc_mega_state.py ca să genereze
+      # data/ic_btc_mega_latest.json pe baza ic_btc_series.json
+      - name: Build IC BTC Mega State
         run: |
-          git config user.name "coeziv-bot"
-          git config user.email "coeziv-bot@example.com"
+          python scripts/build_ic_btc_mega_state.py
 
-          git add data_global/*.csv
-          git add data/global_coeziv_state.json
-          git add data/btc_state_latest.json
-          git add data/*.json
+      # 4️⃣ Commit JSON-urile generate (doar dacă există modificări)
+      - name: Commit updated JSONs
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git status
+
+          git add data/*.json || echo "No data json files to add"
 
           git commit -m "Update coeziv global & btc state" || echo "No changes"
 
