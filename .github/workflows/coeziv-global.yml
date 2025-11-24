@@ -42,10 +42,10 @@ jobs:
       #   Ajustează numele scriptului sau elimină acest pas dacă nu îl folosești.
       - name: Update Global State from daily
         run: |
-          if [ -f scripts/update_global_state_from_daily.py ]; then
-            python scripts/update_global_state_from_daily.py
+          if [ -f scripts/update_global_coeziv_state.py ]; then
+            python scripts/update_global_coeziv_state.py
           else
-            echo "scripts/update_global_state_from_daily.py nu există – sar peste pas."
+            echo "scripts/update_global_coeziv_state.py nu există – sar peste pas."
           fi
 
       # 3️⃣ bis – Update BTC state (snapshot Coeziv oficial)
