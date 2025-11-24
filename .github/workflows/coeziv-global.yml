@@ -73,10 +73,6 @@ jobs:
 
           git commit -m "Update coeziv global & btc state" || echo "No changes"
 
-      # ✅ Sync cu remote (rezolvă non–fast-forward înainte de push)
-      - name: Sync with remote branch
-        run: |
-          git pull --rebase origin main
 
       # 5️⃣ Push
       - name: Push changes
