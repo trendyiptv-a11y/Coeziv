@@ -2,15 +2,19 @@ name: Update Coeziv Global & BTC State
 
 on:
   workflow_run:
-    workflows: ["Convert CSV to JSON"]    # EXACT numele din fișierul 2
+    workflows: ["Convert CSV to JSON"]
     types:
       - completed
-  workflow_dispatch:                      # să îl poți rula manual
+  workflow_dispatch:
+
+# ✅ Protecție anti-concurență – nu lasă mai multe run-uri simultane pe același branch
+concurrency:
+  group: update-coeziv-main
+  cancel-in-progress: false
 
 jobs:
   update-coeziv:
     runs-on: ubuntu-latest
-    # ... restul pașilor (checkout, setup python, scripturi, commit etc.) rămân la fel
 
     steps:
       - name: Checkout repo
@@ -25,58 +29,45 @@ jobs:
         run: |
           pip install pandas numpy yfinance
 
-      # ----------------------------------------------------
-      # 1️⃣ Actualizează datele globale în data_global/*.csv
-      # ----------------------------------------------------
+      # 1️⃣ Actualizează datele globale
       - name: Run Coeziv Global Script
         run: |
           python scripts/update_global_coeziv_state.py
 
-
-      # ----------------------------------------------------
       # 2️⃣ Construiește global_coeziv_state.json
-      #    din SPX, DXY, GOLD, VIX, OIL
-      # ----------------------------------------------------
       - name: Build Global Coeziv State JSON
         run: |
           python scripts/build_global_coeziv_state.py
 
-
-      # ----------------------------------------------------
       # 3️⃣ Actualizează btc_state_latest.json
-      # ----------------------------------------------------
       - name: Run BTC Latest State from btc_ohlc
         run: |
           python scripts/update_btc_state_latest_from_daily.py
-          
 
-
-      # ----------------------------------------------------
       # 3️⃣ bis – Construiește seria IC BTC
-      # ----------------------------------------------------
       - name: Export IC BTC Series
         run: |
-          python scripts/export_ic_btc_series.py   # ----------------------------------------------------
-     
-      # 4️⃣ Commit & push (global + btc)
-      # ----------------------------------------------------
+          python scripts/export_ic_btc_series.py
+
+      # 4️⃣ Commit
       - name: Commit changes
         run: |
           git config user.name "coeziv-bot"
           git config user.email "coeziv-bot@example.com"
 
-          # CSV-urile globale
           git add data_global/*.csv
-
-          # JSON-urile nou generate
           git add data/global_coeziv_state.json
           git add data/btc_state_latest.json
-
-          # orice alte fișiere JSON
           git add data/*.json
 
           git commit -m "Update coeziv global & btc state" || echo "No changes"
 
+      # ✅ Sync cu remote (rezolvă non–fast-forward înainte de push)
+      - name: Sync with remote branch
+        run: |
+          git pull --rebase origin main
+
+      # 5️⃣ Push
       - name: Push changes
         uses: ad-m/github-push-action@v0.8.0
         with:
