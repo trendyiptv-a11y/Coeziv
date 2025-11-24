@@ -2,38 +2,28 @@
 <html lang="ro">
 <head>
   <meta charset="UTF-8" />
-  <title>Mega ciclul Bitcoin – Model Coeziv</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta
-    name="description"
-    content="Mega ciclul Bitcoin explicat prin Modelul Coeziv: Faza 0–3, structură, flux, direcționalitate și rolul contextului macro."
-  />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mega-ciclul coeziv BTC – Model Coeziv</title>
 
   <style>
     :root {
       --bg: #020617;
-      --bg-soft: #02091c;
-      --bg-elevated: #050b1f;
-      --card-bg: #050b1f;
-      --card-border: rgba(148, 163, 184, 0.22);
-      --accent: #6366f1;
-      --accent-soft: rgba(99, 102, 241, 0.2);
-      --accent-strong: #a855f7;
-      --text: #e5e7eb;
-      --text-strong: #f9fafb;
-      --text-soft: #9ca3af;
-      --muted: #6b7280;
-      --radius-xl: 1.4rem;
-      --radius-lg: 1rem;
-      --radius-pill: 999px;
-      --shadow-soft: 0 22px 55px rgba(15, 23, 42, 0.8);
+      --bg-elevated: #020617;
+      --bg-soft: #0b1020;
+      --accent: #3b82f6;
+      --accent-soft: rgba(59, 130, 246, 0.16);
+      --accent-strong: #60a5fa;
       --up: #22c55e;
+      --up-soft: rgba(34, 197, 94, 0.16);
       --down: #ef4444;
-      --neutral: #64748b;
-      --phase0: #0ea5e9;
-      --phase1: #22c55e;
-      --phase2: #eab308;
-      --phase3: #f97316;
+      --down-soft: rgba(239, 68, 68, 0.16);
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --border: #1f2937;
+      --radius-xl: 1.75rem;
+      --radius-lg: 1.1rem;
+      --radius-pill: 999px;
+      --shadow-soft: 0 18px 45px rgba(0, 0, 0, 0.55);
       --font-main: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
         "Segoe UI", sans-serif;
     }
@@ -42,793 +32,787 @@
       box-sizing: border-box;
     }
 
-    html,
     body {
       margin: 0;
-      padding: 0;
-      background: radial-gradient(circle at top, #020617 0, #020617 40%, #000 100%);
-      color: var(--text);
+      min-height: 100vh;
       font-family: var(--font-main);
+      background: radial-gradient(circle at top, #020617, #020617 35%, #020617);
+      color: var(--text);
       -webkit-font-smoothing: antialiased;
     }
 
-    body {
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-    }
-
     main.page {
-      width: 100%;
-      max-width: 1120px;
-      padding: 1.6rem 1.2rem 2.8rem;
-    }
-
-    @media (min-width: 768px) {
-      main.page {
-        padding: 2rem 1.5rem 3.2rem;
-      }
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 1.75rem 1.2rem 2.75rem;
     }
 
     a {
-      color: var(--accent-strong);
+      color: inherit;
       text-decoration: none;
     }
 
-    a:hover {
-      text-decoration: underline;
-    }
+    /* Header / hero */
 
-    .back-link {
+    .top-back {
       display: inline-flex;
       align-items: center;
       gap: 0.4rem;
-      margin-bottom: 1.1rem;
-      padding: 0.4rem 0.9rem;
-      border-radius: var(--radius-pill);
+      padding: 0.35rem 0.8rem;
+      border-radius: 999px;
       border: 1px solid rgba(148, 163, 184, 0.45);
       background: rgba(15, 23, 42, 0.9);
-      color: var(--text-soft);
       font-size: 0.8rem;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      text-decoration: none;
+      color: var(--muted);
+      margin-bottom: 1.1rem;
     }
 
-    .back-link span.icon {
-      font-size: 0.9rem;
-      transform: translateY(-0.5px);
-    }
-
-    .back-link:hover {
-      border-color: rgba(129, 140, 248, 0.85);
-      background: rgba(15, 23, 42, 1);
-    }
-
-    header.hero {
-      margin-bottom: 1.8rem;
-    }
-
-    header.hero h1 {
-      margin: 0 0 0.7rem;
-      font-size: 1.7rem;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-      color: var(--text-strong);
-    }
-
-    header.hero p.lead {
-      margin: 0 0 0.75rem;
-      font-size: 0.96rem;
-      color: var(--text-soft);
-      max-width: 44rem;
-      line-height: 1.6;
-    }
-
-    .pill-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      margin-top: 0.6rem;
-    }
-
-    .pill {
+    .top-back span.icon {
       display: inline-flex;
-      align-items: center;
-      gap: 0.35rem;
-      padding: 0.35rem 0.9rem;
-      border-radius: var(--radius-pill);
-      border: 1px solid rgba(148, 163, 184, 0.4);
-      background: rgba(15, 23, 42, 0.95);
-      color: var(--text-soft);
-      font-size: 0.76rem;
-      text-transform: uppercase;
-      letter-spacing: 0.16em;
-    }
-
-    .pill .dot {
-      width: 0.5rem;
-      height: 0.5rem;
-      border-radius: 999px;
-      background: var(--accent-strong);
-    }
-
-    .pill.phase0 .dot { background: var(--phase0); }
-    .pill.phase1 .dot { background: var(--phase1); }
-    .pill.phase2 .dot { background: var(--phase2); }
-    .pill.phase3 .dot { background: var(--phase3); }
-
-    .section-title {
-      font-size: 0.85rem;
-      text-transform: uppercase;
-      letter-spacing: 0.18em;
-      color: var(--muted);
-      margin-bottom: 0.5rem;
-    }
-
-    .card {
-      position: relative;
-      border-radius: var(--radius-xl);
-      background: radial-gradient(circle at top left, #020617 0, #020617 30%, #020617 100%);
-      border: 1px solid var(--card-border);
-      box-shadow: var(--shadow-soft);
-      padding: 1.15rem 1.1rem 1.2rem;
-      overflow: hidden;
-    }
-
-    .card::before {
-      content: "";
-      position: absolute;
-      inset: -40%;
-      pointer-events: none;
-      opacity: 0.7;
-      background: radial-gradient(circle at 0% -10%, var(--accent-soft), transparent 55%);
-      mix-blend-mode: soft-light;
-    }
-
-    .card-content {
-      position: relative;
-      z-index: 1;
-    }
-
-    .card h2,
-    .card h3 {
-      margin: 0 0 0.3rem;
-      font-size: 1rem;
-      color: var(--text-strong);
-    }
-
-    .card p {
-      margin: 0.25rem 0;
-      font-size: 0.9rem;
-      color: var(--text-soft);
-      line-height: 1.6;
-    }
-
-    .card p strong {
-      color: var(--text-strong);
-      font-weight: 500;
-    }
-
-    .card small {
-      font-size: 0.78rem;
-      color: var(--muted);
-    }
-
-    .grid-2 {
-      display: grid;
-      gap: 1rem;
-      grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
-      margin-bottom: 1.35rem;
-    }
-
-    @media (max-width: 880px) {
-      .grid-2 {
-        grid-template-columns: minmax(0, 1fr);
-      }
-    }
-
-    .grid-4 {
-      display: grid;
-      gap: 0.9rem;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      margin-bottom: 1.5rem;
-    }
-
-    @media (max-width: 960px) {
-      .grid-4 {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-    }
-
-    @media (max-width: 640px) {
-      .grid-4 {
-        grid-template-columns: minmax(0, 1fr);
-      }
-    }
-
-    .phase-card {
-      border-radius: var(--radius-xl);
-      padding: 1rem 1rem 1.05rem;
-      border: 1px solid rgba(148, 163, 184, 0.35);
-      background: radial-gradient(circle at top, #020617 0, #020617 45%, #020617);
-      box-shadow: var(--shadow-soft);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .phase-card::before {
-      content: "";
-      position: absolute;
-      inset: -35%;
-      opacity: 0.8;
-      pointer-events: none;
-      mix-blend-mode: soft-light;
-    }
-
-    .phase-card.phase0::before {
-      background: radial-gradient(circle at 0% -10%, rgba(14, 165, 233, 0.4), transparent 60%);
-    }
-
-    .phase-card.phase1::before {
-      background: radial-gradient(circle at 0% -10%, rgba(34, 197, 94, 0.4), transparent 60%);
-    }
-
-    .phase-card.phase2::before {
-      background: radial-gradient(circle at 0% -10%, rgba(234, 179, 8, 0.4), transparent 60%);
-    }
-
-    .phase-card.phase3::before {
-      background: radial-gradient(circle at 0% -10%, rgba(249, 115, 22, 0.4), transparent 60%);
-    }
-
-    .phase-header {
-      position: relative;
-      z-index: 1;
-      display: flex;
-      align-items: baseline;
-      justify-content: space-between;
-      gap: 0.4rem;
-      margin-bottom: 0.35rem;
-    }
-
-    .phase-name {
-      font-size: 0.9rem;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
-    }
-
-    .phase-tag {
-      font-size: 0.7rem;
-      text-transform: uppercase;
-      letter-spacing: 0.16em;
-      border-radius: var(--radius-pill);
-      padding: 0.2rem 0.6rem;
-      border: 1px solid rgba(148, 163, 184, 0.6);
-      background: rgba(15, 23, 42, 0.96);
-      color: var(--muted);
-    }
-
-    .phase-dot {
       width: 0.55rem;
       height: 0.55rem;
       border-radius: 999px;
+      background: var(--accent);
     }
 
-    .phase0 .phase-dot { background: var(--phase0); }
-    .phase1 .phase-dot { background: var(--phase1); }
-    .phase2 .phase-dot { background: var(--phase2); }
-    .phase3 .phase-dot { background: var(--phase3); }
+    header.hero {
+      margin-bottom: 1.75rem;
+    }
 
-    .phase-period {
-      font-size: 0.78rem;
+    header.hero h1 {
+      margin: 0 0 0.6rem;
+      font-size: 1.65rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #f9fafb;
+    }
+
+    header.hero p {
+      margin: 0;
+      font-size: 0.92rem;
       color: var(--muted);
-    }
-
-    .phase-body {
-      position: relative;
-      z-index: 1;
-      font-size: 0.86rem;
-      color: var(--text-soft);
+      max-width: 48rem;
       line-height: 1.6;
     }
 
-    .phase-body ul {
-      margin: 0.4rem 0 0.2rem;
-      padding-left: 1.1rem;
-    }
-
-    .phase-body li {
-      margin: 0.18rem 0;
-    }
-
-    .timeline-card {
-      margin-top: 0.5rem;
-    }
-
-    .timeline-list {
-      margin: 0.3rem 0 0;
-      padding: 0;
-      list-style: none;
-      font-size: 0.86rem;
-      color: var(--text-soft);
-    }
-
-    .timeline-list li {
+    .hero-pills {
       display: flex;
-      align-items: flex-start;
-      gap: 0.45rem;
-      margin: 0.27rem 0;
+      flex-wrap: wrap;
+      gap: 0.55rem;
+      margin-top: 0.85rem;
     }
 
-    .timeline-bullet {
-      margin-top: 0.3rem;
+    .hero-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.32rem 0.85rem;
+      border-radius: var(--radius-pill);
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      font-size: 0.78rem;
+      color: var(--muted);
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .hero-pill-dot {
       width: 0.45rem;
       height: 0.45rem;
       border-radius: 999px;
-      background: var(--accent-soft);
-      flex-shrink: 0;
+      background: var(--accent);
     }
 
-    .timeline-label {
-      color: var(--muted);
-      font-size: 0.78rem;
+    .hero-pill-dot.struct { background: var(--accent); }
+    .hero-pill-dot.flux { background: var(--up); }
+    .hero-pill-dot.cycle { background: #a855f7; }
+
+    /* MEGA-CYCLE SECTION (carduri + rezumat) */
+
+    .mega-cycle-section {
+      margin-top: 2.3rem;
+      padding: 1.5rem 1.25rem 2rem;
+      border-radius: var(--radius-xl);
+      background: radial-gradient(circle at top, rgba(15,23,42,0.65), #020617 60%);
+      border: 1px solid rgba(148,163,184,0.25);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .mega-cycle-header h2 {
+      margin: 0 0 0.4rem;
+      font-size: 1.35rem;
+      letter-spacing: 0.06em;
       text-transform: uppercase;
-      letter-spacing: 0.12em;
-      margin-bottom: 0.08rem;
+      color: #e5e7eb;
     }
 
-    .glossary-grid {
+    .mega-cycle-header p {
+      margin: 0;
+      font-size: 0.9rem;
+      color: #9ca3af;
+      max-width: 48rem;
+      line-height: 1.5;
+    }
+
+    .mega-cycle-grid {
       display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 0.75rem;
-      margin-top: 0.6rem;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1rem;
+      margin-top: 1.5rem;
     }
 
-    @media (max-width: 900px) {
-      .glossary-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-    }
-
-    @media (max-width: 640px) {
-      .glossary-grid {
+    @media (max-width: 960px) {
+      .mega-cycle-grid {
         grid-template-columns: minmax(0, 1fr);
       }
     }
 
-    .gloss-item {
-      border-radius: var(--radius-lg);
-      padding: 0.7rem 0.8rem;
-      background: rgba(15, 23, 42, 0.96);
-      border: 1px solid rgba(148, 163, 184, 0.3);
-      font-size: 0.82rem;
-      line-height: 1.5;
+    .mega-card {
+      border-radius: 1.5rem;
+      background: radial-gradient(circle at top left, rgba(15,23,42,0.75), #020617);
+      border: 1px solid rgba(31,41,55,0.9);
+      padding: 1rem 1rem 1.1rem;
+      box-shadow: 0 18px 45px rgba(0,0,0,0.55);
     }
 
-    .gloss-tag {
+    .mega-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.4rem;
+      margin-bottom: 0.6rem;
+    }
+
+    .mega-pill {
       display: inline-flex;
       align-items: center;
-      gap: 0.3rem;
+      padding: 0.22rem 0.7rem;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.45);
       font-size: 0.78rem;
+      color: #e5e7eb;
+      background: rgba(15,23,42,0.9);
+      white-space: nowrap;
+    }
+
+    .mega-pill-main {
+      font-weight: 500;
+      letter-spacing: 0.06em;
       text-transform: uppercase;
-      letter-spacing: 0.16em;
-      color: var(--muted);
+    }
+
+    .mega-card-body {
+      margin-top: 0.25rem;
+    }
+
+    .mega-value-row {
+      display: flex;
+      align-items: baseline;
+      gap: 0.25rem;
       margin-bottom: 0.25rem;
     }
 
-    .gloss-tag .dot {
-      width: 0.5rem;
-      height: 0.5rem;
-      border-radius: 999px;
+    .mega-main-value {
+      font-size: 2rem;
+      font-weight: 650;
+      color: #f9fafb;
     }
 
-    .gloss-item p {
+    .mega-unit {
+      font-size: 0.9rem;
+      color: #9ca3af;
+      margin-left: 0.1rem;
+    }
+
+    .mega-subtitle {
+      margin: 0.15rem 0 0.35rem;
+      font-size: 0.82rem;
+      color: #9ca3af;
+    }
+
+    .mega-text {
       margin: 0;
-      color: var(--text-soft);
-    }
-
-    .beginner-card {
-      margin-top: 1.2rem;
-    }
-
-    .beginner-steps {
-      margin: 0.5rem 0 0.3rem;
-      padding-left: 1.1rem;
-      font-size: 0.87rem;
-      color: var(--text-soft);
+      font-size: 0.83rem;
+      color: #d1d5db;
       line-height: 1.6;
     }
 
-    .note {
+    .mega-summary {
+      margin-top: 1.6rem;
+      padding: 1.1rem 1.0rem 1.2rem;
+      border-radius: 1.5rem;
+      background: rgba(15,23,42,0.9);
+      border: 1px solid rgba(55,65,81,0.9);
+    }
+
+    .mega-summary h3 {
+      margin: 0 0 0.45rem;
+      font-size: 0.98rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #e5e7eb;
+    }
+
+    .mega-summary p {
+      margin: 0;
+      font-size: 0.86rem;
+      color: #d1d5db;
+      line-height: 1.6;
+    }
+
+    .mega-summary .mega-note {
+      margin-top: 0.4rem;
       font-size: 0.8rem;
-      color: var(--muted);
-      margin-top: 0.8rem;
-      line-height: 1.6;
+      color: #9ca3af;
     }
 
-    .highlight {
-      color: var(--accent-strong);
-      font-weight: 500;
+    /* MINI TIMELINE */
+
+    .mega-timeline {
+      margin-top: 2rem;
+      padding: 1.3rem 1.1rem 1.4rem;
+      border-radius: 1.5rem;
+      background: radial-gradient(circle at top, rgba(15,23,42,0.55), #020617);
+      border: 1px solid rgba(55,65,81,0.9);
     }
 
-    .meta-pill-row {
+    .mega-timeline h3 {
+      margin: 0 0 0.6rem;
+      font-size: 0.96rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #e5e7eb;
+    }
+
+    .mega-timeline p.lead {
+      margin: 0 0 0.7rem;
+      font-size: 0.84rem;
+      color: #9ca3af;
+      max-width: 44rem;
+      line-height: 1.5;
+    }
+
+    .mega-timeline-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.9rem;
+    }
+
+    @media (max-width: 900px) {
+      .mega-timeline-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .timeline-step {
+      border-radius: 1.3rem;
+      padding: 0.8rem 0.85rem 0.9rem;
+      background: rgba(15,23,42,0.9);
+      border: 1px solid rgba(55,65,81,0.9);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .timeline-step::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top left, rgba(59,130,246,0.14), transparent 60%);
+      opacity: 0.9;
+      pointer-events: none;
+    }
+
+    .timeline-inner {
+      position: relative;
+      z-index: 1;
+    }
+
+    .timeline-era {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: #9ca3af;
+      margin-bottom: 0.2rem;
+    }
+
+    .timeline-title {
+      font-size: 0.9rem;
+      margin: 0 0 0.25rem;
+      color: #e5e7eb;
+    }
+
+    .timeline-tag-row {
       display: flex;
       flex-wrap: wrap;
-      gap: 0.35rem;
-      margin-top: 0.35rem;
+      gap: 0.25rem;
+      margin-bottom: 0.35rem;
+    }
+
+    .timeline-tag {
+      font-size: 0.7rem;
+      padding: 0.18rem 0.5rem;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.45);
+      background: rgba(15,23,42,0.9);
+      color: #cbd5f5;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .timeline-text {
+      margin: 0;
+      font-size: 0.8rem;
+      color: #d1d5db;
+      line-height: 1.55;
+    }
+
+    .timeline-tag.baza { border-color: rgba(34,197,94,0.6); }
+    .timeline-tag.bull { border-color: rgba(56,189,248,0.7); }
+    .timeline-tag.bear { border-color: rgba(248,113,113,0.7); }
+    .timeline-tag.reset { border-color: rgba(251,191,36,0.7); }
+    .timeline-tag.curent { border-color: rgba(129,140,248,0.9); }
+
+    footer.page-foot {
+      margin-top: 2.4rem;
       font-size: 0.78rem;
-      color: var(--muted);
+      color: #6b7280;
+      text-align: left;
+      line-height: 1.6;
     }
 
-    .meta-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.3rem;
-      padding: 0.2rem 0.65rem;
-      border-radius: var(--radius-pill);
-      border: 1px solid rgba(148, 163, 184, 0.35);
-      background: rgba(15, 23, 42, 0.96);
-    }
-
-    .meta-pill span.value {
-      color: var(--text-strong);
-      font-weight: 500;
+    footer.page-foot a {
+      color: #93c5fd;
+      text-decoration: underline;
+      text-decoration-thickness: 1px;
     }
   </style>
 </head>
 <body>
   <main class="page">
-    <a href="index.html" class="back-link">
-      <span class="icon">←</span>
-      <span>Înapoi la indicele coeziv BTC</span>
+    <a href="ic_btc.html" class="top-back">
+      <span class="icon"></span>
+      <span>Înapoi la indicele IC_BTC</span>
     </a>
 
     <header class="hero">
-      <h1>Mega ciclul Bitcoin – Model Coeziv 3.14 / 2π</h1>
-      <p class="lead">
-        Aici vezi cum interpretează <strong>Modelul Coeziv</strong> istoria Bitcoin din
-        2010 până astăzi: nu doar ca preț, ci ca <strong>ciclu coeziv</strong> cu patru faze
-        – de la bază profundă (Faza 0) până la bull târziu și reset de ciclu (Faza 3 → nouă Fază 0).
-      </p>
-      <p class="lead">
-        Pentru utilizator, scopul nu este să „prezică prețul de mâine”, ci să înțeleagă:
-        <span class="highlight">„în ce fază de mega ciclu sunt acum?”</span> – început, acumulare,
-        bull structural sau bull târziu.
+      <h1>Mega-ciclul coeziv BTC</h1>
+      <p>
+        Privire macro asupra pieței Bitcoin din 2010 până azi, în Modelul Coeziv.
+        Pagina îți arată <strong>unde ne aflăm acum</strong> în mega-ciclul structural,
+        bazat pe indicii <strong>IC_BTC</strong> (structural), <strong>ICD_BTC</strong>
+        (direcțional), <strong>ICF_BTC</strong> (flux) și <strong>ICC_BTC</strong> (ciclu).
       </p>
 
-      <div class="pill-row">
-        <div class="pill phase0">
-          <span class="dot"></span>
-          <span>Faza 0 – bază coezivă</span>
+      <div class="hero-pills">
+        <div class="hero-pill">
+          <span class="hero-pill-dot struct"></span>
+          <span>Structură &amp; sănătate piață (IC_BTC, ICD_BTC)</span>
         </div>
-        <div class="pill phase1">
-          <span class="dot"></span>
-          <span>Faza 1 – acumulare</span>
+        <div class="hero-pill">
+          <span class="hero-pill-dot flux"></span>
+          <span>Flux &amp; stres de sistem (ICF_BTC)</span>
         </div>
-        <div class="pill phase2">
-          <span class="dot"></span>
-          <span>Faza 2 – bull structural</span>
-        </div>
-        <div class="pill phase3">
-          <span class="dot"></span>
-          <span>Faza 3 – bull târziu / top</span>
+        <div class="hero-pill">
+          <span class="hero-pill-dot cycle"></span>
+          <span>Poziționare în mega-ciclu (ICC_BTC)</span>
         </div>
       </div>
     </header>
 
-    <!-- CARD: REZULTAT ACTUAL DIN DATE -->
-    <section class="card" style="margin-bottom:1.5rem;">
-      <div class="card-content">
-        <div class="section-title">Rezultatul modelului (pe date reale BTC)</div>
-        <h2>Poziția actuală în mega ciclu</h2>
+    <!-- MEGA-CYCLE SNAPSHOT -->
+
+    <section class="mega-cycle-section">
+      <header class="mega-cycle-header">
+        <h2>Snapshot mega-ciclu – Model Coeziv</h2>
         <p>
-          Analiza de mai jos folosește istoricul <strong>BTC daily</strong> din fișierul
-          tău <code>btc_daily.csv</code> (2010–2025) și aplică un proxy coerent cu
-          <strong>Modelul Coeziv</strong> (structură ≈ timp deasupra EMA200, direcție ≈
-          diferența EMA50–EMA200).
+          Cardurile de mai jos folosesc valorile cele mai recente din
+          <code>data/ic_btc_series.json</code>, generate automat de
+          pipeline-ul Coeziv Bitcoin. Interpretarea este structurală,
+          nu recomandare de tranzacționare.
         </p>
-        <div class="meta-pill-row">
-          <div class="meta-pill">
-            Perioadă analizată:
-            <span class="value">2010-07-17 – 2025-11-24</span>
+      </header>
+
+      <div class="mega-cycle-grid">
+        <!-- CARD 1 – ICC_BTC CICLU -->
+        <article class="mega-card">
+          <div class="mega-card-header">
+            <span class="mega-pill mega-pill-main">ICC_BTC ciclu (0–100)</span>
+            <span class="mega-pill" id="iccCyclePhaseLabel">fază intermediară</span>
           </div>
-          <div class="meta-pill">
-            Ultima <strong>Fază 0</strong> (bază coezivă):
-            <span class="value">22.04.2022 – 17.02.2023</span>
+          <div class="mega-card-body">
+            <div class="mega-value-row">
+              <div class="mega-main-value">
+                <span id="iccCycleValue">–</span><span class="mega-unit">/100</span>
+              </div>
+            </div>
+            <p class="mega-subtitle">
+              Poziționare în mega-ciclu: faze de bază, expansiune, distribuție, reset.
+            </p>
+            <p class="mega-text" id="iccCycleText">
+              Se încarcă interpretarea fazei de ciclu...
+            </p>
           </div>
-          <div class="meta-pill">
-            Fază curentă (24.11.2025, proxy):
-            <span class="value">Faza 3 – bull târziu / top coeziv</span>
+        </article>
+
+        <!-- CARD 2 – IC_BTC STRUCTURAL -->
+        <article class="mega-card">
+          <div class="mega-card-header">
+            <span class="mega-pill mega-pill-main">IC_BTC structural (0–100)</span>
+            <span class="mega-pill" id="icStructLabel">–</span>
           </div>
-          <div class="meta-pill">
-            Structură estimată:
-            <span class="value">≈ 87 / 100</span>
+          <div class="mega-card-body">
+            <div class="mega-value-row">
+              <div class="mega-main-value">
+                <span id="icStructValue">–</span><span class="mega-unit">/100</span>
+              </div>
+            </div>
+            <p class="mega-subtitle">
+              Regim structural (trend vs flux total, volatilitate relativă).
+            </p>
+            <p class="mega-text" id="icStructText">
+              Se încarcă interpretarea regimului structural...
+            </p>
           </div>
-          <div class="meta-pill">
-            Direcție estimată:
-            <span class="value">≈ 43 / 100</span>
+        </article>
+
+        <!-- CARD 3 – ICF_BTC FLUX -->
+        <article class="mega-card">
+          <div class="mega-card-header">
+            <span class="mega-pill mega-pill-main">ICF_BTC flux (0–100)</span>
+            <span class="mega-pill" id="fluxLabel">–</span>
           </div>
-        </div>
-        <p style="margin-top:0.6rem;">
-          Pe scurt, modelul spune că suntem într-un <strong>segment avansat al mega ciclului</strong>:
-          baza coezivă a ciclului curent a fost în 2022–început de 2023 (Faza 0),
-          2023–2024 a adus acumulare și bull structural (Faza 1–2), iar 2025 arată
-          episoade repetate de <strong>Faza 3 (bull târziu)</strong>, în care structura
-          rămâne puternică, dar fluxurile bull încep să obosească.
-        </p>
-        <p style="font-size:0.8rem; color:var(--muted); margin-top:0.4rem;">
-          Notă: aceasta este o aproximare numerică aliniată cu logica Modelului Coeziv,
-          folosind doar prețul BTC. Implementarea completă din Python poate adăuga
-          și alți parametri (volatilitate, contexte macro), dar imaginea de ciclu
-          0–3 rămâne aceeași la scară mare.
-        </p>
+          <div class="mega-card-body">
+            <div class="mega-value-row">
+              <div class="mega-main-value">
+                <span id="fluxValue">–</span><span class="mega-unit">/100</span>
+              </div>
+            </div>
+            <p class="mega-subtitle">
+              Flux &amp; tensiune: cât de stresată sau calmă e piața.
+            </p>
+            <p class="mega-text" id="fluxText">
+              Se încarcă interpretarea fluxului...
+            </p>
+          </div>
+        </article>
       </div>
+
+      <!-- REZUMAT SCURT -->
+      <section class="mega-summary">
+        <h3>Unde suntem acum în mega-ciclu?</h3>
+        <p id="megaSummaryMain">
+          Se calculează poziționarea curentă a pieței în mega-ciclu...
+        </p>
+        <p class="mega-note">
+          <strong>Notă:</strong> Mega-ciclul este o privire structurală pe termen
+          foarte lung (ani), nu un semnal de timing pe termen scurt. Folosește
+          informația împreună cu propriul management de risc.
+        </p>
+      </section>
     </section>
 
-    <!-- INTRO STRUCTURĂ + FLUX -->
-    <section class="grid-2">
-      <article class="card">
-        <div class="card-content">
-          <div class="section-title">Cum vede modelul coeziv Bitcoin</div>
-          <h2>Structură, flux, ciclu</h2>
-          <p>
-            Modelul Coeziv pleacă de la ideea că piața nu este doar o linie de preț,
-            ci un sistem care își organizează <strong>structura</strong>, <strong>fluxurile</strong>
-            și <strong>direcția</strong> în timp.
-          </p>
-          <p>
-            În limbaj simplu:
-          </p>
-          <ul style="margin:0.35rem 0 0.35rem; padding-left:1.1rem; font-size:0.88rem; color:var(--text-soft);">
-            <li><strong>IC_BTC structural</strong> – cât de „solid” este trendul, câtă coerență are structura.</li>
-            <li><strong>ICD_BTC direcțional</strong> – cât de clară este direcția (bull vs bear).</li>
-            <li><strong>Flux & ciclu</strong> – cât de intens se mișcă piața și în ce fază de ciclu se află.</li>
-          </ul>
-          <p>
-            Combinând aceste elemente, modelul împarte istoria Bitcoin în
-            <strong>patru faze de mega ciclu</strong>, care se repetă în timp:
-            Faza 0 → 1 → 2 → 3 → și din nou 0.
-          </p>
-        </div>
-      </article>
+    <!-- MINI TIMELINE ISTORIC COEZIV -->
 
-      <article class="card timeline-card">
-        <div class="card-content">
-          <div class="section-title">Mega ciclu BTC 2010–prezent (schematic)</div>
-          <p><strong>Pe larg, modelul coeziv vede istoria Bitcoin așa:</strong></p>
-          <ul class="timeline-list">
-            <li>
-              <span class="timeline-bullet" style="background:var(--phase0);"></span>
-              <div>
-                <div class="timeline-label">Faza 0 – baze adânci</div>
-                2010–2011, 2014–2015, final 2018, final 2022 –
-                structura este foarte slabă, aversiune la risc, dar exact aici
-                se construiește următorul ciclu.
-              </div>
-            </li>
-            <li>
-              <span class="timeline-bullet" style="background:var(--phase1);"></span>
-              <div>
-                <div class="timeline-label">Faza 1 – acumulare coezivă</div>
-                2012–2013, 2015–2016, 2019–2020, 2023 –
-                structura începe să crească, fluxurile se organizează, prețul se așază
-                peste EMA200.
-              </div>
-            </li>
-            <li>
-              <span class="timeline-bullet" style="background:var(--phase2);"></span>
-              <div>
-                <div class="timeline-label">Faza 2 – bull structural</div>
-                2013 (parțial), 2017, 2020–2021 –
-                structură ridicată, direcție clar bull, trend coerent.
-              </div>
-            </li>
-            <li>
-              <span class="timeline-bullet" style="background:var(--phase3);"></span>
-              <div>
-                <div class="timeline-label">Faza 3 – bull târziu / top</div>
-                final 2013, final 2017, final 2021 și episoade în 2025 –
-                structura rămâne sus, dar fluxurile încep să se decupleze,
-                volatilitatea devine extremă, urmată de un nou reset de ciclu (0).
-              </div>
-            </li>
-          </ul>
-          <p style="margin-top:0.45rem; font-size:0.8rem; color:var(--muted);">
-            Notă: modelul nu prezice valori exacte de preț, ci
-            <strong>poziția coezivă</strong> a pieței în cadrul acestui arc 0–3.
-          </p>
-        </div>
-      </article>
-    </section>
+    <section class="mega-timeline">
+      <h3>Timeline mega-ciclu (interpretare Coeziv, 2010–2025)</h3>
+      <p class="lead">
+        Mai jos este un rezumat conceptual, aliniat cu ciclurile clasice BTC,
+        dar exprimat în limbajul Modelului Coeziv (bază, expansiune, top,
+        resetare). Nu sunt maxime/minime de preț, ci faze structurale.
+      </p>
 
-    <!-- FAZE 0–3 -->
-    <section>
-      <div class="section-title">Cele patru faze ale mega ciclului coeziv</div>
-      <div class="grid-4">
-        <article class="phase-card phase0">
-          <div class="phase-header">
-            <div class="phase-name">
-              <span class="phase-dot"></span>
-              <span>Faza 0 – Bază coezivă</span>
+      <div class="mega-timeline-grid">
+        <article class="timeline-step">
+          <div class="timeline-inner">
+            <div class="timeline-era">2010–2013</div>
+            <h4 class="timeline-title">Baze timpurii &amp; adopție incipientă</h4>
+            <div class="timeline-tag-row">
+              <span class="timeline-tag baza">bază</span>
             </div>
-            <div class="phase-tag">reset de ciclu</div>
-          </div>
-          <div class="phase-body">
-            <p>
-              Faza 0 apare după prăbușiri majore (ex. Mt.Gox, 2018, FTX).
-              IC_BTC structural este foarte jos, direcționalitatea bear,
-              volatilitatea ridicată, iar piața pare „ruptă”.
-            </p>
-            <ul>
-              <li>Structură <strong>slabă</strong> (IC_BTC structural foarte mic).</li>
-              <li>Direcție <strong>puternic bear</strong>, fluxuri dezorganizate.</li>
-              <li>Preț sub EMA200 pentru perioade lungi.</li>
-            </ul>
-            <p>
-              Pentru model, acesta nu este „sfârșitul Bitcoin”, ci
-              <strong>fundamentul unui nou mega ciclu</strong>.
+            <p class="timeline-text">
+              Structură de piață imatură, lichiditate redusă și volatilitate
+              extremă. În limbaj Coeziv, aceasta este zona de <strong>bază
+              istorică</strong> a mega-ciclului, în care ICC_BTC ar marca
+              începutul arcului structural post-Genesis.
             </p>
           </div>
         </article>
 
-        <article class="phase-card phase1">
-          <div class="phase-header">
-            <div class="phase-name">
-              <span class="phase-dot"></span>
-              <span>Faza 1 – Acumulare</span>
+        <article class="timeline-step">
+          <div class="timeline-inner">
+            <div class="timeline-era">2014–2017</div>
+            <h4 class="timeline-title">Bază post-2014 &amp; expansiune majoră</h4>
+            <div class="timeline-tag-row">
+              <span class="timeline-tag baza">bază</span>
+              <span class="timeline-tag bull">expansiune</span>
             </div>
-            <div class="phase-tag">reconstrucție</div>
-          </div>
-          <div class="phase-body">
-            <p>
-              După ce baza este formată, piața intră în Faza 1: structură în urcare,
-              dar fără euforie. Fluxurile încep să se organizeze, iar corecțiile sunt
-              cumpărate.
-            </p>
-            <ul>
-              <li>Structură în <strong>creștere</strong> (IC_BTC urcă din zona joasă spre medie).</li>
-              <li>Direcție trece din bear dur spre <strong>neutru / ușor bull</strong>.</li>
-              <li>Prețul începe să stea mai mult deasupra EMA200.</li>
-            </ul>
-            <p>
-              Pentru utilizator, această fază este plictisitoare, dar pentru model
-              este zona în care se acumulează coerența celui mai probabil bull viitor.
+            <p class="timeline-text">
+              După corecția severă 2014–2015, structura IC_BTC intră într-o
+              <strong>bază coezivă</strong>, urmată de un ciclu de expansiune
+              puternică până în topul 2017. ICC_BTC mută mega-ciclul din zona
+              de bază în zona de <strong>expansiune avansată</strong>.
             </p>
           </div>
         </article>
 
-        <article class="phase-card phase2">
-          <div class="phase-header">
-            <div class="phase-name">
-              <span class="phase-dot"></span>
-              <span>Faza 2 – Bull structural</span>
+        <article class="timeline-step">
+          <div class="timeline-inner">
+            <div class="timeline-era">2018–2019</div>
+            <h4 class="timeline-title">Resetare &amp; realiniere structurală</h4>
+            <div class="timeline-tag-row">
+              <span class="timeline-tag bear">bear</span>
+              <span class="timeline-tag reset">reset</span>
             </div>
-            <div class="phase-tag">trend clar</div>
-          </div>
-          <div class="phase-body">
-            <p>
-              Faza 2 este „inima” mega ciclu-lui bull. Structura este ridicată, direcția
-              clar bull, trendul coerent, iar scăderile sunt relativ ordonate.
-            </p>
-            <ul>
-              <li>Structură <strong>puternică</strong> (IC_BTC structural ridicat).</li>
-              <li>Direcție <strong>bull</strong> (ICD_BTC > 55), fluxuri aliniate.</li>
-              <li>Preț mult peste EMA200, corecțiile sunt de obicei cumpărate rapid.</li>
-            </ul>
-            <p>
-              Aici pare „ușor” să fii long – dar este important să înțelegem că nu
-              este începutul ciclului, ci <strong>partea lui centrală</strong>.
+            <p class="timeline-text">
+              Bear marketul de după 2017 aduce o <strong>răcire severă</strong>
+              în IC_BTC și episoade de stres în ICF_BTC. Din perspectiva
+              mega-ciclului, perioada este o <strong>resetare de trend</strong>,
+              nu începutul unui nou mega-ciclu.
             </p>
           </div>
         </article>
 
-        <article class="phase-card phase3">
-          <div class="phase-header">
-            <div class="phase-name">
-              <span class="phase-dot"></span>
-              <span>Faza 3 – Bull târziu / top</span>
+        <article class="timeline-step">
+          <div class="timeline-inner">
+            <div class="timeline-era">2020–2021</div>
+            <h4 class="timeline-title">Expansiune parabolică &amp; top structural</h4>
+            <div class="timeline-tag-row">
+              <span class="timeline-tag bull">bull</span>
+              <span class="timeline-tag reset">top structural</span>
             </div>
-            <div class="phase-tag">oboseală</div>
-          </div>
-          <div class="phase-body">
-            <p>
-              În Faza 3, structura rămâne aparent puternică, dar fluxurile încep
-              să se decupleze. Direcția bull slăbește, volatilitatea devine extremă,
-              iar modelul începe să pregătească un nou reset (Faza 0).
+            <p class="timeline-text">
+              Combinația dintre IC_BTC foarte ridicat, ICD_BTC bullish și
+              episoade de stres în ICF_BTC corespunde unei faze de
+              <strong>expansiune parabolică</strong> a mega-ciclului, în care
+              ICC_BTC se apropie de zona de top (valori înalte, 70–90+).
             </p>
-            <ul>
-              <li>Structura rămâne <strong>sus</strong>, dar direcția bull se erodează.</li>
-              <li>Volatilitate <strong>foarte mare</strong>, mișcări ample în ambele sensuri.</li>
-              <li>Preț extrem de departe de EMA200 (supraîncălzire a ciclului).</li>
-            </ul>
-            <p>
-              Aceasta este zona de euforie maximă la nivel narativ, dar pentru
-              model este o <strong>coerență care începe să se rupă</strong>, nu un „nou normal”.
+          </div>
+        </article>
+
+        <article class="timeline-step">
+          <div class="timeline-inner">
+            <div class="timeline-era">2022–2023</div>
+            <h4 class="timeline-title">Resetare post-euforie &amp; reconstrucție</h4>
+            <div class="timeline-tag-row">
+              <span class="timeline-tag bear">bear</span>
+              <span class="timeline-tag reset">reechilibrare</span>
+            </div>
+            <p class="timeline-text">
+              Corecția amplă de după 2021 este văzută de Modelul Coeziv ca o
+              fază de <strong>reechilibrare structurală</strong>: IC_BTC se
+              răcește, ICF_BTC marchează episoade de stres, iar ICC_BTC coboară
+              din zona de top spre o <strong>fază intermediară</strong>.
+            </p>
+          </div>
+        </article>
+
+        <article class="timeline-step">
+          <div class="timeline-inner">
+            <div class="timeline-era">2024–2025+</div>
+            <h4 class="timeline-title">Faza curentă: bull târziu / intermediar</h4>
+            <div class="timeline-tag-row">
+              <span class="timeline-tag curent">stare curentă</span>
+            </div>
+            <p class="timeline-text">
+              Valorile curente din ICC_BTC indică, în mare, o
+              <strong>fază intermediară</strong> a mega-ciclului post-2014:
+              nu la bază, dar nici la maximul istoric al topurilor. Structura
+              este în răcire, iar fluxul rămâne sensibil, ceea ce sugerează că
+              următorii ani pot fi o combinație de redistribuție,
+              consolidare și, mai târziu, construcția bazei următorului ciclu.
             </p>
           </div>
         </article>
       </div>
     </section>
 
-    <section>
-      <div class="section-title">Glosar de faze (pentru utilizatori)</div>
-      <article class="card">
-        <div class="card-content">
-          <p>
-            Faza nu înseamnă „semnal cumpără / vinde”, ci <strong>context</strong>.
-            Gândește-te la faze ca la anotimpuri ale pieței:
-          </p>
-
-          <div class="glossary-grid">
-            <div class="gloss-item">
-              <div class="gloss-tag">
-                <span class="dot" style="background:var(--phase0);"></span>
-                Faza 0 – iarnă
-              </div>
-              <p>
-                Frig, aversiune la risc, structură prăbușită. Pare finalul,
-                dar de fapt <strong>solul este rescris</strong> pentru un nou ciclu.
-              </p>
-            </div>
-
-            <div class="gloss-item">
-              <div class="gloss-tag">
-                <span class="dot" style="background:var(--phase1);"></span>
-                Faza 1 – primăvară
-              </div>
-              <p>
-                Încă frig pe alocuri, dar apar semne de viață. Structura crește,
-                trendul se ridică încet, dar nu este încă euforie.
-              </p>
-            </div>
-
-            <div class="gloss-item">
-              <div class="gloss-tag">
-                <span class="dot" style="background:var(--phase2);"></span>
-                Faza 2 – vară
-              </div>
-              <p>
-                Soare, trend clar, structură puternică. Pare ușor să fii în direcția
-                corectă. Este inima bull-ului, dar nu începutul lui.
-              </p>
-            </div>
-
-            <div class="gloss-item">
-              <div class="gloss-tag">
-                <span class="dot" style="background:var(--phase3);"></span>
-                Faza 3 – toamnă
-              </div>
-              <p>
-                Încă este cald, dar apar primele semne că sezonul se schimbă.
-                Structura rămâne sus, dar fluxurile încep să obosească.
-              </p>
-            </div>
-          </div>
-
-          <div class="beginner-card">
-            <h3 style="margin:0.9rem 0 0.35rem; font-size:0.95rem;">Mega ciclu BTC – versiune ultra-simplă</h3>
-            <p>
-              Pentru un utilizator amator, mega ciclul poate fi rezumat așa:
-            </p>
-            <ol class="beginner-steps">
-              <li><strong>După o prăbușire mare</strong> (Faza 0), modelul nu vede doar panică, ci <em>baza</em> unui nou ciclu.</li>
-              <li><strong>Când piața se liniștește și începe să reconstruiască structura</strong> (Faza 1), nu pare spectaculos, dar aici se plantează „semințele” bull-ului.</li>
-              <li><strong>Când structura devine puternică și direcția bull este clară</strong> (Faza 2), suntem în bull structural – segmentul cu cea mai mare creștere organizată.</li>
-              <li><strong>Când structura rămâne sus, dar fluxurile încep să obosească</strong> (Faza 3), modelul se așteaptă ca, mai devreme sau mai târziu, să urmeze o nouă Fază 0.</li>
-            </ol>
-            <p class="note">
-              Modelul Coeziv nu îți spune „cumpără aici” sau „vinde aici”.
-              El îți spune: <strong>„În ce anotimp al ciclului sunt acum?”</strong>, ca tu să
-              îți poți ajusta așteptările și riscul la nivel de ciclu, nu doar la nivel de
-              zi sau de săptămână. Nu reprezintă recomandare financiară.
-            </p>
-          </div>
-        </div>
-      </article>
-    </section>
+    <footer class="page-foot">
+      Modelul Coeziv BTC este un framework experimental de citire structurală a pieței,
+      nu o recomandare de investiții. Pentru detaliile tehnice și codul sursă,
+      consultă repository-ul GitHub &amp; documentația internă a indicilor.
+    </footer>
   </main>
+
+  <script>
+    async function fetchJsonSafe(url) {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error("Nu pot încărca " + url + " (" + res.status + ")");
+      return res.json();
+    }
+
+    function classifyIccCycle(v) {
+      if (v == null || !Number.isFinite(v)) return {
+        label: "fază necunoscută",
+        text: "Nu am putut determina faza de mega-ciclu din datele curente."
+      };
+
+      if (v < 20) {
+        return {
+          label: "bază profundă",
+          text: "Zona tipică pentru baze profunde de mega-ciclu – acumulare, reset structural și sentiment extrem de pesimist."
+        };
+      } else if (v < 40) {
+        return {
+          label: "început de ciclu",
+          text: "Fază timpurie de ciclu – structură încă fragilă, dar cu potențial mare de apreciere pe termen lung."
+        };
+      } else if (v < 60) {
+        return {
+          label: "fază intermediară",
+          text: "Suntem într-o fază intermediară a mega-ciclului: între expansiune și început de distribuție. Istoric, astfel de valori apar adesea după un top mare, dar înaintea capitulărilor finale."
+        };
+      } else if (v < 80) {
+        return {
+          label: "avansat / încălzire",
+          text: "Fază avansată de ciclu – structură încă puternică, dar cu risc crescut de redistribuție și topuri locale."
+        };
+      } else {
+        return {
+          label: "zonă de top",
+          text: "Zona asociată cu topuri majore de mega-ciclu – entuziasm maxim, risc ridicat de inversare structurală."
+        };
+      }
+    }
+
+    function classifyIcStruct(v) {
+      if (v == null || !Number.isFinite(v)) return {
+        label: "necunoscut",
+        text: "Nu am putut determina structura trendului pe termen lung."
+      };
+
+      if (v < 25) {
+        return {
+          label: "foarte slabă",
+          text: "Structură foarte slabă – tipic pentru începuturi de baze profunde de ciclu sau faze de dezagregare a trendului."
+        };
+      } else if (v < 40) {
+        return {
+          label: "în răcire",
+          text: "Structură în răcire – trendul de fond pierde coeziune, semnalând o tranziție posibilă de ciclu."
+        };
+      } else if (v < 60) {
+        return {
+          label: "mediu",
+          text: "Regim structural mediu – nici bull clar, nici bear clar, cu rotații frecvente între sub-regimuri."
+        };
+      } else if (v < 80) {
+        return {
+          label: "puternic",
+          text: "Structură puternică – trend coerent, cu direcție dominantă clară și volatilitate relativ sănătoasă."
+        };
+      } else {
+        return {
+          label: "extrem",
+          text: "Structură extrem de concentrată – zone ce pot preceda fie blow-off top, fie capitulare violentă, în funcție de direcție."
+        };
+      }
+    }
+
+    function classifyFlux(v) {
+      if (v == null || !Number.isFinite(v)) return {
+        label: "necunoscut",
+        text: "Nu am putut determina nivelul de stres al fluxului."
+      };
+
+      if (v < 25) {
+        return {
+          label: "calm",
+          text: "Volatilitate relativ scăzută și flux calm – tipic pentru perioade de consolidare sau acumulare discretă."
+        };
+      } else if (v < 50) {
+        return {
+          label: "flux mixt",
+          text: "Stare mixtă a fluxului – alternanță între perioade calme și episoade de stres moderat."
+        };
+      } else if (v < 75) {
+        return {
+          label: "stres ridicat",
+          text: "Flux tensionat – piața devine sensibilă la șocuri, cu mișcări bruște și risc crescut de episoade de panică."
+        };
+      } else {
+        return {
+          label: "stres sistemic",
+          text: "Nivel ridicat de stres sistemic – istoric, astfel de valori au apărut înaintea resetărilor mari de mega-ciclu sau a capitulărilor majore."
+        };
+      }
+    }
+
+    function buildMegaSummary(icc, icStruct, flux) {
+      if (![icc, icStruct, flux].every(x => Number.isFinite(x))) {
+        return "Modelul Coeziv sugerează o fază intermediară a mega-ciclului, dar datele actuale sunt parțial incomplete.";
+      }
+
+      let progressText;
+      if (icc < 20) progressText = "Suntem probabil în primele ~10–20% dintr-un nou mega-ciclu.";
+      else if (icc < 40) progressText = "Suntem aproximativ la 30–40% din parcursul mega-ciclului curent.";
+      else if (icc < 60) progressText = "Modelul plasează piața la aproximativ 70–80% din mega-ciclul actual – fază intermediară, după un top important, dar încă departe de capitulare finală.";
+      else if (icc < 80) progressText = "Suntem într-o fază avansată a mega-ciclului, aproape de zona istorică a topurilor majore.";
+      else progressText = "Ne aflăm într-o zonă asociată istoric cu topuri majore de mega-ciclu (90–100% din parcurs).";
+
+      const structPart =
+        icStruct < 40
+          ? "Structura în răcire indică pierderea coeziunii trendului de fond și crește probabilitatea unei faze de consolidare profunde."
+          : icStruct < 60
+          ? "Structura medie sugerează o piață rotațională, fără un trend dominant foarte clar."
+          : "Structura puternică indică un trend dominant încă robust, dar sensibil la șocuri macro.";
+
+      const fluxPart =
+        flux >= 50
+          ? "Nivelul ridicat de stres în flux întărește scenariul în care următorii ani pot aduce o fază importantă de resetare / realiniere de ciclu."
+          : "Fluxul relativ calm sugerează că resetarea de ciclu se poate construi mai lent, prin consolidare, nu doar prin șocuri violente.";
+
+      return progressText + " " + structPart + " " + fluxPart;
+    }
+
+    async function initMegaCycleSection() {
+      try {
+        const series = await fetchJsonSafe("data/ic_btc_series.json");
+        if (!Array.isArray(series) || series.length === 0) {
+          throw new Error("ic_btc_series.json este gol sau invalid.");
+        }
+        const last = series[series.length - 1];
+
+        const icStruct = Number(last.ic_struct ?? last.ic ?? NaN);
+        const icd = Number(last.icd ?? last.ic_dir ?? NaN); // momentan nu-l afișăm, dar îl păstrăm
+        const icf = Number(last.icf ?? last.ic_flux ?? NaN);
+        const icc = Number(last.icc ?? last.ic_cycle ?? last.icc_btc ?? NaN);
+
+        // ICC_BTC ciclu
+        const iccCl = classifyIccCycle(icc);
+        document.getElementById("iccCycleValue").textContent = Number.isFinite(icc)
+          ? icc.toFixed(2)
+          : "–";
+        document.getElementById("iccCyclePhaseLabel").textContent = iccCl.label;
+        document.getElementById("iccCycleText").textContent = iccCl.text;
+
+        // IC_BTC structural
+        const structCl = classifyIcStruct(icStruct);
+        document.getElementById("icStructValue").textContent = Number.isFinite(icStruct)
+          ? icStruct.toFixed(2)
+          : "–";
+        document.getElementById("icStructLabel").textContent = structCl.label;
+        document.getElementById("icStructText").textContent = structCl.text;
+
+        // ICF_BTC flux
+        const fluxCl = classifyFlux(icf);
+        document.getElementById("fluxValue").textContent = Number.isFinite(icf)
+          ? icf.toFixed(2)
+          : "–";
+        document.getElementById("fluxLabel").textContent = fluxCl.label;
+        document.getElementById("fluxText").textContent = fluxCl.text;
+
+        // Rezumat mare
+        document.getElementById("megaSummaryMain").textContent =
+          buildMegaSummary(icc, icStruct, icf);
+      } catch (err) {
+        console.error("[Mega-cycle]", err);
+        const el = document.getElementById("megaSummaryMain");
+        if (el) {
+          el.textContent =
+            "Nu am putut încărca datele pentru mega-ciclu. Verifică fișierul data/ic_btc_series.json sau pipeline-ul Coeziv.";
+        }
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", initMegaCycleSection);
+  </script>
 </body>
 </html>
