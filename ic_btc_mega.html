@@ -2,11 +2,11 @@
 <html lang="ro">
 <head>
   <meta charset="UTF-8" />
-  <title>Mega ciclul Bitcoin – Model Coeziv </title>
+  <title>Mega ciclul Bitcoin – Model Coeziv</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta
     name="description"
-    content="Mega ciclul Bitcoin explicat prin Modelul Coeziv 3.14 / 2π: Faza 0–3, structură, flux, direcționalitate și rolul contextului macro."
+    content="Mega ciclul Bitcoin explicat prin Modelul Coeziv: Faza 0–3, structură, flux, direcționalitate și rolul contextului macro."
   />
 
   <style>
@@ -79,8 +79,6 @@
       text-decoration: underline;
     }
 
-    /* Back link */
-
     .back-link {
       display: inline-flex;
       align-items: center;
@@ -106,8 +104,6 @@
       border-color: rgba(129, 140, 248, 0.85);
       background: rgba(15, 23, 42, 1);
     }
-
-    /* Hero */
 
     header.hero {
       margin-bottom: 1.8rem;
@@ -162,8 +158,6 @@
     .pill.phase2 .dot { background: var(--phase2); }
     .pill.phase3 .dot { background: var(--phase3); }
 
-    /* Section titles */
-
     .section-title {
       font-size: 0.85rem;
       text-transform: uppercase;
@@ -171,8 +165,6 @@
       color: var(--muted);
       margin-bottom: 0.5rem;
     }
-
-    /* Cards generic */
 
     .card {
       position: relative;
@@ -223,8 +215,6 @@
       color: var(--muted);
     }
 
-    /* Layout sections */
-
     .grid-2 {
       display: grid;
       gap: 1rem;
@@ -256,8 +246,6 @@
         grid-template-columns: minmax(0, 1fr);
       }
     }
-
-    /* Phase cards */
 
     .phase-card {
       border-radius: var(--radius-xl);
@@ -356,8 +344,6 @@
       margin: 0.18rem 0;
     }
 
-    /* Timeline simple */
-
     .timeline-card {
       margin-top: 0.5rem;
     }
@@ -393,8 +379,6 @@
       letter-spacing: 0.12em;
       margin-bottom: 0.08rem;
     }
-
-    /* Glosar */
 
     .glossary-grid {
       display: grid;
@@ -446,8 +430,6 @@
       color: var(--text-soft);
     }
 
-    /* Beginner section */
-
     .beginner-card {
       margin-top: 1.2rem;
     }
@@ -471,17 +453,39 @@
       color: var(--accent-strong);
       font-weight: 500;
     }
+
+    .meta-pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+      margin-top: 0.35rem;
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    .meta-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.2rem 0.65rem;
+      border-radius: var(--radius-pill);
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      background: rgba(15, 23, 42, 0.96);
+    }
+
+    .meta-pill span.value {
+      color: var(--text-strong);
+      font-weight: 500;
+    }
   </style>
 </head>
 <body>
   <main class="page">
-    <!-- Optional back link -->
     <a href="index.html" class="back-link">
       <span class="icon">←</span>
       <span>Înapoi la indicele coeziv BTC</span>
     </a>
 
-    <!-- HERO -->
     <header class="hero">
       <h1>Mega ciclul Bitcoin – Model Coeziv 3.14 / 2π</h1>
       <p class="lead">
@@ -514,6 +518,55 @@
         </div>
       </div>
     </header>
+
+    <!-- CARD: REZULTAT ACTUAL DIN DATE -->
+    <section class="card" style="margin-bottom:1.5rem;">
+      <div class="card-content">
+        <div class="section-title">Rezultatul modelului (pe date reale BTC)</div>
+        <h2>Poziția actuală în mega ciclu</h2>
+        <p>
+          Analiza de mai jos folosește istoricul <strong>BTC daily</strong> din fișierul
+          tău <code>btc_daily.csv</code> (2010–2025) și aplică un proxy coerent cu
+          <strong>Modelul Coeziv</strong> (structură ≈ timp deasupra EMA200, direcție ≈
+          diferența EMA50–EMA200).
+        </p>
+        <div class="meta-pill-row">
+          <div class="meta-pill">
+            Perioadă analizată:
+            <span class="value">2010-07-17 – 2025-11-24</span>
+          </div>
+          <div class="meta-pill">
+            Ultima <strong>Fază 0</strong> (bază coezivă):
+            <span class="value">22.04.2022 – 17.02.2023</span>
+          </div>
+          <div class="meta-pill">
+            Fază curentă (24.11.2025, proxy):
+            <span class="value">Faza 3 – bull târziu / top coeziv</span>
+          </div>
+          <div class="meta-pill">
+            Structură estimată:
+            <span class="value">≈ 87 / 100</span>
+          </div>
+          <div class="meta-pill">
+            Direcție estimată:
+            <span class="value">≈ 43 / 100</span>
+          </div>
+        </div>
+        <p style="margin-top:0.6rem;">
+          Pe scurt, modelul spune că suntem într-un <strong>segment avansat al mega ciclului</strong>:
+          baza coezivă a ciclului curent a fost în 2022–început de 2023 (Faza 0),
+          2023–2024 a adus acumulare și bull structural (Faza 1–2), iar 2025 arată
+          episoade repetate de <strong>Faza 3 (bull târziu)</strong>, în care structura
+          rămâne puternică, dar fluxurile bull încep să obosească.
+        </p>
+        <p style="font-size:0.8rem; color:var(--muted); margin-top:0.4rem;">
+          Notă: aceasta este o aproximare numerică aliniată cu logica Modelului Coeziv,
+          folosind doar prețul BTC. Implementarea completă din Python poate adăuga
+          și alți parametri (volatilitate, contexte macro), dar imaginea de ciclu
+          0–3 rămâne aceeași la scară mare.
+        </p>
+      </div>
+    </section>
 
     <!-- INTRO STRUCTURĂ + FLUX -->
     <section class="grid-2">
@@ -577,7 +630,7 @@
               <span class="timeline-bullet" style="background:var(--phase3);"></span>
               <div>
                 <div class="timeline-label">Faza 3 – bull târziu / top</div>
-                final 2013, final 2017, final 2021 –
+                final 2013, final 2017, final 2021 și episoade în 2025 –
                 structura rămâne sus, dar fluxurile încep să se decupleze,
                 volatilitatea devine extremă, urmată de un nou reset de ciclu (0).
               </div>
@@ -591,11 +644,10 @@
       </article>
     </section>
 
-    <!-- FAZELE 0–3: CARDS -->
+    <!-- FAZE 0–3 -->
     <section>
       <div class="section-title">Cele patru faze ale mega ciclului coeziv</div>
       <div class="grid-4">
-        <!-- Faza 0 -->
         <article class="phase-card phase0">
           <div class="phase-header">
             <div class="phase-name">
@@ -618,12 +670,10 @@
             <p>
               Pentru model, acesta nu este „sfârșitul Bitcoin”, ci
               <strong>fundamentul unui nou mega ciclu</strong>.
-              Coerența vechiului ciclu se rupe, pentru a permite construirea unuia nou.
             </p>
           </div>
         </article>
 
-        <!-- Faza 1 -->
         <article class="phase-card phase1">
           <div class="phase-header">
             <div class="phase-name">
@@ -650,7 +700,6 @@
           </div>
         </article>
 
-        <!-- Faza 2 -->
         <article class="phase-card phase2">
           <div class="phase-header">
             <div class="phase-name">
@@ -676,7 +725,6 @@
           </div>
         </article>
 
-        <!-- Faza 3 -->
         <article class="phase-card phase3">
           <div class="phase-header">
             <div class="phase-name">
@@ -705,7 +753,6 @@
       </div>
     </section>
 
-    <!-- GLOSAR + BEGINNER -->
     <section>
       <div class="section-title">Glosar de faze (pentru utilizatori)</div>
       <article class="card">
