@@ -69,11 +69,19 @@
       line-height: 1.6;
     }
 
+    .macro-headline {
+      margin-top: 0.4rem;
+      margin-bottom: 0.6rem;
+      font-size: 1.02rem;
+      font-weight: 600;
+      color: #e5e7eb;
+    }
+
     .pill-row {
       display: flex;
       flex-wrap: wrap;
       gap: 0.45rem;
-      margin: 0.8rem 0 0.4rem;
+      margin: 0.4rem 0 0.4rem;
     }
 
     .pill {
@@ -417,6 +425,7 @@
         (SPX, VIX, DXY, aur, petrol). Valorile și regimul sunt calculate în backend, iar
         această pagină doar le vizualizează.
       </p>
+      <p id="macroHeadline" class="macro-headline">Se calculează contextul global…</p>
       <div class="pill-row">
         <div class="pill">
           <span class="pill-dot neutral"></span>
@@ -630,8 +639,31 @@
       return "Indice direcțional global (ICD Global).";
     }
 
+    function getHeadline(riskScore, macroSignal) {
+      const rs = typeof riskScore === "number" ? riskScore : 0;
+      const absScore = Math.abs(rs);
+
+      if (absScore < 0.15) {
+        return "Zonă de echilibru / tranziție";
+      }
+
+      if (macroSignal === "risk-on") {
+        return absScore > 0.35
+          ? "Context global pro-risc"
+          : "Tranziție spre risk-on";
+      }
+      if (macroSignal === "risk-off") {
+        return absScore > 0.35
+          ? "Context global defensiv"
+          : "Tranziție spre risk-off";
+      }
+      return "Zonă de echilibru / tranziție";
+    }
+
     function describeRegime(regime, riskScore) {
       const r = (regime || "neutral").toLowerCase();
+      const rs = typeof riskScore === "number" ? riskScore : 0;
+
       if (r === "bull") {
         return {
           title: "Regim coeziv bullish global",
@@ -644,14 +676,14 @@
           text: "Structură relativ ridicată, dar cu fluxuri orientate spre protecție. Mediul favorizează active defensive și conservarea capitalului."
         };
       }
-      // neutral
-      if (riskScore > 0.05) {
+      // neutral – ne uităm la mărimea scorului
+      if (rs > 0.15) {
         return {
           title: "Tranziție spre risk-on",
           text: "Context global aflat între defensiv și pro-risc, cu o ușoară înclinare spre asumarea de risc."
         };
       }
-      if (riskScore < -0.05) {
+      if (rs < -0.15) {
         return {
           title: "Tranziție spre defensiv",
           text: "Context global aflat într-o fază de răcire, cu bias ușor spre protecție și reducerea riscului."
@@ -680,7 +712,7 @@
         const current = data.current || (series.length ? series[series.length - 1] : null);
         const thresholds = data.thresholds || {};
         const riskScore = typeof data.risk_score === "number" ? data.risk_score : null;
-        const macroSignal = data.macro_signal || "–";
+        const macroSignal = data.macro_signal || "echilibrat";
 
         if (!current) {
           throw new Error("Nu există date curente în global_coeziv_state.json");
@@ -721,8 +753,14 @@
         const summaryIcdVal   = document.getElementById("summaryIcdVal");
         const summaryIcText   = document.getElementById("summaryIcText");
         const summaryIcdText  = document.getElementById("summaryIcdText");
+        const macroHeadlineEl = document.getElementById("macroHeadline");
 
         if (asOfEl) asOfEl.textContent = asOf;
+
+        // headline macro deasupra, bazat pe risk_score + macro_signal
+        if (macroHeadlineEl) {
+          macroHeadlineEl.textContent = getHeadline(riskScore ?? 0, macroSignal);
+        }
 
         // IC & ICD numeric + bare
         if (Number.isFinite(icVal)) {
