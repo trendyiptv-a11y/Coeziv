@@ -764,14 +764,22 @@
 
     async function initMegaCycleSection() {
       try {
-        const series = await fetchJsonSafe("/data/ic_btc_series.json");
-        if (!Array.isArray(series) || series.length === 0) {
+        // 1) Luăm JSON-ul (cale relativă, merge și pe GitHub Pages, și pe Vercel)
+        const raw = await fetchJsonSafe("data/ic_btc_series.json");
+
+        // 2) Suportăm ambele forme: [ ... ] sau { meta:..., series:[ ... ] }
+        const series = Array.isArray(raw)
+          ? raw
+          : (raw && Array.isArray(raw.series) ? raw.series : null);
+
+        if (!series || series.length === 0) {
           throw new Error("ic_btc_series.json este gol sau invalid.");
         }
+
         const last = series[series.length - 1];
 
         const icStruct = Number(last.ic_struct ?? last.ic ?? NaN);
-        const icd = Number(last.icd ?? last.ic_dir ?? NaN); // momentan nu-l afișăm, dar îl păstrăm
+        const icd = Number(last.icd ?? last.ic_dir ?? NaN); // păstrat pentru extinderi
         const icf = Number(last.icf ?? last.ic_flux ?? NaN);
         const icc = Number(last.icc ?? last.ic_cycle ?? last.icc_btc ?? NaN);
 
