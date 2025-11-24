@@ -1,119 +1,259 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+"""
+export_ic_btc_series.py
+
+Generează seria istorică IC_BTC / ICD_BTC / ICF_BTC etc. pentru front-end,
+folosind **exact aceleași date daily** ca snapshot-ul live:
+data/btc_daily.csv
+
+Scop:
+- să fie aliniat cu modelul coeziv oficial din
+  update_btc_state_latest_from_daily.py
+- ultimul punct din serie == valorile din btc_state_latest.json
+"""
+
+from __future__ import annotations
+
 import json
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
+from typing import List, Optional, Dict, Any
 
-import numpy as np
-import pandas as pd
+import math
+from statistics import stdev
 
-from update_btc_state_latest_from_daily import classify_regime
+import csv
+
+from update_btc_state_latest_from_daily import (
+    classify_regime,
+    clamp,
+)
 
 ROOT = Path(__file__).resolve().parents[1]
-BTC_OHLC_PATH = ROOT / "btc_ohlc.json"
-OUT_PATH = ROOT / "data" / "ic_btc_series.json"
+DATA_DIR = ROOT / "data"
+INPUT_DAILY = DATA_DIR / "btc_daily.csv"
+OUT_PATH = DATA_DIR / "ic_btc_series.json"
 
 
-def percentile_rank_vector(hist: np.ndarray, current: np.ndarray) -> np.ndarray:
+# --------- utilitare simple (copiate compatibil cu scriptul oficial) ---------
+
+
+def ema(series: List[float], period: int) -> List[Optional[float]]:
+    if period <= 0:
+        raise ValueError("period trebuie să fie > 0")
+    if len(series) == 0:
+        return []
+
+    k = 2 / (period + 1.0)
+    out: List[Optional[float]] = [None] * len(series)
+
+    if len(series) < period:
+        return out
+
+    sma = sum(series[:period]) / period
+    out[period - 1] = sma
+    prev = sma
+
+    for i in range(period, len(series)):
+        price = series[i]
+        prev = price * k + prev * (1 - k)
+        out[i] = prev
+
+    return out
+
+
+def rolling_std(series: List[float], window: int) -> List[Optional[float]]:
+    if window <= 1:
+        raise ValueError("window trebuie să fie > 1")
+    n = len(series)
+    out: List[Optional[float]] = [None] * n
+    if n < window:
+        return out
+
+    for i in range(window - 1, n):
+        chunk = series[i - window + 1 : i + 1]
+        if len(chunk) < 2:
+            out[i] = None
+        else:
+            out[i] = stdev(chunk)  # type: ignore[arg-type]
+    return out
+
+
+def percentile_rank(history: List[float], value: float) -> float:
     """
-    Vectorized percentile rank similar cu logica oficială.
+    Percentila poziției lui `value` într-un istoric.
+    0 = cel mai mic, 100 = cel mai mare.
+    (identic ca în update_btc_state_latest_from_daily.py)
     """
-    ranks = np.searchsorted(np.sort(hist), current, side="right")
-    return (ranks / len(hist)) * 100.0
-
-
-def main():
-    with BTC_OHLC_PATH.open("r", encoding="utf-8") as f:
-        raw = json.load(f)
-
-    df = pd.DataFrame(raw)
-
-    # Detect time col
-    time_col = None
-    for c in ["timestamp", "time", "t", "date"]:
-        if c in df.columns:
-            time_col = c
+    if not history:
+        return 50.0
+    sorted_vals = sorted(history)
+    count = 0
+    for v in sorted_vals:
+        if v <= value:
+            count += 1
+        else:
             break
-    if not time_col:
-        raise ValueError("Nu am găsit coloană timp")
+    return 100.0 * count / len(sorted_vals)
 
-    # Parse datetime
-    if pd.api.types.is_numeric_dtype(df[time_col]):
-        sample = float(df[time_col].iloc[0])
-        unit = "ms" if sample > 10_000_000_000 else "s"
-        df["t"] = pd.to_datetime(df[time_col], unit=unit, utc=True)
-    else:
-        df["t"] = pd.to_datetime(df[time_col], utc=True)
 
-    df = df.sort_values("t").set_index("t")
+# --------- citire date BTC din btc_daily.csv (la fel ca scriptul oficial) ---------
 
-    close = df["close"].astype(float)
-    logret = np.log(close / close.shift(1))
 
-    # --- Vectorized indicators (identic conceptual cu modelul oficial) ---
+def read_btc_daily(path: Path):
+    if not path.exists():
+        raise FileNotFoundError(f"Nu am găsit fișierul {path}")
 
-    ema50 = close.ewm(span=50, adjust=False).mean()
-    ema200 = close.ewm(span=200, adjust=False).mean()
+    dates: List[datetime] = []
+    closes: List[float] = []
 
-    spread = (ema50 - ema200).abs()
-    vol200 = close.rolling(200).std()
-    trend_strength = spread / vol200
+    with path.open("r", encoding="utf-8") as f:
+        reader = csv.reader(f)
+        header = next(reader)
+        try:
+            date_idx = header.index("date")
+        except ValueError:
+            date_idx = header.index("Date")
+        try:
+            close_idx = header.index("close")
+        except ValueError:
+            close_idx = header.index("Close")
 
-    cumret60 = (close / close.shift(60)) - 1.0
+        for row in reader:
+            if not row or not row[date_idx]:
+                continue
+            d_str = row[date_idx].split()[0]
+            d = datetime.fromisoformat(d_str)
+            try:
+                c = float(row[close_idx])
+            except ValueError:
+                continue
+            dates.append(d)
+            closes.append(c)
 
-    vol30 = logret.rolling(30).std() * np.sqrt(365) * 100.0
+    combined = sorted(zip(dates, closes), key=lambda x: x[0])
+    dates_sorted, closes_sorted = zip(*combined)
+    return list(dates_sorted), list(closes_sorted)
 
-    # Drop NaNs pentru distribuții
-    ts_hist = trend_strength.dropna().to_numpy()
-    cr_hist = cumret60.dropna().to_numpy()
-    vol_hist = vol30.dropna().to_numpy()
 
-    # Percentile pentru fiecare punct
-    ic_struct_series = percentile_rank_vector(ts_hist, trend_strength.to_numpy())
-    ic_dir_series = percentile_rank_vector(cr_hist, cumret60.to_numpy())
-    vol_index_series = percentile_rank_vector(vol_hist, vol30.to_numpy())
+# --------- serie coezivă (0–100) pe toată istoria ---------
 
-    # Flux derivat
-    ic_flux_series = np.clip(100.0 - vol_index_series, 0, 100)
 
-    records = []
+def build_ic_series() -> Dict[str, Any]:
+    dates, closes = read_btc_daily(INPUT_DAILY)
+    n = len(closes)
+    if n < 260:
+        raise RuntimeError("Prea puține date BTC (ai nevoie de ~260 zile minim).")
 
-    for i, ts in enumerate(df.index):
-        if np.isnan(ic_struct_series[i]) or np.isnan(ic_dir_series[i]):
+    # log-returns
+    log_ret: List[float] = [0.0]
+    for i in range(1, n):
+        if closes[i - 1] <= 0 or closes[i] <= 0:
+            log_ret.append(0.0)
+        else:
+            log_ret.append(math.log(closes[i] / closes[i - 1]))
+
+    # EMA-uri & trend_strength (ca în scriptul oficial)
+    ema50 = ema(closes, 50)
+    ema200 = ema(closes, 200)
+
+    spread: List[float] = []
+    for i in range(n):
+        if ema50[i] is None or ema200[i] is None:
+            spread.append(0.0)
+        else:
+            spread.append(abs(ema50[i] - ema200[i]))
+
+    vol200 = rolling_std(closes, 200)
+
+    trend_strength: List[Optional[float]] = [None] * n
+    for i in range(n):
+        if vol200[i] is None or vol200[i] == 0:
+            trend_strength[i] = None
+        else:
+            trend_strength[i] = spread[i] / vol200[i]
+
+    # istoric pentru percentile (toată istoria, ca în snapshot)
+    ts_hist: List[float] = [
+        v for v in trend_strength if v is not None and v != 0.0
+    ]
+
+    # directionalitate – cumulated return pe 60 zile
+    window_dir = 60
+    cum_ret: List[Optional[float]] = [None] * n
+    for i in range(window_dir, n):
+        base = closes[i - window_dir]
+        if base <= 0:
+            cum_ret[i] = None
+        else:
+            cum_ret[i] = closes[i] / base - 1.0
+
+    cr_hist: List[float] = [v for v in cum_ret if v is not None]
+
+    # volatilitate 30d anualizată
+    window_vol = 30
+    vol30: List[Optional[float]] = [None] * n
+    for i in range(window_vol, n):
+        chunk = log_ret[i - window_vol + 1 : i + 1]
+        if len(chunk) < 2:
+            vol30[i] = None
+        else:
+            s = stdev(chunk)  # type: ignore[arg-type]
+            vol30[i] = s * math.sqrt(365.0) * 100.0
+
+    vol_hist: List[float] = [v for v in vol30 if v is not None]
+
+    series_records: List[Dict[str, Any]] = []
+
+    for i in range(n):
+        ts_val = trend_strength[i]
+        cr_val = cum_ret[i]
+        vol_val = vol30[i]
+
+        # sărim punctele foarte timpurii fără structură/volatilitate definită
+        if ts_val is None or cr_val is None or vol_val is None:
             continue
 
-        ic_struct = float(ic_struct_series[i])
-        ic_dir = float(ic_dir_series[i])
-        vol30_ann = float(vol30.iloc[i]) if not np.isnan(vol30.iloc[i]) else None
-        vol30_index = float(vol_index_series[i])
+        ic_struct = percentile_rank(ts_hist, ts_val)
+        ic_dir = percentile_rank(cr_hist, cr_val)
+        vol_index = percentile_rank(vol_hist, vol_val)
+        ic_flux = clamp(100.0 - vol_index, 0.0, 100.0)
 
         regime = classify_regime(ic_struct, ic_dir)
 
         rec = {
-            "t": int(ts.timestamp() * 1000),
-            "close": float(close.iloc[i]),
-            "ic_struct": ic_struct,
-            "ic_dir": ic_dir,
-            "ic_flux": float(ic_flux_series[i]),
+            "t": int(dates[i].timestamp() * 1000),
+            "close": float(closes[i]),
+            "ic_struct": float(clamp(ic_struct, 0.0, 100.0)),
+            "ic_dir": float(clamp(ic_dir, 0.0, 100.0)),
+            "ic_flux": float(ic_flux),
+            # pentru moment păstrăm ciclul ca 50 fix – ai deja logica macro-ciclu separat
             "ic_cycle": 50.0,
-            "vol30_ann_pct": vol30_ann,
-            "vol30_index": vol30_index,
+            "vol30_ann_pct": float(vol_val),
+            "vol30_index": float(clamp(vol_index, 0.0, 100.0)),
             "regime": regime.code,
             "regime_label": regime.label,
             "regime_short": regime.short,
             "regime_color": regime.color,
         }
-        records.append(rec)
+        series_records.append(rec)
 
     meta = {
-        "as_of": datetime.utcfromtimestamp(records[-1]["t"] / 1000).strftime("%Y-%m-%d"),
-        "points": len(records),
-        "source": "coeziv-btc-python-fast",
+        "as_of": dates[-1].strftime("%Y-%m-%d"),
+        "points": len(series_records),
+        "source": "coeziv-btc-official-daily",
     }
 
+    return {"meta": meta, "series": series_records}
+
+
+def main() -> None:
+    data = build_ic_series()
     OUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     with OUT_PATH.open("w", encoding="utf-8") as f:
-        json.dump({"meta": meta, "series": records}, f, ensure_ascii=False)
-
-    print(f"Generated {len(records)} points")
+        json.dump(data, f, ensure_ascii=False)
+    print(f"[Coeziv] Am generat {len(data['series'])} puncte în {OUT_PATH}")
 
 
 if __name__ == "__main__":
