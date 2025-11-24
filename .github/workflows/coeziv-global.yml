@@ -43,6 +43,9 @@ jobs:
           else
             echo "scripts/update_global_coeziv_state.py nu există – sar peste pas."
           fi
+      - name: Build Global Coeziv State JSON
+        run: |
+            python scripts/build_global_coeziv_state.py
 
       # 3️⃣ bis – Update BTC state (snapshot Coeziv oficial)
       - name: Update BTC State Latest from daily
