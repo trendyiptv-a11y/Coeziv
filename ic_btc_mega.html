@@ -528,6 +528,75 @@
         </div>
       </article>
 
+      <!-- Card: Formarea bazei noului mega-ciclu (CONDȚIONAT ICC_BTC < 20) -->
+<article class="card" id="baseMegaCycleCard" style="display:none;">
+  <div class="card-header">
+    <div>
+      <div class="card-title">
+        Baza noului mega-ciclu (ICC_BTC foarte jos)
+      </div>
+      <div class="card-sub">
+        Card afișat doar când ICC_BTC indică fază de resetare structurală profundă.
+      </div>
+    </div>
+
+    <article class="card" id="baseMegaCycleCard" style="display:none;">
+  <div class="card-header">
+    <div>
+      <div class="card-title">
+        Baza noului mega-ciclu (ICC_BTC sub 20)
+      </div>
+      <div class="card-sub">
+        Card special — vizibil doar în condiții extreme.
+      </div>
+    </div>
+
+    <div class="badge up">
+      <span class="badge-dot"></span>
+      <span>semnal rar</span>
+    </div>
+  </div>
+
+  <div class="meta-row">
+    <p style="margin:0 0 0.4rem;">
+      Când <strong>ICC_BTC</strong> scade sub <strong>20/100</strong>, modelul 
+      identifică probabil formarea bazei noului mega-ciclu, înaintea fazelor 
+      de acumulare structurală.
+    </p>
+  </div>
+</article>
+    <div class="badge up">
+      <span class="badge-dot"></span>
+      <span>bază structurală</span>
+    </div>
+  </div>
+
+  <div class="meta-row">
+    <p style="margin:0 0 0.4rem;">
+      Când <strong>ICC_BTC</strong> coboară în zona foarte joasă
+      (de obicei sub <strong>20/100</strong>), modelul Coeziv indică faptul că
+      ciclul anterior și-a consumat energia și a intrat în faza de
+      <strong>resetare structurală profundă</strong>. Aici se formează
+      <strong>baza reală</strong> a următorului mega-ciclu.
+    </p>
+
+    <p style="margin:0 0 0.4rem;">
+      În această perioadă, piața este caracterizată de volatilitate redusă sau
+      neregulată, scădere a levierului, fluxuri lente și coerente și presiuni
+      de acumulare. Istoric, acestea sunt condițiile în care apar
+      <strong>marile acumulări pe termen lung</strong>.
+    </p>
+
+    <p style="margin:0;">
+      În termeni simpli:
+      <strong>
+        când ICC_BTC este foarte jos, piața nu este „moartă”, ci își pregătește
+        fundația pentru următorul mare bull market.
+      </strong>
+    </p>
+  </div>
+</article>
+      
       <!-- IC_BTC STRUCTURAL -->
       <article class="card">
         <div class="card-header">
@@ -1071,6 +1140,16 @@
         }
         document.getElementById("iccPhaseLabel").textContent = cycleCls.label;
         document.getElementById("iccText").textContent = cycleCls.text;
+
+        // === Afișare condiționată: Baza noului mega-ciclu ===
+const baseCard = document.getElementById("baseMegaCycleCard");
+if (baseCard) {
+    if (icc != null && Number.isFinite(icc) && icc < 20) {
+        baseCard.style.display = "block";
+    } else {
+        baseCard.style.display = "none";
+    }
+}
 
         if (icStruct != null) {
           document.getElementById("icStructValue").textContent = icStruct.toFixed(2);
