@@ -2,749 +2,931 @@
 <html lang="ro">
 <head>
   <meta charset="UTF-8" />
-  <title>Indice coeziv global – stare macro</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta
-    name="description"
-    content="Modelul coeziv global: structură & direcționalitate pentru piața financiară mondială."
-  />
+  <title>Modelul Coeziv – Piața globală de active</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- Chart.js + Luxon (la fel ca pe celelalte pagini) -->
+  <!-- Luxon + Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/luxon@3/build/global/luxon.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.3.1/dist/chartjs-adapter-luxon.umd.min.js"></script>
 
   <style>
     :root {
+      color-scheme: dark;
       --bg: #020617;
-      --bg-soft: #02091c;
-      --bg-elevated: #050b1f;
-      --card-bg: #050b1f;
-      --card-border: rgba(148, 163, 184, 0.15);
-      --accent: #4f46e5;
-      --accent-soft: rgba(79, 70, 229, 0.15);
-      --accent-strong: #a855f7;
+      --card: #020617;
+      --border: #1f2937;
       --text: #e5e7eb;
-      --text-strong: #f9fafb;
-      --text-soft: #9ca3af;
-      --muted: #6b7280;
-      --success: #22c55e;
-      --success-soft: rgba(34, 197, 94, 0.18);
-      --danger: #fb7185;
-      --danger-soft: rgba(248, 113, 113, 0.18);
-      --warn: #eab308;
-      --warn-soft: rgba(234, 179, 8, 0.18);
-      --radius-card: 1.4rem;
+      --muted: #9ca3af;
+      --accent: #6366f1;
+      --bull: #22c55e;
+      --bear: #ef4444;
+      --neutral: #38bdf8;
+      --radius-xl: 1.5rem;
+      --radius-lg: 1.1rem;
       --radius-pill: 999px;
-      --shadow-soft: 0 22px 55px rgba(15, 23, 42, 0.85);
-      --font-main: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
-        "Segoe UI", sans-serif;
     }
 
     * {
       box-sizing: border-box;
     }
 
-    html,
     body {
       margin: 0;
-      padding: 0;
-      background: radial-gradient(circle at top, #020617 0, #020617 35%, #000 100%);
-      color: var(--text);
-      font-family: var(--font-main);
-    }
-
-    body {
       min-height: 100vh;
-      display: flex;
-      justify-content: center;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+        "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top, rgba(56,189,248,0.12), transparent 55%),
+        radial-gradient(circle at 12% 82%, rgba(168,85,247,0.13), transparent 55%),
+        #020617;
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
     }
 
-    .page {
-      width: 100%;
-      max-width: 1120px;
-      padding: 1.25rem 1.1rem 2.5rem;
+    main.page {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 1.75rem 1.2rem 2.75rem;
     }
 
-    @media (min-width: 768px) {
-      .page {
-        padding: 1.8rem 1.4rem 2.8rem;
-      }
-    }
-
-    header {
+    header.hero {
       margin-bottom: 1.5rem;
     }
 
-    h1 {
-      margin: 0 0 0.55rem;
-      font-size: 1.25rem;
+    header.hero h1 {
+      margin: 0 0 0.4rem;
+      font-size: 1.9rem;
       letter-spacing: 0.06em;
       text-transform: uppercase;
-      color: var(--text-strong);
     }
 
-    header p {
+    header.hero p {
       margin: 0;
       font-size: 0.9rem;
-      color: var(--text-soft);
-      max-width: 720px;
-      line-height: 1.5;
-    }
-
-    .back-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      margin-bottom: 1rem;
-      padding: 0.45rem 0.9rem;
-      border-radius: 999px;
-      text-decoration: none;
-      color: var(--text-soft);
-      border: 1px solid rgba(148, 163, 184, 0.4);
-      font-size: 0.78rem;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-    }
-
-    .back-link span.icon {
-      font-size: 0.9rem;
-      transform: translateY(-0.5px);
+      color: var(--muted);
+      max-width: 42rem;
+      line-height: 1.6;
     }
 
     .pill-row {
       display: flex;
       flex-wrap: wrap;
       gap: 0.45rem;
-      margin-top: 0.95rem;
+      margin: 0.8rem 0 0.4rem;
     }
 
     .pill {
       display: inline-flex;
       align-items: center;
-      gap: 0.35rem;
-      padding: 0.3rem 0.75rem;
-      border-radius: 999px;
+      gap: 0.4rem;
+      padding: 0.32rem 0.85rem;
+      border-radius: var(--radius-pill);
       font-size: 0.76rem;
-      border: 1px solid rgba(148, 163, 184, 0.4);
-      background: rgba(15, 23, 42, 0.85);
-      color: var(--text-soft);
+      border: 1px solid rgba(148,163,184,0.55);
+      color: var(--muted);
+      background: rgba(15,23,42,0.9);
     }
 
     .pill-dot {
-      width: 0.45rem;
-      height: 0.45rem;
+      width: 0.48rem;
+      height: 0.48rem;
       border-radius: 999px;
-      background: var(--accent-strong);
+      background: var(--accent);
     }
 
-    .pill.bull .pill-dot {
-      background: var(--success);
-    }
+    .pill-dot.bull { background: var(--bull); }
+    .pill-dot.bear { background: var(--bear); }
+    .pill-dot.neutral { background: var(--neutral); }
 
-    .pill.bear .pill-dot {
-      background: var(--danger);
-    }
-
-    .pill.struct {
-      border-color: rgba(129, 140, 248, 0.7);
-      background: rgba(79, 70, 229, 0.18);
-    }
-
-    .card-grid {
+    .layout {
       display: grid;
-      grid-template-columns: minmax(0, 1fr);
-      gap: 1rem;
-      margin-bottom: 1.4rem;
+      grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+      gap: 1.25rem;
     }
 
-    @media (min-width: 720px) {
-      .card-grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+    @media (max-width: 900px) {
+      .layout {
+        grid-template-columns: minmax(0, 1fr);
       }
     }
 
     .card {
-      background: radial-gradient(circle at top left, #020617 0, #020617 28%, #020617 100%);
-      border-radius: var(--radius-card);
-      border: 1px solid var(--card-border);
-      box-shadow: var(--shadow-soft);
-      padding: 1.15rem 1.25rem;
       position: relative;
+      border-radius: var(--radius-xl);
+      border: 1px solid rgba(15,23,42,0.9);
+      background:
+        radial-gradient(circle at top left, rgba(56,189,248,0.18), transparent 55%),
+        radial-gradient(circle at 120% 0%, rgba(168,85,247,0.22), transparent 50%),
+        rgba(15,23,42,0.96);
+      padding: 1.3rem 1.25rem 1.4rem;
       overflow: hidden;
+    }
+
+    .card--secondary {
+      background:
+        radial-gradient(circle at top left, rgba(56,189,248,0.07), transparent 55%),
+        rgba(10,16,32,0.98);
     }
 
     .card::before {
       content: "";
       position: absolute;
-      inset: -40%;
-      opacity: 0.18;
-      background: radial-gradient(circle at 10% 0, rgba(56, 189, 248, 0.5) 0, transparent 50%);
+      inset: -30%;
+      background: radial-gradient(
+        circle at -10% 0%,
+        rgba(148,163,184,0.18),
+        transparent 60%
+      );
+      opacity: 0.4;
       pointer-events: none;
-      mix-blend-mode: soft-light;
+    }
+
+    .card-inner {
+      position: relative;
+      z-index: 1;
     }
 
     .card-title {
-      position: relative;
-      font-size: 0.8rem;
-      text-transform: uppercase;
+      font-size: 0.82rem;
       letter-spacing: 0.16em;
+      text-transform: uppercase;
       color: var(--muted);
-      margin-bottom: 0.4rem;
-    }
-
-    .card-value {
-      position: relative;
-      font-size: 2rem;
-      font-weight: 650;
-      color: var(--text-strong);
       margin-bottom: 0.25rem;
     }
 
-    .card-label {
-      position: relative;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      padding: 0.2rem 0;
-      font-size: 0.78rem;
-      font-weight: 500;
-      margin-bottom: 0.2rem;
+    .card-sub {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 0.8rem;
     }
 
-    .label-pill {
+    /* regim global */
+
+    .regime-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      border-radius: var(--radius-pill);
+      padding: 0.38rem 0.9rem;
+      border: 1px solid rgba(148,163,184,0.4);
+      background: rgba(15,23,42,0.9);
+      color: var(--muted);
+      font-size: 0.8rem;
+      margin-bottom: 0.65rem;
+    }
+
+    .regime-dot {
+      width: 0.55rem;
+      height: 0.55rem;
+      border-radius: 999px;
+      background: var(--neutral);
+    }
+
+    .regime-dot.bull { background: var(--bull); }
+    .regime-dot.bear { background: var(--bear); }
+    .regime-dot.neutral { background: var(--neutral); }
+
+    .regime-headline {
+      font-size: 1.45rem;
+      font-weight: 650;
+      margin: 0 0 0.35rem;
+    }
+
+    .regime-caption {
+      font-size: 0.86rem;
+      color: var(--muted);
+      margin: 0 0 0.6rem;
+    }
+
+    .pill-small {
       display: inline-flex;
       align-items: center;
       gap: 0.35rem;
-      padding: 0.25rem 0.7rem;
+      padding: 0.28rem 0.7rem;
+      font-size: 0.78rem;
       border-radius: var(--radius-pill);
-      border: 1px solid rgba(148, 163, 184, 0.4);
-      background: rgba(15, 23, 42, 0.9);
-      color: var(--text-soft);
-      font-size: 0.76rem;
+      border: 1px solid rgba(148,163,184,0.55);
+      background: rgba(15,23,42,0.95);
+      color: var(--muted);
     }
 
-    .label-pill.bull {
-      background: var(--success-soft);
-      border-color: rgba(34, 197, 94, 0.7);
-      color: var(--success);
-    }
-
-    .label-pill.bear {
-      background: var(--danger-soft);
-      border-color: rgba(248, 113, 113, 0.7);
-      color: var(--danger);
-    }
-
-    .label-pill.neutral {
-      background: rgba(30, 64, 175, 0.24);
-      border-color: rgba(129, 140, 248, 0.7);
-      color: #c4b5fd;
-    }
-
-    .label-pill .dot {
-      width: 0.42rem;
-      height: 0.42rem;
+    .pill-small span.dot {
+      width: 0.46rem;
+      height: 0.46rem;
       border-radius: 999px;
-      background: currentColor;
+      background: rgba(148,163,184,0.85);
     }
 
-    .card-meta {
-      position: relative;
-      margin-top: 0.3rem;
-      font-size: 0.8rem;
-      color: var(--text-soft);
-      line-height: 1.45;
+    /* metrici IC / ICD / risc */
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0.75rem;
     }
+
+    .metric-card {
+      border-radius: var(--radius-lg);
+      border: 1px solid rgba(30,64,175,0.55);
+      background:
+        radial-gradient(circle at top left, rgba(56,189,248,0.18), transparent 60%),
+        rgba(15,23,42,0.96);
+      padding: 0.85rem 0.9rem 0.95rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .metric-title {
+      font-size: 0.79rem;
+      text-transform: uppercase;
+      letter-spacing: 0.13em;
+      color: var(--muted);
+      margin-bottom: 0.25rem;
+    }
+
+    .metric-main {
+      display: flex;
+      align-items: baseline;
+      gap: 0.3rem;
+      margin-bottom: 0.35rem;
+    }
+
+    .metric-value {
+      font-size: 1.4rem;
+      font-weight: 600;
+    }
+
+    .metric-unit {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .metric-caption {
+      font-size: 0.78rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .metric-bar {
+      margin-top: 0.35rem;
+      position: relative;
+      width: 100%;
+      height: 0.45rem;
+      border-radius: 999px;
+      background: #020617;
+      overflow: hidden;
+      border: 1px solid rgba(15,23,42,0.9);
+    }
+
+    .metric-bar-fill {
+      position: absolute;
+      inset: 0;
+      width: 0%;
+      transition: width 0.6s ease;
+    }
+
+    .metric-bar-fill--ic {
+      background: linear-gradient(90deg, rgba(129,140,248,0.08), #6366f1);
+    }
+
+    .metric-bar-fill--icd {
+      background: linear-gradient(90deg, rgba(56,189,248,0.08), #0ea5e9);
+    }
+
+    .metric-bar-fill--risk {
+      background: linear-gradient(90deg, rgba(248,250,252,0.1), #facc15);
+    }
+
+    /* chart */
 
     .chart-card {
-      margin-top: 0.8rem;
-      margin-bottom: 1.2rem;
-    }
-
-    .chart-title {
-      font-size: 0.9rem;
-      font-weight: 500;
-      margin-bottom: 0.2rem;
-      color: var(--text-strong);
-    }
-
-    .chart-sub {
-      font-size: 0.8rem;
-      color: var(--text-soft);
-      margin-bottom: 0.7rem;
+      margin-top: 1.1rem;
     }
 
     .chart-wrapper {
       position: relative;
       width: 100%;
       aspect-ratio: 16 / 9;
-      border-radius: 1.4rem;
-      border: 1px solid rgba(148, 163, 184, 0.4);
-      background: radial-gradient(circle at top, #020617 0, #020617 40%, #020617 100%);
+      border-radius: var(--radius-xl);
+      border: 1px solid rgba(30,64,175,0.7);
+      background:
+        radial-gradient(circle at top left, rgba(56,189,248,0.15), transparent 60%),
+        rgba(15,23,42,0.96);
+      padding: 0.7rem 0.8rem 0.8rem;
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.9);
       overflow: hidden;
-      padding: 0.4rem 0.4rem 0.6rem;
     }
 
     .chart-wrapper canvas {
+      position: absolute;
+      inset: 0;
       width: 100% !important;
       height: 100% !important;
     }
 
-    .note {
-      font-size: 0.82rem;
-      color: var(--text-soft);
-      line-height: 1.6;
-      margin-top: 0.25rem;
-    }
-
-    .note strong {
-      color: #e5e7eb;
-      font-weight: 500;
-    }
-
-    .macro-card {
-      margin-top: 0.8rem;
-    }
-
-    .macro-card p {
+    .chart-legend {
       position: relative;
-      margin: 0.25rem 0;
+      z-index: 2;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 0.3rem;
+    }
+
+    .legend-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .legend-dot {
+      width: 0.75rem;
+      height: 0.4rem;
+      border-radius: 999px;
+    }
+
+    .legend-dot.ic  { background: rgba(129,140,248,0.95); }
+    .legend-dot.icd { background: rgba(45,212,191,0.95); }
+
+    /* rezumat simplificat */
+
+    .summary-card {
+      margin-top: 1.1rem;
+      border-radius: var(--radius-xl);
+      border: 1px solid rgba(30,64,175,0.7);
+      background:
+        radial-gradient(circle at top left, rgba(56,189,248,0.15), transparent 60%),
+        rgba(15,23,42,0.96);
+      padding: 1.1rem 1.1rem 1.2rem;
+    }
+
+    .summary-title {
       font-size: 0.82rem;
-      color: var(--text-soft);
+      text-transform: uppercase;
+      letter-spacing: 0.13em;
+      color: var(--muted);
+      margin-bottom: 0.35rem;
+    }
+
+    .summary-main {
+      font-size: 0.88rem;
+      margin-bottom: 0.35rem;
+    }
+
+    .summary-main strong {
+      font-weight: 600;
+    }
+
+    .summary-list {
+      color: #cbd5e1;
+      padding-left: 1.2rem;
       line-height: 1.6;
+      font-size: 0.82rem;
+      margin: 0 0 0.4rem;
     }
 
-    .macro-card em {
-      font-style: italic;
+    .summary-note {
+      font-size: 0.76rem;
+      color: var(--muted);
+      margin-top: 0.3rem;
     }
 
-    .macro-card strong {
-      color: var(--text-strong);
-      font-weight: 500;
+    /* error */
+
+    .error-box {
+      margin-top: 0.8rem;
+      font-size: 0.78rem;
+      padding: 0.6rem 0.8rem;
+      border-radius: 0.9rem;
+      border: 1px solid rgba(248,113,113,0.7);
+      background: rgba(127,29,29,0.22);
+      color: #fecaca;
+      display: none;
     }
   </style>
 </head>
 <body>
   <main class="page">
-    <a href="index.html" class="back-link">
-      <span class="icon">←</span>
-      <span>Înapoi la indice IC_BTC</span>
-    </a>
-
-    <header>
-      <h1>Indice coeziv global – stare macro</h1>
+    <header class="hero">
+      <h1>Modelul Coeziv – Piața globală de active</h1>
       <p>
-        Model coeziv extins la piața financiară mondială (SPX, VIX, DXY, aur, petrol). Indicii sunt normalizați în
-        intervalul 0–100 și urmăresc echilibrul structural global și direcționalitatea riscului.
+        IC Global și ICD Global măsoară structura și direcționalitatea mediului global de risc
+        (SPX, VIX, DXY, aur, petrol). Valorile și regimul sunt calculate în backend, iar
+        această pagină doar le vizualizează.
       </p>
-
       <div class="pill-row">
-        <div class="pill struct">
-          <span class="pill-dot"></span>
-          <span>IC_GLOBAL structural – stabilitate vs. fragilitate globală</span>
+        <div class="pill">
+          <span class="pill-dot neutral"></span>
+          IC Global – structură coezivă multi-asset
+        </div>
+        <div class="pill">
+          <span class="pill-dot bull"></span>
+          ICD Global – bias pro-risc / defensiv
         </div>
         <div class="pill">
           <span class="pill-dot"></span>
-          <span>ICD_GLOBAL direcțional – apetit vs. aversiune la risc</span>
-        </div>
-        <div class="pill bull">
-          <span class="pill-dot"></span>
-          <span>Regim bullish global – risc susținut</span>
-        </div>
-        <div class="pill bear">
-          <span class="pill-dot"></span>
-          <span>Regim bearish global – stres & de-leverage</span>
+          Macro-signal – risk-on / risk-off agregat
         </div>
       </div>
     </header>
 
-    <!-- Carduri metrice -->
-    <section class="card-grid">
+    <section class="layout">
+      <!-- stânga: regim + context -->
       <article class="card">
-        <div class="card-title">IC_GLOBAL structural (0–100)</div>
-        <div id="icGlobalValue" class="card-value">–</div>
-        <div class="card-label">
-          <span id="icGlobalLabel" class="label-pill neutral">
-            <span class="dot"></span>
-            <span>Se încarcă…</span>
-          </span>
-        </div>
-        <div id="icGlobalMeta" class="card-meta">
-          Evaluare structurală globală în curs de încărcare.
+        <div class="card-inner">
+          <div class="card-title">Regim global coeziv</div>
+          <div class="card-sub">
+            Ultima dată de actualizare: <span id="asOf">–</span>
+          </div>
+
+          <div class="regime-chip" id="regimeChip">
+            <span id="regimeDot" class="regime-dot neutral"></span>
+            <span>Regim global</span>
+            <span id="regimePillText">–</span>
+          </div>
+
+          <h2 id="regimeHeadline" class="regime-headline">–</h2>
+          <p id="regimeCaption" class="regime-caption">
+            Modelul așteaptă datele pentru a descrie regimul global.
+          </p>
+
+          <div style="margin-top:0.4rem;">
+            <span class="pill-small">
+              <span class="dot"></span>
+              <span id="icLevelBadge">IC Global: –</span>
+            </span>
+            <span class="pill-small" style="margin-left:0.4rem;">
+              <span class="dot"></span>
+              <span id="icdLevelBadge">ICD Global: –</span>
+            </span>
+          </div>
+
+          <div id="errorBox" class="error-box"></div>
         </div>
       </article>
 
-      <article class="card">
-        <div class="card-title">ICD_GLOBAL direcțional (0–100)</div>
-        <div id="icdGlobalValue" class="card-value">–</div>
-        <div class="card-label">
-          <span id="icdGlobalLabel" class="label-pill neutral">
-            <span class="dot"></span>
-            <span>Se încarcă…</span>
-          </span>
-        </div>
-        <div id="icdGlobalMeta" class="card-meta">
-          Direcționalitatea agregată a pieței (risk-on vs. risk-off).
-        </div>
-      </article>
+      <!-- dreapta: metrici -->
+      <article class="card card--secondary">
+        <div class="card-inner">
+          <div class="card-title">Structură, direcționalitate și risc global</div>
+          <div class="card-sub">
+            Indici coezivi calculați din corelații multi-asset și randamente cumulative
+            risk-on / risk-off.
+          </div>
 
-      <article class="card">
-        <div class="card-title">Regim global curent (model coeziv)</div>
-        <div id="regimeValue" class="card-value">–</div>
-        <div class="card-label">
-          <span id="regimePill" class="label-pill neutral">
-            <span class="dot"></span>
-            <span>Se calculează…</span>
-          </span>
-        </div>
-        <div id="regimeMeta" class="card-meta">
-          Regim agregat estimat din IC_GLOBAL structural și ICD_GLOBAL direcțional.
+          <div class="metrics-grid">
+            <div class="metric-card">
+              <div class="metric-title">IC Global (structură)</div>
+              <div class="metric-main">
+                <span id="icValue" class="metric-value">–</span>
+                <span class="metric-unit">/ 100</span>
+              </div>
+              <div class="metric-bar">
+                <div id="icBar" class="metric-bar-fill metric-bar-fill--ic"></div>
+              </div>
+              <p id="icMeta" class="metric-caption">
+                Indice structural global (IC Global). Valori ridicate indică o coerență
+                ridicată între principalele piețe de active.
+              </p>
+            </div>
+
+            <div class="metric-card">
+              <div class="metric-title">ICD Global (direcțional)</div>
+              <div class="metric-main">
+                <span id="icdValue" class="metric-value">–</span>
+                <span class="metric-unit">/ 100</span>
+              </div>
+              <div class="metric-bar">
+                <div id="icdBar" class="metric-bar-fill metric-bar-fill--icd"></div>
+              </div>
+              <p id="icdMeta" class="metric-caption">
+                Indice direcțional global (ICD Global). Valori ridicate indică bias
+                pro-risc (risk-on), valori joase bias defensiv.
+              </p>
+            </div>
+
+            <div class="metric-card">
+              <div class="metric-title">Scor Coeziv de risc global</div>
+              <div class="metric-main">
+                <span id="riskScoreValue" class="metric-value">–</span>
+                <span class="metric-unit">(-1 … +1)</span>
+              </div>
+              <div class="metric-bar">
+                <div id="riskBar" class="metric-bar-fill metric-bar-fill--risk"></div>
+              </div>
+              <p id="riskMeta" class="metric-caption">
+                Scor derivat din structură și direcționalitate. Semnal macro:
+                <strong id="macroSignal">–</strong>.
+              </p>
+            </div>
+          </div>
         </div>
       </article>
     </section>
 
-    <!-- Grafic global -->
-    <section class="card chart-card">
-      <div class="chart-title">Indice structural & direcțional global (0–100)</div>
-      <div class="chart-sub">
-        Linia albastră reprezintă IC_GLOBAL structural, linia roz reprezintă ICD_GLOBAL direcțional (agregat macro).
-        Date zilnice, normalizate în 0–100.
+    <!-- istoric chart -->
+    <section class="chart-card">
+      <div class="card card--secondary">
+        <div class="card-inner">
+          <div class="card-title">Istoric IC Global &amp; ICD Global</div>
+          <div class="card-sub">
+            Evoluția indicilor coezivi globali pe perioada disponibilă în date.
+          </div>
+
+          <div class="chart-wrapper">
+            <div class="chart-legend">
+              <div class="legend-chip">
+                <span class="legend-dot ic"></span>
+                <span>IC Global</span>
+              </div>
+              <div class="legend-chip">
+                <span class="legend-dot icd"></span>
+                <span>ICD Global</span>
+              </div>
+            </div>
+            <canvas id="globalChart"></canvas>
+          </div>
+        </div>
       </div>
-
-      <div class="chart-wrapper">
-        <canvas id="globalChart"></canvas>
-      </div>
-
-      <p class="note" id="lastUpdateNote">
-        Se încarcă datele globale...
-      </p>
     </section>
 
-    <!-- Explicații macro -->
-    <section class="card macro-card">
-      <div class="card-title">Cum interpretăm indicele coeziv global?</div>
-      <p>
-        <strong>IC_GLOBAL structural</strong> măsoară cât de „aliniate” sunt marile fluxuri ale pieței – indice bursier
-        global (SPX), volatilitate (VIX), dolar (DXY), aur și petrol. Valori ridicate sugerează o structură
-        coerentă și stabilă, valori foarte scăzute indică fragilitate sistemică.
+    <!-- rezumat simplificat -->
+    <section class="summary-card">
+      <div class="summary-title">Rezumat simplificat al contextului global</div>
+      <p class="summary-main">
+        Interpretare practică:
+        <strong id="summaryHeadline">–</strong>
       </p>
-      <p>
-        <strong>ICD_GLOBAL direcțional</strong> combină informația de trend a acelorași serii. Niveluri ridicate
-        sugerează un mediu <em>risk-on</em> (fluxuri orientate către risc), iar niveluri foarte reduse un mediu
-        <em>risk-off</em> (aversiune la risc, de-leverage).
-      </p>
-      <p>
-        <strong>Regimul global coeziv</strong> este derivat din combinația celor doi indici:
-        structură puternică + direcționalitate pro-risc ≈ regim bullish global;
-        structură ridicată dar direcționalitate defensivă ≈ regim bearish; valori amestecate ≈
-        faze de tranziție / reorganizare.
-      </p>
-      <p>
-        Modelul nu încearcă să „prezică” mișcări zilnice, ci să ofere o lentilă macro asupra
-        <strong>contextului structural</strong> în care se află Bitcoin și restul pieței. Nu reprezintă
-        recomandare financiară.
-      </p>
-    </section>
-
-    <!-- Buton + interpretare simplificată pentru utilizatori -->
-    <a href="#interpretare-coeziva"
-       class="btn-interpretare"
-       style="display:inline-block; margin:1.4rem 0; padding:0.65rem 1.15rem; background:#1e293b; color:#f8fafc; border-radius:0.5rem; text-decoration:none; border:1px solid rgba(255,255,255,0.1); font-size:0.85rem;">
-      Vezi interpretarea completă →
-    </a>
-
-    <section id="interpretare-coeziva" class="card" style="margin-top: 0.8rem; padding: 1.5rem;">
-      <h2 style="color: #f8fafc; margin-bottom: 1rem; font-size: 1.4rem;">
-        Rezumat Simplificat al Modelului Coeziv Global
-      </h2>
-
-      <p style="color: #cbd5e1; margin-bottom: 1rem;">
-        Modelul Coeziv Global analizează evoluția marilor active financiare (SPX, DXY, GOLD, OIL și VIX) folosind
-        date reale din 2009 până în prezent. El măsoară:
-      </p>
-
-      <ul style="color: #cbd5e1; padding-left: 1.2rem; margin-bottom: 1rem; line-height: 1.6;">
-        <li><strong>IC Global (structură)</strong> – cât de stabilă este piața globală pe termen lung.</li>
-        <li><strong>ICD Global (direcționalitate)</strong> – impulsul pieței pe termen scurt și mediu.</li>
+      <ul class="summary-list">
+        <li>
+          <strong>IC Global ≈ <span id="summaryIcVal">–</span></strong>
+          <span id="summaryIcText"></span>
+        </li>
+        <li>
+          <strong>ICD Global ≈ <span id="summaryIcdVal">–</span></strong>
+          <span id="summaryIcdText"></span>
+        </li>
       </ul>
-
-      <h3 style="color: #f1f5f9; margin-top: 1.2rem;">Ce înseamnă scorurile actuale?</h3>
-
-      <p style="color: #cbd5e1; margin-bottom: 1rem;">În prezent, modelul indică:</p>
-
-      <ul style="color: #cbd5e1; padding-left: 1.2rem; line-height: 1.6; margin-bottom: 1rem;">
-        <li><strong>IC Global ≈ 80</strong> – structură globală puternică și coerentă.</li>
-        <li><strong>ICD Global ≈ 80</strong> – direcționalitate sănătoasă, orientată spre risc.</li>
-      </ul>
-
-      <p style="color: #cbd5e1; font-style: italic; margin-bottom: 1.5rem;">
-        Interpretare simplă: <strong>context global pozitiv, matur și stabil</strong>.
-      </p>
-
-      <h3 style="color: #f1f5f9; margin-top: 1.2rem;">De ce graficul începe doar în 2018?</h3>
-      <p style="color: #cbd5e1; margin-bottom: 1rem;">
-        Modelul folosește toate datele comune din 2009–2025, dar graficul arată doar ultimele 2000 de zile
-        pentru claritate și performanță. Analiza completă rămâne mult mai largă decât porțiunea afișată.
-      </p>
-
-      <p style="color: #94a3b8; margin-bottom: 1.5rem;">
-        Important: <strong>modelul interpretează toată perioada 2009–2025</strong>, chiar dacă graficul afișează doar perioada recentă.
-      </p>
-
-      <h3 style="color: #f1f5f9; margin-top: 1.2rem;">Cum interpretezi valorile dacă se schimbă?</h3>
-
-      <ul style="color: #cbd5e1; padding-left: 1.2rem; margin-bottom: 1.5rem; line-height: 1.6;">
-        <li><strong>IC Global crește</strong> → piață mai stabilă.</li>
-        <li><strong>IC Global scade</strong> → apar tensiuni structurale.</li>
-        <li><strong>ICD Global crește</strong> → impuls pozitiv.</li>
-        <li><strong>ICD Global scade</strong> → pierdere de momentum.</li>
-      </ul>
-
-      <p style="color: #94a3b8; margin-bottom: 1.5rem;">
-        Regula ușoară:
-        <br>🟢 <strong>peste 65</strong> → context pozitiv  
-        <br>🟡 <strong>40–65</strong> → tranziție  
-        <br>🔴 <strong>sub 40</strong> → context fragil  
-      </p>
-
-      <h3 style="color: #f1f5f9; margin-top: 1.2rem;">Concluzie</h3>
-      <p style="color: #cbd5e1; line-height: 1.6;">
-        Modelul Coeziv Global oferă o imagine clară asupra stării piețelor internaționale.
-        Deși graficul afișează doar ultimii ani, analiza completă folosește toate datele disponibile.
-        Scorurile actuale arată o piață globală stabilă și bine aliniată.
+      <p class="summary-note">
+        Aceste informații descriu contextul global al riscului. Nu sunt recomandări
+        de cumpărare sau vânzare, ci un cadru de orientare: zonele ridicate sunt
+        asociate mai des cu faze mature pro-risc, iar zonele joase cu faze defensive
+        sau de acumulare. Folosește-le împreună cu propria analiză și cu orizontul tău
+        de timp.
       </p>
     </section>
   </main>
 
   <script>
-    const { DateTime } = luxon;
+    const DateTime = luxon.DateTime;
 
-    function classifyLevel(value, low, high) {
-      if (value == null || !Number.isFinite(value)) return { label: "necunoscut", mode: "neutral" };
-      if (value >= high) return { label: "ridicat", mode: "bull" };
-      if (value <= low) return { label: "scăzut", mode: "bear" };
-      return { label: "mediu", mode: "neutral" };
+    function clamp(x, lo, hi) {
+      return Math.min(hi, Math.max(lo, x));
     }
 
-    function describeIC(value, low, high) {
-      if (value == null || !Number.isFinite(value)) return "Indice structural indisponibil.";
-      if (value >= high) {
-        return "Structură globală coerentă, fluxurile mari sunt bine aliniate. Context macro relativ stabil.";
-      }
-      if (value <= low) {
-        return "Structură fragilă: corelații tensionate între acțiuni, volatilitate, dolar, aur și petrol.";
-      }
-      return "Structură mixtă: piața oscilează între episoade de stabilitate și tensiuni punctuale.";
-    }
-
-    function describeICD(value, low, high) {
-      if (value == null || !Number.isFinite(value)) return "Indice direcțional indisponibil.";
-      if (value >= high) {
-        return "Regim global orientat spre risc (risk-on) – fluxuri pro-ciclice, apetit pentru active riscante.";
-      }
-      if (value <= low) {
-        return "Regim defensiv (risk-off) – creștere de aversiune la risc, căutare de refugii și reducere de expuneri.";
-      }
-      return "Direcționalitate neutră sau mixtă: piața încă testează un scenariu dominant.";
-    }
-
-    function describeRegime(regime, lastDate) {
-      const d = lastDate ? DateTime.fromMillis(lastDate).toFormat("dd LLL yyyy") : "ultima dată";
-      if (regime === "bull") {
-        return `Regim global bullish coeziv: structură solidă + fluxuri pro-risc, valabil aproximativ la ${d}.`;
-      }
-      if (regime === "bear") {
-        return `Regim global bearish coeziv: structură ridicată dar orientare defensivă a fluxurilor, valabil la ${d}.`;
-      }
-      return `Fază de tranziție / reorganizare globală detectată la ${d}: structura și direcția nu indică încă un regim clar.`;
-    }
-
-    function setPillClass(el, mode) {
+    function setModeClass(el, mode) {
+      if (!el) return;
       el.classList.remove("bull", "bear", "neutral");
       if (mode === "bull") el.classList.add("bull");
       else if (mode === "bear") el.classList.add("bear");
       else el.classList.add("neutral");
     }
 
-    async function init() {
-      const icValueEl = document.getElementById("icGlobalValue");
-      const icLabelEl = document.getElementById("icGlobalLabel");
-      const icMetaEl = document.getElementById("icGlobalMeta");
+    function classifyLevel(value, low, high) {
+      if (value == null || !Number.isFinite(value)) {
+        return { level: "necunoscut", mode: "neutral" };
+      }
+      if (value >= high) return { level: "ridicat", mode: "bull" };
+      if (value <= low) return { level: "scăzut", mode: "bear" };
+      return { level: "mediu", mode: "neutral" };
+    }
 
-      const icdValueEl = document.getElementById("icdGlobalValue");
-      const icdLabelEl = document.getElementById("icdGlobalLabel");
-      const icdMetaEl = document.getElementById("icdGlobalMeta");
+    function describeIC(level) {
+      if (level === "ridicat") {
+        return "Structură globală coerentă: principalele piețe de active sunt aliniate.";
+      }
+      if (level === "scăzut") {
+        return "Structură globală fragmentată: mesaje divergente între clasele de active.";
+      }
+      if (level === "mediu") {
+        return "Structură globală moderată: coerență prezentă, dar fără extremă clară.";
+      }
+      return "Indice structural global (IC Global).";
+    }
 
-      const regimeValueEl = document.getElementById("regimeValue");
-      const regimePillEl = document.getElementById("regimePill");
-      const regimeMetaEl = document.getElementById("regimeMeta");
-      const lastUpdateNote = document.getElementById("lastUpdateNote");
+    function describeICD(level) {
+      if (level === "ridicat") {
+        return "Bias pro-risc: mediul favorizează expunerea pe active ciclice.";
+      }
+      if (level === "scăzut") {
+        return "Bias defensiv: fluxuri orientate spre refugii și protecție.";
+      }
+      if (level === "mediu") {
+        return "Bias direcțional mixt: nici clar pro-risc, nici clar defensiv.";
+      }
+      return "Indice direcțional global (ICD Global).";
+    }
+
+    function describeRegime(regime, riskScore) {
+      const r = (regime || "neutral").toLowerCase();
+      if (r === "bull") {
+        return {
+          title: "Regim coeziv bullish global",
+          text: "Structură solidă și fluxuri pro-risc în principalele piețe. Mediul încurajează asumarea de risc, cu accent pe active ciclice."
+        };
+      }
+      if (r === "bear") {
+        return {
+          title: "Regim coeziv bearish / defensiv",
+          text: "Structură relativ ridicată, dar cu fluxuri orientate spre protecție. Mediul favorizează active defensive și conservarea capitalului."
+        };
+      }
+      // neutral
+      if (riskScore > 0.05) {
+        return {
+          title: "Tranziție spre risk-on",
+          text: "Context global aflat între defensiv și pro-risc, cu o ușoară înclinare spre asumarea de risc."
+        };
+      }
+      if (riskScore < -0.05) {
+        return {
+          title: "Tranziție spre defensiv",
+          text: "Context global aflat într-o fază de răcire, cu bias ușor spre protecție și reducerea riscului."
+        };
+      }
+      return {
+        title: "Regim neutru / de tranziție",
+        text: "Structură și direcționalitate mixte. Piața nu se află într-o extremă clară, iar schimbările de regim pot apărea mai ușor."
+      };
+    }
+
+    async function initGlobal() {
+      const errorBox = document.getElementById("errorBox");
 
       try {
-        const resp = await fetch("data/global_coeziv_state.json");
-        if (!resp.ok) throw new Error("Nu am putut încărca global_coeziv_state.json");
-        const data = await resp.json();
+        const res = await fetch("data/global_coeziv_state.json?ts=" + Date.now(), {
+          cache: "no-store",
+        });
+        if (!res.ok) {
+          throw new Error("Nu pot încărca global_coeziv_state.json (" + res.status + ")");
+        }
+        const data = await res.json();
 
+        const asOf = data.as_of || "–";
         const series = Array.isArray(data.series) ? data.series : [];
-        if (!series.length) {
-          lastUpdateNote.textContent = "global_coeziv_state.json nu conține serii valabile.";
-          return;
+        const current = data.current || (series.length ? series[series.length - 1] : null);
+        const thresholds = data.thresholds || {};
+        const riskScore = typeof data.risk_score === "number" ? data.risk_score : null;
+        const macroSignal = data.macro_signal || "–";
+
+        if (!current) {
+          throw new Error("Nu există date curente în global_coeziv_state.json");
         }
 
-        const thresholds = data.thresholds || {};
-        const icLow = thresholds.ic_low ?? 35;
+        const icVal  = Number(current.ic_global);
+        const icdVal = Number(current.icd_global);
+        const regimeCode = (current.regime || "neutral").toLowerCase();
+
+        const icLow  = thresholds.ic_low  ?? 40;
         const icHigh = thresholds.ic_high ?? 65;
         const icdLow = thresholds.icd_low ?? 40;
-        const icdHigh = thresholds.icd_high ?? 60;
+        const icdHigh= thresholds.icd_high?? 60;
 
-        const current = data.current || series[series.length - 1];
-        const lastTs = current.t ?? series[series.length - 1].t;
-        const lastDate = DateTime.fromMillis(lastTs);
-        const lastDateLabel = lastDate.toFormat("dd LLL yyyy");
+        const asOfEl       = document.getElementById("asOf");
+        const icValueEl    = document.getElementById("icValue");
+        const icdValueEl   = document.getElementById("icdValue");
+        const icBar        = document.getElementById("icBar");
+        const icdBar       = document.getElementById("icdBar");
+        const icMetaEl     = document.getElementById("icMeta");
+        const icdMetaEl    = document.getElementById("icdMeta");
+        const icLevelBadge = document.getElementById("icLevelBadge");
+        const icdLevelBadge= document.getElementById("icdLevelBadge");
 
-        const icVal = Number(current.ic_global);
-        const icdVal = Number(current.icd_global);
+        const riskScoreEl  = document.getElementById("riskScoreValue");
+        const riskBar      = document.getElementById("riskBar");
+        const riskMetaEl   = document.getElementById("riskMeta");
+        const macroSignalEl= document.getElementById("macroSignal");
 
-        // IC_GLOBAL card
-        icValueEl.textContent = Number.isFinite(icVal) ? icVal.toFixed(2) : "–";
-        const icLevel = classifyLevel(icVal, icLow, icHigh);
-        setPillClass(icLabelEl, icLevel.mode);
-        icLabelEl.querySelector("span:last-child").textContent = `IC_GLOBAL ${icLevel.label}`;
-        icMetaEl.textContent = describeIC(icVal, icLow, icHigh);
+        const regimeChip   = document.getElementById("regimeChip");
+        const regimeDot    = document.getElementById("regimeDot");
+        const regimePillText = document.getElementById("regimePillText");
+        const regimeHeadline = document.getElementById("regimeHeadline");
+        const regimeCaption  = document.getElementById("regimeCaption");
 
-        // ICD_GLOBAL card
-        icdValueEl.textContent = Number.isFinite(icdVal) ? icdVal.toFixed(2) : "–";
-        const icdLevel = classifyLevel(icdVal, icdLow, icdHigh);
-        setPillClass(icdLabelEl, icdLevel.mode);
-        icdLabelEl.querySelector("span:last-child").textContent = `ICD_GLOBAL ${icdLevel.label}`;
-        icdMetaEl.textContent = describeICD(icdVal, icdLow, icdHigh);
+        const summaryHeadline = document.getElementById("summaryHeadline");
+        const summaryIcVal    = document.getElementById("summaryIcVal");
+        const summaryIcdVal   = document.getElementById("summaryIcdVal");
+        const summaryIcText   = document.getElementById("summaryIcText");
+        const summaryIcdText  = document.getElementById("summaryIcdText");
 
-        // Regim global
-        const regime = current.regime || "neutral";
-        if (regime === "bull") {
-          regimeValueEl.textContent = "bullish global";
-          setPillClass(regimePillEl, "bull");
-          regimePillEl.querySelector("span:last-child").textContent = "Regim coeziv bullish";
-        } else if (regime === "bear") {
-          regimeValueEl.textContent = "bearish global";
-          setPillClass(regimePillEl, "bear");
-          regimePillEl.querySelector("span:last-child").textContent = "Regim coeziv bearish";
+        if (asOfEl) asOfEl.textContent = asOf;
+
+        // IC & ICD numeric + bare
+        if (Number.isFinite(icVal)) {
+          icValueEl.textContent = icVal.toFixed(2);
+          icBar.style.width = clamp(icVal, 0, 100) + "%";
         } else {
-          regimeValueEl.textContent = "tranziție / neutru";
-          setPillClass(regimePillEl, "neutral");
-          regimePillEl.querySelector("span:last-child").textContent = "Fază de tranziție globală";
+          icValueEl.textContent = "–";
+          icBar.style.width = "0%";
         }
-        regimeMetaEl.textContent = describeRegime(regime, lastTs);
 
-        lastUpdateNote.textContent = `Ultima dată de actualizare: ${lastDateLabel}. Pragurile sunt adaptate automat la distribuția indicilor globali.`;
+        if (Number.isFinite(icdVal)) {
+          icdValueEl.textContent = icdVal.toFixed(2);
+          icdBar.style.width = clamp(icdVal, 0, 100) + "%";
+        } else {
+          icdValueEl.textContent = "–";
+          icdBar.style.width = "0%";
+        }
 
-        // Grafic
-        const labels = series.map(d => d.t);
-        const icSeries = series.map(d => d.ic_global ?? null);
-        const icdSeries = series.map(d => d.icd_global ?? null);
+        const icClass = classifyLevel(icVal, icLow, icHigh);
+        const icdClass = classifyLevel(icdVal, icdLow, icdHigh);
 
-        const ctx = document.getElementById("globalChart").getContext("2d");
-        new Chart(ctx, {
-          type: "line",
-          data: {
-            labels,
-            datasets: [
-              {
-                label: "IC_GLOBAL structural (0–100)",
-                data: icSeries,
-                borderWidth: 1.8,
-                tension: 0.22,
-                pointRadius: 0,
-              },
-              {
-                label: "ICD_GLOBAL direcțional (0–100)",
-                data: icdSeries,
-                borderWidth: 1.4,
-                borderDash: [4, 3],
-                tension: 0.18,
-                pointRadius: 0,
-              }
-            ]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            interaction: {
-              mode: "index",
-              intersect: false
+        if (icMetaEl) icMetaEl.textContent = describeIC(icClass.level);
+        if (icdMetaEl) icdMetaEl.textContent = describeICD(icdClass.level);
+
+        if (icLevelBadge) icLevelBadge.textContent = `IC Global: ${icClass.level}`;
+        if (icdLevelBadge) icdLevelBadge.textContent = `ICD Global: ${icdClass.level}`;
+
+        // Regim
+        const regimeDesc = describeRegime(regimeCode, riskScore ?? 0);
+
+        if (regimeHeadline) regimeHeadline.textContent = regimeDesc.title;
+        if (regimeCaption) regimeCaption.textContent = regimeDesc.text;
+
+        if (regimePillText) {
+          if (regimeCode === "bull") {
+            regimePillText.textContent = "Regim bullish global";
+          } else if (regimeCode === "bear") {
+            regimePillText.textContent = "Regim bearish global";
+          } else {
+            regimePillText.textContent = "Regim neutru / de tranziție";
+          }
+        }
+
+        if (regimeChip) {
+          let mode = "neutral";
+          if (regimeCode === "bull") mode = "bull";
+          else if (regimeCode === "bear") mode = "bear";
+          setModeClass(regimeChip, mode);
+        }
+
+        if (regimeDot) {
+          regimeDot.classList.remove("bull", "bear", "neutral");
+          if (regimeCode === "bull") regimeDot.classList.add("bull");
+          else if (regimeCode === "bear") regimeDot.classList.add("bear");
+          else regimeDot.classList.add("neutral");
+        }
+
+        // risc global
+        if (riskScoreEl && riskScore != null) {
+          riskScoreEl.textContent = riskScore.toFixed(2);
+        }
+
+        if (riskBar && riskScore != null) {
+          // mapăm -1..1 la 0..100, cu 50 = neutru
+          const pct = clamp((riskScore + 1) * 50, 0, 100);
+          riskBar.style.width = pct + "%";
+        }
+
+        if (macroSignalEl) macroSignalEl.textContent = macroSignal;
+
+        if (riskMetaEl && riskScore != null) {
+          let extra = "";
+          if (riskScore > 0.3) {
+            extra = " Mediul este clar pro-risc.";
+          } else if (riskScore < -0.3) {
+            extra = " Mediul este clar defensiv.";
+          } else if (Math.abs(riskScore) < 0.1) {
+            extra = " Mediul este relativ echilibrat.";
+          }
+          riskMetaEl.innerHTML =
+            `Scor derivat din structură și direcționalitate. Semnal macro: ` +
+            `<strong>${macroSignal}</strong>.${extra}`;
+        }
+
+        // rezumat simplificat
+        if (summaryHeadline) {
+          if (regimeCode === "bull") {
+            summaryHeadline.textContent = "Context global pozitiv, cu bias pro-risc.";
+          } else if (regimeCode === "bear") {
+            summaryHeadline.textContent = "Context global defensiv / fragil.";
+          } else {
+            summaryHeadline.textContent = "Context global de tranziție, fără extremă clară.";
+          }
+        }
+
+        if (summaryIcVal && Number.isFinite(icVal)) {
+          summaryIcVal.textContent = icVal.toFixed(0);
+        }
+        if (summaryIcdVal && Number.isFinite(icdVal)) {
+          summaryIcdVal.textContent = icdVal.toFixed(0);
+        }
+
+        if (summaryIcText) {
+          summaryIcText.textContent = " – " + describeIC(icClass.level);
+        }
+        if (summaryIcdText) {
+          summaryIcdText.textContent = " – " + describeICD(icdClass.level);
+        }
+
+        // chart
+        const ctx = document.getElementById("globalChart");
+        if (ctx && series.length) {
+          const labels    = series.map(d => d.t);
+          const icSeries  = series.map(d => d.ic_global ?? null);
+          const icdSeries = series.map(d => d.icd_global ?? null);
+
+          new Chart(ctx, {
+            type: "line",
+            data: {
+              datasets: [
+                {
+                  label: "IC Global",
+                  data: labels.map((t, i) => ({ x: t, y: icSeries[i] })),
+                  borderColor: "rgba(129,140,248,1)",
+                  borderWidth: 1.6,
+                  pointRadius: 0,
+                  tension: 0.08
+                },
+                {
+                  label: "ICD Global",
+                  data: labels.map((t, i) => ({ x: t, y: icdSeries[i] })),
+                  borderColor: "rgba(45,212,191,1)",
+                  borderWidth: 1.4,
+                  pointRadius: 0,
+                  tension: 0.08
+                }
+              ]
             },
-            plugins: {
-              legend: {
-                display: true,
-                labels: {
-                  color: "#cbd5f5",
-                  font: { size: 11 }
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              interaction: {
+                mode: "index",
+                intersect: false
+              },
+              plugins: {
+                legend: { display: false },
+                tooltip: {
+                  callbacks: {
+                    title(items) {
+                      if (!items.length) return "";
+                      const ts = items[0].parsed.x;
+                      return DateTime.fromMillis(ts).toFormat("dd LLL yyyy");
+                    },
+                    label(ctx) {
+                      const v = ctx.parsed.y;
+                      if (!Number.isFinite(v)) return "";
+                      return `${ctx.dataset.label}: ${v.toFixed(1)}`;
+                    }
+                  }
                 }
               },
-              tooltip: {
-                callbacks: {
-                  title(items) {
-                    if (!items.length) return "";
-                    const t = items[0].parsed.x;
-                    return DateTime.fromMillis(t).toFormat("dd LLL yyyy");
+              scales: {
+                x: {
+                  type: "time",
+                  time: { unit: "month" },
+                  ticks: {
+                    maxRotation: 0,
+                    autoSkipPadding: 24,
+                    color: "rgba(148,163,184,0.9)",
+                    font: { size: 11 }
                   },
-                  label(item) {
-                    const v = item.parsed.y;
-                    if (v == null || !Number.isFinite(v)) return "";
-                    return `${item.dataset.label}: ${v.toFixed(2)}`;
+                  grid: {
+                    color: "rgba(30,64,175,0.18)"
+                  }
+                },
+                y: {
+                  ticks: {
+                    color: "rgba(148,163,184,0.9)",
+                    callback(value) {
+                      if (!Number.isFinite(value)) return "";
+                      return value.toFixed(0);
+                    }
+                  },
+                  grid: {
+                    color: "rgba(30,64,175,0.16)"
                   }
                 }
               }
-            },
-            scales: {
-              x: {
-                type: "time",
-                time: { unit: "year" },
-                grid: { display: false },
-                ticks: {
-                  color: "#9ca3af",
-                  maxRotation: 0,
-                  autoSkipPadding: 24
-                }
-              },
-              y: {
-                min: 0,
-                max: 100,
-                grid: {
-                  color: "rgba(148, 163, 184, 0.28)",
-                  drawBorder: false
-                },
-                ticks: {
-                  color: "#9ca3af",
-                  stepSize: 20
-                }
-              }
             }
-          }
-        });
+          });
+        }
+
       } catch (err) {
-        console.error(err);
-        lastUpdateNote.textContent =
-          "Eroare la încărcarea datelor globale. Verifică existența fișierului data/global_coeziv_state.json.";
+        if (errorBox) {
+          errorBox.style.display = "block";
+          errorBox.textContent =
+            "Eroare la încărcarea stării globale coezive: " + err.message;
+        }
+        console.error("[IC Global]", err);
       }
     }
 
-    init();
-  </script>
-
-  <script>
-    // Smooth scroll pentru linkurile interne (#interpretare-coeziva etc.)
-    document.addEventListener("DOMContentLoaded", function () {
-      document.querySelectorAll('a[href^="#"]').forEach(link => {
-        link.addEventListener("click", function (e) {
-          const target = document.querySelector(this.getAttribute("href"));
-          if (!target) return;
-          e.preventDefault();
-          target.scrollIntoView({ behavior: "smooth" });
-        });
-      });
-    });
+    initGlobal();
   </script>
 </body>
 </html>
