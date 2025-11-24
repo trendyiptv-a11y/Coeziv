@@ -764,7 +764,7 @@
 
     async function initMegaCycleSection() {
       try {
-        const series = await fetchJsonSafe("data/ic_btc_series.json");
+        const series = await fetchJsonSafe("/data/ic_btc_series.json");
         if (!Array.isArray(series) || series.length === 0) {
           throw new Error("ic_btc_series.json este gol sau invalid.");
         }
