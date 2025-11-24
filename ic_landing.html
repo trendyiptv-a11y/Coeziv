@@ -665,6 +665,11 @@
             </div>
           </div>
         </div>
+        <div class="metric-box">
+  <div class="metric-label">Preț BTC (spot live)</div>
+  <div id="btcLivePrice" class="metric-value">–</div>
+  <div class="metric-sub">Doar informativ. Nu intră în model.</div>
+</div>
 
         <div class="regime-chip" id="regimeChip">
           <span class="regime-dot"></span>
@@ -1037,6 +1042,24 @@
 
     initLandingSnapshot();
   </script>
+  <script>
+async function loadLivePrice() {
+  try {
+    const resp = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd");
+    if (!resp.ok) return;
+    const data = await resp.json();
+    const live = data.bitcoin && data.bitcoin.usd;
+    if (!live) return;
+
+    document.getElementById("btcLivePrice").textContent =
+      live.toLocaleString("en-US", { maximumFractionDigits: 0 }) + " USD";
+  } catch (e) {
+    console.warn("Nu pot încărca prețul live BTC:", e);
+  }
+}
+
+document.addEventListener("DOMContentLoaded", loadLivePrice);
+</script>
 </body>
 </html>
 </body>
