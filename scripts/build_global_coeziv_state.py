@@ -1,196 +1,290 @@
-#!/usr/bin/env python3
 import json
 from pathlib import Path
+from datetime import datetime, timezone
 
-import numpy as np
-import pandas as pd
+BASE_DIR = Path(__file__).resolve().parent.parent
+DATA_DIR = BASE_DIR / "data"
 
+# INPUT: seria globală IC (ajustează numele dacă la tine e altul)
+GLOBAL_SERIES_FILE = DATA_DIR / "global_ic_series.json"
 
-# ------------------------------------------------------
-# CONFIG – adaptează doar dacă schimbi structura repo-ului
-# ------------------------------------------------------
-DATA_GLOBAL_DIR = Path("data_global")
-
-ASSETS = {
-    "spx": DATA_GLOBAL_DIR / "spx.csv",   # indice bursier
-    "dxy": DATA_GLOBAL_DIR / "dxy.csv",   # dolar
-    "gold": DATA_GLOBAL_DIR / "gold.csv", # aur
-    "vix": DATA_GLOBAL_DIR / "vix.csv",   # volatilitate
-    "oil": DATA_GLOBAL_DIR / "oil.csv",   # petrol
-}
-
-FAST_WINDOW = 20   # SMA rapid
-SLOW_WINDOW = 100  # SMA lent
-
-MAX_DAYS = 2000    # opcțional: limităm seria globală
+# OUTPUT: fișierul consumat de ic_global.html
+GLOBAL_STATE_FILE = DATA_DIR / "global_coeziv_state.json"
 
 
-# ------------------------------------------------------
-# UTILITARE
-# ------------------------------------------------------
-def load_price_series_from_timestamp_csv(path: Path) -> pd.DataFrame:
+# Praguri oficiale ale modelului pentru IC / ICD.
+# Dacă ai alte valori „canonice” în model, modifică-le aici,
+# NU în frontend.
+IC_LOW = 35.0
+IC_HIGH = 65.0
+ICD_LOW = 40.0
+ICD_HIGH = 60.0
+
+
+def clamp(x: float, lo: float, hi: float) -> float:
+    return max(lo, min(hi, x))
+
+
+def safe_float(v):
+    try:
+        if v is None:
+            return None
+        return float(v)
+    except Exception:
+        return None
+
+
+def load_global_series(path: Path):
     """
-    CSV-urile tale au schema:
-      - timestamp (ms, float)
-      - close (string, cu prima linie simbol: 'DX-Y.NYB', '^VIX', etc.)
-    Întoarce un DataFrame cu:
-      - date (datetime)
-      - close (float)
+    Citește seria globală de IC din JSON.
+    Așteaptă un JSON de forma:
+    {
+      "series": [
+        { "t": 1731888000000, "ic_global": 78.4, "icd_global": 72.1, "regime": "bull" },
+        ...
+      ]
+    }
     """
     if not path.exists():
-        raise FileNotFoundError(f"Fișier lipsă: {path}")
+        raise RuntimeError(f"Lipsă fișier serie globală: {path}")
 
-    df = pd.read_csv(path)
+    with path.open("r", encoding="utf-8") as f:
+        data = json.load(f)
 
-    # aruncăm rândurile fără timestamp
-    df = df.dropna(subset=["timestamp"])
+    series = data.get("series") or []
+    if not isinstance(series, list) or not series:
+        raise RuntimeError("Seria globală este goală sau invalidă")
 
-    # convertim timestamp (ms) -> datetime
-    df["date"] = pd.to_datetime(df["timestamp"], unit="ms", errors="coerce")
+    # Normalizăm câmpurile de interes
+    norm = []
+    for row in series:
+        t = row.get("t")
+        ic = safe_float(row.get("ic_global") or row.get("ic"))
+        icd = safe_float(row.get("icd_global") or row.get("icd"))
+        regime = (row.get("regime") or "neutral").lower()
 
-    # convertim close la numeric; prima linie cu simbol va deveni NaN
-    df["close"] = pd.to_numeric(df["close"], errors="coerce")
+        if t is None:
+            # Ignorăm rândurile fără timestamp
+            continue
 
-    df = df.dropna(subset=["date", "close"]).copy()
-    df = df.sort_values("date")
-
-    return df[["date", "close"]]
-
-
-def add_trend_features(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Adaugă:
-      - sma_fast, sma_slow
-      - above_slow: preț > SMA(100)  (structură)
-      - trend_up: SMA(20) > SMA(100) (direcționalitate)
-    """
-    df = df.copy()
-    df["sma_fast"] = df["close"].rolling(FAST_WINDOW, min_periods=FAST_WINDOW).mean()
-    df["sma_slow"] = df["close"].rolling(SLOW_WINDOW, min_periods=SLOW_WINDOW).mean()
-
-    df["above_slow"] = df["close"] > df["sma_slow"]
-    df["trend_up"] = df["sma_fast"] > df["sma_slow"]
-    return df
-
-
-# ------------------------------------------------------
-# LOGICĂ GLOBALĂ
-# ------------------------------------------------------
-def build_global_state():
-    # 1. Încarcă seriile și adaugă trend features
-    asset_frames = {}
-    for name, path in ASSETS.items():
-        df = load_price_series_from_timestamp_csv(path)
-        df = add_trend_features(df)
-        asset_frames[name] = df[["date", "close", "above_slow", "trend_up"]].copy()
-
-    # 2. Merge pe dată (doar zile comune tuturor activelor)
-    merged = None
-    for name, df in asset_frames.items():
-        df_local = df.rename(
-            columns={
-                "close": f"{name}_close",
-                "above_slow": f"{name}_above_slow",
-                "trend_up": f"{name}_trend_up",
-            }
-        )
-        if merged is None:
-            merged = df_local
-        else:
-            merged = pd.merge(merged, df_local, on="date", how="inner")
-
-    if merged is None or merged.empty:
-        raise RuntimeError("Nu am obținut niciun interval comun de date pentru seriile globale.")
-
-    merged = merged.sort_values("date")
-    if MAX_DAYS is not None and len(merged) > MAX_DAYS:
-        merged = merged.iloc[-MAX_DAYS:]
-
-    asset_names = list(ASSETS.keys())
-    above_cols = [f"{a}_above_slow" for a in asset_names]
-    trend_cols = [f"{a}_trend_up" for a in asset_names]
-
-    merged["n_assets"] = len(asset_names)
-    merged["n_struct_strong"] = merged[above_cols].sum(axis=1)
-    merged["n_trend_up"] = merged[trend_cols].sum(axis=1)
-
-    # IC_GLOBAL structural = proporție active peste SMA_slow * 100
-    merged["ic_global"] = (merged["n_struct_strong"] / merged["n_assets"]) * 100.0
-    # ICD_GLOBAL direcțional = proporție active cu trend_up * 100
-    merged["icd_global"] = (merged["n_trend_up"] / merged["n_assets"]) * 100.0
-
-    # 4. Praguri din distribuția istorică
-    ic_series = merged["ic_global"].dropna()
-    icd_series = merged["icd_global"].dropna()
-
-    if len(ic_series) < 10 or len(icd_series) < 10:
-        ic_low, ic_high = 35.0, 65.0
-        icd_low, icd_high = 40.0, 60.0
-    else:
-        ic_low = float(np.percentile(ic_series, 30))
-        ic_high = float(np.percentile(ic_series, 70))
-        icd_low = float(np.percentile(icd_series, 30))
-        icd_high = float(np.percentile(icd_series, 70))
-
-    thresholds = {
-        "ic_low": round(ic_low, 2),
-        "ic_high": round(ic_high, 2),
-        "icd_low": round(icd_low, 2),
-        "icd_high": round(icd_high, 2),
-    }
-
-    # 5. Clasificare regim global
-    def classify_regime(row):
-        ic = row["ic_global"]
-        icd = row["icd_global"]
-        if not np.isfinite(ic) or not np.isfinite(icd):
-            return "neutral"
-        if ic >= ic_high and icd >= icd_high:
-            return "bull"
-        if ic >= ic_high and icd <= icd_low:
-            return "bear"
-        # alte combinații = tranziție / neutru
-        return "neutral"
-
-    merged["regime"] = merged.apply(classify_regime, axis=1)
-
-    # 6. Construim JSON: series + current + thresholds
-    series = []
-    for _, row in merged.iterrows():
-        ts_ms = int(pd.Timestamp(row["date"]).timestamp() * 1000)
-        ic_val = row["ic_global"]
-        icd_val = row["icd_global"]
-
-        series.append(
+        norm.append(
             {
-                "t": ts_ms,
-                "ic_global": round(float(ic_val), 2) if np.isfinite(ic_val) else None,
-                "icd_global": round(float(icd_val), 2) if np.isfinite(icd_val) else None,
-                "regime": row["regime"],
+                "t": int(t),
+                "ic_global": ic,
+                "icd_global": icd,
+                "regime": regime,
             }
         )
 
-    if not series:
-        raise RuntimeError("Nu am generat niciun punct valid în series.")
+    if not norm:
+        raise RuntimeError("Nu există rânduri valide în seria globală IC")
 
-    current = series[-1]
+    return norm
 
-    global_state = {
-        "series": series,
-        "current": current,
-        "thresholds": thresholds,
+
+def classify_level(value: float, low: float, high: float):
+    """
+    Întoarce (nivel, mod) pentru indicatori 0–100.
+    nivel: 'scăzut' / 'mediu' / 'ridicat' / 'necunoscut'
+    mod:   'bull' / 'bear' / 'neutral'
+    """
+    if value is None:
+        return "necunoscut", "neutral"
+
+    if value <= low:
+        return "scăzut", "bear"
+    if value >= high:
+        return "ridicat", "bull"
+    return "mediu", "neutral"
+
+
+def build_ic_text(level: str, mode: str) -> str:
+    """
+    Text interpretativ pentru IC Global.
+    """
+    if level == "necunoscut":
+        return "Indice structural global (IC Global). Date insuficiente pentru o interpretare robustă."
+
+    if level == "scăzut":
+        return (
+            "Structură globală slăbită sau fragmentată. Piața agregată este mai puțin coerentă, "
+            "cu mesaje mixte între clasele de active."
+        )
+    if level == "mediu":
+        return (
+            "Structură globală moderată. Contextul nu este extrem, dar nici complet dezancorat: "
+            "există coerență, fără a fi o fază de forțare structurală."
+        )
+    # ridicat
+    return (
+        "Structură globală coerentă și bine definită. Fluxurile majore sunt aliniate, iar piețele tind "
+        "să reacționeze în mod sincronizat la șocuri și informație."
+    )
+
+
+def build_icd_text(level: str, mode: str) -> str:
+    """
+    Text interpretativ pentru ICD Global.
+    """
+    if level == "necunoscut":
+        return "Indice direcțional global (ICD Global). Date insuficiente pentru o interpretare robustă."
+
+    if level == "scăzut":
+        return (
+            "Direcționalitate slabă sau defensivă. Mediul global este mai degrabă defensiv sau orientat spre "
+            "protecție, cu apetit redus pentru risc."
+        )
+    if level == "mediu":
+        return (
+            "Direcționalitate moderată. Piața nu este nici clar pro-risc, nici clar defensivă, sugerând o "
+            "fază de tranziție sau recalibrare."
+        )
+    # ridicat
+    return (
+        "Direcționalitate ridicată, orientată spre risc. Mediul global este în mod clar pro-risc (risk-on), "
+        "cu fluxuri favorabile activelor ciclice și de creștere."
+    )
+
+
+def build_regime_label_and_text(regime: str, ic_level: str, icd_level: str) -> tuple[str, str]:
+    """
+    Construiește eticheta și descrierea regimului global pe baza codului de regim și a nivelurilor IC/ICD.
+    """
+    regime = (regime or "neutral").lower()
+
+    if regime == "bull":
+        label = "Regim coeziv bullish global"
+        text = (
+            "Structură solidă și fluxuri pro-risc în principalele active globale. "
+            "Mediul favorizează, în general, asumarea de risc și expunerea pe active ciclice."
+        )
+        return label, text
+
+    if regime == "bear":
+        label = "Regim coeziv bearish global"
+        text = (
+            "Structură globală tensionată sau defensivă, cu fluxuri orientate spre protecție și reducere de risc. "
+            "Mediul favorizează activele defensive și strategiile de conservare a capitalului."
+        )
+        return label, text
+
+    # neutral / transition
+    label = "Regim coeziv neutru / de tranziție"
+    text = (
+        "Context global aflat într-o fază de tranziție: nici clar pro-risc, nici clar defensiv. "
+        "Structura și direcționalitatea sunt mixte, iar schimbările de regim pot apărea mai ușor."
+    )
+    return label, text
+
+
+def build_simple_summary_title(regime: str, ic_level: str, icd_level: str) -> str:
+    """
+    Titlu scurt pentru rezumatul simplificat, orientat pe utilizator.
+    """
+    regime = (regime or "neutral").lower()
+
+    if regime == "bull":
+        if ic_level == "ridicat" and icd_level == "ridicat":
+            return "Context global pozitiv, matur și stabil"
+        return "Context global pozitiv, cu bias pro-risc"
+
+    if regime == "bear":
+        if ic_level == "ridicat":
+            return "Context defensiv, cu structură tensionată"
+        return "Context global fragil sau defensiv"
+
+    # neutral
+    return "Context global de tranziție, fără extremă clară"
+
+
+def build_simple_summary_lines(ic_level: str, icd_level: str) -> list[str]:
+    """
+    Două linii simple pentru user, legate de IC și ICD.
+    """
+    lines = []
+
+    # IC
+    if ic_level == "ridicat":
+        lines.append("IC Global în zonă ridicată – structură agregată puternică.")
+    elif ic_level == "mediu":
+        lines.append("IC Global în zonă medie – structură moderată, fără extreme.")
+    elif ic_level == "scăzut":
+        lines.append("IC Global în zonă joasă – structură fragmentată sau instabilă.")
+    else:
+        lines.append("IC Global – date insuficiente pentru o concluzie clară.")
+
+    # ICD
+    if icd_level == "ridicat":
+        lines.append("ICD Global în zonă ridicată – direcționalitate orientată spre risc.")
+    elif icd_level == "mediu":
+        lines.append("ICD Global în zonă medie – bias global echilibrat, fără extremă clară.")
+    elif icd_level == "scăzut":
+        lines.append("ICD Global în zonă joasă – bias defensiv sau apetit redus pentru risc.")
+    else:
+        lines.append("ICD Global – date insuficiente pentru o concluzie clară.")
+
+    return lines
+
+
+def main():
+    series = load_global_series(GLOBAL_SERIES_FILE)
+    series_sorted = sorted(series, key=lambda r: r["t"])
+    current = series_sorted[-1]
+
+    ic_val = safe_float(current["ic_global"])
+    icd_val = safe_float(current["icd_global"])
+    regime_code = (current.get("regime") or "neutral").lower()
+
+    ic_level, ic_mode = classify_level(ic_val, IC_LOW, IC_HIGH)
+    icd_level, icd_mode = classify_level(icd_val, ICD_LOW, ICD_HIGH)
+
+    ic_text = build_ic_text(ic_level, ic_mode)
+    icd_text = build_icd_text(icd_level, icd_mode)
+
+    regime_label, regime_text = build_regime_label_and_text(
+        regime_code, ic_level, icd_level
+    )
+
+    simple_title = build_simple_summary_title(regime_code, ic_level, icd_level)
+    simple_lines = build_simple_summary_lines(ic_level, icd_level)
+
+    # Structura finală conformă cu ic_global.html
+    out = {
+      "series": series_sorted,
+      "thresholds": {
+          "ic_low": IC_LOW,
+          "ic_high": IC_HIGH,
+          "icd_low": ICD_LOW,
+          "icd_high": ICD_HIGH,
+      },
+      "current": {
+          "t": current["t"],
+          "ic_global": ic_val,
+          "icd_global": icd_val,
+          "regime": regime_code,
+
+          "ic_global_level": ic_level,
+          "ic_global_mode": ic_mode,
+          "ic_global_text": ic_text,
+
+          "icd_global_level": icd_level,
+          "icd_global_mode": icd_mode,
+          "icd_global_text": icd_text,
+
+          "regime_label": regime_label,
+          "regime_text": regime_text,
+
+          "simple_summary_title": simple_title,
+          "simple_summary_lines": simple_lines,
+      },
     }
 
-    # 7. Scriem în data/global_coeziv_state.json (exact ce citește ic_global.html)
-    out_dir = Path("data")
-    out_dir.mkdir(parents=True, exist_ok=True)
-    out_path = out_dir / "global_coeziv_state.json"
-
-    with out_path.open("w", encoding="utf-8") as f:
-        json.dump(global_state, f, ensure_ascii=False)
-
-    print(f"[OK] Scris {out_path} cu {len(series)} puncte; ultima dată = {current['t']}.")
+    GLOBAL_STATE_FILE.write_text(
+        json.dumps(out, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
+    print(f"[OK] Global Coeziv state salvat în {GLOBAL_STATE_FILE}")
 
 
 if __name__ == "__main__":
-    build_global_state()
+    main()
