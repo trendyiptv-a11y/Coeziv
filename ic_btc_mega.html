@@ -2,28 +2,38 @@
 <html lang="ro">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mega-ciclul coeziv BTC – Model Coeziv</title>
+  <title>Mega-ciclu Bitcoin – Model Coeziv</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta
+    name="description"
+    content="Interpretare coezivă a mega-ciclului Bitcoin, din 2010 până azi: ciclu, structură și flux în cadrul modelului Coeziv."
+  />
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
   <style>
     :root {
       --bg: #020617;
-      --bg-elevated: #020617;
-      --bg-soft: #050816;
+      --bg-soft: #02091c;
+      --bg-elevated: #050b1f;
       --accent: #38bdf8;
-      --accent-soft: rgba(56, 189, 248, 0.12);
-      --accent-strong: #60a5fa;
+      --accent-soft: rgba(56, 189, 248, 0.18);
+      --accent-strong: #0ea5e9;
+      --accent-stronger: #22d3ee;
       --text: #e5e7eb;
-      --muted: #9ca3af;
-      --muted-soft: #6b7280;
-      --border: #1f2937;
+      --text-strong: #f9fafb;
+      --text-soft: #9ca3af;
+      --muted: #6b7280;
       --up: #22c55e;
-      --down: #ef4444;
-      --warn: #f59e0b;
-      --radius-xl: 1.5rem;
-      --radius-lg: 1.1rem;
+      --up-soft: rgba(34, 197, 94, 0.16);
+      --down: #f97373;
+      --down-soft: rgba(248, 113, 113, 0.16);
+      --stress: #f97316;
+      --stress-soft: rgba(249, 115, 22, 0.18);
+      --border: rgba(148, 163, 184, 0.35);
+      --border-soft: rgba(148, 163, 184, 0.16);
+      --radius-xl: 1.6rem;
+      --radius-lg: 1.2rem;
       --radius-pill: 999px;
       --shadow-soft: 0 20px 60px rgba(0, 0, 0, 0.65);
       --font-main: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
@@ -34,107 +44,130 @@
       box-sizing: border-box;
     }
 
+    html,
     body {
       margin: 0;
-      min-height: 100vh;
-      font-family: var(--font-main);
-      background:
-        radial-gradient(circle at top, #0b1120 0, #020617 42%, #000 100%);
+      padding: 0;
+      background: radial-gradient(circle at top, #020617 0, #020617 40%, #000 100%);
       color: var(--text);
+      font-family: var(--font-main);
       -webkit-font-smoothing: antialiased;
     }
 
+    body {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+    }
+
     main.page {
-      max-width: 1080px;
-      margin: 0 auto;
-      padding: 1.7rem 1.2rem 2.8rem;
+      width: 100%;
+      max-width: 1120px;
+      padding: 1.6rem 1.1rem 2.6rem;
     }
 
-    a {
-      color: inherit;
-      text-decoration: none;
+    @media (min-width: 768px) {
+      main.page {
+        padding: 1.9rem 1.4rem 3rem;
+      }
     }
 
-    .top-back {
+    a.back-link {
       display: inline-flex;
       align-items: center;
       gap: 0.4rem;
-      padding: 0.35rem 0.85rem;
-      border-radius: var(--radius-pill);
-      border: 1px solid rgba(148, 163, 184, 0.45);
-      background: rgba(15, 23, 42, 0.9);
+      margin-bottom: 1rem;
+      padding: 0.45rem 0.9rem;
+      border-radius: 999px;
+      text-decoration: none;
+      color: var(--text-soft);
+      border: 1px solid rgba(148, 163, 184, 0.4);
       font-size: 0.78rem;
-      color: var(--muted);
-      margin-bottom: 1.1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
     }
 
-    .top-back span.icon {
-      display: inline-flex;
-      width: 0.55rem;
-      height: 0.55rem;
-      border-radius: 999px;
-      background: var(--accent);
+    a.back-link span.icon {
+      font-size: 0.9rem;
+      transform: translateY(-0.5px);
+    }
+
+    a.back-link:hover {
+      border-color: rgba(96, 165, 250, 0.8);
+      color: #e5e7eb;
     }
 
     header.hero {
-      margin-bottom: 1.6rem;
+      margin-bottom: 1.5rem;
     }
 
     header.hero h1 {
-      margin: 0 0 0.5rem;
-      font-size: 1.7rem;
-      letter-spacing: 0.06em;
+      margin: 0 0 0.65rem;
+      font-size: 1.85rem;
+      letter-spacing: 0.04em;
       text-transform: uppercase;
-      color: #f9fafb;
+      color: var(--text-strong);
     }
 
     header.hero p {
-      margin: 0.1rem 0 0;
-      font-size: 0.92rem;
-      color: var(--muted);
-      max-width: 44rem;
-      line-height: 1.55;
+      margin: 0;
+      font-size: 0.94rem;
+      color: var(--text-soft);
+      max-width: 50rem;
+      line-height: 1.6;
     }
 
     .pill-row {
       display: flex;
       flex-wrap: wrap;
-      gap: 0.55rem;
+      gap: 0.5rem;
       margin-top: 0.9rem;
     }
 
     .pill {
       display: inline-flex;
       align-items: center;
-      gap: 0.4rem;
-      padding: 0.35rem 0.8rem;
+      gap: 0.35rem;
+      padding: 0.3rem 0.8rem;
       border-radius: var(--radius-pill);
       font-size: 0.78rem;
-      background: rgba(15, 23, 42, 0.88);
-      border: 1px solid rgba(148, 163, 184, 0.3);
-      color: var(--muted);
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      background: rgba(15, 23, 42, 0.9);
+      color: var(--text-soft);
     }
 
     .pill-dot {
       width: 0.42rem;
       height: 0.42rem;
       border-radius: 999px;
-      background: var(--accent);
+      background: var(--accent-stronger);
     }
 
-    .pill.cycle .pill-dot { background: #a855f7; }
-    .pill.struct .pill-dot { background: #38bdf8; }
-    .pill.flux .pill-dot { background: #22c55e; }
+    .pill.up .pill-dot {
+      background: var(--up);
+    }
 
-    section.cards-grid {
+    .pill.down .pill-dot {
+      background: var(--down);
+    }
+
+    .pill.struct .pill-dot {
+      background: var(--accent-strong);
+    }
+
+    .pill.flux .pill-dot {
+      background: var(--stress);
+    }
+
+    .cards-grid {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns: 1.4fr 1fr;
       gap: 1rem;
       margin-bottom: 1.4rem;
     }
 
     @media (max-width: 900px) {
-      section.cards-grid {
+      .cards-grid {
         grid-template-columns: minmax(0, 1fr);
       }
     }
@@ -142,335 +175,254 @@
     .card {
       position: relative;
       border-radius: var(--radius-xl);
-      background:
-        radial-gradient(circle at top left, rgba(56, 189, 248, 0.12), transparent 40%),
-        radial-gradient(circle at bottom right, rgba(15, 23, 42, 0.9), #020617);
-      padding: 1.1rem 1.1rem 1.25rem;
-      border: 1px solid var(--border);
+      background: radial-gradient(circle at top left, #020617 0, #020617 35%, #020617 100%);
+      border: 1px solid var(--border-soft);
       box-shadow: var(--shadow-soft);
+      padding: 1.15rem 1.3rem 1.2rem;
       overflow: hidden;
     }
 
-    .card-mega {
-      grid-column: 1 / -1;
-      background:
-        radial-gradient(circle at top, rgba(248, 250, 252, 0.05), transparent 55%),
-        radial-gradient(circle at bottom right, rgba(56, 189, 248, 0.22), transparent 60%),
-        #020617;
-      border: 1px solid rgba(56, 189, 248, 0.45);
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      background: radial-gradient(circle at 0% -20%, rgba(56, 189, 248, 0.4), transparent 55%);
+      opacity: 0.5;
+      mix-blend-mode: soft-light;
+      pointer-events: none;
     }
 
     .card-header {
+      position: relative;
       display: flex;
       justify-content: space-between;
-      align-items: center;
-      margin-bottom: 0.65rem;
-      gap: 0.75rem;
+      align-items: flex-start;
+      gap: 0.8rem;
+      margin-bottom: 0.75rem;
+      z-index: 1;
     }
 
     .card-title {
-      font-size: 0.82rem;
+      font-size: 0.83rem;
       text-transform: uppercase;
       letter-spacing: 0.16em;
-      color: var(--muted-soft);
-      margin-bottom: 0.12rem;
+      color: var(--muted);
+      margin-bottom: 0.25rem;
     }
 
     .card-sub {
-      font-size: 0.78rem;
-      color: var(--muted);
+      font-size: 0.8rem;
+      color: var(--text-soft);
+      line-height: 1.5;
+    }
+
+    .card-mega .card-title {
+      color: #a5b4fc;
+    }
+
+    .card-mega::before {
+      background: radial-gradient(circle at 0% -30%, rgba(129, 140, 248, 0.6), transparent 55%);
+    }
+
+    .value-row {
+      position: relative;
+      display: flex;
+      align-items: baseline;
+      gap: 0.35rem;
+      margin-bottom: 0.35rem;
+      z-index: 1;
+    }
+
+    .value-main {
+      font-size: 2.15rem;
+      font-weight: 650;
+      color: var(--text-strong);
+    }
+
+    .value-suffix {
+      font-size: 0.9rem;
+      color: var(--text-soft);
+    }
+
+    .meta-row {
+      position: relative;
+      z-index: 1;
+      font-size: 0.8rem;
+      color: var(--text-soft);
+      line-height: 1.6;
     }
 
     .badge {
       display: inline-flex;
       align-items: center;
-      gap: 0.4rem;
-      padding: 0.27rem 0.8rem;
+      gap: 0.35rem;
+      padding: 0.25rem 0.7rem;
       border-radius: var(--radius-pill);
       font-size: 0.75rem;
-      border: 1px solid rgba(148, 163, 184, 0.4);
-      background: rgba(15, 23, 42, 0.95);
-      color: #e5e7eb;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      background: rgba(15, 23, 42, 0.92);
+      color: var(--text-soft);
       white-space: nowrap;
     }
 
-    .badge-dot {
-      width: 0.44rem;
-      height: 0.44rem;
+    .badge .badge-dot {
+      width: 0.42rem;
+      height: 0.42rem;
       border-radius: 999px;
+      background: currentColor;
     }
 
-    .badge.phase .badge-dot { background: #a855f7; }
-    .badge.cooling .badge-dot { background: var(--warn); }
-    .badge.stress .badge-dot { background: #ef4444; }
-    .badge.strong .badge-dot { background: var(--up); }
-    .badge.soft .badge-dot { background: var(--muted-soft); }
-
-    .value-main {
-      font-size: 2.1rem;
-      font-weight: 650;
-      color: #f9fafb;
-      letter-spacing: 0.02em;
+    .badge.phase {
+      border-color: rgba(129, 140, 248, 0.7);
+      color: #c4b5fd;
+      background: rgba(30, 64, 175, 0.3);
     }
 
-    .value-suffix {
-      font-size: 0.95rem;
-      color: var(--muted);
-      margin-left: 0.15rem;
+    .badge.up {
+      border-color: rgba(34, 197, 94, 0.7);
+      color: var(--up);
+      background: var(--up-soft);
     }
 
-    .value-row {
-      display: flex;
-      align-items: baseline;
-      gap: 0.35rem;
-      margin-bottom: 0.2rem;
+    .badge.cooling {
+      border-color: rgba(56, 189, 248, 0.7);
+      color: var(--accent-stronger);
+      background: rgba(15, 23, 42, 0.95);
     }
 
-    .card-mega .value-main {
-      font-size: 2.3rem;
+    .badge.stress {
+      border-color: rgba(249, 115, 22, 0.8);
+      color: var(--stress);
+      background: var(--stress-soft);
     }
 
-    .meta-row {
-      margin-top: 0.45rem;
-      font-size: 0.78rem;
-      color: var(--muted);
-      line-height: 1.5;
+    .badge.neutral {
+      border-color: rgba(148, 163, 184, 0.6);
+      color: var(--text-soft);
+      background: rgba(15, 23, 42, 0.9);
     }
 
-    .meta-row strong {
-      color: #e5e7eb;
-      font-weight: 500;
-    }
-
-    /* Sparkline */
-
-    section.sparkline {
-      margin-bottom: 1.6rem;
-    }
-
-    .sparkline-title {
+    .section-title {
       font-size: 0.85rem;
       text-transform: uppercase;
       letter-spacing: 0.16em;
-      color: var(--muted-soft);
-      margin-bottom: 0.25rem;
-    }
-
-    .sparkline-sub {
-      font-size: 0.8rem;
       color: var(--muted);
-      margin-bottom: 0.7rem;
+      margin: 1.5rem 0 0.4rem;
     }
 
-    .sparkline-wrapper {
-      border-radius: 1.2rem;
-      background: radial-gradient(circle at top, #020617, #020617 40%, #000);
-      border: 1px solid #111827;
-      overflow: hidden;
-      padding: 0.75rem 0.75rem 0.9rem;
+    .section-sub {
+      font-size: 0.82rem;
+      color: var(--text-soft);
+      margin: 0 0 0.7rem;
     }
 
-    .sparkline-wrapper canvas {
-      width: 100% !important;
-      height: 220px !important;
-    }
-
-    /* Narrative */
-
-    section.narrative {
-      margin-top: 1.2rem;
-      padding: 1.1rem 1.1rem 1.15rem;
+    .chart-card {
+      margin-top: 0.4rem;
       border-radius: var(--radius-xl);
+      background: radial-gradient(circle at top, rgba(15, 23, 42, 0.65), #020617);
       border: 1px solid var(--border);
-      background:
-        radial-gradient(circle at top left, rgba(148, 163, 184, 0.14), transparent 55%),
-        #020617;
+      padding: 1.05rem 1.15rem 1.25rem;
       box-shadow: var(--shadow-soft);
-      font-size: 0.86rem;
-      color: var(--muted);
+    }
+
+    .chart-wrapper {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 7;
+      border-radius: 1.3rem;
+      overflow: hidden;
+      background: radial-gradient(circle at top, #020617, #020617 40%, #000 100%);
+      border: 1px solid rgba(30, 64, 175, 0.7);
+    }
+
+    .chart-wrapper canvas {
+      position: absolute;
+      inset: 0;
+      width: 100% !important;
+      height: 100% !important;
+    }
+
+    .note {
+      margin-top: 0.5rem;
+      font-size: 0.8rem;
+      color: var(--text-soft);
       line-height: 1.7;
     }
 
-    section.narrative h2 {
-      margin: 0 0 0.5rem;
-      font-size: 0.98rem;
-      text-transform: uppercase;
-      letter-spacing: 0.18em;
-      color: #e5e7eb;
+    .highlight-box {
+      margin-top: 1rem;
+      border-radius: var(--radius-lg);
+      padding: 0.9rem 1rem;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      font-size: 0.8rem;
+      color: var(--text-soft);
     }
 
-    section.narrative p {
-      margin: 0.2rem 0;
-    }
-
-    section.narrative strong {
-      color: #e5e7eb;
-      font-weight: 500;
+    .highlight-box strong {
+      color: var(--text-strong);
     }
 
     .error-box {
-      margin-top: 0.75rem;
-      padding: 0.65rem 0.8rem;
+      margin-top: 0.8rem;
+      padding: 0.7rem 0.9rem;
       border-radius: var(--radius-lg);
-      border: 1px solid rgba(248, 113, 113, 0.55);
-      background: rgba(127, 29, 29, 0.35);
+      background: rgba(127, 29, 29, 0.25);
+      border: 1px solid rgba(248, 113, 113, 0.7);
       color: #fecaca;
-      font-size: 0.78rem;
+      font-size: 0.8rem;
       display: none;
     }
 
-    footer.page-foot {
-      margin-top: 2.2rem;
-      font-size: 0.76rem;
-      color: var(--muted-soft);
-      line-height: 1.7;
-    }
+    @media (max-width: 640px) {
+      .card {
+        border-radius: 1.2rem;
+        padding: 1rem 0.9rem 1.1rem;
+      }
 
-    footer.page-foot a {
-      color: var(--accent-strong);
-      text-decoration: none;
-    }
+      .chart-card {
+        padding: 0.9rem 0.85rem 1.1rem;
+        border-radius: 1.2rem;
+      }
 
-    footer.page-foot a:hover {
-      text-decoration: underline;
-    }
+      .chart-wrapper {
+        border-radius: 1rem;
+      }
 
-    /* Timeline bloc – preluat și adaptat din versiunea ta anterioară */
-
-    .mega-timeline {
-      margin-top: 1.8rem;
-      padding: 1.3rem 1.1rem 1.4rem;
-      border-radius: 1.5rem;
-      background: radial-gradient(circle at top, rgba(15,23,42,0.55), #020617);
-      border: 1px solid rgba(55,65,81,0.9);
-    }
-
-    .mega-timeline h3 {
-      margin: 0 0 0.6rem;
-      font-size: 0.96rem;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: #e5e7eb;
-    }
-
-    .mega-timeline p.lead {
-      margin: 0 0 0.7rem;
-      font-size: 0.84rem;
-      color: #9ca3af;
-      max-width: 44rem;
-      line-height: 1.5;
-    }
-
-    .mega-timeline-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 0.9rem;
-    }
-
-    @media (max-width: 900px) {
-      .mega-timeline-grid {
-        grid-template-columns: minmax(0, 1fr);
+      header.hero h1 {
+        font-size: 1.45rem;
       }
     }
-
-    .timeline-step {
-      border-radius: 1.3rem;
-      padding: 0.8rem 0.85rem 0.9rem;
-      background: rgba(15,23,42,0.9);
-      border: 1px solid rgba(55,65,81,0.9);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .timeline-step::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(circle at top left, rgba(59,130,246,0.14), transparent 60%);
-      opacity: 0.9;
-      pointer-events: none;
-    }
-
-    .timeline-inner {
-      position: relative;
-      z-index: 1;
-    }
-
-    .timeline-era {
-      font-size: 0.78rem;
-      text-transform: uppercase;
-      letter-spacing: 0.14em;
-      color: #9ca3af;
-      margin-bottom: 0.2rem;
-    }
-
-    .timeline-title {
-      font-size: 0.9rem;
-      margin: 0 0 0.25rem;
-      color: #e5e7eb;
-    }
-
-    .timeline-tag-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.25rem;
-      margin-bottom: 0.35rem;
-    }
-
-    .timeline-tag {
-      font-size: 0.7rem;
-      padding: 0.18rem 0.5rem;
-      border-radius: 999px;
-      border: 1px solid rgba(148,163,184,0.45);
-      background: rgba(15,23,42,0.9);
-      color: #cbd5f5;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-    }
-
-    .timeline-text {
-      margin: 0;
-      font-size: 0.8rem;
-      color: #d1d5db;
-      line-height: 1.55;
-    }
-
-    .timeline-tag.baza { border-color: rgba(34,197,94,0.6); }
-    .timeline-tag.bull { border-color: rgba(56,189,248,0.7); }
-    .timeline-tag.bear { border-color: rgba(248,113,113,0.7); }
-    .timeline-tag.reset { border-color: rgba(251,191,36,0.7); }
-    .timeline-tag.curent { border-color: rgba(129,140,248,0.9); }
-
   </style>
 </head>
 <body>
   <main class="page">
-    <a href="ic_btc.html" class="top-back">
-      <span class="icon"></span>
+    <a href="index.html" class="back-link">
+      <span class="icon">←</span>
       <span>Înapoi la indicele IC_BTC</span>
     </a>
 
     <header class="hero">
-      <h1>Mega-ciclul coeziv BTC</h1>
+      <h1>Mega-ciclul Bitcoin – Model Coeziv</h1>
       <p>
-        Privire macro asupra pieței Bitcoin din 2010 până azi, în Modelul Coeziv.
-        Pagina îți arată <strong>unde ne aflăm acum</strong> în mega-ciclul structural,
-        bazat pe indicii <strong>IC_BTC</strong> (structural), <strong>ICD_BTC</strong>
-        (direcțional), <strong>ICF_BTC</strong> (flux) și <strong>ICC_BTC</strong> (ciclu).
+        Interpretare structurală a mega-ciclului Bitcoin, din 2010 până azi, prin
+        <strong>ICC_BTC (ciclu)</strong>, <strong>IC_BTC (structură)</strong> și
+        <strong>ICF_BTC (flux)</strong>. Modelul nu încearcă să „prezică” prețul,
+        ci să arate unde ne aflăm în arcada istorică a ciclurilor Bitcoin.
       </p>
 
       <div class="pill-row">
-        <div class="pill cycle">
+        <div class="pill">
           <span class="pill-dot"></span>
-          <span>ICC_BTC – mega-ciclu post-2014</span>
+          <span>ICC_BTC – poziție în mega-ciclu (baze, expansiune, distribuție, reset)</span>
         </div>
         <div class="pill struct">
           <span class="pill-dot"></span>
-          <span>IC_BTC – structură &amp; trend de fond</span>
+          <span>IC_BTC – structură: trend vs flux total, volatilitate relativă</span>
         </div>
         <div class="pill flux">
           <span class="pill-dot"></span>
-          <span>ICF_BTC – flux &amp; stres sistemic</span>
+          <span>ICF_BTC – flux & tensiune: stres sistemic vs flux calm</span>
         </div>
       </div>
     </header>
@@ -491,6 +443,10 @@
             <span class="badge-dot"></span>
             <span id="megaScoreLabel">se încarcă...</span>
           </div>
+          <div class="badge up" id="megaRareBadge" style="display:none;">
+            <span class="badge-dot"></span>
+            <span>semnal rar</span>
+          </div>
         </div>
 
         <div class="value-row">
@@ -503,7 +459,7 @@
         </div>
       </article>
 
-      <!-- ICC_BTC CICLU -->
+      <!-- ICC_BTC – ciclu -->
       <article class="card">
         <div class="card-header">
           <div>
@@ -529,74 +485,44 @@
       </article>
 
       <!-- Card: Formarea bazei noului mega-ciclu (CONDȚIONAT ICC_BTC < 20) -->
-<article class="card" id="baseMegaCycleCard" style="display:none;">
-  <div class="card-header">
-    <div>
-      <div class="card-title">
-        Baza noului mega-ciclu (ICC_BTC foarte jos)
-      </div>
-      <div class="card-sub">
-        Card afișat doar când ICC_BTC indică fază de resetare structurală profundă.
-      </div>
-    </div>
+      <article class="card" id="baseMegaCycleCard" style="display:none;">
+        <div class="card-header">
+          <div>
+            <div class="card-title">
+              Baza noului mega-ciclu (ICC_BTC foarte jos)
+            </div>
+            <div class="card-sub">
+              Card special — vizibil doar când ICC_BTC indică început de bază structurală.
+            </div>
+          </div>
+        </div>
 
-    <article class="card" id="baseMegaCycleCard" style="display:none;">
-  <div class="card-header">
-    <div>
-      <div class="card-title">
-        Baza noului mega-ciclu (ICC_BTC sub 20)
-      </div>
-      <div class="card-sub">
-        Card special — vizibil doar în condiții extreme.
-      </div>
-    </div>
+        <div class="meta-row">
+          <p style="margin:0 0 0.4rem;">
+            Când <strong>ICC_BTC</strong> coboară în zona foarte joasă
+            (de obicei sub <strong>20/100</strong>), modelul Coeziv indică faptul că
+            ciclul anterior și-a consumat energia și a intrat în faza de
+            <strong>resetare structurală profundă</strong>. Aici se formează
+            <strong>baza reală</strong> a următorului mega-ciclu.
+          </p>
 
-    <div class="badge up">
-      <span class="badge-dot"></span>
-      <span>semnal rar</span>
-    </div>
-  </div>
+          <p style="margin:0 0 0.4rem;">
+            În această perioadă, piața este caracterizată de volatilitate redusă sau
+            neregulată, scădere a levierului, fluxuri lente și coerente și presiuni
+            de acumulare. Istoric, acestea sunt condițiile în care apar
+            <strong>marile acumulări pe termen lung</strong>.
+          </p>
 
-  <div class="meta-row">
-    <p style="margin:0 0 0.4rem;">
-      Când <strong>ICC_BTC</strong> scade sub <strong>20/100</strong>, modelul 
-      identifică probabil formarea bazei noului mega-ciclu, înaintea fazelor 
-      de acumulare structurală.
-    </p>
-  </div>
-</article>
-    <div class="badge up">
-      <span class="badge-dot"></span>
-      <span>bază structurală</span>
-    </div>
-  </div>
+          <p style="margin:0;">
+            În termeni simpli:
+            <strong>
+              când ICC_BTC este foarte jos, piața nu este „moartă”, ci își pregătește
+              fundația pentru următorul mare bull market.
+            </strong>
+          </p>
+        </div>
+      </article>
 
-  <div class="meta-row">
-    <p style="margin:0 0 0.4rem;">
-      Când <strong>ICC_BTC</strong> coboară în zona foarte joasă
-      (de obicei sub <strong>20/100</strong>), modelul Coeziv indică faptul că
-      ciclul anterior și-a consumat energia și a intrat în faza de
-      <strong>resetare structurală profundă</strong>. Aici se formează
-      <strong>baza reală</strong> a următorului mega-ciclu.
-    </p>
-
-    <p style="margin:0 0 0.4rem;">
-      În această perioadă, piața este caracterizată de volatilitate redusă sau
-      neregulată, scădere a levierului, fluxuri lente și coerente și presiuni
-      de acumulare. Istoric, acestea sunt condițiile în care apar
-      <strong>marile acumulări pe termen lung</strong>.
-    </p>
-
-    <p style="margin:0;">
-      În termeni simpli:
-      <strong>
-        când ICC_BTC este foarte jos, piața nu este „moartă”, ci își pregătește
-        fundația pentru următorul mare bull market.
-      </strong>
-    </p>
-  </div>
-</article>
-      
       <!-- IC_BTC STRUCTURAL -->
       <article class="card">
         <div class="card-header">
@@ -617,8 +543,8 @@
           <div class="value-suffix">/100</div>
         </div>
 
-        <div class="meta-row" id="icStructText">
-          Se încarcă interpretarea regimului structural…
+        <div class="meta-row" id="structText">
+          Se încarcă interpretarea structurii…
         </div>
       </article>
 
@@ -628,7 +554,7 @@
           <div>
             <div class="card-title">ICF_BTC FLUX (0–100)</div>
             <div class="card-sub">
-              Flux &amp; tensiune: cât de stresată sau calmă e piața.
+              Flux & tensiune: stres sistemic, mișcări violente vs flux calm.
             </div>
           </div>
           <div class="badge stress" id="fluxBadge">
@@ -648,189 +574,31 @@
       </article>
     </section>
 
-    <!-- SPARKLINE ICC_BTC – ULTIMII 10+ ANI -->
-    <section class="sparkline">
-      <div class="sparkline-title">
-        ICC_BTC ciclu – ultimele ~10+ ani (0–100)
+    <!-- SPARKLINE ICC_BTC – ultimi ~10 ani -->
+    <section class="chart-card">
+      <div class="section-title">Evoluția ICC_BTC în mega-ciclu</div>
+      <div class="section-sub">
+        Linie simplificată a <strong>ICC_BTC</strong> pe ultimii ~10 ani (scor ciclic 0–100).
+        Nu este un grafic de preț, ci un grafic de <strong>poziție în ciclu</strong>.
       </div>
-      <div class="sparkline-sub">
-        Linia arată drumul mega-ciclului în ultimul deceniu. Culorile segmentelor
-        marchează fazele: baze (albastru închis), acumulare / recovery (verde),
-        fază intermediară (mov), distribuție avansată (galben), zone extreme (roșu).
-      </div>
-      <div class="sparkline-wrapper">
+
+      <div class="chart-wrapper">
         <canvas id="iccSparkline"></canvas>
       </div>
-    </section>
 
-    <!-- NARATIV MEGA-CICLU -->
-    <section class="narrative" id="megaNarrative">
-      <h2>Unde suntem acum în mega-ciclu?</h2>
-      <p>Se încarcă interpretarea pe baza datelor din <code>data/ic_btc_series.json</code>…</p>
-    </section>
-
-    <!-- TIMELINE ISTORIC COEZIV -->
-    <section class="mega-timeline">
-      <h3>Timeline mega-ciclu (interpretare Coeziv, 2010–2025)</h3>
-      <p class="lead">
-        Mai jos este un rezumat conceptual, aliniat cu ciclurile clasice BTC,
-        dar exprimat în limbajul Modelului Coeziv (bază, expansiune, top,
-        resetare). Nu sunt maxime/minime de preț, ci faze structurale.
+      <p class="note">
+        Zonele joase corespund bazelor mari de ciclu, iar zonele foarte ridicate
+        corespund extensiilor de tip top / euforie. Modelul Coeziv privește această
+        serie ca pe o „hartă internă” a ciclului, nu ca pe un oscillator clasic.
       </p>
+    </section>
 
-      <div class="mega-timeline-grid">
-        <article class="timeline-step">
-          <div class="timeline-inner">
-            <div class="timeline-era">2010–2013</div>
-            <h4 class="timeline-title">Baze timpurii &amp; adopție incipientă</h4>
-            <div class="timeline-tag-row">
-              <span class="timeline-tag baza">bază</span>
-            </div>
-            <p class="timeline-text">
-              Structură de piață imatură, lichiditate redusă și volatilitate
-              extremă. În limbaj Coeziv, aceasta este zona de <strong>bază
-              istorică</strong> a mega-ciclului, în care ICC_BTC marchează
-              începutul arcului structural post-Genesis.
-            </p>
-          </div>
-        </article>
-
-        <article class="timeline-step">
-          <div class="timeline-inner">
-            <div class="timeline-era">2014–2017</div>
-            <h4 class="timeline-title">Bază post-2014 &amp; expansiune majoră</h4>
-            <div class="timeline-tag-row">
-              <span class="timeline-tag baza">bază</span>
-              <span class="timeline-tag bull">expansiune</span>
-            </div>
-            <p class="timeline-text">
-              După corecția severă 2014–2015, structura IC_BTC intră într-o
-              <strong>bază coezivă</strong>, urmată de un ciclu de expansiune
-              puternică până în topul 2017. ICC_BTC mută mega-ciclul din zona
-              de bază în zona de <strong>expansiune avansată</strong>.
-            </p>
-          </div>
-        </article>
-
-        <article class="timeline-step">
-          <div class="timeline-inner">
-            <div class="timeline-era">2018–2019</div>
-            <h4 class="timeline-title">Resetare &amp; realiniere structurală</h4>
-            <div class="timeline-tag-row">
-              <span class="timeline-tag bear">bear</span>
-              <span class="timeline-tag reset">reset</span>
-            </div>
-            <p class="timeline-text">
-              Bear marketul de după 2017 aduce o <strong>răcire severă</strong>
-              în IC_BTC și episoade de stres în ICF_BTC. Din perspectiva
-              mega-ciclului, perioada este o <strong>resetare de trend</strong>,
-              nu începutul unui nou mega-ciclu.
-            </p>
-          </div>
-        </article>
-
-        <article class="timeline-step">
-          <div class="timeline-inner">
-            <div class="timeline-era">2020–2021</div>
-            <h4 class="timeline-title">Expansiune parabolică &amp; top structural</h4>
-            <div class="timeline-tag-row">
-              <span class="timeline-tag bull">bull</span>
-              <span class="timeline-tag reset">top structural</span>
-            </div>
-            <p class="timeline-text">
-              Combinația dintre IC_BTC foarte ridicat, ICD_BTC bullish și
-              episoade de stres în ICF_BTC corespunde unei faze de
-              <strong>expansiune parabolică</strong> a mega-ciclului, în care
-              ICC_BTC se apropie de zona de top (valori înalte, 70–90+).
-            </p>
-          </div>
-        </article>
-
-        <article class="timeline-step">
-          <div class="timeline-inner">
-            <div class="timeline-era">2022–2023</div>
-            <h4 class="timeline-title">Resetare post-euforie &amp; reconstrucție</h4>
-            <div class="timeline-tag-row">
-              <span class="timeline-tag bear">bear</span>
-              <span class="timeline-tag reset">reechilibrare</span>
-            </div>
-            <p class="timeline-text">
-              Corecția amplă de după 2021 este văzută de Modelul Coeziv ca o
-              fază de <strong>reechilibrare structurală</strong>: IC_BTC se
-              răcește, ICF_BTC marchează episoade de stres, iar ICC_BTC coboară
-              din zona de top spre o <strong>fază intermediară</strong>.
-            </p>
-          </div>
-        </article>
-
-        <article class="timeline-step">
-          <div class="timeline-inner">
-            <div class="timeline-era">2024–2025+</div>
-            <h4 class="timeline-title">Faza curentă: bull târziu / intermediar</h4>
-            <div class="timeline-tag-row">
-              <span class="timeline-tag curent">stare curentă</span>
-            </div>
-            <p class="timeline-text">
-              Valorile curente din ICC_BTC indică, în mare, o
-              <strong>fază intermediară</strong> a mega-ciclului post-2014:
-              nu la bază, dar nici la maximul istoric al topurilor. Structura
-              este în răcire, iar fluxul rămâne sensibil, ceea ce sugerează că
-              următorii ani pot fi o combinație de redistribuție,
-              consolidare și, mai târziu, construcția bazei următorului ciclu.
-            </p>
-          </div>
-        </article>
-
-        <!-- Card: Extensia 80k → 120k NU este bull market nou -->
-<article class="card">
-  <div class="card-header">
-    <div>
-      <div class="card-title">
-        Extensia 80.000 → 120.000 USD
-      </div>
-      <div class="card-sub">
-        De ce modelul Coeziv NU o tratează ca pe un nou bull market.
-      </div>
-    </div>
-    <div class="badge stress">
-      <span class="badge-dot"></span>
-      <span>extensie speculativă</span>
-    </div>
-  </div>
-
-  <div class="meta-row">
-    <p style="margin:0 0 0.4rem;">
-      Creșterea către <strong>120.000 USD</strong> nu a fost confirmată de
-      structura internă a pieței. Indicii Coeziv au semnalat
-      <strong>pierdere de coeziune</strong>, <strong>flux tensionat</strong>
-      și <strong>ciclu în fază avansată</strong> – tipice extensiilor finale,
-      nu unui bull market sănătos.
-    </p>
-    <p style="margin:0 0 0.4rem;">
-      Zona este caracterizată istoric de:
-      volatilitate anormală, lichiditate redusă, levier exagerat și
-      short-squeeze-uri în cascadă. Prețul a urcat, dar
-      <strong>fundamentul structural nu a susținut mișcarea</strong>.
-    </p>
-    <p style="margin:0;">
-      În termeni simpli: a fost o
-      <strong>extensie speculativă (final blow-off)</strong> a ciclului
-      ascendent 2023–2024, nu începutul unui nou bull market.
-    </p>
-  </div>
-</article>
-      </div>
+    <!-- Interpretare text mega-ciclu -->
+    <section class="highlight-box" id="megaNarrativeBox">
+      Se încarcă interpretarea mega-ciclului…
     </section>
 
     <div class="error-box" id="errorBox"></div>
-
-    <footer class="page-foot">
-      Modelul Coeziv BTC este un framework experimental, nu o recomandare de
-      investiții. Interpretarea de mai sus este structurală și poate fi folosită
-      doar împreună cu propriul management de risc. Pentru detalii tehnice,
-      vezi fișierele din <code>data/</code> și script-urile Python din
-      repository-ul GitHub.
-    </footer>
   </main>
 
   <script>
@@ -850,58 +618,50 @@
       console.error("[Mega BTC]", msg);
     }
 
-    async function fetchJsonSafe(url) {
-      const res = await fetch(url);
-      if (!res.ok) throw new Error("Nu pot încărca " + url + " (" + res.status + ")");
-      return res.json();
-    }
-
-    // Clasificări simple pentru text
-
-    function classifyCycle(v) {
+    function classifyMegaScore(v) {
       if (v == null || !Number.isFinite(v)) {
         return {
-          label: "fază necunoscută",
-          text: "Nu am putut determina faza de mega-ciclu."
+          label: "necunoscut",
+          text: "Nu am putut calcula scorul compus de mega-ciclu."
         };
       }
       if (v < 20) {
         return {
-          label: "bază profundă",
-          text: "Zonă tipică pentru baze profunde sau capitulări majore."
+          label: "bază adâncă",
+          text: "Scor foarte jos – zona bazelor mari de ciclu, unde istoric s-au format punctele de resetare majoră."
         };
-      } else if (v < 40) {
-        return {
-          label: "acumulare / recovery",
-          text: "Fază de reconstrucție după bear: acumulare și început de expansiune."
-        };
-      } else if (v < 60) {
+      } else if (v < 45) {
         return {
           label: "fază intermediară",
-          text: "Suntem într-o fază intermediară a mega-ciclului: între expansiune și început de distribuție."
+          text: "Scor mediu spre scăzut – piața nu mai este în top, dar nici într-o bază clară; perioadă de tranziție."
         };
-      } else if (v < 80) {
+      } else if (v < 70) {
         return {
-          label: "distribuție avansată",
-          text: "Zona tipică pentru faze de top structural, redistribuție și volatilitate mai nervoasă."
+          label: "expansiune",
+          text: "Scor mediu spre ridicat – fază de expansiune a mega-ciclului, cu episoade bull și corecții intermediare."
+        };
+      } else if (v < 85) {
+        return {
+          label: "expansiune avansată",
+          text: "Scor ridicat – fază avansată a mega-ciclului, în care randamentele marginale scad, iar riscul de top crește."
         };
       }
       return {
-        label: "extremă / final de ciclu",
-        text: "Zona cu risc ridicat de final de ciclu: euforie sau capitulări rapide."
+        label: "zonă extremă",
+        text: "Scor foarte ridicat – regiune asociată istoric cu euforie, extensii finale și episoade de supraîncălzire."
       };
     }
 
-    function classifyStruct(v) {
+    function classifyStructure(v) {
       if (v == null || !Number.isFinite(v)) {
         return {
-          label: "necunoscut",
-          text: "Structura nu a putut fi evaluată."
+          label: "necunoscută",
+          text: "Nu am putut evalua structura trendului."
         };
       }
       if (v < 25) {
         return {
-          label: "foarte slab",
+          label: "foarte slabă",
           text: "Structură foarte slabă – trendul de fond este în răcire, tipic pentru baze adânci sau tranziții de ciclu."
         };
       } else if (v < 45) {
@@ -911,17 +671,17 @@
         };
       } else if (v < 65) {
         return {
-          label: "mediu",
+          label: "medie",
           text: "Structură medie – nici bull clar, nici bear clar; piața poate oscila între sub-cicluri bull și bear."
         };
       } else if (v < 85) {
         return {
-          label: "puternic",
+          label: "puternică",
           text: "Regim structural puternic – trendul dominant este clar și bine susținut de flux."
         };
       }
       return {
-        label: "extrem",
+        label: "extremă",
         text: "Structură extrem de puternică – zone unde piața poate deveni supra-încinsă și vulnerabilă la resetări."
       };
     }
@@ -933,54 +693,54 @@
           text: "Nu am putut evalua fluxul și tensiunea pieței."
         };
       }
-      if (v < 25) {
+      if (v < 30) {
         return {
           label: "calm",
-          text: "Volatilitate relativ scăzută – flux calm sau perioade de consolidare prelungită."
+          text: "Flux relativ calm – mișcări mai lente, fără stres sistemic evident."
         };
-      } else if (v < 50) {
+      } else if (v < 55) {
         return {
-          label: "flux mixt",
-          text: "Flux mixt – alternanță între episoade calme și spike-uri de stres, fără o tensiune sistemică clară."
+          label: "normal",
+          text: "Flux moderat – alternanță între faze de impuls și corecții, fără tensiune extremă."
         };
       } else if (v < 75) {
         return {
-          label: "stres ridicat",
-          text: "Nivel ridicat de stres – mișcări mai bruște, lichiditate mai sensibilă, context tipic pentru resetări locale."
+          label: "tensionat",
+          text: "Flux tensionat – mișcări mai abrupte, episoade de stres în lichiditate și levier."
         };
       }
       return {
         label: "stres sistemic",
-        text: "Stres sistemic – valori care istoric au apărut înaintea resetărilor mari de mega-ciclu sau a capitulărilor majore."
+        text: "Flux foarte tensionat – zone unde istoric au apărut capitulări, resetări sau extensii speculative."
       };
     }
 
-    function classifyMegaScore(v) {
+    function classifyCycle(v) {
       if (v == null || !Number.isFinite(v)) {
         return {
           label: "necunoscut",
-          text: "Nu am putut calcula scorul compus de mega-ciclu."
+          text: "Nu am putut evalua poziția în mega-ciclu."
         };
       }
-      if (v < 25) {
+      if (v < 20) {
         return {
-          label: "zonă de bază / reset",
-          text: "Scor redus – combinație între ciclu jos, structură slăbită și stres mare. Istoric, astfel de zone coincid adesea cu baze de mega-ciclu sau cu resetări profunde."
+          label: "bază de mega-ciclu",
+          text: "Scor foarte jos – tipic bazelor mari de mega-ciclu, unde se acumulează pozițiile pe termen lung."
         };
-      } else if (v < 45) {
+      } else if (v < 40) {
         return {
-          label: "reconstrucție",
-          text: "Zona de reconstrucție: pieței îi ia timp să refacă structura după un bear puternic sau după resetări masive."
+          label: "expansiune timpurie",
+          text: "Scor în creștere – fază de ieșire din bază, cu primele impulsuri bull mai coerente."
         };
       } else if (v < 65) {
         return {
           label: "fază intermediară",
-          text: "Scor intermediar – piața nu mai este în bază, dar nici în euforie de top. Mișcările pot alterna între sub-cicluri bull și bear."
+          text: "Scor intermediar – piața nu mai este în bază, dar nici în top; combinație de sub-cicluri bull și corecții."
         };
       } else if (v < 80) {
         return {
           label: "distribuție avansată",
-          text: "Scor ridicat – structură încă solidă, ciclu avansat și, de regulă, stres în creștere. Perioadă tipică de redistribuție după un bull extins."
+          text: "Scor ridicat – structură încă solidă, ciclu avansat; istoric, zonele unde apar redistribuții și topuri locale."
         };
       }
       return {
@@ -1002,65 +762,57 @@
         type: "line",
         data: {
           labels,
-          datasets: [{
-            label: "ICC_BTC ciclu (0–100)",
-            data,
-            tension: 0.18,
-            pointRadius: 0,
-            borderWidth: 2,
-            fill: true,
-            segment: {
-              borderColor: ctx => {
-                const y = ctx.p0.parsed.y;
-                if (y < 20) return "#1d4ed8";
-                if (y < 40) return "#22c55e";
-                if (y < 60) return "#a855f7";
-                if (y < 80) return "#f59e0b";
-                return "#ef4444";
-              },
-              backgroundColor: ctx => {
-                const y = ctx.p0.parsed.y;
-                if (y < 20) return "rgba(37, 99, 235, 0.18)";
-                if (y < 40) return "rgba(34, 197, 94, 0.18)";
-                if (y < 60) return "rgba(168, 85, 247, 0.18)";
-                if (y < 80) return "rgba(245, 158, 11, 0.18)";
-                return "rgba(239, 68, 68, 0.18)";
-              }
+          datasets: [
+            {
+              label: "ICC_BTC (ciclu 0–100)",
+              data,
+              borderWidth: 1.8,
+              tension: 0.24,
+              pointRadius: 0,
+              borderColor: "#38bdf8",
+              backgroundColor: "rgba(56, 189, 248, 0.15)"
             }
-          }]
+          ]
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
+          interaction: {
+            mode: "index",
+            intersect: false
+          },
           plugins: {
-            legend: { display: false },
+            legend: {
+              display: false
+            },
             tooltip: {
-              mode: "index",
-              intersect: false,
               callbacks: {
-                label: ctx => " ICC_BTC: " + ctx.parsed.y.toFixed(2)
+                label(ctx) {
+                  const v = ctx.parsed.y;
+                  return `ICC_BTC: ${v.toFixed(1)}/100`;
+                }
               }
             }
           },
           scales: {
             x: {
-              grid: { display: false },
               ticks: {
+                color: "#9ca3af",
                 maxTicksLimit: 8,
-                color: "#6b7280",
                 font: { size: 10 }
-              }
+              },
+              grid: { color: "rgba(30,64,175,0.35)" }
             },
             y: {
               min: 0,
               max: 100,
               ticks: {
+                color: "#9ca3af",
                 stepSize: 20,
-                color: "#6b7280",
                 font: { size: 10 }
               },
               grid: {
-                color: "rgba(31,41,55,0.5)",
+                color: "rgba(30,64,175,0.35)",
                 drawBorder: false
               }
             }
@@ -1069,17 +821,20 @@
       });
     }
 
-    function buildNarrative(icc, icStruct, flux, megaScore, cycleCls, structCls, fluxCls, megaCls, asOf) {
-      const box = document.getElementById("megaNarrative");
-      const dateText = asOf ? String(asOf) : "ultima zi disponibilă";
+    function buildNarrative(megaScore, icc, icStruct, flux) {
+      const box = document.getElementById("megaNarrativeBox");
+      if (!box) return;
+
+      const megaCls = classifyMegaScore(megaScore);
+      const cycleCls = classifyCycle(icc);
+      const structCls = classifyStructure(icStruct);
+      const fluxCls = classifyFlux(flux);
 
       const html = `
-        <h2>Unde suntem acum în mega-ciclu?</h2>
         <p>
-          Pe baza datelor Coeziv BTC (snapshot la <strong>${dateText}</strong>),
-          mega-ciclul poziționează Bitcoin într-o
-          <strong>${cycleCls.label}</strong> cu un scor compus de
-          mega-ciclu de aproximativ <strong>${megaScore.toFixed(1)}/100</strong>.
+          <strong>Modelul Coeziv</strong> plasează în prezent Bitcoin într-o fază de mega-ciclu
+          descrisă ca <strong>${megaCls.label}</strong>, cu un scor compus de
+          <strong>${megaScore.toFixed(1)}/100</strong>.
         </p>
         <p>
           <strong>ICC_BTC ciclu:</strong> ${icc.toFixed(2)}/100 – ${cycleCls.text}
@@ -1107,32 +862,38 @@
 
     async function main() {
       try {
-        const data = await fetchJsonSafe("data/ic_btc_series.json");
-        const series = Array.isArray(data.series) ? data.series : [];
+        const res = await fetch("data/ic_btc_series.json");
+        if (!res.ok) {
+          throw new Error("Nu am putut încărca data/ic_btc_series.json");
+        }
+        const data = await res.json();
 
-        if (!series.length) {
-          throw new Error("Seria din data/ic_btc_series.json este goală.");
+        const series = Array.isArray(data.series) ? data.series : data;
+        if (!Array.isArray(series) || !series.length) {
+          throw new Error("Seria ic_btc_series este goală sau invalidă.");
         }
 
         const last = series[series.length - 1];
 
         const icc = safeNumber(last.ic_cycle ?? last.icc ?? last.icc_btc);
         const icStruct = safeNumber(last.ic_struct ?? last.ic_btc ?? last.ic);
-        const flux = safeNumber(last.ic_flux ?? last.icf_btc ?? last.flux);
-        const asOf = data.meta?.as_of ?? last.as_of ?? last.date ?? null;
+        const flux = safeNumber(last.ic_flux ?? last.icf_btc ?? last.icf);
 
-        // scor compus (1A)
-        const megaScoreRaw =
-          0.5 * (icc ?? 0) +
-          0.3 * ((icStruct != null) ? (100 - icStruct) : 0) +
-          0.2 * (flux ?? 0);
+        let megaScore = safeNumber(last.mega_score);
+        if (!Number.isFinite(megaScore)) {
+          const normIcc = icc != null ? clamp(icc, 0, 100) : 50;
+          const normStruct = icStruct != null ? clamp(icStruct, 0, 100) : 50;
+          const normFlux = flux != null ? clamp(flux, 0, 100) : 50;
 
-        const megaScore = clamp(megaScoreRaw, 0, 100);
+          megaScore = 0.45 * normIcc + 0.35 * normStruct + 0.2 * normFlux;
+        }
 
-        const cycleCls = classifyCycle(icc);
-        const structCls = classifyStruct(icStruct);
-        const fluxCls = classifyFlux(flux);
+        megaScore = clamp(megaScore, 0, 100);
+
         const megaCls = classifyMegaScore(megaScore);
+        const cycleCls = classifyCycle(icc);
+        const structCls = classifyStructure(icStruct);
+        const fluxCls = classifyFlux(flux);
 
         // Populate cards
         if (icc != null) {
@@ -1142,20 +903,20 @@
         document.getElementById("iccText").textContent = cycleCls.text;
 
         // === Afișare condiționată: Baza noului mega-ciclu ===
-const baseCard = document.getElementById("baseMegaCycleCard");
-if (baseCard) {
-    if (icc != null && Number.isFinite(icc) && icc < 20) {
-        baseCard.style.display = "block";
-    } else {
-        baseCard.style.display = "none";
-    }
-}
+        const baseCard = document.getElementById("baseMegaCycleCard");
+        if (baseCard) {
+          if (icc != null && Number.isFinite(icc) && icc < 20) {
+            baseCard.style.display = "block";
+          } else {
+            baseCard.style.display = "none";
+          }
+        }
 
         if (icStruct != null) {
           document.getElementById("icStructValue").textContent = icStruct.toFixed(2);
         }
         document.getElementById("structLabel").textContent = structCls.label;
-        document.getElementById("icStructText").textContent = structCls.text;
+        document.getElementById("structText").textContent = structCls.text;
 
         if (flux != null) {
           document.getElementById("fluxValue").textContent = flux.toFixed(2);
@@ -1166,6 +927,16 @@ if (baseCard) {
         document.getElementById("megaScoreValue").textContent = megaScore.toFixed(1);
         document.getElementById("megaScoreLabel").textContent = megaCls.label;
         document.getElementById("megaScoreText").textContent = megaCls.text;
+
+        // Badge "semnal rar" pentru scorul de mega-ciclu (zone extreme)
+        const megaRare = document.getElementById("megaRareBadge");
+        if (megaRare) {
+          if (Number.isFinite(megaScore) && (megaScore < 20 || megaScore > 80)) {
+            megaRare.style.display = "flex";
+          } else {
+            megaRare.style.display = "none";
+          }
+        }
 
         // Sparkline – ultimii ~10 ani
         const mapped = series
@@ -1202,16 +973,10 @@ if (baseCard) {
             return { label, v: p.v };
           });
 
-          if (points.length >= 2) {
-            buildIccSparkline(points);
-          }
+          buildIccSparkline(points);
         }
 
-        // Narativ
-        if (icc != null && icStruct != null && flux != null) {
-          buildNarrative(icc, icStruct, flux, megaScore, cycleCls, structCls, fluxCls, megaCls, asOf);
-        }
-
+        buildNarrative(megaScore, icc ?? 50, icStruct ?? 50, flux ?? 50);
       } catch (err) {
         console.error(err);
         showError(
