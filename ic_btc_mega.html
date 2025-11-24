@@ -2,75 +2,666 @@
 <html lang="ro">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Mega-ciclul Coeziv BTC</title>
+
   <style>
-    body { background:#05060a; color:#e5e7eb; font-family: system-ui; }
-    .card { background:#0b1020; border-radius:14px; padding:16px; margin:16px 0; }
-    .tag { display:inline-block; padding:6px 10px; border-radius:20px; font-size:13px; }
-    .green { color:#22c55e; border:1px solid #22c55e; }
-    .blue { color:#3b82f6; border:1px solid #3b82f6; }
-    .orange { color:#f59e0b; border:1px solid #f59e0b; }
-    .redBox { border:2px solid #ef4444; border-radius:12px; padding:16px; }
-  </style>
-</head>
-<body>
+    :root {
+      --bg: #020617;
+      --bg-elevated: #020617;
+      --card: #020617;
+      --border: #1f2937;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --accent: #6366f1;
+      --bull: #22c55e;
+      --bull-soft: rgba(34, 197, 94, 0.15);
+      --bear: #f97373;
+      --bear-soft: rgba(248, 113, 113, 0.18);
+      --neutral: #38bdf8;
+      --neutral-soft: rgba(56, 189, 248, 0.18);
+      --radius-xl: 1.5rem;
+      --radius-lg: 1.1rem;
+      --radius-pill: 999px;
+    }
 
-  <h1>Mega-ciclul Coeziv BTC</h1>
+    * {
+      box-sizing: border-box;
+    }
 
-  <div class="card">
-    <div><strong>Data:</strong> <span id="megaDate">–</span></div>
-    <h2 id="megaPhaseLabel">–</h2>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+        "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top, rgba(56, 189, 248, 0.12), transparent 55%),
+        radial-gradient(circle at 10% 80%, rgba(168, 85, 247, 0.12), transparent 55%),
+        #020617;
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+    }
 
-    <div class="tag green" id="structureLabel">–</div>
-    <div class="tag blue" id="directionLabel">–</div>
-    <div class="tag orange" id="subcyclesLabel">–</div>
-  </div>
+    main.page {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 1.75rem 1.2rem 2.75rem;
+    }
 
-  <div id="baseMegaCycleCard" class="card redBox" style="display:none;">
-    <h3>Bază potențială de mega-ciclu</h3>
-    <p>ICC extrem de scăzut – posibilă bază structurală.</p>
-  </div>
+    header.hero {
+      margin-bottom: 1.5rem;
+    }
 
-  <div class="card">
-    <div><strong>ICC_BTC:</strong> <span id="iccVal">–</span></div>
-    <div><strong>IC Structural:</strong> <span id="structVal">–</span></div>
-    <div><strong>IC Flux:</strong> <span id="fluxVal">–</span></div>
-    <div><strong>Mega score:</strong> <span id="megaScoreVal">–</span></div>
-  </div>
+    header.hero h1 {
+      margin: 0 0 0.4rem;
+      font-size: 1.9rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
 
-  <script>
-    async function fetchJsonSafe(url) {
-      try {
-        const r = await fetch(url);
-        if (!r.ok) return null;
-        return await r.json();
-      } catch {
-        return null;
+    header.hero p {
+      margin: 0;
+      font-size: 0.9rem;
+      color: var(--muted);
+      max-width: 40rem;
+      line-height: 1.6;
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      margin: 0.75rem 0 0.35rem;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.32rem 0.85rem;
+      border-radius: var(--radius-pill);
+      font-size: 0.76rem;
+      border: 1px solid rgba(148, 163, 184, 0.55);
+      color: var(--muted);
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .pill-dot {
+      width: 0.48rem;
+      height: 0.48rem;
+      border-radius: 999px;
+      background: var(--accent);
+    }
+
+    .pill-dot.bull { background: var(--bull); }
+    .pill-dot.bear { background: var(--bear); }
+    .pill-dot.neutral { background: var(--neutral); }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+      gap: 1.25rem;
+    }
+
+    @media (max-width: 900px) {
+      .layout {
+        grid-template-columns: minmax(0, 1fr);
       }
     }
 
-    async function loadMega() {
-      const data = await fetchJsonSafe("/data/ic_btc_mega_latest.json");
-      if (!data) return;
-
-      document.getElementById("megaDate").textContent = data.date || "—";
-      document.getElementById("megaPhaseLabel").textContent = data.mega_phase_label || "—";
-
-      document.getElementById("structureLabel").textContent = data.structure_label || "—";
-      document.getElementById("directionLabel").textContent = data.direction_label || "—";
-      document.getElementById("subcyclesLabel").textContent = data.subcycles_label || "—";
-
-      document.getElementById("iccVal").textContent = data.icc ?? "—";
-      document.getElementById("structVal").textContent = data.ic_struct ?? "—";
-      document.getElementById("fluxVal").textContent = data.ic_flux ?? "—";
-      document.getElementById("megaScoreVal").textContent = data.mega_score ?? "—";
-
-      const baseCard = document.getElementById("baseMegaCycleCard");
-      baseCard.style.display = data.show_base_card ? "block" : "none";
+    .card {
+      position: relative;
+      border-radius: var(--radius-xl);
+      border: 1px solid rgba(15, 23, 42, 0.9);
+      background:
+        radial-gradient(circle at top left, rgba(56,189,248,0.18), transparent 55%),
+        radial-gradient(circle at 120% 0%, rgba(168,85,247,0.22), transparent 50%),
+        rgba(15, 23, 42, 0.96);
+      padding: 1.3rem 1.25rem 1.4rem;
+      overflow: hidden;
     }
 
-    loadMega();
-  </script>
+    .card--secondary {
+      background:
+        radial-gradient(circle at top left, rgba(56,189,248,0.07), transparent 55%),
+        rgba(10, 16, 32, 0.98);
+    }
 
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: -30%;
+      background: radial-gradient(
+        circle at -10% 0%,
+        rgba(148, 163, 184, 0.18),
+        transparent 60%
+      );
+      opacity: 0.4;
+      pointer-events: none;
+    }
+
+    .card-inner {
+      position: relative;
+      z-index: 1;
+    }
+
+    .card-title {
+      font-size: 0.82rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.2rem;
+    }
+
+    .card-sub {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 0.75rem;
+    }
+
+    /* Phase badge + headline */
+
+    .phase-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      border-radius: var(--radius-pill);
+      padding: 0.38rem 0.9rem;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      background: rgba(15, 23, 42, 0.9);
+      color: var(--muted);
+      font-size: 0.8rem;
+      margin-bottom: 0.65rem;
+    }
+
+    .phase-dot {
+      width: 0.55rem;
+      height: 0.55rem;
+      border-radius: 999px;
+      background: var(--neutral);
+    }
+
+    .phase-dot.bull { background: var(--bull); }
+    .phase-dot.bear { background: var(--bear); }
+    .phase-dot.neutral { background: var(--neutral); }
+
+    .phase-headline {
+      font-size: 1.5rem;
+      font-weight: 650;
+      margin: 0 0 0.3rem;
+    }
+
+    .phase-caption {
+      font-size: 0.86rem;
+      color: var(--muted);
+      margin: 0 0 0.4rem;
+    }
+
+    .chips-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      margin-top: 0.35rem;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      border-radius: 999px;
+      padding: 0.25rem 0.7rem;
+      font-size: 0.78rem;
+      border: 1px solid rgba(148, 163, 184, 0.55);
+      background: rgba(15, 23, 42, 0.95);
+      color: var(--muted);
+    }
+
+    .chip-pill {
+      width: 0.5rem;
+      height: 0.5rem;
+      border-radius: 999px;
+      background: rgba(148, 163, 184, 0.8);
+    }
+
+    /* Mega score pill */
+
+    .mega-score-pill {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 0.35rem;
+      margin-top: 0.7rem;
+      padding: 0.45rem 0.9rem;
+      border-radius: var(--radius-pill);
+      border: 1px solid rgba(248, 250, 252, 0.1);
+      background: rgba(15, 23, 42, 0.95);
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    .mega-score-pill strong {
+      font-size: 1.1rem;
+      color: var(--text);
+    }
+
+    .mega-score-pill span.badge {
+      font-size: 0.75rem;
+      padding: 0.15rem 0.55rem;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    /* Base warning card */
+
+    .base-card {
+      margin-top: 0.9rem;
+      border-radius: var(--radius-lg);
+      padding: 0.8rem 0.9rem;
+      border: 1px solid rgba(248, 113, 113, 0.75);
+      background: rgba(127, 29, 29, 0.32);
+      font-size: 0.8rem;
+      color: #fee2e2;
+      display: none;
+    }
+
+    .base-card-title {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.13em;
+      margin-bottom: 0.25rem;
+    }
+
+    /* Right column metrics */
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0.75rem;
+    }
+
+    .metric-card {
+      border-radius: var(--radius-lg);
+      border: 1px solid rgba(30, 64, 175, 0.5);
+      background:
+        radial-gradient(circle at top left, rgba(56,189,248,0.18), transparent 60%),
+        rgba(15, 23, 42, 0.96);
+      padding: 0.85rem 0.9rem 0.95rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .metric-title {
+      font-size: 0.79rem;
+      text-transform: uppercase;
+      letter-spacing: 0.13em;
+      color: var(--muted);
+      margin-bottom: 0.2rem;
+    }
+
+    .metric-main {
+      display: flex;
+      align-items: baseline;
+      gap: 0.3rem;
+      margin-bottom: 0.3rem;
+    }
+
+    .metric-value {
+      font-size: 1.4rem;
+      font-weight: 600;
+    }
+
+    .metric-unit {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .metric-caption {
+      font-size: 0.78rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .metric-bar {
+      margin-top: 0.35rem;
+      position: relative;
+      width: 100%;
+      height: 0.45rem;
+      border-radius: 999px;
+      background: #020617;
+      overflow: hidden;
+      border: 1px solid rgba(15, 23, 42, 0.9);
+    }
+
+    .metric-bar-fill {
+      position: absolute;
+      inset: 0;
+      width: 0%;
+      transition: width 0.6s ease;
+    }
+
+    .metric-bar-fill--icc {
+      background: linear-gradient(90deg, rgba(129,140,248,0.08), #6366f1);
+    }
+
+    .metric-bar-fill--struct {
+      background: linear-gradient(90deg, rgba(56,189,248,0.08), #0ea5e9);
+    }
+
+    .metric-bar-fill--flux {
+      background: linear-gradient(90deg, rgba(248,113,113,0.15), #f97373);
+    }
+
+    .metric-bar-fill--mega {
+      background: linear-gradient(90deg, rgba(94,234,212,0.15), #22c55e);
+    }
+
+    /* Error */
+
+    .error-box {
+      margin-top: 0.8rem;
+      font-size: 0.78rem;
+      padding: 0.6rem 0.8rem;
+      border-radius: 0.9rem;
+      border: 1px solid rgba(248,113,113,0.7);
+      background: rgba(127,29,29,0.22);
+      color: #fecaca;
+      display: none;
+    }
+
+    /* Footer note */
+
+    .footnote {
+      margin-top: 1.3rem;
+      font-size: 0.75rem;
+      color: var(--muted);
+      max-width: 40rem;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="hero">
+      <h1>Mega-ciclul Coeziv BTC</h1>
+      <p>
+        Interpretare macro a pieței Bitcoin în Modelul Coeziv, pe baza indicilor
+        <strong>ICC_BTC</strong> (ciclic), <strong>IC_BTC</strong> structural și
+        <strong>IC flux</strong>. Backend-ul calculează starea curentă, iar acest
+        ecran doar o afișează din <code>ic_btc_mega_latest.json</code>.
+      </p>
+      <div class="pill-row">
+        <div class="pill">
+          <span class="pill-dot neutral"></span>
+          Mega-ciclu structural BTC (post-2014)
+        </div>
+        <div class="pill">
+          <span class="pill-dot bull"></span>
+          Faza curentă este derivată din ICC_BTC
+        </div>
+        <div class="pill">
+          <span class="pill-dot bear"></span>
+          Structură &amp; flux influențează mega-scorul
+        </div>
+      </div>
+    </header>
+
+    <section class="layout">
+      <!-- Col stânga: fază + context -->
+      <article class="card">
+        <div class="card-inner">
+          <div class="card-title">Mega-ciclul Coeziv BTC</div>
+          <div class="card-sub">
+            Data estimării: <span id="megaDate">–</span>
+          </div>
+
+          <div class="phase-chip">
+            <span id="phaseDot" class="phase-dot neutral"></span>
+            <span id="phaseCodeLabel">Fază mega-ciclu</span>
+          </div>
+
+          <h2 id="phaseHeadline" class="phase-headline">–</h2>
+          <p id="phaseCaption" class="phase-caption">
+            Modelul așteaptă datele din mega-ciclu pentru a descrie faza curentă.
+          </p>
+
+          <div class="chips-row">
+            <div class="chip">
+              <span class="chip-pill"></span>
+              <span id="structureChip">Structură: –</span>
+            </div>
+            <div class="chip">
+              <span class="chip-pill"></span>
+              <span id="directionChip">Direcționalitate: –</span>
+            </div>
+            <div class="chip">
+              <span class="chip-pill"></span>
+              <span id="subcyclesChip">Sub-cicluri: –</span>
+            </div>
+          </div>
+
+          <div class="mega-score-pill">
+            <span>Mega score:</span>
+            <strong id="megaScoreVal">–</strong>
+            <span>/ 100</span>
+            <span id="megaScoreBadge" class="badge">–</span>
+          </div>
+
+          <div id="baseCard" class="base-card">
+            <div class="base-card-title">Bază potențială de mega-ciclu</div>
+            <div>
+              ICC_BTC se află într-o zonă foarte joasă. Modelul Coeziv interpretează
+              acest lucru ca o posibilă <strong>bază structurală</strong> a unui nou
+              mega-ciclu, nu ca o garanție de minim absolut.
+            </div>
+          </div>
+
+          <div id="errorBox" class="error-box"></div>
+        </div>
+      </article>
+
+      <!-- Col dreapta: metrici -->
+      <article class="card card--secondary">
+        <div class="card-inner">
+          <div class="card-title">Structură, ciclu &amp; flux</div>
+          <div class="card-sub">
+            Cum sunt agregate indicii IC pentru a poziționa Bitcoin în cadrul
+            mega-ciclului post-2014.
+          </div>
+
+          <div class="metrics-grid">
+            <div class="metric-card">
+              <div class="metric-title">ICC_BTC (ciclic)</div>
+              <div class="metric-main">
+                <span id="iccVal" class="metric-value">–</span>
+                <span class="metric-unit">/ 100</span>
+              </div>
+              <div class="metric-bar">
+                <div id="iccBar" class="metric-bar-fill metric-bar-fill--icc"></div>
+              </div>
+              <p class="metric-caption">
+                Măsoară poziția în arc de ciclu: valori joase sugerează
+                <em>baze</em> sau acumulare, valori foarte ridicate sugerează
+                <em>extensie / top</em>.
+              </p>
+            </div>
+
+            <div class="metric-card">
+              <div class="metric-title">IC_BTC structural</div>
+              <div class="metric-main">
+                <span id="structVal" class="metric-value">–</span>
+                <span class="metric-unit">/ 100</span>
+              </div>
+              <div class="metric-bar">
+                <div id="structBar" class="metric-bar-fill metric-bar-fill--struct"></div>
+              </div>
+              <p class="metric-caption">
+                Coerența structurală a trendului de fond. Valori înalte indică
+                o structură clară, dar pot sugera și <em>tensiune</em> sau
+                supra-extindere.
+              </p>
+            </div>
+
+            <div class="metric-card">
+              <div class="metric-title">IC flux</div>
+              <div class="metric-main">
+                <span id="fluxVal" class="metric-value">–</span>
+                <span class="metric-unit">/ 100</span>
+              </div>
+              <div class="metric-bar">
+                <div id="fluxBar" class="metric-bar-fill metric-bar-fill--flux"></div>
+              </div>
+              <p class="metric-caption">
+                Intensitatea fluxului direcțional (presiune bull/bear). Poate
+                accentua sau contrabalansa mesajul structural.
+              </p>
+            </div>
+
+            <div class="metric-card">
+              <div class="metric-title">Mega score Coeziv</div>
+              <div class="metric-main">
+                <span id="megaScoreValSecondary" class="metric-value">–</span>
+                <span class="metric-unit">/ 100</span>
+              </div>
+              <div class="metric-bar">
+                <div id="megaBar" class="metric-bar-fill metric-bar-fill--mega"></div>
+              </div>
+              <p class="metric-caption">
+                Scor agregat derivat în backend din ICC_BTC, structură și flux,
+                folosit pentru a ancora faza de mega-ciclu.
+              </p>
+            </div>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <p class="footnote">
+      Notă: această pagină nu recalculază nimic în browser. Toate valorile și
+      fazele vin direct din backend (Python), din fișierul
+      <code>data/ic_btc_mega_latest.json</code>. Frontend-ul doar le interpretează
+      vizual.
+    </p>
+  </main>
+
+  <script>
+    function clamp(x, a, b) {
+      return Math.min(b, Math.max(a, x));
+    }
+
+    async function loadMegaState() {
+      const errorBox = document.getElementById("errorBox");
+
+      try {
+        const res = await fetch("data/ic_btc_mega_latest.json?ts=" + Date.now(), {
+          cache: "no-store",
+        });
+        if (!res.ok) {
+          throw new Error("Nu pot încărca ic_btc_mega_latest.json (" + res.status + ")");
+        }
+        const data = await res.json();
+
+        // date & fază
+        document.getElementById("megaDate").textContent =
+          data.date || data.as_of || "–";
+
+        const phaseLabel = data.mega_phase_label || "Fază mega-ciclu Coeziv";
+        const phaseCode = (data.mega_phase_code || "").toString().toLowerCase();
+
+        document.getElementById("phaseHeadline").textContent = phaseLabel;
+        document.getElementById("phaseCodeLabel").textContent =
+          phaseCode ? "Cod fază: " + phaseCode : "Fază mega-ciclu";
+
+        const phaseCaptionEl = document.getElementById("phaseCaption");
+        if (phaseCaptionEl && data.phase_text) {
+          phaseCaptionEl.textContent = data.phase_text;
+        }
+
+        // chips descriptive venite din backend
+        const structLabel = data.structure_label || "Structură: –";
+        const dirLabel = data.direction_label || "Direcționalitate: –";
+        const subLabel = data.subcycles_label || "Sub-cicluri: –";
+
+        document.getElementById("structureChip").textContent = structLabel;
+        document.getElementById("directionChip").textContent = dirLabel;
+        document.getElementById("subcyclesChip").textContent = subLabel;
+
+        // mega score
+        const megaScore = typeof data.mega_score === "number" ? data.mega_score : null;
+        const megaDisplay = megaScore != null ? megaScore.toFixed(1) : "–";
+
+        const megaScoreVal = document.getElementById("megaScoreVal");
+        const megaScoreValSecondary = document.getElementById("megaScoreValSecondary");
+        if (megaScoreVal) megaScoreVal.textContent = megaDisplay;
+        if (megaScoreValSecondary) megaScoreValSecondary.textContent = megaDisplay;
+
+        const megaBar = document.getElementById("megaBar");
+        if (megaBar && megaScore != null) {
+          megaBar.style.width = clamp(megaScore, 0, 100) + "%";
+        }
+
+        const megaBadge = document.getElementById("megaScoreBadge");
+        if (megaBadge) {
+          let badgeText = "neutru";
+          if (megaScore != null) {
+            if (megaScore < 35) badgeText = "zonă joasă / acumulare";
+            else if (megaScore < 65) badgeText = "zonă intermediară";
+            else badgeText = "zonă avansată / top";
+          }
+          megaBadge.textContent = badgeText;
+        }
+
+        // ICC, IC_struct, IC_flux
+        const icc = typeof data.icc === "number" ? data.icc : null;
+        const icStruct = typeof data.ic_struct === "number" ? data.ic_struct : null;
+        const icFlux = typeof data.ic_flux === "number" ? data.ic_flux : null;
+
+        const iccValEl = document.getElementById("iccVal");
+        const structValEl = document.getElementById("structVal");
+        const fluxValEl = document.getElementById("fluxVal");
+        const iccBar = document.getElementById("iccBar");
+        const structBar = document.getElementById("structBar");
+        const fluxBar = document.getElementById("fluxBar");
+
+        if (iccValEl) iccValEl.textContent = icc != null ? icc.toFixed(1) : "–";
+        if (structValEl) structValEl.textContent = icStruct != null ? icStruct.toFixed(1) : "–";
+        if (fluxValEl) fluxValEl.textContent = icFlux != null ? icFlux.toFixed(1) : "–";
+
+        if (iccBar && icc != null) {
+          iccBar.style.width = clamp(icc, 0, 100) + "%";
+        }
+        if (structBar && icStruct != null) {
+          structBar.style.width = clamp(icStruct, 0, 100) + "%";
+        }
+        if (fluxBar && icFlux != null) {
+          fluxBar.style.width = clamp(icFlux, 0, 100) + "%";
+        }
+
+        // bază mega-ciclu – flag oficial
+        const baseCard = document.getElementById("baseCard");
+        if (baseCard) {
+          baseCard.style.display = data.show_base_card ? "block" : "none";
+        }
+
+        // culoare macro fază – doar cosmetic, pe baza codului
+        const phaseDot = document.getElementById("phaseDot");
+        if (phaseDot) {
+          phaseDot.classList.remove("bull", "bear", "neutral");
+          let cls = "neutral";
+          if (phaseCode.includes("bull")) cls = "bull";
+          else if (phaseCode.includes("bear")) cls = "bear";
+          phaseDot.classList.add(cls);
+        }
+      } catch (err) {
+        if (errorBox) {
+          errorBox.style.display = "block";
+          errorBox.textContent =
+            "Eroare la încărcarea stării de mega-ciclu Coeziv: " + err.message;
+        }
+        console.error("[Mega BTC]", err);
+      }
+    }
+
+    loadMegaState();
+  </script>
 </body>
 </html>
