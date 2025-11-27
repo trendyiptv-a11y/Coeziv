@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" />
+  <title>Hartă comparativă – Modelul Coeziv & alte modele de gândire</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg: #020617;
+      --card: #020617;
+      --card-soft: #020922;
+      --accent: #38bdf8;
+      --accent-soft: rgba(56,189,248,0.16);
+      --accent-2: #22c55e;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --border: #1f2937;
+      --danger: #f97373;
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #020617 0, #000 55%);
+      color: var(--text);
+    }
+
+    .page {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 20px 14px 40px;
+    }
+
+    header {
+      border-radius: 24px;
+      padding: 16px 16px 14px;
+      background: radial-gradient(circle at top left, rgba(56,189,248,0.24), rgba(15,23,42,0.96));
+      border: 1px solid rgba(148,163,184,0.5);
+      box-shadow:
+        0 22px 45px rgba(0,0,0,0.85),
+        0 0 0 1px rgba(15,23,42,0.9);
+      position: sticky;
+      top: 10px;
+      z-index: 10;
+      backdrop-filter: blur(12px);
+    }
+
+    header h1 {
+      margin: 0 0 4px;
+      font-size: 1.45rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .subtitle {
+      margin: 0;
+      font-size: 0.92rem;
+      color: var(--muted);
+    }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+      font-size: 0.75rem;
+    }
+
+    .pill {
+      padding: 3px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.55);
+      background: rgba(15,23,42,0.86);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    main {
+      margin-top: 16px;
+      display: grid;
+      gap: 14px;
+    }
+
+    section {
+      border-radius: var(--radius);
+      background: rgba(15,23,42,0.96);
+      border: 1px solid var(--border);
+      padding: 13px 14px 12px;
+      box-shadow: 0 18px 40px rgba(0,0,0,0.7);
+    }
+
+    section h2 {
+      margin: 0 0 6px;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .idx {
+      width: 20px;
+      height: 20px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.7);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--accent);
+      background: rgba(15,23,42,0.96);
+    }
+
+    p {
+      margin: 0 0 4px;
+      font-size: 0.9rem;
+      line-height: 1.55;
+      color: var(--text);
+    }
+
+    .muted {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .models-grid {
+      display: grid;
+      gap: 8px;
+      margin-top: 6px;
+    }
+
+    @media (min-width: 780px) {
+      .models-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+
+    .model-card {
+      border-radius: 16px;
+      border: 1px solid rgba(31,41,55,0.95);
+      background: radial-gradient(circle at top left, rgba(56,189,248,0.14), rgba(15,23,42,0.98));
+      padding: 9px 10px 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .model-name {
+      font-size: 0.9rem;
+      font-weight: 600;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .model-tag {
+      font-size: 0.7rem;
+      padding: 1px 7px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.6);
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .model-line {
+      font-size: 0.8rem;
+      color: var(--text);
+    }
+
+    .model-line span.label {
+      font-weight: 600;
+      color: var(--muted);
+      margin-right: 3px;
+    }
+
+    .tbl-wrap {
+      margin-top: 4px;
+      overflow-x: auto;
+      border-radius: 14px;
+      border: 1px solid rgba(31,41,55,0.9);
+      background: radial-gradient(circle at top, rgba(15,23,42,0.98), rgba(15,23,42,0.96));
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      min-width: 620px;
+      font-size: 0.82rem;
+    }
+
+    th, td {
+      padding: 6px 8px;
+      text-align: left;
+      border-bottom: 1px solid rgba(31,41,55,0.9);
+    }
+
+    th {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--muted);
+      background: rgba(15,23,42,0.9);
+    }
+
+    tr:nth-child(even) td {
+      background: rgba(15,23,42,0.85);
+    }
+
+    .coeziv-cell {
+      border-left: 2px solid var(--accent);
+      background: rgba(15,23,42,0.95);
+    }
+
+    .axis-label {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 2px;
+    }
+
+    .scale {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 3px;
+    }
+
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .chip {
+      font-size: 0.75rem;
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.55);
+      background: rgba(15,23,42,0.9);
+      color: var(--muted);
+    }
+
+    .highlight {
+      border-radius: 14px;
+      border: 1px dashed rgba(56,189,248,0.75);
+      background: var(--accent-soft);
+      padding: 8px 10px;
+      font-size: 0.88rem;
+      margin-top: 4px;
+    }
+
+    .box-green {
+      border-radius: 14px;
+      border: 1px solid rgba(34,197,94,0.7);
+      background: radial-gradient(circle at top left, rgba(34,197,94,0.18), rgba(15,23,42,0.98));
+      padding: 8px 9px;
+      font-size: 0.86rem;
+      margin-top: 4px;
+    }
+
+    .box-red {
+      border-radius: 14px;
+      border: 1px solid rgba(248,113,113,0.7);
+      background: radial-gradient(circle at top left, rgba(248,113,113,0.16), rgba(15,23,42,0.98));
+      padding: 8px 9px;
+      font-size: 0.86rem;
+      margin-top: 4px;
+    }
+
+    footer {
+      margin-top: 10px;
+      font-size: 0.76rem;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .badge-coeziv {
+      font-size: 0.7rem;
+      padding: 1px 6px;
+      border-radius: 999px;
+      border: 1px solid rgba(56,189,248,0.8);
+      color: var(--accent);
+      background: rgba(8,47,73,0.9);
+      margin-left: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>Hartă comparativă · Modelul Coeziv & alte modele de gândire</h1>
+      <p class="subtitle">O privire coezivă asupra felului în care diferite cadre mentale organizează realitatea.</p>
+      <div class="tags">
+        <span class="pill">● Model central: Coeziune internă</span>
+        <span class="pill">● Public: educație & antreprenori</span>
+        <span class="pill">● Obiectiv: claritate, nu competiție</span>
+      </div>
+    </header>
+
+    <main>
+      <!-- MODELELE PE SCURT -->
+      <section>
+        <h2><span class="idx">1</span> Modelele comparate</h2>
+        <p class="muted">7 modele de gândire, privite prin aceeași lentilă.</p>
+
+        <div class="models-grid">
+          <div class="model-card">
+            <div class="model-name">
+              <span>Modelul Coeziv</span>
+              <span class="model-tag">coeziv · interior</span>
+            </div>
+            <p class="model-line"><span class="label">Focus:</span> coeziune internă, claritate de stare.</p>
+            <p class="model-line"><span class="label">Scop:</span> transformă confuzia în direcție.</p>
+          </div>
+
+          <div class="model-card">
+            <div class="model-name">
+              <span>Thinking in Systems</span>
+              <span class="model-tag">Meadows</span>
+            </div>
+            <p class="model-line"><span class="label">Focus:</span> relații între părți într-un sistem.</p>
+            <p class="model-line"><span class="label">Scop:</span> înțelegerea buclelor și efectelor.</p>
+          </div>
+
+          <div class="model-card">
+            <div class="model-name">
+              <span>OODA Loop</span>
+              <span class="model-tag">Boyd</span>
+            </div>
+            <p class="model-line"><span class="label">Focus:</span> reacție și decizie sub presiune.</p>
+            <p class="model-line"><span class="label">Scop:</span> avantaj strategic în medii dinamice.</p>
+          </div>
+
+          <div class="model-card">
+            <div class="model-name">
+              <span>Design Thinking</span>
+              <span class="model-tag">inovație</span>
+            </div>
+            <p class="model-line"><span class="label">Focus:</span> rezolvare empatică de probleme.</p>
+            <p class="model-line"><span class="label">Scop:</span> produse / soluții centrate pe om.</p>
+          </div>
+
+          <div class="model-card">
+            <div class="model-name">
+              <span>First Principles</span>
+              <span class="model-tag">stil Musk</span>
+            </div>
+            <p class="model-line"><span class="label">Focus:</span> descompunere până la adevăruri de bază.</p>
+            <p class="model-line"><span class="label">Scop:</span> ieșire din limitele convenționale.</p>
+          </div>
+
+          <div class="model-card">
+            <div class="model-name">
+              <span>Mental Models</span>
+              <span class="model-tag">Munger & co.</span>
+            </div>
+            <p class="model-line"><span class="label">Focus:</span> bibliotecă de „unelte mentale”.</p>
+            <p class="model-line"><span class="label">Scop:</span> decizii mai bune prin perspectivă multiplă.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- AXE DE COMPARAȚIE -->
+      <section>
+        <h2><span class="idx">2</span> Tabel comparativ pe axe-cheie</h2>
+        <p class="muted">Modelul Coeziv este marcat distinct. Nu pentru „ego”, ci pentru claritate de poziționare.</p>
+
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Model</th>
+                <th>Focus principal</th>
+                <th>Tip de inteligență</th>
+                <th>Structură</th>
+                <th>Direcția privirii</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="coeziv-cell"><strong>Modelul Coeziv</strong> <span class="badge-coeziv">central</span></td>
+                <td class="coeziv-cell">coeziune internă, stare & claritate</td>
+                <td class="coeziv-cell">fenomenologică + simbolică</td>
+                <td class="coeziv-cell">ciclică, evolutivă</td>
+                <td class="coeziv-cell">din interior spre exterior</td>
+              </tr>
+              <tr>
+                <td>Thinking in Systems</td>
+                <td>relații & bucle de feedback</td>
+                <td>sistemică</td>
+                <td>ciclică / rețele</td>
+                <td>din exterior spre interior</td>
+              </tr>
+              <tr>
+                <td>OODA Loop</td>
+                <td>decizie rapidă sub presiune</td>
+                <td>strategică, tactică</td>
+                <td>ciclu scurt, repetitiv</td>
+                <td>extern: mediu → reacție</td>
+              </tr>
+              <tr>
+                <td>Design Thinking</td>
+                <td>inovație & soluții pentru oameni</td>
+                <td>creativ-pragmatică</td>
+                <td>iterativă, orientată pe prototip</td>
+                <td>extern: utilizator → produs</td>
+              </tr>
+              <tr>
+                <td>First Principles</td>
+                <td>demontare până la esențe</td>
+                <td>analitică, inginerească</td>
+                <td>mai degrabă liniară</td>
+                <td>din problemă spre structură minimă</td>
+              </tr>
+              <tr>
+                <td>Mental Models</td>
+                <td>alegere de „unelte mentale”</td>
+                <td>meta-cognitivă</td>
+                <td>rețea de concepte</td>
+                <td>înainte-înapoi între modele & realitate</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="chip-row">
+          <span class="chip">Modelul Coeziv = arhitectură de stare</span>
+          <span class="chip">First Principles = arhitectură de problemă</span>
+          <span class="chip">Design Thinking = arhitectură de soluție</span>
+        </div>
+      </section>
+
+      <!-- LINIILE DE FORȚĂ ALE MODELULUI COEZIV -->
+      <section>
+        <h2><span class="idx">3</span> Ce aduce unic Modelul Coeziv</h2>
+        <p>Modelul Coeziv ocupă o zonă pe care celelalte modele o ating doar parțial:</p>
+
+        <div class="box-green">
+          <strong>1. Centrare pe coeziune, nu pe problemă</strong><br>
+          Cele mai multe modele încep cu „problema”.  
+          Modelul Coeziv începe cu <em>starea internă</em>: cât de fragmentat sau aliniat este sistemul din interior.
+        </div>
+
+        <div class="box-green">
+          <strong>2. Pod între fizic (apă) și cognitiv (gândire)</strong><br>
+          Nu este doar metaforă: modelul are un nucleu fizic (coeziunea apei) și un strat cognitiv (coeziunea gândirii).  
+          Celelalte modele rămân aproape exclusiv în zona mentală sau sistemică.
+        </div>
+
+        <div class="box-green">
+          <strong>3. Claritate ca obiectiv explicit</strong><br>
+          OODA caută viteză, Design Thinking caută inovație, First Principles caută ruperea limitelor.  
+          Modelul Coeziv stabilește claritatea ca <em>rezultat principal</em>.
+        </div>
+
+        <div class="highlight">
+          <strong>Formulă de poziționare simplă:</strong><br>
+          <em>„Când vrei să vezi mai clar dinăuntru spre afară, Modelul Coeziv este lentila.  
+          Când vrei să construiești, optimizezi sau cucerești, folosești celelalte modele în jurul lui.”</em>
+        </div>
+      </section>
+
+      <!-- RELAȚIA CU FIRST PRINCIPLES (MUSK) -->
+      <section>
+        <h2><span class="idx">4</span> Contrast clar cu modelul „First Principles” (stil Musk)</h2>
+        <p>Aici mulți se încurcă. Punem liniile clar pe masă:</p>
+
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th></th>
+                <th>Modelul Coeziv</th>
+                <th>First Principles</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Întrebare de start</td>
+                <td>„Ce este fracturat în mine / în sistemul interior?”</td>
+                <td>„Din ce e făcut asta, la nivel de esență?”</td>
+              </tr>
+              <tr>
+                <td>Mișcare principală</td>
+                <td>Leagă, adună, creează continuitate.</td>
+                <td>Sparge, descompune, elimină presupuneri.</td>
+              </tr>
+              <tr>
+                <td>Stare internă</td>
+                <td>Caută echilibru și claritate.</td>
+                <td>Caută tensiune productivă și ruptură.</td>
+              </tr>
+              <tr>
+                <td>Tip de proiect</td>
+                <td>om în tranziție, echipă în redefinire, identitate.</td>
+                <td>produs nou, tehnologie nouă, model de business nou.</td>
+              </tr>
+              <tr>
+                <td>Împreună, optim</td>
+                <td colspan="2">Mai întâi Coeziv (claritate de stare), apoi First Principles (reconstrucție tehnică). Ordinea contează.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- CAPCANE & LIMITĂRI -->
+      <section>
+        <h2><span class="idx">5</span> Capcane, limite și folosire coezivă</h2>
+
+        <div class="box-red">
+          <strong>Capcană 1 · „Modelul meu înlocuiește tot”</strong><br>
+          Niciun model sănătos nu le anulează pe celelalte. Modelul Coeziv nu este în loc de OODA, Design Thinking sau First Principles.  
+          El este stratul de <em>aliniere internă</em> peste care celelalte devin mai clare și mai puțin distructive.
+        </div>
+
+        <div class="box-red">
+          <strong>Capcană 2 · Confuzia dintre niveluri</strong><br>
+          Nucleul fizic (apa, π, 2π) este una, interpretarea simbolică este alta.  
+          Pentru credibilitate: menții mereu clară granița între <em>ce este model științific</em> și <em>ce este extensie conceptuală</em>.
+        </div>
+
+        <div class="box-green">
+          <strong>Folosire coezivă:</strong>
+          <ul style="margin:4px 0 0 18px;font-size:0.86rem;">
+            <li>începi cu Modelul Coeziv pentru a înțelege starea interioară;</li>
+            <li>apoi alegi un model „extern” potrivit: OODA pentru viteză, Design Thinking pentru soluții, First Principles pentru reconstrucție profundă;</li>
+            <li>revii periodic la Modelul Coeziv pentru faza de integrare și învățare.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- CONCLUZII COEZIVE -->
+      <section>
+        <h2><span class="idx">6</span> Concluzii clare și coezive</h2>
+
+        <div class="highlight">
+          <strong>1. Modelul Coeziv nu este „încă un framework”.</strong><br>
+          Este un model de <em>coeziune de stare</em>. În timp ce celelalte modele răspund la „ce să facem?”, Modelul Coeziv răspunde la „din ce stare facem?”.
+        </div>
+
+        <div class="highlight">
+          <strong>2. Poziționarea lui naturală este de „primul pas” și „ultimul pas”.</strong><br>
+          Primul: pentru clarificarea stării și a haosului.  
+          Ultimul: pentru integrarea a ceea ce s-a întâmplat și învățarea din ciclu.
+        </div>
+
+        <div class="highlight">
+          <strong>3. Integrarea cu alte modele este forța, nu slăbiciunea lui.</strong><br>
+          Cel mai mare potențial nu este să fie singur, ci să fie <em>scheletul interior</em> peste care se așază:
+          <ul style="margin:4px 0 0 18px;font-size:0.86rem;">
+            <li>Design Thinking – când creezi;</li>
+            <li>OODA – când reacționezi;</li>
+            <li>First Principles – când reconstruiești de la zero;</li>
+            <li>Systems Thinking – când vezi rețelele și efectele.</li>
+          </ul>
+        </div>
+
+        <div class="box-green">
+          <strong>4. Concluzie esențială într-o frază:</strong><br>
+          <em>Modelul Coeziv este modelul care se ocupă de „cine ești și în ce stare ești” înainte să alegi cu ce model de acțiune lucrezi.</em>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      Hartă comparativă non-exhaustivă. Scopul ei nu este să creeze ierarhii, ci spațiu de claritate și integrare.
+    </footer>
+  </div>
+</body>
+</html>
