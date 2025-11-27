@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" />
+  <title>Ghid pentru profesori – Modelul Coeziv</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --accent: #0ea5e9;
+      --accent-soft: #e0f2fe;
+      --accent-dark: #075985;
+      --text: #0f172a;
+      --muted: #475569;
+      --border: #e2e8f0;
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .page {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 20px 14px 36px;
+    }
+
+    header {
+      background: linear-gradient(135deg, #e0f2fe, #f0f9ff);
+      border-radius: 24px;
+      padding: 16px 16px 14px;
+      border: 1px solid var(--border);
+      box-shadow: 0 16px 30px rgba(0,0,0,0.05);
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 1.4rem;
+    }
+
+    .subtitle {
+      margin: 0;
+      font-size: 0.92rem;
+      color: var(--muted);
+    }
+
+    main {
+      margin-top: 16px;
+      display: grid;
+      gap: 14px;
+    }
+
+    section {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 14px 14px 12px;
+      border: 1px solid var(--border);
+      box-shadow: 0 12px 22px rgba(0,0,0,0.04);
+    }
+
+    h2 {
+      margin: 0 0 6px;
+      font-size: 1.05rem;
+      color: var(--accent-dark);
+    }
+
+    p {
+      margin: 0 0 6px;
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    ul {
+      margin: 4px 0 4px 18px;
+      padding: 0;
+      font-size: 0.88rem;
+    }
+
+    li {
+      margin-bottom: 3px;
+    }
+
+    .box {
+      background: #f1f5f9;
+      border: 1px dashed var(--border);
+      border-radius: 14px;
+      padding: 10px 12px;
+      font-size: 0.88rem;
+      margin-top: 6px;
+    }
+
+    .box-accent {
+      background: var(--accent-soft);
+      border: 1px solid #bae6fd;
+    }
+
+    .label {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 2px;
+    }
+
+    .grid-two {
+      display: grid;
+      gap: 10px;
+    }
+
+    @media (min-width: 780px) {
+      .grid-two {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .do-dont {
+      display: grid;
+      gap: 8px;
+      margin-top: 6px;
+    }
+
+    .do, .dont {
+      padding: 8px 10px;
+      border-radius: 14px;
+      font-size: 0.88rem;
+    }
+
+    .do {
+      background: #ecfdf5;
+      border: 1px solid #bbf7d0;
+      color: #14532d;
+    }
+
+    .dont {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #7f1d1d;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 6px;
+      font-size: 0.88rem;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 6px 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    th {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+    }
+
+    .highlight {
+      background: #e0f2fe;
+      border: 1px solid #bae6fd;
+      border-radius: 14px;
+      padding: 10px 12px;
+      font-size: 0.9rem;
+    }
+
+    footer {
+      margin-top: 12px;
+      font-size: 0.78rem;
+      text-align: center;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>Ghid pentru profesori · Modelul Coeziv</h1>
+      <p class="subtitle">
+        Cum să predai claritatea, nu doar conținut.
+      </p>
+    </header>
+
+    <main>
+      <!-- FILOSOFIE -->
+      <section>
+        <h2>1. Filosofia din spatele Modelului Coeziv</h2>
+        <p>Modelul Coeziv nu este o „lecție” clasică. Este un mod de a crea un spațiu sigur în care elevii învață să gândească.</p>
+        <div class="box box-accent">
+          Rolul profesorului nu este: „îți spun ce să gândești”,  
+          ci: „te ajut să vezi mai clar ce gândești.”
+        </div>
+      </section>
+
+      <!-- ROLUL PROFESORULUI -->
+      <section>
+        <h2>2. Rolul profesorului</h2>
+        <div class="grid-two">
+          <div>
+            <div class="label">Tu ești</div>
+            <ul>
+              <li>facilitator de claritate</li>
+              <li>model de gândire calmă</li>
+              <li>partener de explorare</li>
+            </ul>
+          </div>
+          <div>
+            <div class="label">Tu nu ești</div>
+            <ul>
+              <li>judecător al gândurilor elevului</li>
+              <li>corector al emoțiilor</li>
+              <li>„rezolvatorul” vieții lor</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- REGULI DE BAZĂ -->
+      <section>
+        <h2>3. Regulile de aur la clasă</h2>
+        <div class="do-dont">
+          <div class="do">
+            ✅ Normalizează confuzia  
+            „E normal să nu fie totul clar.”
+          </div>
+          <div class="do">
+            ✅ Validează efortul  
+            „Faptul că ai scris deja este un pas mare.”
+          </div>
+          <div class="dont">
+            ❌ Nu ironiza haosul  
+            „Cum să nu știi asta?” rupe siguranța.
+          </div>
+          <div class="dont">
+            ❌ Nu forța expunerea  
+            Elevul alege cât împărtășește.
+          </div>
+        </div>
+      </section>
+
+      <!-- CUM FACI TRANZIȚIA ÎN ORICE MATERIE -->
+      <section>
+        <h2>4. Cum aplici Modelul Coeziv în orice disciplină</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Disciplină</th>
+              <th>Explorare</th>
+              <th>Coeziune</th>
+              <th>Decizie</th>
+              <th>Integrare</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Limba română</td>
+              <td>Ce nu înțeleg din text?</td>
+              <td>Ce idei se repetă?</td>
+              <td>Ce interpretare aleg?</td>
+              <td>Ce am învățat?</td>
+            </tr>
+            <tr>
+              <td>Matematică</td>
+              <td>Ce mă blochează?</td>
+              <td>Ce legături văd?</td>
+              <td>Ce pas aplic?</td>
+              <td>Unde am greșit util?</td>
+            </tr>
+            <tr>
+              <td>Științe</td>
+              <td>Ce mă miră?</td>
+              <td>Ce tipar observ?</td>
+              <td>Ce ipoteză testez?</td>
+              <td>Ce s-a schimbat?</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- GESTIONAREA EMOȚIILOR -->
+      <section>
+        <h2>5. Ce faci când apar emoții puternice</h2>
+        <div class="grid-two">
+          <div class="box">
+            <div class="label">Dacă un elev se blochează</div>
+            <p>
+              Nu forța. Spune:  
+              „Poți sta doar să asculți. E suficient.”
+            </p>
+          </div>
+          <div class="box">
+            <div class="label">Dacă un elev devine defensiv</div>
+            <p>
+              Nu contrazice. Spune:  
+              „Nu trebuie să fii de acord. Doar explorează.”
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- EVALUARE -->
+      <section>
+        <h2>6. Cum evaluezi fără note</h2>
+        <p>Modelul Coeziv nu se evaluează cu note clasice.</p>
+        <div class="box">
+          Criterii alternative:
+          <ul>
+            <li>claritatea formulării</li>
+            <li>capacitatea de auto-reflecție</li>
+            <li>realismul pașilor aleși</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ERORI COMUNE -->
+      <section>
+        <h2>7. Erori comune ale profesorilor</h2>
+        <div class="do-dont">
+          <div class="dont">
+            ❌ Transformi modelul în „încă o temă”.
+          </div>
+          <div class="dont">
+            ❌ Corectezi conținutul gândurilor elevului.
+          </div>
+          <div class="dont">
+            ❌ Te grăbești spre soluții.
+          </div>
+          <div class="do">
+            ✅ Rămâi în proces, nu în rezultat.
+          </div>
+        </div>
+      </section>
+
+      <!-- ESENȚĂ -->
+      <section>
+        <h2>8. Esența modelului, pentru tine ca profesor</h2>
+        <div class="highlight">
+          Când modelul este predat corect, elevii nu spun:
+          „Mi-a spus profesorul ce să fac.”
+          ci:
+          „Am învățat să gândesc mai clar singur.”
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      Ghid flexibil. Poate fi adaptat pentru orice nivel de vârstă și orice stil de predare.
+    </footer>
+  </div>
+</body>
+</html>
