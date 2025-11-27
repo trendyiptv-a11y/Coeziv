@@ -2,107 +2,261 @@
 <html lang="ro">
 <head>
   <meta charset="UTF-8">
-  <title>Modelul Coeziv – Document Unificat (Hub)</title>
+  <title>Modelul Coeziv – Hub coeziv</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
+    :root {
+      --bg-dark: #020617;
+      --bg-dark-soft: #020922;
+      --bg-light: #f8fafc;
+      --bg-card-light: #ffffff;
+      --accent-blue: #38bdf8;
+      --accent-blue-soft: #e0f2fe;
+      --accent-green: #22c55e;
+      --accent-green-soft: #dcfce7;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border-soft: #e2e8f0;
+    }
+
+    * { box-sizing: border-box; }
+
     body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #f8fafc;
-      color: #0f172a;
       margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #020617 0, #000 55%);
+      color: var(--text-main);
     }
 
     header {
-      background: #e0f2fe;
-      padding: 20px 16px;
-      border-bottom: 1px solid #e2e8f0;
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 22px 16px 18px;
+      color: #e5e7eb;
     }
 
     header h1 {
       margin: 0 0 4px;
       font-size: 1.6rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
     }
 
     header p {
       margin: 0;
       font-size: 0.95rem;
-      color: #475569;
+      color: #9ca3af;
+    }
+
+    .tagline {
+      margin-top: 6px;
+      font-size: 0.85rem;
+      color: #cbd5f5;
     }
 
     nav {
-      background: #0f172a;
-      color: #e0f2fe;
-      padding: 10px 16px;
       position: sticky;
       top: 0;
-      z-index: 10;
+      z-index: 20;
+      background: rgba(15,23,42,0.95);
+      border-top: 1px solid rgba(148,163,184,0.4);
+      border-bottom: 1px solid rgba(148,163,184,0.4);
+      backdrop-filter: blur(10px);
+    }
+
+    .nav-inner {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 8px 16px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      font-size: 0.85rem;
     }
 
     nav a {
-      color: #e0f2fe;
-      margin-right: 14px;
+      color: #e5e7eb;
       text-decoration: none;
-      font-size: 0.9rem;
+      padding: 4px 9px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.6);
+      background: rgba(15,23,42,0.9);
     }
 
     nav a:hover {
-      text-decoration: underline;
+      background: rgba(37,99,235,0.4);
+    }
+
+    main {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 18px 16px 28px;
     }
 
     section {
-      max-width: 1000px;
-      margin: 0 auto;
-      padding: 24px 16px;
-      border-bottom: 1px solid #e2e8f0;
+      margin-bottom: 18px;
     }
 
     section h2 {
-      margin: 0 0 8px;
-      font-size: 1.3rem;
+      margin: 0 0 6px;
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #e5e7eb;
     }
 
-    section p {
-      font-size: 0.95rem;
-      margin: 0 0 8px;
-      color: #475569;
-    }
-
-    .doc {
-      margin-top: 6px;
-      padding: 10px 12px;
-      background: #ffffff;
-      border-radius: 10px;
-      border: 1px solid #e2e8f0;
-    }
-
-    .doc a {
-      color: #0f766e;
-      text-decoration: none;
+    .idx {
+      width: 20px;
+      height: 20px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.7);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.72rem;
       font-weight: 600;
+      color: var(--accent-blue);
+      background: rgba(15,23,42,0.95);
     }
 
-    .doc a:hover {
-      text-decoration: underline;
-    }
-
-    .doc ul {
-      margin: 8px 0 0 20px;
-      padding: 0;
+    .section-intro {
+      margin: 0 0 8px;
       font-size: 0.9rem;
-      color: #0f172a;
+      color: #cbd5e1;
+      max-width: 720px;
     }
 
-    .doc li {
+    /* Carduri inspirate din stilul documentelor sursă */
+
+    .doc-card {
+      border-radius: 18px;
+      padding: 12px 14px;
+      margin-top: 4px;
+      font-size: 0.9rem;
+    }
+
+    /* Manifest / Manual / Hartă comparativă – stil dark, aliniat cu sursa */
+    .doc-card--dark {
+      background: rgba(15,23,42,0.98);
+      border: 1px solid #1f2937;
+      box-shadow: 0 18px 40px rgba(0,0,0,0.7);
+      color: #e5e7eb;
+    }
+
+    /* Mini-curriculum / Ghid / Workbook – stil light albastru, ca în sursă */
+    .doc-card--light {
+      background: var(--bg-card-light);
+      border: 1px solid var(--border-soft);
+      box-shadow: 0 12px 24px rgba(15,23,42,0.08);
+      color: var(--text-main);
+    }
+
+    /* Kids – accent verde, ca în sursa Kids */
+    .doc-card--kids {
+      background: var(--accent-green-soft);
+      border: 1px solid #bbf7d0;
+      box-shadow: 0 10px 22px rgba(0,0,0,0.12);
+      color: var(--text-main);
+    }
+
+    .doc-title {
+      margin: 0 0 4px;
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    .doc-title a {
+      text-decoration: none;
+    }
+
+    .doc-title a span {
+      border-bottom: 1px dashed currentColor;
+    }
+
+    .doc-title a:hover span {
+      border-bottom-style: solid;
+    }
+
+    .doc-meta {
+      font-size: 0.8rem;
+      margin-bottom: 4px;
+      opacity: 0.9;
+    }
+
+    .doc-card--dark .doc-title a {
+      color: var(--accent-blue);
+    }
+
+    .doc-card--dark .doc-meta {
+      color: #9ca3af;
+    }
+
+    .doc-card--light .doc-title a {
+      color: #0369a1;
+    }
+
+    .doc-card--light .doc-meta {
+      color: var(--text-muted);
+    }
+
+    .doc-card--kids .doc-title a {
+      color: #15803d;
+    }
+
+    .doc-card--kids .doc-meta {
+      color: #166534;
+    }
+
+    .doc-list {
+      margin: 4px 0 0 18px;
+      padding: 0;
+      font-size: 0.88rem;
+    }
+
+    .doc-list li {
       margin-bottom: 3px;
     }
 
-    @media (min-width: 768px) {
-      nav a {
-        font-size: 0.95rem;
-      }
+    .label {
+      display: inline-block;
+      margin-top: 4px;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      opacity: 0.8;
+    }
 
-      section {
-        padding: 28px 24px;
+    .label--core {
+      color: #93c5fd;
+    }
+
+    .label--tool {
+      color: #38bdf8;
+    }
+
+    .label--edu {
+      color: #0ea5e9;
+    }
+
+    .label--kids {
+      color: #16a34a;
+    }
+
+    .label--meta {
+      color: #c4b5fd;
+    }
+
+    @media (max-width: 640px) {
+      header h1 {
+        font-size: 1.3rem;
+      }
+      .nav-inner {
+        gap: 6px;
+      }
+      nav a {
+        font-size: 0.8rem;
+        padding: 3px 7px;
       }
     }
   </style>
@@ -110,139 +264,207 @@
 <body>
 
 <header>
-  <h1>Modelul Coeziv – Document Unificat</h1>
-  <p>Hub de navigare care leagă toate materialele în jurul Modelului Coeziv.</p>
+  <h1>Modelul Coeziv</h1>
+  <p>Hub coeziv care leagă toate documentele într-o singură „hartă”.</p>
+  <p class="tagline">
+    Ordine logică: de la „de ce există modelul”, la „cum îl folosești tu”, apoi „cum îl dai mai departe” și, în final, „unde se așază între alte modele de gândire”.
+  </p>
 </header>
 
 <nav>
-  <a href="#lectii">Lecții</a>
-  <a href="#manual">Manual de buzunar</a>
-  <a href="#kids">Versiune copii</a>
-  <a href="#manifest">Manifest</a>
-  <a href="#profesori">Ghid profesori</a>
-  <a href="#workbook">Workbook</a>
-  <a href="#comparativ">Modele comparative</a>
+  <div class="nav-inner">
+    <a href="#manifest">1. Manifest</a>
+    <a href="#manual">2. Manual de buzunar</a>
+    <a href="#workbook">3. Workbook</a>
+    <a href="#lectii">4. Mini-curriculum</a>
+    <a href="#profesori">5. Ghid profesori</a>
+    <a href="#kids">6. Versiune Kids</a>
+    <a href="#comparativ">7. Hartă comparativă</a>
+  </div>
 </nav>
 
-<section id="lectii">
-  <h2>Mini-curriculum – Lecții</h2>
-  <p>Program în 4 lecții (45–50 min) pentru gimnaziu / liceu, axat pe claritate și structură a gândirii.</p>
-  <div class="doc">
-    <p>Fișier:
-      <a href="lectii_mc_gandire.html" target="_blank">
-        Mini-curriculum educațional – Modelul Coeziv (4 lecții)
-      </a>
-    </p>
-    <ul>
-      <li>Lecția 1 – De la haos la hartă (Explorare)</li>
-      <li>Lecția 2 – Cum legăm punctele (Coeziune)</li>
-      <li>Lecția 3 – De la idei la pași concreți (Decizie)</li>
-      <li>Lecția 4 – Ce am învățat din ce am făcut (Integrare)</li>
-    </ul>
-  </div>
-</section>
+<main>
 
-<section id="manual">
-  <h2>Manual de buzunar</h2>
-  <p>Versiune scurtă, utilizabilă individual, în 5–10 minute per sesiune, pentru auto-clarificare rapidă.</p>
-  <div class="doc">
-    <p>Fișier:
-      <a href="manual_buzunar.html" target="_blank">
-        Manual de buzunar – Modelul Coeziv
-      </a>
+  <!-- 1. MANIFEST – DE CE EXISTĂ MODELUL -->
+  <section id="manifest">
+    <h2><span class="idx">1</span> Manifest – De ce există Modelul Coeziv</h2>
+    <p class="section-intro">
+      Punctul de plecare: sens, motivație și principii. Manifestul explică <strong>de ce</strong> există Modelul Coeziv,
+      <strong>ce este și ce nu este</strong> și ce fel de relație propune cu confuzia și claritatea.
     </p>
-    <ul>
-      <li>Ce este Modelul Coeziv</li>
-      <li>Cele 4 faze</li>
-      <li>Pași rapizi pentru auto-clarificare</li>
-    </ul>
-  </div>
-</section>
+    <div class="doc-card doc-card--dark">
+      <p class="doc-title">
+        <a href="mc_manifest.html" target="_blank">
+          <span>Manifestul Modelului Coeziv</span>
+        </a>
+      </p>
+      <p class="doc-meta">
+        Stil: dark, cu accente albastre · Public-țintă: elevi, profesori, antreprenori și oricine vrea o poziționare clară.
+      </p>
+      <ul class="doc-list">
+        <li>De ce există Modelul Coeziv și ce problemă culturală încearcă să rezolve.</li>
+        <li>Ce este și ce nu este acest model (nu religie, nu terapie, nu „cheia universului”).</li>
+        <li>Principiile de bază (confuzia nu e dușmanul, claritatea este o stare etc.).</li>
+      </ul>
+      <span class="label label--core">nucleu conceptual</span>
+    </div>
+  </section>
 
-<section id="kids">
-  <h2>Versiune copii</h2>
-  <p>Adaptare pentru copii, cu limbaj simplu și metafore vizuale (superputeri, baghetă magică pentru minte).</p>
-  <div class="doc">
-    <p>Fișier:
-      <a href="manual_buzunar_copii.html" target="_blank">
-        Modelul Coeziv – Versiune Kids
-      </a>
+  <!-- 2. MANUAL DE BUZUNAR – MODELUL PE SCURT, PENTRU TINE -->
+  <section id="manual">
+    <h2><span class="idx">2</span> Manual de buzunar – Modelul pe scurt, pentru tine</h2>
+    <p class="section-intro">
+      După ce știi de ce există modelul, următorul pas este să îl poți folosi rapid, <strong>în 5–10 minute</strong>,
+      pentru situațiile tale reale. Manualul de buzunar este versiunea personală și portabilă.
     </p>
-    <ul>
-      <li>Explicații adaptate pentru copii</li>
-      <li>„Superputeri” ale minții</li>
-      <li>Varianta super-rapidă</li>
-    </ul>
-  </div>
-</section>
+    <div class="doc-card doc-card--dark">
+      <p class="doc-title">
+        <a href="manual_buzunar.html" target="_blank">
+          <span>Manual de buzunar – Modelul Coeziv</span>
+        </a>
+      </p>
+      <p class="doc-meta">
+        Stil: dark, futurist · Public-țintă: elevi mai mari, studenți, tineri profesioniști, antreprenori.
+      </p>
+      <ul class="doc-list">
+        <li>Ce este Modelul Coeziv ca „mod de a gândi mai clar”.</li>
+        <li>Cele 4 faze: Explorare · Coeziune · Decizie · Integrare.</li>
+        <li>Reguli simple: nu cauți perfecțiune, ci următorul pas care are sens.</li>
+        <li>Mini-protocoale de folosit în caiet / aplicație / dialog cu AI.</li>
+      </ul>
+      <span class="label label--tool">instrument individual</span>
+    </div>
+  </section>
 
-<section id="manifest">
-  <h2>Manifest</h2>
-  <p>Document de poziționare: de ce există Modelul Coeziv, cui i se adresează și ce asumări își face.</p>
-  <div class="doc">
-    <p>Fișier:
-      <a href="mc_manifest.html" target="_blank">
-        Manifestul Modelului Coeziv
-      </a>
+  <!-- 3. WORKBOOK – PRACTICĂ STRUCTURATĂ -->
+  <section id="workbook">
+    <h2><span class="idx">3</span> Workbook – Practică structurată pentru situațiile tale</h2>
+    <p class="section-intro">
+      După ce ai înțeles modelul pe scurt, ai nevoie de un spațiu sigur în care să îl exersezi.
+      Workbook-ul este <strong>caietul tău de lucru</strong>, structurat direct pe cele 4 faze.
     </p>
-    <ul>
-      <li>De ce există modelul</li>
-      <li>Ce este / ce nu este</li>
-      <li>Principii și asumări explicite</li>
-    </ul>
-  </div>
-</section>
+    <div class="doc-card doc-card--light">
+      <p class="doc-title">
+        <a href="mc_workbook.html" target="_blank">
+          <span>Workbook pentru elevi – Modelul Coeziv</span>
+        </a>
+      </p>
+      <p class="doc-meta">
+        Stil: light, albastru · Public-țintă: elevi (și orice persoană care vrea ghidaj scris, pas cu pas).
+      </p>
+      <ul class="doc-list">
+        <li>Faza 1 – Explorare: ce situație aleg, ce îmi vine în minte, cum mă simt.</li>
+        <li>Faza 2 – Coeziune: idei care se repetă, ce e esențial, o propoziție-cheie.</li>
+        <li>Faza 3 – Decizie: 3 opțiuni realiste, pasul ales, plan concret.</li>
+        <li>Faza 4 – Integrare: ce am învățat, cum se schimbă perspectiva mea.</li>
+      </ul>
+      <span class="label label--tool">aplicare ghidată</span>
+    </div>
+  </section>
 
-<section id="profesori">
-  <h2>Ghid pentru profesori</h2>
-  <p>Instrucțiuni de implementare în context educațional formal: rolul profesorului, reguli de bază, exemple pe discipline.</p>
-  <div class="doc">
-    <p>Fișier:
-      <a href="mc_profesori.html" target="_blank">
-        Ghid pentru profesori – Modelul Coeziv
-      </a>
+  <!-- 4. MINI-CURRICULUM – LA NIVEL DE CLASĂ -->
+  <section id="lectii">
+    <h2><span class="idx">4</span> Mini-curriculum – Modelul Coeziv la nivel de clasă</h2>
+    <p class="section-intro">
+      Când vrei să treci de la lucru individual la lucru în grup, mini-curriculumul în 4 lecții
+      oferă o structură clară pentru ore de dirigenție, consiliere sau cluburi.
     </p>
-    <ul>
-      <li>Rolul profesorului</li>
-      <li>Reguli de aur la clasă</li>
-      <li>Aplicare transversală pe discipline</li>
-    </ul>
-  </div>
-</section>
+    <div class="doc-card doc-card--light">
+      <p class="doc-title">
+        <a href="lectii_mc_gandire.html" target="_blank">
+          <span>Mini-curriculum educațional – Modelul Coeziv (4 lecții)</span>
+        </a>
+      </p>
+      <p class="doc-meta">
+        Stil: light, albastru, cu secțiuni tip „card” · Public-țintă: profesori, consilieri, facilitatori de grup.
+      </p>
+      <ul class="doc-list">
+        <li>Lecția 1 – De la haos la hartă (Explorare).</li>
+        <li>Lecția 2 – Cum legăm punctele (Coeziune).</li>
+        <li>Lecția 3 – De la idei la pași concreți (Decizie).</li>
+        <li>Lecția 4 – Ce am învățat din ce am făcut (Integrare).</li>
+      </ul>
+      <span class="label label--edu">program 4×45–50 min</span>
+    </div>
+  </section>
 
-<section id="workbook">
-  <h2>Workbook pentru elevi</h2>
-  <p>Caiet de lucru structurat pe faze, pentru a practica Modelul Coeziv în situații reale ale elevilor.</p>
-  <div class="doc">
-    <p>Fișier:
-      <a href="mc_workbook.html" target="_blank">
-        Workbook pentru elevi – Modelul Coeziv
-      </a>
+  <!-- 5. GHID PENTRU PROFESORI – CUM FACILITEZI MODELUL -->
+  <section id="profesori">
+    <h2><span class="idx">5</span> Ghid pentru profesori – Cum facilitezi Modelul Coeziv</h2>
+    <p class="section-intro">
+      Pentru ca lecțiile și workbook-ul să funcționeze, profesorul are nevoie de un rol clar:
+      nu „judecător”, ci <strong>facilitator de claritate</strong>. Ghidul detaliază acest rol.
     </p>
-    <ul>
-      <li>Faza 1 – Explorare</li>
-      <li>Faza 2 – Coeziune</li>
-      <li>Faza 3 – Decizie</li>
-      <li>Faza 4 – Integrare</li>
-    </ul>
-  </div>
-</section>
+    <div class="doc-card doc-card--light">
+      <p class="doc-title">
+        <a href="mc_profesori.html" target="_blank">
+          <span>Ghid pentru profesori – Modelul Coeziv</span>
+        </a>
+      </p>
+      <p class="doc-meta">
+        Stil: light, albastru, cu secțiuni de tip „do & don’t” · Public-țintă: profesori, traineri, consilieri.
+      </p>
+      <ul class="doc-list">
+        <li>Filosofia din spatele Modelului Coeziv la clasă.</li>
+        <li>Rolul profesorului: ce este și ce nu este.</li>
+        <li>Reguli de aur: normalizarea confuziei, validarea efortului, siguranța emoțională.</li>
+        <li>Aplicare transversală în discipline (exemplu: română, istorie, științe etc.).</li>
+      </ul>
+      <span class="label label--edu">facilitare educațională</span>
+    </div>
+  </section>
 
-<section id="comparativ">
-  <h2>Modele comparative</h2>
-  <p>Hartă comparativă între Modelul Coeziv și alte modele de gândire (systems thinking, OODA, design thinking etc.).</p>
-  <div class="doc">
-    <p>Fișier:
-      <a href="modele_gandire_comparate.html" target="_blank">
-        Hartă comparativă – Modelul Coeziv &amp; alte modele de gândire
-      </a>
+  <!-- 6. VERSIUNE KIDS – ADAPTARE PENTRU CEI MAI MICI -->
+  <section id="kids">
+    <h2><span class="idx">6</span> Versiune Kids – Adaptare pentru cei mai mici</h2>
+    <p class="section-intro">
+      Pentru copii, limbajul devine joc și metaforă: „baghetă magică pentru minte”, „superputeri”.
+      Structura rămâne aceeași, dar forma este mai jucăușă.
     </p>
-    <ul>
-      <li>Sinopsis modele (Coheziv, Systems Thinking, OODA, Design Thinking etc.)</li>
-      <li>Tabel comparativ pe axe-cheie</li>
-    </ul>
-  </div>
-</section>
+    <div class="doc-card doc-card--kids">
+      <p class="doc-title">
+        <a href="manual_buzunar_copii.html" target="_blank">
+          <span>Modelul Coeziv – Versiune Kids</span>
+        </a>
+      </p>
+      <p class="doc-meta">
+        Stil: fond deschis, accente verzi, iconițe și emoji · Public-țintă: copii, în special ciclul primar.
+      </p>
+      <ul class="doc-list">
+        <li>Ce este Modelul Coeziv explicat ca „baghetă magică pentru minte”.</li>
+        <li>Cele 4 superputeri: scoate tot afară · leagă ideile · alege un pas · învață.</li>
+        <li>Varianta super-rapidă în pași simpli.</li>
+      </ul>
+      <span class="label label--kids">adaptare copii</span>
+    </div>
+  </section>
+
+  <!-- 7. HARTĂ COMPARATIVĂ – UNDE SE AȘAZĂ MODELUL -->
+  <section id="comparativ">
+    <h2><span class="idx">7</span> Hartă comparativă – Unde se așază Modelul Coeziv între alte modele</h2>
+    <p class="section-intro">
+      La final, după ce ai înțeles și folosit modelul, poți să îl vezi în context:
+      cum se poziționează față de systems thinking, OODA, design thinking, first principles etc.
+    </p>
+    <div class="doc-card doc-card--dark">
+      <p class="doc-title">
+        <a href="modele_gandire_comparate.html" target="_blank">
+          <span>Hartă comparativă – Modelul Coeziv &amp; alte modele de gândire</span>
+        </a>
+      </p>
+      <p class="doc-meta">
+        Stil: dark, aliniat cu manifestul și manualul de buzunar · Public-țintă: educatori, antreprenori, oameni de produs.
+      </p>
+      <ul class="doc-list">
+        <li>Sinopsis pentru 7 modele de gândire (inclusiv Modelul Coeziv).</li>
+        <li>Tabel comparativ pe axe-cheie: focus, structură, tip de inteligență, direcția privirii.</li>
+        <li>Poziționarea explicită a Modelului Coeziv între aceste cadre.</li>
+      </ul>
+      <span class="label label--meta">context & poziționare</span>
+    </div>
+  </section>
+
+</main>
 
 </body>
 </html>
