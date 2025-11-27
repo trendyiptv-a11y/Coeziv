@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" />
+  <title>Mini-curriculum educațional – Modelul Coeziv (4 lecții)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg: #f1f5f9;
+      --card: #ffffff;
+      --accent: #0ea5e9;
+      --accent-soft: #e0f2fe;
+      --accent-dark: #0369a1;
+      --text: #0f172a;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .page {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 18px 14px 32px;
+    }
+
+    header {
+      background: linear-gradient(135deg, #e0f2fe, #f0f9ff);
+      border-radius: 24px;
+      padding: 16px 16px 14px;
+      box-shadow: 0 18px 30px rgba(15,23,42,0.08);
+      border: 1px solid var(--border);
+    }
+
+    header h1 {
+      margin: 0 0 4px;
+      font-size: 1.4rem;
+    }
+
+    .subtitle {
+      margin: 0 0 8px;
+      font-size: 0.92rem;
+      color: var(--muted);
+    }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-size: 0.75rem;
+    }
+
+    .pill {
+      padding: 3px 10px;
+      border-radius: 999px;
+      border: 1px solid #cbd5f5;
+      background: #eff6ff;
+      color: #1e293b;
+    }
+
+    main {
+      margin-top: 16px;
+      display: grid;
+      gap: 14px;
+    }
+
+    section {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 12px 14px 12px;
+      border: 1px solid var(--border);
+      box-shadow: 0 10px 22px rgba(15,23,42,0.06);
+    }
+
+    section h2 {
+      margin: 0 0 6px;
+      font-size: 1.05rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .idx {
+      width: 20px;
+      height: 20px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent-dark);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    p {
+      margin: 0 0 6px;
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    .muted {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .grid-two {
+      display: grid;
+      gap: 8px;
+    }
+
+    @media (min-width: 780px) {
+      .grid-two {
+        grid-template-columns: 2fr 1fr;
+      }
+    }
+
+    .box {
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: #f8fafc;
+      padding: 8px 9px;
+      font-size: 0.88rem;
+    }
+
+    .box-accent {
+      border-color: #bae6fd;
+      background: #e0f2fe;
+    }
+
+    .box-soft {
+      border-style: dashed;
+    }
+
+    ul {
+      margin: 4px 0 4px 18px;
+      padding: 0;
+      font-size: 0.88rem;
+    }
+
+    li {
+      margin-bottom: 3px;
+    }
+
+    .label {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 2px;
+    }
+
+    .lesson-header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+
+    .lesson-title {
+      font-weight: 600;
+    }
+
+    .lesson-meta {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .steps {
+      display: grid;
+      gap: 4px;
+      margin-top: 4px;
+    }
+
+    .step {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 8px;
+      align-items: start;
+      font-size: 0.88rem;
+    }
+
+    .step-num {
+      width: 22px;
+      height: 22px;
+      border-radius: 8px;
+      background: var(--accent-soft);
+      color: var(--accent-dark);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .tag {
+      font-size: 0.75rem;
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid #cbd5e1;
+      background: #eff6ff;
+      color: #0f172a;
+    }
+
+    .highlight {
+      border-radius: 14px;
+      padding: 7px 9px;
+      background: #e0f2fe;
+      border: 1px solid #bae6fd;
+      font-size: 0.88rem;
+      margin-top: 4px;
+    }
+
+    .teacher-note {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-top: 3px;
+    }
+
+    footer {
+      margin-top: 10px;
+      font-size: 0.78rem;
+      color: var(--muted);
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>Mini-curriculum educațional · Modelul Coeziv</h1>
+      <p class="subtitle">
+        Program în 4 lecții (45–50 min) pentru gimnaziu / liceu, axat pe claritate și structură a gândirii.
+      </p>
+      <div class="tags">
+        <span class="pill">Nivel: 13–19 ani</span>
+        <span class="pill">Durată: 4 × 45–50 min</span>
+        <span class="pill">Obiectiv: claritate, nu perfecțiune</span>
+      </div>
+    </header>
+
+    <main>
+      <!-- STRUCTURĂ GENERALĂ -->
+      <section>
+        <h2><span class="idx">0</span> Structura generală a programului</h2>
+        <div class="grid-two">
+          <div>
+            <p><strong>Modelul Coeziv</strong> este prezentat elevilor ca un „mod de a gândi mai clar”, nu ca teorie grea.</p>
+            <p class="muted">Fiecare lecție are: obiective clare, o activitate centrală și un moment de reflecție.</p>
+          </div>
+          <div class="box box-soft">
+            <div class="label">Lecțiile pe scurt</div>
+            <ul>
+              <li><strong>Lecția 1:</strong> De la haos la hartă (Explorare)</li>
+              <li><strong>Lecția 2:</strong> Cum legăm punctele (Coeziune)</li>
+              <li><strong>Lecția 3:</strong> De la idei la pași concreți (Decizie)</li>
+              <li><strong>Lecția 4:</strong> Ce am învățat din ce am făcut (Integrare)</li>
+            </ul>
+          </div>
+        </div>
+        <div class="tag-row">
+          <span class="tag">discipline: dirigenție, consiliere, socio-umane</span>
+          <span class="tag">poate fi adaptat în cluburi / programe after-school</span>
+        </div>
+      </section>
+
+      <!-- LECȚIA 1 -->
+      <section>
+        <h2><span class="idx">1</span> Lecția 1 · De la haos la hartă (Explorare)</h2>
+        <div class="lesson-header">
+          <span class="lesson-title">Scop: elevii învață să își „scoată din cap” gândurile fără să se judece.</span>
+          <span class="lesson-meta">Timp: 45–50 min</span>
+        </div>
+
+        <div class="grid-two">
+          <div>
+            <div class="label">Obiective</div>
+            <ul>
+              <li>Elevul identifică o situație unde se simte confuz.</li>
+              <li>Elevul exersează exprimarea liberă a gândurilor, fără autocenzură.</li>
+              <li>Elevul descoperă că a pune pe hârtie reduce presiunea mentală.</li>
+            </ul>
+
+            <div class="label">Activitate principală – „Coșul cu gânduri”</div>
+            <div class="steps">
+              <div class="step">
+                <div class="step-num">1</div>
+                <div><strong>Introducere (5–7 min)</strong><br>
+                  Discuție scurtă: „Când ați simțit ultima dată că aveți prea multe în cap?”</div>
+              </div>
+              <div class="step">
+                <div class="step-num">2</div>
+                <div><strong>Exercițiu individual (10–12 min)</strong><br>
+                  Elevii scriu liber, timp de 5 minute, tot ce le vine legat de o situație concretă (examen, relații, viitor). Regulă: nu se opresc, nu corectează.</div>
+              </div>
+              <div class="step">
+                <div class="step-num">3</div>
+                <div><strong>Partajare în perechi (10 min)</strong><br>
+                  În perechi, fiecare citește <em>doar</em> ce dorește din ce a scris. Partenerul doar ascultă, fără comentarii.</div>
+              </div>
+              <div class="step">
+                <div class="step-num">4</div>
+                <div><strong>Concluzii de grup (10 min)</strong><br>
+                  Întrebări ghidate: „Cum a fost să pui pe hârtie? E mai clar, la fel, mai greu?”</div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="box box-accent">
+              <strong>Mesaj-cheie al lecției:</strong><br>
+              „Primul pas spre claritate nu este să găsești soluția, ci să vezi sincer ce e în tine.”
+            </div>
+            <p class="teacher-note">
+              Sugestie: normalizați confuzia. Subliniați că toată lumea trece prin ea, inclusiv adulții.
+            </p>
+
+            <div class="box" style="margin-top:6px;">
+              <div class="label">Întrebare de reflecție la final</div>
+              <p>„După ce am scris, situația mea este: mai clară / la fel / mai încurcată? De ce?”</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- LECȚIA 2 -->
+      <section>
+        <h2><span class="idx">2</span> Lecția 2 · Cum legăm punctele (Coeziune)</h2>
+        <div class="lesson-header">
+          <span class="lesson-title">Scop: elevii învață să recunoască tipare în ce au scris / gândit.</span>
+          <span class="lesson-meta">Timp: 45–50 min</span>
+        </div>
+
+        <div class="grid-two">
+          <div>
+            <div class="label">Obiective</div>
+            <ul>
+              <li>Elevul identifică idei care se repetă la el.</li>
+              <li>Elevul învață să diferențieze între „zgomot” și „esențial”.</li>
+              <li>Elevul formulează 2–3 teme principale pentru situația lui.</li>
+            </ul>
+
+            <div class="label">Activitate principală – „Încercuiește și grupează”</div>
+            <div class="steps">
+              <div class="step">
+                <div class="step-num">1</div>
+                <div><strong>Reactivare (5 min)</strong><br>
+                  Elevii recapitulă ce au scris la Lecția 1. Nu rescriu, doar recitesc.</div>
+              </div>
+              <div class="step">
+                <div class="step-num">2</div>
+                <div><strong>Identificare de repetiții (10–12 min)</strong><br>
+                  Fiecare încercuiește cu un marker/colorat cuvintele/ideile care apar de mai multe ori.</div>
+              </div>
+              <div class="step">
+                <div class="step-num">3</div>
+                <div><strong>Crearea a 3 „nori de idei” (10–12 min)</strong><br>
+                  Elevii trasează 3 cercuri pe o foaie nouă și pun în fiecare: „ce mă stresează”, „ce îmi doresc”, „ce nu înțeleg încă”.</div>
+              </div>
+              <div class="step">
+                <div class="step-num">4</div>
+                <div><strong>Discuție ghidată (10 min)</strong><br>
+                  Ce observă: unde e cea mai mare aglomerație? Ce pare mai important?</div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="box box-accent">
+              <strong>Mesaj-cheie al lecției:</strong><br>
+              „Claritatea apare când legi punctele, nu când le ignori.”
+            </div>
+            <p class="teacher-note">
+              Accentuați ideea că nu toate gândurile au aceeași greutate. Unele sunt reflexe, altele sunt miezul.
+            </p>
+
+            <div class="box" style="margin-top:6px;">
+              <div class="label">Întrebare de reflecție la final</div>
+              <p>„Dacă ar trebui să explic situația mea în 3 idei, care ar fi ele?”</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- LECȚIA 3 -->
+      <section>
+        <h2><span class="idx">3</span> Lecția 3 · De la idei la pași concreți (Decizie)</h2>
+        <div class="lesson-header">
+          <span class="lesson-title">Scop: elevii învață să transforme claritatea în acțiuni mici, realiste.</span>
+          <span class="lesson-meta">Timp: 45–50 min</span>
+        </div>
+
+        <div class="grid-two">
+          <div>
+            <div class="label">Obiective</div>
+            <ul>
+              <li>Elevul generează 2–3 opțiuni reale, nu ideale.</li>
+              <li>Elevul alege conștient o singură opțiune pentru următoarea săptămână.</li>
+              <li>Elevul formulează un pas concret, cu timp și context clar.</li>
+            </ul>
+
+            <div class="label">Activitate principală – „Scara celor mai mici pași”</div>
+            <div class="steps">
+              <div class="step">
+                <div class="step-num">1</div>
+                <div><strong>De la idei la opțiuni (10 min)</strong><br>
+                  Elevii scriu 2–3 opțiuni pentru a schimba ceva mic în situația lor (ex: să cer ajutor, să întreb un profesor, să îmi fac un plan mic de învățare).</div>
+              </div>
+              <div class="step">
+                <div class="step-num">2</div>
+                <div><strong>Alegerea unei opțiuni (5 min)</strong><br>
+                  Fiecare bifează opțiunea care i se pare realistă <em>acum</em>, nu „cea mai frumoasă”.</div>
+              </div>
+              <div class="step">
+                <div class="step-num">3</div>
+                <div><strong>Micșorarea pașilor (10–12 min)</strong><br>
+                  Profesorul întreabă de 2–3 ori: „Poți face și mai mic pasul acesta?” până când devine ușor de realizat.</div>
+              </div>
+              <div class="step">
+                <div class="step-num">4</div>
+                <div><strong>Contract cu tine (10 min)</strong><br>
+                  Elevii notează: „Voi face X, în ziua Y, la ora Z, în locul W.”</div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="box box-accent">
+              <strong>Mesaj-cheie al lecției:</strong><br>
+              „O decizie nu e o idee frumoasă. O decizie are dată, oră și un pas foarte clar.”
+            </div>
+            <p class="teacher-note">
+              Încurajați realismul, nu perfecționismul. Dacă elevii își propun prea mult, ghidați-i să reducă pasul.
+            </p>
+
+            <div class="box" style="margin-top:6px;">
+              <div class="label">Întrebare de reflecție la final</div>
+              <p>„Cât de sigur sunt, de la 1 la 10, că voi face acest pas? Ce ar ajuta să fie cu 1 punct mai sus?”</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- LECȚIA 4 -->
+      <section>
+        <h2><span class="idx">4</span> Lecția 4 · Ce am învățat din ce am făcut (Integrare)</h2>
+        <div class="lesson-header">
+          <span class="lesson-title">Scop: elevii învață să privească înapoi și să învețe din experiență, nu doar să „bifeze”.</span>
+          <span class="lesson-meta">Timp: 45–50 min (la o săptămână după Lecția 3)</span>
+        </div>
+
+        <div class="grid-two">
+          <div>
+            <div class="label">Obiective</div>
+            <ul>
+              <li>Elevul verifică dacă pasul ales a fost făcut sau nu.</li>
+              <li>Elevul identifică ce a mers bine și ce a fost greu.</li>
+              <li>Elevul extrage 1–2 învățăminte personale (nu generale).</li>
+            </ul>
+
+            <div class="label">Activitate principală – „Păstrez · Schimb · Renunț”</div>
+            <div class="steps">
+              <div class="step">
+                <div class="step-num">1</div>
+                <div><strong>Check-in (10–12 min)</strong><br>
+                  Elevii marchează: „Am făcut pasul / l-am făcut pe jumătate / nu l-am făcut.” Fără judecată, doar constatare.</div>
+              </div>
+              <div class="step">
+                <div class="step-num">2</div>
+                <div><strong>Tabel simplu (15 min)</strong><br>
+                  Fiecare face trei coloane și notează:  
+                  – <strong>Păstrez:</strong> ce a mers bine în modul în care am gândit / acționat  
+                  – <strong>Schimb:</strong> ce voi ajusta data viitoare  
+                  – <strong>Renunț:</strong> ce strategie clar nu mi se potrivește</div>
+              </div>
+              <div class="step">
+                <div class="step-num">3</div>
+                <div><strong>Împărtășire voluntară (10–12 min)</strong><br>
+                  Voluntarii împărtășesc câte un lucru din fiecare coloană, dacă se simt confortabil.</div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="box box-accent">
+              <strong>Mesaj-cheie al lecției:</strong><br>
+              „Nu există eșec total, există doar lucruri din care nu am învățat încă suficient.”
+            </div>
+            <p class="teacher-note">
+              Important: nu transformați lecția în „cine a făcut tema”. Accentul este pe învățare, nu pe pedeapsă / evaluare.
+            </p>
+
+            <div class="highlight">
+              <strong>Modelul Coeziv, în cuvintele elevului (la final de program):</strong><br>
+              „Întâi scot haosul pe foaie, apoi leg punctele, aleg un pas mic și după aceea învăț din ce s-a întâmplat.”
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- EXTENSII -->
+      <section>
+        <h2><span class="idx">5</span> Extensii posibile (opțional)</h2>
+        <p class="muted">Pentru profesori / facilitatori care vor să prelungească programul.</p>
+        <div class="grid-two">
+          <div class="box">
+            <div class="label">Lecția 5 (opțională) · Lucru pe echipe</div>
+            <p>Aplicarea Modelului Coeziv pe o situație de grup (proiect de clasă, conflict, organizare de eveniment).</p>
+          </div>
+          <div class="box">
+            <div class="label">Lecția 6 (opțională) · Legătura cu viața reală</div>
+            <p>Elevii aduc exemple din viață (sport, muzică, gaming, antreprenoriat) unde pot aplica cele 4 faze.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      Mini-curriculum flexibil. Poate fi adaptat la nivel de vârstă, context școlar sau programe educaționale alternative.
+    </footer>
+  </div>
+</body>
+</html>
