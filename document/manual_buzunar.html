@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" />
+  <title>Manual de buzunar – Modelul Coeziv</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg: #0b1120;
+      --card-bg: #020617;
+      --accent: #38bdf8;
+      --accent-soft: rgba(56, 189, 248, 0.1);
+      --text-main: #e5e7eb;
+      --text-muted: #9ca3af;
+      --border-soft: #1f2937;
+      --danger: #f97373;
+      --radius-lg: 18px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #111827 0, #020617 50%, #000 100%);
+      color: var(--text-main);
+    }
+
+    .page {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 20px 16px 40px;
+    }
+
+    header {
+      padding: 16px 14px 20px;
+      border-radius: 24px;
+      background: linear-gradient(135deg, rgba(56,189,248,0.17), rgba(15,23,42,0.95));
+      border: 1px solid rgba(148,163,184,0.3);
+      box-shadow:
+        0 18px 40px rgba(0,0,0,0.75),
+        0 0 0 1px rgba(15,23,42,0.8);
+      position: sticky;
+      top: 10px;
+      backdrop-filter: blur(10px);
+      z-index: 10;
+    }
+
+    header h1 {
+      margin: 0 0 4px;
+      font-size: 1.3rem;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+
+    .tagline {
+      margin: 0 0 6px;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    .label-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 4px;
+      font-size: 0.75rem;
+    }
+
+    .pill {
+      padding: 2px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.6);
+      background: rgba(15,23,42,0.75);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    main {
+      margin-top: 18px;
+      display: grid;
+      gap: 16px;
+    }
+
+    section {
+      border-radius: var(--radius-lg);
+      background: rgba(15,23,42,0.92);
+      border: 1px solid var(--border-soft);
+      padding: 14px 14px 12px;
+      box-shadow: 0 14px 30px rgba(0,0,0,0.6);
+    }
+
+    section h2 {
+      margin: 0 0 6px;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    section h2 span.index {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      height: 20px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.7);
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--accent);
+      background: rgba(15,23,42,0.9);
+    }
+
+    p {
+      margin: 0 0 4px;
+      font-size: 0.88rem;
+      line-height: 1.5;
+      color: var(--text-main);
+    }
+
+    .muted {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    ul, ol {
+      margin: 4px 0 4px 18px;
+      padding: 0;
+      font-size: 0.85rem;
+      color: var(--text-main);
+    }
+
+    li {
+      margin-bottom: 3px;
+    }
+
+    .grid-phases {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-top: 6px;
+    }
+
+    @media (min-width: 720px) {
+      .grid-phases {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    .phase-card {
+      border-radius: 16px;
+      border: 1px solid rgba(31,41,55,0.9);
+      background: radial-gradient(circle at top left, rgba(56,189,248,0.12), rgba(15,23,42,0.98));
+      padding: 8px 9px 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .phase-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 6px;
+    }
+
+    .phase-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .phase-tag {
+      font-size: 0.7rem;
+      padding: 1px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.7);
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    .phase-block-label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--accent);
+      margin-top: 2px;
+      margin-bottom: 1px;
+    }
+
+    .phase-text {
+      font-size: 0.82rem;
+      color: var(--text-main);
+    }
+
+    .pill-inline {
+      display: inline-block;
+      padding: 1px 6px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.5);
+      font-size: 0.7rem;
+      margin-left: 3px;
+      color: var(--text-muted);
+    }
+
+    .quick-steps {
+      display: grid;
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    .step {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 8px;
+      align-items: start;
+      font-size: 0.85rem;
+    }
+
+    .step-index {
+      width: 22px;
+      height: 22px;
+      border-radius: 8px;
+      border: 1px solid rgba(148,163,184,0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--accent);
+      background: rgba(15,23,42,0.9);
+    }
+
+    .step strong {
+      display: block;
+      margin-bottom: 1px;
+    }
+
+    .danger-box {
+      border-radius: 14px;
+      border: 1px solid rgba(248,113,113,0.6);
+      background: radial-gradient(circle at top left, rgba(248,113,113,0.18), rgba(15,23,42,0.98));
+      padding: 8px 9px;
+      font-size: 0.83rem;
+    }
+
+    .danger-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--danger);
+      margin-bottom: 3px;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .chip {
+      font-size: 0.75rem;
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.6);
+      background: rgba(15,23,42,0.85);
+      color: var(--text-muted);
+    }
+
+    .quote {
+      border-left: 2px solid rgba(148,163,184,0.8);
+      padding-left: 8px;
+      margin-top: 4px;
+      font-size: 0.85rem;
+      color: var(--text-main);
+    }
+
+    .highlight {
+      padding: 7px 9px;
+      border-radius: 14px;
+      border: 1px dashed rgba(56,189,248,0.7);
+      background: var(--accent-soft);
+      font-size: 0.85rem;
+    }
+
+    footer {
+      margin-top: 10px;
+      font-size: 0.74rem;
+      color: var(--text-muted);
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>Manual de buzunar · Modelul Coeziv</h1>
+      <p class="tagline">Un mod simplu de a transforma confuzia în claritate – pentru elevi, studenți și antreprenori la început.</p>
+      <div class="label-row">
+        <span class="pill"><span>●</span> Timp: 5–10 minute / sesiune</span>
+        <span class="pill"><span>●</span> Format: întrebare &amp; răspuns</span>
+        <span class="pill"><span>●</span> Scop: claritate, nu perfecțiune</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2><span class="index">1</span> Ce este Modelul Coeziv?</h2>
+        <p><strong>Un mod de a gândi mai clar</strong> atunci când:</p>
+        <ul>
+          <li>ai prea multe idei și nu știi de unde să începi</li>
+          <li>trebuie să iei o decizie importantă</li>
+          <li>te simți blocat și totul pare haotic</li>
+        </ul>
+        <p>Modelul nu îți spune <em>ce</em> să faci, ci te ajută să îți vezi mai limpede propria hartă interioară.</p>
+        <p class="muted">Îl poți folosi cu un caiet, cu o aplicație de notițe sau într-un dialog asistat de AI.</p>
+      </section>
+
+      <section>
+        <h2><span class="index">2</span> Ideea de bază</h2>
+        <p>Modelul Coeziv pornește de la o simplă observație:</p>
+        <div class="quote">
+          „Confuzia nu e dușmanul tău. E materia primă din care se poate construi claritatea.”
+        </div>
+        <p style="margin-top:6px;">În loc să fugi de haos, îl pui pe masă, îl organizezi și îl transformi în direcție.</p>
+        <div class="highlight">
+          <strong>Regulă simplă:</strong> nu cauți răspunsul perfect. Cauți următorul pas care are sens pentru tine acum.
+        </div>
+      </section>
+
+      <section>
+        <h2><span class="index">3</span> Când să îl folosești</h2>
+        <p>Îți este cel mai util în momente de tranziție:</p>
+        <ul>
+          <li>nu știi ce profil / facultate să alegi</li>
+          <li>vrei să pornești un proiect sau un mic business</li>
+          <li>ai o decizie grea și tot amâni</li>
+          <li>simți că „poți mai mult”, dar nu vezi unde exact</li>
+        </ul>
+        <p class="muted">De fiecare dată când simți: „e prea mult în capul meu”, Modelul Coeziv îți devine hartă temporară.</p>
+      </section>
+
+      <section>
+        <h2><span class="index">4</span> Cele 4 faze ale Modelului Coeziv</h2>
+        <p class="muted">Gândește-te la ele ca la 4 moduri de a sta de vorbă cu tine.</p>
+
+        <div class="grid-phases">
+          <!-- FAZA 1 -->
+          <div class="phase-card">
+            <div class="phase-header">
+              <div class="phase-title">Faza 1 · Explorare</div>
+              <div class="phase-tag">Scoate tot din cap</div>
+            </div>
+            <div class="phase-block-label">Scop</div>
+            <p class="phase-text">Să pui pe masă tot ce gândești și simți, fără să judeci și fără să ordonezi.</p>
+
+            <div class="phase-block-label">Întrebări cheie</div>
+            <ul class="phase-text">
+              <li>Ce mă frământă, concret?</li>
+              <li>Ce știu sigur și ce doar presupun?</li>
+              <li>De ce îmi pasă, de fapt?</li>
+            </ul>
+
+            <div class="phase-block-label">Mini-exercițiu</div>
+            <p class="phase-text">Scrie liber 3–5 minute tot ce îți vine. Nu șterge, nu corecta. Important e să scoți, nu să arate frumos.</p>
+          </div>
+
+          <!-- FAZA 2 -->
+          <div class="phase-card">
+            <div class="phase-header">
+              <div class="phase-title">Faza 2 · Coeziune</div>
+              <div class="phase-tag">Leagă punctele</div>
+            </div>
+            <div class="phase-block-label">Scop</div>
+            <p class="phase-text">Să găsești firul roșu printre idei. Să vezi ce se leagă și ce nu are ce căuta acolo.</p>
+
+            <div class="phase-block-label">Întrebări cheie</div>
+            <ul class="phase-text">
+              <li>Ce se repetă în ce am scris?</li>
+              <li>Care sunt cele 3 idei / teme principale?</li>
+              <li>Cine devin dacă aleg varianta A vs. B?</li>
+            </ul>
+
+            <div class="phase-block-label">Mini-exercițiu</div>
+            <p class="phase-text">Încercuiește ideile care se repetă. Notează lângă ele: <strong>„astea par importante”</strong>.</p>
+          </div>
+
+          <!-- FAZA 3 -->
+          <div class="phase-card">
+            <div class="phase-header">
+              <div class="phase-title">Faza 3 · Decizie</div>
+              <div class="phase-tag">Alege un pas</div>
+            </div>
+            <div class="phase-block-label">Scop</div>
+            <p class="phase-text">Să treci de la „aș putea face orice” la „fac acum un lucru mic, clar”.</p>
+
+            <div class="phase-block-label">Întrebări cheie</div>
+            <ul class="phase-text">
+              <li>Ce opțiuni reale am, nu ideale?</li>
+              <li>Ce pot testa în următoarele 7 zile?</li>
+              <li>Ce aleg, știind că nu va fi perfect?</li>
+            </ul>
+
+            <div class="phase-block-label">Mini-exercițiu</div>
+            <p class="phase-text">Scrie 2–3 opțiuni. Alege una singură și formulează-o ca <strong>acțiune concretă</strong>, cu dată.</p>
+          </div>
+
+          <!-- FAZA 4 -->
+          <div class="phase-card">
+            <div class="phase-header">
+              <div class="phase-title">Faza 4 · Integrare</div>
+              <div class="phase-tag">Învață &amp; ajustează</div>
+            </div>
+            <div class="phase-block-label">Scop</div>
+            <p class="phase-text">Să nu repeți la infinit aceleași cicluri. Înveți din ce ai făcut și ajustezi.</p>
+
+            <div class="phase-block-label">Întrebări cheie</div>
+            <ul class="phase-text">
+              <li>Ce am aflat despre mine din pasul făcut?</li>
+              <li>Ce a mers mai bine decât mă așteptam?</li>
+              <li>Ce schimb data viitoare?</li>
+            </ul>
+
+            <div class="phase-block-label">Mini-exercițiu</div>
+            <p class="phase-text">Notează 3 lucruri: <strong>„păstrez · schimb · nu mai fac deloc”</strong> legat de modul în care ai gândit și acționat.</p>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2><span class="index">5</span> Ghid rapid de 5 minute</h2>
+        <p class="muted">Când nu ai timp de toată metoda, folosește-l pe acesta.</p>
+
+        <div class="quick-steps">
+          <div class="step">
+            <div class="step-index">1</div>
+            <div>
+              <strong>Scrie problema în 1 frază.</strong>
+              <span>„Problema mea acum este că…” – fără explicații, fără scuze.</span>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-index">2</div>
+            <div>
+              <strong>Notează 3 adevăruri incomode.</strong>
+              <span>Ce știi că e adevărat, dar nu îți place să recunoști?</span>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-index">3</div>
+            <div>
+              <strong>Scrie 2 opțiuni reale.</strong>
+              <span>Nu ce ar fi ideal, ci ce chiar poți face în următoarea săptămână.</span>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-index">4</div>
+            <div>
+              <strong>Alege una și micșoreaz-o.</strong>
+              <span>Transform-o într-un pas atât de mic, încât nu mai poți spune „nu pot”.</span>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-index">5</div>
+            <div>
+              <strong>Setează o dată și o oră.</strong>
+              <span>Fără dată concretă, nu e decizie. E doar o idee frumoasă.</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2><span class="index">6</span> Greșeli frecvente de evitat</h2>
+        <div class="danger-box">
+          <div class="danger-title">Atenție la aceste capcane</div>
+          <ul>
+            <li><strong>Aștepți să fie „totul clar” ca să începi.</strong> Claritatea apare din mișcare, nu înainte.</li>
+            <li><strong>Vrei răspunsul perfect.</strong> Modelul Coeziv lucrează cu pași suficient de buni, nu perfecți.</li>
+            <li><strong>Te pedepsești pentru confuzie.</strong> Confuzia e semn că ai ajuns într-o zonă nouă, nu că e ceva „în neregulă” cu tine.</li>
+            <li><strong>Sari peste faza de integrare.</strong> Dacă nu te oprești să vezi ce ai învățat, repeți aceleași bucle.</li>
+          </ul>
+        </div>
+        <div class="chips">
+          <span class="chip">Clar, nu perfect</span>
+          <span class="chip">Mic, nu dramatic</span>
+          <span class="chip">Concret, nu doar în cap</span>
+        </div>
+      </section>
+
+      <section>
+        <h2><span class="index">7</span> Versiunea ultra-scurtă (de ținut minte)</h2>
+        <p class="highlight">
+          <strong>Modelul Coeziv în 1 frază:</strong><br />
+          <em>„Scot haosul din cap, îl pun pe masă, leg punctele, aleg un pas mic și învăț din ce se întâmplă.”</em>
+        </p>
+        <p class="muted">Dacă ai făcut asta, chiar într-o formă imperfectă, ai folosit deja modelul.</p>
+      </section>
+    </main>
+
+    <footer>
+      Manual de buzunar pentru claritate. Poate fi folosit individual, în grupuri, la clasă sau în sesiunile de lucru cu antreprenori.
+    </footer>
+  </div>
+</body>
+</html>
