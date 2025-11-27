@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>The Coesive Model · Diagram Lab</title>
+  <style>
+    :root {
+      --bg: #f9fafb;
+      --ink: #111827;
+      --muted: #6b7280;
+      --line: #d1d5db;
+      --font-serif: "Georgia", "Times New Roman", serif;
+      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 32px 0;
+      background: #e5e7eb;
+      font-family: var(--font-sans);
+      color: var(--ink);
+    }
+
+    .wrapper {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      font-family: var(--font-serif);
+      font-size: 1.7rem;
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      text-align: center;
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+
+    .diagram-card {
+      background: var(--bg);
+      border-radius: 12px;
+      padding: 24px 28px 28px 28px;
+      margin-bottom: 20px;
+      box-shadow: 0 12px 30px rgba(15,23,42,0.08);
+    }
+
+    .diagram-title {
+      font-family: var(--font-serif);
+      font-size: 1.1rem;
+      margin-bottom: 4px;
+    }
+
+    .diagram-caption {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+
+    .diagram {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 12px 0 4px 0;
+    }
+
+    .note {
+      font-size: 0.8rem;
+      color: var(--muted);
+      text-align: center;
+      margin-top: 8px;
+    }
+
+    /* DIAGRAMA 1 – Cerc cu 4 faze */
+    .circle-diagram {
+      position: relative;
+      width: 260px;
+      height: 260px;
+      border-radius: 50%;
+      border: 1px solid var(--line);
+    }
+
+    .circle-center-text {
+      position: absolute;
+      inset: 50%;
+      transform: translate(-50%, -50%);
+      font-family: var(--font-serif);
+      font-size: 0.8rem;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    .phase-label {
+      position: absolute;
+      font-size: 0.8rem;
+      font-family: var(--font-sans);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--ink);
+    }
+
+    .phase-exploration { top: -18px; left: 50%; transform: translateX(-50%); }
+    .phase-cohesion    { right: -8px; top: 50%; transform: translateY(-50%) rotate(90deg); transform-origin: left center; }
+    .phase-decision    { bottom: -18px; left: 50%; transform: translateX(-50%); }
+    .phase-integration { left: -8px; top: 50%; transform: translateY(-50%) rotate(-90deg); transform-origin: right center; }
+
+    /* DIAGRAMA 2 – Straturi */
+    .layers {
+      width: 260px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .layer {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      font-family: var(--font-serif);
+      font-size: 0.85rem;
+    }
+
+    .layer-title {
+      font-weight: 600;
+      margin-bottom: 3px;
+    }
+
+    .layer-desc {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    /* DIAGRAMA 3 – Lens (două cercuri) */
+    .lens {
+      position: relative;
+      width: 260px;
+      height: 160px;
+    }
+
+    .lens-circle {
+      position: absolute;
+      top: 20px;
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      border: 1px solid var(--line);
+      background: transparent;
+    }
+
+    .lens-left  { left: 10px; }
+    .lens-right { right: 10px; }
+
+    .lens-label {
+      position: absolute;
+      font-size: 0.8rem;
+      font-family: var(--font-sans);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+    }
+
+    .lens-label-left  { top: 6px; left: 18px; }
+    .lens-label-right { top: 6px; right: 18px; }
+
+    .lens-center {
+      position: absolute;
+      inset: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
+
+    .lens-center-text {
+      font-family: var(--font-serif);
+      font-size: 0.8rem;
+      text-align: center;
+      padding: 4px 10px;
+      background: rgba(249,250,251,0.9);
+    }
+  </style>
+</head>
+<body>
+<div class="wrapper">
+  <h1>The Coesive Model · Diagram Concepts</h1>
+  <div class="subtitle">Minimal, structural diagrams in line with the book style</div>
+
+  <!-- DIAGRAMA 1: Cerc cu 4 faze -->
+  <section class="diagram-card">
+    <div class="diagram-title">Diagram 1 · The Four-Phase Coesive Cycle</div>
+    <div class="diagram-caption">
+      A clean circle showing the four phases: Exploration, Cohesion, Decision, Integration.
+    </div>
+    <div class="diagram">
+      <div class="circle-diagram">
+        <div class="circle-center-text">
+          From confusion<br>to coherent<br>movement
+        </div>
+        <div class="phase-label phase-exploration">EXPLORATION</div>
+        <div class="phase-label phase-cohesion">COHESION</div>
+        <div class="phase-label phase-decision">DECISION</div>
+        <div class="phase-label phase-integration">INTEGRATION</div>
+      </div>
+    </div>
+    <div class="note">
+      Poți folosi diagrama asta la începutul capitolului despre arhitectură sau faze.
+    </div>
+  </section>
+
+  <!-- DIAGRAMA 2: Straturi -->
+  <section class="diagram-card">
+    <div class="diagram-title">Diagram 2 · From Noise to Direction</div>
+    <div class="diagram-caption">
+      Four stacked layers representing how the mind moves from raw noise to coherent direction.
+    </div>
+    <div class="diagram">
+      <div class="layers">
+        <div class="layer">
+          <div class="layer-title">Noise</div>
+          <div class="layer-desc">Unfiltered thoughts, emotions, expectations, advice.</div>
+        </div>
+        <div class="layer">
+          <div class="layer-title">Patterns</div>
+          <div class="layer-desc">Repetitions, tensions, and themes that start to emerge.</div>
+        </div>
+        <div class="layer">
+          <div class="layer-title">Structure</div>
+          <div class="layer-desc">Connections, priorities, and inner logic become visible.</div>
+        </div>
+        <div class="layer">
+          <div class="layer-title">Direction</div>
+          <div class="layer-desc">Small, coherent next steps that respect the structure.</div>
+        </div>
+      </div>
+    </div>
+    <div class="note">
+      Potrivit pentru capitolele despre „cognitive logic” sau „de la conținut la structură”.
+    </div>
+  </section>
+
+  <!-- DIAGRAMA 3: Lens (Applied Coesiology) -->
+  <section class="diagram-card">
+    <div class="diagram-title">Diagram 3 · Applied Coesiology as a Lens</div>
+    <div class="diagram-caption">
+      Two overlapping circles: the human mind and structural frameworks. The overlap is Applied Coesiology.
+    </div>
+    <div class="diagram">
+      <div class="lens">
+        <div class="lens-circle lens-left"></div>
+        <div class="lens-circle lens-right"></div>
+
+        <div class="lens-label lens-label-left">MIND</div>
+        <div class="lens-label lens-label-right">STRUCTURE</div>
+
+        <div class="lens-center">
+          <div class="lens-center-text">
+            Applied<br>Coesiology
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="note">
+      Folosește-o în capitolul despre „Applied Coesiology – A New Cognitive Framework”.
+    </div>
+  </section>
+</div>
+</body>
+</html>
