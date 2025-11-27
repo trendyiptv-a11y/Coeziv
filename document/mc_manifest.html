@@ -1,388 +1,216 @@
 <!DOCTYPE html>
 <html lang="ro">
 <head>
-  <meta charset="UTF-8" />
-  <title>Manifestul Modelului Coeziv</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="UTF-8">
+  <title>Manifest · Modelul Coeziv</title>
   <style>
     :root {
-      --bg: #020617;
-      --card: #020617;
+      --bg-main: #0f172a;
+      --card-bg: #020617;
+      --text-main: #e5e7eb;
+      --text-muted: #94a3b8;
       --accent: #38bdf8;
-      --accent-soft: rgba(56,189,248,0.16);
-      --accent-2: #22c55e;
-      --text: #e5e7eb;
-      --muted: #9ca3af;
-      --border: #1f2937;
-      --radius: 20px;
+      --accent-soft: rgba(56,189,248,0.06);
+      --green-soft: rgba(34,197,94,0.08);
+      --red-soft: rgba(239,68,68,0.08);
     }
-
-    * { box-sizing: border-box; }
-
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      margin: 0;
-      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
-      background: radial-gradient(circle at top, #020617 0, #000 55%);
-      color: var(--text);
+      font-family: system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif;
+      background: var(--bg-main);
+      color: var(--text-main);
+      line-height: 1.45;
+      padding: 10px;
     }
-
-    .page {
-      max-width: 920px;
+    .container {
+      max-width: 760px;
       margin: 0 auto;
-      padding: 24px 14px 40px;
+      background: var(--card-bg);
+      border-radius: 22px;
+      padding: 10px;
+      box-shadow: 0 8px 30px rgba(2,6,23,0.6);
     }
-
     header {
-      border-radius: 26px;
-      padding: 18px 16px 16px;
-      background: radial-gradient(circle at top left, rgba(56,189,248,0.24), rgba(15,23,42,0.96));
-      border: 1px solid rgba(148,163,184,0.6);
-      box-shadow:
-        0 24px 50px rgba(0,0,0,0.85),
-        0 0 0 1px rgba(15,23,42,0.9);
-    }
-
-    h1 {
-      margin: 0 0 4px;
-      font-size: 1.6rem;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-    }
-
-    .subtitle {
-      margin: 0 0 8px;
-      font-size: 0.9rem;
-      color: var(--muted);
-    }
-
-    .tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      font-size: 0.75rem;
-    }
-
-    .pill {
-      padding: 3px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(148,163,184,0.6);
-      background: rgba(15,23,42,0.9);
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      white-space: nowrap;
-    }
-
-    main {
-      margin-top: 18px;
-      display: grid;
-      gap: 14px;
-    }
-
-    section {
-      border-radius: var(--radius);
-      background: rgba(15,23,42,0.98);
-      border: 1px solid var(--border);
-      padding: 13px 14px 12px;
-      box-shadow: 0 18px 38px rgba(0,0,0,0.7);
-    }
-
-    h2 {
-      margin: 0 0 6px;
-      font-size: 1.05rem;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .idx {
-      width: 20px;
-      height: 20px;
-      border-radius: 999px;
-      border: 1px solid rgba(148,163,184,0.7);
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.72rem;
-      font-weight: 600;
-      color: var(--accent);
-      background: rgba(15,23,42,0.97);
-    }
-
-    p {
-      margin: 0 0 6px;
-      font-size: 0.9rem;
-      line-height: 1.6;
-    }
-
-    .muted {
-      font-size: 0.8rem;
-      color: var(--muted);
-    }
-
-    .highlight {
-      border-radius: 16px;
-      border: 1px dashed rgba(56,189,248,0.8);
-      background: var(--accent-soft);
-      padding: 8px 10px;
-      font-size: 0.9rem;
-      margin-top: 4px;
-    }
-
-    .quote {
-      border-left: 2px solid rgba(148,163,184,0.9);
-      padding-left: 10px;
-      margin-top: 4px;
-      font-size: 0.9rem;
-      color: var(--text);
-    }
-
-    ul {
-      margin: 4px 0 4px 18px;
-      padding: 0;
-      font-size: 0.88rem;
-    }
-
-    li {
-      margin-bottom: 3px;
-    }
-
-    .principles {
-      display: grid;
-      gap: 8px;
-    }
-
-    .principle {
-      border-radius: 16px;
-      border: 1px solid rgba(31,41,55,0.95);
-      background: radial-gradient(circle at top left, rgba(56,189,248,0.12), rgba(15,23,42,0.99));
-      padding: 8px 10px 7px;
-      font-size: 0.88rem;
-    }
-
-    .principle strong {
-      display: block;
-      margin-bottom: 2px;
-    }
-
-    .chips {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-top: 4px;
-    }
-
-    .chip {
-      font-size: 0.75rem;
-      padding: 2px 8px;
-      border-radius: 999px;
-      border: 1px solid rgba(148,163,184,0.6);
-      background: rgba(15,23,42,0.94);
-      color: var(--muted);
-    }
-
-    .box-green {
-      border-radius: 16px;
-      border: 1px solid rgba(34,197,94,0.7);
-      background: radial-gradient(circle at top left, rgba(34,197,94,0.16), rgba(15,23,42,0.98));
-      padding: 8px 10px;
-      font-size: 0.88rem;
-      margin-top: 4px;
-    }
-
-    .box-red {
-      border-radius: 16px;
-      border: 1px solid rgba(248,113,113,0.75);
-      background: radial-gradient(circle at top left, rgba(248,113,113,0.16), rgba(15,23,42,0.98));
-      padding: 8px 10px;
-      font-size: 0.88rem;
-      margin-top: 4px;
-    }
-
-    footer {
-      margin-top: 10px;
-      font-size: 0.78rem;
-      color: var(--muted);
       text-align: center;
+      margin-bottom: 10px;
+      border-bottom: 1px solid rgba(148,163,184,0.1);
+      padding-bottom: 10px;
+    }
+    h1 {
+      font-size: 1.4rem;
+      letter-spacing: -0.01em;
+    }
+    .subtitle {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      margin-top: 3px;
+    }
+    section {
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 16px;
+      border: 1px solid rgba(148,163,184,0.08);
+    }
+    h2 {
+      font-size: 1rem;
+      margin-bottom: 6px;
+    }
+    .idx {
+      display: inline-block;
+      min-width: 22px;
+      height: 22px;
+      line-height: 22px;
+      text-align: center;
+      background: rgba(56,189,248,0.15);
+      color: var(--accent);
+      border-radius: 7px;
+      font-size: 0.75rem;
+      margin-right: 6px;
+      font-weight: 600;
+    }
+    p { font-size: 0.86rem; margin-bottom: 6px; color: var(--text-main); }
+    ul { margin-left: 14px; font-size: 0.85rem; color: var(--text-main); }
+    li { margin-bottom: 4px; }
+    .box-green {
+      background: var(--green-soft);
+      border-radius: 14px;
+      padding: 8px;
+      font-size: 0.85rem;
+      border: 1px dashed rgba(34,197,94,0.4);
+    }
+    .box-red {
+      background: var(--red-soft);
+      border-radius: 14px;
+      padding: 8px;
+      font-size: 0.85rem;
+      border: 1px dashed rgba(239,68,68,0.4);
+    }
+    .highlight {
+      background: var(--accent-soft);
+      border-radius: 14px;
+      padding: 8px;
+      border: 1px dashed rgba(56,189,248,0.4);
+      font-size: 0.85rem;
+    }
+    footer {
+      text-align: center;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 10px;
     }
   </style>
 </head>
 <body>
-  <div class="page">
-    <header>
-      <h1>Manifestul Modelului Coeziv</h1>
-      <p class="subtitle">Pentru elevi, profesori, antreprenori și toți cei care aleg claritatea în locul zgomotului.</p>
-      <div class="tags">
-        <span class="pill">● Claritate înainte de performanță</span>
-        <span class="pill">● Coeziune înainte de viteză</span>
-        <span class="pill">● Omul înaintea sistemului</span>
-      </div>
-    </header>
+<div class="container">
 
-    <main>
-      <!-- 1. DE CE EXISTĂ -->
-      <section>
-        <h2><span class="idx">1</span> De ce există Modelul Coeziv</h2>
-        <p>Trăim într-o lume în care toți ne spun <em>ce să facem</em>, dar aproape nimeni nu ne învață <strong>cum să gândim când nu mai este clar</strong>.</p>
-        <p>Modelul Coeziv există pentru cei care simt că:</p>
-        <ul>
-          <li>au idei, dar nu au o hartă;</li>
-          <li>au potențial, dar se pierd în zgomot;</li>
-          <li>au de luat decizii, dar nu își mai aud propria voce.</li>
-        </ul>
-        <div class="quote">
-          Nu promitem răspunsuri perfecte.  
-          Promitem un mod mai clar de a ajunge la propriile tale răspunsuri.
-        </div>
-      </section>
+<header>
+  <h1>Manifest · Modelul Coeziv</h1>
+  <p class="subtitle">Un cadru pentru claritate, coeziune și direcție interioară</p>
+</header>
 
-      <!-- 2. CE ESTE / CE NU ESTE -->
-      <section>
-        <h2><span class="idx">2</span> Ce este și ce nu este acest model</h2>
+<main>
 
-        <div class="principles">
-          <div class="principle">
-            <strong>Este</strong>
-            <ul>
-              <li>un mod de a transforma confuzia în claritate;</li>
-              <li>un cadru de gândire în 4 faze: Explorare · Coeziune · Decizie · Integrare;</li>
-              <li>o punte între știință, educație și experiența umană;</li>
-              <li>un instrument pentru minți în tranziție: elevi, studenți, antreprenori, lideri.</li>
-            </ul>
-          </div>
+<!-- 1. DE CE EXISTĂ -->
+<section>
+  <h2><span class="idx">1</span> De ce există Modelul Coeziv</h2>
 
-          <div class="principle">
-            <strong>Nu este</strong>
-            <ul>
-              <li>terapie, religie sau înlocuitor pentru credință;</li>
-              <li>rețetă de succes rapid;</li>
-              <li>„cheia absolută a universului”;</li>
-              <li>un sistem închis – este un model viu, care se lasă pus la îndoială.</li>
-            </ul>
-          </div>
-        </div>
-      </section>
+  <p>Modelul Coeziv există pentru că oamenii nu duc lipsă de inteligență, ci de structură interioară.</p>
+  <p>Nu suntem confuzi pentru că nu știm, ci pentru că nu știm cum să legăm ce știm.</p>
+</section>
 
-      <!-- 3. PRINCIPIILE -->
-      <section>
-        <h2><span class="idx">3</span> Principiile Modelului Coeziv</h2>
+<!-- 1.5 NECESAR ACUM -->
+<section>
+  <h2><span class="idx">1.5</span> De ce este necesar Modelul Coeziv acum</h2>
 
-        <div class="principles">
-          <div class="principle">
-            <strong>1. Confuzia nu este dușmanul tău.</strong>
-            Este semnul că ai intrat într-o zonă nouă. Fuga de confuzie blochează creșterea. Privirea ei în față deschide un nivel nou de claritate.
-          </div>
+  <p>Trăim într-o epocă în care informația este abundentă, dar claritatea este rară. Oamenii nu duc lipsă de conținut. Duc lipsă de <strong>structură internă</strong>.</p>
 
-          <div class="principle">
-            <strong>2. Claritatea este o stare, nu un slide.</strong>
-            Nu e un PDF frumos. Este momentul în care știi ce ai de făcut <em>acum</em>, fără să te mai rupi pe dinăuntru.
-          </div>
+  <p>Sistemele educaționale pun accent pe ce să știe elevii, dar aproape niciodată pe cum să își organizeze gândurile atunci când nu știu. Confuzia este tratată ca eșec, nu ca etapă firească.</p>
 
-          <div class="principle">
-            <strong>3. Starea din care acționezi contează mai mult decât strategia.</strong>
-            Strategii bune, făcute dintr-o stare fracturată, produc haos. Decizii imperfecte, luate dintr-o stare coerentă, pot fi corectate.
-          </div>
+  <p>Modelul Coeziv oferă un proces simplu și transferabil prin care haosul poate deveni direcție. Nu este terapie. Nu este motivație. Este arhitectură de claritate.</p>
 
-          <div class="principle">
-            <strong>4. Un pas mic, real, este mai valoros decât zece planuri perfecte.</strong>
-            Nu măsurăm claritatea prin prezentări, ci prin pasi concreți care pot fi puși în calendar.
-          </div>
+  <p>În lipsa coeziunii, oamenii pot deveni foarte informați și totuși dezorientați. Modelul Coeziv adresează exact acest gol.</p>
 
-          <div class="principle">
-            <strong>5. Fără integrare, repeți aceleași bucle.</strong>
-            Dacă nu te oprești să înveți din ce ai trăit, viața devine un „repeat” obositor. Integrarea este faza în care experiența devine înțelepciune.
-          </div>
-        </div>
-
-        <div class="chips">
-          <span class="chip">Clar, nu perfect</span>
-          <span class="chip">Mic, nu dramatic</span>
-          <span class="chip">Adevărat, nu „frumos spus”</span>
-        </div>
-      </section>
-
-      <!-- 4. CE PROMITEM -->
-      <section>
-        <h2><span class="idx">4</span> Ce promite Modelul Coeziv</h2>
-        <div class="box-green">
-          <strong>Promitem</strong>
-          <ul>
-            <li>să respectăm inteligența ta, fără să te infantilizăm;</li>
-            <li>să nu îți dăm răspunsuri gata făcute, ci întrebări care deschid spațiu;</li>
-            <li>să punem claritatea deasupra hype-ului;</li>
-            <li>să păstrăm o linie clară între ce este știință, ce este model și ce este metaforă.</li>
-          </ul>
-        </div>
-
-        <div class="box-red">
-          <strong>Nu promitem</strong>
-          <ul>
-            <li>să îți rezolvăm viața în 4 pași;</li>
-            <li>să nu mai simți niciodată confuzie;</li>
-            <li>că modelul este magic sau infailibil;</li>
-            <li>că este singurul mod „adevărat” de a gândi.</li>
-          </ul>
-        </div>
-      </section>
-
-      <!-- 5. CUM VREM SĂ FIE FOLOSIT -->
-      <section>
-        <h2><span class="idx">5</span> Cum vrem să fie folosit</h2>
-        <p>Modelul Coeziv este conceput pentru a fi un sprijin, nu o nouă formă de presiune.</p>
-
-        <ul>
-          <li>În educație: ca instrument prin care elevii învață să își vadă mai clar gândurile, emoțiile și deciziile.</li>
-          <li>În antreprenoriat: ca spațiu în care fondatorii își clarifică starea, înainte să își modifice planul de afaceri.</li>
-          <li>În leadership: ca oglindă pentru echipe care vor să înțeleagă ce le ține cu adevărat împreună.</li>
-        </ul>
-
-        <div class="highlight">
-          <strong>Ordinea sănătoasă:</strong><br>
-          <em>Întâi Coeziv (stare), apoi celelalte modele (strategie, execuție).</em>
-        </div>
-      </section>
-
-      <!-- 6. ANGAJAMENTUL CELOR CARE ÎL FOLOSESC -->
-      <section>
-        <h2><span class="idx">6</span> Angajamentul celor care îl folosesc</h2>
-
-        <p>Cei care aleg să lucreze cu Modelul Coeziv își asumă câteva lucruri simple și grele:</p>
-
-        <div class="principles">
-          <div class="principle">
-            <strong>1. Să nu se mintă pe ei înșiși.</strong>
-            Nu poți construi coeziune pe o minciună frumos ambalată.
-          </div>
-          <div class="principle">
-            <strong>2. Să accepte pași mici, dar consecvenți.</strong>
-            Nu sprintul contează, ci ritmul care te ține întreg.
-          </div>
-          <div class="principle">
-            <strong>3. Să nu folosească modelul pentru control sau manipulare.</strong>
-            Claritatea este pentru libertate, nu pentru dominare.
-          </div>
-          <div class="principle">
-            <strong>4. Să rămână deschiși la revizuire.</strong>
-            Un model viu se lasă ajustat. Inclusiv de date noi, de critici oneste, de limite recunoscute.
-          </div>
-        </div>
-      </section>
-
-      <!-- 7. FRAZA FINALĂ -->
-      <section>
-        <h2><span class="idx">7</span> O frază pentru cei care simt acest manifest</h2>
-        <div class="highlight">
-          <em>
-            Modelul Coeziv este pentru cei care vor să rămână întregi într-o lume care îi trage în toate direcțiile –
-            și care aleg să înceapă cu o singură întrebare: „Cum pot vedea mai clar, chiar acum?”
-          </em>
-        </div>
-      </section>
-    </main>
-
-    <footer>
-      Manifest deschis. Poate fi citit, folosit, contestat, îmbunătățit. Important este să rămână în slujba clarității, nu a ego-ului.
-    </footer>
+  <div class="highlight">
+    Într-o lume care cere viteză, oferă structură.<br>
+    Într-o lume care cultivă zgomot, oferă ordine internă.<br>
+    Într-un sistem care evită confuzia, o transformă în poartă de creștere.
   </div>
+</section>
+
+<!-- 2. CE ESTE / CE NU ESTE -->
+<section>
+  <h2><span class="idx">2</span> Ce este și ce nu este</h2>
+  <div class="box-green">
+    <strong>Este:</strong>
+    <ul>
+      <li>cadru de gândire aplicată;</li>
+      <li>instrument de claritate interioară;</li>
+      <li>proces ciclic de explorare → coeziune → decizie → integrare.</li>
+    </ul>
+  </div>
+
+  <div class="box-red" style="margin-top:6px;">
+    <strong>Nu este:</strong>
+    <ul>
+      <li>terapie;</li>
+      <li>promisiune de succes rapid;</li>
+      <li>rețetă universală.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 4. CE PROMITEM -->
+<section>
+  <h2><span class="idx">4</span> Ce promite Modelul Coeziv</h2>
+  <div class="box-green">
+    <strong>Promitem</strong>
+    <ul>
+      <li>să respectăm inteligența ta;</li>
+      <li>să punem claritatea deasupra hype-ului;</li>
+      <li>să păstrăm granița între știință, model și metaforă.</li>
+    </ul>
+  </div>
+
+  <div class="box-red" style="margin-top:6px;">
+    <strong>Nu promitem</strong>
+    <ul>
+      <li>perfecțiune;</li>
+      <li>eliminarea definitivă a confuziei;</li>
+      <li>control asupra vieții tale.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 5. CUM VREM SĂ FIE FOLOSIT -->
+<section>
+  <h2><span class="idx">5</span> Cum vrem să fie folosit</h2>
+  <p>Ca sprijin, nu ca presiune. Ca hartă, nu ca lanț.</p>
+</section>
+
+<!-- 6. ANGAJAMENT -->
+<section>
+  <h2><span class="idx">6</span> Angajamentul celor care îl folosesc</h2>
+  <div class="highlight">
+    Să fie sinceri cu ei înșiși.<br>
+    Să accepte pașii mici.<br>
+    Să nu transforme claritatea în armă.
+  </div>
+</section>
+
+<!-- 7. FRAZA FINALĂ -->
+<section>
+  <h2><span class="idx">7</span> O frază pentru cei care simt acest manifest</h2>
+  <div class="highlight">
+    <em>„Cum pot vedea mai clar, chiar acum?”</em>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  Manifest deschis. Poate fi citit, folosit, contestat, îmbunătățit.
+</footer>
+
+</div>
 </body>
 </html>
