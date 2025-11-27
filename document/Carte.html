@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>The Coesive Model · Book Layout</title>
+  <style>
+    :root {
+      --bg-page: #f9fafb;
+      --ink: #111827;
+      --muted: #6b7280;
+      --accent: #111827;
+      --line-soft: #e5e7eb;
+      --max-width: 680px;
+      --font-serif: "Georgia", "Times New Roman", serif;
+      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    @page {
+      margin: 2.5cm 2cm 2.5cm 3cm;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: #e5e7eb;
+      color: var(--ink);
+      font-family: var(--font-serif);
+    }
+
+    .book {
+      max-width: 1024px;
+      margin: 0 auto;
+      padding: 24px 0;
+    }
+
+    .page {
+      background: var(--bg-page);
+      color: var(--ink);
+      max-width: var(--max-width);
+      margin: 0 auto 24px auto;
+      padding: 40px 52px;
+      box-shadow: 0 12px 30px rgba(15,23,42,0.08);
+      border-radius: 8px;
+      page-break-after: always;
+    }
+
+    /* Pagina de titlu principal */
+    .page-cover {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-height: 80vh;
+      text-align: center;
+    }
+
+    .cover-title {
+      font-family: var(--font-serif);
+      font-size: 2rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .cover-subtitle {
+      font-family: var(--font-serif);
+      font-size: 1.1rem;
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+
+    .cover-tagline {
+      font-family: var(--font-serif);
+      font-size: 1rem;
+      font-style: italic;
+      color: var(--muted);
+      margin-bottom: 60px;
+    }
+
+    .cover-author {
+      font-family: var(--font-sans);
+      font-size: 0.95rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--muted);
+    }
+
+    /* Disclaimer / pagini standard */
+    h1, h2, h3 {
+      font-family: var(--font-serif);
+      margin: 0 0 12px 0;
+    }
+
+    h1 {
+      font-size: 1.65rem;
+    }
+
+    h2 {
+      font-size: 1.25rem;
+    }
+
+    p {
+      font-size: 0.97rem;
+      line-height: 1.5;
+      margin: 0 0 10px 0;
+    }
+
+    .small {
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    .center {
+      text-align: center;
+    }
+
+    .mt-lg { margin-top: 32px; }
+    .mt-md { margin-top: 18px; }
+
+    hr.soft {
+      border: none;
+      border-top: 1px solid var(--line-soft);
+      margin: 16px 0 24px 0;
+    }
+
+    /* Chapter page */
+    .page-chapter {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-height: 80vh;
+      text-align: center;
+    }
+
+    .chapter-label {
+      font-family: var(--font-sans);
+      font-size: 0.9rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+
+    .chapter-title {
+      font-family: var(--font-serif);
+      font-size: 1.6rem;
+      line-height: 1.25;
+      margin-bottom: 10px;
+    }
+
+    .chapter-line {
+      width: 90px;
+      height: 1px;
+      background: var(--line-soft);
+      margin: 16px auto 0 auto;
+    }
+
+    /* Quote page */
+    .page-quote {
+      display: flex;
+      min-height: 60vh;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .quote {
+      font-family: var(--font-serif);
+      font-size: 1.25rem;
+      line-height: 1.5;
+      font-style: italic;
+      max-width: 460px;
+      margin: 0 auto;
+    }
+
+    /* Body text page */
+    .page-body h2 {
+      font-size: 1.2rem;
+      margin-bottom: 16px;
+    }
+
+    .page-body p + p {
+      margin-top: 6px;
+    }
+
+    .key-line {
+      font-style: italic;
+      margin: 18px 0;
+    }
+
+    /* Workbook / journal */
+    .page-workbook h2 {
+      font-size: 1.1rem;
+      margin-bottom: 14px;
+    }
+
+    .prompt {
+      font-weight: 600;
+      margin-top: 14px;
+      margin-bottom: 6px;
+    }
+
+    .lines {
+      border-bottom: 1px solid var(--line-soft);
+      height: 18px;
+      margin-bottom: 6px;
+    }
+
+    .spacer-lg {
+      height: 18px;
+    }
+
+    /* TOC */
+    .toc-item {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.95rem;
+      margin-bottom: 6px;
+    }
+    .toc-title {
+      margin-right: 16px;
+    }
+    .toc-page {
+      color: var(--muted);
+    }
+
+    @media print {
+      body {
+        background: white;
+      }
+      .page {
+        box-shadow: none;
+        border-radius: 0;
+        margin: 0 auto;
+      }
+      .book {
+        padding: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="book">
+
+  <!-- COVER PAGE -->
+  <section class="page page-cover">
+    <div>
+      <div class="cover-title">THE COESIVE MODEL</div>
+      <div class="cover-subtitle">A Thinking and Educational Framework for Clarity in an Uncertain World</div>
+      <div class="cover-tagline">From Confusion to Coherent Action</div>
+      <div class="cover-author">YOUR NAME</div>
+    </div>
+  </section>
+
+  <!-- DISCLAIMER PAGE -->
+  <section class="page">
+    <h1 class="center">Disclaimer</h1>
+    <hr class="soft">
+    <p>
+      This book presents the <strong>Coesive Model</strong> and the concept of <strong>Applied Coesiology</strong> as
+      original conceptual frameworks. They are offered as educational and cognitive tools designed to support clarity,
+      coherence, and reflective thinking.
+    </p>
+    <p>
+      This work does <strong>not</strong> claim to replace psychological, medical, therapeutic, or scientific disciplines.
+      It does not provide medical, psychological, or clinical advice. The content is intended for educational and
+      developmental purposes only.
+    </p>
+    <p>
+      Any similarities with existing models or frameworks are conceptual in nature and not the result of copying or
+      reproduction. All formulations, structures, and expressions in this work are original to this publication.
+    </p>
+    <p class="mt-lg small center">
+      © YOUR NAME · All rights reserved.
+    </p>
+  </section>
+
+  <!-- TABLE OF CONTENTS -->
+  <section class="page">
+    <h1>Contents</h1>
+    <hr class="soft">
+    <div class="toc-item">
+      <span class="toc-title">Chapter 1 · Why the World Needs Clarity More Than Information</span>
+      <span class="toc-page">7</span>
+    </div>
+    <div class="toc-item">
+      <span class="toc-title">Chapter 2 · What the Coesive Model Is (and Is Not)</span>
+      <span class="toc-page">11</span>
+    </div>
+    <div class="toc-item">
+      <span class="toc-title">Chapter 3 · The Architecture of the Coesive Model</span>
+      <span class="toc-page">15</span>
+    </div>
+    <!-- adaugi restul capitolelor și anexelor aici -->
+  </section>
+
+  <!-- CHAPTER PAGE EXAMPLE -->
+  <section class="page page-chapter">
+    <div>
+      <div class="chapter-label">CHAPTER 1</div>
+      <div class="chapter-title">
+        Why the World Needs Clarity<br>
+        More Than Information
+      </div>
+      <div class="chapter-line"></div>
+    </div>
+  </section>
+
+  <!-- QUOTE PAGE EXAMPLE -->
+  <section class="page page-quote">
+    <div class="quote">
+      Clarity is not a luxury.<br>
+      It is a structural necessity.
+    </div>
+  </section>
+
+  <!-- BODY TEXT PAGE EXAMPLE -->
+  <section class="page page-body">
+    <h2>Why the World Needs Clarity More Than Information</h2>
+    <p>
+      We live in an age of infinite information and scarce clarity. Never in human history have people had access to
+      so much knowledge, so many tools, so many opinions, and so many systems. And yet, never have so many people felt
+      confused, mentally fragmented, and internally disoriented.
+    </p>
+    <p>
+      The issue is not intelligence. The issue is not access. The issue is not motivation. The issue is the absence of
+      an internal structure capable of holding complexity.
+    </p>
+    <p class="key-line">
+      Information alone does not create clarity. Pressure does not create clarity. Speed does not create clarity.
+    </p>
+    <p>
+      Clarity is an outcome of structure. Without structure, more knowledge only increases fragmentation. The Coesive
+      Model begins from this simple but radical observation: a confused mind does not need more answers, it needs a
+      better process.
+    </p>
+  </section>
+
+  <!-- WORKBOOK PAGE EXAMPLE -->
+  <section class="page page-workbook">
+    <h2>Student Workbook · Your First Coesive Map</h2>
+
+    <p class="small">
+      Use this page when something in your life feels unclear. There are no right answers here, only honest ones.
+    </p>
+
+    <div class="spacer-lg"></div>
+
+    <div class="prompt">Situation</div>
+    <p class="small">What situation in your life feels unclear right now?</p>
+    <div class="lines"></div>
+    <div class="lines"></div>
+    <div class="lines"></div>
+
+    <div class="prompt">Exploration</div>
+    <p class="small">Write anything that feels confusing, heavy, or hard to explain.</p>
+    <div class="lines"></div>
+    <div class="lines"></div>
+    <div class="lines"></div>
+
+    <div class="prompt">Cohesion</div>
+    <p class="small">What patterns, repetitions, or connections do you notice?</p>
+    <div class="lines"></div>
+    <div class="lines"></div>
+
+    <div class="prompt">Decision</div>
+    <p class="small">What is one small, honest step you can take?</p>
+    <div class="lines"></div>
+
+    <div class="prompt">Integration</div>
+    <p class="small">After writing this, what changed in how you see the situation?</p>
+    <div class="lines"></div>
+    <div class="lines"></div>
+  </section>
+
+</div>
+</body>
+</html>
