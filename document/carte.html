@@ -1,481 +1,145 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>The Coesive Model · Book Layout</title>
-  <style>
-    :root {
-      --bg-page: #f9fafb;
-      --ink: #111827;
-      --muted: #6b7280;
-      --line-soft: #e5e7eb;
-      --max-width: 680px;
-      --font-serif: "Georgia", "Times New Roman", serif;
-      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    }
-
-    @page {
-      margin: 2.5cm 2cm 2.5cm 3cm;
-    }
-
-    * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      padding: 0;
-      background: #e5e7eb;
-      color: var(--ink);
-      font-family: var(--font-serif);
-    }
-
-    .book {
-      max-width: 1024px;
-      margin: 0 auto;
-      padding: 24px 0;
-    }
-
-    .page {
-      background: var(--bg-page);
-      color: var(--ink);
-      max-width: var(--max-width);
-      margin: 0 auto 24px auto;
-      padding: 40px 52px;
-      box-shadow: 0 12px 30px rgba(15,23,42,0.08);
-      border-radius: 8px;
-      page-break-after: always;
-    }
-
-    /* COVER */
-    .page-cover {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      min-height: 80vh;
-      text-align: center;
-    }
-
-    .cover-title {
-      font-family: var(--font-serif);
-      font-size: 2rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      margin-bottom: 12px;
-    }
-
-    .cover-subtitle {
-      font-family: var(--font-serif);
-      font-size: 1.1rem;
-      color: var(--muted);
-      margin-bottom: 24px;
-    }
-
-    .cover-tagline {
-      font-family: var(--font-serif);
-      font-size: 1rem;
-      font-style: italic;
-      color: var(--muted);
-      margin-bottom: 60px;
-    }
-
-    .cover-author {
-      font-family: var(--font-sans);
-      font-size: 0.95rem;
-      text-transform: uppercase;
-      letter-spacing: 0.16em;
-      color: var(--muted);
-    }
-
-    /* TEXT GENERIC */
-    h1, h2, h3 {
-      font-family: var(--font-serif);
-      margin: 0 0 12px 0;
-    }
-
-    h1 { font-size: 1.65rem; }
-    h2 { font-size: 1.25rem; }
-
-    p {
-      font-size: 0.97rem;
-      line-height: 1.5;
-      margin: 0 0 10px 0;
-    }
-
-    .small { font-size: 0.85rem; color: var(--muted); }
-    .center { text-align: center; }
-    .mt-lg { margin-top: 32px; }
-    .mt-md { margin-top: 18px; }
-
-    hr.soft {
-      border: none;
-      border-top: 1px solid var(--line-soft);
-      margin: 16px 0 24px 0;
-    }
-
-    /* CHAPTER PAGE */
-    .page-chapter {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      min-height: 80vh;
-      text-align: center;
-    }
-
-    .chapter-label {
-      font-family: var(--font-sans);
-      font-size: 0.9rem;
-      letter-spacing: 0.25em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 12px;
-    }
-
-    .chapter-title {
-      font-family: var(--font-serif);
-      font-size: 1.6rem;
-      line-height: 1.25;
-      margin-bottom: 10px;
-    }
-
-    .chapter-line {
-      width: 90px;
-      height: 1px;
-      background: var(--line-soft);
-      margin: 16px auto 0 auto;
-    }
-
-    /* QUOTE PAGE */
-    .page-quote {
-      display: flex;
-      min-height: 60vh;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-    }
-
-    .quote {
-      font-family: var(--font-serif);
-      font-size: 1.25rem;
-      line-height: 1.5;
-      font-style: italic;
-      max-width: 460px;
-      margin: 0 auto;
-    }
-
-    /* BODY PAGES */
-    .page-body h2 {
-      font-size: 1.2rem;
-      margin-bottom: 16px;
-    }
-
-    .page-body p + p {
-      margin-top: 6px;
-    }
-
-    .key-line {
-      font-style: italic;
-      margin: 18px 0;
-    }
-
-    /* WORKBOOK / JOURNAL EXAMPLE */
-    .page-workbook h2 {
-      font-size: 1.1rem;
-      margin-bottom: 14px;
-    }
-
-    .prompt {
-      font-weight: 600;
-      margin-top: 14px;
-      margin-bottom: 6px;
-    }
-
-    .lines {
-      border-bottom: 1px solid var(--line-soft);
-      height: 18px;
-      margin-bottom: 6px;
-    }
-
-    .spacer-lg { height: 18px; }
-
-    @media print {
-      body { background: white; }
-      .page {
-        box-shadow: none;
-        border-radius: 0;
-        margin: 0 auto;
-      }
-      .book { padding: 0; }
-    }
-  </style>
-</head>
-<body>
-<div class="book">
-
-  <!-- COVER PAGE -->
-  <section class="page page-cover">
-    <div>
-      <div class="cover-title">THE COESIVE MODEL</div>
-      <div class="cover-subtitle">
-        A Thinking and Educational Framework for Clarity in an Uncertain World
-      </div>
-      <div class="cover-tagline">From Confusion to Coherent Action</div>
-      <div class="cover-author">YOUR NAME</div>
-    </div>
-  </section>
-
-  <!-- DISCLAIMER PAGE -->
-  <section class="page">
-    <h1 class="center">Disclaimer</h1>
-    <hr class="soft">
-    <p>
-      This book presents the <strong>Coesive Model</strong> and the concept of
-      <strong>Applied Coesiology</strong> as original conceptual frameworks.
-      They are offered as educational and cognitive tools designed to support clarity, coherence,
-      and reflective thinking.
-    </p>
-    <p>
-      This work does <strong>not</strong> claim to replace psychological, medical, therapeutic, or
-      scientific disciplines. It does not provide medical, psychological, or clinical advice.
-      The content is intended for educational and developmental purposes only.
-    </p>
-    <p>
-      Any similarities with existing models or frameworks are conceptual in nature and not the result
-      of copying or reproduction. All formulations, structures, and expressions in this work are
-      original to this publication.
-    </p>
-    <p class="mt-lg small center">
-      © YOUR NAME · All rights reserved.
-    </p>
-  </section>
-
-  <!-- (optional) TABLE OF CONTENTS PAGE – poți completa ulterior -->
-  <section class="page">
-    <h1>Contents</h1>
-    <hr class="soft">
-    <p class="small">
-      (Complete this later with all chapters and appendices.)
-    </p>
-  </section>
-
-  <!-- CHAPTER 1 – TITLE PAGE -->
+<!-- CHAPTER 2 – TITLE PAGE -->
   <section class="page page-chapter">
     <div>
-      <div class="chapter-label">CHAPTER 1</div>
+      <div class="chapter-label">CHAPTER 2</div>
       <div class="chapter-title">
-        Why the World Needs Clarity<br>
-        More Than Information
+        What the Coesive Model Is<br>
+        (and What It Is Not)
       </div>
       <div class="chapter-line"></div>
     </div>
   </section>
 
-  <!-- CHAPTER 1 – QUOTE PAGE -->
-  <section class="page page-quote">
-    <div class="quote">
-      Clarity is not a luxury.<br>
-      It is a structural necessity.
-    </div>
-  </section>
-
-  <!-- CHAPTER 1 – BODY PAGE 1 -->
-  <section class="page page-body">
-    <h2>Why the World Needs Clarity More Than Information</h2>
-
-    <p>
-      We live in an age of infinite information and scarce clarity. Never in human history have people
-      had access to so much knowledge, so many tools, so many opinions, and so many systems. And yet,
-      never have so many people felt confused, mentally fragmented, and internally disoriented.
-    </p>
-
-    <p>
-      The issue is not intelligence.  
-      The issue is not access.  
-      The issue is not motivation.
-    </p>
-
-    <p>
-      The issue is the absence of an internal structure capable of holding complexity.
-    </p>
-
-    <p>
-      Modern education systems focus heavily on <em>what</em> to think. They invest years in teaching
-      people facts, formulas, frameworks, and methods. What they almost never teach is
-      <em>how to organize inner chaos when there are no clear answers</em>. Confusion is treated as
-      weakness. Uncertainty is treated as failure.
-    </p>
-
-    <p class="key-line">
-      But confusion is not a failure state. It is the natural starting point of clarity.
-    </p>
-
-    <p>
-      The human mind was not designed to be flooded. It was designed to connect, simplify, and decide.
-      Without a conscious structure, the mind accumulates fragments: thoughts, fears, data,
-      expectations, advice. Over time, this fragmentation becomes paralysis.
-    </p>
-
-    <p>
-      More input does not solve this. More content does not solve this. More pressure does not solve this.
-      What solves it is <strong>cohesion</strong>.
-    </p>
-  </section>
-
-  <!-- CHAPTER 1 – BODY PAGE 2 -->
-  <section class="page page-body">
-    <h2>The Cost of Fragmentation</h2>
-
-    <p>
-      A fragmented mind is not an empty mind. It is a crowded one. People rarely suffer from
-      “not enough ideas”. They suffer from too many unconnected ones. Thoughts collide instead of
-      aligning. Emotions amplify instead of informing. Action becomes either impulsive or frozen.
-    </p>
-
-    <p>
-      In this state, even good advice becomes noise.  
-      Even accurate information feels hostile.  
-      Even opportunities feel like threats.
-    </p>
-
-    <p>
-      The problem is not complexity. Complex lives, complex roles, complex identities are normal.
-      The problem is a lack of <strong>internal containment</strong>: a way to hold everything without
-      collapsing.
-    </p>
-
-    <p>
-      When there is no architecture, people oscillate between two extremes:
-    </p>
-
-    <p>
-      • chasing constant change, hoping the next decision will fix the chaos  
-      • staying completely stuck, afraid any move will make things worse
-    </p>
-
-    <p>
-      Both are symptoms of the same structural absence.
-    </p>
-
-    <p class="key-line">
-      Clarity is not the opposite of confusion.  
-      Clarity is confusion that has been given structure.
-    </p>
-  </section>
-
-  <!-- CHAPTER 1 – BODY PAGE 3 -->
-  <section class="page page-body">
-    <h2>Why Speed Makes It Worse</h2>
-
-    <p>
-      A world obsessed with speed makes structural problems worse. We are asked to decide faster,
-      learn faster, adapt faster, and respond faster than ever before. Under pressure, the mind does
-      not become sharper. It becomes more reactive.
-    </p>
-
-    <p>
-      Reaction is not clarity. It is survival.
-    </p>
-
-    <p>
-      In survival mode, the brain simplifies reality in ways that feel safe but are often untrue:
-      “I’m failing”, “I’m behind”, “I’m not enough”, “Everyone else has figured it out”. None of these
-      thoughts are architectural. They do not build anything. They only tighten the internal space.
-    </p>
-
-    <p>
-      The Coesive Model starts from the opposite assumption:
-      <em>if you want clarity, you must slow down the mind long enough to reorganize it.</em>
-    </p>
-
-    <p>
-      This is not about thinking positively. It is about thinking structurally.
-    </p>
-
-    <p class="key-line">
-      Clarity born from speed is fragile.  
-      Clarity born from structure is stable.
-    </p>
-  </section>
-
-  <!-- CHAPTER 1 – BODY PAGE 4 -->
-  <section class="page page-body">
-    <h2>From Content-Driven to Structure-Driven</h2>
-
-    <p>
-      Most systems offered to people today are content-driven:
-      more strategies, more tools, more steps, more hacks. They assume that if you feed the mind
-      enough high-quality input, it will naturally become clear and effective.
-    </p>
-
-    <p>
-      But a content-driven mind with no structure becomes over-informed and under-coherent.
-    </p>
-
-    <p>
-      The Coesive Model is structure-driven. It does not promise:
-    </p>
-
-    <p>
-      • the best answer  
-      • the fastest result  
-      • the most impressive outcome
-    </p>
-
-    <p>
-      It promises something else:
-      a repeatable <strong>internal architecture</strong> for moving from confusion to coherent action.
-    </p>
-
-    <p>
-      In this architecture, clarity is not an accident. It is not a good day. It is not a moment of
-      inspiration. It is the output of a process.
-    </p>
-
-    <p class="key-line">
-      Clarity is not a personality trait.  
-      It is a repeatable process that can be learned, practiced, and stabilized.
-    </p>
-
-    <p>
-      This is why the world needs a different kind of model. Not another motivational system.
-      Not another productivity method. A model that takes confusion seriously, treats it with respect,
-      and gives it a form.
-    </p>
-  </section>
-
-  <!-- CHAPTER 1 – CLOSING QUOTE / TRANSITION -->
+  <!-- CHAPTER 2 – QUOTE PAGE -->
   <section class="page page-quote">
     <div class="quote">
       A confused mind does not need more answers.<br>
-      It needs a better structure to hold them.
+      It needs a better process.
     </div>
   </section>
 
-  <!-- (EXEMPLU) PAGINĂ WORKBOOK LEGATĂ DE CHAPTER 1 -->
-  <section class="page page-workbook">
-    <h2>Reflection · Where Do You Need Clarity?</h2>
-    <p class="small">
-      Use this page after reading Chapter 1. There are no right answers. Only honest ones.
+  <!-- CHAPTER 2 – BODY PAGE 1 -->
+  <section class="page page-body">
+    <h2>What the Coesive Model Is</h2>
+
+    <p>
+      The Coesive Model is a thinking framework designed to help the mind move from fragmentation
+      to internal coherence. It does not try to make people faster. It does not try to make people
+      more impressive. It is built around one priority: <strong>structure</strong>.
     </p>
 
-    <div class="spacer-lg"></div>
+    <p>
+      Most systems that promise clarity focus on outcomes: better grades, better performance,
+      better results. The Coesive Model is different. It focuses on the internal architecture that
+      makes those outcomes possible.
+    </p>
 
-    <div class="prompt">What currently feels unclear in your life?</div>
-    <div class="lines"></div>
-    <div class="lines"></div>
-    <div class="lines"></div>
+    <p class="key-line">
+      At its core, the model is based on a simple principle:
+      a confused mind does not need more answers, it needs a better process.
+    </p>
 
-    <div class="prompt">Where do you feel mentally fragmented?</div>
-    <div class="lines"></div>
-    <div class="lines"></div>
+    <p>
+      The Coesive Model is:
+    </p>
 
-    <div class="prompt">What have you tried so far (more information, more speed, more pressure)?</div>
-    <div class="lines"></div>
-    <div class="lines"></div>
+    <p>
+      • a process for organizing internal complexity<br>
+      • a way to transform mental noise into structured meaning<br>
+      • a repeatable system that can be used by students, educators, entrepreneurs, and leaders<br>
+      • a bridge between cognition, emotion, and decision
+    </p>
 
-    <div class="prompt">What would it mean to approach this with structure instead of urgency?</div>
-    <div class="lines"></div>
-    <div class="lines"></div>
+    <p>
+      It acknowledges that thought is not linear, clarity is not binary, and confusion is not a defect.
+      Instead of trying to erase confusion, the model gives it a form.
+    </p>
   </section>
 
-</div>
-</body>
-</html>
+  <!-- CHAPTER 2 – BODY PAGE 2 -->
+  <section class="page page-body">
+    <h2>What the Coesive Model Is Not</h2>
+
+    <p>
+      Clarity frameworks are often sold as total solutions: they promise to fix your life, heal your
+      past, and unlock your full potential. The Coesive Model refuses that role.
+    </p>
+
+    <p>
+      The Coesive Model is <strong>not</strong>:
+    </p>
+
+    <p>
+      • a therapy<br>
+      • a spiritual system<br>
+      • a personality framework<br>
+      • a motivational product
+    </p>
+
+    <p>
+      It does not diagnose you. It does not promise healing. It does not offer a new identity.
+      It does not manipulate emotion to create short-term energy.
+    </p>
+
+    <p class="key-line">
+      The model respects your autonomy and intelligence.<br>
+      It assumes you are not broken. You are simply unstructured.
+    </p>
+
+    <p>
+      Many systems blur boundaries. They mix psychology, coaching, spirituality, and marketing into
+      one seductive promise. The Coesive Model draws a firm line. It does not pretend to replace
+      psychology. It does not borrow authority from neuroscience without evidence. It does not claim
+      to be a new science.
+    </p>
+
+    <p>
+      It offers something more modest and more honest: a structural lens through which you can
+      understand and organize your own mind.
+    </p>
+  </section>
+
+  <!-- CHAPTER 2 – BODY PAGE 3 -->
+  <section class="page page-body">
+    <h2>The Organizing Idea</h2>
+
+    <p>
+      Behind the Coesive Model lies a radical but simple assumption:
+    </p>
+
+    <p class="key-line">
+      Human confusion is not a lack of intelligence.<br>
+      It is a lack of cognitive architecture.
+    </p>
+
+    <p>
+      When architecture appears, clarity becomes possible. When thoughts, emotions, questions, and
+      experiences are given a coherent place to stand together, the mind stops fighting itself.
+    </p>
+
+    <p>
+      The Coesive Model does not give you a new identity. It gives you a new way of relating to your
+      own thinking. Instead of asking “What is wrong with me?”, you learn to ask “What structure is
+      missing here?”.
+    </p>
+
+    <p>
+      With this shift, confusion stops being a verdict and becomes a signal. It tells you not that
+      you are failing, but that your architecture is not yet built for the level of complexity you
+      are facing.
+    </p>
+
+    <p>
+      The rest of this book will not ask you to think positively, to believe harder, or to become
+      someone else. It will invite you to build, slowly and deliberately, a structure you can stand
+      on when life is not simple.
+    </p>
+  </section>
+
+  <!-- CHAPTER 2 – CLOSING QUOTE PAGE -->
+  <section class="page page-quote">
+    <div class="quote">
+      The Coesive Model is not a promise of control.<br>
+      It is a way to stay coherent when control is impossible.
+    </div>
+  </section>
