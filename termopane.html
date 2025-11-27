@@ -1,0 +1,1394 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <title>Termopane Expert | Ferestre și uși PVC & Aluminiu</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Montaj termopane PVC și aluminiu, uși, ferestre, balcoane închise, reparații și reglaje. Măsurători gratuite și ofertă rapidă.">
+  <style>
+    :root {
+      --primary: #0072b8;
+      --primary-dark: #005888;
+      --accent: #ffb31a;
+      --bg: #f4f7fb;
+      --text: #222;
+      --muted: #666;
+      --white: #ffffff;
+      --shadow-soft: 0 10px 25px rgba(0,0,0,0.08);
+      --radius-lg: 16px;
+      --radius-pill: 999px;
+      --transition: all 0.25s ease;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+      background-color: var(--bg);
+      line-height: 1.6;
+    }
+
+    img {
+      max-width: 100%;
+      display: block;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    /* Layout */
+
+    .container {
+      width: 100%;
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+    }
+
+    section {
+      padding: 4rem 0;
+    }
+
+    @media (min-width: 992px) {
+      section {
+        padding: 5rem 0;
+      }
+    }
+
+    /* Header */
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(255,255,255,0.96);
+      backdrop-filter: blur(14px);
+      box-shadow: 0 1px 0 rgba(15, 23, 42, 0.06);
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 0;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-weight: 700;
+      font-size: 1.15rem;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      color: var(--primary-dark);
+    }
+
+    .logo-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 30% 70% 70% 30% / 40% 30% 70% 60%;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--white);
+      font-size: 0.85rem;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .nav-links {
+      display: none;
+      align-items: center;
+      gap: 1.5rem;
+      font-size: 0.95rem;
+    }
+
+    .nav-links a {
+      color: var(--muted);
+      position: relative;
+    }
+
+    .nav-links a:hover {
+      color: var(--primary-dark);
+    }
+
+    .nav-links a::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: -0.25rem;
+      width: 0;
+      height: 2px;
+      background: var(--primary);
+      transition: width 0.2s ease;
+    }
+
+    .nav-links a:hover::after {
+      width: 100%;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.8rem 1.5rem;
+      border-radius: var(--radius-pill);
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.95rem;
+      transition: var(--transition);
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: var(--white);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 14px 30px rgba(0,0,0,0.12);
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid rgba(148,163,184,0.7);
+      color: var(--muted);
+    }
+
+    .btn-outline:hover {
+      border-color: var(--primary);
+      color: var(--primary-dark);
+      background: rgba(226,232,240,0.7);
+    }
+
+    .nav-cta {
+      display: none;
+      gap: 0.75rem;
+      align-items: center;
+    }
+
+    .nav-toggle {
+      display: inline-flex;
+      width: 38px;
+      height: 38px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.7);
+      align-items: center;
+      justify-content: center;
+      background: var(--white);
+      cursor: pointer;
+    }
+
+    .nav-toggle span {
+      width: 18px;
+      height: 2px;
+      background: #0f172a;
+      position: relative;
+    }
+
+    .nav-toggle span::before,
+    .nav-toggle span::after {
+      content: "";
+      position: absolute;
+      width: 18px;
+      height: 2px;
+      background: #0f172a;
+      left: 0;
+    }
+
+    .nav-toggle span::before {
+      top: -5px;
+    }
+
+    .nav-toggle span::after {
+      top: 5px;
+    }
+
+    .nav-mobile {
+      display: none;
+      padding-bottom: 0.75rem;
+    }
+
+    .nav-mobile a {
+      display: block;
+      padding: 0.4rem 0;
+      font-size: 0.98rem;
+      color: var(--muted);
+    }
+
+    .nav-mobile a.btn {
+      margin-top: 0.75rem;
+      width: 100%;
+    }
+
+    @media (min-width: 768px) {
+      .nav-links {
+        display: flex;
+      }
+      .nav-cta {
+        display: flex;
+      }
+      .nav-toggle,
+      .nav-mobile {
+        display: none !important;
+      }
+    }
+
+    /* Hero */
+
+    .hero {
+      padding-top: 3rem;
+    }
+
+    .hero-grid {
+      display: grid;
+      gap: 2.5rem;
+    }
+
+    @media (min-width: 900px) {
+      .hero-grid {
+        grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+        align-items: center;
+        gap: 3.5rem;
+      }
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.3rem 0.9rem;
+      border-radius: var(--radius-pill);
+      background: rgba(219,234,254,0.9);
+      color: #1d4ed8;
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-bottom: 1.2rem;
+    }
+
+    .hero-badge span {
+      display: inline-flex;
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: #22c55e;
+      box-shadow: 0 0 0 4px rgba(34,197,94,0.18);
+    }
+
+    .hero-title {
+      font-size: clamp(2rem, 2.5vw + 1.6rem, 2.8rem);
+      line-height: 1.15;
+      font-weight: 800;
+      color: #020617;
+      margin-bottom: 1rem;
+    }
+
+    .hero-title span {
+      color: var(--primary);
+    }
+
+    .hero-text {
+      font-size: 1rem;
+      color: var(--muted);
+      max-width: 36rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .hero-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.25rem;
+      align-items: center;
+      margin-top: 1.5rem;
+    }
+
+    .hero-meta-item {
+      display: flex;
+      flex-direction: column;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    .hero-meta-item strong {
+      font-size: 1.1rem;
+      color: #0f172a;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .hero-actions small {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-left: 0.5rem;
+    }
+
+    .hero-right {
+      position: relative;
+    }
+
+    .hero-card {
+      background: radial-gradient(circle at top left, #eff6ff, #ffffff);
+      border-radius: 28px;
+      padding: 1.5rem;
+      box-shadow: var(--shadow-soft);
+      border: 1px solid rgba(148,163,184,0.25);
+    }
+
+    .hero-window {
+      border-radius: 18px;
+      overflow: hidden;
+      border: 1px solid rgba(148,163,184,0.6);
+      background: linear-gradient(135deg, #e5f1ff, #f8fafc);
+      position: relative;
+      padding: 1.2rem;
+    }
+
+    .hero-window::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image: linear-gradient(135deg, rgba(255,255,255,0.35), transparent 60%);
+      mix-blend-mode: screen;
+      opacity: 0.8;
+      pointer-events: none;
+    }
+
+    .hero-window-grid {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 0.75rem;
+    }
+
+    .hero-window-pane {
+      background: rgba(255,255,255,0.6);
+      border-radius: 12px;
+      border: 1px solid rgba(148,163,184,0.4);
+      min-height: 80px;
+    }
+
+    .hero-window-pane-inner {
+      border-radius: 10px;
+      border: 1px solid rgba(148,163,184,0.25);
+      margin: 6px;
+      min-height: 68px;
+      background: radial-gradient(circle at top, rgba(219,234,254,0.9), #ffffff);
+    }
+
+    .hero-window-side {
+      display: grid;
+      gap: 0.4rem;
+    }
+
+    .hero-stats {
+      display: flex;
+      justify-content: space-between;
+      gap: 0.75rem;
+      margin-top: 0.9rem;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .hero-stats strong {
+      display: block;
+      font-size: 1rem;
+      color: #0f172a;
+    }
+
+    .hero-tag {
+      position: absolute;
+      right: 0.75rem;
+      bottom: -0.6rem;
+      background: var(--primary-dark);
+      color: var(--white);
+      padding: 0.4rem 0.9rem;
+      border-radius: var(--radius-pill);
+      font-size: 0.75rem;
+      box-shadow: var(--shadow-soft);
+      white-space: nowrap;
+    }
+
+    .hero-tag span {
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    /* Section headings */
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+
+    .section-eyebrow {
+      text-transform: uppercase;
+      font-size: 0.8rem;
+      letter-spacing: 0.15em;
+      color: #64748b;
+      margin-bottom: 0.35rem;
+    }
+
+    .section-title {
+      font-size: 1.75rem;
+      color: #0f172a;
+      margin-bottom: 0.35rem;
+    }
+
+    .section-subtitle {
+      font-size: 0.98rem;
+      color: var(--muted);
+      max-width: 34rem;
+      margin: 0 auto;
+    }
+
+    /* Despre */
+
+    .about-grid {
+      display: grid;
+      gap: 2rem;
+    }
+
+    @media (min-width: 900px) {
+      .about-grid {
+        grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+      }
+    }
+
+    .card {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      padding: 1.8rem;
+      box-shadow: var(--shadow-soft);
+      border: 1px solid rgba(148,163,184,0.25);
+    }
+
+    .about-text p {
+      margin-bottom: 0.75rem;
+      font-size: 0.98rem;
+      color: var(--muted);
+    }
+
+    .about-list {
+      list-style: none;
+      margin-top: 0.5rem;
+    }
+
+    .about-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+      margin-bottom: 0.35rem;
+      font-size: 0.95rem;
+      color: #0f172a;
+    }
+
+    .about-bullet {
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      background: rgba(34,197,94,0.12);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      color: #16a34a;
+      flex-shrink: 0;
+      margin-top: 0.1rem;
+    }
+
+    .about-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      margin-top: 1.5rem;
+      font-size: 0.85rem;
+    }
+
+    .about-meta strong {
+      display: block;
+      font-size: 1.05rem;
+      color: #0f172a;
+    }
+
+    .about-side {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .about-badge {
+      font-size: 0.8rem;
+      color: #0369a1;
+      background: rgba(191,219,254,0.8);
+      border-radius: var(--radius-pill);
+      padding: 0.35rem 0.9rem;
+      justify-self: flex-start;
+    }
+
+    /* Servicii */
+
+    .services-grid {
+      display: grid;
+      gap: 1.5rem;
+    }
+
+    @media (min-width: 768px) {
+      .services-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+
+    .service-card {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      box-shadow: var(--shadow-soft);
+      border: 1px solid rgba(148,163,184,0.2);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .service-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 13px;
+      background: rgba(37,99,235,0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      margin-bottom: 0.9rem;
+    }
+
+    .service-title {
+      font-size: 1.05rem;
+      font-weight: 600;
+      margin-bottom: 0.35rem;
+      color: #0f172a;
+    }
+
+    .service-text {
+      font-size: 0.92rem;
+      color: var(--muted);
+      margin-bottom: 0.75rem;
+    }
+
+    .service-tag {
+      font-size: 0.8rem;
+      color: #0369a1;
+      margin-top: auto;
+    }
+
+    /* Avantaje */
+
+    .benefits-grid {
+      display: grid;
+      gap: 1.2rem;
+    }
+
+    @media (min-width: 768px) {
+      .benefits-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    .benefit-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.7rem;
+      font-size: 0.95rem;
+      color: var(--muted);
+    }
+
+    .benefit-item strong {
+      display: block;
+      font-size: 0.98rem;
+      color: #0f172a;
+    }
+
+    .benefit-icon {
+      width: 26px;
+      height: 26px;
+      border-radius: 999px;
+      background: rgba(37,99,235,0.08);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      flex-shrink: 0;
+      margin-top: 0.15rem;
+    }
+
+    /* Portofoliu */
+
+    .portfolio-grid {
+      display: grid;
+      gap: 1.3rem;
+    }
+
+    @media (min-width: 768px) {
+      .portfolio-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+
+    .portfolio-card {
+      background: var(--white);
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: var(--shadow-soft);
+      border: 1px solid rgba(148,163,184,0.25);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .portfolio-image {
+      height: 150px;
+      background: linear-gradient(135deg, #dbeafe, #f9fafb);
+      position: relative;
+    }
+
+    .portfolio-image::after {
+      content: "Lucrare reprezentativă";
+      position: absolute;
+      bottom: 0.65rem;
+      left: 0.8rem;
+      padding: 0.2rem 0.7rem;
+      font-size: 0.7rem;
+      border-radius: var(--radius-pill);
+      background: rgba(15,23,42,0.86);
+      color: var(--white);
+    }
+
+    .portfolio-body {
+      padding: 1rem 1.1rem 1.1rem;
+      font-size: 0.88rem;
+      color: var(--muted);
+    }
+
+    .portfolio-body h3 {
+      font-size: 0.98rem;
+      margin-bottom: 0.25rem;
+      color: #0f172a;
+    }
+
+    .portfolio-meta {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 0.5rem;
+      font-size: 0.8rem;
+      color: #64748b;
+    }
+
+    /* Oferte */
+
+    .offer-card {
+      background: radial-gradient(circle at top, #e0f2fe, #ffffff);
+      border-radius: 24px;
+      padding: 2rem 1.6rem;
+      border: 1px solid rgba(148,163,184,0.4);
+      box-shadow: var(--shadow-soft);
+      text-align: center;
+    }
+
+    .offer-card strong {
+      display: block;
+      font-size: 1.3rem;
+      margin-bottom: 0.4rem;
+      color: #0f172a;
+    }
+
+    .offer-card p {
+      font-size: 0.98rem;
+      color: var(--muted);
+      margin-bottom: 1.3rem;
+    }
+
+    .offer-badges {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.6rem;
+      font-size: 0.78rem;
+      margin-top: 0.9rem;
+      color: #0369a1;
+    }
+
+    .offer-badges span {
+      padding: 0.3rem 0.8rem;
+      border-radius: var(--radius-pill);
+      background: rgba(191,219,254,0.9);
+    }
+
+    /* Contact */
+
+    .contact-grid {
+      display: grid;
+      gap: 2rem;
+    }
+
+    @media (min-width: 900px) {
+      .contact-grid {
+        grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+      }
+    }
+
+    form {
+      display: grid;
+      gap: 0.9rem;
+    }
+
+    .form-field {
+      display: grid;
+      gap: 0.25rem;
+      font-size: 0.9rem;
+    }
+
+    label {
+      color: #0f172a;
+      font-weight: 500;
+    }
+
+    input, textarea, select {
+      border-radius: 10px;
+      border: 1px solid rgba(148,163,184,0.8);
+      padding: 0.7rem 0.75rem;
+      font-size: 0.9rem;
+      font-family: inherit;
+      outline: none;
+      background: #f9fafb;
+      transition: var(--transition);
+    }
+
+    textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    input:focus,
+    textarea:focus,
+    select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 1px rgba(59,130,246,0.4);
+      background: #ffffff;
+    }
+
+    .form-row {
+      display: grid;
+      gap: 0.9rem;
+    }
+
+    @media (min-width: 600px) {
+      .form-row {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    .form-help {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 0.25rem;
+    }
+
+    .contact-details {
+      font-size: 0.95rem;
+      color: var(--muted);
+    }
+
+    .contact-details strong {
+      color: #0f172a;
+    }
+
+    .contact-list {
+      list-style: none;
+      margin-top: 1rem;
+    }
+
+    .contact-list li {
+      margin-bottom: 0.55rem;
+    }
+
+    .contact-highlight {
+      margin-top: 1.2rem;
+      padding: 0.8rem 1rem;
+      border-radius: 14px;
+      background: rgba(22,163,74,0.07);
+      font-size: 0.86rem;
+      color: #166534;
+      border: 1px solid rgba(22,163,74,0.18);
+    }
+
+    /* Footer */
+
+    footer {
+      border-top: 1px solid rgba(148,163,184,0.4);
+      padding: 1.4rem 0 2rem;
+      font-size: 0.82rem;
+      color: #64748b;
+      background: #f8fafc;
+    }
+
+    .footer-inner {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.75rem;
+      justify-content: space-between;
+    }
+
+    .footer-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .footer-links a {
+      color: inherit;
+    }
+
+    .footer-links a:hover {
+      color: #0f172a;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="container nav">
+    <div class="logo">
+      <div class="logo-icon">TX</div>
+      <span>Termopane Expert</span>
+    </div>
+
+    <nav class="nav-links">
+      <a href="#acasa">Acasă</a>
+      <a href="#despre">Despre noi</a>
+      <a href="#servicii">Servicii</a>
+      <a href="#portofoliu">Portofoliu</a>
+      <a href="#oferte">Oferte</a>
+      <a href="#contact">Contact</a>
+    </nav>
+
+    <div class="nav-cta">
+      <a href="tel:+40700111222" class="btn btn-outline">Sună acum</a>
+      <a href="#contact" class="btn btn-primary">Cere ofertă</a>
+    </div>
+
+    <button class="nav-toggle" aria-label="Deschide meniul" onclick="toggleNav()">
+      <span></span>
+    </button>
+  </div>
+
+  <div class="container nav-mobile" id="nav-mobile">
+    <a href="#acasa">Acasă</a>
+    <a href="#despre">Despre noi</a>
+    <a href="#servicii">Servicii</a>
+    <a href="#portofoliu">Portofoliu</a>
+    <a href="#oferte">Oferte</a>
+    <a href="#contact">Contact</a>
+    <a href="tel:+40700111222" class="btn btn-outline">Sună acum</a>
+    <a href="#contact" class="btn btn-primary">Cere ofertă</a>
+  </div>
+</header>
+
+<main>
+
+  <!-- HERO -->
+  <section id="acasa" class="hero">
+    <div class="container hero-grid">
+      <div>
+        <div class="hero-badge">
+          <span></span>
+          Măsurători la domiciliu în 24h
+        </div>
+        <h1 class="hero-title">
+          Termopane care păstrează <span>căldura</span> și reduc <span>zgomotul</span>.
+        </h1>
+        <p class="hero-text">
+          Montăm ferestre și uși din PVC și aluminiu, adaptate locuinței tale, cu feronerie de calitate,
+          montaj profesionist și garanție scrisă până la 7 ani.
+        </p>
+        <div class="hero-actions">
+          <a href="#contact" class="btn btn-primary">Cere ofertă personalizată</a>
+          <a href="tel:+40700111222" class="btn btn-outline">Discută cu un specialist</a>
+        </div>
+        <div class="hero-meta">
+          <div class="hero-meta-item">
+            <strong>15+ ani</strong>
+            experiență în termopane
+          </div>
+          <div class="hero-meta-item">
+            <strong>3.200+</strong>
+            lucrări finalizate
+          </div>
+          <div class="hero-meta-item">
+            <strong>4.9 / 5</strong>
+            rating clienți
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-right">
+        <div class="hero-card">
+          <div class="hero-window">
+            <div class="hero-window-grid">
+              <div class="hero-window-pane">
+                <div class="hero-window-pane-inner"></div>
+              </div>
+              <div class="hero-window-side">
+                <div class="hero-window-pane">
+                  <div class="hero-window-pane-inner"></div>
+                </div>
+                <div class="hero-window-pane">
+                  <div class="hero-window-pane-inner"></div>
+                </div>
+              </div>
+            </div>
+            <div class="hero-stats">
+              <div>
+                <span>Izolare termică</span>
+                <strong>A++</strong>
+              </div>
+              <div>
+                <span>Izolare fonică</span>
+                <strong>−45 dB</strong>
+              </div>
+            </div>
+          </div>
+          <div class="hero-tag">
+            Reducere până la <span>35%</span> la pachet complet apartament
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DESPRE NOI -->
+  <section id="despre">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-eyebrow">Despre noi</div>
+        <h2 class="section-title">Partenerul tău pentru ferestre sigure și eficiente</h2>
+        <p class="section-subtitle">
+          Termopane Expert oferă soluții complete, de la măsurători și consultanță până la montaj și service post-garanție.
+        </p>
+      </div>
+
+      <div class="about-grid">
+        <div class="card about-text">
+          <p>
+            Lucrăm doar cu profile PVC și aluminiu de la producători recunoscuți, feronerie germană și geam termopan
+            de înaltă eficiență energetică. Fiecare lucrare este măsurată, proiectată și montată pentru a se potrivi
+            perfect spațiului tău.
+          </p>
+          <p>
+            Echipele noastre de montaj sunt formate din tehnicieni cu experiență, instruiți să lucreze curat și rapid,
+            astfel încât locuința ta să rămână în ordine după finalizarea lucrării.
+          </p>
+          <ul class="about-list">
+            <li>
+              <span class="about-bullet">✓</span>
+              Măsurători și consultanță gratuite în București și împrejurimi
+            </li>
+            <li>
+              <span class="about-bullet">✓</span>
+              Soluții personalizate pentru apartamente, case și spații comerciale
+            </li>
+            <li>
+              <span class="about-bullet">✓</span>
+              Garanție scrisă și intervenții rapide în garanție și post-garanție
+            </li>
+          </ul>
+
+          <div class="about-meta">
+            <div>
+              <strong>24–48h</strong>
+              timp estimativ pentru ofertă
+            </div>
+            <div>
+              <strong>5 echipe</strong>
+              de montaj disponibile
+            </div>
+            <div>
+              <strong>Zone acoperite</strong>
+              București, Ilfov, +50 km
+            </div>
+          </div>
+        </div>
+
+        <div class="about-side">
+          <div class="about-badge">
+            Certificat de conformitate & garanție inclusă
+          </div>
+          <div class="card">
+            <strong>Procesul nostru de lucru</strong>
+            <ul class="about-list" style="margin-top: 0.8rem;">
+              <li>
+                <span class="about-bullet">1</span>
+                Suni sau trimiți formularul cu dimensiunile aproximative.
+              </li>
+              <li>
+                <span class="about-bullet">2</span>
+                Programăm vizita pentru măsurători exacte la fața locului.
+              </li>
+              <li>
+                <span class="about-bullet">3</span>
+                Primești oferta detaliată, adaptată bugetului tău.
+              </li>
+              <li>
+                <span class="about-bullet">4</span>
+                Producție și montaj în termenul agreat, cu garanție scrisă.
+              </li>
+            </ul>
+          </div>
+          <div class="card">
+            <strong>Ce tipuri de proiecte realizăm</strong>
+            <ul class="about-list" style="margin-top: 0.8rem;">
+              <li><span class="about-bullet">🏠</span>Apartamente și case noi sau în renovare</li>
+              <li><span class="about-bullet">🏢</span>Spații comerciale, birouri, sedii de firmă</li>
+              <li><span class="about-bullet">🌤</span>Închideri de balcoane și terase</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- SERVICII -->
+  <section id="servicii">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-eyebrow">Servicii</div>
+        <h2 class="section-title">Tot ce ai nevoie pentru ferestre și uși moderne</h2>
+        <p class="section-subtitle">
+          Oferim servicii complete pentru termopane PVC și aluminiu, pentru orice tip de locuință sau spațiu comercial.
+        </p>
+      </div>
+
+      <div class="services-grid">
+        <div class="service-card">
+          <div>
+            <div class="service-icon">🪟</div>
+            <div class="service-title">Ferestre și uși PVC</div>
+            <div class="service-text">
+              Profile cu 5–7 camere, geam tripan, feronerie de siguranță și garnituri de etanșare pentru confort termic și fonic.
+            </div>
+          </div>
+          <div class="service-tag">Alegem împreună soluția optimă pentru locuința ta.</div>
+        </div>
+
+        <div class="service-card">
+          <div>
+            <div class="service-icon">🚪</div>
+            <div class="service-title">Balcoane și terase închise</div>
+            <div class="service-text">
+              Sisteme culisante sau oscilo-batante, adaptate pentru balcoane și terase, cu drenaj corect și etanșare profesionistă.
+            </div>
+          </div>
+          <div class="service-tag">Maximizezi spațiul locuibil și confortul.</div>
+        </div>
+
+        <div class="service-card">
+          <div>
+            <div class="service-icon">🛠</div>
+            <div class="service-title">Reparații și reglaje termopane</div>
+            <div class="service-text">
+              Reglaj feronerie, schimbare garnituri, balamale, mânere, geamuri sparte sau fisurate, etanșare suplimentară.
+            </div>
+          </div>
+          <div class="service-tag">Intervenții rapide, la preț corect.</div>
+        </div>
+
+        <div class="service-card">
+          <div>
+            <div class="service-icon">🪟</div>
+            <div class="service-title">Uși de balcon și uși de intrare</div>
+            <div class="service-text">
+              Uși rezistente, cu prag termic, sisteme de închidere multipunct și design adaptat stilului locuinței.
+            </div>
+          </div>
+          <div class="service-tag">Siguranță și confort pe termen lung.</div>
+        </div>
+
+        <div class="service-card">
+          <div>
+            <div class="service-icon">🦟</div>
+            <div class="service-title">Plase de insecte și rulouri</div>
+            <div class="service-text">
+              Plase tip rulou, plise sau balamale, rulouri exterioare cu sau fără acționare electrică, integrate în tâmplărie.
+            </div>
+          </div>
+          <div class="service-tag">Protecție și umbrire eficientă.</div>
+        </div>
+
+        <div class="service-card">
+          <div>
+            <div class="service-icon">📐</div>
+            <div class="service-title">Consultanță & măsurători</div>
+            <div class="service-text">
+              Vizită la locație, măsurători precise, identificarea soluției optime tehnic și financiar pentru proiectul tău.
+            </div>
+          </div>
+          <div class="service-tag">Măsurători gratuite în București & Ilfov.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- AVANTAJE / DE CE NOI -->
+  <section>
+    <div class="container">
+      <div class="section-header">
+        <div class="section-eyebrow">Avantaje</div>
+        <h2 class="section-title">De ce clienții ne recomandă mai departe</h2>
+        <p class="section-subtitle">
+          Ne concentrăm pe calitate și pe experiența clientului, de la primul contact până la predarea lucrării.
+        </p>
+      </div>
+
+      <div class="benefits-grid">
+        <div class="benefit-item">
+          <div class="benefit-icon">⭐</div>
+          <div>
+            <strong>Materiale premium și montaj profesionist</strong>
+            Folosim doar profile și feronerie testate, montate corect, pentru o durată de viață extinsă a tâmplăriei.
+          </div>
+        </div>
+        <div class="benefit-item">
+          <div class="benefit-icon">💬</div>
+          <div>
+            <strong>Consultanță transparentă, fără costuri ascunse</strong>
+            Explicăm clar opțiunile și costurile, astfel încât să alegi informat, în funcție de bugetul tău.
+          </div>
+        </div>
+        <div class="benefit-item">
+          <div class="benefit-icon">⏱</div>
+          <div>
+            <strong>Respectarea termenelor asumate</strong>
+            Stabilim împreună data montajului și ne organizăm astfel încât să respectăm calendarul agreat.
+          </div>
+        </div>
+        <div class="benefit-item">
+          <div class="benefit-icon">📝</div>
+          <div>
+            <strong>Garanție scrisă și service rapid</strong>
+            Beneficiezi de garanție pentru profile, feronerie și montaj, plus intervenții rapide dacă apar probleme.
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- PORTOFOLIU -->
+  <section id="portofoliu">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-eyebrow">Portofoliu</div>
+        <h2 class="section-title">Lucrări recente</h2>
+        <p class="section-subtitle">
+          Câteva exemple de proiecte finalizate pentru clienții noștri. La cerere, îți putem trimite mai multe referințe.
+        </p>
+      </div>
+
+      <div class="portfolio-grid">
+        <div class="portfolio-card">
+          <div class="portfolio-image"></div>
+          <div class="portfolio-body">
+            <h3>Apartament 3 camere, București</h3>
+            <p>
+              Înlocuire completă ferestre și uși balcon, profil PVC 6 camere, geam tripan, plase de insecte tip rulou.
+            </p>
+            <div class="portfolio-meta">
+              <span>Execuție: 2 zile</span>
+              <span>Economii: ~25% la încălzire</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="portfolio-card">
+          <div class="portfolio-image"></div>
+          <div class="portfolio-body">
+            <h3>Casă P+1, Ilfov</h3>
+            <p>
+              Ferestre și uși termoizolante, ușă de intrare cu sticlă securizată, uși culisante pentru acces pe terasă.
+            </p>
+            <div class="portfolio-meta">
+              <span>Execuție: 3 zile</span>
+              <span>Profile PVC premium</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="portfolio-card">
+          <div class="portfolio-image"></div>
+          <div class="portfolio-body">
+            <h3>Spațiu comercial, București</h3>
+            <p>
+              Fațadă din aluminiu și sticlă, uși automatizate și vitrine cu geam securizat și control solar.
+            </p>
+            <div class="portfolio-meta">
+              <span>Execuție: 4 zile</span>
+              <span>Design personalizat</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- OFERTE -->
+  <section id="oferte">
+    <div class="container">
+      <div class="offer-card">
+        <strong>Cere acum o ofertă pentru termopane</strong>
+        <p>
+          Trimite dimensiunile aproximative sau programează o vizită pentru măsurători gratuite.
+          Îți trimitem o ofertă clară, cu prețuri și termene detaliate.
+        </p>
+        <a href="#contact" class="btn btn-primary">Completează formularul de ofertă</a>
+        <div class="offer-badges">
+          <span>Măsurători gratuite în București & Ilfov</span>
+          <span>Garanție până la 7 ani</span>
+          <span>Plată în tranșe (la cerere)</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-eyebrow">Contact</div>
+        <h2 class="section-title">Trimite o solicitare sau sună-ne direct</h2>
+        <p class="section-subtitle">
+          Răspundem rapid la cererile de ofertă și te ajutăm să alegi cea mai bună soluție pentru locuința ta.
+        </p>
+      </div>
+
+      <div class="contact-grid">
+        <div class="card">
+          <form>
+            <div class="form-row">
+              <div class="form-field">
+                <label for="nume">Nume complet</label>
+                <input id="nume" name="nume" type="text" placeholder="Ex: Andrei Popescu" required>
+              </div>
+              <div class="form-field">
+                <label for="telefon">Telefon</label>
+                <input id="telefon" name="telefon" type="tel" placeholder="Ex: 07xx xxx xxx" required>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-field">
+                <label for="email">E-mail</label>
+                <input id="email" name="email" type="email" placeholder="Ex: nume@domeniu.ro">
+              </div>
+              <div class="form-field">
+                <label for="localitate">Localitate</label>
+                <input id="localitate" name="localitate" type="text" placeholder="Ex: București, Ilfov">
+              </div>
+            </div>
+
+            <div class="form-field">
+              <label for="serviciu">Tip serviciu dorit</label>
+              <select id="serviciu" name="serviciu">
+                <option value="">Alege o opțiune</option>
+                <option>Ferestre / uși PVC</option>
+                <option>Balcon / terasă închisă</option>
+                <option>Reparații / reglaje termopane</option>
+                <option>Plase insecte / rulouri</option>
+                <option>Alt tip de lucrare</option>
+              </select>
+            </div>
+
+            <div class="form-field">
+              <label for="mesaj">Detalii lucrare</label>
+              <textarea id="mesaj" name="mesaj" placeholder="Descrie pe scurt ce ai nevoie (dimensiuni aproximative, număr ferestre/usi, etaj etc.)"></textarea>
+              <div class="form-help">
+                Cu cât oferi mai multe detalii, cu atât oferta va fi mai precisă.
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Trimite cererea de ofertă</button>
+            <div class="form-help">
+              Prin trimiterea formularului ești de acord ca datele tale să fie folosite pentru a-ți răspunde la solicitare.
+            </div>
+          </form>
+        </div>
+
+        <div class="contact-details">
+          <div class="card">
+            <p><strong>Termopane Expert SRL</strong></p>
+            <ul class="contact-list">
+              <li><strong>Telefon:</strong> <a href="tel:+40700111222">+40 700 111 222</a></li>
+              <li><strong>E-mail:</strong> <a href="mailto:oferta@termopane-expert.ro">oferta@termopane-expert.ro</a></li>
+              <li><strong>Adresă:</strong> Str. Exemplu nr. 10, București</li>
+            </ul>
+
+            <p style="margin-top: 1rem;">
+              <strong>Program:</strong><br>
+              Luni – Vineri: 08:30 – 18:00<br>
+              Sâmbătă: 09:00 – 13:00
+            </p>
+
+            <div class="contact-highlight">
+              Pentru urgențe (ferestre care nu se mai închid, geam spart etc.), sunați direct la numărul de telefon.
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="container footer-inner">
+    <div>
+      © <span id="year"></span> Termopane Expert. Toate drepturile rezervate.
+    </div>
+    <div class="footer-links">
+      <a href="#acasa">Acasă</a>
+      <span>•</span>
+      <a href="#servicii">Servicii</a>
+      <span>•</span>
+      <a href="#contact">Contact</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // An actual nav toggle; no external dependencies
+  function toggleNav() {
+    var nav = document.getElementById('nav-mobile');
+    if (!nav) return;
+    var current = window.getComputedStyle(nav).display;
+    nav.style.display = current === 'none' ? 'block' : 'none';
+  }
+
+  // Set current year in footer
+  document.getElementById('year').textContent = new Date().getFullYear();
+</script>
+
+</body>
+</html>
