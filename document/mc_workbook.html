@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" />
+  <title>Workbook pentru elevi – Modelul Coeziv</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --accent: #0ea5e9;
+      --accent-soft: #e0f2fe;
+      --text: #0f172a;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .page {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 20px 14px 34px;
+    }
+
+    header {
+      background: linear-gradient(135deg, #e0f2fe, #f0f9ff);
+      border-radius: 24px;
+      padding: 16px 16px 14px;
+      border: 1px solid var(--border);
+      box-shadow: 0 16px 28px rgba(0,0,0,0.05);
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 1.45rem;
+    }
+
+    .subtitle {
+      margin: 0;
+      font-size: 0.92rem;
+      color: var(--muted);
+    }
+
+    main {
+      margin-top: 16px;
+      display: grid;
+      gap: 14px;
+    }
+
+    section {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 14px 16px 14px;
+      border: 1px solid var(--border);
+      box-shadow: 0 12px 24px rgba(15,23,42,0.04);
+    }
+
+    h2 {
+      margin: 0 0 6px;
+      font-size: 1.1rem;
+      color: #075985;
+    }
+
+    p {
+      margin: 0 0 8px;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+
+    .explain {
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .area {
+      border: 1px dashed var(--border);
+      background: #f8fafc;
+      border-radius: 14px;
+      min-height: 90px;
+      padding: 10px 12px;
+      margin-top: 6px;
+    }
+
+    .area.big { min-height: 140px; }
+
+    .label {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .step-box {
+      display: grid;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .step {
+      background: #f1f5f9;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      padding: 10px 12px;
+    }
+
+    .step-title {
+      font-weight: 600;
+      font-size: 0.92rem;
+      margin-bottom: 4px;
+      color: #0f172a;
+    }
+
+    .scale {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.8rem;
+      margin-top: 6px;
+      color: var(--muted);
+    }
+
+    .box {
+      background: var(--accent-soft);
+      border: 1px solid #bae6fd;
+      border-radius: 14px;
+      padding: 10px 12px;
+      margin-top: 10px;
+      font-size: 0.9rem;
+    }
+
+    footer {
+      margin-top: 14px;
+      text-align: center;
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    .checklist {
+      margin-top: 8px;
+      font-size: 0.9rem;
+    }
+
+    .checklist label {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .line {
+      border-bottom: 1px solid var(--border);
+      margin: 6px 0;
+      height: 1px;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>Workbook · Modelul Coeziv</h1>
+      <p class="subtitle">Caiet de lucru pentru elevi · claritate, pași mici, gândire curată</p>
+    </header>
+
+    <main>
+
+      <!-- INTRO -->
+      <section>
+        <h2>Cum folosești acest workbook</h2>
+        <p class="explain">
+          Acest caiet nu se notează. Nu e despre „corect” sau „greșit”.  
+          Este un spațiu sigur în care îți clarifici gândurile.
+        </p>
+        <div class="box">
+          Regulă simplă: scrii cinstit pentru tine, nu ca să impresionezi.
+        </div>
+      </section>
+
+      <!-- FAZA 1 -->
+      <section>
+        <h2>Faza 1 · Explorare (Scoate haosul la lumină)</h2>
+        <p class="explain">Gândește-te la o situație reală din viața ta care îți ocupă mintea.</p>
+
+        <div class="label">Ce situație aleg?</div>
+        <div class="area"></div>
+
+        <div class="label">Tot ce îmi vine în minte despre asta (scrie liber)</div>
+        <div class="area big"></div>
+
+        <div class="label">Cum mă simt când mă gândesc la asta?</div>
+        <div class="area"></div>
+      </section>
+
+      <!-- FAZA 2 -->
+      <section>
+        <h2>Faza 2 · Coeziune (Leagă punctele)</h2>
+        <p class="explain">Recitește ce ai scris și caută tipare.</p>
+
+        <div class="label">Idei care se repetă</div>
+        <div class="area"></div>
+
+        <div class="label">Ce pare cel mai important?</div>
+        <div class="area"></div>
+
+        <div class="label">Dacă ar fi să explic problema mea într-o singură propoziție, ar fi:</div>
+        <div class="area"></div>
+      </section>
+
+      <!-- FAZA 3 -->
+      <section>
+        <h2>Faza 3 · Decizie (Pasul mic, dar real)</h2>
+        <p class="explain">Nu cauți pasul perfect. Cauți pasul posibil.</p>
+
+        <div class="label">3 opțiuni realiste</div>
+        <div class="area"></div>
+
+        <div class="label">Opțiunea pe care o aleg acum</div>
+        <div class="area"></div>
+
+        <div class="label">Cât de mic pot face acest pas?</div>
+        <div class="area"></div>
+
+        <div class="label">Plan concret</div>
+        <div class="step-box">
+          <div class="step">
+            <div class="step-title">Voi face:</div>
+            <div class="line"></div>
+          </div>
+          <div class="step">
+            <div class="step-title">În ziua:</div>
+            <div class="line"></div>
+          </div>
+          <div class="step">
+            <div class="step-title">La ora:</div>
+            <div class="line"></div>
+          </div>
+          <div class="step">
+            <div class="step-title">În locul:</div>
+            <div class="line"></div>
+          </div>
+        </div>
+
+        <div class="label">Cât de sigur sunt că pot face acest pas?</div>
+        <div class="scale">
+          <span>1 (foarte nesigur)</span>
+          <span>10 (foarte sigur)</span>
+        </div>
+      </section>
+
+      <!-- FAZA 4 -->
+      <section>
+        <h2>Faza 4 · Integrare (Ce am învățat)</h2>
+        <p class="explain">Revii aici după ce ai încercat pasul ales.</p>
+
+        <div class="checklist">
+          <label><input type="checkbox" /> Am făcut pasul</label>
+          <label><input type="checkbox" /> L-am făcut parțial</label>
+          <label><input type="checkbox" /> Nu l-am făcut încă</label>
+        </div>
+
+        <div class="label">Ce a mers bine?</div>
+        <div class="area"></div>
+
+        <div class="label">Ce a fost greu?</div>
+        <div class="area"></div>
+
+        <div class="label">Ce păstrez pentru data viitoare?</div>
+        <div class="area"></div>
+
+        <div class="label">Ce schimb?</div>
+        <div class="area"></div>
+
+        <div class="label">Ce renunț să mai fac?</div>
+        <div class="area"></div>
+      </section>
+
+      <!-- FINAL -->
+      <section>
+        <h2>Reflecție finală</h2>
+        <p class="explain">Completează după ce ai parcurs toate fazele.</p>
+
+        <div class="label">Ce am descoperit despre mine?</div>
+        <div class="area"></div>
+
+        <div class="label">Ce e mai clar acum decât înainte?</div>
+        <div class="area"></div>
+
+        <div class="box">
+          Nu trebuie să fii perfect.  
+          Trebuie doar să fii sincer cu tine.
+        </div>
+      </section>
+
+    </main>
+
+    <footer>
+      Workbook educațional · Poate fi tipărit sau folosit digital.
+    </footer>
+  </div>
+</body>
+</html>
