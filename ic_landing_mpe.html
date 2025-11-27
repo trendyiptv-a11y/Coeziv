@@ -1086,68 +1086,67 @@
 
    
     function computeMpe(icStruct, icDir, volIndex) {
-      const ic = Number(icStruct);
-      const dir = Number(icDir);
-      const vol = Number(volIndex);
+  const ic = Number(icStruct);
+  const dir = Number(icDir);
+  const vol = Number(volIndex);
 
-      if (!Number.isFinite(ic) || !Number.isFinite(dir) || !Number.isFinite(vol)) {
-        return null;
-      }
+  if (!Number.isFinite(ic) || !Number.isFinite(dir) || !Number.isFinite(vol)) {
+    return null;
+  }
 
-      // CRS = MPE score
-      const mpeScore = 0.45 * ic + 0.40 * dir + 0.15 * vol;
+  // MPE recalibrat: structură > direcțional > vol
+  const mpeScore = 0.50 * ic + 0.35 * dir + 0.15 * vol;
 
-      // Probabilitate de continuare trend (0–1)
-      const trendProb = 0.6 * (dir / 100) + 0.4 * (ic / 100);
+  // Probabilitate de continuare trend (0–1)
+  const trendProb = 0.6 * (dir / 100) + 0.4 * (ic / 100);
 
-      // Regim desk în funcție de MPE
-      let regimeCode = "NEUTRAL";
-      let regimeLabel = "Neutru (capital preservation)";
-      let exposureCap = 0.4;
-      let biasText =
-        "Bias operațional: range trading. Poziții reduse, risc controlat.";
+  // Regim desk în funcție de MPE (praguri noi)
+  let regimeCode;
+  let regimeLabel;
+  let exposureCap;
+  let biasText;
 
-      if (mpeScore >= 70) {
-        regimeCode = "RISK_ON";
-        regimeLabel = "Risk-On (trend instituțional)";
-        exposureCap = 1.0;
-        biasText =
-          "Bias operațional: long pe corecții, continuare de trend. Expunere progresivă.";
-      } else if (mpeScore >= 50) {
-        regimeCode = "CONTROLLED_RISK_ON";
-        regimeLabel = "Risk-On controlat";
-        exposureCap = 0.75;
-        biasText =
-          "Bias operațional: long selectiv, focus pe setup-uri cu probabilitate bună.";
-      } else if (mpeScore >= 35) {
-        regimeCode = "NEUTRAL";
-        regimeLabel = "Neutru (capital preservation)";
-        exposureCap = 0.4;
-        biasText =
-          "Bias operațional: range trading, protejarea capitalului, fără poziții agresive.";
-      } else if (mpeScore >= 20) {
-        regimeCode = "RISK_OFF";
-        regimeLabel = "Risk-Off (defensiv)";
-        exposureCap = 0.25;
-        biasText =
-          "Bias operațional: short pe raliuri, leverage redus, focus pe protecția capitalului.";
-      } else {
-        regimeCode = "CRASH_MODE";
-        regimeLabel = "Crash Mode (protejează capitalul)";
-        exposureCap = 0.1;
-        biasText =
-          "Bias operațional: deleveraging, doar hedging și poziții minimale.";
-      }
+  if (mpeScore >= 75) {
+    regimeCode = "RISK_ON_MATURE";
+    regimeLabel = "Trend solid, risc acceptabil";
+    exposureCap = 1.0;
+    biasText =
+      "Bias operațional: trend following long, pyramiding permis pe corecții.";
+  } else if (mpeScore >= 60) {
+    regimeCode = "RISK_ON_EARLY";
+    regimeLabel = "Structură în construcție";
+    exposureCap = 0.75;
+    biasText =
+      "Bias operațional: long progresiv pe pullback-uri, selecție strictă a setup-urilor.";
+  } else if (mpeScore >= 45) {
+    regimeCode = "NEUTRAL_ACTIVE";
+    regimeLabel = "Piață în echilibru";
+    exposureCap = 0.5;
+    biasText =
+      "Bias operațional: range trading, risc controlat, fără poziții agresive.";
+  } else if (mpeScore >= 30) {
+    regimeCode = "RISK_OFF_EARLY";
+    regimeLabel = "Presiune bearish în creștere";
+    exposureCap = 0.3;
+    biasText =
+      "Bias operațional: short selectiv pe raliuri, dimensiuni moderate ale pozițiilor.";
+  } else {
+    regimeCode = "RISK_OFF_MATURE";
+    regimeLabel = "Regim defensiv confirmat";
+    exposureCap = 0.15;
+    biasText =
+      "Bias operațional: hedging prioritar, leverage minim, focus pe protecția capitalului.";
+  }
 
-      return {
-        mpeScore,
-        trendProb,
-        regimeCode,
-        regimeLabel,
-        exposureCap,
-        biasText
-      };
-    }
+  return {
+    mpeScore,
+    trendProb,
+    regimeCode,
+    regimeLabel,
+    exposureCap,
+    biasText
+  };
+}
 
  async function initLandingSnapshot() {
       try {
