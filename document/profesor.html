@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>The Coesive Model · Flipbook</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <style>
+    :root {
+      --bg: #e5e7eb;
+      --bg-top: #f3f4f6;
+      --page-bg: #f9fafb;
+      --ink: #111827;
+      --muted: #6b7280;
+      --line: #e5e7eb;
+      --shadow-strong: 0 22px 50px rgba(15,23,42,0.25);
+      --shadow-soft: 0 14px 32px rgba(15,23,42,0.18);
+      --font-serif: "Georgia", "Times New Roman", serif;
+      --font-sans: system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at top, var(--bg-top), var(--bg));
+      font-family: var(--font-serif);
+      color: var(--ink);
+    }
+
+    h1.app-title {
+      font-size: 0.95rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 12px;
+      text-align: center;
+    }
+
+    .flipbook-wrapper {
+      position: relative;
+      width: min(520px, 100vw - 12px);
+      height: min(780px, 90vh);
+      perspective: 2200px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .book {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+    }
+
+    /* ============ SHEETS & PAGES ============ */
+
+    .sheet {
+      position: absolute;
+      inset: 0;
+      transform-style: preserve-3d;
+      transform-origin: left center;
+      box-shadow: var(--shadow-strong);
+      border-radius: 14px;
+    }
+
+    .sheet::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      pointer-events: none;
+      background: radial-gradient(circle at 0% 0%,
+        rgba(0,0,0,0.25),
+        rgba(0,0,0,0) 60%);
+      opacity: 0;
+      mix-blend-mode: multiply;
+    }
+
+    .page {
+      position: absolute;
+      inset: 0;
+      background: var(--page-bg);
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      padding: 32px 30px;
+      overflow: hidden;
+      backface-visibility: hidden;
+    }
+
+    .page.front { transform: rotateY(0deg); }
+    .page.back  { transform: rotateY(180deg); }
+
+    /* Ordine: prima foaie sus */
+    .sheet:nth-child(1) { z-index: 12; }
+    .sheet:nth-child(2) { z-index: 11; }
+    .sheet:nth-child(3) { z-index: 10; }
+    .sheet:nth-child(4) { z-index: 9; }
+    .sheet:nth-child(5) { z-index: 8; }
+    .sheet:nth-child(6) { z-index: 7; }
+    .sheet:nth-child(7) { z-index: 6; }
+    .sheet:nth-child(8) { z-index: 5; }
+
+    .page-inner {
+      height: 100%;
+      overflow-y: auto;
+    }
+
+    /* ============ TYPO ============ */
+
+    .chapter-label {
+      font-family: var(--font-sans);
+      font-size: 0.85rem;
+      letter-spacing: 0.26em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    .chapter-title {
+      font-size: 1.6rem;
+      line-height: 1.3;
+      text-align: center;
+      margin: 0;
+    }
+
+    .soft-line {
+      width: 90px;
+      height: 1px;
+      background: var(--line);
+      margin: 22px auto 18px auto;
+    }
+
+    h2 {
+      font-size: 1.3rem;
+      margin: 0 0 12px 0;
+    }
+
+    h3 {
+      font-size: 0.95rem;
+      margin: 0 0 8px 0;
+    }
+
+    p {
+      font-size: 0.96rem;
+      line-height: 1.55;
+      margin: 0 0 10px 0;
+    }
+
+    .subtitle {
+      text-align: center;
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin-top: 10px;
+    }
+
+    .quote {
+      font-style: italic;
+      text-align: center;
+      margin-top: 60px;
+      color: var(--muted);
+      font-size: 1.05rem;
+    }
+
+    .work-label {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-top: 12px;
+      margin-bottom: 4px;
+    }
+
+    .work-line {
+      border-bottom: 1px solid var(--line);
+      height: 18px;
+      margin-bottom: 6px;
+    }
+
+    .small-muted {
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    /* ============ FRONT COVER SPECIAL ============ */
+
+    .cover-layout {
+      max-width: 360px;
+      margin: 0 auto;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .cover-badge {
+      font-family: var(--font-sans);
+      font-size: 0.7rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(249,250,251,0.9);
+      margin-bottom: 24px;
+    }
+
+    .cover-title-main {
+      font-size: 1.9rem;
+      line-height: 1.25;
+      margin: 0 0 6px 0;
+    }
+
+    .cover-subtitle {
+      font-size: 0.95rem;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .cover-tagline {
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin-top: 18px;
+    }
+
+    .cover-bottom {
+      width: 100%;
+      padding-top: 24px;
+      border-top: 1px solid var(--line);
+      margin-top: 40px;
+    }
+
+    .cover-author-label {
+      font-family: var(--font-sans);
+      font-size: 0.75rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .cover-author-name {
+      font-size: 1rem;
+    }
+
+    /* ============ ANIMAȚIE „FILĂ CURBATĂ” ============ */
+
+    @keyframes flipForward {
+      0%   { transform: rotateY(0deg); }
+      25%  { transform: rotateY(-45deg) translateZ(4px); }
+      55%  { transform: rotateY(-135deg) translateZ(4px); }
+      100% { transform: rotateY(-180deg); }
+    }
+
+    @keyframes flipBack {
+      0%   { transform: rotateY(-180deg); }
+      45%  { transform: rotateY(-60deg) translateZ(4px); }
+      100% { transform: rotateY(0deg); }
+    }
+
+    @keyframes shadowForward {
+      0%   { opacity: 0.0; }
+      25%  { opacity: 0.4; }
+      60%  { opacity: 0.3; }
+      100% { opacity: 0.18; }
+    }
+
+    @keyframes shadowBack {
+      0%   { opacity: 0.18; }
+      40%  { opacity: 0.4; }
+      100% { opacity: 0.0; }
+    }
+
+    .anim-forward {
+      animation: flipForward 0.85s cubic-bezier(0.25,0.1,0.15,1) forwards;
+    }
+    .anim-forward::before {
+      animation: shadowForward 0.85s ease-out forwards;
+    }
+
+    .anim-back {
+      animation: flipBack 0.85s cubic-bezier(0.25,0.1,0.15,1) forwards;
+    }
+    .anim-back::before {
+      animation: shadowBack 0.85s ease-out forwards;
+    }
+
+    .flipped {
+      transform: rotateY(-180deg);
+      box-shadow: var(--shadow-soft);
+    }
+
+    /* ============ CONTROALE ============ */
+
+    .controls {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      align-items: center;
+      margin-top: 6px;
+      font-family: var(--font-sans);
+    }
+
+    .nav-btn {
+      border: 1px solid var(--line);
+      background: white;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(15,23,42,0.18);
+      color: var(--muted);
+    }
+
+    .nav-btn:hover {
+      border-color: var(--muted);
+      color: var(--ink);
+    }
+
+    .page-indicator {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    /* ============ RESPONSIVE ============ */
+
+    @media (max-width: 768px) {
+      body {
+        padding: 6px 0;
+      }
+
+      .flipbook-wrapper {
+        width: min(440px, 100vw - 8px);
+        height: 92vh;
+      }
+
+      .page {
+        padding: 22px 18px;
+      }
+
+      p {
+        font-size: 0.9rem;
+      }
+
+      .chapter-title {
+        font-size: 1.4rem;
+      }
+
+      .cover-title-main {
+        font-size: 1.6rem;
+      }
+
+      .quote {
+        font-size: 0.95rem;
+        margin-top: 40px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1 class="app-title">THE COESIVE MODEL · FLIPBOOK</h1>
+
+<div class="flipbook-wrapper">
+  <div class="book" id="book">
+
+    <!-- SHEET 1 · FRONT COVER (nouă) -->
+    <div class="sheet">
+      <div class="page front">
+        <div class="page-inner">
+          <div class="cover-layout">
+            <div>
+              <div class="cover-badge">Coesiology Series</div>
+              <h2 class="cover-title-main">The Coesive Model</h2>
+              <p class="cover-subtitle">
+                A Coesive Thinking & Educational Framework<br>
+                for Clarity in an Uncertain World
+              </p>
+              <p class="cover-tagline">
+                From confusion, to coherent movement, to sustainable learning.
+              </p>
+            </div>
+
+            <div class="cover-bottom">
+              <div class="cover-author-label">Author</div>
+              <div class="cover-author-name">YOUR NAME</div>
+              <p class="small-muted" style="margin-top:10px;">
+                with the Coesive Education Approach
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="page back">
+        <div class="page-inner">
+          <p class="quote">
+            This book is a quiet invitation<br>
+            to treat your confusion with respect<br>
+            and your thinking with structure.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SHEET 2 · DISCLAIMER / CH1 TITLE -->
+    <div class="sheet">
+      <div class="page front">
+        <div class="page-inner">
+          <h3 class="small-muted" style="text-transform:uppercase; letter-spacing:0.18em;">
+            Disclaimer
+          </h3>
+          <p>
+            This book presents the <strong>Coesive Model</strong> and the concept of
+            <strong>Applied Coesiology</strong> as original conceptual frameworks. They are
+            offered as educational and cognitive tools designed to support clarity, coherence,
+            and reflective thinking.
+          </p>
+          <p>
+            This work does <strong>not</strong> claim to replace psychological, medical,
+            therapeutic, or scientific disciplines. It does not provide medical, psychological,
+            or clinical advice. The content is intended for educational and developmental purposes
+            only.
+          </p>
+          <p>
+            Any similarities with existing models or frameworks are conceptual in nature and not
+            the result of copying or reproduction. All formulations, structures, and expressions in
+            this work are original to this publication.
+          </p>
+          <p style="margin-top:24px; text-align:center;" class="small-muted">
+            © YOUR NAME · All rights reserved.
+          </p>
+        </div>
+      </div>
+      <div class="page back">
+        <div class="page-inner" style="text-align:center;">
+          <div class="chapter-label">CHAPTER 1</div>
+          <h2 class="chapter-title">The Teacher as Architect of the Mind</h2>
+          <div class="soft-line"></div>
+          <p class="subtitle">
+            Moving from delivering content to designing cognitive architecture.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SHEET 3 · CH1 1.1 + 1.2 -->
+    <div class="sheet">
+      <div class="page front">
+        <div class="page-inner">
+          <h2>1.1 The Invisible Shift</h2>
+          <p>
+            Something subtle has changed in education, and most systems have not caught up.
+          </p>
+          <p>
+            Teachers are not facing weaker students. They are facing a different neurological
+            landscape. The children in today’s classrooms are not less intelligent, not less
+            capable, and not less curious. They are more stimulated, more fragmented, and
+            less structurally supported.
+          </p>
+          <p>
+            There is a difference.
+          </p>
+          <p class="quote" style="margin-top:20px; margin-bottom:20px;">
+            A fragmented mind is not a broken mind.<br>
+            It is a mind without scaffolding.
+          </p>
+          <p>
+            When the mind lacks internal scaffolding, everything feels louder, faster, heavier.
+            Thoughts do not arrange themselves. Emotions bleed into cognition. Attention does not
+            flow, it flickers. This is not laziness. This is not indiscipline. This is architecture
+            missing from the inside.
+          </p>
+          <p>
+            Most classroom problems are not behavioral problems.<br>
+            They are structural problems.
+          </p>
+          <p>
+            The modern teacher has become, often without training, a frontline worker in a cognitive
+            crisis. And yet, almost no one calls it what it is. We label the children. We diagnose
+            the symptoms. We invent new methods of control.
+          </p>
+          <p>
+            But we rarely ask the foundational question:
+          </p>
+          <p class="small-muted" style="margin-top:8px;">
+            What structure does this mind need in order to function?
+          </p>
+        </div>
+      </div>
+      <div class="page back">
+        <div class="page-inner">
+          <h2>1.2 Why Information No Longer Works</h2>
+          <p>
+            Education has traditionally relied on the idea that knowledge itself creates clarity.
+          </p>
+          <p>
+            If we explain better.<br>
+            If we simplify more.<br>
+            If we repeat more often.
+          </p>
+          <p>
+            This model worked in a slower, less fragmented world. Today it fails quietly and
+            constantly.
+          </p>
+          <p>
+            Many students “know” the material and still cannot access it when it matters. Under
+            stress, under time pressure, under social exposure, the knowledge collapses. The child
+            freezes, blanks out, dissociates.
+          </p>
+          <p>
+            This is not a knowledge failure.<br>
+            This is an access failure.
+          </p>
+          <p>
+            When the nervous system is in threat mode, the brain stops prioritizing learning and
+            starts prioritizing survival. Memory retrieval shrinks. Logical sequencing weakens.
+            The child does not become stupid. The child becomes unsafe.
+          </p>
+          <p>
+            No amount of better explanation can override an unsafe nervous system.
+          </p>
+          <p>
+            Traditional education continues to behave as if children are empty containers for
+            information. But the mind is not a container. It is an architecture. If that architecture
+            is unstable, no content will sit properly inside it.
+          </p>
+          <p>
+            More information without structure creates overload.<br>
+            Overload creates anxiety.<br>
+            Anxiety creates avoidance.
+          </p>
+          <p>
+            The problem was never that students needed more pressure.<br>
+            The problem is that they needed more internal structure.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SHEET 4 · CH1 1.3 + 1.4 -->
+    <div class="sheet">
+      <div class="page front">
+        <div class="page-inner">
+          <h2>1.3 From Instructor to Architect</h2>
+          <p>
+            This is the moment the teacher’s role changes.
+          </p>
+          <p>
+            Most teachers are trained as instructors.
+          </p>
+          <p>
+            An instructor transmits knowledge.<br>
+            An instructor measures performance.<br>
+            An instructor manages behavior.
+          </p>
+          <p>
+            But modern classrooms do not require more instructors. They require architects.
+          </p>
+          <p>
+            An architect does not push information into a space.<br>
+            An architect designs a structure that holds weight.
+          </p>
+          <p>
+            Architects think in processes, not reactions.<br>
+            In rhythm, not urgency.<br>
+            In stability, not control.
+          </p>
+          <p>
+            This does not remove authority from the teacher. It deepens it.
+          </p>
+          <p class="small-muted" style="margin-top:8px;">
+            Control creates silence.  
+            Structure creates safety.  
+            Safety creates learning.
+          </p>
+          <p>
+            A teacher who sees themselves as an architect stops asking:
+          </p>
+          <p class="small-muted">
+            “How do I make them behave?”
+          </p>
+          <p>
+            And starts asking:
+          </p>
+          <p class="small-muted">
+            “What structure is missing here?”
+          </p>
+          <p>
+            You are not here to force intelligence.<br>
+            You are here to make intelligence feel safe enough to appear.
+          </p>
+        </div>
+      </div>
+      <div class="page back">
+        <div class="page-inner">
+          <h2>1.4 The Principle of Cognitive Safety</h2>
+          <p>
+            The Coesive Model is built on a simple truth:
+          </p>
+          <p class="small-muted">
+            Learning is impossible in an unsafe nervous system.
+          </p>
+          <p>
+            Cognitive safety means:
+          </p>
+          <p>
+            – The student does not fear humiliation.<br>
+            – The student does not anticipate danger.<br>
+            – The student is not in chronic alert.
+          </p>
+          <p>
+            This is not emotional softness.  
+            This is neurological reality.
+          </p>
+          <p>
+            When the brain perceives threat, it redirects resources away from reasoning toward
+            protection. That protection can look like:
+          </p>
+          <p>
+            – Aggression  
+            – Shutdown  
+            – Avoidance  
+            – Hyperactivity  
+            – Dissociation
+          </p>
+          <p>
+            These are not personality flaws.  
+            They are survival strategies.
+          </p>
+          <p>
+            In the Coesive Model, clarity is not forced. It is supported.
+          </p>
+          <p>
+            The relationship can be expressed simply:
+          </p>
+          <p class="small-muted" style="margin-top:6px;">
+            Clarity = Safety + Structure + Time
+          </p>
+          <p>
+            Not motivation.<br>
+            Not pressure.<br>
+            Not competition.
+          </p>
+          <p>
+            A teacher establishes safety not through kindness alone, but through predictability,
+            tone, pacing, and ritual. A structured environment calms the nervous system because the
+            child can anticipate what comes next.
+          </p>
+          <p>
+            Predictability is not boring.  
+            Predictability is regulating.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SHEET 5 · CH1 1.5 + 1.6 (narațiune) -->
+    <div class="sheet">
+      <div class="page front">
+        <div class="page-inner">
+          <h2>1.5 The Classroom as Cognitive Architecture</h2>
+          <p>
+            A classroom is not just a physical room.  
+            It is a cognitive environment.
+          </p>
+          <p>
+            Everything in it communicates structure or chaos.
+          </p>
+          <p>
+            The teacher’s voice.  
+            The speed of transitions.  
+            The tolerance for silence.  
+            The way mistakes are handled.  
+            The rhythm of the hour.
+          </p>
+          <p>
+            These are not secondary details.  
+            These are architectural elements.
+          </p>
+          <p>
+            A loud classroom is not a bad classroom.  
+            It is usually a classroom without structure.
+          </p>
+          <p>
+            When structure appears, the noise often resolves itself without punishment.
+          </p>
+          <p>
+            When students act out, freeze, or collapse mentally, it is rarely because they are
+            “bad”. It is because the cognitive environment feels unsafe or unpredictable.
+          </p>
+          <p>
+            The teacher’s task is not to eliminate chaos. It is to contain it.
+          </p>
+          <p>
+            Containment does not mean control.  
+            Containment means: “Nothing here will overwhelm you.”
+          </p>
+          <p>
+            That is architecture.
+          </p>
+        </div>
+      </div>
+      <div class="page back">
+        <div class="page-inner">
+          <h2>1.6 Identity Shift · Reflection for Teachers</h2>
+          <p>
+            This model asks something uncomfortable of teachers.
+          </p>
+          <p>
+            It asks them to stop seeing themselves as:
+          </p>
+          <p>
+            – Deliverers of curriculum  
+            – Managers of behavior  
+            – Controllers of silence
+          </p>
+          <p>
+            And start seeing themselves as:
+          </p>
+          <p>
+            – Builders of mental scaffolding  
+            – Designers of safety  
+            – Architects of learning environments
+          </p>
+          <p>
+            Before continuing, pause.
+          </p>
+          <p>
+            Consider the following:
+          </p>
+          <p>
+            – When a student resists, do you interpret it as defiance or as structural overload?<br>
+            – When your class becomes chaotic, do you search for stricter rules or for missing structure?<br>
+            – Are you more focused on finishing content or stabilizing minds?
+          </p>
+          <p>
+            And the most important question:
+          </p>
+          <p class="small-muted">
+            Who are you in the classroom?  
+            An instructor of information, or an architect of minds?
+          </p>
+          <p>
+            This book is built for the teachers who choose architecture.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SHEET 6 · Workbook reflection + CH2 title -->
+    <div class="sheet">
+      <div class="page front">
+        <div class="page-inner">
+          <h3 style="font-size:0.9rem; text-transform:uppercase; letter-spacing:0.16em; color:var(--muted); margin-bottom:8px;">
+            Reflection · After Chapter 1
+          </h3>
+
+          <p class="work-label">What currently feels unclear in your teaching practice?</p>
+          <div class="work-line"></div>
+          <div class="work-line"></div>
+          <div class="work-line"></div>
+
+          <p class="work-label">Where do you feel mentally fragmented as a teacher?</p>
+          <div class="work-line"></div>
+          <div class="work-line"></div>
+
+          <p class="work-label">In which moments do you rely on control instead of structure?</p>
+          <div class="work-line"></div>
+          <div class="work-line"></div>
+
+          <p class="work-label">What would it mean to design your classroom as a cognitive architecture, not just a schedule?</p>
+          <div class="work-line"></div>
+          <div class="work-line"></div>
+        </div>
+      </div>
+      <div class="page back">
+        <div class="page-inner" style="text-align:center;">
+          <div class="chapter-label">CHAPTER 2</div>
+          <h2 class="chapter-title">What the Coesive Model Is<br>(and What It Is Not)</h2>
+          <div class="soft-line"></div>
+          <p class="subtitle">
+            A structural framework, not a therapy, not a personality system, not a promise of control.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SHEET 7 · CH2 Intro + quote (scurt) -->
+    <div class="sheet">
+      <div class="page front">
+        <div class="page-inner">
+          <h2>What the Coesive Model Is</h2>
+          <p>
+            The Coesive Model is a thinking framework designed to help the mind move from
+            fragmentation to internal coherence. It is not built to make people faster or more
+            impressive. It is built around one priority: structure.
+          </p>
+          <p>
+            Most systems that promise clarity focus on outcomes: better grades, better performance,
+            better results. The Coesive Model is different. It focuses on the internal architecture
+            that makes those outcomes possible.
+          </p>
+          <p>
+            At its core, the model assumes that human confusion is not a lack of intelligence; it is
+            a lack of cognitive architecture. When architecture appears, clarity becomes possible.
+          </p>
+        </div>
+      </div>
+      <div class="page back">
+        <div class="page-inner">
+          <p class="quote">
+            The Coesive Model is not a promise of control.<br>
+            It is a way to stay coherent when control is impossible.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SHEET 8 · BACK COVER -->
+    <div class="sheet">
+      <div class="page front">
+        <div class="page-inner" style="display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center;">
+          <div class="chapter-label">BACK COVER</div>
+          <h2 class="chapter-title" style="margin-bottom:10px;">
+            The Coesive Model
+          </h2>
+          <div class="soft-line"></div>
+          <p class="subtitle" style="max-width:260px;">
+            A structural approach to thinking, learning, and teaching in uncertain worlds.
+          </p>
+          <p class="small-muted" style="margin-top:32px;">
+            Part of the Coesive Education Framework
+          </p>
+          <p class="small-muted" style="margin-top:6px;">
+            www.your-site-here.com
+          </p>
+        </div>
+      </div>
+      <div class="page back">
+        <div class="page-inner" style="display:flex; align-items:center; justify-content:center;">
+          <p class="small-muted" style="text-align:center;">
+            Thank you for reading.<br>
+            Treat your mind as architecture, not as a problem.
+          </p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="controls">
+  <button class="nav-btn" id="prevBtn">&larr; Previous</button>
+  <span class="page-indicator" id="pageIndicator">Page 1</span>
+  <button class="nav-btn" id="nextBtn">Next &rarr;</button>
+</div>
+
+<script>
+  const sheets = Array.from(document.querySelectorAll('.sheet'));
+  const indicator = document.getElementById('pageIndicator');
+  let current = 0;
+
+  function updateIndicator() {
+    indicator.textContent = `Page ${current + 1}`;
+  }
+
+  function goNext() {
+    if (current >= sheets.length) return;
+    const sheet = sheets[current];
+
+    sheet.classList.remove('anim-back');
+    void sheet.offsetWidth; // reset animație
+    sheet.classList.add('anim-forward');
+
+    sheet.addEventListener('animationend', function handler(e) {
+      if (e.animationName === 'flipForward') {
+        sheet.classList.remove('anim-forward');
+        sheet.classList.add('flipped');
+        sheet.removeEventListener('animationend', handler);
+      }
+    });
+
+    current++;
+    updateIndicator();
+  }
+
+  function goPrev() {
+    if (current <= 0) return;
+    current--;
+    const sheet = sheets[current];
+
+    sheet.classList.remove('flipped');
+    sheet.classList.remove('anim-forward');
+    void sheet.offsetWidth;
+    sheet.classList.add('anim-back');
+
+    sheet.addEventListener('animationend', function handler(e) {
+      if (e.animationName === 'flipBack') {
+        sheet.classList.remove('anim-back');
+        sheet.removeEventListener('animationend', handler);
+      }
+    });
+
+    updateIndicator();
+  }
+
+  document.getElementById('nextBtn').addEventListener('click', goNext);
+  document.getElementById('prevBtn').addEventListener('click', goPrev);
+
+  document.getElementById('book').addEventListener('click', (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    if (x > rect.width / 2) goNext();
+    else goPrev();
+  });
+
+  updateIndicator();
+</script>
+
+</body>
+</html>
