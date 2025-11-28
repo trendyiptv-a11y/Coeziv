@@ -98,13 +98,14 @@
     .page.back  { transform: rotateY(180deg); }
 
     /* Ordine: prima foaie sus */
-    .sheet:nth-child(1) { z-index: 10; }
-    .sheet:nth-child(2) { z-index: 9; }
-    .sheet:nth-child(3) { z-index: 8; }
-    .sheet:nth-child(4) { z-index: 7; }
-    .sheet:nth-child(5) { z-index: 6; }
-    .sheet:nth-child(6) { z-index: 5; }
-    .sheet:nth-child(7) { z-index: 4; }
+    .sheet:nth-child(1) { z-index: 12; }
+    .sheet:nth-child(2) { z-index: 11; }
+    .sheet:nth-child(3) { z-index: 10; }
+    .sheet:nth-child(4) { z-index: 9; }
+    .sheet:nth-child(5) { z-index: 8; }
+    .sheet:nth-child(6) { z-index: 7; }
+    .sheet:nth-child(7) { z-index: 6; }
+    .sheet:nth-child(8) { z-index: 5; }
 
     .page-inner {
       height: 100%;
@@ -303,7 +304,7 @@
 <div class="flipbook-wrapper">
   <div class="book" id="book">
 
-    <!-- SHEET 1 · COVER -->
+    <!-- SHEET 1 · FRONT COVER -->
     <div class="sheet">
       <div class="page front">
         <div class="page-inner" style="text-align:center;">
@@ -511,7 +512,7 @@
       </div>
     </div>
 
-    <!-- SHEET 6 · REFLECTION PAGE -->
+    <!-- SHEET 6 · REFLECTION PAGE + CH2 TITLE -->
     <div class="sheet">
       <div class="page front">
         <div class="page-inner">
@@ -575,6 +576,36 @@
           <p class="quote">
             The Coesive Model is not a promise of control.<br>
             It is a way to stay coherent when control is impossible.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SHEET 8 · BACK COVER -->
+    <div class="sheet">
+      <div class="page front">
+        <div class="page-inner" style="display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center;">
+          <div class="chapter-label">BACK COVER</div>
+          <h2 class="chapter-title" style="margin-bottom:10px;">
+            The Coesive Model
+          </h2>
+          <div class="soft-line"></div>
+          <p class="subtitle" style="max-width:260px;">
+            A structural approach to thinking, learning, and teaching in uncertain worlds.
+          </p>
+          <p class="small-muted" style="margin-top:32px;">
+            Part of the Coesive Education Framework
+          </p>
+          <p class="small-muted" style="margin-top:6px;">
+            www.your-site-here.com
+          </p>
+        </div>
+      </div>
+      <div class="page back">
+        <div class="page-inner" style="display:flex; align-items:center; justify-content:center;">
+          <p class="small-muted" style="text-align:center;">
+            Thank you for reading.<br>
+            Treat your mind as architecture, not as a problem.
           </p>
         </div>
       </div>
