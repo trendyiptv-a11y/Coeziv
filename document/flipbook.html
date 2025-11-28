@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <title>The Coesive Model · Flipbook</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+
   <style>
     :root {
       --bg: #e5e7eb;
@@ -22,33 +23,28 @@
 
     body {
       margin: 0;
-      padding: 0;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      background:
-        radial-gradient(circle at top, var(--bg-top), var(--bg));
+      background: radial-gradient(circle at top, var(--bg-top), var(--bg));
       font-family: var(--font-serif);
       color: var(--ink);
     }
 
     h1.app-title {
-      font-family: var(--font-serif);
-      font-size: 1.2rem;
-      letter-spacing: 0.22em;
+      font-size: 1.1rem;
+      letter-spacing: 0.2em;
       text-transform: uppercase;
       color: var(--muted);
-      margin-bottom: 14px;
-      text-align: center;
+      margin-bottom: 12px;
     }
 
     .flipbook-wrapper {
       position: relative;
-      width: min(520px, 100vw - 20px);
+      width: min(520px, 100vw - 14px);
       height: min(760px, 88vh);
-      margin: 0 auto 12px auto;
       perspective: 2200px;
       display: flex;
       align-items: center;
@@ -62,87 +58,84 @@
       cursor: pointer;
     }
 
-    /* O foaie = o pagină (față / verso) */
+    /* SHEET + CURVATURA */
     .sheet {
       position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+      inset: 0;
       transform-style: preserve-3d;
       transform-origin: left center;
-      transition:
-        transform 0.9s cubic-bezier(0.33,0.01,0.21,0.99),
-        box-shadow 0.9s cubic-bezier(0.33,0.01,0.21,0.99);
+      transition: transform 1s cubic-bezier(0.25,0.1,0.15,1),
+                  box-shadow 1s cubic-bezier(0.25,0.1,0.15,1);
       box-shadow: var(--shadow-strong);
-      border-radius: 12px;
+      border-radius: 14px;
     }
+
+    .sheet::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      pointer-events: none;
+      background: radial-gradient(circle at 0% 0%,
+        rgba(0,0,0,0.25),
+        rgba(0,0,0,0) 60%);
+      opacity: 0;
+      transition: opacity 0.5s ease-out;
+    }
+
+    .sheet.turning-forward {
+      transform:
+        rotateY(-45deg)
+        rotateX(1deg)
+        skewY(1.4deg)
+        translateZ(6px);
+    }
+
+    .sheet.turning-back {
+      transform:
+        rotateY(-135deg)
+        rotateX(1deg)
+        skewY(1.4deg)
+        translateZ(6px);
+    }
+
+    .sheet.flipped {
+      transform:
+        translateX(-6%)
+        rotateY(-180deg)
+        skewY(0.3deg);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .sheet.turning-forward::before,
+    .sheet.turning-back::before {
+      opacity: 0.45;
+    }
+    .sheet.flipped::before { opacity: 0.15; }
 
     .page {
       position: absolute;
       inset: 0;
       background: var(--page-bg);
-      border-radius: 12px;
+      border-radius: 14px;
       border: 1px solid var(--line);
-      padding: 30px 30px;
+      padding: 32px;
       overflow: hidden;
       backface-visibility: hidden;
     }
 
-    .page.front  { transform: rotateY(0deg); }
-    .page.back   { transform: rotateY(180deg); }
+    .page.front { transform: rotateY(0deg); }
+    .page.back  { transform: rotateY(180deg); }
 
-    .sheet.flipped {
-      transform: translateX(-4%) rotateY(-180deg) skewY(0.7deg);
-      box-shadow: var(--shadow-soft);
-    }
-
-    /* Straturi – prima foaie deasupra */
     .sheet:nth-child(1) { z-index: 8; }
     .sheet:nth-child(2) { z-index: 7; }
     .sheet:nth-child(3) { z-index: 6; }
     .sheet:nth-child(4) { z-index: 5; }
     .sheet:nth-child(5) { z-index: 4; }
-    .sheet:nth-child(6) { z-index: 3; }
-    .sheet:nth-child(7) { z-index: 2; }
-    .sheet:nth-child(8) { z-index: 1; }
 
     .page-inner {
-      width: 100%;
       height: 100%;
       overflow-y: auto;
-    }
-
-    .page-inner h2 {
-      font-family: var(--font-serif);
-      font-size: 1.25rem;
-      margin: 0 0 10px 0;
-    }
-
-    .page-inner h3 {
-      font-family: var(--font-serif);
-      font-size: 0.9rem;
-      text-transform: uppercase;
-      letter-spacing: 0.14em;
-      color: var(--muted);
-      margin: 0 0 6px 0;
-    }
-
-    .page-inner p {
-      font-size: 0.95rem;
-      line-height: 1.55;
-      margin: 0 0 8px 0;
-    }
-
-    .center { text-align: center; }
-
-    .quote {
-      font-style: italic;
-      font-size: 1.1rem;
-      margin-top: 40px;
-      margin-bottom: 40px;
-      color: var(--muted);
-      text-align: center;
     }
 
     .chapter-label {
@@ -156,10 +149,8 @@
     }
 
     .chapter-title {
-      font-family: var(--font-serif);
-      font-size: 1.5rem;
+      font-size: 1.6rem;
       line-height: 1.3;
-      margin-bottom: 6px;
       text-align: center;
     }
 
@@ -167,54 +158,44 @@
       width: 90px;
       height: 1px;
       background: var(--line);
-      margin: 22px auto 0 auto;
+      margin: 20px auto;
     }
 
-    .subtitle {
-      font-size: 0.9rem;
-      color: var(--muted);
-      margin-top: 10px;
+    h2 {
+      font-size: 1.3rem;
+      margin: 0 0 12px 0;
+    }
+
+    p {
+      font-size: 0.96rem;
+      line-height: 1.55;
+      margin-bottom: 10px;
+    }
+
+    .quote {
+      font-style: italic;
       text-align: center;
-    }
-
-    .work-label {
-      font-size: 0.8rem;
+      margin-top: 50px;
       color: var(--muted);
-      margin-bottom: 6px;
-    }
-
-    .work-line {
-      border-bottom: 1px solid var(--line);
-      height: 18px;
-      margin-bottom: 6px;
+      font-size: 1.05rem;
     }
 
     .controls {
       display: flex;
-      gap: 10px;
+      gap: 12px;
       justify-content: center;
       align-items: center;
-      margin-top: 2px;
+      margin-top: 4px;
       font-family: var(--font-sans);
     }
 
     .nav-btn {
       border: 1px solid var(--line);
-      background: #ffffff;
+      background: white;
       padding: 6px 14px;
       border-radius: 999px;
       font-size: 0.8rem;
       cursor: pointer;
-      display: inline-flex;
-      gap: 6px;
-      align-items: center;
-      color: var(--muted);
-      box-shadow: 0 4px 10px rgba(15,23,42,0.15);
-    }
-
-    .nav-btn:hover {
-      border-color: var(--muted);
-      color: var(--ink);
     }
 
     .page-indicator {
@@ -222,40 +203,14 @@
       color: var(--muted);
     }
 
-    /* Mobile – carte mai aproape de utilizator */
     @media (max-width: 768px) {
-      body {
-        padding: 8px 0;
-      }
-
-      h1.app-title {
-        font-size: 0.8rem;
-        letter-spacing: 0.2em;
-        margin-bottom: 8px;
-      }
-
       .flipbook-wrapper {
-        width: min(420px, 100vw - 8px);
-        height: 86vh;
+        width: min(440px, 100vw - 6px);
+        height: 90vh;
       }
-
-      .page {
-        padding: 22px 18px;
-      }
-
-      .page-inner p {
-        font-size: 0.9rem;
-      }
-
-      .chapter-title {
-        font-size: 1.3rem;
-      }
-
-      .quote {
-        font-size: 0.95rem;
-        margin-top: 26px;
-        margin-bottom: 26px;
-      }
+      .page { padding: 22px 18px; }
+      p { font-size: 0.9rem; }
+      .chapter-title { font-size: 1.4rem; }
     }
   </style>
 </head>
@@ -266,178 +221,67 @@
 <div class="flipbook-wrapper">
   <div class="book" id="book">
 
-    <!-- SHEET 1: COVER / BACK-QUOTE -->
-    <div class="sheet" data-sheet="1">
+    <!-- SHEET 1 -->
+    <div class="sheet">
       <div class="page front">
-        <div class="page-inner center">
+        <div class="page-inner" style="text-align:center;">
           <div class="chapter-label">THE COESIVE MODEL</div>
-          <div class="chapter-title">
-            A Thinking and Educational Framework<br>
-            for Clarity in an Uncertain World
-          </div>
+          <div class="chapter-title">A Thinking and Educational Framework</div>
           <div class="soft-line"></div>
-          <div class="subtitle" style="margin-top:18px;">
-            From Confusion to Coherent Action
-          </div>
-          <div class="subtitle" style="margin-top:70px;">
-            YOUR NAME
-          </div>
+          <p style="margin-top:60px;">From Confusion to Coherent Action</p>
         </div>
       </div>
       <div class="page back">
         <div class="page-inner">
-          <p class="quote">
-            This book is a quiet invitation<br>
-            to treat your confusion with respect<br>
-            and your thinking with structure.
-          </p>
+          <div class="quote">A book about clarity and structure.</div>
         </div>
       </div>
     </div>
 
-    <!-- SHEET 2: DISCLAIMER / CH1 TITLE -->
-    <div class="sheet" data-sheet="2">
-      <div class="page front">
-        <div class="page-inner">
-          <h3>Disclaimer</h3>
-          <p>
-            This book presents the <strong>Coesive Model</strong> and the concept of
-            <strong>Applied Coesiology</strong> as original conceptual frameworks. They are offered
-            as educational and cognitive tools designed to support clarity, coherence, and
-            reflective thinking.
-          </p>
-          <p>
-            This work does <strong>not</strong> claim to replace psychological, medical, therapeutic,
-            or scientific disciplines. It does not provide medical, psychological, or clinical
-            advice. The content is intended for educational and developmental purposes only.
-          </p>
-          <p>
-            Any similarities with existing models or frameworks are conceptual in nature and not the
-            result of copying or reproduction. All formulations, structures, and expressions in this
-            work are original to this publication.
-          </p>
-          <p style="margin-top:24px;" class="center">
-            <span style="font-size:0.8rem; color:#6b7280;">
-              © YOUR NAME · All rights reserved.
-            </span>
-          </p>
-        </div>
-      </div>
-      <div class="page back">
-        <div class="page-inner center">
-          <div class="chapter-label">CHAPTER 1</div>
-          <div class="chapter-title">
-            Why the World Needs Clarity<br>
-            More Than Information
-          </div>
-          <div class="soft-line"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- SHEET 3: CH1 TEXT / QUOTE -->
-    <div class="sheet" data-sheet="3">
+    <!-- SHEET 2 -->
+    <div class="sheet">
       <div class="page front">
         <div class="page-inner">
           <h2>Why the World Needs Clarity More Than Information</h2>
-          <p>
-            We live in an age of infinite information and scarce clarity. Never in human history
-            have people had access to so much knowledge, so many tools, so many opinions, and so
-            many systems. And yet, never have so many people felt confused, mentally fragmented,
-            and internally disoriented.
-          </p>
-          <p>
-            The issue is not intelligence. The issue is not access. The issue is not motivation.
-          </p>
-          <p>
-            The issue is the absence of an internal structure capable of holding complexity.
-          </p>
-          <p>
-            Modern education systems focus heavily on <em>what</em> to think. They invest years in
-            teaching people facts, formulas, frameworks, and methods. What they almost never teach
-            is <em>how to organize inner chaos when there are no clear answers</em>. Confusion is
-            treated as weakness. Uncertainty is treated as failure.
-          </p>
-          <p>
-            But confusion is not a failure state. It is the natural starting point of clarity.
-          </p>
+          <p>We live in an age of infinite information and scarce clarity...</p>
         </div>
       </div>
       <div class="page back">
         <div class="page-inner">
-          <p class="quote">
-            Clarity is not the opposite of confusion.<br>
-            Clarity is confusion that has been given structure.
-          </p>
+          <div class="quote">Clarity begins where confusion is respected.</div>
         </div>
       </div>
     </div>
 
-    <!-- SHEET 4: CH1 CONTINUARE / WORKBOOK -->
-    <div class="sheet" data-sheet="4">
+    <!-- SHEET 3 -->
+    <div class="sheet">
       <div class="page front">
         <div class="page-inner">
           <h2>The Cost of Fragmentation</h2>
-          <p>
-            A fragmented mind is not an empty mind. It is a crowded one. People rarely suffer from
-            “not enough ideas”. They suffer from too many unconnected ones. Thoughts collide instead
-            of aligning. Emotions amplify instead of informing. Action becomes either impulsive or
-            frozen.
-          </p>
-          <p>
-            In this state, even good advice becomes noise. Even accurate information feels hostile.
-            Even opportunities feel like threats.
-          </p>
-          <p>
-            The problem is not complexity. The problem is a lack of internal containment:
-            a way to hold everything without collapsing.
-          </p>
+          <p>A fragmented mind is not an empty mind...</p>
         </div>
       </div>
       <div class="page back">
         <div class="page-inner">
-          <h3>Reflection · After Chapter 1</h3>
-          <p class="work-label">What currently feels unclear in your life?</p>
-          <div class="work-line"></div>
-          <div class="work-line"></div>
-          <div class="work-line"></div>
-
-          <p class="work-label" style="margin-top:10px;">Where do you feel mentally fragmented?</p>
-          <div class="work-line"></div>
-          <div class="work-line"></div>
-
-          <p class="work-label" style="margin-top:10px;">
-            What would it mean to approach this with structure instead of speed?
-          </p>
-          <div class="work-line"></div>
-          <div class="work-line"></div>
+          <div class="quote">Structure is not control. It is stability.</div>
         </div>
       </div>
     </div>
 
-    <!-- SHEET 5: CH2 TITLE / QUOTE -->
-    <div class="sheet" data-sheet="5">
+    <!-- SHEET 4 -->
+    <div class="sheet">
       <div class="page front">
-        <div class="page-inner center">
-          <div class="chapter-label">CHAPTER 2</div>
-          <div class="chapter-title">
-            What the Coesive Model Is<br>
-            (and What It Is Not)
-          </div>
-          <div class="soft-line"></div>
+        <div class="page-inner">
+          <h2>What the Coesive Model Is</h2>
+          <p>The Coesive Model is not about rigidity...</p>
         </div>
       </div>
       <div class="page back">
         <div class="page-inner">
-          <p class="quote">
-            The Coesive Model is not a promise of control.<br>
-            It is a way to stay coherent when control is impossible.
-          </p>
+          <div class="quote">Coherence is a discipline.</div>
         </div>
       </div>
     </div>
-
-    <!-- poți continua cu alte SHEET-uri pentru capitolele următoare -->
 
   </div>
 </div>
@@ -450,18 +294,23 @@
 
 <script>
   const sheets = Array.from(document.querySelectorAll('.sheet'));
-  const totalSheets = sheets.length;
   const indicator = document.getElementById('pageIndicator');
-
-  let current = 0; // index foaie curentă
+  let current = 0;
 
   function updateIndicator() {
     indicator.textContent = `Page ${current + 1}`;
   }
 
   function goNext() {
-    if (current >= totalSheets) return;
-    sheets[current].classList.add('flipped');
+    if (current >= sheets.length) return;
+    const sheet = sheets[current];
+    sheet.classList.add('turning-forward');
+
+    setTimeout(() => {
+      sheet.classList.add('flipped');
+      sheet.classList.remove('turning-forward');
+    }, 240);
+
     current++;
     updateIndicator();
   }
@@ -469,25 +318,28 @@
   function goPrev() {
     if (current <= 0) return;
     current--;
-    sheets[current].classList.remove('flipped');
+    const sheet = sheets[current];
+    sheet.classList.add('turning-back');
+
+    setTimeout(() => {
+      sheet.classList.remove('flipped');
+      sheet.classList.remove('turning-back');
+    }, 240);
+
     updateIndicator();
   }
 
-  document.getElementById('nextBtn').addEventListener('click', goNext);
-  document.getElementById('prevBtn').addEventListener('click', goPrev);
+  document.getElementById('nextBtn').onclick = goNext;
+  document.getElementById('prevBtn').onclick = goPrev;
 
-  // tap / click: dreapta = next, stânga = prev
   document.getElementById('book').addEventListener('click', (e) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    if (x > rect.width / 2) {
-      goNext();
-    } else {
-      goPrev();
-    }
+    const r = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - r.left;
+    if (x > r.width / 2) goNext(); else goPrev();
   });
 
   updateIndicator();
 </script>
+
 </body>
 </html>
