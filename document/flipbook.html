@@ -187,6 +187,69 @@
       color: var(--muted);
     }
 
+    /* ============ FRONT COVER SPECIAL ============ */
+
+    .cover-layout {
+      max-width: 360px;
+      margin: 0 auto;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .cover-badge {
+      font-family: var(--font-sans);
+      font-size: 0.7rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(249,250,251,0.9);
+      margin-bottom: 24px;
+    }
+
+    .cover-title-main {
+      font-size: 1.9rem;
+      line-height: 1.25;
+      margin: 0 0 6px 0;
+    }
+
+    .cover-subtitle {
+      font-size: 0.95rem;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .cover-tagline {
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin-top: 18px;
+    }
+
+    .cover-bottom {
+      width: 100%;
+      padding-top: 24px;
+      border-top: 1px solid var(--line);
+      margin-top: 40px;
+    }
+
+    .cover-author-label {
+      font-family: var(--font-sans);
+      font-size: 0.75rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .cover-author-name {
+      font-size: 1rem;
+    }
+
     /* ============ ANIMAȚIE „FILĂ CURBATĂ” ============ */
 
     @keyframes flipForward {
@@ -290,6 +353,10 @@
         font-size: 1.4rem;
       }
 
+      .cover-title-main {
+        font-size: 1.6rem;
+      }
+
       .quote {
         font-size: 0.95rem;
         margin-top: 40px;
@@ -304,18 +371,31 @@
 <div class="flipbook-wrapper">
   <div class="book" id="book">
 
-    <!-- SHEET 1 · FRONT COVER -->
+    <!-- SHEET 1 · FRONT COVER (nouă) -->
     <div class="sheet">
       <div class="page front">
-        <div class="page-inner" style="text-align:center;">
-          <div class="chapter-label">THE COESIVE MODEL</div>
-          <h2 class="chapter-title">
-            A Thinking and Educational Framework<br>
-            for Clarity in an Uncertain World
-          </h2>
-          <div class="soft-line"></div>
-          <p class="subtitle">From Confusion to Coherent Action</p>
-          <p class="subtitle" style="margin-top:60px;">YOUR NAME</p>
+        <div class="page-inner">
+          <div class="cover-layout">
+            <div>
+              <div class="cover-badge">Coesiology Series</div>
+              <h2 class="cover-title-main">The Coesive Model</h2>
+              <p class="cover-subtitle">
+                A Coesive Thinking & Educational Framework<br>
+                for Clarity in an Uncertain World
+              </p>
+              <p class="cover-tagline">
+                From confusion, to coherent movement, to sustainable learning.
+              </p>
+            </div>
+
+            <div class="cover-bottom">
+              <div class="cover-author-label">Author</div>
+              <div class="cover-author-name">YOUR NAME</div>
+              <p class="small-muted" style="margin-top:10px;">
+                with the Coesive Education Approach
+              </p>
+            </div>
+          </div>
         </div>
       </div>
       <div class="page back">
@@ -370,6 +450,8 @@
       </div>
     </div>
 
+    <!-- RESTUL FOILOR RĂMÂN IDENTICE CU VARIANTA TA ANTERIOARĂ -->
+
     <!-- SHEET 3 · CH1 PAGE 1 -->
     <div class="sheet">
       <div class="page front">
@@ -411,7 +493,6 @@
           </p>
           <p>
             In this state, even good advice becomes noise. Even accurate information feels hostile.
-            Even opportunities feel like threats.
           </p>
           <p>
             The problem is not complexity. Complex lives, roles, and identities are normal. The
@@ -512,7 +593,7 @@
       </div>
     </div>
 
-    <!-- SHEET 6 · REFLECTION PAGE + CH2 TITLE -->
+    <!-- SHEET 6 · REFLECTION + CH2 TITLE -->
     <div class="sheet">
       <div class="page front">
         <div class="page-inner">
