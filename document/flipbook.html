@@ -98,11 +98,13 @@
     .page.back  { transform: rotateY(180deg); }
 
     /* Ordine: prima foaie sus */
-    .sheet:nth-child(1) { z-index: 8; }
-    .sheet:nth-child(2) { z-index: 7; }
-    .sheet:nth-child(3) { z-index: 6; }
-    .sheet:nth-child(4) { z-index: 5; }
-    .sheet:nth-child(5) { z-index: 4; }
+    .sheet:nth-child(1) { z-index: 10; }
+    .sheet:nth-child(2) { z-index: 9; }
+    .sheet:nth-child(3) { z-index: 8; }
+    .sheet:nth-child(4) { z-index: 7; }
+    .sheet:nth-child(5) { z-index: 6; }
+    .sheet:nth-child(6) { z-index: 5; }
+    .sheet:nth-child(7) { z-index: 4; }
 
     .page-inner {
       height: 100%;
@@ -140,6 +142,11 @@
       margin: 0 0 12px 0;
     }
 
+    h3 {
+      font-size: 0.95rem;
+      margin: 0 0 8px 0;
+    }
+
     p {
       font-size: 0.96rem;
       line-height: 1.55;
@@ -174,33 +181,24 @@
       margin-bottom: 6px;
     }
 
+    .small-muted {
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
     /* ============ ANIMAȚIE „FILĂ CURBATĂ” ============ */
 
     @keyframes flipForward {
-      0% {
-        transform: rotateY(0deg);
-      }
-      25% {
-        transform: rotateY(-45deg) translateZ(4px);
-      }
-      55% {
-        transform: rotateY(-135deg) translateZ(4px);
-      }
-      100% {
-        transform: rotateY(-180deg);
-      }
+      0%   { transform: rotateY(0deg); }
+      25%  { transform: rotateY(-45deg) translateZ(4px); }
+      55%  { transform: rotateY(-135deg) translateZ(4px); }
+      100% { transform: rotateY(-180deg); }
     }
 
     @keyframes flipBack {
-      0% {
-        transform: rotateY(-180deg);
-      }
-      45% {
-        transform: rotateY(-60deg) translateZ(4px);
-      }
-      100% {
-        transform: rotateY(0deg);
-      }
+      0%   { transform: rotateY(-180deg); }
+      45%  { transform: rotateY(-60deg) translateZ(4px); }
+      100% { transform: rotateY(0deg); }
     }
 
     @keyframes shadowForward {
@@ -334,7 +332,7 @@
     <div class="sheet">
       <div class="page front">
         <div class="page-inner">
-          <h3 style="font-size:0.9rem; text-transform:uppercase; letter-spacing:0.18em; color:var(--muted); margin-bottom:8px;">
+          <h3 class="small-muted" style="text-transform:uppercase; letter-spacing:0.18em;">
             Disclaimer
           </h3>
           <p>
@@ -354,7 +352,7 @@
             the result of copying or reproduction. All formulations, structures, and expressions in
             this work are original to this publication.
           </p>
-          <p style="margin-top:24px; text-align:center; font-size:0.8rem; color:var(--muted);">
+          <p style="margin-top:24px; text-align:center;" class="small-muted">
             © YOUR NAME · All rights reserved.
           </p>
         </div>
@@ -364,11 +362,14 @@
           <div class="chapter-label">CHAPTER 1</div>
           <h2 class="chapter-title">Why the World Needs Clarity<br>More Than Information</h2>
           <div class="soft-line"></div>
+          <p class="subtitle">
+            Why clarity is a structural necessity, not a luxury.
+          </p>
         </div>
       </div>
     </div>
 
-    <!-- SHEET 3 · CH1 TEXT -->
+    <!-- SHEET 3 · CH1 PAGE 1 -->
     <div class="sheet">
       <div class="page front">
         <div class="page-inner">
@@ -380,15 +381,17 @@
             and internally disoriented.
           </p>
           <p>
-            The issue is not intelligence. The issue is not access. The issue is not motivation.
+            The issue is not intelligence.<br>
+            The issue is not access.<br>
+            The issue is not motivation.
           </p>
           <p>
             The issue is the absence of an internal structure capable of holding complexity.
           </p>
           <p>
             Modern education systems focus heavily on <em>what</em> to think. They invest years in
-            teaching people facts, formulas, frameworks, and methods. What they almost never teach
-            is <em>how to organize inner chaos when there are no clear answers</em>. Confusion is
+            teaching facts, formulas, frameworks, and methods. What they almost never teach is
+            <em>how to organize inner chaos when there are no clear answers</em>. Confusion is
             treated as weakness. Uncertainty is treated as failure.
           </p>
           <p>
@@ -397,18 +400,6 @@
         </div>
       </div>
       <div class="page back">
-        <div class="page-inner">
-          <p class="quote">
-            Clarity is not the opposite of confusion.<br>
-            Clarity is confusion that has been given structure.
-          </p>
-        </div>
-      </div>
-    </div>
-
-    <!-- SHEET 4 · CH1 CONTINUARE + WORKBOOK -->
-    <div class="sheet">
-      <div class="page front">
         <div class="page-inner">
           <h2>The Cost of Fragmentation</h2>
           <p>
@@ -422,12 +413,107 @@
             Even opportunities feel like threats.
           </p>
           <p>
-            The problem is not complexity. The problem is a lack of internal containment: a way to
-            hold everything without collapsing.
+            The problem is not complexity. Complex lives, roles, and identities are normal. The
+            problem is a lack of internal containment: a way to hold everything without collapsing.
+          </p>
+          <p>
+            Without structure, people oscillate between two extremes: chasing constant change,
+            hoping the next decision will fix the chaos, or staying completely stuck, afraid any
+            move will make things worse. Both are symptoms of the same structural absence.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SHEET 4 · CH1 PAGE 2 -->
+    <div class="sheet">
+      <div class="page front">
+        <div class="page-inner">
+          <h2>Why Speed Makes It Worse</h2>
+          <p>
+            A world obsessed with speed makes structural problems worse. We are asked to decide
+            faster, learn faster, adapt faster, and respond faster than ever before. Under pressure,
+            the mind does not become sharper. It becomes more reactive.
+          </p>
+          <p>
+            Reaction is not clarity. It is survival.
+          </p>
+          <p>
+            In survival mode, the brain simplifies reality in ways that feel safe but are often
+            untrue: “I’m failing”, “I’m behind”, “I’m not enough”, “Everyone else has figured it
+            out”. None of these thoughts are architectural. They do not build anything. They only
+            tighten the internal space.
+          </p>
+          <p>
+            The Coesive Model starts from the opposite assumption: if you want clarity, you must
+            slow down the mind long enough to reorganize it. This is not about thinking positively.
+            It is about thinking structurally.
           </p>
         </div>
       </div>
       <div class="page back">
+        <div class="page-inner">
+          <h2>From Content-driven to Structure-driven</h2>
+          <p>
+            Most systems offered today are content-driven: more strategies, more tools, more steps,
+            more hacks. They assume that if you feed the mind enough high-quality input, it will
+            naturally become clear and effective.
+          </p>
+          <p>
+            But a content-driven mind with no structure becomes over-informed and under-coherent.
+          </p>
+          <p>
+            The Coesive Model is structure-driven. It does not promise the best answer, the fastest
+            result, or the most impressive outcome. It promises something else: a repeatable
+            internal architecture for moving from confusion to coherent action.
+          </p>
+          <p>
+            In this architecture, clarity is not an accident or a good day. It is not a moment of
+            inspiration. It is the output of a process.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SHEET 5 · CH1 PAGE 3 + QUOTE -->
+    <div class="sheet">
+      <div class="page front">
+        <div class="page-inner">
+          <h2>Clarity as a Learnable Process</h2>
+          <p>
+            Clarity is often treated as a personality trait: some people are “naturally clear” and
+            others are not. The Coesive Model rejects this assumption. Clarity is not a gift; it is
+            a sequence.
+          </p>
+          <p>
+            When the mind is given a stable way to move through confusion, it stops treating every
+            difficult situation as a new identity crisis. Instead of asking “What is wrong with
+            me?”, it can start asking “Where am I in the process?”.
+          </p>
+          <p>
+            Once clarity is seen as process, it can be learned, practiced, and stabilized. This is
+            what the rest of the book is about: not giving you more content, but offering you an
+            internal structure that holds the content you already have.
+          </p>
+          <p class="small-muted" style="margin-top:16px;">
+            Chapter 1 closes here. What follows is an invitation to look at your own mind through
+            the lens of structure, not self-judgment.
+          </p>
+        </div>
+      </div>
+      <div class="page back">
+        <div class="page-inner">
+          <p class="quote">
+            A confused mind does not need more answers.<br>
+            It needs a better structure to hold them.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SHEET 6 · REFLECTION PAGE -->
+    <div class="sheet">
+      <div class="page front">
         <div class="page-inner">
           <h3 style="font-size:0.9rem; text-transform:uppercase; letter-spacing:0.16em; color:var(--muted); margin-bottom:8px;">
             Reflection · After Chapter 1
@@ -442,20 +528,46 @@
           <div class="work-line"></div>
           <div class="work-line"></div>
 
-          <p class="work-label">What would it mean to approach this with structure instead of speed?</p>
+          <p class="work-label">What have you tried so far (more information, more speed, more pressure)?</p>
+          <div class="work-line"></div>
+          <div class="work-line"></div>
+
+          <p class="work-label">What would it mean to approach this with structure instead of urgency?</p>
           <div class="work-line"></div>
           <div class="work-line"></div>
         </div>
       </div>
-    </div>
-
-    <!-- SHEET 5 · CH2 TITLE + QUOTE -->
-    <div class="sheet">
-      <div class="page front">
+      <div class="page back">
         <div class="page-inner" style="text-align:center;">
           <div class="chapter-label">CHAPTER 2</div>
           <h2 class="chapter-title">What the Coesive Model Is<br>(and What It Is Not)</h2>
           <div class="soft-line"></div>
+          <p class="subtitle">
+            A structural framework, not a therapy, not a personality system, not a promise of control.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SHEET 7 · CH2 INTRO + QUOTE -->
+    <div class="sheet">
+      <div class="page front">
+        <div class="page-inner">
+          <h2>What the Coesive Model Is</h2>
+          <p>
+            The Coesive Model is a thinking framework designed to help the mind move from
+            fragmentation to internal coherence. It is not built to make people faster or more
+            impressive. It is built around one priority: structure.
+          </p>
+          <p>
+            Most systems that promise clarity focus on outcomes: better grades, better performance,
+            better results. The Coesive Model is different. It focuses on the internal architecture
+            that makes those outcomes possible.
+          </p>
+          <p>
+            At its core, the model assumes that human confusion is not a lack of intelligence; it is
+            a lack of cognitive architecture. When architecture appears, clarity becomes possible.
+          </p>
         </div>
       </div>
       <div class="page back">
