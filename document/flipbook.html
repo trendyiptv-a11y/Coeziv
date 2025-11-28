@@ -24,36 +24,38 @@
       background: radial-gradient(circle at top, #e5e7eb, #d1d5db);
       font-family: var(--font-serif);
       color: var(--ink);
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      min-height: 100vh;
     }
 
     h1.app-title {
       font-family: var(--font-serif);
-      font-size: 1.1rem;
+      font-size: 0.95rem;
       letter-spacing: 0.18em;
       text-transform: uppercase;
       color: var(--muted);
-      margin-bottom: 12px;
+      margin-bottom: 10px;
+      text-align: center;
     }
 
     .flipbook-wrapper {
       position: relative;
-      width: 900px;
-      max-width: 100%;
-      aspect-ratio: 3 / 2;
+      width: min(900px, 100vw - 32px);
+      height: min(600px, 80vh);
+      margin: 0 auto 12px auto;
       perspective: 2000px;
-      margin: 0 auto 16px auto;
     }
 
     .book {
-      position: relative;
+      position: absolute;
+      top: 50%;
+      left: 50%;
       width: 100%;
       height: 100%;
-      background: transparent;
+      transform: translate(-50%, -50%);
       transform-style: preserve-3d;
     }
 
@@ -94,14 +96,13 @@
       box-shadow: none;
     }
 
-    /* Z-index layering: first sheet on top */
+    /* Z-index layering */
     .sheet:nth-child(1) { z-index: 5; }
     .sheet:nth-child(2) { z-index: 4; }
     .sheet:nth-child(3) { z-index: 3; }
     .sheet:nth-child(4) { z-index: 2; }
     .sheet:nth-child(5) { z-index: 1; }
 
-    /* Page content styling */
     .page-inner {
       width: 100%;
       height: 100%;
@@ -110,14 +111,14 @@
 
     .page-inner h2 {
       font-family: var(--font-serif);
-      font-size: 1.3rem;
+      font-size: 1.2rem;
       margin-top: 0;
       margin-bottom: 8px;
     }
 
     .page-inner h3 {
       font-family: var(--font-serif);
-      font-size: 1rem;
+      font-size: 0.9rem;
       text-transform: uppercase;
       letter-spacing: 0.12em;
       color: var(--muted);
@@ -153,7 +154,7 @@
 
     .page-inner .chapter-title {
       font-family: var(--font-serif);
-      font-size: 1.4rem;
+      font-size: 1.3rem;
       line-height: 1.3;
       margin-bottom: 4px;
     }
@@ -183,13 +184,12 @@
       margin-bottom: 6px;
     }
 
-    /* Controls */
     .controls {
       display: flex;
       gap: 12px;
       justify-content: center;
       align-items: center;
-      margin-top: 8px;
+      margin-top: 4px;
       font-family: var(--font-sans);
     }
 
@@ -198,7 +198,7 @@
       background: white;
       padding: 6px 14px;
       border-radius: 999px;
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       cursor: pointer;
       display: inline-flex;
       gap: 6px;
@@ -216,12 +216,39 @@
       color: var(--muted);
     }
 
-    @media (max-width: 900px) {
-      .flipbook-wrapper {
-        width: 95vw;
+    /* RESPONSIVE – mobil */
+    @media (max-width: 768px) {
+      body {
+        padding: 12px 0;
       }
+
+      h1.app-title {
+        font-size: 0.75rem;
+        letter-spacing: 0.16em;
+        margin-bottom: 8px;
+      }
+
+      .flipbook-wrapper {
+        width: 100vw;
+        height: 78vh;
+      }
+
       .sheet .page {
-        padding: 24px 26px;
+        padding: 20px 18px;
+      }
+
+      .page-inner p {
+        font-size: 0.85rem;
+      }
+
+      .page-inner .chapter-title {
+        font-size: 1.1rem;
+      }
+
+      .page-inner .quote {
+        font-size: 0.95rem;
+        margin-top: 24px;
+        margin-bottom: 24px;
       }
     }
   </style>
@@ -233,12 +260,15 @@
 <div class="flipbook-wrapper">
   <div class="book" id="book">
 
-    <!-- SHEET 1: COVER (front) + BLANK (back) -->
+    <!-- SHEET 1: COVER -->
     <div class="sheet" data-sheet="1">
       <div class="page page-front">
         <div class="page-inner center">
           <div class="chapter-label">THE COESIVE MODEL</div>
-          <div class="chapter-title">A Thinking and Educational Framework<br>for Clarity in an Uncertain World</div>
+          <div class="chapter-title">
+            A Thinking and Educational Framework<br>
+            for Clarity in an Uncertain World
+          </div>
           <div class="soft-line"></div>
           <div class="subtitle" style="margin-top:18px;">
             From Confusion to Coherent Action
@@ -259,7 +289,7 @@
       </div>
     </div>
 
-    <!-- SHEET 2: Disclaimer + Chapter 1 start -->
+    <!-- SHEET 2: DISCLAIMER + CH1 TITLE -->
     <div class="sheet" data-sheet="2">
       <div class="page page-front">
         <div class="page-inner">
@@ -267,13 +297,13 @@
           <p>
             This book presents the <strong>Coesive Model</strong> and the concept of
             <strong>Applied Coesiology</strong> as original conceptual frameworks. They are offered
-            as educational and cognitive tools designed to support clarity, coherence, and
-            reflective thinking.
+            as educational and cognitive tools designed to support clarity, coherence, and reflective
+            thinking.
           </p>
           <p>
             This work does <strong>not</strong> claim to replace psychological, medical, therapeutic,
-            or scientific disciplines. It does not provide medical, psychological, or clinical
-            advice. The content is intended for educational and developmental purposes only.
+            or scientific disciplines. It does not provide medical, psychological, or clinical advice.
+            The content is intended for educational and developmental purposes only.
           </p>
           <p>
             Any similarities with existing models or frameworks are conceptual in nature and not the
@@ -296,7 +326,7 @@
       </div>
     </div>
 
-    <!-- SHEET 3: Chapter 1 text + quote -->
+    <!-- SHEET 3: CH1 TEXT + QUOTE -->
     <div class="sheet" data-sheet="3">
       <div class="page page-front">
         <div class="page-inner">
@@ -334,7 +364,7 @@
       </div>
     </div>
 
-    <!-- SHEET 4: Another text page + workbook demo -->
+    <!-- SHEET 4: CH1 CONTINUARE + WORKBOOK -->
     <div class="sheet" data-sheet="4">
       <div class="page page-front">
         <div class="page-inner">
@@ -374,7 +404,7 @@
       </div>
     </div>
 
-    <!-- SHEET 5: Poți adăuga aici Chapter 2 etc. -->
+    <!-- SHEET 5: CH2 TITLE + QUOTE -->
     <div class="sheet" data-sheet="5">
       <div class="page page-front">
         <div class="page-inner center">
@@ -407,10 +437,9 @@
   const totalSheets = sheets.length;
   const pageIndicator = document.getElementById('pageIndicator');
 
-  let current = 0; // index of last flipped sheet
+  let current = 0;
 
   function updateIndicator() {
-    // very simple estimate: each sheet = 2 pages
     const leftPage = current * 2 + 1;
     const rightPage = leftPage + 1;
     pageIndicator.textContent = `Page ${leftPage}–${rightPage}`;
@@ -433,7 +462,6 @@
   document.getElementById('nextBtn').addEventListener('click', goNext);
   document.getElementById('prevBtn').addEventListener('click', goPrev);
 
-  // click on right/left side of book to navigate
   document.getElementById('book').addEventListener('click', (e) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const x = e.clientX - rect.left;
