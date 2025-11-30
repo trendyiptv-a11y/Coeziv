@@ -2,30 +2,40 @@
 <html lang="ro">
 <head>
   <meta charset="UTF-8" />
-  <title>Demo GPS Coeziv – Static (GitHub Pages)</title>
+  <title>GPS Coeziv – OSM + Leaflet + OSRM</title>
+
+  <!-- Leaflet CSS -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""
+  />
+
   <style>
     body {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       margin: 0;
       padding: 0;
       background: #f5f5f7;
-      color: #222;
+      color: #111827;
       display: flex;
       flex-direction: column;
       height: 100vh;
     }
 
     header {
-      padding: 12px 20px;
+      padding: 10px 18px;
       background: #111827;
       color: #f9fafb;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      gap: 8px;
     }
 
     header h1 {
-      font-size: 1.1rem;
+      font-size: 1rem;
       margin: 0;
     }
 
@@ -34,17 +44,18 @@
       padding: 4px 10px;
       border-radius: 999px;
       background: #374151;
+      display: inline-block;
     }
 
     main {
       display: grid;
-      grid-template-columns: 280px 1fr;
+      grid-template-columns: 300px 1fr;
       flex: 1;
       overflow: hidden;
     }
 
     .panel {
-      padding: 16px;
+      padding: 14px;
       background: #f9fafb;
       border-right: 1px solid #e5e7eb;
       display: flex;
@@ -53,7 +64,7 @@
     }
 
     .panel h2 {
-      margin: 0 0 6px;
+      margin: 0 0 4px;
       font-size: 0.95rem;
       color: #111827;
     }
@@ -67,21 +78,26 @@
 
     select, input[type="range"] {
       width: 100%;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
 
     .btn {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      padding: 8px 12px;
+      padding: 7px 11px;
       background: #2563eb;
       color: #fff;
       border-radius: 8px;
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       border: none;
       cursor: pointer;
       margin-top: 4px;
+    }
+
+    .btn.secondary {
+      background: #4b5563;
+      margin-left: 4px;
     }
 
     .btn:disabled {
@@ -94,445 +110,396 @@
       color: #6b7280;
     }
 
-    .metrics {
+    .metrics, .log {
       font-size: 0.8rem;
       padding: 8px;
       background: #eef2ff;
       border-radius: 8px;
+      max-height: 140px;
+      overflow-y: auto;
+    }
+
+    .log {
+      background: #f3f4f6;
     }
 
     .metric-line {
-      margin-bottom: 4px;
+      margin-bottom: 3px;
     }
 
     .map-container {
       position: relative;
-      background: #e5e7eb;
-      display: flex;
-      align-items: center;
-      justify-content: center;
     }
 
-    svg {
-      background: #f9fafb;
-      border-radius: 16px;
-      box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+    #map {
+      width: 100%;
+      height: 100%;
     }
 
-    .node-circle {
-      fill: #111827;
-    }
-
-    .node-label {
-      font-size: 0.8rem;
-      fill: #111827;
-    }
-
-    .edge-line {
-      stroke: #9ca3af;
-      stroke-width: 2;
-    }
-
-    .edge-line.route {
-      stroke: #2563eb;
-      stroke-width: 4;
-    }
-
-    .info-bubble {
+    .legend {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      background: rgba(17,24,39,0.9);
+      color: #f9fafb;
+      padding: 6px 8px;
+      border-radius: 8px;
       font-size: 0.75rem;
-      fill: #111827;
+    }
+
+    .legend span {
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    .route-base {
+      color: #9ca3af;
+    }
+    .route-best {
+      color: #3b82f6;
+    }
+    .origin-dot {
+      color: #16a34a;
+    }
+    .dest-dot {
+      color: #dc2626;
+    }
+
+    @media (max-width: 900px) {
+      main {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr;
+      }
+      .panel {
+        border-right: none;
+        border-bottom: 1px solid #e5e7eb;
+      }
     }
   </style>
 </head>
 <body>
   <header>
     <div>
-      <div class="badge">Model Coeziv · Demo rutare static</div>
-      <h1>GPS Coeziv – timp vs tensiune structurală</h1>
+      <div class="badge">Model Coeziv · OSM · OSRM</div>
+      <h1>GPS Coeziv – timp vs tensiune structurală (demo real)</h1>
     </div>
   </header>
 
   <main>
     <aside class="panel">
       <div>
-        <h2>Setări rută</h2>
-        <label for="srcSelect">Punct de pornire</label>
-        <select id="srcSelect"></select>
+        <h2>1. Puncte</h2>
+        <p class="small">
+          <b>Origine:</b> folosește GPS (buton) sau click pe hartă cu <b>Alt+Click</b>.<br/>
+          <b>Destinație:</b> click simplu pe hartă.
+        </p>
+        <button id="useGpsBtn" class="btn">Folosește poziția mea (GPS)</button>
+      </div>
 
-        <label for="dstSelect">Destinație</label>
-        <select id="dstSelect"></select>
-
+      <div>
+        <h2>2. Parametri coezivi</h2>
         <label for="alphaRange">Prioritate timp (α)</label>
-        <input type="range" id="alphaRange" min="0.5" max="2.0" step="0.1" value="1.0">
-        <div class="small">α = <span id="alphaValue">1.0</span></div>
+        <input type="range" id="alphaRange" min="0.5" max="3.0" step="0.1" value="1.0">
+        <div class="small">α = <span id="alphaValue">1.0</span> (timp în minute)</div>
 
-        <label for="betaRange">Prioritate stabilitate / tensiune (β)</label>
-        <input type="range" id="betaRange" min="0.0" max="4.0" step="0.2" value="2.0">
-        <div class="small">β = <span id="betaValue">2.0</span></div>
+        <label for="betaRange">Prioritate stabilitate / simplitate (β)</label>
+        <input type="range" id="betaRange" min="0.0" max="5.0" step="0.2" value="2.0">
+        <div class="small">β = <span id="betaValue">2.0</span> (manevre / „tensiune structurală”)</div>
 
         <button id="routeBtn" class="btn">Calculează rută coezivă</button>
       </div>
 
       <div>
-        <h2>Metrici rută</h2>
+        <h2>3. Metrici rută aleasă</h2>
         <div class="metrics" id="metricsBox">
-          <div class="metric-line">Noduri: –</div>
-          <div class="metric-line">Timp estimat: –</div>
-          <div class="metric-line">Tensiune medie: –</div>
-          <div class="metric-line">Cost total coeziv: –</div>
+          <div class="metric-line">Rute candidate: –</div>
+          <div class="metric-line">Rută aleasă: –</div>
+          <div class="metric-line">Timp: –</div>
+          <div class="metric-line">Tensiune (normalizată): –</div>
+          <div class="metric-line">Manevre totale: –</div>
+          <div class="metric-line">Cost coeziv: –</div>
         </div>
       </div>
 
       <div>
-        <h2>Explicație</h2>
-        <p class="small">
-          Acest demo nu caută doar cel mai scurt drum, ci echilibrul între:
-        </p>
-        <ul class="small">
-          <li><b>timp</b> de parcurs (α);</li>
-          <li><b>tensiune structurală</b> a segmentelor (β – zone instabile, aglomerate);</li>
-        </ul>
-        <p class="small">
-          Mărește β pentru a evita segmentele „tensionate” chiar dacă timpul crește puțin.
-        </p>
+        <h2>4. Log</h2>
+        <div class="log" id="logBox">
+          <div>Click pe hartă pentru destinație. Alt+Click pentru origine.</div>
+        </div>
       </div>
     </aside>
 
     <section class="map-container">
-      <svg id="mapSvg" width="600" height="400" viewBox="0 0 600 400">
-        <!-- desenăm din JS -->
-      </svg>
+      <div id="map"></div>
+      <div class="legend">
+        <span><span class="origin-dot">●</span> Origine</span>
+        <span><span class="dest-dot">●</span> Destinație</span>
+        <span><span class="route-base">━</span> Rute alternative</span>
+        <span><span class="route-best">━</span> Rută coezivă aleasă</span>
+      </div>
     </section>
   </main>
 
+  <!-- Leaflet JS -->
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""
+  ></script>
+
   <script>
-    // ----- Datele "grafului" (echivalent cu structura din Python) -----
-
-    const NODES = ["A", "B", "C", "D", "E", "F"];
-
-    const EDGES = [
-      {
-        id: "A-B",
-        from: "A",
-        to: "B",
-        length_km: 2.0,
-        speed_kmh: 50,
-        tension: 0.2,
-        traffic: 1.0
-      },
-      {
-        id: "B-C",
-        from: "B",
-        to: "C",
-        length_km: 1.5,
-        speed_kmh: 40,
-        tension: 0.8,   // segment tensionat
-        traffic: 1.3
-      },
-      {
-        id: "A-D",
-        from: "A",
-        to: "D",
-        length_km: 3.0,
-        speed_kmh: 60,
-        tension: 0.1,
-        traffic: 1.0
-      },
-      {
-        id: "D-E",
-        from: "D",
-        to: "E",
-        length_km: 1.8,
-        speed_kmh: 50,
-        tension: 0.3,
-        traffic: 1.0
-      },
-      {
-        id: "E-C",
-        from: "E",
-        to: "C",
-        length_km: 2.2,
-        speed_kmh: 50,
-        tension: 0.2,
-        traffic: 1.0
-      },
-      {
-        id: "C-F",
-        from: "C",
-        to: "F",
-        length_km: 2.5,
-        speed_kmh: 50,
-        tension: 0.4,
-        traffic: 1.0
-      },
-      {
-        id: "E-F",
-        from: "E",
-        to: "F",
-        length_km: 2.0,
-        speed_kmh: 60,
-        tension: 0.15,
-        traffic: 1.0
-      }
-    ];
-
-    // construim adiacența cu muchii în ambele sensuri
-    const ADJ = {};
-    NODES.forEach(n => ADJ[n] = []);
-
-    EDGES.forEach(edge => {
-      ADJ[edge.from].push(edge); // dus
-
-      const rev = { ...edge, id: edge.id + "_rev", from: edge.to, to: edge.from };
-      ADJ[rev.from].push(rev);   // întors
-    });
-
-    // ----- UI bindings -----
-
-    const srcSelect   = document.getElementById("srcSelect");
-    const dstSelect   = document.getElementById("dstSelect");
+    // --------- Elemente UI ----------
     const alphaRange  = document.getElementById("alphaRange");
     const betaRange   = document.getElementById("betaRange");
     const alphaValue  = document.getElementById("alphaValue");
     const betaValue   = document.getElementById("betaValue");
     const routeBtn    = document.getElementById("routeBtn");
+    const useGpsBtn   = document.getElementById("useGpsBtn");
     const metricsBox  = document.getElementById("metricsBox");
-    const mapSvg      = document.getElementById("mapSvg");
+    const logBox      = document.getElementById("logBox");
 
-    // Layout fix pentru noduri (un mic "oraș")
-    const nodesLayout = {
-      "A": { x: 80,  y: 320 },
-      "B": { x: 200, y: 260 },
-      "C": { x: 360, y: 220 },
-      "D": { x: 200, y: 120 },
-      "E": { x: 360, y: 140 },
-      "F": { x: 520, y: 260 }
-    };
+    // --------- Harta Leaflet ----------
+    const map = L.map("map").setView([45.75, 21.23], 13); // centru generic (ex: Timișoara)
 
-    // populăm select-urile
-    function initSelects() {
-      srcSelect.innerHTML = "";
-      dstSelect.innerHTML = "";
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap'
+    }).addTo(map);
 
-      NODES.forEach(n => {
-        const o1 = document.createElement("option");
-        o1.value = n;
-        o1.textContent = n;
-        srcSelect.appendChild(o1);
+    let originMarker = null;
+    let destMarker   = null;
+    let originLatLng = null;
+    let destLatLng   = null;
 
-        const o2 = document.createElement("option");
-        o2.value = n;
-        o2.textContent = n;
-        dstSelect.appendChild(o2);
-      });
+    let routeLayers = []; // rutele desenate (toate)
+    let bestRouteLayer = null;
 
-      srcSelect.value = "A";
-      dstSelect.value = "F";
+    function log(msg) {
+      const div = document.createElement("div");
+      div.textContent = msg;
+      logBox.prepend(div);
     }
 
-    function clearSvg() {
-      while (mapSvg.firstChild) {
-        mapSvg.removeChild(mapSvg.firstChild);
+    function clearRoutes() {
+      routeLayers.forEach(l => map.removeLayer(l));
+      routeLayers = [];
+      if (bestRouteLayer) {
+        map.removeLayer(bestRouteLayer);
+        bestRouteLayer = null;
       }
     }
 
-    function drawGraph(routeEdges = []) {
-      clearSvg();
-
-      const edgeGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
-      const nodeGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
-      mapSvg.appendChild(edgeGroup);
-      mapSvg.appendChild(nodeGroup);
-
-      // muchii
-      EDGES.forEach(edge => {
-        const from = nodesLayout[edge.from];
-        const to   = nodesLayout[edge.to];
-
-        const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-        line.setAttribute("x1", from.x);
-        line.setAttribute("y1", from.y);
-        line.setAttribute("x2", to.x);
-        line.setAttribute("y2", to.y);
-        line.classList.add("edge-line");
-        if (routeEdges.includes(edge.id)) {
-          line.classList.add("route");
-        }
-        edgeGroup.appendChild(line);
-      });
-
-      // noduri
-      NODES.forEach(n => {
-        const pos = nodesLayout[n];
-        const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-        circle.setAttribute("cx", pos.x);
-        circle.setAttribute("cy", pos.y);
-        circle.setAttribute("r", 10);
-        circle.classList.add("node-circle");
-        nodeGroup.appendChild(circle);
-
-        const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
-        label.setAttribute("x", pos.x);
-        label.setAttribute("y", pos.y - 14);
-        label.setAttribute("text-anchor", "middle");
-        label.classList.add("node-label");
-        label.textContent = n;
-        nodeGroup.appendChild(label);
-      });
-    }
-
-    function updateMetrics(result) {
-      if (!result) {
+    function updateMetrics(info) {
+      if (!info) {
         metricsBox.innerHTML = `
-          <div class="metric-line">Noduri: –</div>
-          <div class="metric-line">Timp estimat: –</div>
-          <div class="metric-line">Tensiune medie: –</div>
-          <div class="metric-line">Cost total coeziv: –</div>
+          <div class="metric-line">Rute candidate: –</div>
+          <div class="metric-line">Rută aleasă: –</div>
+          <div class="metric-line">Timp: –</div>
+          <div class="metric-line">Tensiune (normalizată): –</div>
+          <div class="metric-line">Manevre totale: –</div>
+          <div class="metric-line">Cost coeziv: –</div>
         `;
         return;
       }
 
-      const nodes   = result.nodes.join(" → ");
-      const time    = result.total_time_min.toFixed(1) + " min";
-      const tension = result.avg_tension.toFixed(2);
-      const cost    = result.total_cost.toFixed(2);
+      const {
+        routeIndex,
+        routesCount,
+        timeMin,
+        tensionNorm,
+        maneuvers,
+        cost
+      } = info;
 
       metricsBox.innerHTML = `
-        <div class="metric-line"><b>Noduri:</b> ${nodes}</div>
-        <div class="metric-line"><b>Timp estimat:</b> ${time}</div>
-        <div class="metric-line"><b>Tensiune medie:</b> ${tension}</div>
-        <div class="metric-line"><b>Cost total coeziv:</b> ${cost}</div>
+        <div class="metric-line"><b>Rute candidate:</b> ${routesCount}</div>
+        <div class="metric-line"><b>Rută aleasă:</b> #${routeIndex + 1}</div>
+        <div class="metric-line"><b>Timp:</b> ${timeMin.toFixed(1)} min</div>
+        <div class="metric-line"><b>Tensiune norm.:</b> ${tensionNorm.toFixed(2)}</div>
+        <div class="metric-line"><b>Manevre:</b> ${maneuvers}</div>
+        <div class="metric-line"><b>Cost coeziv:</b> ${cost.toFixed(2)}</div>
       `;
     }
 
-    // ---- Algoritm "coeziv" Dijkstra portat din Python ----
-
-    function edgeCost(edge, alpha, beta) {
-      const effectiveSpeed = edge.speed_kmh / edge.traffic;
-      const timeMin = 60.0 * edge.length_km / Math.max(effectiveSpeed, 1.0);
-      const tension = edge.tension;
-      return alpha * timeMin + beta * tension;
-    }
-
-    function computeRoute(src, dst, alpha = 1.0, beta = 2.0) {
-      if (!NODES.includes(src) || !NODES.includes(dst)) {
-        return null;
+    // --------- Geolocație ----------
+    useGpsBtn.addEventListener("click", () => {
+      if (!navigator.geolocation) {
+        log("Geolocația nu este suportată de browser.");
+        return;
       }
 
-      const dist = {};
-      const prev = {};
-      NODES.forEach(n => {
-        dist[n] = Infinity;
-        prev[n] = null;
-      });
-      dist[src] = 0.0;
-
-      // heap simplu implementat prin iterare (pentru că graful e mic)
-      const visited = new Set();
-
-      while (true) {
-        // selectăm nodul cu distanță minimă nevizitat
-        let u = null;
-        let best = Infinity;
-        for (const n of NODES) {
-          if (!visited.has(n) && dist[n] < best) {
-            best = dist[n];
-            u = n;
-          }
+      log("Cerere poziție GPS...");
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const lat = pos.coords.latitude;
+          const lon = pos.coords.longitude;
+          originLatLng = [lat, lon];
+          if (originMarker) map.removeLayer(originMarker);
+          originMarker = L.marker(originLatLng, { draggable: true })
+                          .addTo(map)
+                          .bindPopup("Origine (GPS)").openPopup();
+          map.setView(originLatLng, 14);
+          log(`Origine setată din GPS: ${lat.toFixed(5)}, ${lon.toFixed(5)}`);
+        },
+        (err) => {
+          log("Eroare GPS: " + err.message);
         }
-        if (u === null) break;
-        if (u === dst) break;
+      );
+    });
 
-        visited.add(u);
+    // --------- Click pe hartă: destinație / alternativ origine ----------
+    map.on("click", (e) => {
+      // Dacă ținem Alt apăsat -> setăm originea manual
+      if (e.originalEvent.altKey) {
+        originLatLng = [e.latlng.lat, e.latlng.lng];
+        if (originMarker) map.removeLayer(originMarker);
+        originMarker = L.marker(originLatLng, { draggable: true })
+                        .addTo(map)
+                        .bindPopup("Origine (Alt+Click)").openPopup();
+        log(`Origine setată manual: ${originLatLng[0].toFixed(5)}, ${originLatLng[1].toFixed(5)}`);
+      } else {
+        destLatLng = [e.latlng.lat, e.latlng.lng];
+        if (destMarker) map.removeLayer(destMarker);
+        destMarker = L.marker(destLatLng, { draggable: true, icon: L.icon({
+          iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+          iconSize: [25, 41],
+          iconAnchor: [12, 41],
+          popupAnchor: [0, -30]
+        })})
+        .addTo(map)
+        .bindPopup("Destinație").openPopup();
 
-        for (const edge of ADJ[u]) {
-          const v = edge.to;
-          const c = edgeCost(edge, alpha, beta);
-          const newCost = dist[u] + c;
-          if (newCost < dist[v]) {
-            dist[v] = newCost;
-            prev[v] = { node: u, edgeId: edge.id };
-          }
-        }
+        log(`Destinație setată: ${destLatLng[0].toFixed(5)}, ${destLatLng[1].toFixed(5)}`);
       }
+    });
 
-      if (!isFinite(dist[dst])) {
-        return null;
-      }
-
-      // Reconstruim ruta
-      const pathNodes = [];
-      const pathEdges = [];
-      let cur = dst;
-      let totalTime = 0.0;
-      let totalTension = 0.0;
-
-      while (cur !== null) {
-        pathNodes.push(cur);
-        const p = prev[cur];
-        if (p) {
-          const u = p.node;
-          const edgeId = p.edgeId;
-          pathEdges.push(edgeId);
-
-          const e = ADJ[u].find(e => e.id === edgeId);
-          const effectiveSpeed = e.speed_kmh / e.traffic;
-          const timeMin = 60.0 * e.length_km / Math.max(effectiveSpeed, 1.0);
-          totalTime += timeMin;
-          totalTension += e.tension;
-
-          cur = u;
-        } else {
-          break;
-        }
-      }
-
-      pathNodes.reverse();
-      pathEdges.reverse();
-
-      const avgTension = totalTension / Math.max(pathEdges.length, 1);
-
-      return {
-        nodes: pathNodes,
-        edges: pathEdges,
-        total_time_min: totalTime,
-        avg_tension: avgTension,
-        total_cost: dist[dst]
-      };
-    }
-
-    // ---- Evenimente UI ----
-
+    // --------- Slider UI ----------
     alphaRange.addEventListener("input", () => {
       alphaValue.textContent = alphaRange.value;
     });
-
     betaRange.addEventListener("input", () => {
       betaValue.textContent = betaRange.value;
     });
 
-    routeBtn.addEventListener("click", () => {
-      const src   = srcSelect.value;
-      const dst   = dstSelect.value;
-      const alpha = parseFloat(alphaRange.value);
-      const beta  = parseFloat(betaRange.value);
-
-      const result = computeRoute(src, dst, alpha, beta);
-      if (!result) {
+    // --------- Rutare coezivă cu OSRM ----------
+    async function computeCohesiveRoute() {
+      if (!originLatLng || !destLatLng) {
+        log("Setează origine și destinație înainte de rutare.");
         updateMetrics(null);
-        drawGraph([]);
         return;
       }
 
-      updateMetrics(result);
-      // colorăm doar muchiile "de bază" (fără _rev)
-      const edgeIds = result.edges.map(eid => eid.replace("_rev", ""));
-      drawGraph(edgeIds);
-    });
+      const alpha = parseFloat(alphaRange.value);
+      const beta  = parseFloat(betaRange.value);
 
-    // init
-    initSelects();
-    drawGraph([]);
+      const src = originLatLng;
+      const dst = destLatLng;
+
+      const coordsParam = `${src[1]},${src[0]};${dst[1]},${dst[0]}`;
+      const url =
+        `https://router.project-osrm.org/route/v1/driving/${coordsParam}` +
+        `?overview=full&geometries=geojson&steps=true&alternatives=true`;
+
+      routeBtn.disabled = true;
+      routeBtn.textContent = "Calculează...";
+
+      clearRoutes();
+      updateMetrics(null);
+
+      try {
+        const res = await fetch(url);
+        if (!res.ok) {
+          log("Eroare OSRM: " + res.status);
+          return;
+        }
+        const data = await res.json();
+        if (!data.routes || data.routes.length === 0) {
+          log("Nicio rută găsită.");
+          return;
+        }
+
+        const routes = data.routes;
+        log(`Am primit ${routes.length} rute de la OSRM.`);
+
+        // calculăm "tensiune" = număr de manevre (turn-by-turn)
+        let maxManeuvers = 0;
+        const enriched = routes.map((r, idx) => {
+          let maneuvers = 0;
+          r.legs.forEach(leg => {
+            if (leg.steps) maneuvers += leg.steps.length;
+          });
+          if (maneuvers > maxManeuvers) maxManeuvers = maneuvers;
+
+          return {
+            index: idx,
+            route: r,
+            durationSec: r.duration,
+            maneuvers
+          };
+        });
+
+        // normalizare tensiune în [0,1]
+        enriched.forEach(obj => {
+          obj.tensionNorm =
+            maxManeuvers > 0 ? obj.maneuvers / maxManeuvers : 0;
+        });
+
+        // cost coeziv = α * timp(min) + β * tensiuneNorm
+        enriched.forEach(obj => {
+          const tMin = obj.durationSec / 60.0;
+          obj.timeMin = tMin;
+          obj.cost = alpha * tMin + beta * obj.tensionNorm;
+        });
+
+        // alegem ruta cu cost minim
+        enriched.sort((a, b) => a.cost - b.cost);
+        const best = enriched[0];
+
+        log(`Rută coezivă aleasă: #${best.index + 1}, timp ~ ${best.timeMin.toFixed(1)} min, manevre: ${best.maneuvers}, cost: ${best.cost.toFixed(2)}`);
+
+        // desenăm toate rutele (gri), apoi cea mai bună (albastru)
+        routes.forEach((r, idx) => {
+          const coords = r.geometry.coordinates.map(c => [c[1], c[0]]);
+          const polyline = L.polyline(coords, {
+            color: "#9CA3AF",
+            weight: 3,
+            opacity: 0.7
+          });
+          polyline.addTo(map);
+          routeLayers.push(polyline);
+        });
+
+        const bestCoords = best.route.geometry.coordinates.map(c => [c[1], c[0]]);
+        bestRouteLayer = L.polyline(bestCoords, {
+          color: "#2563EB",
+          weight: 6,
+          opacity: 0.9
+        }).addTo(map);
+
+        // ajustăm view-ul
+        map.fitBounds(bestRouteLayer.getBounds(), { padding: [30, 30] });
+
+        updateMetrics({
+          routeIndex: best.index,
+          routesCount: routes.length,
+          timeMin: best.timeMin,
+          tensionNorm: best.tensionNorm,
+          maneuvers: best.maneuvers,
+          cost: best.cost
+        });
+
+      } catch (e) {
+        log("Eroare la rutare: " + e);
+      } finally {
+        routeBtn.disabled = false;
+        routeBtn.textContent = "Calculează rută coezivă";
+      }
+    }
+
+    routeBtn.addEventListener("click", computeCohesiveRoute);
+
+    // mesaj inițial
+    log("Alt+Click pe hartă pentru a seta originea. Click simplu pentru destinație. Apoi apasă „Calculează rută coezivă”.");
   </script>
 </body>
 </html>
