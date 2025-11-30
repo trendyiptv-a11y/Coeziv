@@ -27,42 +27,75 @@
       height: 100%;
     }
 
-    .top-bar {
+    /* Panou jos – ca un bottom sheet de aplicație GPS */
+    .panel {
       position: absolute;
-      top: 10px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(15,23,42,0.96);
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(15,23,42,0.97);
       color: #e5e7eb;
-      padding: 10px 14px;
-      border-radius: 20px;
-      box-shadow: 0 12px 30px rgba(0,0,0,0.45);
+      padding: 10px 12px 14px;
+      box-shadow: 0 -8px 20px rgba(0,0,0,0.6);
+      z-index: 1000;
+    }
+
+    .panel-inner {
+      max-width: 900px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .panel-row {
       display: flex;
       align-items: center;
-      gap: 10px;
-      z-index: 1000;
-      max-width: 900px;
-      width: calc(100vw - 20px);
+      gap: 8px;
     }
 
     .brand {
-      font-size: 0.9rem;
+      font-size: 0.95rem;
       font-weight: 600;
+      flex: 1;
       white-space: nowrap;
     }
 
-    .search-wrap {
+    .btn {
+      border-radius: 999px;
+      border: none;
+      padding: 8px 12px;
+      font-size: 0.85rem;
+      background: #1f2937;
+      color: #e5e7eb;
+      cursor: pointer;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+    .btn-primary {
+      background: #2563eb;
+      color: #fff;
+      font-weight: 600;
+      flex: 1;
+      text-align: center;
+      justify-content: center;
+    }
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: default;
+    }
+
+    .input-wrap {
       position: relative;
       flex: 1;
-      min-width: 140px;
     }
 
     .search-input {
       width: 100%;
       border-radius: 999px;
       border: 1px solid #4b5563;
-      padding: 10px 12px;
-      font-size: 0.9rem;
+      padding: 9px 12px;
+      font-size: 0.85rem;
       background: #020617;
       color: #e5e7eb;
       outline: none;
@@ -73,13 +106,13 @@
 
     .suggestions {
       position: absolute;
-      top: calc(100% + 4px);
       left: 0;
       right: 0;
+      bottom: 110%;
       background: #020617;
-      border-radius: 14px;
+      border-radius: 12px;
       border: 1px solid #4b5563;
-      box-shadow: 0 14px 28px rgba(0,0,0,0.6);
+      box-shadow: 0 12px 28px rgba(0,0,0,0.7);
       max-height: 260px;
       overflow-y: auto;
       font-size: 0.8rem;
@@ -94,46 +127,22 @@
       background: #1e293b;
     }
 
-    .btn {
-      border-radius: 999px;
-      border: none;
-      padding: 10px 16px;
-      font-size: 0.9rem;
-      background: #2563eb;
-      color: white;
-      cursor: pointer;
-      font-weight: 600;
-      white-space: nowrap;
-      flex-shrink: 0;
-    }
-    .btn:disabled {
-      opacity: 0.6;
-      cursor: default;
+    .info-small {
+      font-size: 0.75rem;
+      color: #9ca3af;
     }
 
-    .info-badge {
-      position: absolute;
-      bottom: 10px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(15,23,42,0.93);
-      color: #e5e7eb;
-      padding: 7px 12px;
-      border-radius: 999px;
+    .route-info {
       font-size: 0.8rem;
-      display: flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: #0b1120;
+      display: inline-flex;
       align-items: center;
       gap: 6px;
-      z-index: 1000;
-      max-width: 95vw;
-      flex-wrap: wrap;
-      justify-content: center;
+      align-self: center;
     }
-    .pill {
-      border-radius: 999px;
-      padding: 3px 8px;
-      background: #111827;
-    }
+
     .dot-origin { color:#4ade80; }
     .dot-dest   { color:#f97373; }
     .dot-route  { color:#60a5fa; }
@@ -142,10 +151,10 @@
       position: absolute;
       left: 50%;
       transform: translateX(-50%);
-      bottom: 60px;
+      bottom: 52px;
       background: rgba(15,23,42,0.98);
       color: #e5e7eb;
-      padding: 8px 12px;
+      padding: 7px 11px;
       border-radius: 10px;
       font-size: 0.8rem;
       max-width: 90vw;
@@ -157,22 +166,11 @@
     }
     .toast.show { opacity: 1; }
 
-    @media (max-width: 640px) {
-      .top-bar {
-        top: 8px;
+    @media (min-width: 768px) {
+      .panel {
         left: 50%;
         transform: translateX(-50%);
-        flex-direction: column;
-        align-items: stretch;
-        gap: 8px;
-        border-radius: 22px;
-      }
-      .brand {
-        text-align: center;
-      }
-      .btn {
-        width: 100%;
-        justify-content: center;
+        border-radius: 16px 16px 0 0;
       }
     }
   </style>
@@ -180,26 +178,42 @@
 <body>
   <div id="map"></div>
 
-  <div class="top-bar">
-    <div class="brand">GPS Coeziv</div>
-    <div class="search-wrap">
-      <input
-        id="addressInput"
-        class="search-input"
-        type="text"
-        placeholder="Introdu destinația..."
-        autocomplete="off"
-      />
-      <div id="suggestions" class="suggestions" style="display:none;"></div>
-    </div>
-    <button id="startBtn" class="btn">Start</button>
-  </div>
+  <div class="panel">
+    <div class="panel-inner">
+      <div class="panel-row">
+        <div class="brand">GPS Coeziv</div>
+        <button id="gpsBtn" class="btn">GPS</button>
+      </div>
 
-  <div class="info-badge">
-    <span class="pill"><span class="dot-origin">●</span> Origine</span>
-    <span class="pill"><span class="dot-dest">●</span> Destinație</span>
-    <span class="pill"><span class="dot-route">━</span> Rută</span>
-    <span id="infoRoute" class="pill">–</span>
+      <div class="panel-row">
+        <div class="input-wrap">
+          <input
+            id="addressInput"
+            class="search-input"
+            type="text"
+            placeholder="Introdu destinația..."
+            autocomplete="off"
+          />
+          <div id="suggestions" class="suggestions" style="display:none;"></div>
+        </div>
+      </div>
+
+      <div class="panel-row">
+        <button id="startBtn" class="btn btn-primary">Start navigație</button>
+      </div>
+
+      <div class="panel-row" style="justify-content: space-between;">
+        <div class="info-small">
+          Tap pe hartă = destinație · Alt+Tap = origine
+        </div>
+        <div id="routeInfo" class="route-info">
+          <span class="dot-origin">●</span>O
+          <span class="dot-dest">●</span>D
+          <span class="dot-route">━</span>
+          <span id="routeText">–</span>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div id="toast" class="toast"></div>
@@ -212,9 +226,9 @@
   ></script>
 
   <script>
-    // -------- Parametri coezivi (invizibili în UI) ----------
-    const COHESION_ALPHA = 1.0;  // pondere timp (minute)
-    const COHESION_BETA  = 2.0;  // pondere complexitate (manevre)
+    // ---- parametri coezivi (în spate) ----
+    const COHESION_ALPHA = 1.0; // timp
+    const COHESION_BETA  = 2.0; // manevre
 
     const defaultCenter = [45.94, 24.97];
     const defaultZoom   = 6;
@@ -232,11 +246,12 @@
     let routeLayers  = [];
     let bestRouteLayer = null;
 
-    const addressInput   = document.getElementById("addressInput");
-    const suggestionsBox = document.getElementById("suggestions");
-    const startBtn       = document.getElementById("startBtn");
-    const toastEl        = document.getElementById("toast");
-    const infoRouteEl    = document.getElementById("infoRoute");
+    const gpsBtn        = document.getElementById("gpsBtn");
+    const addressInput  = document.getElementById("addressInput");
+    const suggestionsEl = document.getElementById("suggestions");
+    const startBtn      = document.getElementById("startBtn");
+    const toastEl       = document.getElementById("toast");
+    const routeTextEl   = document.getElementById("routeText");
 
     function showToast(msg) {
       toastEl.textContent = msg;
@@ -269,13 +284,13 @@
         map.removeLayer(bestRouteLayer);
         bestRouteLayer = null;
       }
-      infoRouteEl.textContent = "–";
+      routeTextEl.textContent = "–";
     }
 
-    // --------- Auto-GPS la încărcare ----------
-    window.addEventListener("load", () => {
+    // ---- GPS – buton + auto la load ----
+    function getGPSOrigin(showMsg = true) {
       if (!navigator.geolocation) {
-        showToast("Geolocația nu e disponibilă. Alt+Click pe hartă pentru origine.");
+        if (showMsg) showToast("Browserul nu are geolocație.");
         return;
       }
       navigator.geolocation.getCurrentPosition(
@@ -284,22 +299,25 @@
           const lon = pos.coords.longitude;
           setOrigin(lat, lon, "Origine (GPS)");
           map.setView([lat, lon], 14);
-          showToast("Origine setată din GPS.");
+          if (showMsg) showToast("Origine setată din GPS.");
         },
         () => {
-          showToast("GPS indisponibil. Folosește Alt+Click pentru origine.");
+          if (showMsg) showToast("GPS indisponibil. Folosește Alt+Tap pe hartă.");
         }
       );
-    });
+    }
 
-    // ---------- Click pe hartă ----------
+    window.addEventListener("load", () => {
+      getGPSOrigin(false); // încearcă automat, dar fără mesaj deranjant
+    });
+    gpsBtn.addEventListener("click", () => getGPSOrigin(true));
+
+    // ---- click pe hartă: destinație / origine ----
     map.on("click", (e) => {
       if (e.originalEvent.altKey) {
-        // Alt+Click => origine
-        setOrigin(e.latlng.lat, e.latlng.lng, "Origine (Alt+Click)");
+        setOrigin(e.latlng.lat, e.latlng.lng, "Origine (Alt+Tap)");
         showToast("Origine actualizată.");
       } else {
-        // Click simplu => destinație
         setDest(e.latlng.lat, e.latlng.lng, "Destinație");
         clearSuggestions();
         addressInput.value = "";
@@ -307,12 +325,12 @@
       }
     });
 
-    // ---------- Autocomplete cu Nominatim ----------
+    // ---- autocomplete ----
     let autocompleteTimeout = null;
 
     addressInput.addEventListener("input", () => {
       const q = addressInput.value.trim();
-      destLatLng = null; // dacă modifici textul, anulăm destinația curentă
+      destLatLng = null; // când editezi textul, nu mai avem destinație sigură
       if (q.length < 3) {
         clearSuggestions();
         return;
@@ -322,8 +340,8 @@
     });
 
     function clearSuggestions() {
-      suggestionsBox.innerHTML = "";
-      suggestionsBox.style.display = "none";
+      suggestionsEl.innerHTML = "";
+      suggestionsEl.style.display = "none";
     }
 
     async function fetchSuggestions(query) {
@@ -331,23 +349,21 @@
         const url =
           "https://nominatim.openstreetmap.org/search?format=json&limit=5&addressdetails=1&q=" +
           encodeURIComponent(query);
-        const res = await fetch(url, {
-          headers: { "Accept-Language": "ro" }
-        });
+        const res = await fetch(url, { headers: { "Accept-Language": "ro" } });
         const data = await res.json();
         if (!data || data.length === 0) {
           clearSuggestions();
           return;
         }
-        suggestionsBox.innerHTML = "";
+        suggestionsEl.innerHTML = "";
         data.forEach((item) => {
           const div = document.createElement("div");
           div.className = "suggestion-item";
           div.textContent = item.display_name;
           div.addEventListener("click", () => chooseSuggestion(item));
-          suggestionsBox.appendChild(div);
+          suggestionsEl.appendChild(div);
         });
-        suggestionsBox.style.display = "block";
+        suggestionsEl.style.display = "block";
       } catch (e) {
         console.error(e);
       }
@@ -363,31 +379,26 @@
       showToast("Destinație aleasă.");
     }
 
-    // Închidem lista de sugestii când facem click în afara ei
     document.addEventListener("click", (e) => {
-      const clickInside =
-        e.target === addressInput || suggestionsBox.contains(e.target);
-      if (!clickInside) {
-        clearSuggestions();
-      }
+      const inside =
+        e.target === addressInput || suggestionsEl.contains(e.target);
+      if (!inside) clearSuggestions();
     });
 
-    // ---------- Rutare coezivă ----------
+    // ---- rutare coezivă (Start navigație) ----
     async function computeCohesiveRoute() {
       if (!originLatLng) {
-        showToast("Setează originea (GPS sau Alt+Click).");
+        showToast("Setează originea (GPS sau Alt+Tap pe hartă).");
         return;
       }
-
       if (!destLatLng) {
         if (addressInput.value.trim().length < 3) {
-          showToast("Introdu destinația și alege din listă.");
+          showToast("Introdu destinația și alege din listă – sau tap pe hartă.");
           return;
         }
-        // dacă userul a scris dar nu a ales, îl forțăm să aleagă
+        // nu forțăm nimic automat: userul TREBUIE să aleagă din listă
         showToast("Alege destinația din lista de sugestii.");
-        if (suggestionsBox.style.display === "none") {
-          // re-cerem sugestii
+        if (suggestionsEl.style.display === "none") {
           fetchSuggestions(addressInput.value.trim());
         }
         return;
@@ -401,7 +412,7 @@
         `?overview=full&geometries=geojson&steps=true&alternatives=true`;
 
       startBtn.disabled = true;
-      startBtn.textContent = "Calculez...";
+      startBtn.textContent = "Se calculează...";
       clearRoutes();
 
       try {
@@ -447,7 +458,7 @@
         enriched.sort((a, b) => a.cost - b.cost);
         const best = enriched[0];
 
-        // desenăm toate rutele (gri)
+        // toate rutele (gri)
         routes.forEach(r => {
           const coords = r.geometry.coordinates.map(c => [c[1], c[0]]);
           const polyline = L.polyline(coords, {
@@ -458,7 +469,7 @@
           routeLayers.push(polyline);
         });
 
-        // ruta optimă (albastru)
+        // ruta coezivă (albastru)
         const bestCoords = best.route.geometry.coordinates.map(c => [c[1], c[0]]);
         bestRouteLayer = L.polyline(bestCoords, {
           color: "#2563EB",
@@ -466,19 +477,19 @@
           opacity: 0.98
         }).addTo(map);
 
-        map.fitBounds(bestRouteLayer.getBounds(), { padding: [40, 40] });
+        map.fitBounds(bestRouteLayer.getBounds(), { padding: [50, 160] });
 
         const km = best.distanceM / 1000.0;
-        infoRouteEl.textContent =
+        routeTextEl.textContent =
           `${km.toFixed(1)} km · ${best.timeMin.toFixed(0)} min · ${best.maneuvers} manevre`;
 
-        showToast(`Rută aleasă (~${best.timeMin.toFixed(0)} min, ${best.maneuvers} manevre).`);
+        showToast(`Rută coezivă aleasă (~${best.timeMin.toFixed(0)} min).`);
       } catch (e) {
         console.error(e);
         showToast("Eroare la rutare.");
       } finally {
         startBtn.disabled = false;
-        startBtn.textContent = "Start";
+        startBtn.textContent = "Start navigație";
       }
     }
 
