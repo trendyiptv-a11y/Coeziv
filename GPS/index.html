@@ -179,26 +179,50 @@
       background: linear-gradient(90deg,#0f172a,#111827);
       color: #e5e7eb;
       padding: 8px 14px;
-      border-radius: 999px;
+      border-radius: 18px;
       font-size: 0.9rem;
       display: flex;
-      align-items: center;
-      gap: 10px;
+      flex-direction: column;
+      gap: 4px;
       z-index: 1000;
       max-width: 95vw;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
       box-shadow: 0 10px 25px rgba(0,0,0,0.5);
       border: 1px solid #1d4ed8;
     }
+    .nav-row-main {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
     .nav-arrow {
       font-size: 1.3rem;
+      flex-shrink: 0;
+    }
+    #navText {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
     .nav-distance {
       font-size: 0.85rem;
       color: #93c5fd;
       margin-left: 4px;
+      flex-shrink: 0;
+    }
+    .nav-row-extra {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.8rem;
+      flex-wrap: wrap;
+    }
+    .nav-warn {
+      color: #facc15;
+    }
+    .nav-lane {
+      font-family: monospace;
+      color: #bfdbfe;
     }
     .nav-mode-chip {
       font-size: 0.75rem;
@@ -206,6 +230,7 @@
       padding: 3px 6px;
       border-radius: 999px;
       border: 1px solid #1e3a8a;
+      margin-left: auto;
     }
 
     /* marker săgeată GPS */
@@ -266,10 +291,16 @@
 
   <!-- Banner navigație -->
   <div id="navBanner" class="nav-banner">
-    <span class="nav-arrow">⬆️</span>
-    <span id="navText">Pregătit. Alege destinația și apasă „Start navigație”.</span>
-    <span id="navDist" class="nav-distance"></span>
-    <span id="navModeChip" class="nav-mode-chip">Auto · Echilibrat</span>
+    <div class="nav-row-main">
+      <span class="nav-arrow">⬆️</span>
+      <span id="navText">Pregătit. Alege destinația și apasă „Start navigație”.</span>
+      <span id="navDist" class="nav-distance"></span>
+    </div>
+    <div class="nav-row-extra">
+      <span id="navWarn" class="nav-warn"></span>
+      <span id="navLane" class="nav-lane"></span>
+      <span id="navModeChip" class="nav-mode-chip">Auto · Echilibrat</span>
+    </div>
   </div>
 
   <!-- PANOU JOS -->
@@ -342,7 +373,7 @@
       stable:   { alpha: 0.9, beta: 1.8, gamma: 1.6 }
     };
 
-    let transportMode = "driving";   // OSRM profile: driving | cycling | walking
+    let transportMode = "driving";   // driving | cycling | walking
     let cohesionProfile = "balanced";
 
     function applyCohesionProfile() {
@@ -387,11 +418,12 @@
     const navDistEl     = document.getElementById("navDist");
     const navArrowEl    = document.querySelector(".nav-arrow");
     const navModeChipEl = document.getElementById("navModeChip");
+    const navWarnEl     = document.getElementById("navWarn");
+    const navLaneEl     = document.getElementById("navLane");
 
-    const modeGroup = document.getElementById("modeGroup");
-    const profileGroup = document.getElementById("profileGroup");
+    const modeGroup     = document.getElementById("modeGroup");
+    const profileGroup  = document.getElementById("profileGroup");
 
-    // icon săgeată
     const arrowIcon = L.divIcon({
       className: "arrow-icon",
       html: "<span>▲</span>",
@@ -429,6 +461,8 @@
       currentStepIndex = 0;
       lastSpokenStepIndex = -1;
       routeTextEl.textContent = "–";
+      navWarnEl.textContent = "";
+      navLaneEl.textContent = "";
     }
 
     function getGPSOrigin(showMsg = true) {
@@ -479,23 +513,27 @@
     // --- toggle mod transport ---
     modeGroup.addEventListener("click", (e) => {
       if (!e.target.dataset.mode) return;
-      transportMode = e.target.dataset.mode; // driving | cycling | walking
+      transportMode = e.target.dataset.mode;
       [...modeGroup.querySelectorAll(".toggle")].forEach(b => b.classList.toggle("active", b === e.target));
       updateModeChip();
-      showToast(transportMode === "driving" ? "Mod: Auto" :
-                transportMode === "cycling" ? "Mod: Bicicletă" :
-                "Mod: Pe jos");
+      showToast(
+        transportMode === "driving"  ? "Mod: Auto" :
+        transportMode === "cycling"  ? "Mod: Bicicletă" :
+                                       "Mod: Pe jos"
+      );
     });
 
     // --- toggle profil coeziv ---
     profileGroup.addEventListener("click", (e) => {
       if (!e.target.dataset.prof) return;
-      cohesionProfile = e.target.dataset.prof; // fast | balanced | stable
+      cohesionProfile = e.target.dataset.prof;
       [...profileGroup.querySelectorAll(".toggle")].forEach(b => b.classList.toggle("active", b === e.target));
       applyCohesionProfile();
-      showToast(cohesionProfile === "fast" ? "Profil: Rapid" :
-                cohesionProfile === "balanced" ? "Profil: Echilibrat" :
-                "Profil: Stabil");
+      showToast(
+        cohesionProfile === "fast"     ? "Profil: Rapid" :
+        cohesionProfile === "balanced" ? "Profil: Echilibrat" :
+                                         "Profil: Stabil"
+      );
     });
 
     function updateModeChip() {
@@ -518,7 +556,6 @@
         suggestionsEl.style.display = "none";
         return;
       }
-
       if (autocompleteTimeout) clearTimeout(autocompleteTimeout);
       autocompleteTimeout = setTimeout(() => fetchSuggestions(q), 350);
     });
@@ -563,7 +600,7 @@
 
     // --- funcții geo ---
     function haversine(lat1, lon1, lat2, lon2) {
-      const R = 6371000; // m
+      const R = 6371000;
       const toRad = deg => deg * Math.PI / 180;
       const dLat = toRad(lat2 - lat1);
       const dLon = toRad(lon2 - lon1);
@@ -598,6 +635,13 @@
                 Math.sin(φ1)*Math.cos(φ2)*Math.cos(λ2-λ1);
       const θ = Math.atan2(y, x);
       return (toDeg(θ) + 360) % 360;
+    }
+
+    // --- Lane render ---
+    function renderLaneHint(lanes) {
+      if (!lanes || !lanes.length) return "";
+      // valid lane -> 🟦, altfel ⬛
+      return lanes.map(l => l.valid ? "🟦" : "⬛").join(" ");
     }
 
     // --- text manevre + icon ---
@@ -678,11 +722,10 @@
           }
           userPrevPoint = point;
 
-          // auto-zoom / follow
           let zoomTarget = 15;
           if (routeSteps.length) {
             const step = routeSteps[Math.min(currentStepIndex, routeSteps.length - 1)];
-            const loc = step.maneuver.location; // [lon,lat]
+            const loc = step.maneuver.location;
             const dToStep = haversine(point[0], point[1], loc[1], loc[0]);
             if (dToStep > 1500) zoomTarget = 14;
             else if (dToStep > 400) zoomTarget = 15;
@@ -718,6 +761,8 @@
       if (!routeSteps.length) {
         navTextEl.textContent = "Urmează ruta trasată.";
         navDistEl.textContent = "";
+        navWarnEl.textContent = "";
+        navLaneEl.textContent = "";
         return;
       }
 
@@ -748,9 +793,26 @@
       navArrowEl.textContent = arrow;
       navDistEl.textContent = dToStep < 15 ? "acum" : `în ${dShow}`;
 
-      // voce: când se schimbă step-ul, ești aproape
+      const meta = step._coezivMeta || {};
+      // avertizări
+      navWarnEl.textContent = meta.curve
+        ? "🚧 Curbă strânsă"
+        : meta.crossing
+          ? "🚸 Trecere pietoni / semafor"
+          : meta.radar
+            ? "📸 Zonă control / radar"
+            : "";
+
+      // benzi
+      navLaneEl.textContent = meta.lanes ? renderLaneHint(meta.lanes) : "";
+
+      // voce: doar când se schimbă step-ul și ești aproape
       if (currentStepIndex !== lastSpokenStepIndex && dToStep < 120) {
-        speak(text);
+        let speakText = text;
+        if (meta.curve) speakText = "Atenție, curbă strânsă. " + speakText;
+        else if (meta.crossing) speakText = "Atenție, trecere pietoni. " + speakText;
+        else if (meta.radar) speakText = "Posibil radar. " + speakText;
+        speak(speakText);
         lastSpokenStepIndex = currentStepIndex;
       }
 
@@ -759,7 +821,7 @@
       }
     }
 
-    // --- rutare coezivă extinsă ---
+    // --- rutare coezivă extinsă cu meta (curbe / pietoni / radar / benzi) ---
     async function computeCohesiveRoute(fromReroute = false) {
       if (!originLatLng) {
         showToast("Setează originea (GPS sau Alt+Tap).");
@@ -773,7 +835,7 @@
       const src = originLatLng;
       const dst = destLatLng;
       const coordsParam = `${src[1]},${src[0]};${dst[1]},${dst[0]}`;
-      const profile = transportMode; // driving | cycling | walking
+      const profile = transportMode;
 
       const url =
         `https://router.project-osrm.org/route/v1/${profile}/${coordsParam}` +
@@ -807,15 +869,40 @@
           const stepsFlat = [];
 
           r.legs.forEach(leg => {
-            maneuvers += leg.steps.length;
-            leg.steps.forEach(s => {
-              stepsFlat.push(s);
-              if (s.maneuver && (s.maneuver.type === "roundabout" || s.maneuver.type === "turn")) {
+            leg.steps.forEach((s, idx) => {
+              maneuvers++;
+              const meta = { curve:false, crossing:false, radar:false, lanes:null };
+
+              // curbă periculoasă: viraj scurt sau sens giratoriu
+              if (s.maneuver &&
+                 ((s.maneuver.type === "turn" && s.distance < 60) ||
+                  s.maneuver.type === "roundabout")) {
+                meta.curve = true;
                 microTension += 1.0;
               }
-              if (s.distance && s.distance < 40) {
+
+              // trecere pietoni / semafor (dacă OSRM știe de traffic_signal)
+              if (s.intersections) {
+                const hasSignal = s.intersections.some(i => i.traffic_signal);
+                if (hasSignal) {
+                  meta.crossing = true;
+                  microTension += 0.7;
+                }
+                // lane guidance
+                const inter = s.intersections.find(i => i.lanes && i.lanes.length);
+                if (inter) {
+                  meta.lanes = inter.lanes;
+                }
+              }
+
+              // "radar" conceptual: segmente mai lungi în zone cu tensiune mică -> control
+              if (!meta.curve && !meta.crossing && s.distance > 200 && (idx % 5 === 0)) {
+                meta.radar = true;
                 microTension += 0.5;
               }
+
+              s._coezivMeta = meta;
+              stepsFlat.push(s);
             });
           });
 
@@ -861,15 +948,17 @@
           `${km.toFixed(1)} km · ${best.timeMin.toFixed(0)} min · ${best.maneuvers} manevre`;
 
         routeCoords = bestCoords;
-        routeSteps = best.stepsFlat;
+        routeSteps  = best.stepsFlat;
         currentStepIndex = 0;
         lastSpokenStepIndex = -1;
 
         const firstStep = routeSteps[0];
         const { text, arrow } = maneuverToText(firstStep);
         navArrowEl.textContent = arrow;
-        navTextEl.textContent = text;
-        navDistEl.textContent = "";
+        navTextEl.textContent  = text;
+        navDistEl.textContent  = "";
+        navWarnEl.textContent  = "";
+        navLaneEl.textContent  = "";
 
         if (!fromReroute) {
           showToast("Rută coezivă calculată. Navigație pornită.");
