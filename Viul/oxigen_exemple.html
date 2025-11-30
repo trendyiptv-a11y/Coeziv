@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <title>Model coeziv de transfer al oxigenului – Exemple aplicate</title>
+  <script>
+    MathJax = {
+      tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}
+    };
+  </script>
+  <script id="MathJax-script" async
+          src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem 4rem;
+      line-height: 1.6;
+      background: #f7f7f9;
+      color: #222;
+    }
+    h1, h2, h3 {
+      font-weight: 600;
+    }
+    h1 { margin-bottom: 0.25rem; }
+    h2 { margin-top: 2rem; }
+    h3 { margin-top: 1.25rem; }
+    .tagline {
+      font-size: 0.9rem;
+      color: #666;
+      margin-bottom: 1.5rem;
+    }
+    .card {
+      background: #fff;
+      border-radius: 8px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      margin-bottom: 1.5rem;
+    }
+    .eq {
+      text-align: center;
+      margin: 1rem 0;
+    }
+    ul {
+      margin-top: 0.3rem;
+    }
+    .highlight {
+      background: #f0f7ff;
+      border-left: 4px solid #3b82f6;
+      padding: 0.75rem 1rem;
+      border-radius: 6px;
+      margin-top: 0.75rem;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #ddd;
+      margin: 2rem 0;
+    }
+    .note {
+      font-size: 0.9rem;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Model coeziv de transfer al oxigenului</h1>
+  <div class="tagline">
+    Exemple aplicate pentru adult sănătos și fibroză interstițială, în cadrul modelului coeziv (v0.2).
+  </div>
+
+  <div class="card">
+    <h2>1. Scenariul S1 – Adult sănătos, în repaus</h2>
+    <p><strong>Date tipice:</strong></p>
+    <ul>
+      <li>FIO<sub>2</sub> = 0,21, PB = 760 mmHg, PH<sub>2</sub>O = 47 mmHg</li>
+      <li>PaCO<sub>2</sub> ≈ 40 mmHg, R ≈ 0,8</li>
+      <li>Hb = 15 g/dL, Q = 5 L/min</li>
+      <li>VO<sub>2</sub> ≈ 250 ml/min</li>
+    </ul>
+
+    <h3>1.1. Ventilație – calculul PAO<sub>2</sub></h3>
+    <div class="eq">
+      $$P_{A O_2}
+        \approx F_{I O_2}(P_B - P_{H_2O}) - \frac{P_{a CO_2}}{R}$$
+    </div>
+    <p>
+      Cu valorile de mai sus:
+    </p>
+    <div class="eq">
+      $$P_B - P_{H_2O} = 760 - 47 = 713 \text{ mmHg}$$
+      $$F_{I O_2} \cdot 713 \approx 0{,}21 \cdot 713 \approx 150 \text{ mmHg}$$
+      $$\frac{P_{a CO_2}}{R} = \frac{40}{0{,}8} = 50 \text{ mmHg}$$
+      $$\Rightarrow P_{A O_2} \approx 150 - 50 = 100 \text{ mmHg}$$
+    </div>
+
+    <h3>1.2. Membrană + sânge – DL și fluxul maxim posibil</h3>
+    <p>
+      Capacitate de difuziune tipică:
+    </p>
+    <div class="eq">
+      $$D_{L,O_2} \approx 30 \ \text{ml/min/mmHg}$$
+    </div>
+    <p>
+      Gradient aproximativ:
+    </p>
+    <div class="eq">
+      $$\Delta P \approx P_{A O_2} - P_{\bar c O_2} \approx 100 - 40 = 60 \text{ mmHg}$$
+    </div>
+    <p>
+      Flux maxim teoretic:
+    </p>
+    <div class="eq">
+      $$\dot V_{O_2}^{max} \approx D_{L,O_2} \cdot \Delta P \approx 30 \cdot 60 = 1800\ \text{ml/min}$$
+    </div>
+    <div class="highlight">
+      <strong>Observație:</strong> necesarul real este VO<sub>2</sub> ≈ 250 ml/min, deci există o rezervă de ~7×. La repaus, difuziunea prin MAC nu este limitantă.
+    </div>
+
+    <h3>1.3. Circulație – conținut arterial și venos</h3>
+    <p>
+      Conținut arterial:
+    </p>
+    <div class="eq">
+      $$C_{aO_2} \approx 1{,}34 \cdot [Hb] \cdot S_{aO_2} + 0{,}003 \cdot P_{aO_2}$$
+    </div>
+    <p>
+      Pentru [Hb] = 15, SaO<sub>2</sub> ≈ 0,97, PaO<sub>2</sub> ≈ 95:
+    </p>
+    <div class="eq">
+      $$C_{aO_2} \approx 1{,}34 \cdot 15 \cdot 0{,}97 + 0{,}003 \cdot 95 \approx 20\ \text{ml/dL}$$
+    </div>
+    <p>
+      Debitul: Q = 5 L/min = 50 dL/min, VO<sub>2</sub> = 250 ml/min:
+    </p>
+    <div class="eq">
+      $$C_{aO_2} - C_{vO_2} = \frac{VO_2}{Q} = \frac{250}{50} = 5\ \text{ml/dL}$$
+      $$C_{vO_2} \approx 20 - 5 = 15\ \text{ml/dL}$$
+    </div>
+    <p>
+      Flux prin circulație:
+    </p>
+    <div class="eq">
+      $$\dot V_{O_2}^{circulație} = Q (C_{aO_2} - C_{vO_2}) = 5 \cdot 5 = 250\ \text{ml/min}$$
+    </div>
+
+    <h3>1.4. Metabolism – DO₂ și VO₂</h3>
+    <div class="eq">
+      $$DO_2 = Q \cdot C_{aO_2} \approx 5 \cdot 200 = 1000\ \text{ml/min}$$
+      $$VO_2 \approx 250\ \text{ml/min}$$
+    </div>
+    <div class="highlight">
+      Raportul DO₂/VO₂ ≈ 4. Sistemul are rezervă amplă. Modelul coeziv se închide: același flux (~250 ml/min) satisface toate blocurile (MAC, circulație, metabolism).
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>2. Scenariul S2 – Fibroză interstițială moderată</h2>
+    <p>
+      Considerăm același adult, dar cu fibroză interstițială pulmonară moderată.
+    </p>
+
+    <h3>2.1. Modificări în blocul membrană + sânge</h3>
+    <ul>
+      <li>$L_{\text{ef}} \uparrow$ – îngroșarea MAC (depunere de colagen, remodelare),</li>
+      <li>$A_{\text{ef}} \downarrow$ – suprafață utilă redusă (alveole/septe distruse sau colabate),</li>
+      <li>$V_c \downarrow$ – mai puține capilare funcționale.</li>
+    </ul>
+    <p>
+      Toate duc la scăderea lui $D_{L,O_2}$, de exemplu:
+    </p>
+    <div class="eq">
+      $$D_{L,O_2}: 30 \rightarrow 10\ \text{ml/min/mmHg}$$
+    </div>
+    <p>
+      DL redus se vede clinic ca DLCO scăzută.
+    </p>
+
+    <h3>2.2. Repaus</h3>
+    <p>
+      Presupunem că gradientul alveolă–capilar rămâne de ordinul 60 mmHg (ventilația crește ușor, PAO₂ chiar poate crește puțin).
+    </p>
+    <div class="eq">
+      $$\dot V_{O_2}^{max} \approx D_{L,O_2} \cdot \Delta P \approx 10 \cdot 60 = 600\ \text{ml/min}$$
+    </div>
+    <p>
+      Necesar la repaus: VO₂ ≈ 250 ml/min.
+    </p>
+    <div class="highlight">
+      <strong>Concluzie la repaus:</strong> chiar cu DL redus, capacitatea de transfer (≈600 ml/min) este încă > VO₂ (250 ml/min). Pacientul poate avea SaO₂ aproape normală sau ușor scăzută și simptome minime în repaus.
+    </div>
+
+    <h3>2.3. Efort moderat</h3>
+    <p><strong>Set de valori ilustrative:</strong></p>
+    <ul>
+      <li>VO₂ dorit ≈ 1000 ml/min,</li>
+      <li>Q crește la ≈ 15 L/min,</li>
+      <li>timpul de tranzit capilar scade,</li>
+      <li>$D_{L,O_2}$ rămâne ≈ 10 ml/min/mmHg (fibroza nu se schimbă în timpul efortului).</li>
+    </ul>
+    <p>
+      Chiar dacă ventilația crește și PAO₂ rămâne bună sau crește ușor, limita devine DL mic:
+    </p>
+    <div class="eq">
+      $$\dot V_{O_2}^{max} \approx 10 \cdot 60 = 600\ \text{ml/min}$$
+    </div>
+    <p>
+      Dar țesuturile „cer” ≈ 1000 ml/min.
+    </p>
+    <div class="highlight">
+      <strong>Concluzie la efort:</strong> fluxul maxim posibil prin MAC (≈600 ml/min) &lt; VO₂ dorit (≈1000 ml/min). Apare hipoxie de efort: SaO₂ scade, DO₂ devine insuficient, PvO₂ scade accentuat – pacientul dezvoltă dispnee severă și intoleranță la efort.
+    </div>
+
+    <h3>2.4. Interpretare coezivă</h3>
+    <ul>
+      <li><strong>DLCO scăzută</strong> – scădere a $D_{L,O_2}$ prin $A_{\text{ef}} \downarrow$, $L_{\text{ef}} \uparrow$, $V_c \downarrow$.</li>
+      <li><strong>PAO₂</strong> poate fi normală sau crescută prin hiperventilație, dar <strong>PaO₂</strong> este scăzută → gradient alveolo-arterial crescut.</li>
+      <li><strong>Hiperventilația</strong> (VA ↑) reduce PaCO₂ și crește PAO₂, dar nu poate compensa DL mic.</li>
+      <li><strong>Clinică:</strong> dispnee de efort, desaturări la efort, ulterior hipoxie și în repaus pe măsură ce fibroza progresează.</li>
+    </ul>
+    <div class="highlight">
+      Modelul coeziv explică de ce pacientul cu fibroză poate fi aproape ok în repaus dar se „prăbușește” la efort: aceeași valoare scăzută a DL devine gâtul de sticlă atunci când VO₂ crește.
+    </div>
+  </div>
+
+  <hr>
+
+  <p class="note">
+    Aceste scenarii ilustrează cum modelul coeziv (v0.2) leagă ventilația, difuziunea, perfuzia și metabolismul într-o singură imagine: formula lui Fick este păstrată, dar complet ancorată în fiziologia reală a sistemului respirator.
+  </p>
+
+</body>
+</html>
