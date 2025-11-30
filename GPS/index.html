@@ -76,9 +76,13 @@
       margin-bottom: 4px;
     }
 
-    select, input[type="range"] {
+    input[type="text"], select, input[type="range"] {
       width: 100%;
       margin-bottom: 6px;
+      padding: 6px 8px;
+      border-radius: 6px;
+      border: 1px solid #d1d5db;
+      font-size: 0.8rem;
     }
 
     .btn {
@@ -190,10 +194,15 @@
       <div>
         <h2>1. Puncte</h2>
         <p class="small">
-          <b>Origine:</b> folosește GPS (buton) sau click pe hartă cu <b>Alt+Click</b>.<br/>
-          <b>Destinație:</b> click simplu pe hartă.
+          Origine: GPS automat la încărcare (dacă permiți) sau buton / Alt+Click pe hartă.<br/>
+          Destinație: adresă sau click simplu pe hartă.
         </p>
         <button id="useGpsBtn" class="btn">Folosește poziția mea (GPS)</button>
+
+        <label for="addressInput" style="margin-top:8px;">Adresă destinație</label>
+        <input id="addressInput" type="text" placeholder="Ex: Strada, Oraș, Țară" />
+        <button id="geocodeBtn" class="btn secondary">Setează destinația din adresă</button>
+        <p class="small">sau click pe hartă pentru destinație.</p>
       </div>
 
       <div>
@@ -206,7 +215,7 @@
         <input type="range" id="betaRange" min="0.0" max="5.0" step="0.2" value="2.0">
         <div class="small">β = <span id="betaValue">2.0</span> (manevre / „tensiune structurală”)</div>
 
-        <button id="routeBtn" class="btn">Calculează rută coezivă</button>
+        <button id="routeBtn" class="btn">Calculează rută coezivă (START)</button>
       </div>
 
       <div>
@@ -224,7 +233,7 @@
       <div>
         <h2>4. Log</h2>
         <div class="log" id="logBox">
-          <div>Click pe hartă pentru destinație. Alt+Click pentru origine.</div>
+          <div>La încărcare încearcă GPS automat. Alt+Click pe hartă = origine, click simplu = destinație.</div>
         </div>
       </div>
     </aside>
@@ -249,17 +258,21 @@
 
   <script>
     // --------- Elemente UI ----------
-    const alphaRange  = document.getElementById("alphaRange");
-    const betaRange   = document.getElementById("betaRange");
-    const alphaValue  = document.getElementById("alphaValue");
-    const betaValue   = document.getElementById("betaValue");
-    const routeBtn    = document.getElementById("routeBtn");
-    const useGpsBtn   = document.getElementById("useGpsBtn");
-    const metricsBox  = document.getElementById("metricsBox");
-    const logBox      = document.getElementById("logBox");
+    const alphaRange   = document.getElementById("alphaRange");
+    const betaRange    = document.getElementById("betaRange");
+    const alphaValue   = document.getElementById("alphaValue");
+    const betaValue    = document.getElementById("betaValue");
+    const routeBtn     = document.getElementById("routeBtn");
+    const useGpsBtn    = document.getElementById("useGpsBtn");
+    const addressInput = document.getElementById("addressInput");
+    const geocodeBtn   = document.getElementById("geocodeBtn");
+    const metricsBox   = document.getElementById("metricsBox");
+    const logBox       = document.getElementById("logBox");
 
     // --------- Harta Leaflet ----------
-    const map = L.map("map").setView([45.75, 21.23], 13); // centru generic (ex: Timișoara)
+    const defaultCenter = [45.94, 24.97]; // centru România / Europa centrală
+    const defaultZoom   = 6;
+    const map = L.map("map").setView(defaultCenter, defaultZoom);
 
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       maxZoom: 19,
@@ -271,7 +284,7 @@
     let originLatLng = null;
     let destLatLng   = null;
 
-    let routeLayers = []; // rutele desenate (toate)
+    let routeLayers    = [];
     let bestRouteLayer = null;
 
     function log(msg) {
@@ -321,14 +334,15 @@
       `;
     }
 
-    // --------- Geolocație ----------
-    useGpsBtn.addEventListener("click", () => {
+    // --------- Origine din GPS ----------
+    function setOriginFromBrowserLocation(auto = false) {
       if (!navigator.geolocation) {
-        log("Geolocația nu este suportată de browser.");
+        if (!auto) log("Geolocația nu este suportată de browser.");
         return;
       }
 
-      log("Cerere poziție GPS...");
+      if (!auto) log("Cerere poziție GPS...");
+
       navigator.geolocation.getCurrentPosition(
         (pos) => {
           const lat = pos.coords.latitude;
@@ -337,20 +351,28 @@
           if (originMarker) map.removeLayer(originMarker);
           originMarker = L.marker(originLatLng, { draggable: true })
                           .addTo(map)
-                          .bindPopup("Origine (GPS)").openPopup();
+                          .bindPopup(auto ? "Origine (GPS auto)" : "Origine (GPS)")
+                          .openPopup();
           map.setView(originLatLng, 14);
-          log(`Origine setată din GPS: ${lat.toFixed(5)}, ${lon.toFixed(5)}`);
+          if (!auto) {
+            log(`Origine setată din GPS: ${lat.toFixed(5)}, ${lon.toFixed(5)}`);
+          } else {
+            log(`Origine auto-GPS: ${lat.toFixed(5)}, ${lon.toFixed(5)}`);
+          }
         },
         (err) => {
-          log("Eroare GPS: " + err.message);
+          if (!auto) log("Eroare GPS: " + err.message);
+          else log("GPS auto a eșuat: " + err.message);
         }
       );
-    });
+    }
+
+    useGpsBtn.addEventListener("click", () => setOriginFromBrowserLocation(false));
 
     // --------- Click pe hartă: destinație / alternativ origine ----------
     map.on("click", (e) => {
-      // Dacă ținem Alt apăsat -> setăm originea manual
       if (e.originalEvent.altKey) {
+        // Alt+Click => origine
         originLatLng = [e.latlng.lat, e.latlng.lng];
         if (originMarker) map.removeLayer(originMarker);
         originMarker = L.marker(originLatLng, { draggable: true })
@@ -358,20 +380,58 @@
                         .bindPopup("Origine (Alt+Click)").openPopup();
         log(`Origine setată manual: ${originLatLng[0].toFixed(5)}, ${originLatLng[1].toFixed(5)}`);
       } else {
+        // click simplu => destinație
         destLatLng = [e.latlng.lat, e.latlng.lng];
         if (destMarker) map.removeLayer(destMarker);
-        destMarker = L.marker(destLatLng, { draggable: true, icon: L.icon({
-          iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-          iconSize: [25, 41],
-          iconAnchor: [12, 41],
-          popupAnchor: [0, -30]
-        })})
-        .addTo(map)
-        .bindPopup("Destinație").openPopup();
-
+        destMarker = L.marker(destLatLng, { draggable: true })
+                      .addTo(map)
+                      .bindPopup("Destinație").openPopup();
         log(`Destinație setată: ${destLatLng[0].toFixed(5)}, ${destLatLng[1].toFixed(5)}`);
       }
     });
+
+    // --------- Geocodare adresă (Nominatim) ----------
+    async function geocodeAddress() {
+      const q = addressInput.value.trim();
+      if (!q) {
+        log("Introdu o adresă pentru destinație.");
+        return;
+      }
+
+      geocodeBtn.disabled = true;
+      geocodeBtn.textContent = "Caut...";
+
+      try {
+        const url =
+          "https://nominatim.openstreetmap.org/search?format=json&limit=1&addressdetails=1&q=" +
+          encodeURIComponent(q);
+        const res = await fetch(url, {
+          headers: { "Accept-Language": "ro" }
+        });
+        const data = await res.json();
+        if (!data || data.length === 0) {
+          log("Nicio locație găsită pentru adresă.");
+          return;
+        }
+
+        const { lat, lon, display_name } = data[0];
+        destLatLng = [parseFloat(lat), parseFloat(lon)];
+        if (destMarker) map.removeLayer(destMarker);
+        destMarker = L.marker(destLatLng)
+                      .addTo(map)
+                      .bindPopup(display_name || "Destinație")
+                      .openPopup();
+        map.setView(destLatLng, 14);
+        log("Destinație setată din adresă: " + (display_name || `${lat}, ${lon}`));
+      } catch (e) {
+        log("Eroare la geocodare: " + e);
+      } finally {
+        geocodeBtn.disabled = false;
+        geocodeBtn.textContent = "Setează destinația din adresă";
+      }
+    }
+
+    geocodeBtn.addEventListener("click", geocodeAddress);
 
     // --------- Slider UI ----------
     alphaRange.addEventListener("input", () => {
@@ -383,8 +443,19 @@
 
     // --------- Rutare coezivă cu OSRM ----------
     async function computeCohesiveRoute() {
-      if (!originLatLng || !destLatLng) {
-        log("Setează origine și destinație înainte de rutare.");
+      if (!originLatLng) {
+        log("Originea nu este setată. Folosește GPS-ul sau Alt+Click pe hartă.");
+        updateMetrics(null);
+        return;
+      }
+
+      // dacă nu avem destinație dar există adresă → o geocodăm acum
+      if (!destLatLng && addressInput.value.trim()) {
+        await geocodeAddress();
+      }
+
+      if (!destLatLng) {
+        log("Destinația nu este setată. Folosește adresa sau click pe hartă.");
         updateMetrics(null);
         return;
       }
@@ -421,7 +492,6 @@
         const routes = data.routes;
         log(`Am primit ${routes.length} rute de la OSRM.`);
 
-        // calculăm "tensiune" = număr de manevre (turn-by-turn)
         let maxManeuvers = 0;
         const enriched = routes.map((r, idx) => {
           let maneuvers = 0;
@@ -438,20 +508,16 @@
           };
         });
 
-        // normalizare tensiune în [0,1]
         enriched.forEach(obj => {
-          obj.tensionNorm =
-            maxManeuvers > 0 ? obj.maneuvers / maxManeuvers : 0;
+          obj.tensionNorm = maxManeuvers > 0 ? obj.maneuvers / maxManeuvers : 0;
         });
 
-        // cost coeziv = α * timp(min) + β * tensiuneNorm
         enriched.forEach(obj => {
           const tMin = obj.durationSec / 60.0;
           obj.timeMin = tMin;
           obj.cost = alpha * tMin + beta * obj.tensionNorm;
         });
 
-        // alegem ruta cu cost minim
         enriched.sort((a, b) => a.cost - b.cost);
         const best = enriched[0];
 
@@ -476,7 +542,6 @@
           opacity: 0.9
         }).addTo(map);
 
-        // ajustăm view-ul
         map.fitBounds(bestRouteLayer.getBounds(), { padding: [30, 30] });
 
         updateMetrics({
@@ -492,14 +557,17 @@
         log("Eroare la rutare: " + e);
       } finally {
         routeBtn.disabled = false;
-        routeBtn.textContent = "Calculează rută coezivă";
+        routeBtn.textContent = "Calculează rută coezivă (START)";
       }
     }
 
     routeBtn.addEventListener("click", computeCohesiveRoute);
 
-    // mesaj inițial
-    log("Alt+Click pe hartă pentru a seta originea. Click simplu pentru destinație. Apoi apasă „Calculează rută coezivă”.");
+    // --------- Auto-GPS la încărcare ----------
+    window.addEventListener("load", () => {
+      setOriginFromBrowserLocation(true);
+      log("Încearcă auto-GPS la încărcare. Poți reseta cu butonul sau Alt+Click pe hartă.");
+    });
   </script>
 </body>
 </html>
