@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <title>Model coeziv de transfer al oxigenului – Versiuni 0.1 & 0.2 + Exemple</title>
+  <script>
+    MathJax = {
+      tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}
+    };
+  </script>
+  <script id="MathJax-script" async
+          src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem 4rem;
+      line-height: 1.6;
+      background: #f7f7f9;
+      color: #222;
+    }
+    h1, h2, h3 {
+      font-weight: 600;
+    }
+    h1 { margin-bottom: 0.25rem; }
+    h2 { margin-top: 2rem; }
+    h3 { margin-top: 1.25rem; }
+    .tagline {
+      font-size: 0.9rem;
+      color: #666;
+      margin-bottom: 1.5rem;
+    }
+    .card {
+      background: #fff;
+      border-radius: 8px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      margin-bottom: 1.5rem;
+    }
+    .eq {
+      text-align: center;
+      margin: 1rem 0;
+    }
+    ul {
+      margin-top: 0.3rem;
+    }
+    .version {
+      font-size: 0.9rem;
+      color: #555;
+      margin-bottom: 0.5rem;
+    }
+    .highlight {
+      background: #f0f7ff;
+      border-left: 4px solid #3b82f6;
+      padding: 0.75rem 1rem;
+      border-radius: 6px;
+      margin-top: 0.75rem;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #ddd;
+      margin: 2rem 0;
+    }
+    .note {
+      font-size: 0.9rem;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Model coeziv de transfer al oxigenului</h1>
+  <div class="tagline">
+    Cadru unitar pentru ventilație – membrană – circulație – metabolism, extinzând formula lui Fick.
+  </div>
+
+  <!-- VERSIUNEA 0.1 -->
+  <div class="card">
+    <div class="version">Versiunea 0.1 – Model coeziv liniar (extindere directă a lui Fick)</div>
+    <h2>1. Conceptul coeziv (v0.1)</h2>
+    <p>
+      Ideea centrală: același flux de oxigen este privit prin toate „ferestrele” sistemului:
+    </p>
+    <div class="eq">
+      $$\dot V_{O_2}
+      = \dot V_{O_2}^{plămân}
+      = \dot V_{O_2}^{MAC}
+      = \dot V_{O_2}^{circulație}
+      = \dot V_{O_2}^{metabolism}$$
+    </div>
+    <p>
+      Modelul coeziv 0.1 păstrează structura de tip Fick, dar o leagă de ventilație, structură pulmonară,
+      hemodinamică și metabolism.
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>2. Blocul de ventilație (v0.1)</h2>
+    <p>
+      Presiunea parțială alveolară a oxigenului:
+    </p>
+    <div class="eq">
+      $$P_{A O_2}
+      \approx F_{I O_2}(P_B - P_{H_2O}) - \frac{P_{a CO_2}}{R}$$
+    </div>
+    <p>
+      cu:
+    </p>
+    <ul>
+      <li>$F_{I O_2}$ – fracția inspirată de O<sub>2</sub>,</li>
+      <li>$P_B$ – presiunea barometrică,</li>
+      <li>$P_{H_2O}$ – presiunea vaporilor de apă,</li>
+      <li>$P_{a CO_2}$ – presiunea arterială de CO<sub>2</sub>,</li>
+      <li>$R$ – respiratory quotient.</li>
+    </ul>
+    <div class="eq">
+      $$P_{A O_2} = f_{\text{vent}}\big(\dot V_A, F_{I O_2}, \dot V_{CO_2}\big)$$
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>3. Blocul membrană + sânge (v0.1 – Fick extins)</h2>
+    <p>
+      La nivel alveolo-capilar:
+    </p>
+    <div class="eq">
+      $$\dot V_{O_2}^{MAC}
+      = D_{L,O_2} \cdot (P_{A O_2} - P_{\bar c O_2})$$
+    </div>
+    <p>
+      unde $D_{L,O_2}$ este capacitatea de difuziune a plămânului pentru O<sub>2</sub>,
+      iar $P_{\bar c O_2}$ presiunea medie în capilarul pulmonar.
+    </p>
+    <p>
+      În v0.1, $D_{L,O_2}$ este exprimat ca:
+    </p>
+    <div class="eq">
+      $$D_{L,O_2}
+        \sim \left(\frac{A_{\text{ef}}}{L_{\text{ef}}} \cdot k_{\text{dif}}\right)
+        \;\Big\Vert\;(\theta \cdot V_c)$$
+    </div>
+    <p>
+      cu:
+    </p>
+    <ul>
+      <li>$A_{\text{ef}}$ – suprafața efectivă de schimb,</li>
+      <li>$L_{\text{ef}}$ – grosimea efectivă a MAC,</li>
+      <li>$k_{\text{dif}}$ – constantă de difuzie efectivă,</li>
+      <li>$\theta$ – viteza de combinare O<sub>2</sub>–Hb,</li>
+      <li>$V_c$ – volumul de sânge capilar funcțional.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>4. Blocul de circulație și metabolism (v0.1)</h2>
+    <p>
+      Fluxul prin circulație:
+    </p>
+    <div class="eq">
+      $$\dot V_{O_2}^{circulație}
+      = Q \cdot (C_{aO_2} - C_{vO_2})$$
+    </div>
+    <p>
+      Metabolismul tisular:
+    </p>
+    <div class="eq">
+      $$\dot V_{O_2}^{metabolism}
+      = Q \cdot (C_{aO_2} - C_{vO_2})$$
+    </div>
+    <p>
+      Condiția de coeziune (v0.1):
+    </p>
+    <div class="eq">
+      $$\dot V_{O_2}
+      =
+      D_{L,O_2}\big(A_{\text{ef}},L_{\text{ef}},\theta,V_c\big)
+      \cdot
+      \big[P_{A O_2} - P_{\bar c O_2}\big]
+      =
+      Q \cdot (C_{aO_2} - C_{vO_2})$$
+    </div>
+  </div>
+
+  <!-- VERSIUNEA 0.2 -->
+  <div class="card">
+    <div class="version">Versiunea 0.2 – Integrarea neliniarităților fiziologice</div>
+    <h2>5. Componenta neliniară: curba Hb–O₂ (Hill, Bohr, Haldane)</h2>
+    <h3>5.1. Saturația Hb–O₂ (ecuația Hill)</h3>
+    <div class="eq">
+      $$S_{O_2}(P_{O_2})
+        = \frac{P_{O_2}^{\,n}}{P_{50}^{\,n} + P_{O_2}^{\,n}}$$
+    </div>
+    <p>
+      Conținutul de O<sub>2</sub>:
+    </p>
+    <div class="eq">
+      $$C_{O_2}(P_{O_2})
+      \approx 1{,}34 \cdot [Hb] \cdot S_{O_2}(P_{O_2}) + 0{,}003 \cdot P_{O_2}$$
+    </div>
+
+    <h3>5.2. P<sub>50</sub> variabil – efectele Bohr și Haldane</h3>
+    <div class="eq">
+      $$P_{50}
+      = P_{50,0} \cdot \exp\big(
+        \alpha \cdot (pH_0 - pH)
+        + \beta \cdot (P_{CO_2} - P_{CO_2,0})
+      \big)$$
+    </div>
+    <p>
+      Astfel:
+    </p>
+    <div class="eq">
+      $$S_{O_2} = S_{O_2}(P_{O_2}, pH, P_{CO_2})$$
+      $$C_{O_2} = C_{O_2}(P_{O_2}, [Hb], pH, P_{CO_2})$$
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>6. Componenta neliniară: A<sub>ef</sub>(V<sub>L</sub>) și V<sub>c</sub>(Q)</h2>
+    <h3>6.1. Recrutarea alveolară</h3>
+    <div class="eq">
+      $$A_{\text{ef}}(V_L)
+      = A_{\max} \cdot
+      \frac{1}{1 + \exp\big(-k_A \cdot (V_L - V_{L,50})\big)}$$
+    </div>
+    <h3>6.2. Distensia capilară</h3>
+    <div class="eq">
+      $$V_c(Q)
+      = V_{c,\min} + (V_{c,\max} - V_{c,\min})
+      \cdot \frac{Q^{\,m}}{Q^{\,m} + Q_{50}^{\,m}}$$
+    </div>
+    <p>
+      În v0.2, $D_{L,O_2}$ devine:
+    </p>
+    <div class="eq">
+      $$D_{L,O_2}
+      = f_D\Big(
+        A_{\text{ef}}(V_L),\
+        L_{\text{ef}},\
+        k_{\text{dif}},\
+        \theta([Hb], pH, P_{CO_2}),\
+        V_c(Q)
+      \Big)$$
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>7. Componenta neliniară: DO₂–VO₂ și P<sub>vO₂</sub></h2>
+    <p>
+      Definim:
+    </p>
+    <div class="eq">
+      $$DO_2 = Q \cdot C_{aO_2}$$
+      $$VO_2 = Q \cdot (C_{aO_2} - C_{vO_2})$$
+    </div>
+    <p>
+      Regim normal:
+    </p>
+    <div class="eq">
+      $$VO_2 \approx VO_{2,\text{bazal}} \quad \text{dacă } DO_2 \ge DO_{2,\text{crit}}$$
+      $$VO_2 \approx DO_2 \cdot \eta \quad \text{dacă } DO_2 < DO_{2,\text{crit}}$$
+    </div>
+    <p>
+      Din:
+    </p>
+    <div class="eq">
+      $$C_{vO_2} = C_{aO_2} - \frac{VO_2}{Q}$$
+    </div>
+    <p>
+      rezultă $P_{vO_2}$ implicit din relația neliniară Hb–O₂.
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>8. Forma compactă a modelului coeziv 0.2</h2>
+    <p>
+      Modelul 0.2 este dat de sistemul de relații:
+    </p>
+    <ul>
+      <li>Bloc ventilație: $P_{A O_2} = f_{\text{vent}}(\dot V_A,F_{I O_2},\dot V_{CO_2})$</li>
+      <li>Bloc MAC: $\dot V_{O_2}^{MAC} = D_{L,O_2} \cdot (P_{A O_2} - P_{\bar c O_2})$</li>
+      <li>Bloc circulație: $\dot V_{O_2}^{circulație} = Q (C_{aO_2} - C_{vO_2})$</li>
+      <li>Bloc metabolism: $VO_2 = f(DO_2, VO_{2,\text{bazal}}, DO_{2,\text{crit}})$</li>
+    </ul>
+    <p>
+      Condiția de coeziune:
+    </p>
+    <div class="eq">
+      $$\boxed{
+        \dot V_{O_2}
+        = \dot V_{O_2}^{MAC}
+        = \dot V_{O_2}^{circulație}
+        = VO_2
+      }$$
+    </div>
+    <p>
+      adică:
+    </p>
+    <div class="eq">
+      $$\dot V_{O_2}
+      =
+      D_{L,O_2}\big(A_{\text{ef}}(V_L), L_{\text{ef}}, k_{\text{dif}},
+                   \theta([Hb], pH, P_{CO_2}), V_c(Q)\big)
+      \cdot
+      \Big[
+        P_{A O_2}\big(\dot V_A, F_{I O_2}, \dot V_{CO_2}\big)
+        -
+        P_{\bar c O_2}\big(\dot V_{O_2}, Q, [Hb], pH, P_{CO_2}\big)
+      \Big]
+      =
+      Q \cdot (C_{aO_2} - C_{vO_2})
+      $$
+    </div>
+  </div>
+
+  <!-- EXEMPLE -->
+  <div class="card">
+    <div class="version">Exemple – Aplicarea modelului coeziv (S1 & S2)</div>
+    <h2>9. S1 – Adult sănătos, repaus</h2>
+    <p><strong>Date:</strong> FIO<sub>2</sub>=0,21, PB=760, PH<sub>2</sub>O=47, PaCO<sub>2</sub>=40, R=0,8, Hb=15 g/dL, Q=5 L/min, VO<sub>2</sub>≈250 ml/min.</p>
+    <h3>9.1. PAO<sub>2</sub></h3>
+    <div class="eq">
+      $$P_{A O_2} \approx 100\ \text{mmHg}$$
+    </div>
+    <h3>9.2. Difuziune (DL) și flux maxim</h3>
+    <div class="eq">
+      $$D_{L,O_2} \approx 30\ \text{ml/min/mmHg}, \quad \Delta P \approx 60\ \text{mmHg}$$
+      $$\dot V_{O_2}^{max} \approx 30 \cdot 60 = 1800\ \text{ml/min}$$
+    </div>
+    <h3>9.3. Circulație și metabolism</h3>
+    <div class="eq">
+      $$C_{aO_2} \approx 20\ \text{ml/dL},\quad C_{vO_2} \approx 15\ \text{ml/dL}$$
+      $$\dot V_{O_2}^{circulație} = 5 \cdot (20 - 15) = 250\ \text{ml/min}$$
+      $$DO_2 \approx 1000\ \text{ml/min},\quad VO_2 \approx 250\ \text{ml/min}$$
+    </div>
+    <div class="highlight">
+      Sistemul are rezervă mare (DO₂/VO₂≈4, DL mult peste necesar). Modelul coeziv se închide: 250 ml/min prin toate blocurile.
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>10. S2 – Fibroză interstițială moderată</h2>
+    <p>
+      Același adult, dar cu DL redus prin A<sub>ef</sub>↓, L<sub>ef</sub>↑, V<sub>c</sub>↓.
+    </p>
+    <h3>10.1. DL redus</h3>
+    <div class="eq">
+      $$D_{L,O_2}: 30 \rightarrow 10\ \text{ml/min/mmHg}$$
+    </div>
+    <h3>10.2. Repaus</h3>
+    <p>Presupunem $\Delta P \approx 60$ mmHg (ventilația crește ușor):</p>
+    <div class="eq">
+      $$\dot V_{O_2}^{max} \approx 10 \cdot 60 = 600\ \text{ml/min}$$
+    </div>
+    <div class="highlight">
+      VO₂ de repaus (≈250 ml/min) încă este sub capacitatea de 600 ml/min. Pacientul poate fi relativ ok în repaus.
+    </div>
+
+    <h3>10.3. Efort moderat</h3>
+    <p><strong>Ilustrativ:</strong> VO₂ dorit≈1000 ml/min, Q≈15 L/min.</p>
+    <div class="eq">
+      $$\dot V_{O_2}^{max} \approx 600\ \text{ml/min} < VO_2\_{\text{cerut}} \approx 1000\ \text{ml/min}$$
+    </div>
+    <div class="highlight">
+      La efort, DL devine gâtul de sticlă: fluxul maxim prin MAC nu poate atinge VO₂ cerut. SaO₂ scade, DO₂ devine insuficient, apare hipoxie de efort și dispnee severă.
+    </div>
+  </div>
+
+  <hr>
+  <p class="note">
+    Acest fișier reunește: versiunea 0.1 (model coeziv liniar), versiunea 0.2 (neliniară, fiziologic realistă) și două scenarii aplicate (adult sănătos și fibroză interstițială), toate ca extindere coerentă a formulei lui Fick.
+  </p>
+
+</body>
+</html>
