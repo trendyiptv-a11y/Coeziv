@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <title>Model coeziv de transfer al oxigenului – Versiunea 0.2 (neliniară)</title>
+  <script>
+    MathJax = {
+      tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}
+    };
+  </script>
+  <script id="MathJax-script" async
+          src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem 4rem;
+      line-height: 1.6;
+      background: #f7f7f9;
+      color: #222;
+    }
+    h1, h2, h3 {
+      font-weight: 600;
+    }
+    h1 { margin-bottom: 0.25rem; }
+    h2 { margin-top: 2rem; }
+    h3 { margin-top: 1.25rem; }
+    .version {
+      font-size: 0.9rem;
+      color: #666;
+      margin-bottom: 1.5rem;
+    }
+    .card {
+      background: #fff;
+      border-radius: 8px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      margin-bottom: 1.5rem;
+    }
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      background: #eee;
+      padding: 0.1rem 0.3rem;
+      border-radius: 4px;
+    }
+    .eq {
+      text-align: center;
+      margin: 1rem 0;
+    }
+    ul {
+      margin-top: 0.3rem;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #ddd;
+      margin: 2rem 0;
+    }
+    .note {
+      font-size: 0.9rem;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Model coeziv de transfer al oxigenului</h1>
+  <div class="version">
+    Versiunea 0.2 – Integrarea neliniarităților fiziologice reale (extindere a versiunii 0.1 și a formulei lui Fick)
+  </div>
+
+  <div class="card">
+    <h2>1. Conceptul coeziv (repercurs de la v0.1)</h2>
+    <p>
+      Modelul coeziv tratează întregul lanț de oxigen ca un singur flux:
+    </p>
+    <div class="eq">
+      $$\dot V_{O_2}
+      = \dot V_{O_2}^{plămân}
+      = \dot V_{O_2}^{MAC}
+      = \dot V_{O_2}^{circulație}
+      = \dot V_{O_2}^{metabolism}$$
+    </div>
+    <p>
+      Același flux de O<sub>2</sub> este privit prin patru „ferestre”:
+    </p>
+    <ul>
+      <li>ventilația alveolară (gazul alveolar),</li>
+      <li>membrana alveolo-capilară + sângele capilar,</li>
+      <li>circulația sistemică (transport Hb–O<sub>2</sub>),</li>
+      <li>metabolismul tisular (consum de O<sub>2</sub>).</li>
+    </ul>
+    <p>
+      Versiunea 0.2 introduce explicit <strong>neliniaritățile reale</strong> în toate aceste blocuri.
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>2. Blocul de ventilație – ecuația gazului alveolar</h2>
+    <p>
+      Presiunea parțială alveolară a oxigenului este aproximată de:
+    </p>
+    <div class="eq">
+      $$P_{A O_2}
+      \approx F_{I O_2}(P_B - P_{H_2O}) - \frac{P_{a CO_2}}{R}$$
+    </div>
+    <p>
+      cu:
+    </p>
+    <ul>
+      <li>$F_{I O_2}$ – fracția inspirată de O<sub>2</sub>,</li>
+      <li>$P_B$ – presiunea barometrică,</li>
+      <li>$P_{H_2O}$ – presiunea vaporilor de apă (≈ 47 mmHg),</li>
+      <li>$P_{a CO_2}$ – presiunea arterială de CO<sub>2</sub>,</li>
+      <li>$R$ – respiratory quotient (≈ 0.8).</li>
+    </ul>
+    <p>
+      Presiunea arterială a CO<sub>2</sub> este legată neliniar de raportul producție CO<sub>2</sub> / ventilație alveolară:
+    </p>
+    <div class="eq">
+      $$P_{a CO_2} \sim \frac{\dot V_{CO_2}}{\dot V_A}$$
+    </div>
+    <p>
+      Simbolic:
+    </p>
+    <div class="eq">
+      $$P_{A O_2} = f_{\text{vent}}\big(\dot V_A,\ F_{I O_2},\ \dot V_{CO_2}\big)$$
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>3. Blocul membrană + sânge în plămân (Fick extins, neliniar)</h2>
+    <p>
+      La nivel alveolo-capilar păstrăm structura de tip Fick, dar capacitatea de difuziune devine o funcție neliniară de mai mulți parametri:
+    </p>
+    <div class="eq">
+      $$\dot V_{O_2}^{MAC}
+      = D_{L,O_2} \cdot (P_{A O_2} - P_{\bar c O_2})$$
+    </div>
+    <p>
+      unde:
+    </p>
+    <ul>
+      <li>$D_{L,O_2}$ – capacitatea de difuziune a plămânului pentru O<sub>2</sub>,</li>
+      <li>$P_{A O_2}$ – presiunea parțială alveolară a O<sub>2</sub>,</li>
+      <li>$P_{\bar c O_2}$ – presiunea parțială medie în capilarul pulmonar.</li>
+    </ul>
+    <p>
+      Modelul coeziv 0.2 specifică:
+    </p>
+    <div class="eq">
+      $$D_{L,O_2}
+      = f_D\Big(
+        A_{\text{ef}}(V_L),\
+        L_{\text{ef}},\
+        k_{\text{dif}},\
+        \theta([Hb], pH, P_{CO_2}),\
+        V_c(Q)
+      \Big)$$
+    </div>
+    <p>
+      cu elemente neliniare:
+    </p>
+    <h3>3.1. Recrutarea alveolară și suprafața efectivă</h3>
+    <div class="eq">
+      $$A_{\text{ef}}(V_L)
+      = A_{\max} \cdot
+      \frac{1}{1 + \exp\big(-k_A \cdot (V_L - V_{L,50})\big)}$$
+    </div>
+    <p>
+      unde:
+    </p>
+    <ul>
+      <li>$V_L$ – volumul pulmonar,</li>
+      <li>$A_{\max}$ – suprafața maximă de schimb,</li>
+      <li>$V_{L,50}$ – volumul la care este recrutată ~50% din suprafață,</li>
+      <li>$k_A$ – parametru de „abruptitate”.</li>
+    </ul>
+
+    <h3>3.2. Distensia capilară și volumul de sânge capilar</h3>
+    <div class="eq">
+      $$V_c(Q)
+      = V_{c,\min} + (V_{c,\max} - V_{c,\min})
+      \cdot \frac{Q^{\,m}}{Q^{\,m} + Q_{50}^{\,m}}$$
+    </div>
+    <p>
+      unde:
+    </p>
+    <ul>
+      <li>$Q$ – debitul cardiac,</li>
+      <li>$V_{c,\min}, V_{c,\max}$ – limitele volumului capilar funcțional,</li>
+      <li>$Q_{50}$ – debitul la care se atinge 50% din creșterea maximă,</li>
+      <li>$m$ – parametru de „steepness”.</li>
+    </ul>
+    <p>
+      Termenii $L_{\text{ef}}$ și $k_{\text{dif}}$ descriu grosimea efectivă și proprietățile de material ale MAC, iar $\theta$ descrie viteza de combinare O<sub>2</sub>–Hb.
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>4. Blocul de circulație – curba Hb–O₂, Bohr și Haldane</h2>
+    <h3>4.1. Curba sigmoidă Hb–O₂ (ecuația Hill)</h3>
+    <p>
+      Saturația hemoglobinei cu oxigen:
+    </p>
+    <div class="eq">
+      $$S_{O_2}(P_{O_2})
+      = \frac{P_{O_2}^{\,n}}{P_{50}^{\,n} + P_{O_2}^{\,n}}$$
+    </div>
+    <p>
+      unde:
+    </p>
+    <ul>
+      <li>$S_{O_2}$ – saturația (0–1),</li>
+      <li>$P_{O_2}$ – presiunea parțială a O<sub>2</sub>,</li>
+      <li>$P_{50}$ – presiunea la care saturația este 50%,</li>
+      <li>$n$ – coeficientul Hill (≈ 2.7).</li>
+    </ul>
+    <p>
+      Conținutul de O<sub>2</sub>:
+    </p>
+    <div class="eq">
+      $$C_{O_2}(P_{O_2})
+      \approx 1{,}34 \cdot [Hb] \cdot S_{O_2}(P_{O_2}) + 0{,}003 \cdot P_{O_2}$$
+    </div>
+
+    <h3>4.2. Efectele Bohr și Haldane (P50 variabil)</h3>
+    <p>
+      Introducem dependența $P_{50}$ de pH și PCO<sub>2</sub>:
+    </p>
+    <div class="eq">
+      $$P_{50}
+      = P_{50,0} \cdot \exp\big(
+        \alpha \cdot (pH_0 - pH)
+        + \beta \cdot (P_{CO_2} - P_{CO_2,0})
+      \big)$$
+    </div>
+    <p>
+      astfel:
+    </p>
+    <div class="eq">
+      $$S_{O_2} = S_{O_2}(P_{O_2}, pH, P_{CO_2})$$
+      $$C_{O_2} = C_{O_2}(P_{O_2}, [Hb], pH, P_{CO_2})$$
+    </div>
+    <p>
+      Curba de disociere devine neliniară și dependentă de context fiziologic.
+    </p>
+
+    <h3>4.3. Fluxul prin circulație</h3>
+    <div class="eq">
+      $$\dot V_{O_2}^{circulație}
+      = Q \cdot (C_{aO_2} - C_{vO_2})$$
+    </div>
+    <p>
+      cu:
+    </p>
+    <div class="eq">
+      $$C_{aO_2}
+      = 1{,}34 \cdot [Hb] \cdot S_{O_2}(P_{aO_2}, pH_a, P_{aCO_2})
+      + 0{,}003 \cdot P_{aO_2}$$
+      $$C_{vO_2}
+      = 1{,}34 \cdot [Hb] \cdot S_{O_2}(P_{vO_2}, pH_v, P_{vCO_2})
+      + 0{,}003 \cdot P_{vO_2}$$
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>5. Blocul de metabolism – relația DO₂–VO₂ și PvO₂</h2>
+    <p>
+      Definim:
+    </p>
+    <div class="eq">
+      $$DO_2 = Q \cdot C_{aO_2}$$
+      $$VO_2 = Q \cdot (C_{aO_2} - C_{vO_2})$$
+    </div>
+    <p>
+      În regim fiziologic normal:
+    </p>
+    <div class="eq">
+      $$VO_2 \approx VO_{2,\text{bazal}} \quad \text{dacă } DO_2 \ge DO_{2,\text{crit}}$$
+      $$VO_2 \approx DO_2 \cdot \eta \quad \text{dacă } DO_2 < DO_{2,\text{crit}}$$
+    </div>
+    <p>
+      Astfel:
+    </p>
+    <div class="eq">
+      $$C_{vO_2} = C_{aO_2} - \frac{VO_2}{Q}$$
+    </div>
+    <p>
+      iar $P_{vO_2}$ se determină implicit din:
+    </p>
+    <div class="eq">
+      $$C_{vO_2}
+      = 1{,}34 \cdot [Hb] \cdot S_{O_2}(P_{vO_2}, pH_v, P_{vCO_2})
+      + 0{,}003 \cdot P_{vO_2}$$
+    </div>
+    <p>
+      Presiunea parțială medie în capilarul pulmonar $P_{\bar c O_2}$ se află între $P_{vO_2}$ și $P_{aO_2}$ și depinde de timp de tranzit, DL și curba Hb–O₂.
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>6. Condiția de coeziune și forma finală a modelului 0.2</h2>
+    <p>
+      Modelul coeziv 0.2 este definit de condiția ca același flux de oxigen să satisfacă simultan toate blocurile:
+    </p>
+    <div class="eq">
+      $$\boxed{
+        \dot V_{O_2}
+        = \dot V_{O_2}^{MAC}
+        = \dot V_{O_2}^{circulație}
+        = VO_2
+      }$$
+    </div>
+    <p>
+      Adică:
+    </p>
+    <div class="eq">
+      $$\dot V_{O_2}
+      =
+      D_{L,O_2}\big(A_{\text{ef}}(V_L), L_{\text{ef}}, k_{\text{dif}},
+                   \theta([Hb], pH, P_{CO_2}), V_c(Q)\big)
+      \cdot
+      \Big[
+        P_{A O_2}\big(\dot V_A, F_{I O_2}, \dot V_{CO_2}\big)
+        -
+        P_{\bar c O_2}\big(\dot V_{O_2}, Q, [Hb], pH, P_{CO_2}\big)
+      \Big]
+      =
+      Q \cdot (C_{aO_2} - C_{vO_2})
+      $$
+    </div>
+    <p class="note">
+      Toți termenii sunt, în versiunea 0.2, funcții neliniare fiziologic realiste: curba Hb–O<sub>2</sub> sigmoidă, efecte Bohr/Haldane, recrutare alveolară, distensie capilară, relația DO₂–VO₂. Formula lui Fick rămâne în centru, dar este complet ancorată în fiziologia completă a sistemului ventilație–difuziune–perfuzie–metabolism.
+    </p>
+  </div>
+
+  <hr>
+
+  <p class="note">
+    Model coeziv de transfer al oxigenului – Versiunea 0.2 (neliniară). Extindere a versiunii 0.1, cu integrarea explicită a curbei Hb–O₂, efectelor Bohr/Haldane, recrutării alveolare, distensiei capilare și relației DO₂–VO₂.
+  </p>
+
+</body>
+</html>
+```0
