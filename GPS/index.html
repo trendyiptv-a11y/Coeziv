@@ -2,9 +2,9 @@
 <html lang="ro">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>GPS Coeziv</title>
 
-  <!-- Leaflet CSS -->
   <link
     rel="stylesheet"
     href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -14,10 +14,12 @@
 
   <style>
     * { box-sizing: border-box; }
-    body {
+    html, body {
       margin: 0;
       padding: 0;
-      height: 100vh;
+      height: 100%;
+    }
+    body {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background: #020617;
       overflow: hidden;
@@ -27,7 +29,6 @@
       height: 100%;
     }
 
-    /* Panou jos – ca un bottom sheet de aplicație GPS */
     .panel {
       position: absolute;
       left: 0;
@@ -39,7 +40,6 @@
       box-shadow: 0 -8px 20px rgba(0,0,0,0.6);
       z-index: 1000;
     }
-
     .panel-inner {
       max-width: 900px;
       margin: 0 auto;
@@ -47,25 +47,22 @@
       flex-direction: column;
       gap: 8px;
     }
-
     .panel-row {
       display: flex;
       align-items: center;
       gap: 8px;
     }
-
     .brand {
       font-size: 0.95rem;
       font-weight: 600;
       flex: 1;
       white-space: nowrap;
     }
-
     .btn {
       border-radius: 999px;
       border: none;
       padding: 8px 12px;
-      font-size: 0.85rem;
+      font-size: 0.9rem;
       background: #1f2937;
       color: #e5e7eb;
       cursor: pointer;
@@ -78,24 +75,21 @@
       font-weight: 600;
       flex: 1;
       text-align: center;
-      justify-content: center;
     }
     .btn:disabled {
       opacity: 0.6;
       cursor: default;
     }
-
     .input-wrap {
       position: relative;
       flex: 1;
     }
-
     .search-input {
       width: 100%;
       border-radius: 999px;
       border: 1px solid #4b5563;
       padding: 9px 12px;
-      font-size: 0.85rem;
+      font-size: 0.9rem;
       background: #020617;
       color: #e5e7eb;
       outline: none;
@@ -103,7 +97,6 @@
     .search-input::placeholder {
       color: #6b7280;
     }
-
     .suggestions {
       position: absolute;
       left: 0;
@@ -126,12 +119,10 @@
     .suggestion-item:hover {
       background: #1e293b;
     }
-
     .info-small {
       font-size: 0.75rem;
       color: #9ca3af;
     }
-
     .route-info {
       font-size: 0.8rem;
       padding: 6px 10px;
@@ -141,12 +132,11 @@
       align-items: center;
       gap: 6px;
       align-self: center;
+      white-space: nowrap;
     }
-
     .dot-origin { color:#4ade80; }
     .dot-dest   { color:#f97373; }
     .dot-route  { color:#60a5fa; }
-
     .toast {
       position: absolute;
       left: 50%;
@@ -218,7 +208,6 @@
 
   <div id="toast" class="toast"></div>
 
-  <!-- Leaflet JS -->
   <script
     src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
@@ -226,12 +215,11 @@
   ></script>
 
   <script>
-    // ---- parametri coezivi (în spate) ----
-    const COHESION_ALPHA = 1.0; // timp
-    const COHESION_BETA  = 2.0; // manevre
+    const COHESION_ALPHA = 1.0;
+    const COHESION_BETA  = 2.0;
 
     const defaultCenter = [45.94, 24.97];
-    const defaultZoom   = 6;
+    const defaultZoom   = 3;
 
     const map = L.map("map").setView(defaultCenter, defaultZoom);
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -287,7 +275,6 @@
       routeTextEl.textContent = "–";
     }
 
-    // ---- GPS – buton + auto la load ----
     function getGPSOrigin(showMsg = true) {
       if (!navigator.geolocation) {
         if (showMsg) showToast("Browserul nu are geolocație.");
@@ -308,11 +295,10 @@
     }
 
     window.addEventListener("load", () => {
-      getGPSOrigin(false); // încearcă automat, dar fără mesaj deranjant
+      getGPSOrigin(false);
     });
     gpsBtn.addEventListener("click", () => getGPSOrigin(true));
 
-    // ---- click pe hartă: destinație / origine ----
     map.on("click", (e) => {
       if (e.originalEvent.altKey) {
         setOrigin(e.latlng.lat, e.latlng.lng, "Origine (Alt+Tap)");
@@ -325,12 +311,11 @@
       }
     });
 
-    // ---- autocomplete ----
     let autocompleteTimeout = null;
 
     addressInput.addEventListener("input", () => {
       const q = addressInput.value.trim();
-      destLatLng = null; // când editezi textul, nu mai avem destinație sigură
+      destLatLng = null;
       if (q.length < 3) {
         clearSuggestions();
         return;
@@ -385,18 +370,16 @@
       if (!inside) clearSuggestions();
     });
 
-    // ---- rutare coezivă (Start navigație) ----
     async function computeCohesiveRoute() {
       if (!originLatLng) {
-        showToast("Setează originea (GPS sau Alt+Tap pe hartă).");
+        showToast("Setează originea (GPS sau Alt+Tap).");
         return;
       }
       if (!destLatLng) {
         if (addressInput.value.trim().length < 3) {
-          showToast("Introdu destinația și alege din listă – sau tap pe hartă.");
+          showToast("Introdu destinația și alege din listă sau tap pe hartă.");
           return;
         }
-        // nu forțăm nimic automat: userul TREBUIE să aleagă din listă
         showToast("Alege destinația din lista de sugestii.");
         if (suggestionsEl.style.display === "none") {
           fetchSuggestions(addressInput.value.trim());
@@ -406,7 +389,7 @@
 
       const src = originLatLng;
       const dst = destLatLng;
-      const coordsParam = `${src[1]},${src[0]};${dst[1]},${dst[0]}`;
+      const coordsParam = `${src[1]},${src[0]};${dst[1],dst[0]}`;
       const url =
         `https://router.project-osrm.org/route/v1/driving/${coordsParam}` +
         `?overview=full&geometries=geojson&steps=true&alternatives=true`;
@@ -458,7 +441,6 @@
         enriched.sort((a, b) => a.cost - b.cost);
         const best = enriched[0];
 
-        // toate rutele (gri)
         routes.forEach(r => {
           const coords = r.geometry.coordinates.map(c => [c[1], c[0]]);
           const polyline = L.polyline(coords, {
@@ -469,7 +451,6 @@
           routeLayers.push(polyline);
         });
 
-        // ruta coezivă (albastru)
         const bestCoords = best.route.geometry.coordinates.map(c => [c[1], c[0]]);
         bestRouteLayer = L.polyline(bestCoords, {
           color: "#2563EB",
@@ -477,7 +458,7 @@
           opacity: 0.98
         }).addTo(map);
 
-        map.fitBounds(bestRouteLayer.getBounds(), { padding: [50, 160] });
+        map.fitBounds(bestRouteLayer.getBounds(), { padding: [50, 180] });
 
         const km = best.distanceM / 1000.0;
         routeTextEl.textContent =
