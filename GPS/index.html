@@ -8,7 +8,6 @@
   <link
     rel="stylesheet"
     href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
     crossorigin=""
   />
 
@@ -29,6 +28,7 @@
       height: 100%;
     }
 
+    /* Panou jos */
     .panel {
       position: absolute;
       left: 0;
@@ -58,11 +58,12 @@
       flex: 1;
       white-space: nowrap;
     }
+
     .btn {
       border-radius: 999px;
       border: none;
-      padding: 8px 12px;
-      font-size: 0.9rem;
+      padding: 10px 14px;
+      font-size: 1rem;
       background: #1f2937;
       color: #e5e7eb;
       cursor: pointer;
@@ -72,14 +73,15 @@
     .btn-primary {
       background: #2563eb;
       color: #fff;
-      font-weight: 600;
       flex: 1;
+      font-weight: 600;
       text-align: center;
     }
     .btn:disabled {
       opacity: 0.6;
       cursor: default;
     }
+
     .input-wrap {
       position: relative;
       flex: 1;
@@ -88,8 +90,8 @@
       width: 100%;
       border-radius: 999px;
       border: 1px solid #4b5563;
-      padding: 9px 12px;
-      font-size: 0.9rem;
+      padding: 10px 14px;
+      font-size: 1rem;
       background: #020617;
       color: #e5e7eb;
       outline: none;
@@ -97,6 +99,7 @@
     .search-input::placeholder {
       color: #6b7280;
     }
+
     .suggestions {
       position: absolute;
       left: 0;
@@ -108,23 +111,26 @@
       box-shadow: 0 12px 28px rgba(0,0,0,0.7);
       max-height: 260px;
       overflow-y: auto;
-      font-size: 0.8rem;
+      font-size: 0.9rem;
       z-index: 1100;
     }
+
     .suggestion-item {
-      padding: 8px 10px;
+      padding: 10px 12px;
       cursor: pointer;
       line-height: 1.3;
     }
     .suggestion-item:hover {
       background: #1e293b;
     }
+
     .info-small {
-      font-size: 0.75rem;
+      font-size: 0.8rem;
       color: #9ca3af;
     }
+
     .route-info {
-      font-size: 0.8rem;
+      font-size: 0.85rem;
       padding: 6px 10px;
       border-radius: 999px;
       background: #0b1120;
@@ -134,9 +140,11 @@
       align-self: center;
       white-space: nowrap;
     }
-    .dot-origin { color:#4ade80; }
-    .dot-dest   { color:#f97373; }
-    .dot-route  { color:#60a5fa; }
+
+    .dot-origin { color:#4ade80; font-size: 1.2rem; }
+    .dot-dest   { color:#f97373; font-size: 1.2rem; }
+    .dot-route  { color:#60a5fa; font-size: 1.2rem; }
+
     .toast {
       position: absolute;
       left: 50%;
@@ -144,9 +152,9 @@
       bottom: 52px;
       background: rgba(15,23,42,0.98);
       color: #e5e7eb;
-      padding: 7px 11px;
+      padding: 8px 12px;
       border-radius: 10px;
-      font-size: 0.8rem;
+      font-size: 0.9rem;
       max-width: 90vw;
       text-align: center;
       z-index: 1100;
@@ -165,11 +173,14 @@
     }
   </style>
 </head>
+
 <body>
   <div id="map"></div>
 
+  <!-- PANOU JOS -->
   <div class="panel">
     <div class="panel-inner">
+
       <div class="panel-row">
         <div class="brand">GPS Coeziv</div>
         <button id="gpsBtn" class="btn">GPS</button>
@@ -193,9 +204,7 @@
       </div>
 
       <div class="panel-row" style="justify-content: space-between;">
-        <div class="info-small">
-          Tap pe hartă = destinație · Alt+Tap = origine
-        </div>
+        <div class="info-small">Tap = destinație · Alt+Tap = origine</div>
         <div id="routeInfo" class="route-info">
           <span class="dot-origin">●</span>O
           <span class="dot-dest">●</span>D
@@ -203,43 +212,37 @@
           <span id="routeText">–</span>
         </div>
       </div>
+
     </div>
   </div>
 
   <div id="toast" class="toast"></div>
 
-  <script
-    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-    crossorigin=""
-  ></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
   <script>
     const COHESION_ALPHA = 1.0;
     const COHESION_BETA  = 2.0;
 
-    const defaultCenter = [45.94, 24.97];
-    const defaultZoom   = 3;
-
-    const map = L.map("map").setView(defaultCenter, defaultZoom);
+    const map = L.map("map").setView([45.94, 24.97], 5);
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      maxZoom: 19,
-      attribution: "&copy; OpenStreetMap"
+      maxZoom: 19
     }).addTo(map);
 
     let originLatLng = null;
     let destLatLng   = null;
     let originMarker = null;
     let destMarker   = null;
-    let routeLayers  = [];
+
+    let routeLayers = [];
     let bestRouteLayer = null;
 
-    const gpsBtn        = document.getElementById("gpsBtn");
-    const addressInput  = document.getElementById("addressInput");
+    const gpsBtn = document.getElementById("gpsBtn");
+    const addressInput = document.getElementById("addressInput");
     const suggestionsEl = document.getElementById("suggestions");
-    const startBtn      = document.getElementById("startBtn");
-    const toastEl       = document.getElementById("toast");
-    const routeTextEl   = document.getElementById("routeText");
+    const startBtn = document.getElementById("startBtn");
+    const toastEl = document.getElementById("toast");
+    const routeTextEl = document.getElementById("routeText");
 
     function showToast(msg) {
       toastEl.textContent = msg;
@@ -250,23 +253,17 @@
     function setOrigin(lat, lon, label) {
       originLatLng = [lat, lon];
       if (originMarker) map.removeLayer(originMarker);
-      originMarker = L.marker(originLatLng, { draggable: true })
-        .addTo(map)
-        .bindPopup(label || "Origine")
-        .openPopup();
+      originMarker = L.marker(originLatLng).addTo(map).bindPopup(label).openPopup();
     }
 
     function setDest(lat, lon, label) {
       destLatLng = [lat, lon];
       if (destMarker) map.removeLayer(destMarker);
-      destMarker = L.marker(destLatLng, { draggable: true })
-        .addTo(map)
-        .bindPopup(label || "Destinație")
-        .openPopup();
+      destMarker = L.marker(destLatLng).addTo(map).bindPopup(label).openPopup();
     }
 
     function clearRoutes() {
-      routeLayers.forEach(l => map.removeLayer(l));
+      routeLayers.forEach(r => map.removeLayer(r));
       routeLayers = [];
       if (bestRouteLayer) {
         map.removeLayer(bestRouteLayer);
@@ -277,36 +274,31 @@
 
     function getGPSOrigin(showMsg = true) {
       if (!navigator.geolocation) {
-        if (showMsg) showToast("Browserul nu are geolocație.");
+        if (showMsg) showToast("Nu există GPS pe acest dispozitiv.");
         return;
       }
+
       navigator.geolocation.getCurrentPosition(
-        (pos) => {
+        pos => {
           const lat = pos.coords.latitude;
           const lon = pos.coords.longitude;
           setOrigin(lat, lon, "Origine (GPS)");
-          map.setView([lat, lon], 14);
+          map.setView([lat, lon], 15);
           if (showMsg) showToast("Origine setată din GPS.");
         },
-        () => {
-          if (showMsg) showToast("GPS indisponibil. Folosește Alt+Tap pe hartă.");
-        }
+        () => showToast("Nu se poate obține GPS.")
       );
     }
 
-    window.addEventListener("load", () => {
-      getGPSOrigin(false);
-    });
-    gpsBtn.addEventListener("click", () => getGPSOrigin(true));
+    window.onload = () => getGPSOrigin(false);
+    gpsBtn.onclick = () => getGPSOrigin(true);
 
-    map.on("click", (e) => {
+    map.on("click", e => {
       if (e.originalEvent.altKey) {
         setOrigin(e.latlng.lat, e.latlng.lng, "Origine (Alt+Tap)");
-        showToast("Origine actualizată.");
+        showToast("Origine setată.");
       } else {
         setDest(e.latlng.lat, e.latlng.lng, "Destinație");
-        clearSuggestions();
-        addressInput.value = "";
         showToast("Destinație setată.");
       }
     });
@@ -315,81 +307,63 @@
 
     addressInput.addEventListener("input", () => {
       const q = addressInput.value.trim();
-      destLatLng = null;
       if (q.length < 3) {
-        clearSuggestions();
+        suggestionsEl.style.display = "none";
         return;
       }
+
       if (autocompleteTimeout) clearTimeout(autocompleteTimeout);
       autocompleteTimeout = setTimeout(() => fetchSuggestions(q), 350);
     });
 
-    function clearSuggestions() {
-      suggestionsEl.innerHTML = "";
-      suggestionsEl.style.display = "none";
-    }
-
     async function fetchSuggestions(query) {
-      try {
-        const url =
-          "https://nominatim.openstreetmap.org/search?format=json&limit=5&addressdetails=1&q=" +
-          encodeURIComponent(query);
-        const res = await fetch(url, { headers: { "Accept-Language": "ro" } });
-        const data = await res.json();
-        if (!data || data.length === 0) {
-          clearSuggestions();
-          return;
-        }
-        suggestionsEl.innerHTML = "";
-        data.forEach((item) => {
-          const div = document.createElement("div");
-          div.className = "suggestion-item";
-          div.textContent = item.display_name;
-          div.addEventListener("click", () => chooseSuggestion(item));
-          suggestionsEl.appendChild(div);
-        });
-        suggestionsEl.style.display = "block";
-      } catch (e) {
-        console.error(e);
+      const url = `https://nominatim.openstreetmap.org/search?format=json&limit=5&addressdetails=1&q=${encodeURIComponent(query)}`;
+      const res = await fetch(url);
+      const data = await res.json();
+
+      suggestionsEl.innerHTML = "";
+      if (data.length === 0) {
+        suggestionsEl.style.display = "none";
+        return;
       }
+
+      data.forEach(item => {
+        const div = document.createElement("div");
+        div.className = "suggestion-item";
+        div.textContent = item.display_name;
+        div.onclick = () => chooseSuggestion(item);
+        suggestionsEl.appendChild(div);
+      });
+
+      suggestionsEl.style.display = "block";
     }
 
     function chooseSuggestion(item) {
       const lat = parseFloat(item.lat);
       const lon = parseFloat(item.lon);
       setDest(lat, lon, item.display_name);
-      map.setView([lat, lon], 14);
+      map.setView([lat, lon], 15);
       addressInput.value = item.display_name;
-      clearSuggestions();
-      showToast("Destinație aleasă.");
+      suggestionsEl.style.display = "none";
+      showToast("Destinație selectată.");
     }
-
-    document.addEventListener("click", (e) => {
-      const inside =
-        e.target === addressInput || suggestionsEl.contains(e.target);
-      if (!inside) clearSuggestions();
-    });
 
     async function computeCohesiveRoute() {
       if (!originLatLng) {
-        showToast("Setează originea (GPS sau Alt+Tap).");
+        showToast("Nu ai setat originea.");
         return;
       }
       if (!destLatLng) {
-        if (addressInput.value.trim().length < 3) {
-          showToast("Introdu destinația și alege din listă sau tap pe hartă.");
-          return;
-        }
-        showToast("Alege destinația din lista de sugestii.");
-        if (suggestionsEl.style.display === "none") {
-          fetchSuggestions(addressInput.value.trim());
-        }
+        showToast("Alege o destinație.");
         return;
       }
 
       const src = originLatLng;
       const dst = destLatLng;
-      const coordsParam = ${src[1]},${src[0]};${dst[1]},${dst[0]};
+
+      // 🔥 FIX IMPORTANT — varianta corectă
+      const coordsParam = `${src[1]},${src[0]};${dst[1]},${dst[0]}`;
+
       const url =
         `https://router.project-osrm.org/route/v1/driving/${coordsParam}` +
         `?overview=full&geometries=geojson&steps=true&alternatives=true`;
@@ -401,41 +375,37 @@
       try {
         const res = await fetch(url);
         if (!res.ok) {
-          showToast("Eroare la serviciul de rutare.");
+          showToast("Eroare la rutare!");
           return;
         }
+
         const data = await res.json();
         if (!data.routes || data.routes.length === 0) {
           showToast("Nicio rută găsită.");
           return;
         }
 
-        const routes = data.routes;
+        let routes = data.routes;
 
         let maxManeuvers = 0;
-        const enriched = routes.map((r, idx) => {
+
+        let enriched = routes.map((r, i) => {
           let maneuvers = 0;
-          r.legs.forEach(leg => {
-            if (leg.steps) maneuvers += leg.steps.length;
-          });
+          r.legs.forEach(leg => maneuvers += leg.steps.length);
+
           if (maneuvers > maxManeuvers) maxManeuvers = maneuvers;
+
           return {
-            index: idx,
             route: r,
-            durationSec: r.duration,
-            distanceM: r.distance,
+            time: r.duration / 60,
+            dist: r.distance,
             maneuvers
           };
         });
 
-        enriched.forEach(obj => {
-          obj.tensionNorm = maxManeuvers > 0 ? obj.maneuvers / maxManeuvers : 0;
-        });
-
-        enriched.forEach(obj => {
-          const tMin = obj.durationSec / 60.0;
-          obj.timeMin = tMin;
-          obj.cost = COHESION_ALPHA * tMin + COHESION_BETA * obj.tensionNorm;
+        enriched.forEach(o => {
+          o.tension = o.maneuvers / maxManeuvers;
+          o.cost = COHESION_ALPHA * o.time + COHESION_BETA * o.tension;
         });
 
         enriched.sort((a, b) => a.cost - b.cost);
@@ -443,35 +413,26 @@
 
         routes.forEach(r => {
           const coords = r.geometry.coordinates.map(c => [c[1], c[0]]);
-          const polyline = L.polyline(coords, {
-            color: "#9CA3AF",
-            weight: 3,
-            opacity: 0.6
-          }).addTo(map);
-          routeLayers.push(polyline);
+          let pl = L.polyline(coords, { color: "#8e9ba8", weight: 3, opacity: 0.5 }).addTo(map);
+          routeLayers.push(pl);
         });
 
         const bestCoords = best.route.geometry.coordinates.map(c => [c[1], c[0]]);
-        bestRouteLayer = L.polyline(bestCoords, {
-          color: "#2563EB",
-          weight: 7,
-          opacity: 0.98
-        }).addTo(map);
+        bestRouteLayer = L.polyline(bestCoords, { color: "#2563EB", weight: 7 }).addTo(map);
 
         map.fitBounds(bestRouteLayer.getBounds(), { padding: [50, 180] });
 
-        const km = best.distanceM / 1000.0;
         routeTextEl.textContent =
-          `${km.toFixed(1)} km · ${best.timeMin.toFixed(0)} min · ${best.maneuvers} manevre`;
+          `${(best.dist/1000).toFixed(1)} km · ${best.time.toFixed(0)} min · ${best.maneuvers} manevre`;
 
-        showToast(`Rută coezivă aleasă (~${best.timeMin.toFixed(0)} min).`);
-      } catch (e) {
+        showToast("Rută găsită!");
+      } catch(e) {
         console.error(e);
-        showToast("Eroare la rutare.");
-      } finally {
-        startBtn.disabled = false;
-        startBtn.textContent = "Start navigație";
+        showToast("Eroare de rețea.");
       }
+
+      startBtn.disabled = false;
+      startBtn.textContent = "Start navigație";
     }
 
     startBtn.addEventListener("click", computeCohesiveRoute);
