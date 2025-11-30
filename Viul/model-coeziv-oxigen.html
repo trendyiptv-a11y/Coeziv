@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <title>Model coeziv de transfer al oxigenului (extindere a formulei lui Fick)</title>
+  <script>
+    MathJax = {
+      tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}
+    };
+  </script>
+  <script id="MathJax-script" async
+          src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem 4rem;
+      line-height: 1.6;
+      background: #f7f7f9;
+      color: #222;
+    }
+    h1, h2, h3 {
+      font-weight: 600;
+    }
+    h1 { margin-bottom: 0.5rem; }
+    h2 { margin-top: 2rem; }
+    .card {
+      background: #fff;
+      border-radius: 8px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      margin-bottom: 1.5rem;
+    }
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      background: #eee;
+      padding: 0.1rem 0.3rem;
+      border-radius: 4px;
+    }
+    .eq {
+      text-align: center;
+      margin: 1rem 0;
+    }
+    .tagline {
+      color: #666;
+      font-size: 0.95rem;
+      margin-bottom: 1.5rem;
+    }
+    ul {
+      margin-top: 0.3rem;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #ddd;
+      margin: 2rem 0;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Model coeziv de transfer al oxigenului</h1>
+  <div class="tagline">
+    Extinderea formulei lui Fick într-un cadru unitar: ventilație → membrană → circulație → metabolism.
+  </div>
+
+  <div class="card">
+    <h2>1. Ideea centrală</h2>
+    <p>
+      Același flux de oxigen trebuie să fie, simultan:
+    </p>
+    <ul>
+      <li>fluxul care intră în plămân prin ventilație,</li>
+      <li>fluxul care traversează membrana alveolo-capilară (MAC),</li>
+      <li>fluxul transportat de circulație,</li>
+      <li>fluxul consumat de țesuturi.</li>
+    </ul>
+    <div class="eq">
+      $$\dot V_{O_2} 
+      = \dot V_{O_2}^{plămân}
+      = \dot V_{O_2}^{MAC}
+      = \dot V_{O_2}^{circulație}
+      = \dot V_{O_2}^{metabolism}$$
+    </div>
+    <p>
+      Acesta este caracterul „coeziv”: <strong>un singur flux</strong>, descris prin patru „ferestre” diferite ale sistemului.
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>2. Blocul de ventilație (plămânul ca reactor de intrare)</h2>
+    <p>
+      Presiunea parțială alveolară a oxigenului se aproximează prin ecuația gazului alveolar:
+    </p>
+    <div class="eq">
+      $$P_{A O_2} \approx F_{I O_2}(P_B - P_{H_2O}) - \frac{P_{a CO_2}}{R}$$
+    </div>
+    <p>
+      cu:
+    </p>
+    <ul>
+      <li>$F_{I O_2}$ – fracția inspirată de O<sub>2</sub></li>
+      <li>$P_B$ – presiunea barometrică</li>
+      <li>$P_{H_2O}$ – presiunea vaporilor de apă (≈ 47 mmHg)</li>
+      <li>$P_{a CO_2}$ – presiunea arterială de CO<sub>2</sub></li>
+      <li>$R$ – respiratory quotient (≈ 0.8)</li>
+    </ul>
+    <p>
+      Iar $P_{a CO_2}$ depinde de raportul producție CO<sub>2</sub> / ventilație alveolară:
+    </p>
+    <div class="eq">
+      $$P_{a CO_2} \sim \frac{\dot V_{CO_2}}{\dot V_A}$$
+    </div>
+    <p>
+      Simbolic putem scrie:
+    </p>
+    <div class="eq">
+      $$P_{A O_2} = f_{\text{vent}}\big(\dot V_A, F_{I O_2}, \dot V_{CO_2}\big)$$
+    </div>
+    <p>
+      Aceasta definește <strong>capătul „de sus”</strong> al gradientului de presiune pentru oxigen.
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>3. Blocul membrană + sânge în plămân (Fick extins)</h2>
+    <p>
+      La nivel alveolo-capilar folosim spiritul lui Fick, dar la scară de organ:
+    </p>
+    <div class="eq">
+      $$\dot V_{O_2}^{MAC}
+      = D_{L,O_2} \cdot (P_{A O_2} - P_{\bar c O_2})$$
+    </div>
+    <p>
+      unde:
+    </p>
+    <ul>
+      <li>$D_{L,O_2}$ – capacitatea de difuziune a plămânului pentru O<sub>2</sub></li>
+      <li>$P_{A O_2}$ – presiunea parțială alveolară a O<sub>2</sub></li>
+      <li>$P_{\bar c O_2}$ – presiunea parțială medie în capilarul pulmonar</li>
+    </ul>
+    <p>
+      Modelul coeziv face explicită structura lui $D_{L,O_2}$:
+    </p>
+    <div class="eq">
+      $$D_{L,O_2}
+        = \left(
+            \frac{A_{\text{ef}}}{L_{\text{ef}}} \cdot k_{\text{dif}}
+          \right)
+          \Bigg\Vert
+          (\theta \cdot V_c)$$
+    </div>
+    <p>
+      Interpretare:
+    </p>
+    <ul>
+      <li>$A_{\text{ef}}$ – suprafața efectivă de schimb (recrutare alveole, distensie capilară)</li>
+      <li>$L_{\text{ef}}$ – grosimea efectivă a MAC (edem, fibroză)</li>
+      <li>$k_{\text{dif}}$ – constantă de difuzie efectivă (proprietăți de material ale MAC)</li>
+      <li>$\theta$ – capacitatea de combinare O<sub>2</sub>–Hb [ml O<sub>2</sub> / (ml sânge · mmHg)]</li>
+      <li>$V_c$ – volumul de sânge capilar funcțional</li>
+      <li>„$\Vert$” – combinarea celor două rezistențe (membrană și sânge) într-un singur $D_L$</li>
+    </ul>
+    <p>
+      În plus, modelul coeziv scrie explicit dependențele:
+    </p>
+    <div class="eq">
+      $$A_{\text{ef}} = A_0 \cdot f_{\text{recrutare}}(V_L,\ \text{poziție},\ \text{patologie})$$
+      $$L_{\text{ef}} = L_0 \cdot f_{\text{edem/fibroză}}(\text{stare MAC})$$
+      $$V_c = V_{c0} \cdot f_{\text{capilare}}(Q,\ presiune,\ structură)$$
+    </div>
+    <p>
+      Astfel, formula lui Fick nu mai stă „singură”, ci este legată de mecanica pulmonară și de hemodinamică.
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>4. Blocul de circulație (transportul de O₂ în sânge)</h2>
+    <p>
+      Același flux de oxigen, privit prin circulație:
+    </p>
+    <div class="eq">
+      $$\dot V_{O_2}^{circulație}
+        = Q \cdot (C_{aO_2} - C_{vO_2})$$
+    </div>
+    <p>
+      unde $Q$ este debitul cardiac, iar conținutul de O₂:
+    </p>
+    <div class="eq">
+      $$C_{aO_2} \approx 1{,}34 \cdot [Hb] \cdot S_{aO_2} + 0{,}003 \cdot P_{aO_2}$$
+    </div>
+    <p>
+      Un model mai detaliat poate descompune fluxul pe organe:
+    </p>
+    <div class="eq">
+      $$\dot V_{O_2}^{metabolism} 
+        = \sum_i Q_i \cdot (C_{aO_2} - C_{vO_2,i})$$
+    </div>
+    <p>
+      Acest bloc leagă transferul prin MAC de hemoglobină și de distribuția debitului cardiac.
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>5. Blocul de metabolism (capătul „de jos” al gradientului)</h2>
+    <p>
+      Metabolismul tisular stabilește nivelul presiunii parțiale venoase a oxigenului $P_{vO_2}$, deci capătul „de jos” al gradientului din plămân:
+    </p>
+    <div class="eq">
+      $$\dot V_{O_2}^{metabolism} 
+        = Q \cdot (C_{aO_2} - C_{vO_2})$$
+      $$P_{\bar c O_2} \in [P_{vO_2},\ P_{aO_2}]$$
+    </div>
+    <p>
+      Prin urmare, gradientul MAC:
+    </p>
+    <div class="eq">
+      $$\Delta P = P_{A O_2} - P_{\bar c O_2}$$
+    </div>
+    <p>
+      este rezultatul combinat al:
+    </p>
+    <ul>
+      <li>ventilației și compoziției aerului inspirat (sus – determină $P_{A O_2}$),</li>
+      <li>metabolismului tisular și al debitului cardiac (jos – determină $P_{vO_2}$ și $P_{\bar c O_2}$).</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>6. Forma compactă a modelului coeziv</h2>
+    <p>
+      Putem scrie modelul coeziv într-o singură relație simbolică:
+    </p>
+    <div class="eq">
+      $$\dot V_{O_2}
+      =
+      D_{L,O_2}\big(A_{\text{ef}}, L_{\text{ef}}, \theta, V_c \big)
+      \cdot
+      \Big[
+        P_{A O_2}\big(\dot V_A, F_{I O_2}, \dot V_{CO_2}\big)
+        -
+        P_{\bar c O_2}\big(\dot V_{O_2}, Q, [Hb]\big)
+      \Big]
+      =
+      Q \cdot (C_{aO_2} - C_{vO_2})
+      $$
+    </div>
+    <p>
+      Aceasta este <strong>formula de bază a modelului coeziv</strong>:
+    </p>
+    <ul>
+      <li>păstrează structura de tip Fick: <code>flux = conductanță × gradient</code>,</li>
+      <li>face conductanța și gradientul funcții explicite de ventilație, structură, hemodinamică și metabolism,</li>
+      <li>permite, în viitor, rafinarea termenilor $k_{\text{dif}}$ și $\theta$ cu detalii de microstructură (inclusiv, dacă va fi cazul, contribuții cuantice), fără a schimba cadrul general.</li>
+    </ul>
+  </div>
+
+  <hr>
+
+  <p style="font-size:0.9rem; color:#666;">
+    Versiune 0.1 a modelului coeziv de transfer al oxigenului, construită ca extindere a formulei lui Fick și a conceptului de capacitate de difuziune a plămânului.
+  </p>
+
+</body>
+</html>
