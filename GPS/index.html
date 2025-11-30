@@ -163,32 +163,54 @@
     }
     .toast.show { opacity: 1; }
 
-    /* Banner navigație (sus) */
+    /* Banner navigație sus */
     .nav-banner {
       position: absolute;
       top: 10px;
       left: 50%;
       transform: translateX(-50%);
-      background: rgba(15,23,42,0.96);
+      background: linear-gradient(90deg,#0f172a,#1e293b);
       color: #e5e7eb;
-      padding: 8px 12px;
+      padding: 8px 14px;
       border-radius: 999px;
       font-size: 0.9rem;
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
       z-index: 1000;
       max-width: 95vw;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      border: 1px solid #1d4ed8;
     }
     .nav-arrow {
-      font-size: 1.2rem;
+      font-size: 1.3rem;
     }
     .nav-distance {
-      font-size: 0.8rem;
+      font-size: 0.85rem;
       color: #93c5fd;
+      margin-left: 4px;
+    }
+
+    /* marker săgeată GPS */
+    .arrow-icon {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: rgba(37,99,235,0.18);
+      border: 2px solid #2563eb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transform-origin: center;
+    }
+    .arrow-icon span {
+      display: block;
+      font-size: 16px;
+      color: #2563eb;
+      transform: translateY(-2px); /* un pic mai sus */
     }
 
     @media (min-width: 768px) {
@@ -255,9 +277,10 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
   <script>
-    // ---- parametri coezivi ----
-    const COHESION_ALPHA = 1.0;
-    const COHESION_BETA  = 2.0;
+    // ---- parametri coezivi (extinși) ----
+    const COHESION_ALPHA = 1.0;  // timp (minute)
+    const COHESION_BETA  = 1.5;  // manevre
+    const COHESION_GAMMA = 1.2;  // micro-tensiune (segmente scurte / giratorii)
 
     const map = L.map("map").setView([45.94, 24.97], 5);
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -272,13 +295,15 @@
     let routeLayers = [];
     let bestRouteLayer = null;
 
-    // pentru navigație live
+    // navigație live
     let navigationActive = false;
     let gpsWatchId = null;
     let userMarker = null;
+    let userPrevPoint = null;
     let routeCoords = [];      // [ [lat, lon], ... ]
     let routeSteps = [];       // step-uri OSRM
     let currentStepIndex = 0;  // index în routeSteps
+    let lastSpokenStepIndex = -1;
 
     const gpsBtn        = document.getElementById("gpsBtn");
     const addressInput  = document.getElementById("addressInput");
@@ -288,6 +313,15 @@
     const routeTextEl   = document.getElementById("routeText");
     const navTextEl     = document.getElementById("navText");
     const navDistEl     = document.getElementById("navDist");
+    const navArrowEl    = document.querySelector(".nav-arrow");
+
+    // icon pentru săgeata GPS
+    const arrowIcon = L.divIcon({
+      className: "arrow-icon",
+      html: "<span>▲</span>",
+      iconSize: [26, 26],
+      iconAnchor: [13, 13]
+    });
 
     function showToast(msg) {
       toastEl.textContent = msg;
@@ -316,8 +350,9 @@
       }
       routeCoords = [];
       routeSteps = [];
-      routeTextEl.textContent = "–";
       currentStepIndex = 0;
+      lastSpokenStepIndex = -1;
+      routeTextEl.textContent = "–";
     }
 
     function getGPSOrigin(showMsg = true) {
@@ -419,7 +454,6 @@
     }
 
     function minDistanceToRoute(point, polyline) {
-      // simplu: distanța minimă la vârfurile rutei
       let minD = Infinity;
       for (const [lat, lon] of polyline) {
         const d = haversine(point[0], point[1], lat, lon);
@@ -428,7 +462,24 @@
       return minD;
     }
 
-    // --- traducere manevre OSRM în text + icon ---
+    function bearingDeg(from, to) {
+      const [lat1, lon1] = from;
+      const [lat2, lon2] = to;
+      const toRad = d => d * Math.PI / 180;
+      const toDeg = r => r * 180 / Math.PI;
+
+      const φ1 = toRad(lat1);
+      const φ2 = toRad(lat2);
+      const λ1 = toRad(lon1);
+      const λ2 = toRad(lon2);
+      const y = Math.sin(λ2-λ1)*Math.cos(φ2);
+      const x = Math.cos(φ1)*Math.sin(φ2) -
+                Math.sin(φ1)*Math.cos(φ2)*Math.cos(λ2-λ1);
+      const θ = Math.atan2(y, x);
+      return (toDeg(θ) + 360) % 360;
+    }
+
+    // --- text manevre + icon ---
     function maneuverToText(step) {
       if (!step || !step.maneuver) {
         return { text: "Urmează ruta trasată.", arrow: "⬆️" };
@@ -466,10 +517,19 @@
       return { text: base, arrow };
     }
 
+    // --- voce (instrucțiuni vocale) ---
+    function speak(text) {
+      if (!("speechSynthesis" in window)) return;
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.lang = "ro-RO";
+      window.speechSynthesis.speak(utter);
+    }
+
     // --- navigație live ---
     function startNavigationTracking() {
       navigationActive = true;
       currentStepIndex = 0;
+      lastSpokenStepIndex = -1;
 
       if (!navigator.geolocation) {
         showToast("Nu există GPS pentru navigație live.");
@@ -484,27 +544,45 @@
           const lon = pos.coords.longitude;
           const point = [lat, lon];
 
-          // marker utilizator
+          // marker utilizator cu săgeată
           if (!userMarker) {
-            userMarker = L.circleMarker(point, {
-              radius: 6
-            }).addTo(map);
+            userMarker = L.marker(point, { icon: arrowIcon }).addTo(map);
           } else {
             userMarker.setLatLng(point);
           }
 
-          // follow mode
-          map.setView(point, Math.max(map.getZoom(), 15), { animate: true });
+          // orientare săgeată după heading
+          if (userPrevPoint) {
+            const brg = bearingDeg(userPrevPoint, point); // în grade
+            const el = userMarker.getElement();
+            if (el) {
+              el.style.transform = `rotate(${brg}deg)`;
+            }
+          }
+          userPrevPoint = point;
+
+          // auto-zoom / follow
+          let zoomTarget;
+          if (routeSteps.length) {
+            const step = routeSteps[Math.min(currentStepIndex, routeSteps.length - 1)];
+            const loc = step.maneuver.location; // [lon,lat]
+            const dToStep = haversine(point[0], point[1], loc[1], loc[0]);
+            if (dToStep > 1500) zoomTarget = 14;
+            else if (dToStep > 400) zoomTarget = 15;
+            else zoomTarget = 17;
+          } else {
+            zoomTarget = 15;
+          }
+          map.setView(point, Math.max(map.getZoom(), zoomTarget), { animate: true });
 
           if (!navigationActive || routeCoords.length === 0) return;
 
-          // distanță la rută
+          // distanță la rută pentru rerutare
           const dRoute = minDistanceToRoute(point, routeCoords);
-          // dacă ești departe de rută -> rerutare
           if (dRoute > 150) { // >150m off-route
             showToast("Rerutare...");
             originLatLng = point; // noua origine
-            computeCohesiveRoute(true); // true = chemare din rerutare
+            computeCohesiveRoute(true); // din rerutare
             return;
           }
 
@@ -526,13 +604,12 @@
         return;
       }
 
-      // găsim cel mai apropiat step de poziția curentă,
-      // dar nu dăm înapoi (maxim până la +3 pași înainte)
+      // găsim cel mai apropiat step în față
       let bestIdx = currentStepIndex;
       let bestD = Infinity;
-      for (let i = currentStepIndex; i < Math.min(routeSteps.length, currentStepIndex + 5); i++) {
+      for (let i = currentStepIndex; i < Math.min(routeSteps.length, currentStepIndex + 6); i++) {
         const step = routeSteps[i];
-        const loc = step.maneuver.location; // [lon, lat]
+        const loc = step.maneuver.location; // [lon,lat]
         const d = haversine(currentPoint[0], currentPoint[1], loc[1], loc[0]);
         if (d < bestD) {
           bestD = d;
@@ -553,10 +630,14 @@
         : `${Math.round(dToStep)} m`;
 
       navTextEl.textContent = text;
-      navDistEl.textContent = dToStep < 15
-        ? "acum"
-        : `în ${dShow}`;
-      document.querySelector(".nav-arrow").textContent = arrow;
+      navArrowEl.textContent = arrow;
+      navDistEl.textContent = dToStep < 15 ? "acum" : `în ${dShow}`;
+
+      // voce doar când se schimbă step-ul, și ești destul de aproape (<120m)
+      if (currentStepIndex !== lastSpokenStepIndex && dToStep < 120) {
+        speak(text);
+        lastSpokenStepIndex = currentStepIndex;
+      }
 
       // dacă am trecut de manevră și step-ul e scurt, mergem la următorul
       if (dToStep < 20 && currentStepIndex < routeSteps.length - 1) {
@@ -564,16 +645,14 @@
       }
     }
 
-    // --- rutare coezivă ---
+    // --- rutare coezivă extinsă ---
     async function computeCohesiveRoute(fromReroute = false) {
       if (!originLatLng) {
         showToast("Setează originea (GPS sau Alt+Tap).");
         return;
       }
       if (!destLatLng) {
-        if (!fromReroute) {
-          showToast("Alege o destinație.");
-        }
+        if (!fromReroute) showToast("Alege o destinație.");
         return;
       }
 
@@ -606,31 +685,49 @@
         }
 
         const routes = data.routes;
-        let maxManeuvers = 0;
+        let maxStructural = 0;
 
         const enriched = routes.map((r) => {
           let maneuvers = 0;
+          let microTension = 0;
           const stepsFlat = [];
+
           r.legs.forEach(leg => {
             maneuvers += leg.steps.length;
-            leg.steps.forEach(s => stepsFlat.push(s));
+            leg.steps.forEach(s => {
+              stepsFlat.push(s);
+              // micro-tensiune: manevre speciale + segmente foarte scurte
+              if (s.maneuver && (s.maneuver.type === "roundabout" || s.maneuver.type === "turn")) {
+                microTension += 1.0;
+              }
+              if (s.distance && s.distance < 40) {
+                microTension += 0.5; // segmente foarte scurte => tensiune structurală
+              }
+            });
           });
 
-          if (maneuvers > maxManeuvers) maxManeuvers = maneuvers;
+          const structuralLoad = maneuvers + microTension;
+          if (structuralLoad > maxStructural) maxStructural = structuralLoad;
+
           return {
             route: r,
             durationSec: r.duration,
             distanceM: r.distance,
             maneuvers,
+            microTension,
+            structuralLoad,
             stepsFlat
           };
         });
 
         enriched.forEach(o => {
-          o.tensionNorm = maxManeuvers > 0 ? o.maneuvers / maxManeuvers : 0;
+          o.tensionNorm = maxStructural > 0 ? o.structuralLoad / maxStructural : 0;
           const tMin = o.durationSec / 60;
           o.timeMin = tMin;
-          o.cost = COHESION_ALPHA * tMin + COHESION_BETA * o.tensionNorm;
+          // cost coeziv extins
+          o.cost = COHESION_ALPHA * tMin +
+                   COHESION_BETA  * o.maneuvers +
+                   COHESION_GAMMA * o.microTension;
         });
 
         enriched.sort((a, b) => a.cost - b.cost);
@@ -653,20 +750,23 @@
         routeTextEl.textContent =
           `${km.toFixed(1)} km · ${best.timeMin.toFixed(0)} min · ${best.maneuvers} manevre`;
 
-        // salvăm coordonatele și step-urile pentru navigație live
+        // salvăm pentru navigație live
         routeCoords = bestCoords;
         routeSteps = best.stepsFlat;
         currentStepIndex = 0;
+        lastSpokenStepIndex = -1;
 
         const firstStep = routeSteps[0];
         const { text, arrow } = maneuverToText(firstStep);
-        document.querySelector(".nav-arrow").textContent = arrow;
+        navArrowEl.textContent = arrow;
         navTextEl.textContent = text;
         navDistEl.textContent = "";
 
         if (!fromReroute) {
           showToast("Rută coezivă calculată. Navigație pornită.");
           startNavigationTracking();
+        } else {
+          showToast("Rută coezivă recalculată.");
         }
       } catch (e) {
         console.error(e);
