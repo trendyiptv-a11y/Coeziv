@@ -63,7 +63,7 @@
       border-radius: 999px;
       border: none;
       padding: 10px 14px;
-      font-size: 1rem;
+      font-size: 0.9rem;
       background: #1f2937;
       color: #e5e7eb;
       cursor: pointer;
@@ -82,6 +82,13 @@
       cursor: default;
     }
 
+    .btn-circle {
+      border-radius: 999px;
+      padding: 8px 10px;
+      min-width: 40px;
+      text-align: center;
+    }
+
     .input-wrap {
       position: relative;
       flex: 1;
@@ -91,7 +98,7 @@
       border-radius: 999px;
       border: 1px solid #4b5563;
       padding: 10px 14px;
-      font-size: 1rem;
+      font-size: 0.9rem;
       background: #020617;
       color: #e5e7eb;
       outline: none;
@@ -169,7 +176,7 @@
       top: 10px;
       left: 50%;
       transform: translateX(-50%);
-      background: linear-gradient(90deg,#0f172a,#1e293b);
+      background: linear-gradient(90deg,#0f172a,#111827);
       color: #e5e7eb;
       padding: 8px 14px;
       border-radius: 999px;
@@ -193,6 +200,13 @@
       color: #93c5fd;
       margin-left: 4px;
     }
+    .nav-mode-chip {
+      font-size: 0.75rem;
+      background: #0b1120;
+      padding: 3px 6px;
+      border-radius: 999px;
+      border: 1px solid #1e3a8a;
+    }
 
     /* marker săgeată GPS */
     .arrow-icon {
@@ -210,7 +224,31 @@
       display: block;
       font-size: 16px;
       color: #2563eb;
-      transform: translateY(-2px); /* un pic mai sus */
+      transform: translateY(-2px);
+    }
+
+    /* toggle groups */
+    .toggle-group {
+      display: inline-flex;
+      background: #020617;
+      border-radius: 999px;
+      padding: 2px;
+      border: 1px solid #4b5563;
+      gap: 2px;
+    }
+    .toggle {
+      border: none;
+      border-radius: 999px;
+      padding: 5px 8px;
+      font-size: 0.8rem;
+      background: transparent;
+      color: #9ca3af;
+      cursor: pointer;
+      min-width: 40px;
+    }
+    .toggle.active {
+      background: #1d4ed8;
+      color: #f9fafb;
     }
 
     @media (min-width: 768px) {
@@ -231,6 +269,7 @@
     <span class="nav-arrow">⬆️</span>
     <span id="navText">Pregătit. Alege destinația și apasă „Start navigație”.</span>
     <span id="navDist" class="nav-distance"></span>
+    <span id="navModeChip" class="nav-mode-chip">Auto · Echilibrat</span>
   </div>
 
   <!-- PANOU JOS -->
@@ -239,7 +278,13 @@
 
       <div class="panel-row">
         <div class="brand">GPS Coeziv</div>
-        <button id="gpsBtn" class="btn">GPS</button>
+        <div class="toggle-group" id="modeGroup">
+          <button class="toggle active" data-mode="driving">🚗</button>
+          <button class="toggle" data-mode="cycling">🚲</button>
+          <button class="toggle" data-mode="walking">🚶</button>
+        </div>
+        <button id="gpsBtn" class="btn btn-circle">GPS</button>
+        <button id="fsBtn" class="btn btn-circle">⤢</button>
       </div>
 
       <div class="panel-row">
@@ -260,7 +305,16 @@
       </div>
 
       <div class="panel-row" style="justify-content: space-between;">
-        <div class="info-small">Tap = destinație · Alt+Tap = origine</div>
+        <div class="info-small">
+          Tap = destinație · Alt+Tap = origine
+          <br />
+          Profil:
+          <span class="toggle-group" id="profileGroup">
+            <button class="toggle" data-prof="fast">⚡</button>
+            <button class="toggle active" data-prof="balanced">⚖️</button>
+            <button class="toggle" data-prof="stable">🧱</button>
+          </span>
+        </div>
         <div id="routeInfo" class="route-info">
           <span class="dot-origin">●</span>O
           <span class="dot-dest">●</span>D
@@ -277,10 +331,27 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
   <script>
-    // ---- parametri coezivi (extinși) ----
-    const COHESION_ALPHA = 1.0;  // timp (minute)
-    const COHESION_BETA  = 1.5;  // manevre
-    const COHESION_GAMMA = 1.2;  // micro-tensiune (segmente scurte / giratorii)
+    // ---- parametri coezivi dinamici ----
+    let COHESION_ALPHA = 1.0;
+    let COHESION_BETA  = 1.5;
+    let COHESION_GAMMA = 1.2;
+
+    const COHESION_PROFILES = {
+      fast:     { alpha: 1.6, beta: 0.8, gamma: 0.8 },
+      balanced: { alpha: 1.2, beta: 1.2, gamma: 1.0 },
+      stable:   { alpha: 0.9, beta: 1.8, gamma: 1.6 }
+    };
+
+    let transportMode = "driving";   // OSRM profile: driving | cycling | walking
+    let cohesionProfile = "balanced";
+
+    function applyCohesionProfile() {
+      const p = COHESION_PROFILES[cohesionProfile];
+      COHESION_ALPHA = p.alpha;
+      COHESION_BETA  = p.beta;
+      COHESION_GAMMA = p.gamma;
+      updateModeChip();
+    }
 
     const map = L.map("map").setView([45.94, 24.97], 5);
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -300,12 +371,13 @@
     let gpsWatchId = null;
     let userMarker = null;
     let userPrevPoint = null;
-    let routeCoords = [];      // [ [lat, lon], ... ]
-    let routeSteps = [];       // step-uri OSRM
-    let currentStepIndex = 0;  // index în routeSteps
+    let routeCoords = [];
+    let routeSteps = [];
+    let currentStepIndex = 0;
     let lastSpokenStepIndex = -1;
 
     const gpsBtn        = document.getElementById("gpsBtn");
+    const fsBtn         = document.getElementById("fsBtn");
     const addressInput  = document.getElementById("addressInput");
     const suggestionsEl = document.getElementById("suggestions");
     const startBtn      = document.getElementById("startBtn");
@@ -314,8 +386,12 @@
     const navTextEl     = document.getElementById("navText");
     const navDistEl     = document.getElementById("navDist");
     const navArrowEl    = document.querySelector(".nav-arrow");
+    const navModeChipEl = document.getElementById("navModeChip");
 
-    // icon pentru săgeata GPS
+    const modeGroup = document.getElementById("modeGroup");
+    const profileGroup = document.getElementById("profileGroup");
+
+    // icon săgeată
     const arrowIcon = L.divIcon({
       className: "arrow-icon",
       html: "<span>▲</span>",
@@ -373,8 +449,21 @@
       );
     }
 
-    window.onload = () => getGPSOrigin(false);
+    window.onload = () => {
+      applyCohesionProfile();
+      getGPSOrigin(false);
+    };
+
     gpsBtn.onclick = () => getGPSOrigin(true);
+
+    // FULLSCREEN
+    fsBtn.onclick = () => {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen?.();
+      } else {
+        document.exitFullscreen?.();
+      }
+    };
 
     // click pe hartă: destinație / origine
     map.on("click", e => {
@@ -386,6 +475,38 @@
         showToast("Destinație setată.");
       }
     });
+
+    // --- toggle mod transport ---
+    modeGroup.addEventListener("click", (e) => {
+      if (!e.target.dataset.mode) return;
+      transportMode = e.target.dataset.mode; // driving | cycling | walking
+      [...modeGroup.querySelectorAll(".toggle")].forEach(b => b.classList.toggle("active", b === e.target));
+      updateModeChip();
+      showToast(transportMode === "driving" ? "Mod: Auto" :
+                transportMode === "cycling" ? "Mod: Bicicletă" :
+                "Mod: Pe jos");
+    });
+
+    // --- toggle profil coeziv ---
+    profileGroup.addEventListener("click", (e) => {
+      if (!e.target.dataset.prof) return;
+      cohesionProfile = e.target.dataset.prof; // fast | balanced | stable
+      [...profileGroup.querySelectorAll(".toggle")].forEach(b => b.classList.toggle("active", b === e.target));
+      applyCohesionProfile();
+      showToast(cohesionProfile === "fast" ? "Profil: Rapid" :
+                cohesionProfile === "balanced" ? "Profil: Echilibrat" :
+                "Profil: Stabil");
+    });
+
+    function updateModeChip() {
+      const modeLabel =
+        transportMode === "driving" ? "Auto" :
+        transportMode === "cycling" ? "Bike" : "Walk";
+      const profLabel =
+        cohesionProfile === "fast" ? "Rapid" :
+        cohesionProfile === "balanced" ? "Echilibrat" : "Stabil";
+      navModeChipEl.textContent = `${modeLabel} · ${profLabel}`;
+    }
 
     // --- autocomplete Nominatim ---
     let autocompleteTimeout = null;
@@ -536,7 +657,7 @@
         return;
       }
 
-      if (gpsWatchId !== null) return; // deja porniți
+      if (gpsWatchId !== null) return;
 
       gpsWatchId = navigator.geolocation.watchPosition(
         pos => {
@@ -544,25 +665,21 @@
           const lon = pos.coords.longitude;
           const point = [lat, lon];
 
-          // marker utilizator cu săgeată
           if (!userMarker) {
             userMarker = L.marker(point, { icon: arrowIcon }).addTo(map);
           } else {
             userMarker.setLatLng(point);
           }
 
-          // orientare săgeată după heading
           if (userPrevPoint) {
-            const brg = bearingDeg(userPrevPoint, point); // în grade
+            const brg = bearingDeg(userPrevPoint, point);
             const el = userMarker.getElement();
-            if (el) {
-              el.style.transform = `rotate(${brg}deg)`;
-            }
+            if (el) el.style.transform = `rotate(${brg}deg)`;
           }
           userPrevPoint = point;
 
           // auto-zoom / follow
-          let zoomTarget;
+          let zoomTarget = 15;
           if (routeSteps.length) {
             const step = routeSteps[Math.min(currentStepIndex, routeSteps.length - 1)];
             const loc = step.maneuver.location; // [lon,lat]
@@ -570,23 +687,23 @@
             if (dToStep > 1500) zoomTarget = 14;
             else if (dToStep > 400) zoomTarget = 15;
             else zoomTarget = 17;
-          } else {
-            zoomTarget = 15;
           }
           map.setView(point, Math.max(map.getZoom(), zoomTarget), { animate: true });
 
           if (!navigationActive || routeCoords.length === 0) return;
 
-          // distanță la rută pentru rerutare
           const dRoute = minDistanceToRoute(point, routeCoords);
-          if (dRoute > 150) { // >150m off-route
+          const offRouteThreshold =
+            transportMode === "walking" ? 60 :
+            transportMode === "cycling" ? 100 : 150;
+
+          if (dRoute > offRouteThreshold) {
             showToast("Rerutare...");
-            originLatLng = point; // noua origine
-            computeCohesiveRoute(true); // din rerutare
+            originLatLng = point;
+            computeCohesiveRoute(true);
             return;
           }
 
-          // actualizare turn-by-turn
           updateTurnByTurn(point);
         },
         err => {
@@ -604,12 +721,11 @@
         return;
       }
 
-      // găsim cel mai apropiat step în față
       let bestIdx = currentStepIndex;
       let bestD = Infinity;
       for (let i = currentStepIndex; i < Math.min(routeSteps.length, currentStepIndex + 6); i++) {
         const step = routeSteps[i];
-        const loc = step.maneuver.location; // [lon,lat]
+        const loc = step.maneuver.location;
         const d = haversine(currentPoint[0], currentPoint[1], loc[1], loc[0]);
         if (d < bestD) {
           bestD = d;
@@ -621,7 +737,6 @@
       const step = routeSteps[currentStepIndex];
       const { text, arrow } = maneuverToText(step);
 
-      // distanță până la manevră
       const mLat = step.maneuver.location[1];
       const mLon = step.maneuver.location[0];
       const dToStep = haversine(currentPoint[0], currentPoint[1], mLat, mLon);
@@ -633,13 +748,12 @@
       navArrowEl.textContent = arrow;
       navDistEl.textContent = dToStep < 15 ? "acum" : `în ${dShow}`;
 
-      // voce doar când se schimbă step-ul, și ești destul de aproape (<120m)
+      // voce: când se schimbă step-ul, ești aproape
       if (currentStepIndex !== lastSpokenStepIndex && dToStep < 120) {
         speak(text);
         lastSpokenStepIndex = currentStepIndex;
       }
 
-      // dacă am trecut de manevră și step-ul e scurt, mergem la următorul
       if (dToStep < 20 && currentStepIndex < routeSteps.length - 1) {
         currentStepIndex++;
       }
@@ -658,11 +772,11 @@
 
       const src = originLatLng;
       const dst = destLatLng;
-
       const coordsParam = `${src[1]},${src[0]};${dst[1]},${dst[0]}`;
+      const profile = transportMode; // driving | cycling | walking
 
       const url =
-        `https://router.project-osrm.org/route/v1/driving/${coordsParam}` +
+        `https://router.project-osrm.org/route/v1/${profile}/${coordsParam}` +
         `?overview=full&geometries=geojson&steps=true&alternatives=true`;
 
       if (!fromReroute) {
@@ -696,12 +810,11 @@
             maneuvers += leg.steps.length;
             leg.steps.forEach(s => {
               stepsFlat.push(s);
-              // micro-tensiune: manevre speciale + segmente foarte scurte
               if (s.maneuver && (s.maneuver.type === "roundabout" || s.maneuver.type === "turn")) {
                 microTension += 1.0;
               }
               if (s.distance && s.distance < 40) {
-                microTension += 0.5; // segmente foarte scurte => tensiune structurală
+                microTension += 0.5;
               }
             });
           });
@@ -724,7 +837,6 @@
           o.tensionNorm = maxStructural > 0 ? o.structuralLoad / maxStructural : 0;
           const tMin = o.durationSec / 60;
           o.timeMin = tMin;
-          // cost coeziv extins
           o.cost = COHESION_ALPHA * tMin +
                    COHESION_BETA  * o.maneuvers +
                    COHESION_GAMMA * o.microTension;
@@ -733,14 +845,12 @@
         enriched.sort((a, b) => a.cost - b.cost);
         const best = enriched[0];
 
-        // desenăm toate rutele (gri)
         routes.forEach(r => {
           const coords = r.geometry.coordinates.map(c => [c[1], c[0]]);
           const pl = L.polyline(coords, { color: "#8e9ba8", weight: 3, opacity: 0.5 }).addTo(map);
           routeLayers.push(pl);
         });
 
-        // ruta coezivă (albastru)
         const bestCoords = best.route.geometry.coordinates.map(c => [c[1], c[0]]);
         bestRouteLayer = L.polyline(bestCoords, { color: "#2563EB", weight: 7 }).addTo(map);
 
@@ -750,7 +860,6 @@
         routeTextEl.textContent =
           `${km.toFixed(1)} km · ${best.timeMin.toFixed(0)} min · ${best.maneuvers} manevre`;
 
-        // salvăm pentru navigație live
         routeCoords = bestCoords;
         routeSteps = best.stepsFlat;
         currentStepIndex = 0;
