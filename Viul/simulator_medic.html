@@ -2,14 +2,14 @@
 <html lang="ro">
 <head>
   <meta charset="UTF-8">
-  <title>Simulator coeziv de transfer al oxigenului (educațional)</title>
+  <title>Simulator coeziv de transfer al oxigenului (educațional pentru clinicieni)</title>
   <style>
     body {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       margin: 0;
       padding: 0;
       background: #f5f5f7;
-      color: #222;
+      color: #111827;
     }
     header {
       padding: 1.5rem 2rem 1rem;
@@ -22,16 +22,16 @@
     }
     header p {
       margin: 0;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       color: #cbd5f5;
     }
     main {
       display: grid;
-      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.1fr);
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 1.15fr);
       gap: 1.5rem;
       padding: 1.5rem 2rem 3rem;
     }
-    @media (max-width: 900px) {
+    @media (max-width: 980px) {
       main {
         grid-template-columns: 1fr;
         padding: 1rem;
@@ -39,9 +39,9 @@
     }
     .card {
       background: #ffffff;
-      border-radius: 12px;
+      border-radius: 14px;
       padding: 1.25rem 1.5rem;
-      box-shadow: 0 10px 25px rgba(15,23,42,0.06);
+      box-shadow: 0 12px 28px rgba(15,23,42,0.08);
     }
     h2 {
       margin-top: 0;
@@ -50,10 +50,27 @@
       padding-bottom: 0.4rem;
       margin-bottom: 0.8rem;
     }
+    .section-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #4b5563;
+      margin-top: 0.7rem;
+      margin-bottom: 0.25rem;
+    }
     .grid-2 {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 0.75rem 1rem;
+    }
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.75rem 1rem;
+    }
+    @media (max-width: 700px) {
+      .grid-2, .grid-3 {
+        grid-template-columns: 1fr;
+      }
     }
     .field {
       display: flex;
@@ -61,18 +78,18 @@
       gap: 0.15rem;
     }
     label {
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       color: #374151;
     }
     .units {
-      font-size: 0.75rem;
+      font-size: 0.72rem;
       color: #6b7280;
     }
     input {
       padding: 0.35rem 0.45rem;
       border-radius: 6px;
       border: 1px solid #d1d5db;
-      font-size: 0.9rem;
+      font-size: 0.88rem;
       width: 100%;
       box-sizing: border-box;
     }
@@ -88,39 +105,35 @@
       flex-wrap: wrap;
     }
     button {
-      padding: 0.45rem 0.9rem;
+      padding: 0.45rem 0.85rem;
       border-radius: 999px;
       border: none;
       cursor: pointer;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
     }
     .btn-primary {
       background: #2563eb;
-      color: white;
+      color: #ffffff;
+    }
+    .btn-primary:hover {
+      background: #1d4ed8;
     }
     .btn-secondary {
       background: #e5e7eb;
       color: #111827;
     }
-    .btn-primary:hover {
-      background: #1d4ed8;
-    }
     .btn-secondary:hover {
       background: #d1d5db;
-    }
-    .section-title {
-      font-size: 0.9rem;
-      font-weight: 600;
-      color: #4b5563;
-      margin-top: 0.6rem;
-      margin-bottom: 0.2rem;
     }
     .result-row {
       display: flex;
       justify-content: space-between;
-      font-size: 0.88rem;
-      padding: 0.2rem 0;
+      font-size: 0.86rem;
+      padding: 0.22rem 0;
       border-bottom: 1px dashed #e5e7eb;
     }
     .result-row:last-child {
@@ -132,27 +145,38 @@
     .result-value {
       font-variant-numeric: tabular-nums;
       font-weight: 500;
+      margin-left: 0.7rem;
+      white-space: nowrap;
+    }
+    .section-block {
+      margin-top: 0.7rem;
+      padding-top: 0.45rem;
+      border-top: 1px solid #e5e7eb;
     }
     .badge {
       display: inline-block;
-      padding: 0.15rem 0.5rem;
+      padding: 0.1rem 0.5rem;
       border-radius: 999px;
-      font-size: 0.75rem;
+      font-size: 0.72rem;
       font-weight: 500;
       margin-left: 0.4rem;
     }
-    .badge-ok { background: #dcfce7; color: #166534; }
-    .badge-warn { background: #fef9c3; color: #92400e; }
-    .badge-bad { background: #fee2e2; color: #b91c1c; }
+    .badge-ok    { background: #dcfce7; color: #166534; }
+    .badge-warn  { background: #fef9c3; color: #92400e; }
+    .badge-bad   { background: #fee2e2; color: #b91c1c; }
     .note {
       font-size: 0.75rem;
       color: #6b7280;
-      margin-top: 0.6rem;
+      margin-top: 0.7rem;
     }
-    .section-block {
-      margin-top: 0.6rem;
-      padding-top: 0.4rem;
-      border-top: 1px solid #e5e7eb;
+    .pill {
+      display: inline-block;
+      background: #e5e7eb;
+      border-radius: 999px;
+      padding: 0.1rem 0.5rem;
+      font-size: 0.7rem;
+      color: #374151;
+      margin-left: 0.25rem;
     }
   </style>
 </head>
@@ -160,7 +184,7 @@
 
 <header>
   <h1>Simulator coeziv de transfer al oxigenului</h1>
-  <p>Instrument educațional bazat pe un model ventilație – difuziune – perfuzie – metabolism (extindere a formulei lui Fick).</p>
+  <p>Instrument educațional pentru clinicieni. Baze: ecuația gazului alveolar, Fick, curba Hb–O₂, DO₂/VO₂, DL.</p>
 </header>
 
 <main>
@@ -168,32 +192,45 @@
   <section class="card">
     <h2>Parametri de intrare</h2>
 
-    <div class="section-title">1. Gaz alveolar & ventilație</div>
-    <div class="grid-2">
+    <div class="section-title">1. Date gazometrice și de mediu</div>
+    <div class="grid-3">
       <div class="field">
-        <label for="fio2">FIO₂ (fracția inspirată de O₂)</label>
+        <label for="fio2">FIO₂</label>
         <input id="fio2" type="number" step="0.01" value="0.21">
-        <div class="units">0.21 aer, 0.3–0.6 oxigen suplimentar</div>
+        <div class="units">fracție inspirată (0.21 aer, 0.5 O₂ 50%)</div>
       </div>
       <div class="field">
-        <label for="pb">Presiune barometrică PB</label>
+        <label for="pb">PB (presiune barometrică)</label>
         <input id="pb" type="number" step="1" value="760">
-        <div class="units">mmHg (≈760 la nivelul mării)</div>
+        <div class="units">mmHg (≈760 nivelul mării)</div>
       </div>
       <div class="field">
         <label for="paco2">PaCO₂</label>
         <input id="paco2" type="number" step="1" value="40">
         <div class="units">mmHg</div>
       </div>
+    </div>
+
+    <div class="grid-3" style="margin-top:0.75rem;">
       <div class="field">
-        <label for="aaGrad">Gradient A–a estimat (PAO₂ − PaO₂)</label>
-        <input id="aaGrad" type="number" step="1" value="10">
-        <div class="units">mmHg (10–15 normal la adult tânăr)</div>
+        <label for="pao2">PaO₂ (din gazometrie)</label>
+        <input id="pao2" type="number" step="1" value="95">
+        <div class="units">mmHg</div>
+      </div>
+      <div class="field">
+        <label for="sao2">SaO₂ măsurată (opțional)</label>
+        <input id="sao2" type="number" step="0.1" value="">
+        <div class="units">% (dacă e goală, se calculează din PaO₂)</div>
+      </div>
+      <div class="field">
+        <label for="vo2">VO₂ (consum O₂)</label>
+        <input id="vo2" type="number" step="10" value="250">
+        <div class="units">ml/min (≈3.5 ml/kg/min în repaus)</div>
       </div>
     </div>
 
-    <div class="section-title">2. Sânge & circulație</div>
-    <div class="grid-2">
+    <div class="section-title">2. Hemoglobină, debit cardiac, DL</div>
+    <div class="grid-3">
       <div class="field">
         <label for="hb">Hemoglobină [Hb]</label>
         <input id="hb" type="number" step="0.1" value="15">
@@ -205,21 +242,16 @@
         <div class="units">L/min</div>
       </div>
       <div class="field">
-        <label for="vo2">VO₂ (consum O₂)</label>
-        <input id="vo2" type="number" step="10" value="250">
-        <div class="units">ml/min (≈250 repaus, 800–2000 efort)</div>
-      </div>
-      <div class="field">
-        <label for="dl">D<sub>L,O₂</sub> (capacitate de difuziune plămân)</label>
+        <label for="dl">DL,O₂ (capacitate difuziune)</label>
         <input id="dl" type="number" step="1" value="30">
-        <div class="units">ml/min/mmHg (≈30 normal, &lt;15 patologic semnificativ)</div>
+        <div class="units">ml/min/mmHg (≈30 normal)</div>
       </div>
     </div>
 
-    <div class="section-title">3. Parametri model (avansați)</div>
-    <div class="grid-2">
+    <div class="section-title">3. Parametri ai curbei Hb–O₂</div>
+    <div class="grid-3">
       <div class="field">
-        <label for="p50">P₅₀ (curba Hb–O₂)</label>
+        <label for="p50">P₅₀ (referință) <span class="pill">avansat</span></label>
         <input id="p50" type="number" step="0.5" value="26.5">
         <div class="units">mmHg (≈26–27 la pH 7.4)</div>
       </div>
@@ -228,16 +260,23 @@
         <input id="hillN" type="number" step="0.1" value="2.7">
         <div class="units">≈2.7 fiziologic</div>
       </div>
+      <div class="field">
+        <label for="weight">Greutate pacient (opțional)</label>
+        <input id="weight" type="number" step="1" value="">
+        <div class="units">kg (pt. estimare VO₂ dacă lipsește)</div>
+      </div>
     </div>
 
     <div class="btn-row">
       <button class="btn-primary" onclick="computeAll()">Calculează</button>
-      <button class="btn-secondary" onclick="loadNormal()">Setări adult sănătos</button>
-      <button class="btn-secondary" onclick="loadFibrosis()">Setări fibroză moderată</button>
+      <button class="btn-secondary" onclick="loadNormalRest()">Adult sănătos – repaus</button>
+      <button class="btn-secondary" onclick="loadNormalExercise()">Adult sănătos – efort</button>
+      <button class="btn-secondary" onclick="loadFibrosisRest()">Fibroză moderată – repaus</button>
+      <button class="btn-secondary" onclick="loadFibrosisExercise()">Fibroză moderată – efort</button>
     </div>
 
     <div class="note">
-      Atenție: simulator <strong>educațional</strong>, nu dispozitiv medical. Nu înlocuiește judecata clinică și ghidurile oficiale.
+      Acest simulator este conceput pentru suport educațional și raționament fiziopatologic. Nu este un dispozitiv medical și nu înlocuiește ghidurile sau decizia clinică.
     </div>
   </section>
 
@@ -246,89 +285,96 @@
     <h2>Rezultate & interpretare</h2>
 
     <div class="section-block">
-      <div class="section-title">1. Gaz alveolar și arterial</div>
+      <div class="section-title">1. Gaz alveolar și gradient A–a</div>
       <div class="result-row">
-        <div class="result-label">PAO₂ (presiune alveolară de O₂)</div>
+        <div class="result-label">PAO₂ (ecuația gazului alveolar)</div>
         <div class="result-value" id="resPAO2">–</div>
       </div>
       <div class="result-row">
-        <div class="result-label">PaO₂ (estimare, PAO₂ − A–a)</div>
+        <div class="result-label">PaO₂ (intrare)</div>
         <div class="result-value" id="resPaO2">–</div>
       </div>
       <div class="result-row">
-        <div class="result-label">SaO₂ (din curba Hb–O₂)</div>
+        <div class="result-label">Gradient A–a (PAO₂ − PaO₂)</div>
+        <div class="result-value" id="resAagrad">–</div>
+      </div>
+      <div class="result-row">
+        <div class="result-label">SaO₂ utilizată (măsurată/calculată)</div>
         <div class="result-value" id="resSaO2">–</div>
       </div>
     </div>
 
     <div class="section-block">
-      <div class="section-title">2. Conținut de O₂ și livrare</div>
+      <div class="section-title">2. Conținut arterial, livrare și extracție</div>
       <div class="result-row">
-        <div class="result-label">CaO₂ (conținut arterial de O₂)</div>
+        <div class="result-label">CaO₂ (conținut arterial O₂)</div>
         <div class="result-value" id="resCaO2">–</div>
       </div>
       <div class="result-row">
-        <div class="result-label">DO₂ (livrarea de O₂ = Q × CaO₂)</div>
+        <div class="result-label">DO₂ (livrare O₂ = Q × CaO₂)</div>
         <div class="result-value" id="resDO2">–</div>
       </div>
       <div class="result-row">
-        <div class="result-label">Raport DO₂ / VO₂</div>
-        <div class="result-value" id="resDO2VO2">–</div>
+        <div class="result-label">VO₂ (intrare/estimat)</div>
+        <div class="result-value" id="resVO2">–</div>
+      </div>
+      <div class="result-row">
+        <div class="result-label">Raport VO₂ / DO₂ (extracție globală)</div>
+        <div class="result-value" id="resVO2DO2">–</div>
+      </div>
+      <div class="result-row">
+        <div class="result-label">Status rezervă de transport</div>
+        <div class="result-value" id="resTransportStatus">–</div>
       </div>
     </div>
 
     <div class="section-block">
-      <div class="section-title">3. Venos: CvO₂, SvO₂, PvO₂</div>
+      <div class="section-title">3. Componenta venoasă</div>
       <div class="result-row">
         <div class="result-label">CvO₂ (conținut venos de O₂)</div>
         <div class="result-value" id="resCvO2">–</div>
       </div>
       <div class="result-row">
-        <div class="result-label">SvO₂ (saturația venoasă mixtă)</div>
+        <div class="result-label">SvO₂ estimat</div>
         <div class="result-value" id="resSvO2">–</div>
       </div>
       <div class="result-row">
-        <div class="result-label">PvO₂ (estimare din SvO₂)</div>
+        <div class="result-label">PvO₂ estimat (din curba Hb–O₂)</div>
         <div class="result-value" id="resPvO2">–</div>
       </div>
     </div>
 
     <div class="section-block">
-      <div class="section-title">4. Limita de difuziune (DL) vs VO₂</div>
+      <div class="section-title">4. Limitare de difuziune (DL) vs necesar metabolic</div>
       <div class="result-row">
-        <div class="result-label">
-          VO₂ maxim difuzabil (DL × (PAO₂ − PvO₂))
-        </div>
+        <div class="result-label">VO₂ maxim difuzabil (DL × (PAO₂ − PvO₂))</div>
         <div class="result-value" id="resVO2maxDiff">–</div>
       </div>
       <div class="result-row">
-        <div class="result-label">
-          Raport VO₂ necesar / VO₂ maxim difuzabil
-        </div>
+        <div class="result-label">Raport VO₂ / VO₂_max_diff</div>
         <div class="result-value" id="resVO2ratio">–</div>
       </div>
       <div class="result-row">
-        <div class="result-label">
-          Interpretare rezervă de difuziune
-        </div>
+        <div class="result-label">Status rezervă de difuziune</div>
         <div class="result-value" id="resDiffStatus">–</div>
       </div>
     </div>
 
     <div class="note">
-      Heuristică: DO₂/VO₂ &gt; 3 și VO₂_max_diff ≥ 2 × VO₂ sugerează rezervă bună; valori apropiate de 1 indică risc de limitare de difuziune sau transport la efort.
+      Heuristică: VO₂/DO₂ ≈ 0.25 în repaus, până spre 0.4 la efort; VO₂/VO₂_max_diff &lt; 0.5 sugerează rezervă bună de difuziune, valori apropiate de 1 indică risc de limitare.
     </div>
   </section>
 </main>
 
 <script>
-  const PH2O = 47;   // mmHg
-  const R = 0.8;     // respiratory quotient
-  const ALPHA = 0.0031; // ml O2 / (dL·mmHg) dizolvat
-  const HB_BIND = 1.34; // ml O2 / g Hb
+  const PH2O = 47;      // mmHg
+  const R = 0.8;        // respiratory quotient
+  const ALPHA = 0.0031; // ml O2/(dL·mmHg) dizolvat
+  const HB_BIND = 1.34; // ml O2/g Hb
 
   function safeParse(id, fallback) {
-    const v = parseFloat(document.getElementById(id).value);
+    const raw = document.getElementById(id).value;
+    const v = parseFloat(raw);
     return isNaN(v) ? fallback : v;
   }
 
@@ -340,148 +386,229 @@
   }
 
   function inverseHill(S, P50, n) {
-    // S în (0,1); dacă e la extreme, protejăm numeric
     if (S <= 0.001) return 1;
-    if (S >= 0.999) return 500; // saturat
+    if (S >= 0.999) return 500;
     const ratio = S / (1 - S);
     const pow = Math.pow(ratio, 1.0 / n);
     return P50 * pow;
   }
 
   function computeAll() {
-    const fio2 = safeParse('fio2', 0.21);
-    const pb = safeParse('pb', 760);
+    // Intrări de bază
+    const fio2  = safeParse('fio2', 0.21);
+    const pb    = safeParse('pb', 760);
     const paco2 = safeParse('paco2', 40);
-    const aaGrad = safeParse('aaGrad', 10);
+    const pao2  = safeParse('pao2', 80);  // arterial O2
+    const sao2Input = document.getElementById('sao2').value;
+    let sao2 = sao2Input !== '' ? parseFloat(sao2Input)/100 : NaN;
 
-    const hb = safeParse('hb', 15);
-    const q = safeParse('q', 5);
-    const vo2 = safeParse('vo2', 250);
-    const dl = safeParse('dl', 30);
-
+    let vo2   = safeParse('vo2', NaN);
+    const hb  = safeParse('hb', 14);
+    const q   = safeParse('q', 5);
+    const dl  = safeParse('dl', 30);
     const p50 = safeParse('p50', 26.5);
-    const nHill = safeParse('hillN', 2.7);
+    const n   = safeParse('hillN', 2.7);
+    const weight = safeParse('weight', NaN);
 
-    // 1. PAO2
+    // Dacă VO2 e gol, estimăm din greutate (repaus ≈3.5 ml/kg/min)
+    if (!isFinite(vo2) && isFinite(weight)) {
+      vo2 = 3.5 * weight;
+    }
+    // Dacă tot nu e definit, punem 250 default
+    if (!isFinite(vo2)) {
+      vo2 = 250;
+    }
+
+    // 1. PAO2 (ecuația gazului alveolar)
     const PAO2 = fio2 * (pb - PH2O) - paco2 / R;
-    // 2. PaO2 (estimare)
-    const PaO2 = PAO2 - aaGrad;
 
-    // 3. SaO2 via Hill
-    const SaO2 = hillSaturation(Math.max(PaO2, 0), p50, nHill);
+    // 2. A–a
+    const Aagrad = PAO2 - pao2;
+
+    // 3. SaO2: măsurată sau calculată prin Hill
+    if (!isFinite(sao2)) {
+      sao2 = hillSaturation(Math.max(pao2, 0), p50, n);
+    }
+    sao2 = Math.max(0, Math.min(1, sao2));
 
     // 4. CaO2
-    const CaO2 = HB_BIND * hb * SaO2 + ALPHA * Math.max(PaO2, 0); // ml/dL
+    const CaO2 = HB_BIND * hb * sao2 + ALPHA * Math.max(pao2, 0); // ml/dL
 
-    // 5. DO2 (ml/min) – Q (L/min) * 10 dL/L * CaO2 (ml/dL)
-    const DO2 = q * 10 * CaO2;
+    // 5. DO2
+    const DO2 = q * 10 * CaO2; // Q [L/min] * 10 dL/L * CaO2 [ml/dL] => ml/min
 
-    // 6. CvO2 din VO2 = Q * (CaO2 - CvO2) * 10
-    // => CvO2 = CaO2 - VO2/(Q*10)
+    // 6. CvO2 din VO2 = Q * 10 * (CaO2 - CvO2)
     let CvO2 = CaO2;
     if (q > 0) {
       CvO2 = CaO2 - vo2 / (q * 10);
     }
-    // Saturație venoasă aproximativ (ignoram O2 dizolvat pentru S)
+    // 7. SvO2 aproximată
     let SvO2 = 0;
     if (hb > 0) {
       SvO2 = CvO2 / (HB_BIND * hb);
     }
-    // limităm între 0 și 1
     SvO2 = Math.max(0, Math.min(1, SvO2));
 
-    // 7. PvO2 aproximativ prin invers Hill (folosim doar componenta legată)
-    const PvO2 = inverseHill(SvO2, p50, nHill);
+    // 8. PvO2 prin invers Hill
+    const PvO2 = inverseHill(SvO2, p50, n);
 
-    // 8. VO2 maxim difuzabil prin MAC: DL * (PAO2 - PvO2)
+    // 9. VO2 maxim difuzabil
     const deltaP = Math.max(PAO2 - PvO2, 0);
     const VO2maxDiff = dl * deltaP; // ml/min
 
-    // 9. Rapoarte
-    const DO2VO2 = vo2 > 0 ? (DO2 / vo2) : NaN;
+    // 10. Rapoarte
+    const VO2DO2 = DO2 > 0 ? (vo2 / DO2) : NaN;
     const VO2ratio = VO2maxDiff > 0 ? (vo2 / VO2maxDiff) : NaN;
 
-    // 10. Interpretare simplă
-    let diffStatus = '';
-    let badgeClass = '';
-    if (!isFinite(VO2ratio)) {
-      diffStatus = 'Date insuficiente pentru evaluare.';
-    } else if (VO2ratio < 0.4) {
-      diffStatus = 'Rezervă de difuziune foarte bună (VO₂max_diff ≫ VO₂).';
-      badgeClass = 'badge-ok';
-    } else if (VO2ratio < 0.8) {
-      diffStatus = 'Rezervă de difuziune moderată (posibilă limitare la efort intens).';
-      badgeClass = 'badge-warn';
-    } else {
-      diffStatus = 'Rezervă de difuziune redusă (risc de limitare chiar la efort moderat).';
-      badgeClass = 'badge-bad';
+    // 11. Interpretări simple
+    let transportStatus = '';
+    let transportBadge = '';
+    if (isFinite(VO2DO2)) {
+      if (VO2DO2 < 0.25) {
+        transportStatus = 'Rezervă de transport foarte bună (extracție globală mică).';
+        transportBadge = 'ok';
+      } else if (VO2DO2 < 0.4) {
+        transportStatus = 'Rezervă moderată (extracție crescută, acceptabilă la efort).';
+        transportBadge = 'warn';
+      } else {
+        transportStatus = 'Rezervă redusă (extracție mare, posibilă limitare de transport).';
+        transportBadge = 'bad';
+      }
     }
 
-    // Afișare rezultate
-    const fmt = (x, digits=1, suff='') =>
-      isFinite(x) ? x.toFixed(digits) + suff : '–';
+    let diffStatus = '';
+    let diffBadge = '';
+    if (isFinite(VO2ratio)) {
+      if (VO2ratio < 0.4) {
+        diffStatus = 'Rezervă de difuziune foarte bună (DL suficient pentru VO₂).';
+        diffBadge = 'ok';
+      } else if (VO2ratio < 0.8) {
+        diffStatus = 'Rezervă moderată (pot apărea limitări la efort intens).';
+        diffBadge = 'warn';
+      } else {
+        diffStatus = 'Rezervă redusă (DL limitant pentru VO₂ curent).';
+        diffBadge = 'bad';
+      }
+    }
+
+    // Helpers afișare
+    const fmt = (x, d=1, suf='') =>
+      isFinite(x) ? x.toFixed(d) + suf : '–';
 
     document.getElementById('resPAO2').textContent = fmt(PAO2, 1, ' mmHg');
-    document.getElementById('resPaO2').textContent = fmt(PaO2, 1, ' mmHg');
-    document.getElementById('resSaO2').textContent = fmt(SaO2*100, 1, ' %');
+    document.getElementById('resPaO2').textContent = fmt(pao2, 1, ' mmHg');
+    document.getElementById('resAagrad').textContent = fmt(Aagrad, 1, ' mmHg');
+    document.getElementById('resSaO2').textContent = fmt(sao2*100, 1, ' %');
 
     document.getElementById('resCaO2').textContent = fmt(CaO2, 2, ' ml/dL');
     document.getElementById('resDO2').textContent = fmt(DO2, 0, ' ml/min');
-    document.getElementById('resDO2VO2').textContent = fmt(DO2VO2, 2, ' ×');
+    document.getElementById('resVO2').textContent = fmt(vo2, 0, ' ml/min');
+    document.getElementById('resVO2DO2').textContent = fmt(VO2DO2, 2, '');
 
     document.getElementById('resCvO2').textContent = fmt(CvO2, 2, ' ml/dL');
     document.getElementById('resSvO2').textContent = fmt(SvO2*100, 1, ' %');
     document.getElementById('resPvO2').textContent = fmt(PvO2, 1, ' mmHg');
 
     document.getElementById('resVO2maxDiff').textContent = fmt(VO2maxDiff, 0, ' ml/min');
-    document.getElementById('resVO2ratio').textContent = fmt(VO2ratio, 2, ' (VO₂/VO₂max_diff)');
+    document.getElementById('resVO2ratio').textContent = fmt(VO2ratio, 2, '');
 
-    const container = document.getElementById('resDiffStatus');
-    container.textContent = '';
+    const tEl = document.getElementById('resTransportStatus');
+    tEl.textContent = '';
+    if (transportStatus) {
+      const spanText = document.createElement('span');
+      spanText.textContent = transportStatus;
+      tEl.appendChild(spanText);
+      if (transportBadge) {
+        const b = document.createElement('span');
+        b.className = 'badge badge-' + transportBadge;
+        b.textContent = transportBadge === 'ok' ? 'transport ok' :
+                        transportBadge === 'warn' ? 'atenție' : 'risc';
+        tEl.appendChild(b);
+      }
+    }
+
+    const dEl = document.getElementById('resDiffStatus');
+    dEl.textContent = '';
     if (diffStatus) {
       const spanText = document.createElement('span');
       spanText.textContent = diffStatus;
-      container.appendChild(spanText);
-      if (badgeClass) {
-        const badge = document.createElement('span');
-        badge.className = 'badge ' + badgeClass;
-        badge.textContent = VO2ratio < 0.4 ? 'rezervă bună' :
-                            VO2ratio < 0.8 ? 'atenție' : 'risc';
-        container.appendChild(badge);
+      dEl.appendChild(spanText);
+      if (diffBadge) {
+        const b = document.createElement('span');
+        b.className = 'badge badge-' + diffBadge;
+        b.textContent = diffBadge === 'ok' ? 'DL ok' :
+                        diffBadge === 'warn' ? 'atenție' : 'risc';
+        dEl.appendChild(b);
       }
     }
   }
 
-  function loadNormal() {
+  // Preseturi clinice
+  function loadNormalRest() {
     document.getElementById('fio2').value = 0.21;
     document.getElementById('pb').value = 760;
     document.getElementById('paco2').value = 40;
-    document.getElementById('aaGrad').value = 10;
+    document.getElementById('pao2').value = 95;
+    document.getElementById('sao2').value = '';
+    document.getElementById('vo2').value = 250;
     document.getElementById('hb').value = 15;
     document.getElementById('q').value = 5;
-    document.getElementById('vo2').value = 250;
     document.getElementById('dl').value = 30;
     document.getElementById('p50').value = 26.5;
     document.getElementById('hillN').value = 2.7;
+    document.getElementById('weight').value = 70;
     computeAll();
   }
 
-  function loadFibrosis() {
+  function loadNormalExercise() {
     document.getElementById('fio2').value = 0.21;
     document.getElementById('pb').value = 760;
-    document.getElementById('paco2').value = 35; // ușor hipocapnic prin hiperventilație
-    document.getElementById('aaGrad').value = 30; // A–a crescut
+    document.getElementById('paco2').value = 35;
+    document.getElementById('pao2').value = 100;
+    document.getElementById('sao2').value = '';
+    document.getElementById('vo2').value = 1000;
+    document.getElementById('hb').value = 15;
+    document.getElementById('q').value = 15;
+    document.getElementById('dl').value = 60; // DL crește la efort
+    document.getElementById('p50').value = 26.5;
+    document.getElementById('hillN').value = 2.7;
+    document.getElementById('weight').value = 70;
+    computeAll();
+  }
+
+  function loadFibrosisRest() {
+    document.getElementById('fio2').value = 0.21;
+    document.getElementById('pb').value = 760;
+    document.getElementById('paco2').value = 35; // ușor scăzut prin hiperventilație
+    document.getElementById('pao2').value = 70;
+    document.getElementById('sao2').value = '';
+    document.getElementById('vo2').value = 250;
     document.getElementById('hb').value = 15;
     document.getElementById('q').value = 5;
-    document.getElementById('vo2').value = 250; // repaus
     document.getElementById('dl').value = 10; // DL redus
     document.getElementById('p50').value = 26.5;
     document.getElementById('hillN').value = 2.7;
+    document.getElementById('weight').value = 70;
     computeAll();
   }
 
-  // calculează automat la încărcare cu profil normal
-  window.addEventListener('DOMContentLoaded', loadNormal);
+  function loadFibrosisExercise() {
+    document.getElementById('fio2').value = 0.21;
+    document.getElementById('pb').value = 760;
+    document.getElementById('paco2').value = 32;
+    document.getElementById('pao2').value = 60;
+    document.getElementById('sao2').value = '';
+    document.getElementById('vo2').value = 800;
+    document.getElementById('hb').value = 15;
+    document.getElementById('q').value = 12;
+    document.getElementById('dl').value = 10; // DL rămâne mic
+    document.getElementById('p50').value = 26.5;
+    document.getElementById('hillN').value = 2.7;
+    document.getElementById('weight').value = 70;
+    computeAll();
+  }
+
+  window.addEventListener('DOMContentLoaded', loadNormalRest);
 </script>
 
 </body>
