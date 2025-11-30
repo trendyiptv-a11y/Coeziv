@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <title>Simulator coeziv de transfer al oxigenului (educațional)</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f5f5f7;
+      color: #222;
+    }
+    header {
+      padding: 1.5rem 2rem 1rem;
+      background: #0f172a;
+      color: #f9fafb;
+    }
+    header h1 {
+      margin: 0 0 0.25rem;
+      font-size: 1.4rem;
+    }
+    header p {
+      margin: 0;
+      font-size: 0.9rem;
+      color: #cbd5f5;
+    }
+    main {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.1fr);
+      gap: 1.5rem;
+      padding: 1.5rem 2rem 3rem;
+    }
+    @media (max-width: 900px) {
+      main {
+        grid-template-columns: 1fr;
+        padding: 1rem;
+      }
+    }
+    .card {
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+      box-shadow: 0 10px 25px rgba(15,23,42,0.06);
+    }
+    h2 {
+      margin-top: 0;
+      font-size: 1.05rem;
+      border-bottom: 1px solid #e5e7eb;
+      padding-bottom: 0.4rem;
+      margin-bottom: 0.8rem;
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.75rem 1rem;
+    }
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+    }
+    label {
+      font-size: 0.85rem;
+      color: #374151;
+    }
+    .units {
+      font-size: 0.75rem;
+      color: #6b7280;
+    }
+    input {
+      padding: 0.35rem 0.45rem;
+      border-radius: 6px;
+      border: 1px solid #d1d5db;
+      font-size: 0.9rem;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    input:focus {
+      outline: none;
+      border-color: #2563eb;
+      box-shadow: 0 0 0 1px rgba(37,99,235,0.3);
+    }
+    .btn-row {
+      margin-top: 1rem;
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    button {
+      padding: 0.45rem 0.9rem;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+    .btn-primary {
+      background: #2563eb;
+      color: white;
+    }
+    .btn-secondary {
+      background: #e5e7eb;
+      color: #111827;
+    }
+    .btn-primary:hover {
+      background: #1d4ed8;
+    }
+    .btn-secondary:hover {
+      background: #d1d5db;
+    }
+    .section-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #4b5563;
+      margin-top: 0.6rem;
+      margin-bottom: 0.2rem;
+    }
+    .result-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.88rem;
+      padding: 0.2rem 0;
+      border-bottom: 1px dashed #e5e7eb;
+    }
+    .result-row:last-child {
+      border-bottom: none;
+    }
+    .result-label {
+      color: #374151;
+    }
+    .result-value {
+      font-variant-numeric: tabular-nums;
+      font-weight: 500;
+    }
+    .badge {
+      display: inline-block;
+      padding: 0.15rem 0.5rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      margin-left: 0.4rem;
+    }
+    .badge-ok { background: #dcfce7; color: #166534; }
+    .badge-warn { background: #fef9c3; color: #92400e; }
+    .badge-bad { background: #fee2e2; color: #b91c1c; }
+    .note {
+      font-size: 0.75rem;
+      color: #6b7280;
+      margin-top: 0.6rem;
+    }
+    .section-block {
+      margin-top: 0.6rem;
+      padding-top: 0.4rem;
+      border-top: 1px solid #e5e7eb;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Simulator coeziv de transfer al oxigenului</h1>
+  <p>Instrument educațional bazat pe un model ventilație – difuziune – perfuzie – metabolism (extindere a formulei lui Fick).</p>
+</header>
+
+<main>
+  <!-- INTRĂRI -->
+  <section class="card">
+    <h2>Parametri de intrare</h2>
+
+    <div class="section-title">1. Gaz alveolar & ventilație</div>
+    <div class="grid-2">
+      <div class="field">
+        <label for="fio2">FIO₂ (fracția inspirată de O₂)</label>
+        <input id="fio2" type="number" step="0.01" value="0.21">
+        <div class="units">0.21 aer, 0.3–0.6 oxigen suplimentar</div>
+      </div>
+      <div class="field">
+        <label for="pb">Presiune barometrică PB</label>
+        <input id="pb" type="number" step="1" value="760">
+        <div class="units">mmHg (≈760 la nivelul mării)</div>
+      </div>
+      <div class="field">
+        <label for="paco2">PaCO₂</label>
+        <input id="paco2" type="number" step="1" value="40">
+        <div class="units">mmHg</div>
+      </div>
+      <div class="field">
+        <label for="aaGrad">Gradient A–a estimat (PAO₂ − PaO₂)</label>
+        <input id="aaGrad" type="number" step="1" value="10">
+        <div class="units">mmHg (10–15 normal la adult tânăr)</div>
+      </div>
+    </div>
+
+    <div class="section-title">2. Sânge & circulație</div>
+    <div class="grid-2">
+      <div class="field">
+        <label for="hb">Hemoglobină [Hb]</label>
+        <input id="hb" type="number" step="0.1" value="15">
+        <div class="units">g/dL</div>
+      </div>
+      <div class="field">
+        <label for="q">Debit cardiac Q</label>
+        <input id="q" type="number" step="0.1" value="5">
+        <div class="units">L/min</div>
+      </div>
+      <div class="field">
+        <label for="vo2">VO₂ (consum O₂)</label>
+        <input id="vo2" type="number" step="10" value="250">
+        <div class="units">ml/min (≈250 repaus, 800–2000 efort)</div>
+      </div>
+      <div class="field">
+        <label for="dl">D<sub>L,O₂</sub> (capacitate de difuziune plămân)</label>
+        <input id="dl" type="number" step="1" value="30">
+        <div class="units">ml/min/mmHg (≈30 normal, &lt;15 patologic semnificativ)</div>
+      </div>
+    </div>
+
+    <div class="section-title">3. Parametri model (avansați)</div>
+    <div class="grid-2">
+      <div class="field">
+        <label for="p50">P₅₀ (curba Hb–O₂)</label>
+        <input id="p50" type="number" step="0.5" value="26.5">
+        <div class="units">mmHg (≈26–27 la pH 7.4)</div>
+      </div>
+      <div class="field">
+        <label for="hillN">Exponent Hill n</label>
+        <input id="hillN" type="number" step="0.1" value="2.7">
+        <div class="units">≈2.7 fiziologic</div>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-primary" onclick="computeAll()">Calculează</button>
+      <button class="btn-secondary" onclick="loadNormal()">Setări adult sănătos</button>
+      <button class="btn-secondary" onclick="loadFibrosis()">Setări fibroză moderată</button>
+    </div>
+
+    <div class="note">
+      Atenție: simulator <strong>educațional</strong>, nu dispozitiv medical. Nu înlocuiește judecata clinică și ghidurile oficiale.
+    </div>
+  </section>
+
+  <!-- IEȘIRI -->
+  <section class="card">
+    <h2>Rezultate & interpretare</h2>
+
+    <div class="section-block">
+      <div class="section-title">1. Gaz alveolar și arterial</div>
+      <div class="result-row">
+        <div class="result-label">PAO₂ (presiune alveolară de O₂)</div>
+        <div class="result-value" id="resPAO2">–</div>
+      </div>
+      <div class="result-row">
+        <div class="result-label">PaO₂ (estimare, PAO₂ − A–a)</div>
+        <div class="result-value" id="resPaO2">–</div>
+      </div>
+      <div class="result-row">
+        <div class="result-label">SaO₂ (din curba Hb–O₂)</div>
+        <div class="result-value" id="resSaO2">–</div>
+      </div>
+    </div>
+
+    <div class="section-block">
+      <div class="section-title">2. Conținut de O₂ și livrare</div>
+      <div class="result-row">
+        <div class="result-label">CaO₂ (conținut arterial de O₂)</div>
+        <div class="result-value" id="resCaO2">–</div>
+      </div>
+      <div class="result-row">
+        <div class="result-label">DO₂ (livrarea de O₂ = Q × CaO₂)</div>
+        <div class="result-value" id="resDO2">–</div>
+      </div>
+      <div class="result-row">
+        <div class="result-label">Raport DO₂ / VO₂</div>
+        <div class="result-value" id="resDO2VO2">–</div>
+      </div>
+    </div>
+
+    <div class="section-block">
+      <div class="section-title">3. Venos: CvO₂, SvO₂, PvO₂</div>
+      <div class="result-row">
+        <div class="result-label">CvO₂ (conținut venos de O₂)</div>
+        <div class="result-value" id="resCvO2">–</div>
+      </div>
+      <div class="result-row">
+        <div class="result-label">SvO₂ (saturația venoasă mixtă)</div>
+        <div class="result-value" id="resSvO2">–</div>
+      </div>
+      <div class="result-row">
+        <div class="result-label">PvO₂ (estimare din SvO₂)</div>
+        <div class="result-value" id="resPvO2">–</div>
+      </div>
+    </div>
+
+    <div class="section-block">
+      <div class="section-title">4. Limita de difuziune (DL) vs VO₂</div>
+      <div class="result-row">
+        <div class="result-label">
+          VO₂ maxim difuzabil (DL × (PAO₂ − PvO₂))
+        </div>
+        <div class="result-value" id="resVO2maxDiff">–</div>
+      </div>
+      <div class="result-row">
+        <div class="result-label">
+          Raport VO₂ necesar / VO₂ maxim difuzabil
+        </div>
+        <div class="result-value" id="resVO2ratio">–</div>
+      </div>
+      <div class="result-row">
+        <div class="result-label">
+          Interpretare rezervă de difuziune
+        </div>
+        <div class="result-value" id="resDiffStatus">–</div>
+      </div>
+    </div>
+
+    <div class="note">
+      Heuristică: DO₂/VO₂ &gt; 3 și VO₂_max_diff ≥ 2 × VO₂ sugerează rezervă bună; valori apropiate de 1 indică risc de limitare de difuziune sau transport la efort.
+    </div>
+  </section>
+</main>
+
+<script>
+  const PH2O = 47;   // mmHg
+  const R = 0.8;     // respiratory quotient
+  const ALPHA = 0.0031; // ml O2 / (dL·mmHg) dizolvat
+  const HB_BIND = 1.34; // ml O2 / g Hb
+
+  function safeParse(id, fallback) {
+    const v = parseFloat(document.getElementById(id).value);
+    return isNaN(v) ? fallback : v;
+  }
+
+  function hillSaturation(PO2, P50, n) {
+    if (PO2 <= 0) return 0;
+    const num = Math.pow(PO2, n);
+    const den = Math.pow(P50, n) + num;
+    return num / den;
+  }
+
+  function inverseHill(S, P50, n) {
+    // S în (0,1); dacă e la extreme, protejăm numeric
+    if (S <= 0.001) return 1;
+    if (S >= 0.999) return 500; // saturat
+    const ratio = S / (1 - S);
+    const pow = Math.pow(ratio, 1.0 / n);
+    return P50 * pow;
+  }
+
+  function computeAll() {
+    const fio2 = safeParse('fio2', 0.21);
+    const pb = safeParse('pb', 760);
+    const paco2 = safeParse('paco2', 40);
+    const aaGrad = safeParse('aaGrad', 10);
+
+    const hb = safeParse('hb', 15);
+    const q = safeParse('q', 5);
+    const vo2 = safeParse('vo2', 250);
+    const dl = safeParse('dl', 30);
+
+    const p50 = safeParse('p50', 26.5);
+    const nHill = safeParse('hillN', 2.7);
+
+    // 1. PAO2
+    const PAO2 = fio2 * (pb - PH2O) - paco2 / R;
+    // 2. PaO2 (estimare)
+    const PaO2 = PAO2 - aaGrad;
+
+    // 3. SaO2 via Hill
+    const SaO2 = hillSaturation(Math.max(PaO2, 0), p50, nHill);
+
+    // 4. CaO2
+    const CaO2 = HB_BIND * hb * SaO2 + ALPHA * Math.max(PaO2, 0); // ml/dL
+
+    // 5. DO2 (ml/min) – Q (L/min) * 10 dL/L * CaO2 (ml/dL)
+    const DO2 = q * 10 * CaO2;
+
+    // 6. CvO2 din VO2 = Q * (CaO2 - CvO2) * 10
+    // => CvO2 = CaO2 - VO2/(Q*10)
+    let CvO2 = CaO2;
+    if (q > 0) {
+      CvO2 = CaO2 - vo2 / (q * 10);
+    }
+    // Saturație venoasă aproximativ (ignoram O2 dizolvat pentru S)
+    let SvO2 = 0;
+    if (hb > 0) {
+      SvO2 = CvO2 / (HB_BIND * hb);
+    }
+    // limităm între 0 și 1
+    SvO2 = Math.max(0, Math.min(1, SvO2));
+
+    // 7. PvO2 aproximativ prin invers Hill (folosim doar componenta legată)
+    const PvO2 = inverseHill(SvO2, p50, nHill);
+
+    // 8. VO2 maxim difuzabil prin MAC: DL * (PAO2 - PvO2)
+    const deltaP = Math.max(PAO2 - PvO2, 0);
+    const VO2maxDiff = dl * deltaP; // ml/min
+
+    // 9. Rapoarte
+    const DO2VO2 = vo2 > 0 ? (DO2 / vo2) : NaN;
+    const VO2ratio = VO2maxDiff > 0 ? (vo2 / VO2maxDiff) : NaN;
+
+    // 10. Interpretare simplă
+    let diffStatus = '';
+    let badgeClass = '';
+    if (!isFinite(VO2ratio)) {
+      diffStatus = 'Date insuficiente pentru evaluare.';
+    } else if (VO2ratio < 0.4) {
+      diffStatus = 'Rezervă de difuziune foarte bună (VO₂max_diff ≫ VO₂).';
+      badgeClass = 'badge-ok';
+    } else if (VO2ratio < 0.8) {
+      diffStatus = 'Rezervă de difuziune moderată (posibilă limitare la efort intens).';
+      badgeClass = 'badge-warn';
+    } else {
+      diffStatus = 'Rezervă de difuziune redusă (risc de limitare chiar la efort moderat).';
+      badgeClass = 'badge-bad';
+    }
+
+    // Afișare rezultate
+    const fmt = (x, digits=1, suff='') =>
+      isFinite(x) ? x.toFixed(digits) + suff : '–';
+
+    document.getElementById('resPAO2').textContent = fmt(PAO2, 1, ' mmHg');
+    document.getElementById('resPaO2').textContent = fmt(PaO2, 1, ' mmHg');
+    document.getElementById('resSaO2').textContent = fmt(SaO2*100, 1, ' %');
+
+    document.getElementById('resCaO2').textContent = fmt(CaO2, 2, ' ml/dL');
+    document.getElementById('resDO2').textContent = fmt(DO2, 0, ' ml/min');
+    document.getElementById('resDO2VO2').textContent = fmt(DO2VO2, 2, ' ×');
+
+    document.getElementById('resCvO2').textContent = fmt(CvO2, 2, ' ml/dL');
+    document.getElementById('resSvO2').textContent = fmt(SvO2*100, 1, ' %');
+    document.getElementById('resPvO2').textContent = fmt(PvO2, 1, ' mmHg');
+
+    document.getElementById('resVO2maxDiff').textContent = fmt(VO2maxDiff, 0, ' ml/min');
+    document.getElementById('resVO2ratio').textContent = fmt(VO2ratio, 2, ' (VO₂/VO₂max_diff)');
+
+    const container = document.getElementById('resDiffStatus');
+    container.textContent = '';
+    if (diffStatus) {
+      const spanText = document.createElement('span');
+      spanText.textContent = diffStatus;
+      container.appendChild(spanText);
+      if (badgeClass) {
+        const badge = document.createElement('span');
+        badge.className = 'badge ' + badgeClass;
+        badge.textContent = VO2ratio < 0.4 ? 'rezervă bună' :
+                            VO2ratio < 0.8 ? 'atenție' : 'risc';
+        container.appendChild(badge);
+      }
+    }
+  }
+
+  function loadNormal() {
+    document.getElementById('fio2').value = 0.21;
+    document.getElementById('pb').value = 760;
+    document.getElementById('paco2').value = 40;
+    document.getElementById('aaGrad').value = 10;
+    document.getElementById('hb').value = 15;
+    document.getElementById('q').value = 5;
+    document.getElementById('vo2').value = 250;
+    document.getElementById('dl').value = 30;
+    document.getElementById('p50').value = 26.5;
+    document.getElementById('hillN').value = 2.7;
+    computeAll();
+  }
+
+  function loadFibrosis() {
+    document.getElementById('fio2').value = 0.21;
+    document.getElementById('pb').value = 760;
+    document.getElementById('paco2').value = 35; // ușor hipocapnic prin hiperventilație
+    document.getElementById('aaGrad').value = 30; // A–a crescut
+    document.getElementById('hb').value = 15;
+    document.getElementById('q').value = 5;
+    document.getElementById('vo2').value = 250; // repaus
+    document.getElementById('dl').value = 10; // DL redus
+    document.getElementById('p50').value = 26.5;
+    document.getElementById('hillN').value = 2.7;
+    computeAll();
+  }
+
+  // calculează automat la încărcare cu profil normal
+  window.addEventListener('DOMContentLoaded', loadNormal);
+</script>
+
+</body>
+</html>
