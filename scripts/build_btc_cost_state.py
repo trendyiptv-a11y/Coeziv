@@ -1,287 +1,287 @@
 #!/usr/bin/env python3
 """
-Actualizează data/btc_state_latest.json plecând de la data/btc_daily.csv
-și adaugă un cost estimat de producție al Bitcoin (USD / BTC).
+Construiește data/btc_cost_state.json plecând de la data/btc_daily.csv.
 
-Logică:
-- ia ultimul close din btc_daily.csv
-- ia difficulty:
-    * din CSV, dacă există coloana `difficulty` și valoarea este validă
-    * altfel, o ia live din https://blockchain.info/q/getdifficulty
-- estimează costul de producție pe baza unui model energetic simplu
-- calculează marja față de cost (close / cost - 1)
-- actualizează btc_state_latest.json (lăsând restul câmpurilor cum erau)
+- ia ultimul rând din btc_daily.csv
+- extrage:
+    - data (as_of)
+    - prețul de închidere (close)
+    - difficulty:
+        * din CSV, dacă există și este validă
+        * altfel, o ia live din https://blockchain.info/q/getdifficulty
+    - eventuale taxe medii per block (dacă există o coloană avg_fees_per_block_btc)
+- determină block reward-ul corect în funcție de data calendaristică
+- estimează costul de producție (USD / BTC) folosind un model energetic simplu
+- calculează marja față de cost: close / cost
+- scrie rezultatul în data/btc_cost_state.json
+
+Nu modifică btc_state_latest.json.
 """
 
 from __future__ import annotations
 
 import json
 import math
-import os
 from dataclasses import dataclass, asdict
 from datetime import datetime
+from pathlib import Path
+from typing import Optional
 
 import pandas as pd
 import requests
 
 
-# ==========================
-# CONFIG – modificabile ușor
-# ==========================
+# ---------------------------------------------------------
+# CONFIG
+# ---------------------------------------------------------
 
-DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data")
-DAILY_CSV = os.path.join(DATA_DIR, "btc_daily.csv")
-STATE_JSON = os.path.join(DATA_DIR, "btc_state_latest.json")
+ROOT = Path(__file__).resolve().parents[1]
+DATA_DIR = ROOT / "data"
+BTC_DAILY_CSV = DATA_DIR / "btc_daily.csv"
+BTC_COST_STATE_JSON = DATA_DIR / "btc_cost_state.json"
 
-# Parametrii modelului energetic (valori rezonabile, dar configurabile)
-EFFICENCY_J_PER_TH = 30.0  # J / TH (ASIC modern; ex: 25–35 J/TH)
-ELECTRICITY_USD_PER_KWH = 0.06  # preț energie (USD / kWh)
+# Parametrii modelului energetic
+ELECTRICITY_USD_PER_KWH = 0.06   # preț mediu global de referință
+EFFICIENCY_J_PER_TH = 30.0       # J/TH (ASIC modern ~ 25–35 J/TH)
 
-# Timeout pentru request-ul de difficulty
-HTTP_TIMEOUT = 10
-
-
-@dataclass
-class ProductionCost:
-    difficulty: float | None
-    block_reward: float | None
-    cost_usd_per_btc: float | None
-    margin_pct: float | None  # (close / cost - 1) * 100
-    method: str
-    params: dict
+HTTP_TIMEOUT = 10                # secunde pentru requestul de difficulty
 
 
-# ==============
-# Helper functions
-# ==============
+# ---------------------------------------------------------
+# MODEL COST DE PRODUCȚIE
+# ---------------------------------------------------------
 
-def load_latest_row(csv_path: str) -> pd.Series:
-    if not os.path.exists(csv_path):
-        raise FileNotFoundError(f"Nu găsesc fișierul CSV: {csv_path}")
-
-    df = pd.read_csv(csv_path)
-
-    # presupunem coloane: date / time sau similar + close
-    date_col_candidates = [c for c in df.columns if c.lower() in ("date", "time", "timestamp")]
-    if not date_col_candidates:
-        # fallback: folosim indexul ca ordine
-        latest = df.iloc[-1]
-    else:
-        date_col = date_col_candidates[0]
-        df[date_col] = pd.to_datetime(df[date_col])
-        df = df.sort_values(date_col)
-        latest = df.iloc[-1]
-
-    return latest
-
-
-def get_live_difficulty() -> float | float("nan"):
+def get_live_difficulty() -> float:
     """
     Ia difficulty curentă din blockchain.info.
-    Dacă nu reușește, întoarce NaN (nu aruncă excepție).
+    Dacă nu reușește, întoarce NaN.
     """
     url = "https://blockchain.info/q/getdifficulty"
     try:
-        resp = requests.get(url, timeout=HTTP_TIMEOUT)
-        if resp.status_code == 200:
-            return float(resp.text.strip())
+        r = requests.get(url, timeout=HTTP_TIMEOUT)
+        if r.status_code == 200:
+            return float(r.text.strip())
     except Exception:
         pass
     return float("nan")
 
 
-def get_block_reward(date: datetime) -> float:
+def get_block_subsidy(dt: datetime) -> float:
     """
-    Block reward aproximativ, pe baza datelor istorice de halving.
-    E suficient pentru costul de producție al zilei curente.
+    Block subsidy (BTC / block) în funcție de dată.
+    Halving-urile sunt aproximative, dar suficiente pentru model.
     """
-    # date de halving aproximative (UTC)
-    # 2012-11-28 -> 25 BTC
-    # 2016-07-09 -> 12.5 BTC
-    # 2020-05-11 -> 6.25 BTC
-    # 2024-04-20 -> 3.125 BTC
-    # (următorul nu e încă necesar pentru prezent)
-    if date < datetime(2012, 11, 28):
+    # date de halving (aprox. UTC):
+    # 2009-01-03 - 2012-11-28: 50 BTC
+    # 2012-11-28 - 2016-07-09: 25 BTC
+    # 2016-07-09 - 2020-05-11: 12.5 BTC
+    # 2020-05-11 - 2024-04-20: 6.25 BTC
+    # după 2024-04-20: 3.125 BTC
+    if dt < datetime(2012, 11, 28):
         return 50.0
-    elif date < datetime(2016, 7, 9):
+    elif dt < datetime(2016, 7, 9):
         return 25.0
-    elif date < datetime(2020, 5, 11):
+    elif dt < datetime(2020, 5, 11):
         return 12.5
-    elif date < datetime(2024, 4, 20):
+    elif dt < datetime(2024, 4, 20):
         return 6.25
     else:
         return 3.125
 
 
-def estimate_cost_from_difficulty(
+def estimate_cost_usd_per_btc(
     difficulty: float,
-    block_reward: float,
-    eff_j_per_th: float = EFFICENCY_J_PER_TH,
-    price_per_kwh: float = ELECTRICITY_USD_PER_KWH,
+    block_subsidy_btc: float,
+    fees_btc_per_block: float = 0.0,
+    efficiency_j_per_th: float = EFFICIENCY_J_PER_TH,
+    electricity_usd_per_kwh: float = ELECTRICITY_USD_PER_KWH,
 ) -> float:
     """
-    Heuristică simplă pentru costul de producție (USD / BTC).
+    Estimează costul de producție pentru 1 BTC (USD), pornind de la:
 
-    Pași:
-    - difficulty -> număr de hash-uri per bloc: D * 2^32
-    - plăcile au eficiență eff_j_per_th (J / TH)
-    - convertim la J / hash, apoi cost per hash, apoi cost per bloc
-    - împărțim la block_reward => cost per BTC
+    - difficulty -> număr de hash-uri per block: D * 2^32
+    - efficiency_j_per_th -> J / TH pentru flota medie de mineri
+    - electricity_usd_per_kwh -> costul energiei
+    - block_subsidy_btc + fees_btc_per_block -> câți BTC se obțin / block
+
+    Formula:
+
+      hashes_per_block = difficulty * 2^32
+      J/hash = efficiency_j_per_th / 1e12
+      kWh/block = (hashes_per_block * J/hash) / 3.6e6
+      cost_block = kWh/block * electricity
+      cost_btc = cost_block / (subsidy + fees)
     """
-    if not math.isfinite(difficulty) or difficulty <= 0 or block_reward <= 0:
+    if not (math.isfinite(difficulty) and difficulty > 0):
+        return float("nan")
+    if block_subsidy_btc <= 0:
         return float("nan")
 
-    # 1 TH = 1e12 hash-uri
-    j_per_hash = eff_j_per_th / 1e12  # J / hash
-    hashes_per_block = difficulty * 2 ** 32  # formula standard
-    energy_per_block_j = hashes_per_block * j_per_hash
+    # 1. Hash-uri per block
+    hashes_per_block = difficulty * (2 ** 32)
 
-    # 1 kWh = 3.6e6 J
-    kwh_per_block = energy_per_block_j / 3.6e6
-    cost_per_block = kwh_per_block * price_per_kwh
+    # 2. Jouli per hash
+    joules_per_hash = efficiency_j_per_th / 1e12  # J/TH -> J/hash
 
-    cost_per_btc = cost_per_block / block_reward
+    # 3. Energie per block
+    energy_joules = hashes_per_block * joules_per_hash
+    energy_kwh = energy_joules / 3_600_000.0  # 1 kWh = 3.6e6 J
+
+    # 4. Cost per block
+    cost_block_usd = energy_kwh * electricity_usd_per_kwh
+
+    # 5. BTC per block
+    btc_per_block = block_subsidy_btc + max(fees_btc_per_block, 0.0)
+    if btc_per_block <= 0:
+        return float("nan")
+
+    cost_per_btc = cost_block_usd / btc_per_block
     return float(cost_per_btc)
 
 
-def build_production_cost(latest: pd.Series) -> ProductionCost:
-    # extragem data close-ului
-    # încercăm să detectăm coloana de dată din nou
-    date_value = None
-    for key in ("date", "time", "timestamp", "Date", "Time", "Timestamp"):
-        if key in latest.index:
+@dataclass
+class BtcCostState:
+    as_of: str
+    close: Optional[float]
+
+    difficulty: Optional[float]
+    block_subsidy_btc: float
+    fees_btc_per_block: float
+
+    prod_cost_usd: Optional[float]
+    prod_margin: Optional[float]  # close / cost (ex: 2.0 = 2x cost)
+
+    method: str
+    params: dict
+
+
+# ---------------------------------------------------------
+# PIPELINE
+# ---------------------------------------------------------
+
+def load_latest_row(csv_path: Path) -> pd.Series:
+    if not csv_path.exists():
+        raise FileNotFoundError(f"Nu găsesc fișierul {csv_path}")
+
+    df = pd.read_csv(csv_path)
+
+    # detectăm coloana de dată
+    date_col = None
+    for cand in ("date", "Date", "time", "Time", "timestamp", "Timestamp"):
+        if cand in df.columns:
+            date_col = cand
+            break
+
+    if date_col is not None:
+        df[date_col] = pd.to_datetime(df[date_col])
+        df = df.sort_values(date_col)
+    # dacă nu există coloană de dată, păstrăm ordinea
+
+    latest = df.iloc[-1]
+    return latest
+
+
+def build_btc_cost_state() -> BtcCostState:
+    latest = load_latest_row(BTC_DAILY_CSV)
+
+    # --- as_of ---
+    as_of_dt: datetime
+    as_of_str: str
+    as_of_dt = datetime.utcnow()
+    for cand in ("date", "Date", "time", "Time", "timestamp", "Timestamp"):
+        if cand in latest.index:
             try:
-                date_value = pd.to_datetime(latest[key])
+                as_of_dt = pd.to_datetime(latest[cand]).to_pydatetime()
+                break
+            except Exception:
+                pass
+    as_of_str = as_of_dt.strftime("%Y-%m-%d")
+
+    # --- close ---
+    close: Optional[float] = None
+    for cand in ("close", "Close", "adj_close", "Adj Close", "AdjClose"):
+        if cand in latest.index:
+            try:
+                close = float(latest[cand])
                 break
             except Exception:
                 pass
 
-    if date_value is None:
-        # fallback: folosim azi
-        date_value = datetime.utcnow()
-
-    # difficulty: CSV sau live
-    difficulty: float
+    # --- difficulty: CSV -> altfel live ---
+    difficulty: Optional[float]
     if "difficulty" in latest.index:
-        raw = latest["difficulty"]
         try:
-            raw_f = float(raw)
+            d_raw = float(latest["difficulty"])
         except Exception:
-            raw_f = float("nan")
+            d_raw = float("nan")
 
-        if math.isfinite(raw_f) and raw_f > 0:
-            difficulty = raw_f
+        if math.isfinite(d_raw) and d_raw > 0:
+            difficulty = d_raw
         else:
-            difficulty = get_live_difficulty()
+            difficulty_live = get_live_difficulty()
+            difficulty = difficulty_live if math.isfinite(difficulty_live) else None
     else:
-        difficulty = get_live_difficulty()
+        difficulty_live = get_live_difficulty()
+        difficulty = difficulty_live if math.isfinite(difficulty_live) else None
 
-    # block reward
-    reward = get_block_reward(date_value)
+    # --- fees per block (opțional) ---
+    fees_btc = 0.0
+    if "avg_fees_per_block_btc" in latest.index:
+        try:
+            fees_btc = float(latest["avg_fees_per_block_btc"])
+        except Exception:
+            fees_btc = 0.0
 
-    # cost
-    if math.isfinite(difficulty):
-        cost_usd = estimate_cost_from_difficulty(difficulty, reward)
+    # --- block subsidy ---
+    block_subsidy = get_block_subsidy(as_of_dt)
+
+    # --- cost de producție ---
+    if difficulty is not None:
+        prod_cost = estimate_cost_usd_per_btc(
+            difficulty=difficulty,
+            block_subsidy_btc=block_subsidy,
+            fees_btc_per_block=fees_btc,
+            efficiency_j_per_th=EFFICIENCY_J_PER_TH,
+            electricity_usd_per_kwh=ELECTRICITY_USD_PER_KWH,
+        )
+        if not (math.isfinite(prod_cost) and prod_cost > 0):
+            prod_cost = None
     else:
-        cost_usd = float("nan")
+        prod_cost = None
 
-    # close price
-    close = None
-    for key in ("close", "Close", "adj_close", "Adj Close"):
-        if key in latest.index:
-            try:
-                close = float(latest[key])
-                break
-            except Exception:
-                pass
+    # --- marja vs cost (multiplu) ---
+    prod_margin: Optional[float] = None
+    if close is not None and prod_cost is not None and prod_cost > 0:
+        prod_margin = close / prod_cost
 
-    margin_pct = None
-    if close is not None and cost_usd and math.isfinite(cost_usd) and cost_usd > 0:
-        margin_pct = (close / cost_usd - 1.0) * 100.0
-
-    return ProductionCost(
-        difficulty=difficulty if math.isfinite(difficulty) else None,
-        block_reward=reward,
-        cost_usd_per_btc=cost_usd if (cost_usd and math.isfinite(cost_usd)) else None,
-        margin_pct=margin_pct if (margin_pct is not None and math.isfinite(margin_pct)) else None,
+    return BtcCostState(
+        as_of=as_of_str,
+        close=close,
+        difficulty=difficulty,
+        block_subsidy_btc=block_subsidy,
+        fees_btc_per_block=round(fees_btc, 8),
+        prod_cost_usd=None if prod_cost is None else round(prod_cost, 2),
+        prod_margin=None if prod_margin is None else round(prod_margin, 2),
         method="difficulty_energy_model_v1",
         params={
-            "efficiency_j_per_th": EFFICENCY_J_PER_TH,
             "electricity_usd_per_kwh": ELECTRICITY_USD_PER_KWH,
+            "efficiency_j_per_th": EFFICIENCY_J_PER_TH,
         },
     )
 
 
-def load_existing_state(path: str) -> dict:
-    if not os.path.exists(path):
-        return {}
-    try:
-        with open(path, "r", encoding="utf-8") as f:
-            return json.load(f)
-    except Exception:
-        # dacă e corupt, pornim de la zero
-        return {}
-
-
-def save_state(path: str, state: dict) -> None:
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    with open(path, "w", encoding="utf-8") as f:
-        json.dump(state, f, ensure_ascii=False, indent=2, sort_keys=True)
-
-
 def main() -> None:
-    latest = load_latest_row(DAILY_CSV)
-    prod = build_production_cost(latest)
-
-    # Data pentru as_of
-    as_of = None
-    for key in ("date", "time", "timestamp", "Date", "Time", "Timestamp"):
-        if key in latest.index:
-            try:
-                as_of = pd.to_datetime(latest[key]).strftime("%Y-%m-%d")
-                break
-            except Exception:
-                pass
-    if as_of is None:
-        as_of = datetime.utcnow().strftime("%Y-%m-%d")
-
-    # close
-    close = None
-    for key in ("close", "Close", "adj_close", "Adj Close"):
-        if key in latest.index:
-            try:
-                close = float(latest[key])
-                break
-            except Exception:
-                pass
-
-    state = load_existing_state(STATE_JSON)
-
-    # actualizăm doar câmpurile de preț + cost
-    state["as_of"] = as_of
-    if close is not None:
-        state["close"] = close
-
-    prod_dict = asdict(prod)
-    # includem totul sub un nod dedicat
-    state["production_cost"] = {
-        "difficulty": prod_dict["difficulty"],
-        "block_reward": prod_dict["block_reward"],
-        "cost_usd_per_btc": prod_dict["cost_usd_per_btc"],
-        "margin_pct_vs_price": prod_dict["margin_pct"],
-        "method": prod_dict["method"],
-        "params": prod_dict["params"],
-    }
-
-    save_state(STATE_JSON, state)
-    print(f"[update_btc_state_latest_from_daily] Actualizat {STATE_JSON}")
-    if prod.cost_usd_per_btc:
-        print(f"  Cost estimat: {prod.cost_usd_per_btc:,.2f} USD/BTC")
-    if prod.margin_pct is not None:
-        print(f"  Marjă vs close: {prod.margin_pct:,.2f}%")
-    if prod.difficulty:
-        print(f"  Difficulty folosit: {prod.difficulty:,.0f}")
-    print("Gata.")
+    state = build_btc_cost_state()
+    BTC_COST_STATE_JSON.parent.mkdir(parents=True, exist_ok=True)
+    with BTC_COST_STATE_JSON.open("w", encoding="utf-8") as f:
+        json.dump(asdict(state), f, ensure_ascii=False, indent=2)
+    print(f"[build_btc_cost_state] Scris {BTC_COST_STATE_JSON}")
+    if state.prod_cost_usd is not None:
+        print(f"  Cost estimat: {state.prod_cost_usd:,.2f} USD/BTC")
+    if state.prod_margin is not None:
+        print(f"  Marjă: {state.prod_margin:.2f}x cost")
+    if state.difficulty is not None:
+        print(f"  Difficulty folosită: {state.difficulty:.0f}")
 
 
 if __name__ == "__main__":
