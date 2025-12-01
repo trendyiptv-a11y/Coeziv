@@ -253,7 +253,6 @@
       font-weight: 500;
       color: var(--text-strong);
     }
-
     .checklist {
       margin-top: 0.4rem;
       padding-left: 0;
@@ -280,7 +279,7 @@
 
     .check-dot.good { background: var(--good); }
     .check-dot.warn { background: var(--warn); }
-    .check-dot.bad { background: var(--bad); }
+    .check-dot.bad  { background: var(--bad); }
 
     .card-note {
       margin-top: 0.5rem;
@@ -314,13 +313,17 @@
     }
   </style>
 </head>
+
 <body>
   <main class="page">
+
+    <!-- ÎNAPOI -->
     <a href="ic_btc.html" class="back-link">
       <span class="icon">←</span>
       <span>Înapoi la indicele IC_BTC</span>
     </a>
 
+    <!-- HEADER -->
     <header class="hero">
       <h1>BTC – Faza 0 a mega-ciclului</h1>
       <p>
@@ -328,32 +331,37 @@
         <strong>„Cât de aproape este Bitcoin de baza următorului mega-ciclu (Faza 0)?”</strong>
         Folosește starea coezivă zilnică (IC_BTC, ICD_BTC, vol30, EMA50/200) și o scală internă 0–100.
       </p>
+
       <div class="pill-row">
         <div class="pill mega">
           <span class="pill-dot"></span>
           <span>Mega-ciclu BTC post-2014</span>
         </div>
+
         <div class="pill struct">
           <span class="pill-dot"></span>
-          <span>Structură &amp; direcționalitate coezivă (IC / ICD)</span>
+          <span>Structură & direcționalitate coezivă (IC / ICD)</span>
         </div>
+
         <div class="pill vol">
           <span class="pill-dot"></span>
-          <span>Volatilitate 30D &amp; raport la EMA50 / EMA200</span>
+          <span>Volatilitate 30D & raport la EMA50 / EMA200</span>
         </div>
       </div>
     </header>
 
+    <!-- GRID PRINCIPAL -->
     <section class="grid-main">
-      <!-- Card principal: scor Faza 0 -->
+
+      <!-- CARD PRINCIPAL: SCOR FAZA 0 -->
       <article class="card">
+
         <div class="card-header">
           <div>
             <div class="card-title">Probabilitate Faza 0 (mega-ciclu)</div>
-            <div class="card-sub">
-              Ultima zi: <span id="asOfLabel">–</span>
-            </div>
+            <div class="card-sub">Ultima zi: <span id="asOfLabel">–</span></div>
           </div>
+
           <div class="badge" id="phaseBadge">
             <span class="badge-dot"></span>
             <span id="phaseBadgeLabel">se încarcă…</span>
@@ -364,6 +372,7 @@
           <div class="value-main">
             <span id="phaseScoreValue">–</span><span class="value-unit"> / 100</span>
           </div>
+
           <p class="value-desc" id="phaseDesc">
             Se calculează scorul fazei 0 pe baza indicilor coezivi și a structurii trendului.
           </p>
@@ -374,18 +383,15 @@
               <div class="meta-value">
                 <span id="icStructValue">–</span>
               </div>
-              <div class="card-sub" id="icStructDesc">
-                Se încarcă structură trend.
-              </div>
+              <div class="card-sub" id="icStructDesc">Se încarcă structură trend.</div>
             </div>
+
             <div>
               <div class="meta-label">ICD_BTC direcțional</div>
               <div class="meta-value">
                 <span id="icDirValue">–</span>
               </div>
-              <div class="card-sub" id="icDirDesc">
-                Se încarcă direcționalitate.
-              </div>
+              <div class="card-sub" id="icDirDesc">Se încarcă direcționalitate.</div>
             </div>
           </div>
 
@@ -395,793 +401,433 @@
               <div class="meta-value">
                 <span id="volValue">–</span>
               </div>
-              <div class="card-sub" id="volDesc">
-                Se încarcă volatilitate.
-              </div>
+              <div class="card-sub" id="volDesc">Se încarcă volatilitate.</div>
             </div>
+
             <div>
               <div class="meta-label">Regim coeziv curent</div>
               <div class="meta-value">
                 <span id="regimeValue">–</span>
               </div>
-              <div class="card-sub" id="regimeDesc">
-                Se încarcă regimul coeziv.
-              </div>
+              <div class="card-sub" id="regimeDesc">Se încarcă regimul coeziv.</div>
             </div>
           </div>
+
         </div>
       </article>
 
-      <!-- Checklist faza 0 -->
+      <!-- CHECKLIST FAZA 0 -->
       <article class="card">
+
         <div class="card-header">
           <div>
             <div class="card-title">Checklist Faza 0</div>
-            <div class="card-sub">
-              Criterii structurale pentru baza unui nou ciclu.
-            </div>
+            <div class="card-sub">Criterii structurale pentru baza unui nou ciclu.</div>
           </div>
         </div>
 
         <ul class="checklist">
+
           <li class="check-item">
             <span class="check-dot" id="chkIcStructDot"></span>
             <span id="chkIcStructText">
               IC_BTC structural între 10 și 25 – structură foarte slabă, specifică bazelor.
             </span>
           </li>
+
           <li class="check-item">
             <span class="check-dot" id="chkIcDirDot"></span>
             <span id="chkIcDirText">
               ICD_BTC direcțional între 35 și 50 – presiune bear care se diminuează.
             </span>
           </li>
+
           <li class="check-item">
             <span class="check-dot" id="chkVolDot"></span>
             <span id="chkVolText">
               Volatilitate 30D moderată (index ~45–70), în scădere după un spike mare.
             </span>
           </li>
+
           <li class="check-item">
             <span class="check-dot" id="chkEmaDot"></span>
             <span id="chkEmaText">
               Preț sub EMA200, aproape de EMA50; EMA50 începe să se aplatizeze.
             </span>
           </li>
+
           <li class="check-item">
             <span class="check-dot" id="chkRegimeDot"></span>
             <span id="chkRegimeText">
               Regimurile bear se scurtează, bull-urile apar timid – tranziție spre echilibru.
             </span>
           </li>
+
         </ul>
 
         <p class="card-note" id="checklistSummary">
-          Se evaluează automat fiecare criteriu pe baza datelor coezive zilnice. Culoarea punctelor
-          (roșu / galben / verde) arată cât de aproape este piața de profilul tipic al unei baze de mega-ciclu.
+          Se evaluează automat fiecare criteriu pe baza datelor coezive zilnice.
+          Culoarea punctelor (roșu / galben / verde) arată cât de aproape este piața
+          de profilul tipic al unei baze de mega-ciclu.
         </p>
+
       </article>
+
     </section>
 
+    <!-- EXPLAINER -->
     <section class="expl">
+
       <h2>Cum interpretezi scorul de Fază 0</h2>
-      <p>
-        <strong>0–30 / 100:</strong> suntem departe de faza 0 – ciclul actual încă se derulează
-        (bull sau bear), structura nu arată semne de bază stabilă.
-      </p>
-      <p>
-        <strong>30–60 / 100:</strong> zona de tranziție – bear-ul mare sau bull-ul târziu intră
-        într-o fază mixtă. Merită urmărite atent IC_BTC, ICD_BTC și vol30.
-      </p>
-      <p>
-        <strong>60–80 / 100:</strong> aproape de profilul fazei 0 – tot mai multe criterii sunt
-        aliniate. Baza de ciclu poate apărea în următoarele 12–24 luni.
-      </p>
-      <p>
-        <strong>80–100 / 100:</strong> structură tipică de bază de mega-ciclu. Istoric, astfel de
-        zone au corespuns celor mai bune raporturi risc / randament pentru acumulare pe termen
-        lung (nu constituie recomandare financiară).
-      </p>
+
+      <p><strong>0–30 / 100:</strong> suntem departe de faza 0 – ciclul actual încă se derulează.</p>
+      <p><strong>30–60 / 100:</strong> zonă de tranziție – bear mare sau bull târziu intră într-o fază mixtă.</p>
+      <p><strong>60–80 / 100:</strong> aproape de profilul fazei 0 – criteriile se aliniază parțial.</p>
+      <p><strong>80–100 / 100:</strong> structură tipică de bază de mega-ciclu.</p>
 
       <p class="small-muted">
-        Acest dashboard este un instrument conceptual în Modelul Coeziv și nu garantează
-        minimele exacte de preț. Scopul lui este să arate cât de mult seamănă structura
-        actuală a pieței cu bazele profunde din ciclurile trecute.
+        Dashboard-ul este un instrument conceptual și nu garantează minimele exacte de preț.
       </p>
+
     </section>
-  </main>
+    <!-- SCRIPT -->
+    <script>
 
-  <script>
-    function clamp(x, min, max) {
-      return Math.min(max, Math.max(min, x));
-    }
-
-    function safeNum(v) {
-      const n = Number(v);
-      return Number.isFinite(n) ? n : null;
-    }
-
-    function setBadgeMode(el, mode) {
-      el.classList.remove("good", "warn", "bad");
-      if (mode === "good") el.classList.add("good");
-      else if (mode === "warn") el.classList.add("warn");
-      else if (mode === "bad") el.classList.add("bad");
-    }
-
-    function setDotMode(el, mode) {
-      el.classList.remove("good", "warn", "bad");
-      if (mode === "good") el.classList.add("good");
-      else if (mode === "warn") el.classList.add("warn");
-      else if (mode === "bad") el.classList.add("bad");
-    }
-
-    // Heuristică: scor faza 0 din 0–100
-    function computeFaza0Score(state) {
-      const ic = safeNum(state.ic_struct) ?? 50;
-      const icd = safeNum(state.ic_dir) ?? 50;
-      const vol = safeNum(state.vol30) ?? safeNum(state.vol30_index) ?? 60;
-
-      const close = safeNum(state.close);
-      const ema50 = safeNum(state.ema50);
-      const ema200 = safeNum(state.ema200);
-
-      // scor IC structural – ideal 10–25
-      let sIc;
-      if (ic <= 10) sIc = 1;
-      else if (ic >= 45) sIc = 0;
-      else if (ic <= 25) sIc = 1 - (ic - 10) / 15;
-      else sIc = clamp(1 - (ic - 25) / 20, 0, 1);
-
-      // scor ICD – ideal 35–50 (bear slăbit)
-      let sIcd;
-      if (icd < 20 || icd > 65) sIcd = 0;
-      else if (icd >= 35 && icd <= 50) sIcd = 1;
-      else if (icd < 35) sIcd = (icd - 20) / 15;
-      else sIcd = (65 - icd) / 15;
-      sIcd = clamp(sIcd, 0, 1);
-
-      // scor vol – ideal 45–70, nu extrem
-      let sVol;
-      if (vol < 20 || vol > 120) sVol = 0;
-      else if (vol >= 45 && vol <= 70) sVol = 1;
-      else if (vol < 45) sVol = (vol - 20) / 25;
-      else sVol = (120 - vol) / 50;
-      sVol = clamp(sVol, 0, 1);
-
-      // scor EMA – preț sub EMA200 dar apropiat de EMA50
-      let sEma = 0.5;
-      if (close != null && ema50 != null && ema200 != null && ema200 !== 0) {
-        const d200 = (close - ema200) / ema200;
-        const d50 = (close - ema50) / ema50;
-        let p1 = 0, p2 = 0;
-        if (d200 <= -0.1) p1 = 1;          // mult sub EMA200 -> bun pentru bază
-        else if (d200 <= 0) p1 = 0.6;
-        else p1 = 0.2;
-
-        if (Math.abs(d50) <= 0.08) p2 = 1; // aproape de EMA50 -> bun
-        else if (Math.abs(d50) <= 0.18) p2 = 0.6;
-        else p2 = 0.2;
-
-        sEma = (p1 * 0.6 + p2 * 0.4);
+      function clamp(x, min, max) {
+        return Math.min(max, Math.max(min, x));
       }
-      sEma = clamp(sEma, 0, 1);
 
-      // scor regim – bear matur / tranziție > faza 0, bull structural < faza 0
-      const regimeShort = (state.regime_short || state.regime_code || "").toLowerCase();
-      let sReg = 0.5;
-      if (regimeShort.includes("bear")) sReg = 0.9;
-      else if (regimeShort.includes("tranz") || regimeShort.includes("neutral")) sReg = 0.7;
-      else if (regimeShort.includes("bull structural")) sReg = 0.2;
-      else if (regimeShort.includes("bull târziu") || regimeShort.includes("top"))
-        sReg = 0.1;
+      function safeNum(v) {
+        const n = Number(v);
+        return Number.isFinite(n) ? n : null;
+      }
 
-      sReg = clamp(sReg, 0, 1);
+      function setBadgeMode(el, mode) {
+        if (!el) return;
+        el.classList.remove("good", "warn", "bad");
+        if (mode === "good") el.classList.add("good");
+        else if (mode === "warn") el.classList.add("warn");
+        else if (mode === "bad") el.classList.add("bad");
+      }
 
-      // combinare ponderată
-      const score01 =
-        0.32 * sIc +
-        0.20 * sIcd +
-        0.16 * sVol +
-        0.18 * sEma +
-        0.14 * sReg;
+      function setDotMode(el, mode) {
+        if (!el) return;
+        el.classList.remove("good", "warn", "bad");
+        if (mode === "good") el.classList.add("good");
+        else if (mode === "warn") el.classList.add("warn");
+        else if (mode === "bad") el.classList.add("bad");
+      }
 
-      return {
-        score01,
-        components: { sIc, sIcd, sVol, sEma, sReg, ic, icd, vol }
-      };
-    }
 
-    async function main() {
-      try {
-        const res = await fetch("/data/btc_state_latest.json");
-        if (!res.ok) throw new Error("Nu pot încărca data/btc_state_latest.json");
-        const data = await res.json();
-        const state = data;
+      /* ===============================
+         CALCUL SCOR FAZA 0 (0–100)
+      ================================*/
+      function computeFaza0Score(state) {
 
-        // afișare as_of
-        const asOf = state.as_of || state.date || state.last_date || "–";
-        document.getElementById("asOfLabel").textContent = asOf;
+        const ic  = safeNum(state.ic_struct) ?? 50;
+        const icd = safeNum(state.ic_dir)    ?? 50;
+        const vol = safeNum(state.vol30) ?? safeNum(state.vol30_index) ?? 60;
 
-        const { score01, components } = computeFaza0Score(state);
-        const score100 = Math.round(score01 * 100);
+        const close  = safeNum(state.close);
+        const ema50  = safeNum(state.ema50);
+        const ema200 = safeNum(state.ema200);
 
-        // card principal
-        document.getElementById("phaseScoreValue").textContent = score100;
+        /* Structural – IC ideal 10–25 */
+        let sIc;
+        if (ic <= 10) sIc = 1;
+        else if (ic >= 45) sIc = 0;
+        else if (ic <= 25) sIc = 1 - (ic - 10) / 15;
+        else sIc = clamp(1 - (ic - 25) / 20, 0, 1);
 
-        const badge = document.getElementById("phaseBadge");
-        const badgeLabel = document.getElementById("phaseBadgeLabel");
-        const descEl = document.getElementById("phaseDesc");
+        /* Direcțional – ICD ideal 35–50 */
+        let sIcd;
+        if (icd < 20 || icd > 65) sIcd = 0;
+        else if (icd >= 35 && icd <= 50) sIcd = 1;
+        else if (icd < 35) sIcd = (icd - 20) / 15;
+        else sIcd = (65 - icd) / 15;
+        sIcd = clamp(sIcd, 0, 1);
 
-        if (score100 < 30) {
+        /* Volatilitate – ideal 45–70 */
+        let sVol;
+        if (vol < 20 || vol > 120) sVol = 0;
+        else if (vol >= 45 && vol <= 70) sVol = 1;
+        else if (vol < 45) sVol = (vol - 20) / 25;
+        else sVol = (120 - vol) / 50;
+        sVol = clamp(sVol, 0, 1);
+
+        /* EMA – preț sub 200, aproape de 50 */
+        let sEma = 0.5;
+        if (close != null && ema50 != null && ema200 != null && ema200 !== 0) {
+          const d200 = (close - ema200) / ema200;
+          const d50  = (close - ema50)  / ema50;
+          let p1 = 0, p2 = 0;
+
+          if (d200 <= -0.1) p1 = 1;
+          else if (d200 <= 0) p1 = 0.6;
+          else p1 = 0.2;
+
+          if (Math.abs(d50) <= 0.08) p2 = 1;
+          else if (Math.abs(d50) <= 0.18) p2 = 0.6;
+          else p2 = 0.2;
+
+          sEma = (p1 * 0.6 + p2 * 0.4);
+        }
+        sEma = clamp(sEma, 0, 1);
+
+        /* Regim – bear/tranziție susțin faza 0 */
+        const regShort =
+          (state.regime_short || state.regime_label || state.regime_code || "")
+          .toLowerCase();
+
+        let sReg = 0.5;
+        if (regShort.includes("bear")) sReg = 0.9;
+        else if (regShort.includes("tranz") || regShort.includes("neutral")) sReg = 0.7;
+        else if (regShort.includes("bull structural")) sReg = 0.2;
+        else if (regShort.includes("bull târziu") || regShort.includes("top")) sReg = 0.1;
+
+        sReg = clamp(sReg, 0, 1);
+
+        /* Combinație ponderată */
+        const score01 =
+          0.32 * sIc +
+          0.20 * sIcd +
+          0.16 * sVol +
+          0.18 * sEma +
+          0.14 * sReg;
+
+        return {
+          score01,
+          components: { sIc, sIcd, sVol, sEma, sReg, ic, icd, vol, regShort, close, ema50, ema200 }
+        };
+      }
+
+
+      /* ======================================
+         MAIN — FETCH + RANDARE DASHBOARD
+      =======================================*/
+      async function main() {
+
+        let state;
+
+        /* 1) FETCH JSON */
+        try {
+          const res = await fetch("/data/btc_state_latest.json", { cache: "no-cache" });
+
+          console.log("BTC Faza0 fetch:", res.status, res.ok);
+
+          if (!res.ok)
+            throw new Error("HTTP " + res.status + " la /data/btc_state_latest.json");
+
+          state = await res.json();
+          console.log("BTC Faza0 structura state:", state);
+
+        } catch (err) {
+          console.error("Eroare FETCH:", err);
+
+          const badge      = document.getElementById("phaseBadge");
+          const badgeLabel = document.getElementById("phaseBadgeLabel");
+          const desc       = document.getElementById("phaseDesc");
+
           setBadgeMode(badge, "bad");
-          badgeLabel.textContent = "departe de faza 0";
-          descEl.textContent =
-            "Structura actuală nu seamănă cu o bază de mega-ciclu. Ciclul curent (bull sau bear) are încă energie proprie.";
-        } else if (score100 < 60) {
-          setBadgeMode(badge, "warn");
-          badgeLabel.textContent = "zonă de tranziție";
-          descEl.textContent =
-            "Unele criterii ale fazei 0 apar deja, dar nu toate sunt aliniate. Suntem într-o fază de tranziție a ciclului.";
-        } else if (score100 < 80) {
-          setBadgeMode(badge, "good");
-          badgeLabel.textContent = "aproape de faza 0";
-          descEl.textContent =
-            "Structura este apropiată de profilul unei baze de mega-ciclu. În următoarele 12–24 luni, probabilitatea unei baze profunde crește.";
-        } else {
-          setBadgeMode(badge, "good");
-          badgeLabel.textContent = "profil tipic de fază 0";
-          descEl.textContent =
-            "Indicatorii coezivi arată un profil foarte similar cu bazele istorice de mega-ciclu Bitcoin. Atenție: nu garantează minimul exact de preț.";
+          if (badgeLabel) badgeLabel.textContent = "eroare date";
+          if (desc) desc.textContent =
+            "Eroare la încărcarea fișierului /data/btc_state_latest.json: " + err.message;
+
+          return;
+        }
+        /* 2) RANDARE UI */
+        try {
+          const asOf =
+            state.as_of ||
+            state.date ||
+            state.last_date ||
+            "–";
+
+          const asOfLabel = document.getElementById("asOfLabel");
+          if (asOfLabel) asOfLabel.textContent = asOf;
+
+          const { score01, components } = computeFaza0Score(state);
+          const score100 = Math.round(score01 * 100);
+
+          const ic       = components.ic;
+          const icd      = components.icd;
+          const vol      = components.vol;
+          const regShort = components.regShort;
+          const close    = components.close;
+          const ema50    = components.ema50;
+          const ema200   = components.ema200;
+
+          /* SCOR PRINCIPAL + BADGE */
+          const scoreEl     = document.getElementById("phaseScoreValue");
+          const badge       = document.getElementById("phaseBadge");
+          const badgeLabel  = document.getElementById("phaseBadgeLabel");
+          const descEl      = document.getElementById("phaseDesc");
+
+          if (scoreEl) scoreEl.textContent = score100;
+
+          if (score100 < 30) {
+            setBadgeMode(badge, "bad");
+            if (badgeLabel) badgeLabel.textContent = "departe de faza 0";
+            if (descEl) descEl.textContent =
+              "Structura actuală nu seamănă cu o bază de mega-ciclu. Ciclul curent (bull sau bear) are încă energie proprie.";
+          } else if (score100 < 60) {
+            setBadgeMode(badge, "warn");
+            if (badgeLabel) badgeLabel.textContent = "zonă de tranziție";
+            if (descEl) descEl.textContent =
+              "Unele criterii ale fazei 0 apar deja, dar nu toate sunt aliniate. Suntem într-o fază de tranziție a ciclului.";
+          } else if (score100 < 80) {
+            setBadgeMode(badge, "good");
+            if (badgeLabel) badgeLabel.textContent = "aproape de faza 0";
+            if (descEl) descEl.textContent =
+              "Structura este apropiată de profilul unei baze de mega-ciclu. În următoarele 12–24 luni, probabilitatea unei baze profunde crește.";
+          } else {
+            setBadgeMode(badge, "good");
+            if (badgeLabel) badgeLabel.textContent = "profil tipic de fază 0";
+            if (descEl) descEl.textContent =
+              "Indicatorii coezivi arată un profil foarte similar cu bazele istorice de mega-ciclu Bitcoin. Atenție: nu garantează minimul exact de preț.";
+          }
+
+          /* VALORI IC / ICD / VOL / REGIM */
+          const icStructValue = document.getElementById("icStructValue");
+          const icDirValue    = document.getElementById("icDirValue");
+          const volValue      = document.getElementById("volValue");
+          const regimeValue   = document.getElementById("regimeValue");
+
+          if (icStructValue) icStructValue.textContent = ic  != null ? ic.toFixed(2)  : "–";
+          if (icDirValue)    icDirValue.textContent    = icd != null ? icd.toFixed(2) : "–";
+          if (volValue)      volValue.textContent      = vol != null ? vol.toFixed(2) : "–";
+          if (regimeValue)
+            regimeValue.textContent =
+              state.regime_label || state.regime_short || state.regime_code || "–";
+
+          /* DESCRIERI SCURTE */
+
+          const icDesc = document.getElementById("icStructDesc");
+          if (icDesc) {
+            if (ic == null) icDesc.textContent = "Indice structural indisponibil.";
+            else if (ic <= 25)
+              icDesc.textContent = "Structură foarte slabă – zonă tipică pentru baze profunde de ciclu.";
+            else if (ic <= 45)
+              icDesc.textContent = "Structură mixtă – tranziție între trend clar și piață dezordonată.";
+            else
+              icDesc.textContent = "Structură încă puternică – mai degrabă fază de trend decât bază.";
+          }
+
+          const icdDesc = document.getElementById("icDirDesc");
+          if (icdDesc) {
+            if (icd == null) icdDesc.textContent = "Indice direcțional indisponibil.";
+            else if (icd < 35)
+              icdDesc.textContent =
+                "Presiune bearish încă puternică – capitulare sau bear agresiv.";
+            else if (icd <= 50)
+              icdDesc.textContent =
+                "Presiune bear în slăbire – zona preferată pentru formarea bazelor.";
+            else
+              icdDesc.textContent =
+                "Direcționalitate mai degrabă bullish – nu seamănă cu o bază profundă.";
+          }
+
+          const volDesc = document.getElementById("volDesc");
+          if (volDesc) {
+            if (vol == null) volDesc.textContent = "Volatilitate 30D indisponibilă.";
+            else if (vol < 30)
+              volDesc.textContent =
+                "Volatilitate foarte scăzută – apatie, dar nu neapărat bază de mega-ciclu.";
+            else if (vol <= 70)
+              volDesc.textContent =
+                "Volatilitate moderată – profil bun pentru consolidări profunde.";
+            else
+              volDesc.textContent =
+                "Volatilitate ridicată – panică sau mișcări bruște, adesea înainte sau în timpul capitulării.";
+          }
+
+          const regimeDesc = document.getElementById("regimeDesc");
+          if (regimeDesc) {
+            if (!regShort) {
+              regimeDesc.textContent = "Regimul coeziv nu este specificat în date.";
+            } else if (regShort.includes("bear")) {
+              regimeDesc.textContent =
+                "Regim bear – bun pentru etapele finale ale ciclului și apropierea de baze.";
+            } else if (regShort.includes("tranz")) {
+              regimeDesc.textContent =
+                "Regim de tranziție – adesea legat de fazele intermediare, înainte de baze sau după topuri.";
+            } else if (regShort.includes("bull")) {
+              regimeDesc.textContent =
+                "Regim bull – de obicei nu coincide cu bazele de mega-ciclu.";
+            } else {
+              regimeDesc.textContent =
+                "Regim coeziv neutru sau mixt – necesită corelare cu ceilalți indicatori.";
+            }
+          }
+
+          /* CHECKLIST – DOT-URI COLORATE */
+
+          const chkIcStructDot = document.getElementById("chkIcStructDot");
+          const chkIcDirDot    = document.getElementById("chkIcDirDot");
+          const chkVolDot      = document.getElementById("chkVolDot");
+          const chkEmaDot      = document.getElementById("chkEmaDot");
+          const chkRegimeDot   = document.getElementById("chkRegimeDot");
+
+          // IC structural
+          if (ic == null) setDotMode(chkIcStructDot, "bad");
+          else if (ic <= 30) setDotMode(chkIcStructDot, "good");
+          else if (ic <= 45) setDotMode(chkIcStructDot, "warn");
+          else setDotMode(chkIcStructDot, "bad");
+
+          // ICD
+          if (icd == null) setDotMode(chkIcDirDot, "bad");
+          else if (icd >= 35 && icd <= 50) setDotMode(chkIcDirDot, "good");
+          else if (icd >= 28 && icd < 35) setDotMode(chkIcDirDot, "warn");
+          else setDotMode(chkIcDirDot, "bad");
+
+          // Volatilitate
+          if (vol == null) setDotMode(chkVolDot, "bad");
+          else if (vol >= 45 && vol <= 70) setDotMode(chkVolDot, "good");
+          else if (vol >= 30 && vol < 45) setDotMode(chkVolDot, "warn");
+          else if (vol > 70 && vol <= 110) setDotMode(chkVolDot, "warn");
+          else setDotMode(chkVolDot, "bad");
+
+          // EMA
+          if (close != null && ema50 != null && ema200 != null && ema200 !== 0) {
+            const d200 = (close - ema200) / ema200;
+            const d50  = (close - ema50)  / ema50;
+
+            if (d200 <= -0.1 && Math.abs(d50) <= 0.1) {
+              setDotMode(chkEmaDot, "good");
+            } else if (d200 <= 0 && Math.abs(d50) <= 0.18) {
+              setDotMode(chkEmaDot, "warn");
+            } else {
+              setDotMode(chkEmaDot, "bad");
+            }
+          } else {
+            setDotMode(chkEmaDot, "bad");
+          }
+
+          // Regim
+          if (!regShort) setDotMode(chkRegimeDot, "bad");
+          else if (regShort.includes("bear")) setDotMode(chkRegimeDot, "good");
+          else if (regShort.includes("tranz")) setDotMode(chkRegimeDot, "warn");
+          else setDotMode(chkRegimeDot, "bad");
+
+        } catch (err) {
+          console.error("Eroare la randarea dashboard-ului:", err);
+
+          const badge      = document.getElementById("phaseBadge");
+          const badgeLabel = document.getElementById("phaseBadgeLabel");
+          const desc       = document.getElementById("phaseDesc");
+
+          setBadgeMode(badge, "bad");
+          if (badgeLabel) badgeLabel.textContent = "eroare date";
+          if (desc) desc.textContent =
+            "Eroare la randarea dashboard-ului: " + err.message;
         }
 
-        // valori IC / ICD / vol / regim
-        const ic = components.ic;
-        const icd = components.icd;
-        const vol = components.vol;
+      } // end main()
 
-        document.getElementById("icStructValue").textContent =
-          ic != null ? ic.toFixed(2) : "–";
-        document.getElementById("icDirValue").textContent =
-          icd != null ? icd.toFixed(2) : "–";
-        document.getElementById("volValue").textContent =
-          vol != null ? vol.toFixed(2) : "–";
-        document.getElementById("regimeValue").textContent =
-          state.regime_label || state.regime_short || state.regime_code || "–";
+      main();
 
-        // descrieri scurte
-        const icDesc = document.getElementById("icStructDesc");
-        if (ic == null) {
-          icDesc.textContent = "Indice structural indisponibil.";
-        } else if (ic <= 25) {
-          icDesc.textContent =
-            "Structură foarte slabă – zonă tipică pentru baze profunde de ciclu.";
-        } else if (ic <= 45) {
-          icDesc.textContent =
-            "Structură mixtă – tranziție între trend clar și piață dezordonată.";
-        } else {
-          icDesc.textContent =
-            "Structură încă puternică – mai degrabă fază de trend decât bază.";
-        }
+    </script>
 
-        const icdDesc = document.getElementById("icDirDesc");
-        if (icd == null) {
-          icdDesc.textContent = "Indice direcțional indisponibil.";
-        } else if (icd < 35) {
-          icdDesc.textContent =
-            "Presiune bearish încă puternică – capitulare sau bear agresiv.";
-        } else if (icd <= 50) {
-          icdDesc.textContent =
-            "Presiune bear în slăbire – zona preferată pentru formarea bazelor.";
-        } else {
-          icdDesc.textContent =
-            "Direcționalitate mai degrabă bullish – nu seamănă cu o bază profundă.";
-        }
-
-        const volDesc = document.getElementById("volDesc");
-        if (vol == null) {
-          volDesc.textContent = "Volatilitate 30D indisponibilă.";
-        } else if (vol < 30) {
-          volDesc.textContent =
-            "Volatilitate foarte scăzută – apatie, dar nu neapărat bază de mega-ciclu.";
-        } else if (vol <= 70) {
-<script>
-  function clamp(x, min, max) {
-    return Math.min(max, Math.max(min, x));
-  }
-
-  function safeNum(v) {
-    const n = Number(v);
-    return Number.isFinite(n) ? n : null;
-  }
-
-  function setBadgeMode(el, mode) {
-    if (!el) return;
-    el.classList.remove("good", "warn", "bad");
-    if (mode === "good") el.classList.add("good");
-    else if (mode === "warn") el.classList.add("warn");
-    else if (mode === "bad") el.classList.add("bad");
-  }
-
-  function setDotMode(el, mode) {
-    if (!el) return;
-    el.classList.remove("good", "warn", "bad");
-    if (mode === "good") el.classList.add("good");
-    else if (mode === "warn") el.classList.add("warn");
-    else if (mode === "bad") el.classList.add("bad");
-  }
-
-  function showError(message) {
-    const badge = document.getElementById("phaseBadge");
-    const badgeLabel = document.getElementById("phaseBadgeLabel");
-    const desc = document.getElementById("phaseDesc");
-
-    setBadgeMode(badge, "bad");
-    if (badgeLabel) badgeLabel.textContent = "eroare date";
-    if (desc) desc.textContent = message;
-  }
-
-  // Heuristică: scor faza 0 din 0–100
-  function computeFaza0Score(state) {
-    const ic  = safeNum(state.ic_struct) ?? 50;
-    const icd = safeNum(state.ic_dir)    ?? 50;
-    const vol = safeNum(state.vol30) ?? safeNum(state.vol30_index) ?? 60;
-
-    const close = safeNum(state.close);
-    const ema50 = safeNum(state.ema50);
-    const ema200 = safeNum(state.ema200);
-
-    // scor IC structural – ideal 10–25
-    let sIc;
-    if (ic <= 10) sIc = 1;
-    else if (ic >= 45) sIc = 0;
-    else if (ic <= 25) sIc = 1 - (ic - 10) / 15;
-    else sIc = clamp(1 - (ic - 25) / 20, 0, 1);
-
-    // scor ICD – ideal 35–50 (bear slăbit)
-    let sIcd;
-    if (icd < 20 || icd > 65) sIcd = 0;
-    else if (icd >= 35 && icd <= 50) sIcd = 1;
-    else if (icd < 35) sIcd = (icd - 20) / 15;
-    else sIcd = (65 - icd) / 15;
-    sIcd = clamp(sIcd, 0, 1);
-
-    // scor vol – ideal 45–70, nu extrem
-    let sVol;
-    if (vol < 20 || vol > 120) sVol = 0;
-    else if (vol >= 45 && vol <= 70) sVol = 1;
-    else if (vol < 45) sVol = (vol - 20) / 25;
-    else sVol = (120 - vol) / 50;
-    sVol = clamp(sVol, 0, 1);
-
-    // scor EMA – preț sub EMA200 dar apropiat de EMA50
-    let sEma = 0.5;
-    if (close != null && ema50 != null && ema200 != null && ema200 !== 0) {
-      const d200 = (close - ema200) / ema200;
-      const d50  = (close - ema50)  / ema50;
-      let p1 = 0, p2 = 0;
-
-      if (d200 <= -0.1) p1 = 1;
-      else if (d200 <= 0) p1 = 0.6;
-      else p1 = 0.2;
-
-      if (Math.abs(d50) <= 0.08) p2 = 1;
-      else if (Math.abs(d50) <= 0.18) p2 = 0.6;
-      else p2 = 0.2;
-
-      sEma = (p1 * 0.6 + p2 * 0.4);
-    }
-    sEma = clamp(sEma, 0, 1);
-
-    // scor regim – bear matur / tranziție > faza 0, bull structural < faza 0
-    const regShort = (state.regime_short || state.regime_label || state.regime_code || "").toLowerCase();
-    let sReg = 0.5;
-    if (regShort.includes("bear")) sReg = 0.9;
-    else if (regShort.includes("tranz") || regShort.includes("neutral")) sReg = 0.7;
-    else if (regShort.includes("bull structural")) sReg = 0.2;
-    else if (regShort.includes("bull târziu") || regShort.includes("top")) sReg = 0.1;
-    sReg = clamp(sReg, 0, 1);
-
-    const score01 =
-      0.32 * sIc +
-      0.20 * sIcd +
-      0.16 * sVol +
-      0.18 * sEma +
-      0.14 * sReg;
-
-    return {
-      score01,
-      components: { sIc, sIcd, sVol, sEma, sReg, ic, icd, vol, regShort, close, ema50, ema200 }
-    };
-  }
-
-  async function main() {
-    let state;
-
-    // 1. Fetch + JSON
-    try {
-      const res = await fetch("/data/btc_state_latest.json", { cache: "no-cache" });
-      console.log("BTC faza0 fetch status:", res.status, res.ok);
-
-      if (!res.ok) {
-        throw new Error("HTTP " + res.status + " la /data/btc_state_latest.json");
-      }
-
-      state = await res.json();
-      console.log("BTC faza0 state:", state);
-    } catch (err) {
-      console.error("Eroare la fetch/JSON:", err);
-      showError("Eroare la încărcarea fișierului /data/btc_state_latest.json: " + err.message);
-      return;
-    }
-
-    // 2. Randare UI
-    try {
-      const asOf = state.as_of || state.date || state.last_date || "–";
-      const asOfLabel = document.getElementById("asOfLabel");
-      if (asOfLabel) asOfLabel.textContent = asOf;
-
-      const { score01, components } = computeFaza0Score(state);
-      const score100 = Math.round(score01 * 100);
-
-      const ic   = components.ic;
-      const icd  = components.icd;
-      const vol  = components.vol;
-      const regShort = components.regShort;
-      const close = components.close;
-      const ema50 = components.ema50;
-      const ema200 = components.ema200;
-
-      // scor principal
-      const scoreEl = document.getElementById("phaseScoreValue");
-      if (scoreEl) scoreEl.textContent = score100;
-
-      const badge = document.getElementById("phaseBadge");
-      const badgeLabel = document.getElementById("phaseBadgeLabel");
-      const descEl = document.getElementById("phaseDesc");
-
-      if (score100 < 30) {
-        setBadgeMode(badge, "bad");
-        if (badgeLabel) badgeLabel.textContent = "departe de faza 0";
-        if (descEl) descEl.textContent =
-          "Structura actuală nu seamănă cu o bază de mega-ciclu. Ciclul curent (bull sau bear) are încă energie proprie.";
-      } else if (score100 < 60) {
-        setBadgeMode(badge, "warn");
-        if (badgeLabel) badgeLabel.textContent = "zonă de tranziție";
-        if (descEl) descEl.textContent =
-          "Unele criterii ale fazei 0 apar deja, dar nu toate sunt aliniate. Suntem într-o fază de tranziție a ciclului.";
-      } else if (score100 < 80) {
-        setBadgeMode(badge, "good");
-        if (badgeLabel) badgeLabel.textContent = "aproape de faza 0";
-        if (descEl) descEl.textContent =
-          "Structura este apropiată de profilul unei baze de mega-ciclu. În următoarele 12–24 luni, probabilitatea unei baze profunde crește.";
-      } else {
-        setBadgeMode(badge, "good");
-        if (badgeLabel) badgeLabel.textContent = "profil tipic de fază 0";
-        if (descEl) descEl.textContent =
-          "Indicatorii coezivi arată un profil foarte similar cu bazele istorice de mega-ciclu Bitcoin. Atenție: nu garantează minimul exact de preț.";
-      }
-
-      // valori IC / ICD / vol / regim
-      const icStructValue = document.getElementById("icStructValue");
-      const icDirValue = document.getElementById("icDirValue");
-      const volValue = document.getElementById("volValue");
-      const regimeValue = document.getElementById("regimeValue");
-
-      if (icStructValue) icStructValue.textContent = ic != null ? ic.toFixed(2) : "–";
-      if (icDirValue)   icDirValue.textContent   = icd != null ? icd.toFixed(2) : "–";
-      if (volValue)     volValue.textContent     = vol != null ? vol.toFixed(2) : "–";
-      if (regimeValue)
-        regimeValue.textContent =
-          state.regime_label || state.regime_short || state.regime_code || "–";
-
-      // descrieri scurte
-      const icDesc = document.getElementById("icStructDesc");
-      if (icDesc) {
-<script>
-  const DATA_URL = "https://coeziv.vercel.app/data/btc_state_latest.json";
-
-  function clamp(x, min, max) {
-    return Math.min(max, Math.max(min, x));
-  }
-
-  function safeNum(v) {
-    const n = Number(v);
-    return Number.isFinite(n) ? n : null;
-  }
-
-  function setBadgeMode(el, mode) {
-    if (!el) return;
-    el.classList.remove("good", "warn", "bad");
-    if (mode === "good") el.classList.add("good");
-    else if (mode === "warn") el.classList.add("warn");
-    else if (mode === "bad") el.classList.add("bad");
-  }
-
-  function setDotMode(el, mode) {
-    if (!el) return;
-    el.classList.remove("good", "warn", "bad");
-    if (mode === "good") el.classList.add("good");
-    else if (mode === "warn") el.classList.add("warn");
-    else if (mode === "bad") el.classList.add("bad");
-  }
-
-  function showError(message) {
-    const badge = document.getElementById("phaseBadge");
-    const badgeLabel = document.getElementById("phaseBadgeLabel");
-    const desc = document.getElementById("phaseDesc");
-
-    setBadgeMode(badge, "bad");
-    if (badgeLabel) badgeLabel.textContent = "eroare date";
-    if (desc) desc.textContent = message;
-  }
-
-  // Heuristică: scor faza 0 din 0–100
-  function computeFaza0Score(state) {
-    const ic  = safeNum(state.ic_struct) ?? 50;
-    const icd = safeNum(state.ic_dir)    ?? 50;
-    const vol = safeNum(state.vol30) ?? safeNum(state.vol30_index) ?? 60;
-
-    const close  = safeNum(state.close);
-    const ema50  = safeNum(state.ema50);
-    const ema200 = safeNum(state.ema200);
-
-    // scor IC structural – ideal 10–25
-    let sIc;
-    if (ic <= 10) sIc = 1;
-    else if (ic >= 45) sIc = 0;
-    else if (ic <= 25) sIc = 1 - (ic - 10) / 15;
-    else sIc = clamp(1 - (ic - 25) / 20, 0, 1);
-
-    // scor ICD – ideal 35–50 (bear slăbit)
-    let sIcd;
-    if (icd < 20 || icd > 65) sIcd = 0;
-    else if (icd >= 35 && icd <= 50) sIcd = 1;
-    else if (icd < 35) sIcd = (icd - 20) / 15;
-    else sIcd = (65 - icd) / 15;
-    sIcd = clamp(sIcd, 0, 1);
-
-    // scor vol – ideal 45–70, nu extrem
-    let sVol;
-    if (vol < 20 || vol > 120) sVol = 0;
-    else if (vol >= 45 && vol <= 70) sVol = 1;
-    else if (vol < 45) sVol = (vol - 20) / 25;
-    else sVol = (120 - vol) / 50;
-    sVol = clamp(sVol, 0, 1);
-
-    // scor EMA – preț sub EMA200 dar apropiat de EMA50
-    let sEma = 0.5;
-    if (close != null && ema50 != null && ema200 != null && ema200 !== 0) {
-      const d200 = (close - ema200) / ema200;
-      const d50  = (close - ema50)  / ema50;
-      let p1 = 0, p2 = 0;
-
-      if (d200 <= -0.1) p1 = 1;
-      else if (d200 <= 0) p1 = 0.6;
-      else p1 = 0.2;
-
-      if (Math.abs(d50) <= 0.08) p2 = 1;
-      else if (Math.abs(d50) <= 0.18) p2 = 0.6;
-      else p2 = 0.2;
-
-      sEma = (p1 * 0.6 + p2 * 0.4);
-    }
-    sEma = clamp(sEma, 0, 1);
-
-    // scor regim – bear matur / tranziție > faza 0, bull structural < faza 0
-    const regShort = (state.regime_short || state.regime_label || state.regime_code || "").toLowerCase();
-    let sReg = 0.5;
-    if (regShort.includes("bear")) sReg = 0.9;
-    else if (regShort.includes("tranz") || regShort.includes("neutral")) sReg = 0.7;
-    else if (regShort.includes("bull structural")) sReg = 0.2;
-    else if (regShort.includes("bull târziu") || regShort.includes("top")) sReg = 0.1;
-    sReg = clamp(sReg, 0, 1);
-
-    const score01 =
-      0.32 * sIc +
-      0.20 * sIcd +
-      0.16 * sVol +
-      0.18 * sEma +
-      0.14 * sReg;
-
-    return {
-      score01,
-      components: { sIc, sIcd, sVol, sEma, sReg, ic, icd, vol, regShort, close, ema50, ema200 }
-    };
-  }
-
-  async function main() {
-    let state;
-
-    // 1. Fetch + JSON
-    try {
-      const res = await fetch(DATA_URL, { cache: "no-cache" });
-      console.log("BTC faza0 fetch status:", res.status, res.ok);
-
-      if (!res.ok) {
-        throw new Error("HTTP " + res.status + " la " + DATA_URL);
-      }
-
-      state = await res.json();
-      console.log("BTC faza0 state:", state);
-    } catch (err) {
-      console.error("Eroare la fetch/JSON:", err);
-      showError("Eroare la încărcarea fișierului btc_state_latest.json: " + err.message);
-      return;
-    }
-
-    // 2. Randare UI
-    try {
-      const asOf = state.as_of || state.date || state.last_date || "–";
-      const asOfLabel = document.getElementById("asOfLabel");
-      if (asOfLabel) asOfLabel.textContent = asOf;
-
-      const { score01, components } = computeFaza0Score(state);
-      const score100 = Math.round(score01 * 100);
-
-      const ic   = components.ic;
-      const icd  = components.icd;
-      const vol  = components.vol;
-      const regShort = components.regShort;
-      const close = components.close;
-      const ema50 = components.ema50;
-      const ema200 = components.ema200;
-
-      // scor principal
-      const scoreEl = document.getElementById("phaseScoreValue");
-      if (scoreEl) scoreEl.textContent = score100;
-
-      const badge = document.getElementById("phaseBadge");
-      const badgeLabel = document.getElementById("phaseBadgeLabel");
-      const descEl = document.getElementById("phaseDesc");
-
-      if (score100 < 30) {
-        setBadgeMode(badge, "bad");
-        if (badgeLabel) badgeLabel.textContent = "departe de faza 0";
-        if (descEl) descEl.textContent =
-          "Structura actuală nu seamănă cu o bază de mega-ciclu. Ciclul curent (bull sau bear) are încă energie proprie.";
-      } else if (score100 < 60) {
-        setBadgeMode(badge, "warn");
-        if (badgeLabel) badgeLabel.textContent = "zonă de tranziție";
-        if (descEl) descEl.textContent =
-          "Unele criterii ale fazei 0 apar deja, dar nu toate sunt aliniate. Suntem într-o fază de tranziție a ciclului.";
-      } else if (score100 < 80) {
-        setBadgeMode(badge, "good");
-        if (badgeLabel) badgeLabel.textContent = "aproape de faza 0";
-        if (descEl) descEl.textContent =
-          "Structura este apropiată de profilul unei baze de mega-ciclu. În următoarele 12–24 luni, probabilitatea unei baze profunde crește.";
-      } else {
-        setBadgeMode(badge, "good");
-        if (badgeLabel) badgeLabel.textContent = "profil tipic de fază 0";
-        if (descEl) descEl.textContent =
-          "Indicatorii coezivi arată un profil foarte similar cu bazele istorice de mega-ciclu Bitcoin. Atenție: nu garantează minimul exact de preț.";
-      }
-
-      // valori IC / ICD / vol / regim
-      const icStructValue = document.getElementById("icStructValue");
-      const icDirValue = document.getElementById("icDirValue");
-      const volValue = document.getElementById("volValue");
-      const regimeValue = document.getElementById("regimeValue");
-
-      if (icStructValue) icStructValue.textContent = ic != null ? ic.toFixed(2) : "–";
-      if (icDirValue)   icDirValue.textContent   = icd != null ? icd.toFixed(2) : "–";
-      if (volValue)     volValue.textContent     = vol != null ? vol.toFixed(2) : "–";
-      if (regimeValue)
-        regimeValue.textContent =
-          state.regime_label || state.regime_short || state.regime_code || "–";
-
-      // descrieri scurte
-      const icDesc = document.getElementById("icStructDesc");
-      if (icDesc) {
-        if (ic == null) icDesc.textContent = "Indice structural indisponibil.";
-        else if (ic <= 25)
-          icDesc.textContent = "Structură foarte slabă – zonă tipică pentru baze profunde de ciclu.";
-        else if (ic <= 45)
-          icDesc.textContent = "Structură mixtă – tranziție între trend clar și piață dezordonată.";
-        else
-          icDesc.textContent = "Structură încă puternică – mai degrabă fază de trend decât bază.";
-      }
-
-      const icdDesc = document.getElementById("icDirDesc");
-      if (icdDesc) {
-        if (icd == null) icdDesc.textContent = "Indice direcțional indisponibil.";
-        else if (icd < 35)
-          icdDesc.textContent =
-            "Presiune bearish încă puternică – capitulare sau bear agresiv.";
-        else if (icd <= 50)
-          icdDesc.textContent =
-            "Presiune bear în slăbire – zona preferată pentru formarea bazelor.";
-        else
-          icdDesc.textContent =
-            "Direcționalitate mai degrabă bullish – nu seamănă cu o bază profundă.";
-      }
-
-      const volDesc = document.getElementById("volDesc");
-      if (volDesc) {
-        if (vol == null) volDesc.textContent = "Volatilitate 30D indisponibilă.";
-        else if (vol < 30)
-          volDesc.textContent =
-            "Volatilitate foarte scăzută – apatie, dar nu neapărat bază de mega-ciclu.";
-        else if (vol <= 70)
-          volDesc.textContent =
-            "Volatilitate moderată – profil bun pentru consolidări profunde.";
-        else
-          volDesc.textContent =
-            "Volatilitate ridicată – panică sau mișcări bruște, adesea înainte sau în timpul capitulării.";
-      }
-
-      const regimeDesc = document.getElementById("regimeDesc");
-      if (regimeDesc) {
-        if (!regShort) {
-          regimeDesc.textContent = "Regimul coeziv nu este specificat în date.";
-        } else if (regShort.includes("bear")) {
-          regimeDesc.textContent =
-            "Regim bear – bun pentru etapele finale ale ciclului și apropierea de baze.";
-        } else if (regShort.includes("tranz")) {
-          regimeDesc.textContent =
-            "Regim de tranziție – adesea legat de fazele intermediare, înainte de baze sau după topuri.";
-        } else if (regShort.includes("bull")) {
-          regimeDesc.textContent =
-            "Regim bull – de obicei nu coincide cu bazele de mega-ciclu.";
-        } else {
-          regimeDesc.textContent =
-            "Regim coeziv neutru sau mixt – necesită corelare cu ceilalți indicatori.";
-        }
-      }
-
-      // checklist – colorare dot-uri
-      const chkIcStructDot = document.getElementById("chkIcStructDot");
-      const chkIcDirDot = document.getElementById("chkIcDirDot");
-      const chkVolDot = document.getElementById("chkVolDot");
-      const chkEmaDot = document.getElementById("chkEmaDot");
-      const chkRegimeDot = document.getElementById("chkRegimeDot");
-
-      // IC struct
-      if (ic == null) setDotMode(chkIcStructDot, "bad");
-      else if (ic <= 30) setDotMode(chkIcStructDot, "good");
-      else if (ic <= 45) setDotMode(chkIcStructDot, "warn");
-      else setDotMode(chkIcStructDot, "bad");
-
-      // ICD
-      if (icd == null) setDotMode(chkIcDirDot, "bad");
-      else if (icd >= 35 && icd <= 50) setDotMode(chkIcDirDot, "good";
-      else if (icd >= 28 && icd < 35) setDotMode(chkIcDirDot, "warn");
-      else setDotMode(chkIcDirDot, "bad");
-
-      // vol
-      if (vol == null) setDotMode(chkVolDot, "bad");
-      else if (vol >= 45 && vol <= 70) setDotMode(chkVolDot, "good");
-      else if (vol >= 30 && vol < 45) setDotMode(chkVolDot, "warn");
-      else if (vol > 70 && vol <= 110) setDotMode(chkVolDot, "warn");
-      else setDotMode(chkVolDot, "bad");
-
-      // EMA
-      if (close != null && ema50 != null && ema200 != null && ema200 !== 0) {
-        const d200 = (close - ema200) / ema200;
-        const d50  = (close - ema50)  / ema50;
-        if (d200 <= -0.1 && Math.abs(d50) <= 0.1) {
-          setDotMode(chkEmaDot, "good");
-        } else if (d200 <= 0 && Math.abs(d50) <= 0.18) {
-          setDotMode(chkEmaDot, "warn");
-        } else {
-          setDotMode(chkEmaDot, "bad");
-        }
-      } else {
-        setDotMode(chkEmaDot, "bad");
-      }
-
-      // Regim
-      if (!regShort) setDotMode(chkRegimeDot, "bad");
-      else if (regShort.includes("bear")) setDotMode(chkRegimeDot, "good");
-      else if (regShort.includes("tranz")) setDotMode(chkRegimeDot, "warn");
-      else setDotMode(chkRegimeDot, "bad");
-
-    } catch (err) {
-      console.error("Eroare la randarea dashboard-ului:", err);
-      showError("Eroare la randarea dashboard-ului: " + err.message);
-    }
-  }
-
-  main();
-</script>
+  </main>
 </body>
 </html>
