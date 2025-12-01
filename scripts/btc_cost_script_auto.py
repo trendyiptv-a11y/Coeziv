@@ -8,6 +8,9 @@ data/btc_cost_state.json pentru card, fără input interactiv.
 Valorile pot fi setate:
 - prin variabile de mediu (HASHRATE_EH_PER_S, PRICE_USD etc.)
 - sau prin valorile implicite de mai jos.
+
+ATENȚIE: acest fișier este în folderul scripts/, iar JSON-ul este scris
+în ../data/btc_cost_state.json (rădăcina repo-ului + /data).
 """
 
 from dataclasses import dataclass
@@ -37,16 +40,27 @@ def env_float(key: str, default: float) -> float:
 
 
 def btc_production_cost(hashrate_eh_per_s: float, params: BtcProdCostParams) -> dict:
-    hashrate_h_per_s = hashrate_eh_per_s * 1e18           # EH/s -> H/s
-    eta_j_per_hash = params.efficiency_j_per_th / 1e12    # J/TH -> J/hash
+    # EH/s -> H/s
+    hashrate_h_per_s = hashrate_eh_per_s * 1e18
+    # J/TH -> J/hash
+    eta_j_per_hash = params.efficiency_j_per_th / 1e12
 
-    power_w = hashrate_h_per_s * eta_j_per_hash           # putere rețea (W)
-    energy_kwh_per_day = power_w * 24 / 1000.0            # kWh/zi
+    # putere totală rețea (W)
+    power_w = hashrate_h_per_s * eta_j_per_hash
 
+    # energie/zi (kWh)
+    energy_kwh_per_day = power_w * 24 / 1000.0
+
+    # BTC/zi
     btc_per_day = params.blocks_per_day * params.block_reward_btc
+
+    # energie/BTC
     energy_kwh_per_btc = energy_kwh_per_day / btc_per_day
 
+    # cost energie/BTC
     cost_energy_per_btc = energy_kwh_per_btc * params.energy_price_usd_per_kwh
+
+    # cost all-in (dacă vrei să incluzi capex/opex în mod simplificat)
     cost_allin_per_btc = cost_energy_per_btc * params.all_in_factor
 
     return {
@@ -59,7 +73,7 @@ def btc_production_cost(hashrate_eh_per_s: float, params: BtcProdCostParams) -> 
 
 
 def main() -> None:
-    # 1) Citește valorile din env sau folosește default
+    # 1) Citește valorile din env sau folosește default-urile
     hashrate_eh_per_s = env_float("HASHRATE_EH_PER_S", 1065.0)
     close_price_usd = env_float("PRICE_USD", 85000.0)
 
@@ -90,7 +104,11 @@ def main() -> None:
         },
     }
 
-    base_dir = Path(__file__).resolve().parent
+    # 2) Scrie JSON în ../data/btc_cost_state.json (rădăcina repo-ului)
+    # __file__ -> scripts/btc_cost_script_auto.py
+    # parent      = scripts/
+    # parent.parent = rădăcina repo-ului
+    base_dir = Path(__file__).resolve().parent.parent
     data_dir = base_dir / "data"
     data_dir.mkdir(exist_ok=True)
 
@@ -98,7 +116,9 @@ def main() -> None:
     with out_path.open("w", encoding="utf-8") as f:
         json.dump(state, f, ensure_ascii=False, indent=2)
 
-    print(f"[btc_cost_script_auto] Scris {out_path} cu prod_cost_usd={state['prod_cost_usd']} USD/BTC")
+    print(
+        f"[btc_cost_script_auto] Scris {out_path} cu prod_cost_usd={state['prod_cost_usd']} USD/BTC"
+    )
 
 
 if __name__ == "__main__":
