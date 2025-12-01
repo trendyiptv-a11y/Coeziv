@@ -593,7 +593,7 @@
 
     async function main() {
       try {
-        const res = await fetch("https://coeziv.vercel.app/data/btc_state_latest.json");
+        const res = await fetch("/data/btc_state_latest.json");
         if (!res.ok) throw new Error("Nu pot încărca data/btc_state_latest.json");
         const data = await res.json();
         const state = data;
