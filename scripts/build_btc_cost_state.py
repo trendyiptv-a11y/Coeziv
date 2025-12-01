@@ -2,9 +2,10 @@
 """
 Construiește data/btc_cost_state.json plecând de la data/btc_daily.csv.
 
-Modelul de cost este:
+Model Coeziv pentru costul de producție BTC:
+
 - fizic: difficulty -> hash-uri -> energie -> cost electric
-- ancorat în timp: eficiență ASIC (J/TH) în funcție de an, inspirat din date Cambridge
+- în timp: eficiență ASIC (J/TH) în funcție de perioadă (approx. aliniat cu date Cambridge)
 - realistic: preț mediu energie ~0.05 USD/kWh
 - complet: cost electric * 1.25 ≈ cost total de producție (capex + opex simplificat)
 
@@ -113,7 +114,7 @@ def efficiency_j_per_th_for_date(dt: datetime) -> float:
         return 33.0
 
     if dt < datetime(2025, 1, 1):
-        # Cambridge iunie 2024 ~28.2 J/TH
+        # aproximativ 28.2 J/TH (date Cambridge 2024)
         return 28.2
 
     # 2025+ proiecție conservatoare (rețea mai eficientă)
@@ -240,7 +241,7 @@ def build_btc_cost_state() -> BtcCostState:
     as_of_str = as_of_dt.strftime("%Y-%m-%d")
 
     # --- close ---
-    close = None
+    close: Optional[float] = None
     for cand in ("close", "Close", "adj_close", "Adj Close", "AdjClose"):
         if cand in latest.index:
             try:
@@ -250,7 +251,7 @@ def build_btc_cost_state() -> BtcCostState:
                 pass
 
     # --- difficulty: CSV sau live ---
-    difficulty = None
+    difficulty: Optional[float] = None
     if "difficulty" in latest.index:
         try:
             d_raw = float(latest["difficulty"])
@@ -280,8 +281,8 @@ def build_btc_cost_state() -> BtcCostState:
     block_subsidy = get_block_subsidy(as_of_dt)
 
     # --- cost de producție ---
-    electric_cost = None
-    full_cost = None
+    electric_cost: Optional[float] = None
+    full_cost: Optional[float] = None
     if difficulty is not None:
         ce, cf = estimate_cost_usd_per_btc(
             difficulty=difficulty,
@@ -296,7 +297,7 @@ def build_btc_cost_state() -> BtcCostState:
             full_cost = cf
 
     # --- marja vs cost total ---
-    prod_margin = None
+    prod_margin: Optional[float] = None
     if close is not None and full_cost is not None and full_cost > 0.0:
         prod_margin = close / full_cost
 
@@ -335,7 +336,7 @@ def main() -> None:
     if state.prod_cost_total_usd is not None:
         print(f"  cost total: {state.prod_cost_total_usd:,.2f} USD/BTC")
     if state.prod_margin is not None:
-        print(f"  marjă vs cost: {state.prod_margin:.2f}x")
+        print(f"  marjă vs cost total: {state.prod_margin:.2f}x")
 
 
 if __name__ == "__main__":
