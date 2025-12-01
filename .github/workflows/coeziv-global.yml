@@ -51,6 +51,8 @@ jobs:
       - name: Update BTC State Latest from daily
         run: |
           python scripts/update_btc_state_latest_from_daily.py
+      - name: Build BTC Cost State
+        run: python scripts/build_btc_cost_state.py
 
       # 3️⃣ ter – Construiește seria IC BTC (istoric IC/ICD/flux)
       - name: Export IC BTC Series
