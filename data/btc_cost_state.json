@@ -1,0 +1,14 @@
+{
+  "as_of": "2025-12-01",
+  "close": 84875.91,
+  "difficulty": 149301205959700.0,
+  "block_subsidy_btc": 3.125,
+  "fees_btc_per_block": 0.0,
+  "prod_cost_usd": 102599.01,
+  "prod_margin": 0.83,
+  "method": "difficulty_energy_model_v1",
+  "params": {
+    "electricity_usd_per_kwh": 0.06,
+    "efficiency_j_per_th": 30.0
+  }
+}
