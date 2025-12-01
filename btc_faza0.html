@@ -877,6 +877,201 @@
       // descrieri scurte
       const icDesc = document.getElementById("icStructDesc");
       if (icDesc) {
+<script>
+  const DATA_URL = "https://coeziv.vercel.app/data/btc_state_latest.json";
+
+  function clamp(x, min, max) {
+    return Math.min(max, Math.max(min, x));
+  }
+
+  function safeNum(v) {
+    const n = Number(v);
+    return Number.isFinite(n) ? n : null;
+  }
+
+  function setBadgeMode(el, mode) {
+    if (!el) return;
+    el.classList.remove("good", "warn", "bad");
+    if (mode === "good") el.classList.add("good");
+    else if (mode === "warn") el.classList.add("warn");
+    else if (mode === "bad") el.classList.add("bad");
+  }
+
+  function setDotMode(el, mode) {
+    if (!el) return;
+    el.classList.remove("good", "warn", "bad");
+    if (mode === "good") el.classList.add("good");
+    else if (mode === "warn") el.classList.add("warn");
+    else if (mode === "bad") el.classList.add("bad");
+  }
+
+  function showError(message) {
+    const badge = document.getElementById("phaseBadge");
+    const badgeLabel = document.getElementById("phaseBadgeLabel");
+    const desc = document.getElementById("phaseDesc");
+
+    setBadgeMode(badge, "bad");
+    if (badgeLabel) badgeLabel.textContent = "eroare date";
+    if (desc) desc.textContent = message;
+  }
+
+  // Heuristică: scor faza 0 din 0–100
+  function computeFaza0Score(state) {
+    const ic  = safeNum(state.ic_struct) ?? 50;
+    const icd = safeNum(state.ic_dir)    ?? 50;
+    const vol = safeNum(state.vol30) ?? safeNum(state.vol30_index) ?? 60;
+
+    const close  = safeNum(state.close);
+    const ema50  = safeNum(state.ema50);
+    const ema200 = safeNum(state.ema200);
+
+    // scor IC structural – ideal 10–25
+    let sIc;
+    if (ic <= 10) sIc = 1;
+    else if (ic >= 45) sIc = 0;
+    else if (ic <= 25) sIc = 1 - (ic - 10) / 15;
+    else sIc = clamp(1 - (ic - 25) / 20, 0, 1);
+
+    // scor ICD – ideal 35–50 (bear slăbit)
+    let sIcd;
+    if (icd < 20 || icd > 65) sIcd = 0;
+    else if (icd >= 35 && icd <= 50) sIcd = 1;
+    else if (icd < 35) sIcd = (icd - 20) / 15;
+    else sIcd = (65 - icd) / 15;
+    sIcd = clamp(sIcd, 0, 1);
+
+    // scor vol – ideal 45–70, nu extrem
+    let sVol;
+    if (vol < 20 || vol > 120) sVol = 0;
+    else if (vol >= 45 && vol <= 70) sVol = 1;
+    else if (vol < 45) sVol = (vol - 20) / 25;
+    else sVol = (120 - vol) / 50;
+    sVol = clamp(sVol, 0, 1);
+
+    // scor EMA – preț sub EMA200 dar apropiat de EMA50
+    let sEma = 0.5;
+    if (close != null && ema50 != null && ema200 != null && ema200 !== 0) {
+      const d200 = (close - ema200) / ema200;
+      const d50  = (close - ema50)  / ema50;
+      let p1 = 0, p2 = 0;
+
+      if (d200 <= -0.1) p1 = 1;
+      else if (d200 <= 0) p1 = 0.6;
+      else p1 = 0.2;
+
+      if (Math.abs(d50) <= 0.08) p2 = 1;
+      else if (Math.abs(d50) <= 0.18) p2 = 0.6;
+      else p2 = 0.2;
+
+      sEma = (p1 * 0.6 + p2 * 0.4);
+    }
+    sEma = clamp(sEma, 0, 1);
+
+    // scor regim – bear matur / tranziție > faza 0, bull structural < faza 0
+    const regShort = (state.regime_short || state.regime_label || state.regime_code || "").toLowerCase();
+    let sReg = 0.5;
+    if (regShort.includes("bear")) sReg = 0.9;
+    else if (regShort.includes("tranz") || regShort.includes("neutral")) sReg = 0.7;
+    else if (regShort.includes("bull structural")) sReg = 0.2;
+    else if (regShort.includes("bull târziu") || regShort.includes("top")) sReg = 0.1;
+    sReg = clamp(sReg, 0, 1);
+
+    const score01 =
+      0.32 * sIc +
+      0.20 * sIcd +
+      0.16 * sVol +
+      0.18 * sEma +
+      0.14 * sReg;
+
+    return {
+      score01,
+      components: { sIc, sIcd, sVol, sEma, sReg, ic, icd, vol, regShort, close, ema50, ema200 }
+    };
+  }
+
+  async function main() {
+    let state;
+
+    // 1. Fetch + JSON
+    try {
+      const res = await fetch(DATA_URL, { cache: "no-cache" });
+      console.log("BTC faza0 fetch status:", res.status, res.ok);
+
+      if (!res.ok) {
+        throw new Error("HTTP " + res.status + " la " + DATA_URL);
+      }
+
+      state = await res.json();
+      console.log("BTC faza0 state:", state);
+    } catch (err) {
+      console.error("Eroare la fetch/JSON:", err);
+      showError("Eroare la încărcarea fișierului btc_state_latest.json: " + err.message);
+      return;
+    }
+
+    // 2. Randare UI
+    try {
+      const asOf = state.as_of || state.date || state.last_date || "–";
+      const asOfLabel = document.getElementById("asOfLabel");
+      if (asOfLabel) asOfLabel.textContent = asOf;
+
+      const { score01, components } = computeFaza0Score(state);
+      const score100 = Math.round(score01 * 100);
+
+      const ic   = components.ic;
+      const icd  = components.icd;
+      const vol  = components.vol;
+      const regShort = components.regShort;
+      const close = components.close;
+      const ema50 = components.ema50;
+      const ema200 = components.ema200;
+
+      // scor principal
+      const scoreEl = document.getElementById("phaseScoreValue");
+      if (scoreEl) scoreEl.textContent = score100;
+
+      const badge = document.getElementById("phaseBadge");
+      const badgeLabel = document.getElementById("phaseBadgeLabel");
+      const descEl = document.getElementById("phaseDesc");
+
+      if (score100 < 30) {
+        setBadgeMode(badge, "bad");
+        if (badgeLabel) badgeLabel.textContent = "departe de faza 0";
+        if (descEl) descEl.textContent =
+          "Structura actuală nu seamănă cu o bază de mega-ciclu. Ciclul curent (bull sau bear) are încă energie proprie.";
+      } else if (score100 < 60) {
+        setBadgeMode(badge, "warn");
+        if (badgeLabel) badgeLabel.textContent = "zonă de tranziție";
+        if (descEl) descEl.textContent =
+          "Unele criterii ale fazei 0 apar deja, dar nu toate sunt aliniate. Suntem într-o fază de tranziție a ciclului.";
+      } else if (score100 < 80) {
+        setBadgeMode(badge, "good");
+        if (badgeLabel) badgeLabel.textContent = "aproape de faza 0";
+        if (descEl) descEl.textContent =
+          "Structura este apropiată de profilul unei baze de mega-ciclu. În următoarele 12–24 luni, probabilitatea unei baze profunde crește.";
+      } else {
+        setBadgeMode(badge, "good");
+        if (badgeLabel) badgeLabel.textContent = "profil tipic de fază 0";
+        if (descEl) descEl.textContent =
+          "Indicatorii coezivi arată un profil foarte similar cu bazele istorice de mega-ciclu Bitcoin. Atenție: nu garantează minimul exact de preț.";
+      }
+
+      // valori IC / ICD / vol / regim
+      const icStructValue = document.getElementById("icStructValue");
+      const icDirValue = document.getElementById("icDirValue");
+      const volValue = document.getElementById("volValue");
+      const regimeValue = document.getElementById("regimeValue");
+
+      if (icStructValue) icStructValue.textContent = ic != null ? ic.toFixed(2) : "–";
+      if (icDirValue)   icDirValue.textContent   = icd != null ? icd.toFixed(2) : "–";
+      if (volValue)     volValue.textContent     = vol != null ? vol.toFixed(2) : "–";
+      if (regimeValue)
+        regimeValue.textContent =
+          state.regime_label || state.regime_short || state.regime_code || "–";
+
+      // descrieri scurte
+      const icDesc = document.getElementById("icStructDesc");
+      if (icDesc) {
         if (ic == null) icDesc.textContent = "Indice structural indisponibil.";
         else if (ic <= 25)
           icDesc.textContent = "Structură foarte slabă – zonă tipică pentru baze profunde de ciclu.";
@@ -948,7 +1143,7 @@
 
       // ICD
       if (icd == null) setDotMode(chkIcDirDot, "bad");
-      else if (icd >= 35 && icd <= 50) setDotMode(chkIcDirDot, "good");
+      else if (icd >= 35 && icd <= 50) setDotMode(chkIcDirDot, "good";
       else if (icd >= 28 && icd < 35) setDotMode(chkIcDirDot, "warn");
       else setDotMode(chkIcDirDot, "bad");
 
