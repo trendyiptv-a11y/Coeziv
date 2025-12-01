@@ -590,6 +590,138 @@
     </div>
   </div>
 </article>
+      <article class="card card--secondary">
+  <div class="card-inner">
+    <div class="card-header" style="margin-bottom: 0.5rem;">
+      <div>
+        <div class="card-title">Calculează-ți propriul cost de producție BTC</div>
+        <div class="card-sub">
+          Introdu datele cheie (hashrate, eficiență, preț energie) și vezi cum se compară
+          cu modelul Coeziv și cu prețul de piață.
+        </div>
+      </div>
+    </div>
+
+    <div class="metrics-grid" style="margin-top: 0.5rem;">
+      <div class="metric-card">
+        <div class="metric-title">Hashrate rețea (EH/s)</div>
+        <input
+          id="userHashrate"
+          type="number"
+          step="0.01"
+          class="input"
+          placeholder="ex. 1065"
+        />
+        <div class="meta-label small-muted" style="margin-top: 0.25rem;">
+          De unde iei: un agregator on-chain / mining (ex. HashrateIndex, Mempool, BTC.com).
+          Caută „Bitcoin hashrate” și ia valoarea în EH/s.
+        </div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-title">Eficiență ASIC (J/TH)</div>
+        <input
+          id="userEfficiency"
+          type="number"
+          step="0.1"
+          class="input"
+          placeholder="ex. 25"
+        />
+        <div class="meta-label small-muted" style="margin-top: 0.25rem;">
+          De unde iei: din fișa tehnică a echipamentului tău (ex. Antminer S19, S21 etc.).
+          Caută „model ASIC + efficiency J/TH”.
+        </div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-title">Preț energie (USD/kWh)</div>
+        <input
+          id="userEnergyPrice"
+          type="number"
+          step="0.001"
+          class="input"
+          placeholder="ex. 0.05"
+        />
+        <div class="meta-label small-muted" style="margin-top: 0.25rem;">
+          De unde iei: contractul tău de energie sau un cost mediu estimat (0.03–0.08 USD/kWh
+          pentru locații industriale / energie ieftină).
+        </div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-title">Block reward (BTC / block)</div>
+        <input
+          id="userBlockReward"
+          type="number"
+          step="0.00000001"
+          class="input"
+          placeholder="3.125"
+        />
+        <div class="meta-label small-muted" style="margin-top: 0.25rem;">
+          De unde iei: protocolul Bitcoin (după halving 2024 e 3.125 BTC/block).
+          Actualizează doar când are loc un nou halving.
+        </div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-title">Blocuri pe zi</div>
+        <input
+          id="userBlocksPerDay"
+          type="number"
+          step="1"
+          class="input"
+          placeholder="144"
+        />
+        <div class="meta-label small-muted" style="margin-top: 0.25rem;">
+          De unde iei: aproximativ 144 blocuri/zi (10 minute/bloc). Nu este critic să fie exact.
+        </div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-title">Preț BTC (USD/BTC)</div>
+        <input
+          id="userPrice"
+          type="number"
+          step="0.01"
+          class="input"
+          placeholder="ex. 85000"
+        />
+        <div class="meta-label small-muted" style="margin-top: 0.25rem;">
+          De unde iei: un exchange sau un agregator de preț (ex. CoinGecko, CoinMarketCap).
+          Ia un preț spot sau un preț de închidere zilnic.
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top: 1rem; display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+      <button id="userCostCalcBtn" class="btn-primary">
+        Calculează & aplică în cardul principal
+      </button>
+      <div class="small-muted" id="userCostStatus">
+        Introdu parametrii și apasă „Calculează”.
+      </div>
+    </div>
+
+    <div class="metrics-grid" style="margin-top: 1rem;">
+      <div class="metric-card">
+        <div class="metric-title">Costul tău de producție</div>
+        <div class="metric-main">
+          <span id="userCostValue" class="metric-value">–</span>
+          <span class="metric-unit">USD/BTC</span>
+        </div>
+        <div class="metric-sub" id="userCostPremiumLabel">
+          –
+        </div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-title">Interpretare pe baza modelului Coeziv</div>
+        <div class="metric-sub" id="userCostNote">
+          După calcul, verdictul va apărea aici, folosind aceleași praguri ca în cardul principal.
+        </div>
+      </div>
+    </div>
+  </div>
+</article>
     </section>
 
     <p class="footnote">
@@ -721,8 +853,64 @@
 
     loadMegaState();
   </script>
-  <script>
-  async function loadBtcCostCard() {
+</script>
+<script>
+  function formatUsd(v) {
+    if (v == null || !Number.isFinite(v)) return "–";
+    if (v >= 1000) {
+      return v.toLocaleString("en-US", { maximumFractionDigits: 0 });
+    }
+    return v.toLocaleString("en-US", { maximumFractionDigits: 2 });
+  }
+
+  function interpretPremium(p) {
+    if (p == null || !Number.isFinite(p)) {
+      return "Nu am putut estima raportul preț / cost. Verifică datele sau încearcă mai târziu.";
+    }
+
+    if (p < 0.9) {
+      return "Preț sub costul de producție: zonă de stres pentru mineri, tipică pentru baze mari de ciclu și capitulare.";
+    }
+    if (p < 1.2) {
+      return "Preț aproape de costul de producție: zonă de acumulare structurală și început de nou ciclu.";
+    }
+    if (p < 2.5) {
+      return "BTC se tranzacționează peste cost, dar într-o zonă încă moderată: expansiune sănătoasă, fără euforie extremă.";
+    }
+    if (p < 4.0) {
+      return "BTC este semnificativ peste cost (2–4×): fază avansată de ciclu, cu risc crescut de corecții și redistribuiri.";
+    }
+    return "BTC este mult peste cost (&gt; 4×): zonă euforică / supra-extensie, istoric asociată cu finaluri de mega-ciclu.";
+  }
+
+  function setBadgeForPremium(badge, labelEl, p) {
+    badge.classList.remove("up", "down", "neutral", "macro");
+
+    if (p == null || !Number.isFinite(p)) {
+      badge.classList.add("neutral");
+      labelEl.textContent = "necunoscut";
+      return;
+    }
+
+    if (p < 0.9) {
+      badge.classList.add("down");
+      labelEl.textContent = "sub cost (stress)";
+    } else if (p < 1.2) {
+      badge.classList.add("neutral");
+      labelEl.textContent = "aproape de cost";
+    } else if (p < 2.5) {
+      badge.classList.add("up");
+      labelEl.textContent = "expansiune sănătoasă";
+    } else if (p < 4.0) {
+      badge.classList.add("macro");
+      labelEl.textContent = "expansiune avansată";
+    } else {
+      badge.classList.add("down");
+      labelEl.textContent = "zonă euforică";
+    }
+  }
+
+  function updateBtcCostCardFromValues(asOf, priceUsd, prodCostUsd) {
     const asOfEl = document.getElementById("btcCostAsOf");
     const priceEl = document.getElementById("btcCostPrice");
     const costEl = document.getElementById("btcCostValue");
@@ -736,61 +924,26 @@
       return;
     }
 
-    function formatUsd(v) {
-      if (v == null || !Number.isFinite(v)) return "–";
-      if (v >= 1000) {
-        return v.toLocaleString("en-US", { maximumFractionDigits: 0 });
-      }
-      return v.toLocaleString("en-US", { maximumFractionDigits: 2 });
+    const premium = (Number.isFinite(priceUsd) && Number.isFinite(prodCostUsd) && prodCostUsd > 0)
+      ? priceUsd / prodCostUsd
+      : null;
+
+    if (asOf) {
+      asOfEl.textContent = asOf;
     }
 
-    function interpretPremium(p) {
-      if (p == null || !Number.isFinite(p)) {
-        return "Nu am putut estima raportul preț / cost. Verifică datele sau încearcă mai târziu.";
-      }
+    priceEl.textContent = Number.isFinite(priceUsd) ? formatUsd(priceUsd) : "–";
+    costEl.textContent = Number.isFinite(prodCostUsd) ? formatUsd(prodCostUsd) : "–";
+    premEl.textContent = premium != null && Number.isFinite(premium)
+      ? premium.toFixed(2) + "×"
+      : "–";
 
-      if (p < 0.9) {
-        return "Preț sub costul de producție: zonă de stres pentru mineri, tipică pentru baze mari de ciclu și capitulare.";
-      }
-      if (p < 1.2) {
-        return "Preț aproape de costul de producție: zonă de acumulare structurală și început de nou ciclu.";
-      }
-      if (p < 2.5) {
-        return "BTC se tranzacționează peste cost, dar într-o zonă încă moderată: expansiune sănătoasă, fără euforie extremă.";
-      }
-      if (p < 4.0) {
-        return "BTC este semnificativ peste cost (2–4×): fază avansată de ciclu, cu risc crescut de corecții și redistribuiri.";
-      }
-      return "BTC este mult peste cost (&gt; 4×): zonă euforică / supra-extensie, istoric asociată cu finaluri de mega-ciclu.";
-    }
+    const note = interpretPremium(premium);
+    noteEl.textContent = note;
+    setBadgeForPremium(badgeEl, badgeLabelEl, premium);
+  }
 
-    function setBadgeForPremium(badge, labelEl, p) {
-      badge.classList.remove("up", "down", "neutral", "macro");
-
-      if (p == null || !Number.isFinite(p)) {
-        badge.classList.add("neutral");
-        labelEl.textContent = "necunoscut";
-        return;
-      }
-
-      if (p < 0.9) {
-        badge.classList.add("down");
-        labelEl.textContent = "sub cost (stress)";
-      } else if (p < 1.2) {
-        badge.classList.add("neutral");
-        labelEl.textContent = "aproape de cost";
-      } else if (p < 2.5) {
-        badge.classList.add("up");
-        labelEl.textContent = "expansiune sănătoasă";
-      } else if (p < 4.0) {
-        badge.classList.add("macro");
-        labelEl.textContent = "expansiune avansată";
-      } else {
-        badge.classList.add("down");
-        labelEl.textContent = "zonă euforică";
-      }
-    }
-
+  async function loadBtcCostCard() {
     try {
       const resp = await fetch("data/btc_cost_state.json");
       if (!resp.ok) {
@@ -798,31 +951,108 @@
       }
 
       const data = await resp.json();
-
       const asOf = data.as_of || "–";
       const close = Number(data.close);
       const cost = Number(data.prod_cost_usd);
-      const prem = Number(data.prod_margin);
 
-      asOfEl.textContent = asOf;
-      priceEl.textContent = Number.isFinite(close) ? formatUsd(close) : "–";
-      costEl.textContent = Number.isFinite(cost) ? formatUsd(cost) : "–";
-      premEl.textContent = Number.isFinite(prem) ? prem.toFixed(2) + "×" : "–";
-
-      noteEl.textContent = interpretPremium(prem);
-      setBadgeForPremium(badgeEl, badgeLabelEl, prem);
+      updateBtcCostCardFromValues(asOf, close, cost);
     } catch (err) {
       console.error("[BTC COST] Eroare la încărcarea costului BTC:", err);
-      noteEl.textContent =
-        "Nu am putut încărca datele de cost. Verifică prezența fișierului data/btc_cost_state.json.";
-      badgeEl.classList.remove("up", "down", "neutral", "macro");
-      badgeEl.classList.add("neutral");
-      badgeLabelEl.textContent = "eroare";
+      // fallback: mesaj de eroare în card
+      const noteEl = document.getElementById("btcCostNote");
+      const badgeEl = document.getElementById("btcCostBadge");
+      const badgeLabelEl = document.getElementById("btcCostBadgeLabel");
+      if (noteEl && badgeEl && badgeLabelEl) {
+        noteEl.textContent =
+          "Nu am putut încărca datele de cost. Verifică prezența fișierului data/btc_cost_state.json.";
+        badgeEl.classList.remove("up", "down", "neutral", "macro");
+        badgeEl.classList.add("neutral");
+        badgeLabelEl.textContent = "eroare";
+      }
     }
   }
 
-  // rulează după ce se încarcă pagina
-  document.addEventListener("DOMContentLoaded", loadBtcCostCard);
+  function initUserBtcCostCalculator() {
+    const hashrateInput = document.getElementById("userHashrate");
+    const effInput = document.getElementById("userEfficiency");
+    const energyInput = document.getElementById("userEnergyPrice");
+    const rewardInput = document.getElementById("userBlockReward");
+    const blocksInput = document.getElementById("userBlocksPerDay");
+    const priceInput = document.getElementById("userPrice");
+    const calcBtn = document.getElementById("userCostCalcBtn");
+
+    const costValueEl = document.getElementById("userCostValue");
+    const premiumLabelEl = document.getElementById("userCostPremiumLabel");
+    const noteEl = document.getElementById("userCostNote");
+    const statusEl = document.getElementById("userCostStatus");
+
+    if (!calcBtn || !hashrateInput || !effInput || !energyInput ||
+        !rewardInput || !blocksInput || !priceInput ||
+        !costValueEl || !premiumLabelEl || !noteEl || !statusEl) {
+      console.warn("[BTC COST USER] Elementele calculatorului nu sunt prezente în DOM.");
+      return;
+    }
+
+    calcBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+
+      const hashrateEh = parseFloat(hashrateInput.value.replace(",", ".")) || NaN;
+      const efficiencyJPerTh = parseFloat(effInput.value.replace(",", ".")) || 25.0;
+      const energyUsdPerKwh = parseFloat(energyInput.value.replace(",", ".")) || 0.05;
+      const blockReward = parseFloat(rewardInput.value.replace(",", ".")) || 3.125;
+      const blocksPerDay = parseFloat(blocksInput.value.replace(",", ".")) || 144.0;
+      const priceUsd = parseFloat(priceInput.value.replace(",", ".")) || NaN;
+
+      if (!Number.isFinite(hashrateEh) || hashrateEh <= 0) {
+        statusEl.textContent = "Introdu un hashrate valid (EH/s).";
+        return;
+      }
+
+      // model energetic: similar cu scriptul .py
+      const hashrateHPerS = hashrateEh * 1e18;
+      const etaJPerHash = efficiencyJPerTh / 1e12;
+      const powerW = hashrateHPerS * etaJPerHash;
+      const energyKwhPerDay = (powerW * 24) / 1000.0;
+      const btcPerDay = blocksPerDay * blockReward;
+      const energyKwhPerBtc = energyKwhPerDay / btcPerDay;
+      const costEnergyUsdPerBtc = energyKwhPerBtc * energyUsdPerKwh;
+      const prodCostUsd = costEnergyUsdPerBtc; // all_in_factor = 1.0 aici
+
+      costValueEl.textContent = formatUsd(prodCostUsd);
+
+      let premium = null;
+      if (Number.isFinite(priceUsd) && prodCostUsd > 0) {
+        premium = priceUsd / prodCostUsd;
+        premiumLabelEl.textContent = premium.toFixed(2) + "× preț / cost";
+      } else {
+        premiumLabelEl.textContent = "Introdu și un preț BTC pentru a vedea premium-ul.";
+      }
+
+      const userNote = interpretPremium(premium);
+      noteEl.textContent = userNote;
+
+      statusEl.textContent =
+        "Am aplicat costul tău de producție în cardul principal. Verdictul se bazează pe aceiași indici coezivi.";
+
+      // actualizează și cardul principal
+      const asOfToday = new Date().toISOString().slice(0, 10);
+      const priceForCard = Number.isFinite(priceUsd)
+        ? priceUsd
+        : (function () {
+            const mainPriceEl = document.getElementById("btcCostPrice");
+            const currentText = mainPriceEl ? mainPriceEl.textContent : "";
+            const numeric = Number(String(currentText || "").replace(/[^0-9.]/g, ""));
+            return Number.isFinite(numeric) ? numeric : NaN;
+          })();
+
+      updateBtcCostCardFromValues(asOfToday, priceForCard, prodCostUsd);
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    loadBtcCostCard();
+    initUserBtcCostCalculator();
+  });
 </script>
 </body>
 </html>
