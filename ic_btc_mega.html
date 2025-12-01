@@ -532,6 +532,64 @@
           </div>
         </div>
       </article>
+      <article class="card">
+  <div class="card-header">
+    <div>
+      <div class="card-title">BTC – preț vs. cost de producție</div>
+      <div class="card-sub">
+        Ultima actualizare: <span id="btcCostAsOf">–</span>
+      </div>
+    </div>
+    <div class="badge neutral" id="btcCostBadge">
+      <span class="badge-dot"></span>
+      <span class="badge-label" id="btcCostBadgeLabel">se încarcă...</span>
+    </div>
+  </div>
+
+  <div class="card-body">
+    <div class="value-row">
+      <div>
+        <div class="meta-label">Preț BTC (close)</div>
+        <div class="meta-value">
+          <span id="btcCostPrice">–</span> <span class="value-unit">USD</span>
+        </div>
+      </div>
+      <div>
+        <div class="meta-label">Cost de producție estimat</div>
+        <div class="meta-value">
+          <span id="btcCostValue">–</span> <span class="value-unit">USD / BTC</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="meta-row" style="margin-top: 0.8rem;">
+      <div>
+        <div class="meta-label">Multiplu vs. cost</div>
+        <div class="meta-value">
+          <span id="btcCostPremium">–</span>
+        </div>
+        <div class="card-sub">
+          <small>
+            ~1× ≈ aproape de cost; 1–2× ≈ acumulare / expansiune timpurie;
+            2–4× ≈ expansiune avansată; &gt; 4× ≈ zonă euforică / risc ridicat.
+          </small>
+        </div>
+      </div>
+      <div>
+        <div class="meta-label">Interpretare coezivă</div>
+        <div class="card-sub" id="btcCostNote">
+          Se încarcă datele de cost...
+        </div>
+      </div>
+    </div>
+
+    <div class="small-muted" style="margin-top: 0.8rem;">
+      <strong>Notă:</strong> costul de producție este o estimare energetică
+      (difficulty, eficiență ASIC, preț energie). Nu este o valoare contabilă
+      exactă, ci o ancoră structurală de ciclu.
+    </div>
+  </div>
+</article>
     </section>
 
     <p class="footnote">
@@ -663,5 +721,108 @@
 
     loadMegaState();
   </script>
+  <script>
+  async function loadBtcCostCard() {
+    const asOfEl = document.getElementById("btcCostAsOf");
+    const priceEl = document.getElementById("btcCostPrice");
+    const costEl = document.getElementById("btcCostValue");
+    const premEl = document.getElementById("btcCostPremium");
+    const noteEl = document.getElementById("btcCostNote");
+    const badgeEl = document.getElementById("btcCostBadge");
+    const badgeLabelEl = document.getElementById("btcCostBadgeLabel");
+
+    if (!asOfEl || !priceEl || !costEl || !premEl || !noteEl || !badgeEl || !badgeLabelEl) {
+      console.warn("[BTC COST] Elementele cardului nu sunt prezente în DOM.");
+      return;
+    }
+
+    function formatUsd(v) {
+      if (v == null || !Number.isFinite(v)) return "–";
+      if (v >= 1000) {
+        return v.toLocaleString("en-US", { maximumFractionDigits: 0 });
+      }
+      return v.toLocaleString("en-US", { maximumFractionDigits: 2 });
+    }
+
+    function interpretPremium(p) {
+      if (p == null || !Number.isFinite(p)) {
+        return "Nu am putut estima raportul preț / cost. Verifică datele sau încearcă mai târziu.";
+      }
+
+      if (p < 0.9) {
+        return "Preț sub costul de producție: zonă de stres pentru mineri, tipică pentru baze mari de ciclu și capitulare.";
+      }
+      if (p < 1.2) {
+        return "Preț aproape de costul de producție: zonă de acumulare structurală și început de nou ciclu.";
+      }
+      if (p < 2.5) {
+        return "BTC se tranzacționează peste cost, dar într-o zonă încă moderată: expansiune sănătoasă, fără euforie extremă.";
+      }
+      if (p < 4.0) {
+        return "BTC este semnificativ peste cost (2–4×): fază avansată de ciclu, cu risc crescut de corecții și redistribuiri.";
+      }
+      return "BTC este mult peste cost (&gt; 4×): zonă euforică / supra-extensie, istoric asociată cu finaluri de mega-ciclu.";
+    }
+
+    function setBadgeForPremium(badge, labelEl, p) {
+      badge.classList.remove("up", "down", "neutral", "macro");
+
+      if (p == null || !Number.isFinite(p)) {
+        badge.classList.add("neutral");
+        labelEl.textContent = "necunoscut";
+        return;
+      }
+
+      if (p < 0.9) {
+        badge.classList.add("down");
+        labelEl.textContent = "sub cost (stress)";
+      } else if (p < 1.2) {
+        badge.classList.add("neutral");
+        labelEl.textContent = "aproape de cost";
+      } else if (p < 2.5) {
+        badge.classList.add("up");
+        labelEl.textContent = "expansiune sănătoasă";
+      } else if (p < 4.0) {
+        badge.classList.add("macro");
+        labelEl.textContent = "expansiune avansată";
+      } else {
+        badge.classList.add("down");
+        labelEl.textContent = "zonă euforică";
+      }
+    }
+
+    try {
+      const resp = await fetch("data/btc_cost_state.json");
+      if (!resp.ok) {
+        throw new Error("Nu pot încărca data/btc_cost_state.json");
+      }
+
+      const data = await resp.json();
+
+      const asOf = data.as_of || "–";
+      const close = Number(data.close);
+      const cost = Number(data.prod_cost_usd);
+      const prem = Number(data.prod_margin);
+
+      asOfEl.textContent = asOf;
+      priceEl.textContent = Number.isFinite(close) ? formatUsd(close) : "–";
+      costEl.textContent = Number.isFinite(cost) ? formatUsd(cost) : "–";
+      premEl.textContent = Number.isFinite(prem) ? prem.toFixed(2) + "×" : "–";
+
+      noteEl.textContent = interpretPremium(prem);
+      setBadgeForPremium(badgeEl, badgeLabelEl, prem);
+    } catch (err) {
+      console.error("[BTC COST] Eroare la încărcarea costului BTC:", err);
+      noteEl.textContent =
+        "Nu am putut încărca datele de cost. Verifică prezența fișierului data/btc_cost_state.json.";
+      badgeEl.classList.remove("up", "down", "neutral", "macro");
+      badgeEl.classList.add("neutral");
+      badgeLabelEl.textContent = "eroare";
+    }
+  }
+
+  // rulează după ce se încarcă pagina
+  document.addEventListener("DOMContentLoaded", loadBtcCostCard);
+</script>
 </body>
 </html>
