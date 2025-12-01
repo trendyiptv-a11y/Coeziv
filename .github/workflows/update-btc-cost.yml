@@ -28,7 +28,7 @@ jobs:
           BLOCKS_PER_DAY: "144"
           BLOCK_REWARD_BTC: "3.125"
           ALL_IN_FACTOR: "1.0"
-        run: python btc_cost_script_auto.py
+        run: python scrpts/btc_cost_script_auto.py
 
       - name: Commit updated JSON
         run: |
