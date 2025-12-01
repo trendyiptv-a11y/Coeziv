@@ -1,0 +1,43 @@
+name: Update BTC production cost
+
+on:
+  schedule:
+    - cron: "0 2 * * *"  # rulează zilnic la 02:00 UTC
+  workflow_dispatch:      # îți permite să-l pornești manual din UI
+
+jobs:
+  update-btc-cost:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Run BTC cost script
+        env:
+          # Aici setezi TU valorile. Nu se apelează niciun API extern.
+          HASHRATE_EH_PER_S: "1065"
+          PRICE_USD: "85000"
+          EFFICIENCY_J_PER_TH: "25"
+          ENERGY_PRICE_USD_PER_KWH: "0.05"
+          BLOCKS_PER_DAY: "144"
+          BLOCK_REWARD_BTC: "3.125"
+          ALL_IN_FACTOR: "1.0"
+        run: python btc_cost_script_auto.py
+
+      - name: Commit updated JSON
+        run: |
+          if [[ -n "$(git status --porcelain)" ]]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add data/btc_cost_state.json
+            git commit -m "Update BTC production cost"
+            git push
+          else
+            echo "No changes to commit."
+          fi
