@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <title>Manual de Suport Coeziv pentru Părinți – Copil 5 ani / Dezvoltare ~1,5 ani</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    :root{
+      --bg:#fdfaf6;
+      --panel:#ffffff;
+      --accent:#c98000;
+      --accent-soft:#ffe8c2;
+      --text:#2b1b00;
+      --muted:#7a6240;
+      --border:#eadac2;
+    }
+    *{box-sizing:border-box;}
+    body{
+      margin:0;
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+      background:var(--bg);
+      color:var(--text);
+      line-height:1.6;
+    }
+    header{
+      background:var(--panel);
+      border-bottom:1px solid var(--border);
+      position:sticky;
+      top:0;
+      z-index:10;
+    }
+    .header-inner{
+      max-width:960px;
+      margin:0 auto;
+      padding:10px 14px;
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      gap:8px;
+    }
+    .title-block{
+      flex:1 1 220px;
+    }
+    h1{
+      margin:0;
+      font-size:1.2rem;
+      color:var(--accent);
+    }
+    .subtitle{
+      font-size:0.85rem;
+      color:var(--muted);
+    }
+    nav{
+      flex:2 1 260px;
+      font-size:0.8rem;
+    }
+    nav ul{
+      display:flex;
+      flex-wrap:wrap;
+      list-style:none;
+      margin:0;
+      padding:0;
+      gap:6px;
+      justify-content:flex-end;
+    }
+    nav a{
+      text-decoration:none;
+      color:var(--muted);
+      padding:4px 8px;
+      border-radius:999px;
+      background:#faf1e1;
+      border:1px solid #f2e0c4;
+      white-space:nowrap;
+    }
+    nav a:hover{
+      background:var(--accent-soft);
+      color:var(--text);
+    }
+    main{
+      max-width:960px;
+      margin:0 auto;
+      padding:14px;
+    }
+    section{
+      background:var(--panel);
+      border-radius:10px;
+      padding:14px 14px 16px;
+      margin:10px 0 14px;
+      border:1px solid var(--border);
+      box-shadow:0 3px 8px rgba(0,0,0,0.04);
+    }
+    h2{
+      margin-top:0;
+      font-size:1.1rem;
+      color:var(--accent);
+    }
+    h3{
+      font-size:0.98rem;
+      margin-bottom:4px;
+      margin-top:10px;
+      color:var(--text);
+    }
+    p,li{
+      font-size:0.92rem;
+    }
+    .tagline{
+      font-size:0.95rem;
+      color:var(--muted);
+    }
+    .pill{
+      display:inline-block;
+      padding:2px 7px;
+      border-radius:999px;
+      background:var(--accent-soft);
+      font-size:0.8rem;
+      color:var(--muted);
+      margin-bottom:4px;
+    }
+    .tip, .warning, .example, .checklist{
+      border-radius:8px;
+      padding:8px 10px;
+      margin:8px 0;
+      font-size:0.9rem;
+    }
+    .tip{
+      background:#f3f8e9;
+      border-left:4px solid #7da03b;
+    }
+    .warning{
+      background:#fff0e1;
+      border-left:4px solid #d46a00;
+    }
+    .example{
+      background:#f5f2ff;
+      border-left:4px solid #7b6ad9;
+    }
+    .checklist{
+      background:#f7f5ef;
+      border-left:4px solid #b49a6b;
+    }
+    ul{
+      padding-left:18px;
+      margin-top:4px;
+      margin-bottom:4px;
+    }
+    .inline-icons{
+      font-size:0.9rem;
+      margin-top:4px;
+    }
+    .code-box{
+      font-family:monospace;
+      background:#f5efe5;
+      border-radius:6px;
+      padding:6px 8px;
+      font-size:0.85rem;
+      overflow-x:auto;
+    }
+    .two-cols{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:10px;
+    }
+    @media(max-width:720px){
+      h1{font-size:1rem;}
+      nav ul{justify-content:flex-start;}
+      section{padding:12px;}
+      .two-cols{grid-template-columns:1fr;}
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="title-block">
+      <div class="pill">Manual de Suport Coeziv pentru Părinți</div>
+      <h1>Copil 5 ani · Dezvoltare ~1,5 ani</h1>
+      <div class="subtitle">Rutine, crize, comunicare, familie – totul în pași simpli.</div>
+    </div>
+    <nav aria-label="Meniu principal">
+      <ul>
+        <li><a href="#intro">Intro</a></li>
+        <li><a href="#plan-zilnic">Plan zilnic</a></li>
+        <li><a href="#limbaj">Limbaj</a></li>
+        <li><a href="#crize">Meltdown</a></li>
+        <li><a href="#harta">Harta copilului</a></li>
+        <li><a href="#exemple">Exemple</a></li>
+        <li><a href="#ghid">Ghid familie</a></li>
+        <li><a href="#jurnal">Jurnal</a></li>
+        <li><a href="#jocuri">Jocuri</a></li>
+        <li><a href="#special">Situații speciale</a></li>
+        <li><a href="#faq">Întrebări</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+  <!-- 0. INTRODUCERE -->
+  <section id="intro">
+    <h2>0. Introducere simplă</h2>
+    <p class="tagline">
+      Copilul tău are un ritm diferit de dezvoltare. Nu este „în urmă”, este pe traseul lui.
+      Rolul tău nu este să-l grăbești, ci să-i faci drumul mai clar și mai blând.
+    </p>
+    <p>
+      Acest manual te ajută să:
+    </p>
+    <ul>
+      <li>creezi un mediu stabil și previzibil;</li>
+      <li>gestionezi momentele dificile (meltdown / shutdown);</li>
+      <li>îl ajuți să comunice, chiar cu limbaj minim sau nonverbal;</li>
+      <li>implici familia (bunici, frați, educatori) într-un mod coerent.</li>
+    </ul>
+    <div class="tip">
+      <strong>Important:</strong> nu trebuie să aplici totul perfect. Orice mic pas spre mai multă
+      claritate și repetare îl ajută mult pe copil.
+    </div>
+    <p><strong>Structura manualului:</strong></p>
+    <ul>
+      <li>1. Planul Coeziv Zilnic</li>
+      <li>2. Suport pentru Limbaj Minim / Nonverbal</li>
+      <li>3. Protocol pentru Meltdown &amp; Shutdown</li>
+      <li>4. Harta Coezivă Individuală</li>
+      <li>5. Exemple ilustrate pentru părinți</li>
+      <li>6. Ghid pentru grădiniță, bunici, frați</li>
+      <li>7. Jurnal zilnic Coeziv</li>
+      <li>8. Jocuri simple și sigure</li>
+      <li>9. Situații speciale (medic, magazin, noapte)</li>
+      <li>10. Întrebări frecvente &amp; greșeli comune</li>
+    </ul>
+  </section>
+
+  <!-- 1. PLAN ZILNIC -->
+  <section id="plan-zilnic">
+    <h2>1. Planul Coeziv Zilnic (Rutina stabilă)</h2>
+    <p>
+      Copilul are nevoie de <strong>claritate, repetiție și semnale vizuale</strong>. Cu cât
+      ziua seamănă mai mult cu ziua de ieri, cu atât se simte mai în siguranță.
+    </p>
+
+    <h3>1.1 Principii ușoare pentru părinți</h3>
+    <ul>
+      <li><strong>Un singur lucru odată.</strong></li>
+      <li><strong>Arată obiectul</strong> înainte să ceri ceva.</li>
+      <li>Folosește <strong>fraze scurte</strong>, nu explicații lungi.</li>
+      <li>Păstrează <strong>aceeași ordine</strong> a activităților zilnice.</li>
+    </ul>
+
+    <h3>1.2 Dimineața – exemplu de rutină</h3>
+    <ol>
+      <li><strong>Trezirea</strong>: aceeași melodie sau aceeași frază („Bună dimineața, X!”).</li>
+      <li><strong>Mergem la baie</strong> – arăți prosopul (nu doar spui).</li>
+      <li><strong>Spălat</strong> – îi arăți pașii, cu mișcări lente.</li>
+      <li><strong>Îmbrăcat</strong> – arăți tricoul, apoi ajuți.</li>
+      <li><strong>Mic dejun</strong> – același loc, fără TV sau tabletă.</li>
+    </ol>
+    <div class="inline-icons">
+      Exemplu vizual: 🛌 → 🧼 → 👕 → 🍽️
+    </div>
+
+    <h3>1.3 Joaca</h3>
+    <ul>
+      <li>O <strong>singură jucărie</strong> la vedere (nu o grămadă).</li>
+      <li>Când vrei să schimbi activitatea, <strong>arată următorul obiect</strong> (ex.: creion → desenăm).</li>
+      <li>Lasă <strong>2–3 minute pauză</strong> între activități.</li>
+    </ul>
+
+    <h3>1.4 Ieșirea din casă</h3>
+    <ol>
+      <li>Arăți pantofii → mesaj simplu „Afară”.</li>
+      <li>Îi lași timp să îi atingă / să îi studieze.</li>
+      <li>Îl ajuți calm să se încalțe (fără grăbit).</li>
+      <li>Ieșiți.</li>
+    </ol>
+
+    <h3>1.5 Seara</h3>
+    <ul>
+      <li>Lumină caldă, nu foarte puternică.</li>
+      <li>Aceeași poveste sau cântec – îl ajută mult.</li>
+      <li><strong>Fără ecrane</strong> cu cel puțin 1 oră înainte de somn.</li>
+    </ul>
+
+    <div class="warning">
+      <strong>Greșeală frecventă:</strong> schimbarea de la o zi la alta a orei de somn, a locului mesei
+      sau a ritualului de seară. Pentru copil, asta rupe siguranța.
+    </div>
+  </section>
+
+  <!-- 2. LIMBAJ -->
+  <section id="limbaj">
+    <h2>2. Suport pentru Limbaj Minim / Nonverbal</h2>
+    <p>
+      Copilul poate comunica chiar dacă nu vorbește mult. Tu îi poți construi „poduri”
+      de comunicare cu gesturi, imagini și obiecte.
+    </p>
+
+    <h3>2.1 Ce funcționează cel mai bine</h3>
+    <ul>
+      <li><strong>Gesturi simple</strong> (arată, întinde mâna, dă un obiect).</li>
+      <li><strong>Imagini reale</strong> cu mâncare, apă, jucării, locuri.</li>
+      <li><strong>Obiecte-simbol</strong> (linguriță = mâncare, pantof = plecăm).</li>
+    </ul>
+
+    <h3>2.2 Cum îl înveți să aleagă</h3>
+    <ol>
+      <li>Arăți două opțiuni (ex.: banană și biscuiți).</li>
+      <li>Aștepți să atingă una din ele (nu forța).</li>
+      <li>O oferi imediat și spui cuvântul: „Banana”.</li>
+      <li>Repeți aceeași schemă în fiecare zi.</li>
+    </ol>
+
+    <h3>2.3 Cum îl înveți să ceară</h3>
+    <ul>
+      <li>Pui obiectul dorit la vedere, dar nu la îndemână.</li>
+      <li>Atunci când se întinde spre el, ajuți mâna copilului să <strong>arate</strong> obiectul.</li>
+      <li>Spui numele obiectului și îl oferi imediat.</li>
+    </ul>
+    <div class="tip">
+      <strong>Cheie:</strong> reacționează repede și constant la încercările lui de comunicare,
+      chiar dacă sunt foarte mici.
+    </div>
+
+    <h3>2.4 Cum reduci plânsul din neînțelegere</h3>
+    <ul>
+      <li>Nu întrebi „De ce plângi?” – e prea greu.</li>
+      <li>Întrebi simplu: „Asta?” și arăți obiectul.</li>
+      <li>Mișcări lente, ton calm, fără să vorbești mult.</li>
+    </ul>
+  </section>
+
+  <!-- 3. CRIZE -->
+  <section id="crize">
+    <h2>3. Protocol Coeziv pentru Meltdown &amp; Shutdown</h2>
+    <p>
+      Copilul nu face „crize de nervi” pentru a te supăra. Se simte copleșit.
+      Avem două situații principale:
+    </p>
+    <ul>
+      <li><strong>Meltdown</strong> – explozie (plânge, țipă, lovește, se aruncă pe jos).</li>
+      <li><strong>Shutdown</strong> – închidere (se oprește, nu reacționează, se retrage).</li>
+    </ul>
+
+    <h3>3.1 Semne înainte de criză</h3>
+    <ul>
+      <li>acoperă urechile;</li>
+      <li>începe să plângă fără motiv clar;</li>
+      <li>devine foarte agitat sau foarte rigid;</li>
+      <li>evită privirea, fuge sau se ascunde.</li>
+    </ul>
+
+    <h3>3.2 Ce faci în Meltdown (descărcare explozivă)</h3>
+    <ol>
+      <li><strong>Reduci stimulii</strong>: oprești TV, muzică, lumini puternice.</li>
+      <li><strong>Spațiu sigur</strong>: te asiguri că nu se poate lovi de obiecte dure.</li>
+      <li>Vorbești <strong>foarte scurt</strong>: „Sunt aici.” „E ok.”</li>
+      <li>Respiri lent lângă el; ritmul tău îl ajută să se regleze.</li>
+      <li>Îi dai obiectul preferat, dacă îl acceptă (pluș, pătură, jucărie).</li>
+    </ol>
+
+    <h3>3.3 Ce faci în Shutdown (închidere)</h3>
+    <ol>
+      <li>Nu insiști cu întrebări.</li>
+      <li>Lași copilul să stea în locul ales (colț, pat, podea).</li>
+      <li>Aștepți un semnal mic (o mișcare, o privire).</li>
+      <li>Când apare semnalul, revii cu <strong>activități foarte simple</strong> (ex.: atins un obiect).</li>
+    </ol>
+
+    <h3>3.4 Ce să NU faci</h3>
+    <ul>
+      <li>Nu ridica vocea.</li>
+      <li>Nu amenința („dacă nu taci…”).</li>
+      <li>Nu schimba brusc camera sau locul, decât dacă este pericol.</li>
+      <li>Nu îl atinge cu forța, dacă se ferește.</li>
+    </ul>
+  </section>
+
+  <!-- 4. HARTA COPILULUI -->
+  <section id="harta">
+    <h2>4. Harta Coezivă Individuală (Profilul copilului)</h2>
+    <p>
+      Fiecare copil are propriul lui „profil”. Când îl înțelegi, știi ce să eviți și ce să folosești.
+    </p>
+
+    <h3>4.1 Ce observăm</h3>
+    <ul>
+      <li><strong>Ce îl liniștește</strong> (muzică, balans, apă, îmbrățișări sau nu, lumină redusă).</li>
+      <li><strong>Ce îl agită</strong> (mulți oameni, supermarket, zgomot, atingeri neașteptate).</li>
+      <li><strong>Ce îi place mult</strong> (mașini, apă, litere, culori etc.).</li>
+      <li><strong>Cum reacționează la schimbări</strong>.</li>
+      <li><strong>Cât timp îi ia să se liniștească</strong> după o criză.</li>
+    </ul>
+
+    <h3>4.2 Cum folosești observațiile</h3>
+    <ul>
+      <li>pui mai mult din ceea ce îl liniștește în rutină;</li>
+      <li>reduci la minimum ce îl agită sau pregătești bine acele situații;</li>
+      <li>folosești lucrurile care îi plac ca „pod” spre activități noi.</li>
+    </ul>
+
+    <h3>4.3 Formular simplu (îl poți imprima)</h3>
+    <div class="code-box">
+      Liniștește copilul: _______________________________<br>
+      Agită copilul: _________________________________<br>
+      Tranziții ușoare sunt: _________________________<br>
+      Tranziții dificile sunt: ________________________<br>
+      Obiecte-simbol care funcționează: _____________
+    </div>
+  </section>
+
+  <!-- 5. EXEMPLE -->
+  <section id="exemple">
+    <h2>5. Exemple ilustrate pentru părinți</h2>
+
+    <h3>Exemplu 1 – Vrei copilul la masă</h3>
+    <div class="two-cols">
+      <div class="warning">
+        <strong>Varianta care nu ajută:</strong><br>
+        „Hai la masă, te rog, trebuie să mănânci! Hai odată,
+        mereu faci așa!”
+      </div>
+      <div class="tip">
+        <strong>Varianta Coezivă:</strong><br>
+        ➤ arăți lingurița<br>
+        ➤ spui simplu „Mâncare.”<br>
+        ➤ îl conduci ușor spre scaun
+      </div>
+    </div>
+
+    <h3>Exemplu 2 – Se apropie meltdown</h3>
+    <div class="two-cols">
+      <div class="warning">
+        <strong>Nu ajută:</strong><br>
+        „De ce plângi? Spune-mi ce ai! Nu mai plânge!”
+      </div>
+      <div class="tip">
+        <strong>Ajută:</strong><br>
+        ➤ reduci sunetele și luminile<br>
+        ➤ spui „Sunt aici.”<br>
+        ➤ îi ții aproape jucăria preferată
+      </div>
+    </div>
+
+    <h3>Exemplu 3 – Schimbi activitatea</h3>
+    <div class="two-cols">
+      <div class="warning">
+        <strong>Nu ajută:</strong><br>
+        „Hai, terminăm asta și facem altceva, nu mai insista!”
+      </div>
+      <div class="tip">
+        <strong>Ajută:</strong><br>
+        ➤ arăți următorul obiect (ex.: carte)<br>
+        ➤ spui „Acum carte.”<br>
+        ➤ îi lași câteva secunde să vadă și să accepte
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. GHID FAMILIE -->
+  <section id="ghid">
+    <h2>6. Ghid Coeziv pentru grădiniță, bunici și frați</h2>
+
+    <h3>6.1 Pentru grădiniță / educatori</h3>
+    <ul>
+      <li>Nu îl bombardați cu multe cerințe deodată.</li>
+      <li>Introduceți activitățile cu <strong>semne vizuale</strong> (poze, obiecte).</li>
+      <li>Respectați pe cât posibil aceeași ordine în program.</li>
+      <li>Acceptați că poate avea nevoie de pauze mai dese.</li>
+    </ul>
+
+    <h3>6.2 Pentru bunici</h3>
+    <ul>
+      <li>Nu îl forțați să pupe sau să îmbrățișeze pe cineva.</li>
+      <li>Vorbiți calm, fără ironii de tipul „nu e nimic, nu te mai prosti”.</li>
+      <li>Întrebați părinții ce îl liniștește și folosiți aceleași rutine.</li>
+    </ul>
+
+    <h3>6.3 Pentru frați</h3>
+    <ul>
+      <li>Explicați simplu: „Creierul lui funcționează altfel. Nu e rău,
+        nu e leneș, doar are nevoie de mai mult timp.”</li>
+      <li>Implicați-i în jocuri simple împreună (pasă de minge, construit turnuri).</li>
+      <li>Lăudați atât copilul, cât și frații, pentru fiecare mic pas de cooperare.</li>
+    </ul>
+  </section>
+
+  <!-- 7. JURNAL -->
+  <section id="jurnal">
+    <h2>7. Jurnal zilnic Coeziv (pentru părinți)</h2>
+    <p>
+      Jurnalul te ajută să vezi ce merge bine și ce trebuie schimbat.
+      Poți completa foarte scurt, în fiecare seară.
+    </p>
+
+    <h3>7.1 Model de jurnal (poți imprima)</h3>
+    <div class="code-box">
+      Data: _______<br><br>
+      1. Ce a mers bine azi (2–3 lucruri):<br>
+      – ___________________________<br>
+      – ___________________________<br>
+      – ___________________________<br><br>
+      2. Ce a fost greu pentru copil:<br>
+      – ___________________________<br><br>
+      3. Ce l-a liniștit cel mai mult:<br>
+      – ___________________________<br><br>
+      4. Ce pot face mâine un pic mai simplu:<br>
+      – ___________________________
+    </div>
+
+    <div class="tip">
+      Nu te judeca dacă ai zile grele. Jurnalul nu este pentru vină, ci pentru
+      a observa mici lucruri care funcționează.
+    </div>
+  </section>
+
+  <!-- 8. JOCURI -->
+  <section id="jocuri">
+    <h2>8. Jocuri simple și sigure</h2>
+    <p>
+      Jocurile nu trebuie să fie complicate. Scopul este conectarea calmă, nu performanța.
+    </p>
+
+    <h3>8.1 Idei de jocuri</h3>
+    <ul>
+      <li><strong>Pasă cu mingea</strong> – tu dai, el dă înapoi (chiar și dacă doar împinge).</li>
+      <li><strong>Turn din cuburi</strong> – construiți 3–4 cuburi, apoi le dărâmați.</li>
+      <li><strong>Apă în recipiente</strong> – turnați apă dintr-un pahar în altul
+          (supravegheat bine).</li>
+      <li><strong>Ascunde și arată</strong> – ascunzi un obiect preferat sub o cârpă,
+          îl arăți din nou.</li>
+    </ul>
+
+    <h3>8.2 Reguli pentru joc</h3>
+    <ul>
+      <li>Durată scurtă (5–10 minute).</li>
+      <li>Fără multe jucării simultan.</li>
+      <li>Închei jocul cu un mic ritual: „Gata jocul. Pauză.”</li>
+    </ul>
+  </section>
+
+  <!-- 9. SITUAȚII SPECIALE -->
+  <section id="special">
+    <h2>9. Situații speciale (medic, magazin, noapte)</h2>
+
+    <h3>9.1 Vizita la medic</h3>
+    <ul>
+      <li>Spune-i simplu, cu câteva ore înainte: „Mergem la doctor. Ascultă inima.”</li>
+      <li>Ia cu tine un obiect preferat.</li>
+      <li>Cere medicului, dacă se poate, să vorbească mai rar și mai calm.</li>
+    </ul>
+
+    <h3>9.2 Supermarket / spații aglomerate</h3>
+    <ul>
+      <li>Alege ore mai puțin aglomerate.</li>
+      <li>Stai puțin timp; nu face cumpărături mari cu copilul.</li>
+      <li>Dacă vezi semne de agitație, oprește-te și ieși câteva minute afară.</li>
+    </ul>
+
+    <h3>9.3 Noaptea (treziri, agitație)</h3>
+    <ul>
+      <li>Menține aceeași rutină de seară în fiecare zi.</li>
+      <li>Dacă se trezește plângând, păstrează camera întunecată sau cu o lumină foarte slabă.</li>
+      <li>Vorbește încet, cu cuvinte puține: „E noapte. Sunt aici.”</li>
+      <li>Nu porni TV-ul sau jocuri; doar crește confuzia.</li>
+    </ul>
+  </section>
+
+  <!-- 10. FAQ -->
+  <section id="faq">
+    <h2>10. Întrebări frecvente &amp; greșeli comune</h2>
+
+    <h3>„E vina mea că e așa?”</h3>
+    <p>
+      Nu. Copilul are un alt tip de dezvoltare. Tu poți doar să îl ajuți cu mai multă claritate
+      și structură. Nu ești cauza, dar poți fi sprijinul lui.
+    </p>
+
+    <h3>„Dacă îl obișnuiesc cu rutine, nu va deveni prea rigid?”</h3>
+    <p>
+      Rutinele nu îl fac rigid. Lipsa de siguranță îl face să se agate de lucruri.
+      Rutinele îi dau o bază de siguranță de la care poate, treptat, să accepte și schimbări mici.
+    </p>
+
+    <h3>Greșeli frecvente</h3>
+    <ul>
+      <li>să crezi că „te provoacă” intenționat;</li>
+      <li>să explici prea mult când este deja obosit sau agitat;</li>
+      <li>să schimbi mereu regulile, orele, oamenii, fără pregătire;</li>
+      <li>să te compari cu alți părinți și alți copii.</li>
+    </ul>
+
+    <div class="tip">
+      <strong>Direcție bună:</strong> mai puține explicații, mai multe semne clare; mai puțină
+      vină, mai multă observare calmă.
+    </div>
+  </section>
+
+  <!-- FINAL -->
+  <section id="final">
+    <h2>11. Mesaj final pentru părinți</h2>
+    <p>
+      Copilul tău are nevoie de:
+    </p>
+    <ul>
+      <li>răbdarea ta, chiar și când ți-e greu;</li>
+      <li>claritate în program și cerințe;</li>
+      <li>pași mici, repetați de multe ori;</li>
+      <li>iubire exprimată în modul în care el o poate primi (nu neapărat prin vorbe).</li>
+    </ul>
+    <p>
+      Nu trebuie să fii perfect. Faptul că citești acest manual înseamnă deja că ești un părinte
+      care caută să fie prezent și să înțeleagă.
+    </p>
+    <p><strong>Ești deja un sprijin uriaș pentru el.</strong></p>
+  </section>
+
+</main>
+
+</body>
+</html>
