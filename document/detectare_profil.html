@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <title>Model Coeziv – Observare profil (Autism / altceva)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    :root{
+      --bg:#fdfaf6;
+      --panel:#ffffff;
+      --accent:#c98000;
+      --accent-soft:#ffe5bc;
+      --border:#eadac2;
+      --text:#2b1b00;
+      --muted:#7a6240;
+      --danger:#c0392b;
+      --ok:#2c7a3f;
+    }
+    *{box-sizing:border-box;}
+    body{
+      margin:0;
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+      background:var(--bg);
+      color:var(--text);
+      line-height:1.6;
+    }
+    header{
+      background:var(--panel);
+      border-bottom:1px solid var(--border);
+      padding:12px 14px;
+      position:sticky;
+      top:0;
+      z-index:10;
+    }
+    .wrap{
+      max-width:900px;
+      margin:0 auto;
+    }
+    h1{
+      margin:0;
+      font-size:1.4rem;
+      color:var(--accent);
+    }
+    .subtitle{
+      font-size:0.9rem;
+      color:var(--muted);
+    }
+    main{
+      padding:14px;
+    }
+    section{
+      background:var(--panel);
+      border-radius:10px;
+      padding:14px;
+      margin-bottom:12px;
+      border:1px solid var(--border);
+      box-shadow:0 3px 8px rgba(0,0,0,0.04);
+    }
+    h2{
+      margin-top:0;
+      font-size:1.1rem;
+      color:var(--accent);
+    }
+    h3{
+      font-size:0.98rem;
+      margin-bottom:4px;
+      margin-top:10px;
+    }
+    p,li,label{
+      font-size:0.92rem;
+    }
+    .badge{
+      display:inline-block;
+      background:var(--accent-soft);
+      padding:2px 8px;
+      border-radius:999px;
+      font-size:0.8rem;
+      color:var(--muted);
+      margin-bottom:4px;
+    }
+    .info, .warning, .tip{
+      border-radius:8px;
+      padding:8px 10px;
+      margin:8px 0;
+      font-size:0.88rem;
+    }
+    .info{
+      background:#f3f5ff;
+      border-left:4px solid #6b7fd6;
+    }
+    .warning{
+      background:#fff0e1;
+      border-left:4px solid #d46a00;
+    }
+    .tip{
+      background:#f0f9ec;
+      border-left:4px solid #2c7a3f;
+    }
+    fieldset{
+      border:none;
+      padding:0;
+      margin:8px 0 10px;
+    }
+    .question{
+      margin-bottom:8px;
+      padding-bottom:6px;
+      border-bottom:1px dashed #ecdfc8;
+    }
+    .q-text{
+      margin-bottom:4px;
+      font-weight:500;
+    }
+    .options{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      font-size:0.88rem;
+    }
+    .options label{
+      display:flex;
+      align-items:center;
+      gap:4px;
+      cursor:pointer;
+    }
+    .section-title{
+      font-weight:600;
+      margin-top:4px;
+    }
+    .btn-row{
+      margin-top:10px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+    button{
+      border-radius:999px;
+      border:1px solid var(--accent);
+      padding:8px 16px;
+      background:var(--accent);
+      color:white;
+      font-size:0.9rem;
+      cursor:pointer;
+    }
+    button.secondary{
+      background:var(--panel);
+      color:var(--accent);
+    }
+    button:hover{
+      opacity:0.92;
+    }
+    #results-box{
+      display:none;
+      margin-top:10px;
+    }
+    #results-summary{
+      font-size:0.9rem;
+      margin-bottom:6px;
+    }
+    #results-interpretation{
+      font-size:0.95rem;
+      font-weight:500;
+    }
+    #results-detail{
+      font-size:0.9rem;
+      margin-top:6px;
+    }
+    .score-line{
+      font-size:0.88rem;
+      color:var(--muted);
+    }
+    .status-strong{
+      color:var(--danger);
+    }
+    .status-moderate{
+      color:#b36b00;
+    }
+    .status-mixed{
+      color:#805d99;
+    }
+    .status-neutral{
+      color:var(--ok);
+    }
+    @media(max-width:720px){
+      h1{font-size:1.2rem;}
+      section{padding:12px;}
+    }
+  </style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="badge">Instrument Coeziv de observare (NON-diagnostic)</div>
+    <h1>Observare Coezivă – Autism sau altceva?</h1>
+    <div class="subtitle">
+      Pentru părinți · simplu, orientativ, de luat la specialist.
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <section id="intro">
+    <h2>0. Ce este această pagină?</h2>
+    <p>
+      Acesta este un <strong>model Coeziv de observare</strong> a profilului copilului tău.
+      Nu este un test clinic, nu pune diagnostic, nu înlocuiește medicul.
+    </p>
+    <div class="warning">
+      <strong>Foarte important:</strong> Rezultatul este doar o <em>orientare</em>.
+      Diagnosticul de autism sau de altă tulburare de dezvoltare poate fi pus <strong>doar</strong>
+      de un specialist (psiholog clinician, psihiatru pediatric, neurolog pediatru).
+    </div>
+    <div class="info">
+      Modelul te ajută să vezi dacă profilul copilului seamănă mai mult cu:
+      <ul>
+        <li>un profil compatibil cu spectrul autist,</li>
+        <li>o întârziere globală de dezvoltare,</li>
+        <li>dificultăți senzoriale,</li>
+        <li>sau un profil mixt / neclar.</li>
+      </ul>
+    </div>
+    <p>
+      Bifează răspunsurile cât mai sincer. Nu există „bine” sau „rău”.
+    </p>
+  </section>
+
+  <section id="form">
+    <h2>1. Întrebări pentru părinte</h2>
+
+    <form id="coeziv-form">
+      <!-- SECȚIUNEA A -->
+      <fieldset>
+        <div class="section-title">A. Structura comportamentului și a jocului</div>
+
+        <div class="question">
+          <div class="q-text">A1. Copilul preferă să repete aceleași acțiuni în joacă (învarte, aliniază, lovește același lucru la fel)?</div>
+          <div class="options">
+            <label><input type="radio" name="A1" value="DA" required> DA</label>
+            <label><input type="radio" name="A1" value="OCASIONAL"> OCASIONAL</label>
+            <label><input type="radio" name="A1" value="NU"> NU</label>
+          </div>
+        </div>
+
+        <div class="question">
+          <div class="q-text">A2. Se supără mult când se schimbă rutina (alt drum, alt loc la masă, alt program)?</div>
+          <div class="options">
+            <label><input type="radio" name="A2" value="DA" required> DA</label>
+            <label><input type="radio" name="A2" value="OCASIONAL"> OCASIONAL</label>
+            <label><input type="radio" name="A2" value="NU"> NU</label>
+          </div>
+        </div>
+
+        <div class="question">
+          <div class="q-text">A3. Se joacă puțin sau deloc „de-a ceva” (doctor, bucătar, păpuși, mașini care au roluri)?</div>
+          <div class="options">
+            <label><input type="radio" name="A3" value="DA" required> DA</label>
+            <label><input type="radio" name="A3" value="OCASIONAL"> OCASIONAL</label>
+            <label><input type="radio" name="A3" value="NU"> NU</label>
+          </div>
+        </div>
+
+        <div class="question">
+          <div class="q-text">A4. Pare interesat mai mult de obiecte decât de oameni (adulți sau copii)?</div>
+          <div class="options">
+            <label><input type="radio" name="A4" value="DA" required> DA</label>
+            <label><input type="radio" name="A4" value="OCASIONAL"> OCASIONAL</label>
+            <label><input type="radio" name="A4" value="NU"> NU</label>
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- SECȚIUNEA B -->
+      <fieldset>
+        <div class="section-title">B. Reacții senzoriale (sunet, lumină, atingere)</div>
+
+        <div class="question">
+          <div class="q-text">B1. Acoperă urechile sau fuge de la zgomote (aspirator, blender, mulți oameni)?</div>
+          <div class="options">
+            <label><input type="radio" name="B1" value="DA" required> DA</label>
+            <label><input type="radio" name="B1" value="OCASIONAL"> OCASIONAL</label>
+            <label><input type="radio" name="B1" value="NU"> NU</label>
+          </div>
+        </div>
+
+        <div class="question">
+          <div class="q-text">B2. Se ferește de atingeri sau îmbrățișări (se trage înapoi, se încordează)?</div>
+          <div class="options">
+            <label><input type="radio" name="B2" value="DA" required> DA</label>
+            <label><input type="radio" name="B2" value="OCASIONAL"> OCASIONAL</label>
+            <label><input type="radio" name="B2" value="NU"> NU</label>
+          </div>
+        </div>
+
+        <div class="question">
+          <div class="q-text">B3. Are meltdown (criză) în spații aglomerate (magazin, mall, petreceri)?</div>
+          <div class="options">
+            <label><input type="radio" name="B3" value="DA" required> DA</label>
+            <label><input type="radio" name="B3" value="OCASIONAL"> OCASIONAL</label>
+            <label><input type="radio" name="B3" value="NU"> NU</label>
+          </div>
+        </div>
+
+        <div class="question">
+          <div class="q-text">B4. Caută des să fluture mâinile, să se învârtă, să se balanseze?</div>
+          <div class="options">
+            <label><input type="radio" name="B4" value="DA" required> DA</label>
+            <label><input type="radio" name="B4" value="OCASIONAL"> OCASIONAL</label>
+            <label><input type="radio" name="B4" value="NU"> NU</label>
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- SECȚIUNEA C -->
+      <fieldset>
+        <div class="section-title">C. Tranziții (trecerea de la o activitate la alta)</div>
+
+        <div class="question">
+          <div class="q-text">C1. Dacă schimbi brusc activitatea, apare criză (plâns, țipete, opoziție puternică)?</div>
+          <div class="options">
+            <label><input type="radio" name="C1" value="DA" required> DA</label>
+            <label><input type="radio" name="C1" value="OCASIONAL"> OCASIONAL</label>
+            <label><input type="radio" name="C1" value="NU"> NU</label>
+          </div>
+        </div>
+
+        <div class="question">
+          <div class="q-text">C2. Pare să aibă nevoie să vadă următorul obiect/activitate ca să accepte schimbarea?</div>
+          <div class="options">
+            <label><input type="radio" name="C2" value="DA" required> DA</label>
+            <label><input type="radio" name="C2" value="OCASIONAL"> OCASIONAL</label>
+            <label><input type="radio" name="C2" value="NU"> NU</label>
+          </div>
+        </div>
+
+        <div class="question">
+          <div class="q-text">C3. Se „blochează” (rămâne pe loc, plânge, se încordează) când e grăbit?</div>
+          <div class="options">
+            <label><input type="radio" name="C3" value="DA" required> DA</label>
+            <label><input type="radio" name="C3" value="OCASIONAL"> OCASIONAL</label>
+            <label><input type="radio" name="C3" value="NU"> NU</label>
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- SECȚIUNEA D -->
+      <fieldset>
+        <div class="section-title">D. Stabilizare emoțională</div>
+
+        <div class="question">
+          <div class="q-text">D1. După ce se supără tare, îi ia mult timp să se liniștească (peste 10–15 minute)?</div>
+          <div class="options">
+            <label><input type="radio" name="D1" value="DA" required> DA</label>
+            <label><input type="radio" name="D1" value="OCASIONAL"> OCASIONAL</label>
+            <label><input type="radio" name="D1" value="NU"> NU</label>
+          </div>
+        </div>
+
+        <div class="question">
+          <div class="q-text">D2. Când este stresat, pare „deconectat”, „în altă lume”, greu de atins și cu vorba?</div>
+          <div class="options">
+            <label><input type="radio" name="D2" value="DA" required> DA</label>
+            <label><input type="radio" name="D2" value="OCASIONAL"> OCASIONAL</label>
+            <label><input type="radio" name="D2" value="NU"> NU</label>
+          </div>
+        </div>
+
+        <div class="question">
+          <div class="q-text">D3. După un meltdown, îi este greu să revină la activitate (joacă, masă, mers mai departe)?</div>
+          <div class="options">
+            <label><input type="radio" name="D3" value="DA" required> DA</label>
+            <label><input type="radio" name="D3" value="OCASIONAL"> OCASIONAL</label>
+            <label><input type="radio" name="D3" value="NU"> NU</label>
+          </div>
+        </div>
+      </fieldset>
+
+      <div class="btn-row">
+        <button type="submit">Calculează profil orientativ</button>
+        <button type="button" class="secondary" id="reset-btn">Șterge răspunsurile</button>
+      </div>
+    </form>
+
+    <div id="results-box">
+      <h3>2. Rezultat orientativ</h3>
+      <p id="results-summary"></p>
+      <p id="results-interpretation"></p>
+      <p id="results-detail"></p>
+      <p class="score-line" id="results-score"></p>
+      <div class="tip">
+        Folosește rezultatul ca suport pentru discuția cu un specialist.
+        Notează ce ai observat, ia această pagină sau notițe cu tine la consultație.
+      </div>
+    </div>
+  </section>
+
+  <section id="note-final">
+    <h2>3. De ce este „Coeziv” acest model?</h2>
+    <p>
+      Modelul nu caută să „pună etichete”, ci să observe:
+    </p>
+    <ul>
+      <li><strong>Structura</strong> comportamentului,</li>
+      <li><strong>Fluxurile</strong> senzoriale,</li>
+      <li><strong>Reorganizarea</strong> în tranziții,</li>
+      <li><strong>Stabilizarea</strong> emoțională.</li>
+    </ul>
+    <p>
+      Aceste patru zone formează împreună o imagine mai clară a felului în care funcționează copilul
+      și te ajută să explici mai bine unui specialist ce vezi acasă.
+    </p>
+  </section>
+</main>
+
+<script>
+  (function(){
+    const form = document.getElementById('coeziv-form');
+    const resetBtn = document.getElementById('reset-btn');
+    const resultsBox = document.getElementById('results-box');
+    const summaryEl = document.getElementById('results-summary');
+    const interpEl = document.getElementById('results-interpretation');
+    const detailEl = document.getElementById('results-detail');
+    const scoreEl = document.getElementById('results-score');
+
+    function countYes(prefix, maxIndex) {
+      let count = 0;
+      for (let i = 1; i <= maxIndex; i++) {
+        const name = prefix + i;
+        const selected = form.querySelector('input[name="'+name+'"]:checked');
+        if (selected && selected.value === 'DA') {
+          count++;
+        }
+      }
+      return count;
+    }
+
+    form.addEventListener('submit', function(e){
+      e.preventDefault();
+
+      // verificăm dacă toate întrebările au răspuns
+      const allRadios = form.querySelectorAll('input[type="radio"]');
+      const namesSet = new Set();
+      allRadios.forEach(r => namesSet.add(r.name));
+      for (const name of namesSet) {
+        const checked = form.querySelector('input[name="'+name+'"]:checked');
+        if (!checked) {
+          alert('Te rog bifează toate întrebările înainte de calcul.');
+          return;
+        }
+      }
+
+      const A = countYes('A', 4);
+      const B = countYes('B', 4);
+      const C = countYes('C', 3);
+      const D = countYes('D', 3);
+      const totalYes = A + B + C + D;
+
+      let statusClass = 'status-mixed';
+      let interpretation = '';
+      let detail = '';
+
+      // reguli simple, orientative – nu diagnostic
+      if ( totalYes >= 6 && A >= 2 && B >= 2 && C >= 1 && D >= 1 ) {
+        statusClass = 'status-strong';
+        interpretation = 'Profil cu multe elemente compatibile cu spectrul autist.';
+        detail = 'Se observă combinația dintre rigiditate în comportament, sensibilitate senzorială, dificultăți la tranziții și revenire emoțională lentă. Este foarte recomandat să discuți cu un specialist (psiholog clinician / psihiatru pediatric) despre aceste observații.';
+      } else if (A >= 3 && B <= 1 && C <= 1 && D <= 1) {
+        statusClass = 'status-moderate';
+        interpretation = 'Profil mai degrabă compatibil cu întârziere de dezvoltare și rigiditate în joc.';
+        detail = 'Se văd mai ales dificultăți în joc și în structură, dar mai puține în senzorial și reglare emoțională. Merită o evaluare de dezvoltare pentru a înțelege mai bine nevoile copilului.';
+      } else if (B >= 3 && A <= 1 && C <= 1) {
+        statusClass = 'status-moderate';
+        interpretation = 'Profil mai degrabă compatibil cu dificultăți senzoriale accentuate.';
+        detail = 'Reacțiile puternice sunt legate de sunet, atingere sau aglomerație, mai mult decât de schimbări de rutină sau joc. O evaluare senzorială (ex. la un terapeut ocupațional) poate fi de ajutor.';
+      } else if (A >= 2 && C >= 2 && B + D <= 2) {
+        statusClass = 'status-moderate';
+        interpretation = 'Profil cu rigiditate și dificultăți la tranziții.';
+        detail = 'Copilul pare să aibă nevoie de structură foarte clară și are dificultăți la schimbări. Poate fi compatibil cu un profil din spectrul autist sau cu alte tulburări de reglare; este recomandată o evaluare specializată.';
+      } else if (C >= 2 && D >= 2 && A <= 1) {
+        statusClass = 'status-moderate';
+        interpretation = 'Profil cu dificultăți de tranziție și reglare emoțională.';
+        detail = 'Tranzițiile și revenirea după supărare sunt zonele cele mai sensibile. Poate fi implicat un profil de neurodezvoltare sau de reglaj emoțional; discută cu un specialist.';
+      } else {
+        statusClass = 'status-mixed';
+        interpretation = 'Profil mixt sau neclar doar pe baza acestor întrebări.';
+        detail = 'Unele lucruri pot fi compatibile cu un profil din spectrul autist, altele nu sunt foarte specifice. Observă în timp, notează exemple concrete și, dacă ești îngrijorat(ă), programează o evaluare la un specialist.';
+      }
+
+      summaryEl.textContent = 'Rezumat: ' + interpretation;
+      summaryEl.className = statusClass;
+      interpEl.textContent = detail;
+
+      detailEl.innerHTML =
+        'Te încurajez să:<ul>' +
+        '<li>notezi exemple concrete pentru fiecare „DA”,</li>' +
+        '<li>iei aceste notițe la un specialist,</li>' +
+        '<li>continui să observi copilul fără vină și fără teamă.</li>' +
+        '</ul>';
+
+      scoreEl.textContent =
+        'Scoruri „DA”: A (comportament/joc) = ' + A +
+        ', B (senzorial) = ' + B +
+        ', C (tranziții) = ' + C +
+        ', D (stabilizare) = ' + D +
+        ' · Total = ' + totalYes + '.';
+
+      resultsBox.style.display = 'block';
+      resultsBox.scrollIntoView({behavior:'smooth'});
+    });
+
+    resetBtn.addEventListener('click', function(){
+      form.reset();
+      resultsBox.style.display = 'none';
+    });
+  })();
+</script>
+
+</body>
+</html>
