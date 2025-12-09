@@ -6,6 +6,7 @@
 export const coezivDocs = [
   {
     id: "baza-3_14",
+    domain: "biologic",
     title: "Modelul Coeziv 3.14 – raportul apei",
     content: `
 Modelul Coeziv 3.14 pornește de la comportamentul apei pure în jurul
@@ -18,13 +19,14 @@ raportul dintre o stare internă de coeziune maximă și o stare flexibilă.
 În acest model, apa este folosită ca matrice de referință pentru homeostazie,
 reglaj fin și tranziții de fază în sisteme biologice.
 
-Foarte important: Modelul Coeziv 3.14 nu inventează proprietăți fizice noi
-ale apei, ci folosește intervalul termic și densitatea ca reper pentru
-a descrie diferența dintre „stare stabilă” și „stare flexibilă”.
+Modelul Coeziv 3.14 nu inventează proprietăți fizice noi ale apei,
+ci folosește intervalul termic și densitatea ca reper pentru a descrie
+diferența dintre „stare stabilă” și „stare flexibilă”.
 `
   },
   {
     id: "praguri-apei",
+    domain: "biologic",
     title: "Praguri de tranziție: 39.86°C și 44.7°C",
     content: `
 În Modelul Coeziv apar două praguri de tranziție conceptuală:
@@ -43,6 +45,7 @@ când un sistem se află într-o stare „aproape de limită”, chiar dacă
   },
   {
     id: "model-2pi",
+    domain: "generic",
     title: "Modelul 2π – ciclu de transformare",
     content: `
 Modelul 2π descrie dinamica universală în patru faze:
@@ -60,6 +63,7 @@ de perspectivă. În tehnologie și AI, reprezintă cicluri iterative de
   },
   {
     id: "regulator-coeziv",
+    domain: "generic",
     title: "Regulatorul Coeziv – erori F1..F6",
     content: `
 Regulatorul Coeziv definește un set de blocaje conceptuale frecvente:
@@ -91,6 +95,7 @@ consistența interpretărilor interdisciplinare.
   },
   {
     id: "apa-homeostazie",
+    domain: "biologic",
     title: "Apa ca matrice de homeostazie",
     content: `
 În Modelul Coeziunii, apa este privită ca matrice universală pentru
@@ -109,6 +114,7 @@ instrumente conceptuale pentru a discuta despre:
   },
   {
     id: "psihologie-coeziva",
+    domain: "psihologic",
     title: "Psihologia în Modelul Coeziv",
     content: `
 Modelul Coeziv aplică structura 2π și conceptul de tensiune structurală
@@ -128,6 +134,7 @@ cu homeostazia și apa ca să descrie mai precis procesele de reglaj intern.
   },
   {
     id: "ai-coeziv",
+    domain: "tehnic",
     title: "AI și Modelul Coeziv",
     content: `
 În inteligența artificială, Modelul Coeziv este folosit ca metaforă
@@ -151,6 +158,7 @@ spre răspunsuri mai coerente și mai stabile.
   },
   {
     id: "vocabular-coeziv",
+    domain: "generic",
     title: "Vocabularul Coeziv – termeni cheie",
     content: `
 Câteva concepte cheie în Modelul Coeziv:
@@ -176,17 +184,23 @@ tehnice sau AI).
   }
 ];
 
-// --- RAG SIMPLU (scor de similaritate pe cuvinte) ---
+// --- RAG SIMPLU (scor de similaritate pe cuvinte + bonus de domeniu) ---
 
-function scoreDoc(query, doc) {
+function scoreDoc(query, doc, domainHint) {
   const q = query.toLowerCase().split(/\s+/).filter(Boolean);
   const text = (doc.title + " " + doc.content).toLowerCase();
 
   let score = 0;
   for (const w of q) {
-    if (w.length < 3) continue;           // ignorăm cuvinte foarte scurte
+    if (w.length < 3) continue; // ignorăm cuvinte foarte scurte
     if (text.includes(w)) score += 1;
   }
+
+  // bonus dacă domeniul se potrivește cu domainHint
+  if (domainHint && doc.domain === domainHint) {
+    score += 2;
+  }
+
   return score;
 }
 
@@ -194,11 +208,11 @@ function scoreDoc(query, doc) {
  * Returnează până la k fragmente relevante din baza Coezivă,
  * concatenate într-un singur string, gata de pus în mesajul SYSTEM.
  */
-export function retrieveCohezivContext(query, k = 3) {
+export function retrieveCohezivContext(query, domainHint = null, k = 3) {
   if (!query || !query.trim()) return "";
 
   const scored = coezivDocs
-    .map(d => ({ ...d, score: scoreDoc(query, d) }))
+    .map(d => ({ ...d, score: scoreDoc(query, d, domainHint) }))
     .filter(d => d.score > 0)
     .sort((a, b) => b.score - a.score)
     .slice(0, k);
