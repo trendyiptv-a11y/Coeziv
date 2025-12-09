@@ -1,7 +1,8 @@
 // api/ask.js
-// Noul endpoint CoezivWallet-AI (MVP) pentru Vercel, cu OpenAI
+// Asistent Coeziv 3.14 – CoezivWallet-AI + RAG Coeziv + OpenAI
 
 import OpenAI from "openai";
+import { retrieveCohezivContext } from "../coeziv_knowledge.js"; // adaptează calea dacă e nevoie
 
 const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
@@ -10,9 +11,9 @@ const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 function detectDomains(text) {
   const keywords = {
     medical: ["tensiune", "simptom", "vaccin", "doctor", "diagnostic", "tratament", "medic"],
-    legal: ["contract", "instanta", "instanță", "avocat", "lege", "proces", "judecator"],
+    legal: ["contract", "instanta", "instanță", "avocat", "lege", "proces", "judecator", "judecător"],
     politic: ["guvern", "stat", "partid", "politic", "alegeri", "parlament", "coruptie", "corupție"],
-    psihologic: ["anxietate", "depresie", "teama", "teamă", "frica", "frică", "psiholog", "terapie", "emotional", "emoțional"],
+    psihologic: ["anxietate", "depresie", "teama", "teamă", "frica", "frică", "psiholog", "terapie", "emoțional", "emotional"],
     tehnic: ["algoritm", "server", "retea", "rețea", "programare", "cod", "AI", "model", "neuron"],
   };
 
@@ -132,55 +133,75 @@ export default async function handler(req, res) {
 
   const body = typeof req.body === "string" ? JSON.parse(req.body) : req.body || {};
   const userMessage = body.message || "";
-  const history = body.history || []; // opțional: [{role, content}, ...]
+  const history = body.history || []; // [{role, content}, ...]
 
   if (!userMessage.trim()) {
     return res.status(400).json({ error: "message is required" });
   }
 
-  // 1) Analiză Coezivă
+  // 1) Analiză Coezivă (CohezivWallet-AI)
   const analysis = runCohezivWallet(history, userMessage);
 
-  // 2) Politici care NU mai apelează LLM (clarificări)
+  // 2) Politici care NU mai apelează LLM (clarificări directe)
   if (analysis.policy.action === "clarify_first") {
     return res.status(200).json({
       assistant_reply:
-        "Întrebarea ta combină mai multe lucruri. Reformulează, te rog, într-o singură propoziție clară.",
+        "Întrebarea ta combină mai multe lucruri sau nu este suficient de clară. Reformulează, te rog, într-o singură propoziție clară.",
       analysis,
+      policy_output: analysis.policy,
     });
   }
 
   if (analysis.policy.action === "trim_context_and_clarify") {
     return res.status(200).json({
       assistant_reply:
-        "Contextul este foarte mare și amestecat. Spune-mi, te rog, care este întrebarea ta principală acum.",
+        "Contextul este foarte mare și amestecat. Spune-mi, te rog, care este întrebarea ta principală acum, într-o frază.",
       analysis,
+      policy_output: analysis.policy,
     });
   }
 
-  // 3) Construim mesajele pentru LLM
-  let systemContent = "";
+  // 3) Construim SYSTEM cu Modelul Coeziv + RAG (context Coeziv)
+  const baseSystem = `
+Ești Asistentul Coeziv 3.14.
+Răspunzi în logica Modelului Coeziunii (3.14) și a Modelului 2π.
+Menții separarea strictă a domeniilor (fizic, psihologic, tehnic, social etc.).
+Nu inventezi proprietăți fizice noi ale apei.
+Folosesti numeric raportul 3.14 doar în contexte în care temperatura și densitatea apei au sens fizic real.
+În alte domenii (psihologie, AI, economie), folosești 3.14 doar ca analog conceptual.
+Când este relevant, explici răspunsul prin fazele 2π: Structură → Flux → Reorganizare → Noua Structură.
+`;
 
+  const coezivContext = retrieveCohezivContext(userMessage);
+
+  let systemContent =
+    baseSystem +
+    "\n\nContext Coeziv relevant (fragmente din Modelul Coeziv):\n" +
+    (coezivContext || "(nu a fost găsit context Coeziv specific pentru această întrebare; răspunde doar cu informații sigure și generale)");
+
+  // Dacă politica cere domain_declare_and_reframe, adăugăm instrucțiuni suplimentare
   if (analysis.policy.action === "domain_declare_and_reframe") {
     const doms = analysis.policy.dominant?.length
       ? analysis.policy.dominant.join(", ")
       : "domeniul tău de competență";
 
-    systemContent =
-      "IMPORTANT: răspunde disciplinat, separând clar domeniile.\n" +
-      `- Declară explicit că răspunzi doar din perspectiva: ${doms}.\n` +
+    systemContent +=
+      "\n\nInstrucțiuni suplimentare pentru răspunsul curent:\n" +
+      `- Declară explicit că răspunzi în principal din perspectiva: ${doms}.\n` +
       "- Nu trage concluzii globale dintr-un singur caz.\n" +
       "- Evită teorii conspiraționiste sau afirmații politice speculative.\n";
   }
 
+  // 4) Pregătim mesajele pentru LLM
   const messages = [];
-  if (systemContent) messages.push({ role: "system", content: systemContent });
+  messages.push({ role: "system", content: systemContent });
+
   for (const m of history) {
     if (m.role && m.content) messages.push(m);
   }
   messages.push({ role: "user", content: userMessage });
 
-  // 4) Apelăm LLM-ul (OpenAI)
+  // 5) Apelăm LLM-ul (OpenAI)
   const completion = await client.chat.completions.create({
     model: "gpt-4o-mini",
     messages,
@@ -188,9 +209,10 @@ export default async function handler(req, res) {
 
   const reply = completion.choices[0].message.content;
 
-  // 5) Returnăm răspunsul + analiza coezivă
+  // 6) Returnăm răspunsul + analiza coezivă
   return res.status(200).json({
     assistant_reply: reply,
     analysis,
+    policy_output: analysis.policy,
   });
 }
