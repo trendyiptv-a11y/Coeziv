@@ -5,137 +5,422 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Asistent Coeziv 3.14</title>
   <style>
-    :root { --emerald:#00ffb7; --bg:#0d1117; --fg:#c9d1d9; --muted:#8b949e; }
-    * { box-sizing: border-box; }
+    :root {
+      --emerald:#00ffb7;
+      --accent:#10b981;
+      --bg:#020617;
+      --bg-elevated:#020617;
+      --panel:#020617;
+      --border:#1e293b;
+      --fg:#e5e7eb;
+      --muted:#9ca3af;
+      --user:#38bdf8;
+      --ai:#e5e7eb;
+    }
+    *{ box-sizing:border-box; }
+
     body{
-      font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
-      background: var(--bg); color: var(--fg);
-      padding: 2rem; margin:0; text-align:center;
-    }
-    h1{ color: var(--emerald); margin:0 0 0.5rem; }
-    p.lead{ color: var(--muted); margin:0 0 1rem; }
-
-    /* zona de chat derulabilă, nu mai taie textul */
-    #chat{
-      margin: 1.25rem auto 0;
-      text-align: left;
-      width: min(720px, 100%);
-      max-height: 70vh;             /* <= cheia */
-      overflow-y: auto;              /* scroll vertical */
-      padding: 1rem;
-      border: 1px solid #1f2937;
-      border-radius: 12px;
-      background: #0b0f14;
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.03);
+      margin:0;
+      min-height:100vh;
+      display:flex;
+      justify-content:center;
+      align-items:stretch;
+      background: radial-gradient(circle at top, #0f172a 0, #020617 55%);
+      color:var(--fg);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
 
-    .msg{ white-space: pre-wrap; word-break: break-word; line-height:1.6; margin:0 0 0.85rem; }
-    .msg b{ font-weight:600; }
-    .user{ color: var(--emerald); }
-    .ai{ color:#fff; }
-
-    /* gradient subtil jos care indică derulare */
-    #chat-wrap{ position: relative; width: min(720px, 100%); margin: 0 auto 1rem; }
-    #chat-wrap::after{
-      content:""; position: absolute; left:0; right:0; bottom:0; height:28px;
-      background: linear-gradient(to top, rgba(13,17,23,0.92), rgba(13,17,23,0));
-      pointer-events: none;
+    .shell{
+      width:100%;
+      max-width:900px;
+      padding:1.5rem;
+      display:flex;
+      flex-direction:column;
+      gap:1rem;
     }
 
-    /* input bar */
-    .bar{
-      display:flex; gap:.5rem; justify-content:center; align-items:center;
-      width: min(720px, 100%); margin: 0 auto;
+    header{
+      text-align:center;
     }
-    input{
-      flex:1; min-width:0;
-      padding:.8rem .9rem; border-radius:10px; border:1px solid #243041;
-      background:#0b0f14; color:var(--fg); outline:none;
+    header h1{
+      margin:0 0 .35rem;
+      font-size:1.9rem;
+      letter-spacing:.03em;
+      color:var(--emerald);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:.4rem;
     }
-    input::placeholder{ color:#5b6675; }
-    button{
-      background:var(--emerald); color:#000; font-weight:700;
-      border:none; border-radius:10px; padding:.85rem 1.2rem; cursor:pointer;
+    header p{
+      margin:0;
+      color:var(--muted);
+      font-size:.95rem;
     }
-    button[disabled]{ opacity:.6; cursor:not-allowed; }
 
-    a{ color:var(--emerald); text-decoration:none; display:inline-block; margin-top:1rem; }
+    .card{
+      flex:1;
+      display:flex;
+      flex-direction:column;
+      background:rgba(15,23,42,0.85);
+      border-radius:18px;
+      border:1px solid rgba(148,163,184,0.35);
+      box-shadow:0 18px 45px rgba(15,23,42,0.8);
+      overflow:hidden;
+      backdrop-filter: blur(14px);
+    }
+
+    .chat-header{
+      padding:.75rem 1rem;
+      border-bottom:1px solid rgba(15,23,42,1);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:.75rem;
+    }
+    .chat-header-left{
+      display:flex;
+      align-items:center;
+      gap:.6rem;
+    }
+    .chat-pill{
+      width:28px;
+      height:28px;
+      border-radius:999px;
+      background:radial-gradient(circle at 30% 20%, #22c55e, #0f172a);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:1.1rem;
+    }
+    .chat-title{
+      font-size:.95rem;
+      font-weight:600;
+    }
+    .chat-subtitle{
+      font-size:.78rem;
+      color:var(--muted);
+    }
+    .chip{
+      padding:.18rem .55rem;
+      border-radius:999px;
+      border:1px solid rgba(148,163,184,0.45);
+      font-size:.72rem;
+      color:var(--muted);
+      white-space:nowrap;
+    }
+
+    .chat-body{
+      flex:1;
+      display:flex;
+      flex-direction:column;
+      padding:.75rem 1rem;
+      gap:.35rem;
+      overflow-y:auto;
+      scroll-behavior:smooth;
+    }
+
+    .bubble-row{
+      display:flex;
+      margin:.25rem 0;
+    }
+    .bubble-row.user{ justify-content:flex-end; }
+    .bubble-row.ai{ justify-content:flex-start; }
+
+    .bubble{
+      max-width:80%;
+      padding:.6rem .8rem .5rem;
+      border-radius:1rem;
+      font-size:.92rem;
+      line-height:1.5;
+      white-space:pre-wrap;
+      word-break:break-word;
+      position:relative;
+    }
+    .bubble.user{
+      background:linear-gradient(135deg,#0ea5e9,#22d3ee);
+      color:#0f172a;
+      border-bottom-right-radius:.3rem;
+    }
+    .bubble.ai{
+      background:rgba(15,23,42,0.85);
+      border:1px solid rgba(30,64,175,0.55);
+      color:var(--ai);
+      border-bottom-left-radius:.3rem;
+    }
+
+    .bubble-meta{
+      margin-top:.25rem;
+      font-size:.73rem;
+      color:var(--muted);
+      display:flex;
+      align-items:center;
+      gap:.5rem;
+      flex-wrap:wrap;
+    }
+    .meta-chip{
+      padding:.12rem .5rem;
+      border-radius:999px;
+      border:1px solid rgba(148,163,184,0.3);
+    }
+
+    .typing{
+      opacity:.7;
+      font-style:italic;
+    }
+
+    .divider{
+      text-align:center;
+      margin:.2rem 0 .4rem;
+      font-size:.72rem;
+      color:var(--muted);
+    }
+
+    .chat-footer{
+      padding:.6rem 1rem .8rem;
+      border-top:1px solid rgba(15,23,42,1);
+      display:flex;
+      flex-direction:column;
+      gap:.4rem;
+    }
+
+    .input-row{
+      display:flex;
+      gap:.55rem;
+      align-items:flex-end;
+    }
+    .input-row input{
+      flex:1;
+      min-width:0;
+      padding:.8rem .9rem;
+      border-radius:999px;
+      border:1px solid var(--border);
+      background:#020617;
+      color:var(--fg);
+      outline:none;
+      font-size:.92rem;
+    }
+    .input-row input::placeholder{ color:#64748b; }
+
+    .input-row button{
+      border:none;
+      border-radius:999px;
+      padding:.72rem 1.35rem;
+      font-weight:600;
+      font-size:.9rem;
+      cursor:pointer;
+      background:linear-gradient(135deg,#22c55e,#14b8a6);
+      color:#020617;
+      box-shadow:0 0 0 1px rgba(34,197,94,0.4),0 12px 25px rgba(16,185,129,0.45);
+      transition:transform .08s ease, box-shadow .08s ease, opacity .15s ease;
+    }
+    .input-row button:hover:not([disabled]){
+      transform:translateY(-1px);
+      box-shadow:0 16px 36px rgba(16,185,129,0.65);
+    }
+    .input-row button:active:not([disabled]){
+      transform:translateY(0);
+      box-shadow:0 8px 18px rgba(16,185,129,0.5);
+    }
+    .input-row button[disabled]{
+      opacity:.55;
+      cursor:not-allowed;
+      box-shadow:none;
+    }
+
+    .status{
+      font-size:.78rem;
+      color:var(--muted);
+      min-height:1em;
+    }
+
+    .back-link{
+      margin-top:.4rem;
+      text-align:center;
+      font-size:.82rem;
+    }
+    .back-link a{
+      color:var(--emerald);
+      text-decoration:none;
+    }
+    .back-link a:hover{ text-decoration:underline; }
+
+    @media (max-width:640px){
+      .shell{ padding:1rem .75rem; }
+      .bubble{ max-width:100%; }
+      header h1{ font-size:1.5rem; }
+    }
   </style>
 </head>
 <body>
-  <h1>🤖 Asistent Coeziv 3.14</h1>
-  <p class="lead">Întreabă despre Modelul Coeziunii, homeostazie, apă, și interpretări coezive.</p>
+  <div class="shell">
+    <header>
+      <h1>🤖 Asistent Coeziv 3.14</h1>
+      <p>Întreabă despre Modelul Coeziunii, homeostazie, apă și interpretări coezive.</p>
+    </header>
 
-  <div id="chat-wrap">
-    <div id="chat" aria-live="polite" aria-label="Istoric conversație"></div>
+    <section class="card" aria-label="Chat Asistent Coeziv 3.14">
+      <div class="chat-header">
+        <div class="chat-header-left">
+          <div class="chat-pill">3.14</div>
+          <div>
+            <div class="chat-title">Canal Coeziv</div>
+            <div class="chat-subtitle">Structură · Flux · Reorganizare · Noua structură</div>
+          </div>
+        </div>
+        <div class="chip">MVP · CoezivWallet-AI</div>
+      </div>
+
+      <div id="chat" class="chat-body" aria-live="polite" aria-label="Istoric conversație">
+        <div class="divider">Începe cu o întrebare. Modelul răspunde în logica Coezivă.</div>
+      </div>
+
+      <div class="chat-footer">
+        <div class="input-row">
+          <input id="q" placeholder="Scrie întrebarea ta aici..." autocomplete="off"/>
+          <button id="send">Trimite</button>
+        </div>
+        <div id="status" class="status"></div>
+      </div>
+    </section>
+
+    <div class="back-link">
+      <a href="/document/index.html">← Înapoi la arhivă</a>
+    </div>
   </div>
-
-  <div class="bar">
-    <input id="q" placeholder="Scrie întrebarea ta aici..." autocomplete="off" />
-    <button id="send">Trimite</button>
-  </div>
-
-  <a href="/document/index.html">← Înapoi la arhivă</a>
 
   <script>
-    const chat = document.getElementById("chat");
-    const qEl  = document.getElementById("q");
-    const btn  = document.getElementById("send");
+    const chatEl   = document.getElementById("chat");
+    const qEl      = document.getElementById("q");
+    const sendBtn  = document.getElementById("send");
+    const statusEl = document.getElementById("status");
 
-    function appendMessage(role, text){
-      const p = document.createElement("p");
-      p.className = `msg ${role}`;
-      const label = role === "user" ? "Tu" : "CoEziv AI";
-      // folosim textContent pentru a evita HTML injection
-      const b = document.createElement("b"); b.textContent = `${label}: `;
-      p.appendChild(b);
-      p.append(document.createTextNode(text));
-      chat.appendChild(p);
-      // autoscroll la ultimul mesaj
-      chat.scrollTop = chat.scrollHeight;
+    // istoric conversație trimis la backend
+    const history = [];
+
+    function appendBubble(role, text, meta){
+      const row = document.createElement("div");
+      row.className = "bubble-row " + role;
+
+      const bubble = document.createElement("div");
+      bubble.className = "bubble " + role;
+      bubble.textContent = text;
+
+      row.appendChild(bubble);
+
+      if(meta){
+        const metaDiv = document.createElement("div");
+        metaDiv.className = "bubble-meta";
+
+        if(meta.J != null){
+          const jChip = document.createElement("span");
+          jChip.className = "meta-chip";
+          jChip.textContent = `J = ${meta.J.toFixed(2)}`;
+          metaDiv.appendChild(jChip);
+        }
+        if(meta.regime){
+          const rChip = document.createElement("span");
+          rChip.className = "meta-chip";
+          rChip.textContent = `Regim: ${meta.regime}`;
+          metaDiv.appendChild(rChip);
+        }
+        if(meta.action){
+          const aChip = document.createElement("span");
+          aChip.className = "meta-chip";
+          aChip.textContent = `Acțiune: ${meta.action}`;
+          metaDiv.appendChild(aChip);
+        }
+
+        row.appendChild(metaDiv);
+      }
+
+      chatEl.appendChild(row);
+      chatEl.scrollTop = chatEl.scrollHeight;
+    }
+
+    function appendTyping(){
+      const row = document.createElement("div");
+      row.className = "bubble-row ai";
+      const bubble = document.createElement("div");
+      bubble.className = "bubble ai typing";
+      bubble.textContent = "CoEziv AI se gândește…";
+      row.appendChild(bubble);
+      chatEl.appendChild(row);
+      chatEl.scrollTop = chatEl.scrollHeight;
+      return row;
     }
 
     async function ask(){
       const q = qEl.value.trim();
       if(!q) return;
-      appendMessage("user", q);
-      qEl.value = "";
-      btn.disabled = true;
 
-      // mic indicator de "scrie..."
-      const typing = document.createElement("p");
-      typing.className = "msg ai";
-      typing.textContent = "CoEziv AI: …";
-      chat.appendChild(typing);
-      chat.scrollTop = chat.scrollHeight;
+      statusEl.textContent = "";
+      appendBubble("user", q);
+      history.push({ role: "user", content: q });
+      qEl.value = "";
+      sendBtn.disabled = true;
+
+      const typingRow = appendTyping();
 
       try{
         const res = await fetch("/api/ask", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ question: q })
+          body: JSON.stringify({ message: q, history })
         });
 
         let data;
-        try { data = await res.json(); }
-        catch {
+        try{
+          data = await res.json();
+        }catch{
           const txt = await res.text();
-          data = { answer: `Eroare: serverul a răspuns non-JSON: ${txt.slice(0,200)}…` };
+          data = { assistant_reply: `Eroare: răspuns non-JSON: ${txt.slice(0,200)}…` };
         }
 
-        typing.remove();
-        appendMessage("ai", data.answer || "Fără răspuns valid.");
+        typingRow.remove();
+
+        const replyText =
+          data.assistant_reply ||
+          data.answer ||     // fallback pentru backend vechi
+          "Fără răspuns valid.";
+
+        let meta = null;
+        if(data.analysis && data.analysis.j_state){
+          const Jraw = Number(data.analysis.j_state.J);
+          if(!Number.isNaN(Jraw)){
+            meta = {
+              J: Jraw,
+              regime: data.analysis.j_state.regime || "",
+              action: data.analysis.policy?.action || data.policy_output?.action || ""
+            };
+          } else {
+            meta = {
+              regime: data.analysis.j_state.regime || "",
+              action: data.analysis.policy?.action || data.policy_output?.action || ""
+            };
+          }
+        }
+
+        appendBubble("ai", replyText, meta);
+        history.push({ role: "assistant", content: replyText });
+
       } catch (e){
-        typing.remove();
-        appendMessage("ai", "A apărut o eroare de rețea. Încearcă din nou.");
+        typingRow.remove();
+        appendBubble("ai", "A apărut o eroare de rețea. Încearcă din nou.");
+        statusEl.textContent = e.message || String(e);
       } finally {
-        btn.disabled = false;
+        sendBtn.disabled = false;
         qEl.focus();
       }
     }
 
-    btn.addEventListener("click", ask);
-    qEl.addEventListener("keydown", (e)=>{ if(e.key === "Enter") ask(); });
+    sendBtn.addEventListener("click", ask);
+    qEl.addEventListener("keydown", (e)=>{
+      if(e.key === "Enter" && !e.shiftKey){
+        e.preventDefault();
+        ask();
+      }
+    });
   </script>
 </body>
 </html>
