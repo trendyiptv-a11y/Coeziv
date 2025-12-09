@@ -2,11 +2,11 @@
 // Asistent Coeziv 3.14 – CoezivWallet-AI + RAG Coeziv + OpenAI
 
 import OpenAI from "openai";
-import { retrieveCohezivContext } from "../coeziv_knowledge.js"; // adaptează dacă fișierul e în altă parte
+import { retrieveCohezivContext } from "../coeziv_knowledge.js";
 
 const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-/* ---------------- CoezivWallet MVP (JS) ---------------- */
+/* ---------------- CoezivWallet-AI ---------------- */
 
 function detectDomains(text) {
   const keywords = {
@@ -14,7 +14,12 @@ function detectDomains(text) {
     legal: ["contract", "instanta", "instanță", "avocat", "lege", "proces", "judecator", "judecător"],
     politic: ["guvern", "stat", "partid", "politic", "alegeri", "parlament", "coruptie", "corupție"],
     psihologic: ["anxietate", "depresie", "teama", "teamă", "frica", "frică", "psiholog", "terapie", "emoțional", "emotional"],
-    tehnic: ["algoritm", "server", "retea", "rețea", "programare", "cod", "AI", "model", "neuron"],
+    tehnic: ["algoritm", "server", "retea", "rețea", "programare", "cod", "ai", "model", "neuron"],
+    neuro: ["neuron", "sinaps", "ax", "dopamin", "plasticit", "cortex", "hipocamp"],
+    economie: ["pia", "infla", "capital", "ofert", "cerer", "econom", "bani", "moned"],
+    ecologie: ["ecosistem", "habitat", "biodivers", "specie", "lanț trofic", "poluare", "climat"],
+    social: ["grup", "comunit", "institu", "colectiv", "societ", "norme", "roluri"],
+    ai_advanced: ["multi-agent", "agent", "policy", "reinforcement", "memorie", "vector", "embedding"]
   };
 
   const lower = text.toLowerCase();
@@ -142,7 +147,7 @@ export default async function handler(req, res) {
   // 1) Analiză Coezivă
   const analysis = runCohezivWallet(history, userMessage);
 
-  // 2) Politici care NU mai apelează LLM (clarificări)
+  // 2) Politici care NU mai apelează LLM (clarificări directe)
   if (analysis.policy.action === "clarify_first") {
     return res.status(200).json({
       assistant_reply:
@@ -161,7 +166,7 @@ export default async function handler(req, res) {
     });
   }
 
-  // 3) Construim SYSTEM cu Modelul Coeziv + RAG (context Coeziv + 2π + Concept Engine)
+  // 3) Construim SYSTEM cu Modelul Coeziv + RAG + 2π + Concept Engine
 
   const baseSystem = `
 Ești Asistentul Coeziv 3.14.
@@ -169,7 +174,7 @@ Ești Asistentul Coeziv 3.14.
 1) Modelul Coeziv:
 - folosești raportul 3.14 doar ca analog conceptual între o stare internă de coeziune maximă (43°C) și una flexibilă (25°C);
 - respecți pragurile 39.86°C și 44.7°C doar ca repere conceptuale, fără a inventa noi proprietăți fizice ale apei;
-- menții separarea strictă a domeniilor (fizic, psihologic, tehnic, social etc.).
+- menții separarea strictă a domeniilor (fizic, psihologic, tehnic, social, neuro, economic, ecologic etc.).
 
 2) Modelul 2π:
 - când este util, explici răspunsul prin secvența:
@@ -178,8 +183,8 @@ Ești Asistentul Coeziv 3.14.
 
 3) Disciplina Coezivă:
 - nu amesteci metafore cu afirmații fizice;
-- nu folosești numeric 3.14 în psihologie, AI, economie;
-- refuzi politicos extrapolările abuzive (F1..F6).
+- nu folosești numeric 3.14 în psihologie, AI, economie sau alte domenii non-fizice;
+- refuzi politicos extrapolările abuzive (erorile F1..F6).
 
 4) Motor conceptual (Concept Engine):
 - DOAR LA CERERE EXPLICITĂ (ex: "propune un concept nou", "inventăm un termen coeziv"):
@@ -187,7 +192,7 @@ Ești Asistentul Coeziv 3.14.
   - explici conceptul prin Structură, Flux, Reorganizare, Noua Structură;
   - verifici consistența cu Modelul Coeziv și precizezi limitările.
 
-După răspunsul principal, dacă este relevant, adaugi:
+După răspunsul principal, dacă este relevant, poți adăuga:
 
 "Explicație 2π:" urmată de 2–4 propoziții care descriu
 Structura, Fluxul, Reorganizarea și Noua structură.
@@ -202,7 +207,6 @@ Structura, Fluxul, Reorganizarea și Noua structură.
     "\n\nContext Coeziv relevant (fragmente din Modelul Coeziv):\n" +
     (coezivContext || "(nu a fost găsit context Coeziv specific pentru această întrebare; răspunde doar cu informații sigure și generale)");
 
-  // Instrucțiuni suplimentare dacă avem domain_declare_and_reframe
   if (analysis.policy.action === "domain_declare_and_reframe") {
     const doms = dominantDomains.length
       ? dominantDomains.join(", ")
