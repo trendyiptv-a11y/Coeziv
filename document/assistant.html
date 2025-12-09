@@ -295,36 +295,53 @@
     const sendBtn  = document.getElementById("send");
     const statusEl = document.getElementById("status");
 
-    // istoric conversație trimis la backend
-    const history = [];
+    let history = [];
 
-    function appendBubble(role, text, meta){
+    function typewriter(el, fullText, speed = 12) {
+      let i = 0;
+      function step() {
+        if (i <= fullText.length) {
+          el.textContent = fullText.slice(0, i);
+          i++;
+          chatEl.scrollTop = chatEl.scrollHeight;
+          setTimeout(step, speed);
+        }
+      }
+      step();
+    }
+
+    function appendBubble(role, text, meta = null, options = {}) {
       const row = document.createElement("div");
       row.className = "bubble-row " + role;
 
       const bubble = document.createElement("div");
       bubble.className = "bubble " + role;
-      bubble.textContent = text;
+
+      if (role === "ai" && options.animate) {
+        bubble.textContent = "";
+      } else {
+        bubble.textContent = text;
+      }
 
       row.appendChild(bubble);
 
-      if(meta){
+      if (meta) {
         const metaDiv = document.createElement("div");
         metaDiv.className = "bubble-meta";
 
-        if(meta.J != null){
+        if (meta.J != null) {
           const jChip = document.createElement("span");
           jChip.className = "meta-chip";
           jChip.textContent = `J = ${meta.J.toFixed(2)}`;
           metaDiv.appendChild(jChip);
         }
-        if(meta.regime){
+        if (meta.regime) {
           const rChip = document.createElement("span");
           rChip.className = "meta-chip";
           rChip.textContent = `Regim: ${meta.regime}`;
           metaDiv.appendChild(rChip);
         }
-        if(meta.action){
+        if (meta.action) {
           const aChip = document.createElement("span");
           aChip.className = "meta-chip";
           aChip.textContent = `Acțiune: ${meta.action}`;
@@ -336,6 +353,12 @@
 
       chatEl.appendChild(row);
       chatEl.scrollTop = chatEl.scrollHeight;
+
+      if (role === "ai" && options.animate) {
+        typewriter(bubble, text);
+      }
+
+      return row;
     }
 
     function appendTyping(){
@@ -350,13 +373,36 @@
       return row;
     }
 
+    function renderHistory() {
+      for (const m of history) {
+        if (m.role === "user") {
+          appendBubble("user", m.content, null, { animate: false });
+        } else if (m.role === "assistant") {
+          appendBubble("ai", m.content, m.meta || null, { animate: false });
+        }
+      }
+    }
+
+    // încărcăm istoric din localStorage
+    try {
+      const saved = localStorage.getItem("coeziv_history_v1");
+      if (saved) {
+        history = JSON.parse(saved);
+        renderHistory();
+      }
+    } catch (e) {
+      history = [];
+    }
+
     async function ask(){
       const q = qEl.value.trim();
       if(!q) return;
 
       statusEl.textContent = "";
-      appendBubble("user", q);
+      appendBubble("user", q, null, { animate: false });
       history.push({ role: "user", content: q });
+      localStorage.setItem("coeziv_history_v1", JSON.stringify(history));
+
       qEl.value = "";
       sendBtn.disabled = true;
 
@@ -381,7 +427,7 @@
 
         const replyText =
           data.assistant_reply ||
-          data.answer ||     // fallback pentru backend vechi
+          data.answer ||
           "Fără răspuns valid.";
 
         let meta = null;
@@ -391,22 +437,23 @@
             meta = {
               J: Jraw,
               regime: data.analysis.j_state.regime || "",
-              action: data.analysis.policy?.action || data.policy_output?.action || ""
+              action: data.policy_output?.action || data.analysis.policy?.action || ""
             };
           } else {
             meta = {
               regime: data.analysis.j_state.regime || "",
-              action: data.analysis.policy?.action || data.policy_output?.action || ""
+              action: data.policy_output?.action || data.analysis.policy?.action || ""
             };
           }
         }
 
-        appendBubble("ai", replyText, meta);
-        history.push({ role: "assistant", content: replyText });
+        appendBubble("ai", replyText, meta, { animate: true });
+        history.push({ role: "assistant", content: replyText, meta });
+        localStorage.setItem("coeziv_history_v1", JSON.stringify(history));
 
       } catch (e){
         typingRow.remove();
-        appendBubble("ai", "A apărut o eroare de rețea. Încearcă din nou.");
+        appendBubble("ai", "A apărut o eroare de rețea. Încearcă din nou.", null, { animate: false });
         statusEl.textContent = e.message || String(e);
       } finally {
         sendBtn.disabled = false;
