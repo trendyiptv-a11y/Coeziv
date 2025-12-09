@@ -1,9 +1,10 @@
 // coeziv_knowledge.js
-// Bază de cunoaștere + RAG simplu pentru Asistentul Coeziv 3.14
-
-// --- DOCUMENTE COEZIVE ---
+// Bază de cunoaștere + RAG pentru Asistentul Coeziv 3.14
+// Include domenii: biologic, psihologic, tehnic, generic, neuro, economie, ecologie, social, ai_advanced
 
 export const coezivDocs = [
+  // --- MODEL COEZIV DE BAZĂ ---
+
   {
     id: "baza-3_14",
     domain: "biologic",
@@ -12,7 +13,7 @@ export const coezivDocs = [
 Modelul Coeziv 3.14 pornește de la comportamentul apei pure în jurul
 temperaturii de 43°C. 43°C este considerat un punct de stabilitate internă
 maximă a apei, asociat cu o coeziune internă ridicată și o organizare
-structurală foarte coerentă. 25°C este referința pentru o stare mai flexibilă.
+structurală coerentă. 25°C este referința pentru o stare mai flexibilă.
 
 Raportul 3.14 nu este un număr „magic”, ci o metaforă cuantificată:
 raportul dintre o stare internă de coeziune maximă și o stare flexibilă.
@@ -24,6 +25,7 @@ ci folosește intervalul termic și densitatea ca reper pentru a descrie
 diferența dintre „stare stabilă” și „stare flexibilă”.
 `
   },
+
   {
     id: "praguri-apei",
     domain: "biologic",
@@ -38,11 +40,12 @@ intrând într-o zonă de stres controlat.
 • 44.7°C – prag de ieșire din zona de stabilitate; peste acest punct,
 homeostazia este greu de menținut iar sistemul intră în regim critic.
 
-Aceste praguri sunt folosite ca referințe conceptuale pentru a descrie
+Aceste praguri sunt folosite ca repere conceptuale pentru a descrie
 când un sistem se află într-o stare „aproape de limită”, chiar dacă
 în alte domenii (psihologie, tehnologie, AI) nu lucrăm direct cu temperaturi.
 `
   },
+
   {
     id: "model-2pi",
     domain: "generic",
@@ -53,7 +56,7 @@ Modelul 2π descrie dinamica universală în patru faze:
 1. Structură – o configurație inițială relativ stabilă.
 2. Flux – apar perturbații, informație nouă, stres, input.
 3. Reorganizare – sistemul reconfigurază conexiunile pentru a integra fluxul.
-4. Noua Structură – apare o stare nouă, mai stabilă (sau mai adaptată).
+4. Noua Structură – apare o stare nouă, mai stabilă sau mai adaptată.
 
 În biologie, acest ciclu descrie adaptarea și procesele de homeostazie.
 În psihologie, poate descrie o criză urmată de integrare și schimbare
@@ -61,6 +64,7 @@ de perspectivă. În tehnologie și AI, reprezintă cicluri iterative de
 îmbunătățire: versiune inițială, feedback, refactorizare, noua versiune.
 `
   },
+
   {
     id: "regulator-coeziv",
     domain: "generic",
@@ -93,6 +97,7 @@ Regulatorul Coeziv este folosit pentru a menține claritatea și
 consistența interpretărilor interdisciplinare.
 `
   },
+
   {
     id: "apa-homeostazie",
     domain: "biologic",
@@ -112,6 +117,9 @@ instrumente conceptuale pentru a discuta despre:
 • modul în care corpul gestionează stresul termic și metabolic.
 `
   },
+
+  // --- PSIHLOGIE / SISTEME UMANE ---
+
   {
     id: "psihologie-coeziva",
     domain: "psihologic",
@@ -132,6 +140,9 @@ Modelul Coeziv nu reduce psihologia la biologie, dar folosește analogiile
 cu homeostazia și apa ca să descrie mai precis procesele de reglaj intern.
 `
   },
+
+  // --- AI / TEHNIC ---
+
   {
     id: "ai-coeziv",
     domain: "tehnic",
@@ -156,6 +167,7 @@ care observă tensiunea, detectează erorile F1..F3 și ghidează sistemul
 spre răspunsuri mai coerente și mai stabile.
 `
   },
+
   {
     id: "vocabular-coeziv",
     domain: "generic",
@@ -181,10 +193,140 @@ Acest vocabular nu este o teorie fizică nouă, ci un limbaj pentru a
 discuta coerent despre sisteme complexe (biologice, psihologice, sociale,
 tehnice sau AI).
 `
+  },
+
+  // --- DOMENII NOI: NEURO, ECONOMIE, ECOLOGIE, SOCIAL, AI-ADVANCED ---
+
+  {
+    id: "neuro-coeziv",
+    domain: "neuro",
+    title: "Neuroștiințe în Modelul Coeziv",
+    content: `
+În neuroștiințe, Modelul Coeziv este folosit ca structură conceptuală
+pentru a descrie modul în care rețelele neuronale se adaptează la fluxul
+de experiență.
+
+Structură – configurația actuală a conexiunilor sinaptice și a
+rețelelor funcționale.
+
+Flux – stimulii senzoriali, informația cognitivă, emoțiile, stresul.
+
+Reorganizare – plasticitatea sinaptică, modificarea ponderilor, pruning,
+crearea de noi conexiuni.
+
+Noua structură – rețele mai eficiente sau mai rigide, în funcție de
+expunere și de mecanismele de reglaj.
+
+Modelul Coeziv nu înlocuiește modele biofizice ale neuronilor și nu
+introduce temperatură numerică în neuroștiințe. 3.14 este folosit doar
+ca analog conceptual pentru raportul dintre stabilitate internă și
+flexibilitate a rețelei neuronale.
+`
+  },
+
+  {
+    id: "economie-coeziva",
+    domain: "economie",
+    title: "Economie și sisteme financiare în Modelul Coeziv",
+    content: `
+În economie, Modelul Coeziv este folosit pentru a descrie stabilitatea
+și tranzițiile de fază ale sistemelor financiare.
+
+Structură – instituțiile, regulile, contractele, rețelele de schimb.
+
+Flux – tranzacții, capital, informații de piață, șocuri externe.
+
+Reorganizare – ajustare de politici, reconfigurarea rețelelor comerciale,
+modificarea strategiilor.
+
+Noua structură – o nouă stare de echilibru (sau dezechilibru stabil),
+cu altă distribuție a resurselor și altă tensiune structurală.
+
+Modelul Coeziv nu atribuie numeric 3.14 sau temperaturi piețelor financiare.
+Vorbește despre „stări ordonate, mixte sau tensionate” ca analog conceptual
+pentru volatilitate, risc și reziliență economică.
+`
+  },
+
+  {
+    id: "ecologie-coeziva",
+    domain: "ecologie",
+    title: "Ecologie Coezivă – ecosisteme și reziliență",
+    content: `
+În ecologie, Modelul Coeziv este utilizat pentru a descrie modul în care
+ecosistemele își mențin sau își pierd stabilitatea în fața fluxurilor
+de schimb (energie, materie, informație).
+
+Structură – speciile, relațiile trofice, rețeaua de habitate.
+
+Flux – migrație, perturbări climatice, introducerea de specii noi,
+activitatea umană.
+
+Reorganizare – adaptare, succesiune ecologică, schimbarea compoziției
+speciilor, reorganizarea lanțurilor trofice.
+
+Noua structură – un ecosistem mai rezilient sau mai vulnerabil.
+
+Modelul Coeziv nu confundă apa ca lichid cu ecologia ca știință.
+Folosește conceptul de coeziune pentru a discuta despre cât de bine
+„țin laolaltă” relațiile dintr-un ecosistem sub stres.
+`
+  },
+
+  {
+    id: "social-coeziv",
+    domain: "social",
+    title: "Dinamică socială Coezivă",
+    content: `
+În domeniul social, Modelul Coeziv descrie modul în care grupurile,
+organizațiile și instituțiile gestionează tensiunea internă.
+
+Structură – norme, roluri, ierarhii, contracte sociale.
+
+Flux – conflicte, crize, informații contradictorii, schimbări rapide.
+
+Reorganizare – renegociere de roluri, reformă instituțională,
+reconfigurare de alianțe.
+
+Noua structură – o comunitate mai coezivă sau mai fragmentată.
+
+Modelul nu reduce oamenii la molecule și nu aplică numeric temperatura
+sau 3.14 pe societate. Utilizează doar analogia: niveluri diferite de
+coeziune și flexibilitate într-un grup.
+`
+  },
+
+  {
+    id: "ai-advanced-coeziv",
+    domain: "ai_advanced",
+    title: "AI avansat – sisteme multi-agent și CoezivWallet",
+    content: `
+În sisteme AI avansate, Modelul Coeziv poate fi folosit pentru:
+
+• a descrie tensiunea structurală dintre module (sau agenți);
+• a urmări conflictele dintre obiective locale și globale;
+• a decide când este nevoie de reorganizare arhitecturală.
+
+Structură – graf de module sau agenți, politici, memorii, canale de comunicare.
+
+Flux – cereri ale utilizatorilor, date noi, instrucțiuni contradictorii,
+constrângeri de siguranță.
+
+Reorganizare – schimbarea rutelor de mesaje, ajustarea politicilor,
+introducerea de noi reguli de coordonare.
+
+Noua structură – un sistem AI mai robust, cu tensiune J mai mică
+pentru același tip de input.
+
+CohezivWallet-AI este exemplul concret: un strat care monitorizează J,
+identifică erori F1..F3 și alege politicile conversaționale potrivite
+(normal_answer, clarify_first, reframe, etc.).
+`
   }
 ];
 
-// --- RAG SIMPLU (scor de similaritate pe cuvinte + bonus de domeniu) ---
+
+// --- RAG SIMPLU (scor de similaritate + bonus de domeniu) ---
 
 function scoreDoc(query, doc, domainHint) {
   const q = query.toLowerCase().split(/\s+/).filter(Boolean);
@@ -192,7 +334,7 @@ function scoreDoc(query, doc, domainHint) {
 
   let score = 0;
   for (const w of q) {
-    if (w.length < 3) continue; // ignorăm cuvinte foarte scurte
+    if (w.length < 3) continue;
     if (text.includes(w)) score += 1;
   }
 
