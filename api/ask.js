@@ -2,7 +2,7 @@
 // Asistent Coeziv 3.14 – CoezivWallet-AI + RAG Coeziv + OpenAI
 
 import OpenAI from "openai";
-import { retrieveCohezivContext } from "../coeziv_knowledge.js"; // adaptează calea dacă e nevoie
+import { retrieveCohezivContext } from "../coeziv_knowledge.js"; // adaptează dacă fișierul e în altă parte
 
 const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
@@ -139,10 +139,10 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: "message is required" });
   }
 
-  // 1) Analiză Coezivă (CohezivWallet-AI)
+  // 1) Analiză Coezivă
   const analysis = runCohezivWallet(history, userMessage);
 
-  // 2) Politici care NU mai apelează LLM (clarificări directe)
+  // 2) Politici care NU mai apelează LLM (clarificări)
   if (analysis.policy.action === "clarify_first") {
     return res.status(200).json({
       assistant_reply:
@@ -161,28 +161,51 @@ export default async function handler(req, res) {
     });
   }
 
-  // 3) Construim SYSTEM cu Modelul Coeziv + RAG (context Coeziv)
+  // 3) Construim SYSTEM cu Modelul Coeziv + RAG (context Coeziv + 2π + Concept Engine)
+
   const baseSystem = `
 Ești Asistentul Coeziv 3.14.
-Răspunzi în logica Modelului Coeziunii (3.14) și a Modelului 2π.
-Menții separarea strictă a domeniilor (fizic, psihologic, tehnic, social etc.).
-Nu inventezi proprietăți fizice noi ale apei.
-Folosesti numeric raportul 3.14 doar în contexte în care temperatura și densitatea apei au sens fizic real.
-În alte domenii (psihologie, AI, economie), folosești 3.14 doar ca analog conceptual.
-Când este relevant, explici răspunsul prin fazele 2π: Structură → Flux → Reorganizare → Noua Structură.
+
+1) Modelul Coeziv:
+- folosești raportul 3.14 doar ca analog conceptual între o stare internă de coeziune maximă (43°C) și una flexibilă (25°C);
+- respecți pragurile 39.86°C și 44.7°C doar ca repere conceptuale, fără a inventa noi proprietăți fizice ale apei;
+- menții separarea strictă a domeniilor (fizic, psihologic, tehnic, social etc.).
+
+2) Modelul 2π:
+- când este util, explici răspunsul prin secvența:
+  Structură → Flux → Reorganizare → Noua Structură,
+  într-o secțiune separată numită "Explicație 2π".
+
+3) Disciplina Coezivă:
+- nu amesteci metafore cu afirmații fizice;
+- nu folosești numeric 3.14 în psihologie, AI, economie;
+- refuzi politicos extrapolările abuzive (F1..F6).
+
+4) Motor conceptual (Concept Engine):
+- DOAR LA CERERE EXPLICITĂ (ex: "propune un concept nou", "inventăm un termen coeziv"):
+  - poți propune concepte noi, dar le prezinți clar ca modele teoretice, nu ca fapte experimentale;
+  - explici conceptul prin Structură, Flux, Reorganizare, Noua Structură;
+  - verifici consistența cu Modelul Coeziv și precizezi limitările.
+
+După răspunsul principal, dacă este relevant, adaugi:
+
+"Explicație 2π:" urmată de 2–4 propoziții care descriu
+Structura, Fluxul, Reorganizarea și Noua structură.
 `;
 
-  const coezivContext = retrieveCohezivContext(userMessage);
+  const dominantDomains = analysis.policy.dominant || [];
+  const domainHint = dominantDomains[0] || null;
+  const coezivContext = retrieveCohezivContext(userMessage, domainHint);
 
   let systemContent =
     baseSystem +
     "\n\nContext Coeziv relevant (fragmente din Modelul Coeziv):\n" +
     (coezivContext || "(nu a fost găsit context Coeziv specific pentru această întrebare; răspunde doar cu informații sigure și generale)");
 
-  // Dacă politica cere domain_declare_and_reframe, adăugăm instrucțiuni suplimentare
+  // Instrucțiuni suplimentare dacă avem domain_declare_and_reframe
   if (analysis.policy.action === "domain_declare_and_reframe") {
-    const doms = analysis.policy.dominant?.length
-      ? analysis.policy.dominant.join(", ")
+    const doms = dominantDomains.length
+      ? dominantDomains.join(", ")
       : "domeniul tău de competență";
 
     systemContent +=
@@ -201,7 +224,7 @@ Când este relevant, explici răspunsul prin fazele 2π: Structură → Flux →
   }
   messages.push({ role: "user", content: userMessage });
 
-  // 5) Apelăm LLM-ul (OpenAI)
+  // 5) Apelăm LLM-ul
   const completion = await client.chat.completions.create({
     model: "gpt-4o-mini",
     messages,
