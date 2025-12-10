@@ -12,7 +12,7 @@ const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 /**
  * Browsing Coeziv-Hibrid:
- * - aplică logica 2π: folosește browsing ca FLUX extern doar când Structura + domeniul o cer;
+ * - folosește browsing ca FLUX extern doar când Structura + domeniul o cer;
  * - ia în considerare:
  *   - verbe de tip "caută / verifică / află / search";
  *   - markeri de recență ("ultimele știri, prețul acum, recent, latest news...");
@@ -75,7 +75,7 @@ function shouldUseWebSearchHybrid(userMessage, domainsLocal, jState) {
   ];
   const mentionsRecency = recencyMarkers.some((p) => t.includes(p));
 
-  // dinamism de domeniu: browsing are sens mai ales aici
+  // domenii dinamice potrivite pentru browsing
   const allowedDomains = [
     "economie",
     "tehnic",
@@ -91,7 +91,6 @@ function shouldUseWebSearchHybrid(userMessage, domainsLocal, jState) {
     allowedDomains.includes(d)
   );
 
-  // întrebări de bază Coezive – nu trebuie să meargă implicit în Google
   const coezivCoreMarkers = [
     "modelul coeziv",
     "model coeziv",
@@ -107,25 +106,23 @@ function shouldUseWebSearchHybrid(userMessage, domainsLocal, jState) {
   ];
   const isCohezivCore = coezivCoreMarkers.some((p) => t.includes(p));
 
-  // 1) dacă userul cere explicit "caută pe internet / online / pe net" → forțăm browsing
+  // 1) dacă userul cere clar "caută pe internet" → browsing obligatoriu
   if (hasSearchVerb && hasInternetWord) {
     return true;
   }
 
-  // 2) dacă e CoezivCore și userul NU menționează internet, evităm browsing implicit
+  // 2) întrebări Coezive pure → nu fac browsing implicit
   if (isCoezivCore && !hasInternetWord) {
     return false;
   }
 
-  // 3) dacă are verbe de căutare + markeri de recență + domeniu permis
+  // 3) verbe de căutare + recență + domeniu permis
   if (hasSearchVerb && mentionsRecency && hasAllowedDomain) {
     return true;
   }
 
-  // 4) dacă nu are verb de căutare, dar întrebarea e clar "dinamică"
-  //    (prețuri, știri, update-uri) în domeniu permis → browsing automat
-  if (!hasSearchVerb && (mentionsRecency || hasAllowedDomain)) {
-    // în special pentru întrebări de tip "Cât e prețul Bitcoin acum?"
+  // 4) fără verb, dar întrebare clar dinamică (preț BTC etc.)
+  if (!hasSearchVerb && hasAllowedDomain) {
     const dynamicHardKeywords = [
       "pretul bitcoin",
       "prețul bitcoin",
@@ -144,14 +141,13 @@ function shouldUseWebSearchHybrid(userMessage, domainsLocal, jState) {
       "updates"
     ];
     const isDynamic = dynamicHardKeywords.some((p) => t.includes(p));
-    if (isDynamic && hasAllowedDomain) {
+    if (isDynamic || mentionsRecency) {
       return true;
     }
   }
 
-  // 5) dacă fluxul e deja foarte tensionat (J mare), putem temporiza browsing-ul
+  // 5) dacă J este deja tensionat, nu mai băgăm browsing peste
   if (jState && jState.regime === "tensed") {
-    // evităm să adăugăm și mai mult haos; cerem clarificare prin alte politici
     return false;
   }
 
@@ -159,7 +155,7 @@ function shouldUseWebSearchHybrid(userMessage, domainsLocal, jState) {
 }
 
 /**
- * Construiește query-ul pentru Serper din întrebarea userului.
+ * Construiește query-ul pentru Serper din întrebarea utilizatorului.
  */
 function buildSearchQuery(userMessage) {
   if (!userMessage) return "";
@@ -197,7 +193,8 @@ function buildSearchQuery(userMessage) {
 }
 
 /**
- * Caută pe internet folosind Serper și întoarce un text Coeziv cu rezultate.
+ * Caută pe internet folosind Serper și întoarce un text coeziv cu rezultate.
+ * IMPORTANT: citim body-ul O SINGURĂ DATĂ → fără „body stream already read”.
  */
 async function webSearchSerper(query) {
   const apiKey = process.env.SERPER_API_KEY;
@@ -219,8 +216,7 @@ async function webSearchSerper(query) {
       }),
     });
 
-    // prevenim citirea multiplă – citim body O SINGURĂ DATĂ
-    const text = await response.text();
+    const text = await response.text(); // citim body-ul o singură dată
 
     if (!response.ok) {
       console.warn("Serper API error:", response.status, text);
@@ -249,13 +245,13 @@ async function webSearchSerper(query) {
       });
     }
 
-    if (!results.length) return "Nu am găsit rezultate relevante.";
+    if (!results.length) return "";
 
-    return "Rezultate sintetizate din internet:\n" + results.join("\n");
+    return "Rezultate sintetizate din internet (Serper):\n" + results.join("\n");
 
   } catch (err) {
     console.error("Eroare la webSearchSerper:", err);
-    return "A apărut o eroare la modulul de căutare.";
+    return "";
   }
 }
 
@@ -417,44 +413,48 @@ function runCohezivWallet(history, userMessage) {
 /* -------------------------------------------------------------------------- */
 
 export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    res.setHeader("Allow", ["POST"]);
-    return res.status(405).json({ error: "Use POST" });
-  }
+  try {
+    if (req.method !== "POST") {
+      res.setHeader("Allow", ["POST"]);
+      return res.status(405).json({ error: "Use POST" });
+    }
 
-  const body = typeof req.body === "string" ? JSON.parse(req.body) : req.body || {};
-  const userMessage = body.message || "";
-  const history = body.history || []; // [{role, content}, ...]
+    const body =
+      typeof req.body === "string" ? JSON.parse(req.body) : req.body || {};
+    const userMessage = body.message || "";
+    const history = body.history || []; // [{role, content}, ...]
 
-  if (!userMessage.trim()) {
-    return res.status(400).json({ error: "message is required" });
-  }
+    if (!userMessage.trim()) {
+      return res.status(400).json({ error: "message is required" });
+    }
 
-  // 1) Analiză Coezivă
-  const analysis = runCohezivWallet(history, userMessage);
+    // 1) Analiză Coezivă
+    const analysis = runCohezivWallet(history, userMessage);
 
-  // 2) Politici care NU mai apelează LLM (clarificări directe)
-  if (analysis.policy.action === "clarify_first") {
-    return res.status(200).json({
-      assistant_reply:
-        "Întrebarea ta combină mai multe lucruri sau nu este suficient de clară. Reformulează, te rog, într-o singură propoziție clară.",
-      analysis,
-      policy_output: analysis.policy,
-    });
-  }
+    // 2) Politici care NU mai apelează LLM (clarificări directe)
+    if (analysis.policy.action === "clarify_first") {
+      return res.status(200).json({
+        assistant_reply:
+          "Întrebarea ta combină mai multe lucruri sau nu este suficient de clară. Reformulează, te rog, într-o singură propoziție clară.",
+        analysis,
+        policy_output: analysis.policy,
+        used_web_search: false,
+      });
+    }
 
-  if (analysis.policy.action === "trim_context_and_clarify") {
-    return res.status(200).json({
-      assistant_reply:
-        "Contextul este foarte mare și amestecat. Spune-mi, te rog, care este întrebarea ta principală acum, într-o frază.",
-      analysis,
-      policy_output: analysis.policy,
-    });
-  }
+    if (analysis.policy.action === "trim_context_and_clarify") {
+      return res.status(200).json({
+        assistant_reply:
+          "Contextul este foarte mare și amestecat. Spune-mi, te rog, care este întrebarea ta principală acum, într-o frază.",
+        analysis,
+        policy_output: analysis.policy,
+        used_web_search: false,
+      });
+    }
 
-  // 3) Construim SYSTEM: Model Coeziv + RAG + Browsing Coeziv-Hibrid
+    // 3) Construim SYSTEM: Model Coeziv + RAG + Browsing Coeziv-Hibrid
 
-  const baseSystem = `
+    const baseSystem = `
 Ești Asistentul Coeziv 3.14.
 
 1) Modelul Coeziv:
@@ -492,64 +492,79 @@ Ești Asistentul Coeziv 3.14.
   "Pentru acest răspuns folosesc cunoașterea mea internă și contextul Coeziv disponibil."
 `;
 
-  const dominantDomains = analysis.policy.dominant || [];
-  const domainHint = dominantDomains[0] || null;
-  const coezivContext = retrieveCohezivContext(userMessage, domainHint);
+    const dominantDomains = analysis.policy.dominant || [];
+    const domainHint = dominantDomains[0] || null;
+    const coezivContext = retrieveCohezivContext(userMessage, domainHint);
 
-  const domainsLocal = analysis.rho?.domains_local || {};
-  let webContext = "";
-  let usedWebSearch = false;
+    const domainsLocal = analysis.rho?.domains_local || {};
+    let webContext = "";
+    let usedWebSearch = false;
 
-  if (shouldUseWebSearchHybrid(userMessage, domainsLocal, analysis.j_state)) {
-    const q = buildSearchQuery(userMessage);
-    webContext = await webSearchSerper(q);
-    if (webContext) usedWebSearch = true;
+    if (
+      shouldUseWebSearchHybrid(
+        userMessage,
+        domainsLocal,
+        analysis.j_state
+      )
+    ) {
+      const q = buildSearchQuery(userMessage);
+      webContext = await webSearchSerper(q);
+      if (webContext) usedWebSearch = true;
+    }
+
+    let systemContent =
+      baseSystem +
+      "\n\nContext Coeziv intern (fragmente din Modelul Coeziv):\n" +
+      (coezivContext ||
+        "(nu a fost găsit context Coeziv specific pentru această întrebare; răspunde doar cu informații sigure și generale)");
+
+    if (webContext) {
+      systemContent +=
+        "\n\n---\n\nContext suplimentar din căutarea pe internet (Serper):\n" +
+        webContext +
+        "\n\nIntegrează aceste informații în logica Coezivă, clarificând sursele și limitările.";
+    }
+
+    if (analysis.policy.action === "domain_declare_and_reframe") {
+      const doms = dominantDomains.length
+        ? dominantDomains.join(", ")
+        : "domeniul tău de competență";
+
+      systemContent +=
+        "\n\nInstrucțiuni suplimentare pentru răspunsul curent:\n" +
+        `- Declară explicit că răspunzi în principal din perspectiva: ${doms}.\n` +
+        "- Nu trage concluzii globale dintr-un singur caz.\n" +
+        "- Evită teorii conspiraționiste sau afirmații politice speculative.\n";
+    }
+
+    const messages = [];
+    messages.push({ role: "system", content: systemContent });
+
+    for (const m of history) {
+      if (m.role && m.content) messages.push(m);
+    }
+    messages.push({ role: "user", content: userMessage });
+
+    const completion = await client.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages,
+    });
+
+    const reply = completion.choices[0].message.content || "";
+
+    return res.status(200).json({
+      assistant_reply: reply,
+      analysis,
+      policy_output: analysis.policy,
+      used_web_search: usedWebSearch,
+    });
+  } catch (error) {
+    console.error("Eroare în /api/ask:", error);
+    return res.status(500).json({
+      error: "SERVER_ERROR",
+      message:
+        "A apărut o eroare internă în Asistentul Coeziv. Poți încerca din nou sau poți reformula întrebarea.",
+      details: error?.message || String(error),
+    });
   }
-
-  let systemContent =
-    baseSystem +
-    "\n\nContext Coeziv intern (fragmente din Modelul Coeziv):\n" +
-    (coezivContext ||
-      "(nu a fost găsit context Coeziv specific pentru această întrebare; răspunde doar cu informații sigure și generale)");
-
-  if (webContext) {
-    systemContent +=
-      "\n\n---\n\nContext suplimentar din căutarea pe internet (Serper):\n" +
-      webContext +
-      "\n\nIntegrează aceste informații în logica Coezivă, clarificând sursele și limitările.";
-  }
-
-  if (analysis.policy.action === "domain_declare_and_reframe") {
-    const doms = dominantDomains.length
-      ? dominantDomains.join(", ")
-      : "domeniul tău de competență";
-
-    systemContent +=
-      "\n\nInstrucțiuni suplimentare pentru răspunsul curent:\n" +
-      `- Declară explicit că răspunzi în principal din perspectiva: ${doms}.\n` +
-      "- Nu trage concluzii globale dintr-un singur caz.\n" +
-      "- Evită teorii conspiraționiste sau afirmații politice speculative.\n";
-  }
-
-  const messages = [];
-  messages.push({ role: "system", content: systemContent });
-
-  for (const m of history) {
-    if (m.role && m.content) messages.push(m);
-  }
-  messages.push({ role: "user", content: userMessage });
-
-  const completion = await client.chat.completions.create({
-    model: "gpt-4o-mini",
-    messages,
-  });
-
-  const reply = completion.choices[0].message.content;
-
-  return res.status(200).json({
-    assistant_reply: reply,
-    analysis,
-    policy_output: analysis.policy,
-    used_web_search: usedWebSearch,
-  });
 }
