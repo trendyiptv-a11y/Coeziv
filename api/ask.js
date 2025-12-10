@@ -1,9 +1,5 @@
 // api/ask.js
-// Asistent Coeziv 3.14 – CoezivWallet-AI + RAG Coeziv + Browsing Coeziv (Serper)
-
-// Necesită în Vercel:
-// - OPENAI_API_KEY
-// - SERPER_API_KEY  (cheie de la https://serper.dev)
+// Asistent Coeziv 3.14 – CoezivWallet-AI + RAG Coeziv + Browsing Coeziv-Hibrid (Serper)
 
 import OpenAI from "openai";
 import { retrieveCohezivContext } from "../coeziv_knowledge.js";
@@ -15,38 +11,41 @@ const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 /* -------------------------------------------------------------------------- */
 
 /**
- * Decide dacă are sens să folosim browsing, în logica Coezivă:
- * - true dacă userul cere explicit "caută pe internet / pe net / online"
- * - sau dacă întreabă despre "ultimele / recente / actuale" în domenii potrivite
- * - NU face browsing implicit pentru întrebări pur conceptuale despre Modelul Coeziv, apă, 3.14 etc.
+ * Browsing Coeziv-Hibrid:
+ * - aplică logica 2π: folosește browsing ca FLUX extern doar când Structura + domeniul o cer;
+ * - ia în considerare:
+ *   - verbe de tip "caută / verifică / află / search";
+ *   - markeri de recență ("ultimele știri, prețul acum, recent, latest news...");
+ *   - domenii dinamice (economie, AI, tehnic, social, politic, ecologie);
+ *   - protecție pentru întrebări despre Modelul Coeziv / apă / 3.14.
  */
-function shouldUseWebSearch(userMessage, domainsLocal) {
+function shouldUseWebSearchHybrid(userMessage, domainsLocal, jState) {
   if (!userMessage) return false;
   const t = userMessage.toLowerCase();
 
-  // 1) Triggere explicite – userul chiar cere browsing
-  const explicitTriggers = [
-    "cauta pe internet",
-    "caută pe internet",
-    "cauta online",
-    "caută online",
-    "cauta pe net",
-    "caută pe net",
-    "verifica pe internet",
-    "verifică pe internet",
-    "search the web",
-    "search on the web",
+  const hasSearchVerb = [
+    "cauta",
+    "caută",
+    "verifica",
+    "verifică",
+    "afla",
+    "află",
+    "gaseste",
+    "găsește",
+    "search",
     "look up",
-    "check online",
-    "fa o cautare pe internet",
-    "fă o căutare pe internet"
-  ];
+    "check",
+    "vezi",
+  ].some((p) => t.includes(p));
 
-  if (explicitTriggers.some((p) => t.includes(p))) {
-    return true;
-  }
+  const hasInternetWord = [
+    "pe internet",
+    "online",
+    "pe net",
+    "on the web",
+    "web",
+  ].some((p) => t.includes(p));
 
-  // 2) Expresii de "actualitate" – dar doar pentru domenii potrivite
   const recencyMarkers = [
     "ultimele stiri",
     "ultimele știri",
@@ -57,70 +56,110 @@ function shouldUseWebSearch(userMessage, domainsLocal) {
     "informatii recente",
     "informații recente",
     "acum",
-    "actualizat",
-    "actualizate",
     "azi",
     "today",
-    "recent news",
+    "recent",
+    "latest",
     "latest news",
+    "în timp real",
+    "in timp real",
     "prețul acum",
     "pretul acum",
-    "valoarea acum"
+    "prețul",
+    "pretul",
+    "cotatia",
+    "cotația",
+    "price",
+    "exchange rate",
+    "market cap"
   ];
-
   const mentionsRecency = recencyMarkers.some((p) => t.includes(p));
 
-  // 3) Verificăm domeniul – browsing are sens pentru:
+  // dinamism de domeniu: browsing are sens mai ales aici
   const allowedDomains = [
+    "economie",
     "tehnic",
     "ai_advanced",
-    "economie",
     "social",
+    "politic",
     "ecologie",
-    "politic"
   ];
-
   const localActiveDomains = Object.entries(domainsLocal || {})
     .filter(([_, v]) => v > 0.25)
     .map(([d]) => d);
-
   const hasAllowedDomain = localActiveDomains.some((d) =>
     allowedDomains.includes(d)
   );
 
-  // 4) Evităm browsing implicit pentru întrebări despre Modelul Coeziv / apă / 3.14
+  // întrebări de bază Coezive – nu trebuie să meargă implicit în Google
   const coezivCoreMarkers = [
     "modelul coeziv",
     "model coeziv",
+    "coeziv 3.14",
+    "coeziv3.14",
     "3.14",
     "3,14",
     "apa",
     "apă",
-    "coeziv 3.14",
-    "coeziv3.14",
+    "homeostazie",
     "tensiune structurala",
     "tensiune structurală",
-    "homeostazie"
   ];
   const isCohezivCore = coezivCoreMarkers.some((p) => t.includes(p));
 
-  if (isCohezivCore && !explicitTriggers.some((p) => t.includes(p))) {
-    // întrebări despre Modelul Coeziv se tratează din bază, nu din Google,
-    // dacă userul nu cere explicit browsing.
+  // 1) dacă userul cere explicit "caută pe internet / online / pe net" → forțăm browsing
+  if (hasSearchVerb && hasInternetWord) {
+    return true;
+  }
+
+  // 2) dacă e CoezivCore și userul NU menționează internet, evităm browsing implicit
+  if (isCoezivCore && !hasInternetWord) {
     return false;
   }
 
-  // dacă userul vorbește despre "ultimele / recente" și suntem într-un domeniu
-  // unde are sens să folosim știri / date actuale, activăm browsing.
-  if (mentionsRecency && hasAllowedDomain) {
+  // 3) dacă are verbe de căutare + markeri de recență + domeniu permis
+  if (hasSearchVerb && mentionsRecency && hasAllowedDomain) {
     return true;
+  }
+
+  // 4) dacă nu are verb de căutare, dar întrebarea e clar "dinamică"
+  //    (prețuri, știri, update-uri) în domeniu permis → browsing automat
+  if (!hasSearchVerb && (mentionsRecency || hasAllowedDomain)) {
+    // în special pentru întrebări de tip "Cât e prețul Bitcoin acum?"
+    const dynamicHardKeywords = [
+      "pretul bitcoin",
+      "prețul bitcoin",
+      "bitcoin acum",
+      "cotatia bitcoin",
+      "cotația bitcoin",
+      "btc acum",
+      "btc price",
+      "stiri bitcoin",
+      "știri bitcoin",
+      "stiri crypto",
+      "știri crypto",
+      "actualizari",
+      "actualizări",
+      "update",
+      "updates"
+    ];
+    const isDynamic = dynamicHardKeywords.some((p) => t.includes(p));
+    if (isDynamic && hasAllowedDomain) {
+      return true;
+    }
+  }
+
+  // 5) dacă fluxul e deja foarte tensionat (J mare), putem temporiza browsing-ul
+  if (jState && jState.regime === "tensed") {
+    // evităm să adăugăm și mai mult haos; cerem clarificare prin alte politici
+    return false;
   }
 
   return false;
 }
 
 /**
- * Extrage query-ul de căutare din întrebarea utilizatorului.
+ * Construiește query-ul pentru Serper din întrebarea userului.
  */
 function buildSearchQuery(userMessage) {
   if (!userMessage) return "";
@@ -140,7 +179,11 @@ function buildSearchQuery(userMessage) {
     "cauta stiri",
     "caută știri",
     "fa o cautare pe internet",
-    "fă o căutare pe internet"
+    "fă o căutare pe internet",
+    "cauta despre",
+    "caută despre",
+    "cauta informatii despre",
+    "caută informații despre"
   ];
 
   for (const p of patternsToStrip) {
@@ -224,7 +267,7 @@ function detectDomains(text) {
     psihologic: ["anxietate", "depresie", "teama", "teamă", "frica", "frică", "psiholog", "terapie", "emoțional", "emotional"],
     tehnic: ["algoritm", "server", "retea", "rețea", "programare", "cod", "ai", "model", "neuron"],
     neuro: ["neuron", "sinaps", "ax", "dopamin", "plasticit", "cortex", "hipocamp"],
-    economie: ["pia", "infla", "capital", "ofert", "cerer", "econom", "bani", "moned"],
+    economie: ["pia", "infla", "capital", "ofert", "cerer", "econom", "bani", "moned", "bitcoin", "btc", "crypto", "criptomoned"],
     ecologie: ["ecosistem", "habitat", "biodivers", "specie", "lanț trofic", "poluare", "climat"],
     social: ["grup", "comunit", "institu", "colectiv", "societ", "norme", "roluri"],
     ai_advanced: ["multi-agent", "agent", "policy", "reinforcement", "memorie", "vector", "embedding"]
@@ -405,7 +448,7 @@ export default async function handler(req, res) {
     });
   }
 
-  // 3) Construim SYSTEM: Model Coeziv + RAG + Browsing Coeziv
+  // 3) Construim SYSTEM: Model Coeziv + RAG + Browsing Coeziv-Hibrid
 
   const baseSystem = `
 Ești Asistentul Coeziv 3.14.
@@ -439,20 +482,21 @@ Ești Asistentul Coeziv 3.14.
 - Integrează rezultatele într-o mică "Explicație 2π" atunci când are sens (Structură inițială, Fluxul noilor informații, Reorganizarea, Noua Structură).
 
 6) Despre acces la internet:
-- Nu menționa spontan că nu ai acces la internet sau că ești limitat la o anumită dată.
-- Dacă utilizatorul te întreabă direct despre internet, explică simplu că folosești un modul de căutare extern pentru a aduce informații actualizate, când este nevoie.
+- Este INTERZIS să spui fraze de tip:
+  "nu pot căuta pe internet", "nu am acces la internet", "cunoștințele mele sunt limitate la 2023".
+- Dacă nu ai folosit modulul de căutare pentru o întrebare, poți spune doar:
+  "Pentru acest răspuns folosesc cunoașterea mea internă și contextul Coeziv disponibil."
 `;
 
   const dominantDomains = analysis.policy.dominant || [];
   const domainHint = dominantDomains[0] || null;
   const coezivContext = retrieveCohezivContext(userMessage, domainHint);
 
-  // Browsing Coeziv – numai dacă modelul decide că are sens
   const domainsLocal = analysis.rho?.domains_local || {};
   let webContext = "";
   let usedWebSearch = false;
 
-  if (shouldUseWebSearch(userMessage, domainsLocal)) {
+  if (shouldUseWebSearchHybrid(userMessage, domainsLocal, analysis.j_state)) {
     const q = buildSearchQuery(userMessage);
     webContext = await webSearchSerper(q);
     if (webContext) usedWebSearch = true;
@@ -483,7 +527,6 @@ Ești Asistentul Coeziv 3.14.
       "- Evită teorii conspiraționiste sau afirmații politice speculative.\n";
   }
 
-  // 4) Mesajele pentru LLM
   const messages = [];
   messages.push({ role: "system", content: systemContent });
 
@@ -492,7 +535,6 @@ Ești Asistentul Coeziv 3.14.
   }
   messages.push({ role: "user", content: userMessage });
 
-  // 5) Apel la OpenAI
   const completion = await client.chat.completions.create({
     model: "gpt-4o-mini",
     messages,
@@ -500,7 +542,6 @@ Ești Asistentul Coeziv 3.14.
 
   const reply = completion.choices[0].message.content;
 
-  // 6) Răspuns JSON către frontend
   return res.status(200).json({
     assistant_reply: reply,
     analysis,
