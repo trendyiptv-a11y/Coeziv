@@ -396,6 +396,31 @@
     function appendBubble(role, text, meta = null, options = {}) {
       const row = document.createElement("div");
       row.className = "bubble-row " + role;
+<script>
+    const chatEl   = document.getElementById("chat");
+    const qEl      = document.getElementById("q");
+    const sendBtn  = document.getElementById("send");
+    const statusEl = document.getElementById("status");
+
+    // Istoric doar în memoria paginii (NU se mai salvează în localStorage)
+    let history = [];
+
+    function typewriter(el, fullText, speed = 12) {
+      let i = 0;
+      function step() {
+        if (i <= fullText.length) {
+          el.textContent = fullText.slice(0, i);
+          i++;
+          chatEl.scrollTop = chatEl.scrollHeight;
+          setTimeout(step, speed);
+        }
+      }
+      step();
+    }
+
+    function appendBubble(role, text, meta = null, options = {}) {
+      const row = document.createElement("div");
+      row.className = "bubble-row " + role;
 
       const bubble = document.createElement("div");
       bubble.className = "bubble " + role;
