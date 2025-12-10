@@ -103,6 +103,7 @@ export default async function handler(req, res) {
       typeof req.body === "string" ? JSON.parse(req.body) : req.body || {};
     const userMessage = body.message || "";
     const history = body.history || []; // [{role, content}, ...]
+    const userId = body.userId || "default";
 
     if (!userMessage.trim()) {
       return res.status(400).json({ error: "message is required" });
@@ -160,9 +161,43 @@ export default async function handler(req, res) {
     /* 4) Memorie Coezivă – context vectorial / semantic                      */
     /* ---------------------------------------------------------------------- */
 
-    let memoryContext = "";
+    let memoryContextText = "";
     try {
-      memoryContext = await retrieveMemoryContext({ history });
+      const memCtx = retrieveMemoryContext({
+        userId,
+        query: userMessage,
+        maxItems: 4,
+      });
+
+      if (memCtx) {
+        const parts = [];
+
+        if (memCtx.summary) {
+          parts.push(memCtx.summary);
+        }
+
+        if (Array.isArray(memCtx.snippets) && memCtx.snippets.length) {
+          parts.push("\nFragmente relevante din memorie (aproximate):");
+          for (const sn of memCtx.snippets) {
+            if (!sn || !sn.text) continue;
+            let txt = sn.text;
+            if (txt.length > 400) {
+              txt = txt.slice(0, 400) + "…";
+            }
+            const score =
+              typeof sn.score === "number"
+                ? ` (sim ≈ ${sn.score.toFixed(2)})`
+                : "";
+            const tags =
+              Array.isArray(sn.tags) && sn.tags.length
+                ? ` [taguri: ${sn.tags.join(", ")}]`
+                : "";
+            parts.push(`- ${txt}${score}${tags}`);
+          }
+        }
+
+        memoryContextText = parts.join("\n").trim();
+      }
     } catch (e) {
       console.warn("Eroare retrieveMemoryContext:", e);
     }
@@ -249,10 +284,10 @@ Identitate emergentă:
         "(nu a fost găsit context Coeziv specific pentru această întrebare; răspunde doar cu informații sigure și generale)");
 
     // Context de memorie (opțional)
-    if (memoryContext && memoryContext.trim()) {
+    if (memoryContextText && memoryContextText.trim()) {
       systemContent +=
         "\n\nContext de memorie Coezivă (rezumat interacțiuni anterioare):\n" +
-        memoryContext;
+        memoryContextText;
     }
 
     // Context web (opțional)
@@ -326,11 +361,11 @@ Instrucțiune: folosește aceste meta-informații ca să îți descrii propriul 
     /* ---------------------------------------------------------------------- */
 
     try {
-      await updateMemoryFromInteraction({
-        history,
+      updateMemoryFromInteraction({
+        userId,
         userMessage,
         assistantReply: reply,
-        engineSnapshot: engine,
+        engine,
       });
     } catch (e) {
       console.warn("Eroare updateMemoryFromInteraction:", e);
