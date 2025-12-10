@@ -214,6 +214,25 @@ Identitate emergentă:
         "- Evită teorii conspiraționiste sau afirmații politice speculative.\n";
     }
 
+    // După: let systemContent = baseSystem;
+    let systemContent = baseSystem;
+
+    if (engine.identity_trace) {
+      const it = engine.identity_trace;
+      systemContent += `
+      
+---
+Meta-informații despre comportamentul tău la acest mesaj (pentru identitate emergentă):
+- Regim detectat: ${it.regime}
+- J (tensiune globală): ${typeof it.j_value === "number" ? it.j_value.toFixed(2) : it.j_value}
+- Domenii dominante: ${Array.isArray(it.dominant_domains) && it.dominant_domains.length ? it.dominant_domains.join(", ") : "nedefinite clar"}
+- Acțiune logică (policy): ${it.policy_action}
+- Nevoie de date externe: ${it.needs_external_data ? "DA" : "NU"}
+
+Instrucțiune: folosește aceste meta-informații ca să îți observi propriul comportament. Dacă utilizatorul te întreabă ce fel de agent ești, descrie-te în termenii acestor tipare (ce faci, cum decizi, cum aplici Modelul Coeziv), nu prin etichete rigide sau branding. Identitatea ta este un rezumat al acțiunilor tale repetate în timp, nu un nume fix.
+`;
+    }
+
     // 6) Construim mesajele pentru LLM
     const messages = [];
     messages.push({ role: "system", content: systemContent });
