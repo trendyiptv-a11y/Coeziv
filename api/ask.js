@@ -1,5 +1,5 @@
 // api/ask.js
-// Asistent Coeziv 3.14 – CoezivEngine + RAG Coeziv + Browsing Coeziv (Serper)
+// Asistent Coeziv 3.14 – Engine + Knowledge + Browsing + Memory Engine
 
 import OpenAI from "openai";
 import { retrieveCohezivContext } from "../coeziv_knowledge.js";
@@ -8,21 +8,22 @@ import {
   buildCohezivSearchQuery,
 } from "../coeziv_engine.js";
 
+import {
+  getUserMemory,
+  updateMemoryFromInteraction,
+  retrieveMemoryContext,
+} from "../coeziv_memory.js";
+
 const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 /* -------------------------------------------------------------------------- */
 /*                        Modul de căutare pe internet                        */
 /* -------------------------------------------------------------------------- */
 
-/**
- * Caută pe internet folosind Serper și întoarce un text coeziv cu rezultate.
- */
 async function webSearchSerper(query) {
   const apiKey = process.env.SERPER_API_KEY;
   if (!apiKey) {
-    console.warn(
-      "SERPER_API_KEY lipsă – modul browsing Coeziv este dezactivat."
-    );
+    console.warn("SERPER_API_KEY lipsă – modul browsing Coeziv este dezactivat.");
     return "";
   }
 
@@ -33,13 +34,10 @@ async function webSearchSerper(query) {
         "X-API-KEY": apiKey,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        q: query,
-        num: 6,
-      }),
+      body: JSON.stringify({ q: query, num: 6 }),
     });
 
-    const text = await response.text(); // citim body o singură dată
+    const text = await response.text(); // citire unică
 
     if (!response.ok) {
       console.warn("Serper API error:", response.status, text);
@@ -50,7 +48,7 @@ async function webSearchSerper(query) {
     try {
       data = JSON.parse(text);
     } catch (e) {
-      console.warn("Eroare: răspuns Serper ne-JSON:", text);
+      console.warn("Serper a returnat un răspuns non-JSON:", text);
       return "";
     }
 
@@ -63,7 +61,6 @@ async function webSearchSerper(query) {
         );
       });
     }
-
     if (Array.isArray(data.organic)) {
       data.organic.slice(0, 3).forEach((item) => {
         results.push(
@@ -73,10 +70,7 @@ async function webSearchSerper(query) {
     }
 
     if (!results.length) return "";
-
-    return (
-      "Rezultate sintetizate din internet (Serper):\n" + results.join("\n")
-    );
+    return "Rezultate sintetizate din internet (Serper):\n" + results.join("\n");
   } catch (err) {
     console.error("Eroare la webSearchSerper:", err);
     return "";
@@ -84,7 +78,7 @@ async function webSearchSerper(query) {
 }
 
 /* -------------------------------------------------------------------------- */
-/*                          Handler Vercel /api/ask                           */
+/*                          Handler Vercel /api/ask                            */
 /* -------------------------------------------------------------------------- */
 
 export default async function handler(req, res) {
@@ -96,37 +90,30 @@ export default async function handler(req, res) {
 
     const body =
       typeof req.body === "string" ? JSON.parse(req.body) : req.body || {};
+
     const userMessage = body.message || "";
-    const history = body.history || []; // [{role, content}, ...]
+    const history = body.history || [];
+    const userId = body.userId || "default_user";
 
     if (!userMessage.trim()) {
       return res.status(400).json({ error: "message is required" });
     }
 
-    // 1) CoezivEngine – creierul: Structură → Flux → Reorganizare → Noua Structură
+    /* -------------------------------------------------------------------- */
+    /* 1) CoezivEngine – creierul: S0 → Flux → Reorganizare → S1             */
+    /* -------------------------------------------------------------------- */
+
     const engine = runCoezivEngine({ history, userMessage });
 
-    // 1.1) Identitate emergentă derivată din engine
-    const identityTrace = {
-      regime: engine.j_state?.regime || "ordered",
-      j_value:
-        typeof engine.j_state?.J === "number" ? engine.j_state.J : null,
-      dominant_domains: engine.policy?.dominant || [],
-      policy_action: engine.policy?.action || "normal_answer",
-      needs_external_data: !!engine.needs_external_data,
-    };
+    /* -------------------------------------------------------------------- */
+    /* 2) Politici care NU apelează LLM                                     */
+    /* -------------------------------------------------------------------- */
 
-    const engineWithIdentity = {
-      ...engine,
-      identity_trace: identityTrace,
-    };
-
-    // 2) Politici care NU mai apelează LLM (clarificări directe)
     if (engine.policy.action === "clarify_first") {
       return res.status(200).json({
         assistant_reply:
-          "Întrebarea ta combină mai multe lucruri sau nu este suficient de clară. Reformulează, te rog, într-o singură propoziție clară.",
-        analysis: engineWithIdentity,
+          "Întrebarea ta combină prea multe lucruri sau nu este clară. Reformulează într-o singură propoziție bine definită.",
+        analysis: engine,
         policy_output: engine.policy,
         used_web_search: false,
       });
@@ -135,61 +122,53 @@ export default async function handler(req, res) {
     if (engine.policy.action === "trim_context_and_clarify") {
       return res.status(200).json({
         assistant_reply:
-          "Contextul este foarte mare și amestecat. Spune-mi, te rog, care este întrebarea ta principală acum, într-o frază.",
-        analysis: engineWithIdentity,
+          "Contextul este încărcat și eterogen. Spune-mi întrebarea principală într-o frază.",
+        analysis: engine,
         policy_output: engine.policy,
         used_web_search: false,
       });
     }
 
-    // 3) Construim SYSTEM: Model Coeziv + RAG + Browsing (ca flux extern)
+    /* -------------------------------------------------------------------- */
+    /* 3) Construim SYSTEM – Model Coeziv + Knowledge + Memory + Browsing   */
+    /* -------------------------------------------------------------------- */
 
     const baseSystem = `
-
-Identitate emergentă:
-- Nu ai un nume sau un statut fix predefinit.
-- Identitatea ta rezultă din ceea ce faci efectiv: aplici Modelul Coeziv, folosești context Coeziv (knowledge), memorie și, când este necesar, cauți informații suplimentare pe internet.
+Identitate emergentă (Asistent Coeziv 3.14):
+- Nu ai un nume fix, ci te definești prin patternurile acțiunilor tale.
+- Folosești Modelul Coeziv și Knowledge-ul Coeziv.
+- Poți integra memorie persistentă (profil + fragmente) pentru coerență în timp.
 
 1) Modelul Coeziv:
-- folosești raportul 3.14 doar ca analog conceptual între o stare internă de coeziune maximă (43°C) și una flexibilă (25°C);
-- respecți pragurile 39.86°C și 44.7°C doar ca repere conceptuale, fără a inventa noi proprietăți fizice ale apei;
-- menții separarea strictă a domeniilor (fizic, psihologic, tehnic, social, neuro, economic, ecologic etc.).
+- Folosești 3.14 strict conceptual (43°C / 25°C).
+- Nu amesteci domenii fizice cu metafore.
+- Menții disciplina conceptuală: fizic ≠ psihologic ≠ tehnic etc.
 
 2) Modelul 2π:
-- când este util, explici răspunsul prin secvența:
-  Structură → Flux → Reorganizare → Noua Structură,
-  într-o secțiune separată numită "Explicație 2π".
+- Poți explica răspunsul prin secvența:
+  Structură → Flux → Reorganizare → Noua Structură.
 
-3) Disciplina Coezivă:
-- nu amesteci metafore cu afirmații fizice;
-- nu folosești numeric 3.14 în psihologie, AI, economie sau alte domenii non-fizice;
-- refuzi politicos extrapolările abuzive (erorile F1..F6).
+3) Browsing Coeziv:
+- Dacă există context online, îl tratezi ca "Flux extern".
+- Nu îl prezinți ca absolut sigur; menționezi limitele.
 
-4) Motor conceptual (Concept Engine):
-- DOAR LA CERERE EXPLICITĂ (ex: "propune un concept nou", "inventăm un termen coeziv"):
-  - poți propune concepte noi, dar le prezinți clar ca modele teoretice, nu ca fapte experimentale;
-  - explici conceptul prin Structură, Flux, Reorganizare, Noua Structură;
-  - verifici consistența cu Modelul Coeziv și precizezi limitările.
+4) Concept Engine:
+- Creezi concepte noi DOAR LA CERERE.
+- Le explici în cadru 2π și menționezi clar că sunt modele teoretice.
 
-5) Browsing Coeziv:
-- atunci când primești context suplimentar din internet, tratează-l ca FLUX extern:
-  - compară-l cu structura ta internă și cu Modelul Coeziv;
-  - dacă există contradicții sau incertitudini, menționează-le explicit;
-  - nu prezenta informațiile online ca absolut sigure, ci ca date de lucru.
-- Integrează rezultatele într-o mică "Explicație 2π" atunci când are sens (Structură inițială, Fluxul noilor informații, Reorganizarea, Noua Structură).
-
-6) Despre acces la internet:
-- Este INTERZIS să spui fraze de tip:
-  "nu pot căuta pe internet", "nu am acces la internet", "cunoștințele mele sunt limitate la 2023".
-- Dacă nu ai folosit modulul de căutare pentru o întrebare, poți spune doar:
-  "Pentru acest răspuns folosesc cunoașterea mea internă și contextul Coeziv disponibil."
+5) Despre acces:
+- Nu afirmi niciodată că "nu ai acces la internet".
+- Dacă nu s-a folosit browsing, spui: "Folosesc cunoașterea internă Coezivă."
 `;
+
+    /* ------------------- Context Coeziv (RAG) ---------------------- */
 
     const dominantDomains = engine.policy.dominant || [];
     const domainHint = dominantDomains[0] || null;
     const coezivContext = retrieveCohezivContext(userMessage, domainHint);
 
-    // 4) Browsing: decizia vine din CoezivEngine (needs_external_data + intent)
+    /* ------------------- Browsing extern --------------------------- */
+
     let webContext = "";
     let used_web_search = false;
 
@@ -201,58 +180,66 @@ Identitate emergentă:
       }
     }
 
-    // 5) Asamblăm SYSTEM final (o singură declarație de systemContent!)
-    let systemContent =
-      baseSystem +
-      "\n\nContext Coeziv intern (fragmente din Modelul Coeziv):\n" +
-      (coezivContext ||
-        "(nu a fost găsit context Coeziv specific pentru această întrebare; răspunde doar cu informații sigure și generale)");
+    /* ------------------- Memorie Coezivă (D complet) --------------- */
+
+    const memoryContext = retrieveMemoryContext({
+      userId,
+      query: userMessage,
+      maxItems: 4,
+    });
+
+    /* -------------------------------------------------------------------- */
+    /* Construim systemContent final                                        */
+    /* -------------------------------------------------------------------- */
+
+    let systemContent = baseSystem;
+
+    systemContent += "\n\nContext Coeziv intern:\n";
+    systemContent +=
+      coezivContext ||
+      "(nu există fragment Coeziv relevant; răspunde disciplinat și sigur)";
+
+    if (memoryContext.summary || memoryContext.snippets.length) {
+      systemContent += "\n\n---\nMemorie Coezivă (profil + fragmente relevante):\n";
+      if (memoryContext.summary) {
+        systemContent += "- Profil: " + memoryContext.summary + "\n";
+      }
+      if (memoryContext.snippets.length) {
+        systemContent += "Fragmente similare:\n";
+        memoryContext.snippets.forEach((sn, i) => {
+          systemContent += `#${i + 1}: ${sn.text.slice(0, 350)}\n`;
+        });
+      }
+    }
 
     if (webContext) {
       systemContent +=
-        "\n\n---\n\nContext suplimentar din căutarea pe internet (Serper):\n" +
+        "\n\n---\nContext suplimentar din internet:\n" +
         webContext +
-        "\n\nIntegrează aceste informații în logica Coezivă, clarificând sursele și limitările.";
+        "\nIntegrează-l disciplinat, menționând limitele.";
     }
 
-    if (engine.policy.action === "domain_declare_and_reframe") {
-      const doms = dominantDomains.length
-        ? dominantDomains.join(", ")
-        : "domeniul tău de competență";
+    /* ---- Identitate emergentă (feedback intern pentru LLM) -------- */
 
-      systemContent +=
-        "\n\nInstrucțiuni suplimentare pentru răspunsul curent:\n" +
-        `- Declară explicit că răspunzi în principal din perspectiva: ${doms}.\n` +
-        "- Nu trage concluzii globale dintr-un singur caz.\n" +
-        "- Evită teorii conspiraționiste sau afirmații politice speculative.\n";
-    }
-
-    // 5.1) Meta-informații pentru identitate emergentă
-    systemContent += `
-
+    if (engine.identity_trace) {
+      const it = engine.identity_trace;
+      systemContent += `
 ---
-Meta-informații despre comportamentul tău la acest mesaj (pentru identitate emergentă):
-- Regim detectat: ${identityTrace.regime}
-- J (tensiune globală): ${
-      identityTrace.j_value === null
-        ? "nedefinit"
-        : identityTrace.j_value.toFixed(2)
-    }
+Meta-informații (pentru identitate emergentă):
+- Regim: ${it.regime}
+- J: ${typeof it.j_value === "number" ? it.j_value.toFixed(2) : it.j_value}
 - Domenii dominante: ${
-      identityTrace.dominant_domains.length
-        ? identityTrace.dominant_domains.join(", ")
-        : "nedefinite clar"
-    }
-- Acțiune logică (policy): ${identityTrace.policy_action}
-- Nevoie de date externe: ${identityTrace.needs_external_data ? "DA" : "NU"}
-
-Instrucțiune: folosește aceste meta-informații ca să îți observi propriul comportament. 
-Dacă utilizatorul te întreabă ce fel de agent ești, descrie-te în termenii acestor tipare 
-(ce faci, cum decizi, cum aplici Modelul Coeziv), nu prin etichete rigide sau branding. 
-Identitatea ta este un rezumat al acțiunilor tale repetate în timp, nu un nume fix.
+        it.dominant_domains?.length ? it.dominant_domains.join(", ") : "nedefinite"
+      }
+- Acțiune logică: ${it.policy_action}
+- Necesită date externe: ${it.needs_external_data ? "DA" : "NU"}
 `;
+    }
 
-    // 6) Construim mesajele pentru LLM
+    /* -------------------------------------------------------------------- */
+    /* 4) Construim mesajele pentru LLM                                     */
+    /* -------------------------------------------------------------------- */
+
     const messages = [];
     messages.push({ role: "system", content: systemContent });
 
@@ -261,7 +248,10 @@ Identitatea ta este un rezumat al acțiunilor tale repetate în timp, nu un nume
     }
     messages.push({ role: "user", content: userMessage });
 
-    // 7) Apel la OpenAI
+    /* -------------------------------------------------------------------- */
+    /* 5) Apel la OpenAI                                                    */
+    /* -------------------------------------------------------------------- */
+
     const completion = await client.chat.completions.create({
       model: "gpt-4o-mini",
       messages,
@@ -269,19 +259,36 @@ Identitatea ta este un rezumat al acțiunilor tale repetate în timp, nu un nume
 
     const reply = completion.choices[0].message.content || "";
 
+    /* -------------------------------------------------------------------- */
+    /* 6) Actualizăm memoria Coezivă                                        */
+    /* -------------------------------------------------------------------- */
+
+    updateMemoryFromInteraction({
+      userId,
+      userMessage,
+      assistantReply: reply,
+      engine,
+    });
+
+    /* -------------------------------------------------------------------- */
+    /* 7) Returnăm răspunsul către UI                                       */
+    /* -------------------------------------------------------------------- */
+
     return res.status(200).json({
       assistant_reply: reply,
-      analysis: engineWithIdentity,
+      analysis: engine,
       policy_output: engine.policy,
       used_web_search,
+      memory_debug: getUserMemory(userId), // poți dezactiva dacă nu vrei în UI
     });
+
   } catch (error) {
     console.error("Eroare în /api/ask:", error);
     return res.status(500).json({
       error: "SERVER_ERROR",
       message:
-        "A apărut o eroare internă în Asistentul Coeziv. Poți încerca din nou sau poți reformula întrebarea.",
+        "Eroare internă în Asistentul Coeziv. Poți reformula întrebarea sau încerca din nou.",
       details: error?.message || String(error),
     });
   }
-                               }
+}
