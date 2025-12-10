@@ -213,7 +213,6 @@ function inferIntent(userMessage, history) {
 
   const wants_internet = isSearchCommand || mentionsRecency;
 
-  // hint de topic: uităm complet Coeziv/apa? Nu – doar îl marcăm.
   const coezivCoreMarkers = [
     "modelul coeziv",
     "model coeziv",
@@ -232,7 +231,6 @@ function inferIntent(userMessage, history) {
   let topic_hint = null;
   if (isCohezivCore) topic_hint = "coeziv_core";
 
-  // dacă mesajul e foarte vag, încercăm să luăm topicul din ultima întrebare
   const words = lower.split(/\s+/).filter(Boolean);
   if (!topic_hint && words.length <= 3 && history && history.length) {
     const reversed = [...history].reverse();
@@ -290,7 +288,6 @@ export function buildCohezivSearchQuery(userMessage, history) {
   const isTooShort = !q || q.split(" ").length <= 2;
 
   if (isTooShort) {
-    // S₀ – STRUCTURĂ: ultima întrebare clară a utilizatorului
     const reversed = [...(history || [])].reverse();
     const lastUserMsg = reversed.find(
       (m) => m.role === "user" && (m.content || "").trim()
@@ -299,7 +296,6 @@ export function buildCohezivSearchQuery(userMessage, history) {
     if (lastUserMsg) {
       let hq = lastUserMsg.content.toLowerCase();
 
-      // R – REORGANIZARE: scoatem formule generice, păstrăm subiectul
       const historyStrip = [
         "ce pret are",
         "ce preț are",
@@ -323,7 +319,6 @@ export function buildCohezivSearchQuery(userMessage, history) {
     }
   }
 
-  // S₁ – NOUA STRUCTURĂ: dacă tot e gol, măcar întoarcem mesajul brut
   if (!q) q = userMessage.trim();
 
   return q;
@@ -371,35 +366,25 @@ export function runCoezivEngine({ history, userMessage }) {
   // NOUA STRUCTURĂ – policy Coeziv
   const policy = decidePolicy(j_state, flags, domains_local);
 
-  // Inferență de intenție (tip întrebare / comandă / etc.)
+  // Inferență de intenție
   const intent = inferIntent(userMessage, history);
 
-  // Hint pentru browsing: engine-ul NU cheamă internetul, doar semnalizează
+  // Hint pentru browsing
   const dynamicDomains = ["economie", "tehnic", "ai_advanced", "social", "politic", "ecologie"];
   const hasDynamicDomain = Object.entries(domains_local || {})
     .some(([d, v]) => v > 0.25 && dynamicDomains.includes(d));
 
   const needs_external_data = intent.wants_internet || hasDynamicDomain;
 
-// --- Identitate emergentă: trasă din comportament, nu impusă ---
-
+  // --- Identitate emergentă: trasă din comportament, nu impusă ---
   const identity_trace = {
-    // modul în care percepi tensiunea întrebării
-    regime, // ex: "ordered" | "mixed" | "tensed"
-
-    // "tensiunea" globală
-    j_value: J,
-
-    // ce domenii par dominante în această întrebare
+    regime: j_state.regime,
+    j_value: j_state.J,
     dominant_domains: policy?.dominant || [],
-
-    // ce fel de acțiune logică ai luat
     policy_action: policy?.action || "normal_answer",
-
-    // ai nevoie sau nu de date externe
     needs_external_data,
   };
-  
+
   return {
     rho: {
       contextDepth_global,
@@ -413,6 +398,7 @@ export function runCoezivEngine({ history, userMessage }) {
     j_state,
     policy,
     intent,
-    needs_external_data
+    needs_external_data,
+    identity_trace,
   };
 }
