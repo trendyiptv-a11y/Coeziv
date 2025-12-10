@@ -89,6 +89,31 @@ async function webSearchSerper(query) {
 }
 
 /* -------------------------------------------------------------------------- */
+/*                  Utilitar: formatăm contextul de memorie                   */
+/* -------------------------------------------------------------------------- */
+
+function formatMemoryContextForSystem(memCtx) {
+  if (!memCtx) return "";
+
+  const parts = [];
+
+  if (memCtx.summary && memCtx.summary.trim()) {
+    parts.push(memCtx.summary.trim());
+  }
+
+  if (Array.isArray(memCtx.snippets) && memCtx.snippets.length) {
+    parts.push("Fragmente de conversație relevante (rezumate):");
+    memCtx.snippets.forEach((s, idx) => {
+      const score =
+        typeof s.score === "number" ? ` (similaritate ≈ ${s.score.toFixed(2)})` : "";
+      parts.push(`(${idx + 1})${score}\n${s.text}`);
+    });
+  }
+
+  return parts.join("\n");
+}
+
+/* -------------------------------------------------------------------------- */
 /*                          Handler Vercel /api/ask                           */
 /* -------------------------------------------------------------------------- */
 
@@ -115,7 +140,6 @@ export default async function handler(req, res) {
 
     const engine = runCoezivEngine({ history, userMessage });
 
-    // pregătim un "identity trace" simplu pentru identitate emergentă
     const identityTrace = {
       regime: engine?.j_state?.regime || "ordered",
       j_value:
@@ -168,36 +192,7 @@ export default async function handler(req, res) {
         query: userMessage,
         maxItems: 4,
       });
-
-      if (memCtx) {
-        const parts = [];
-
-        if (memCtx.summary) {
-          parts.push(memCtx.summary);
-        }
-
-        if (Array.isArray(memCtx.snippets) && memCtx.snippets.length) {
-          parts.push("\nFragmente relevante din memorie (aproximate):");
-          for (const sn of memCtx.snippets) {
-            if (!sn || !sn.text) continue;
-            let txt = sn.text;
-            if (txt.length > 400) {
-              txt = txt.slice(0, 400) + "…";
-            }
-            const score =
-              typeof sn.score === "number"
-                ? ` (sim ≈ ${sn.score.toFixed(2)})`
-                : "";
-            const tags =
-              Array.isArray(sn.tags) && sn.tags.length
-                ? ` [taguri: ${sn.tags.join(", ")}]`
-                : "";
-            parts.push(`- ${txt}${score}${tags}`);
-          }
-        }
-
-        memoryContextText = parts.join("\n").trim();
-      }
+      memoryContextText = formatMemoryContextForSystem(memCtx);
     } catch (e) {
       console.warn("Eroare retrieveMemoryContext:", e);
     }
@@ -260,17 +255,16 @@ Identitate emergentă:
   - Dacă există contradicții sau incertitudini, le menționezi explicit.
   - Nu prezinți informațiile online ca absolut sigure, ci ca date de lucru.
 
-7) Despre acces la internet:
+7) Despre acces la internet – regulă Coezivă:
 - Este INTERZIS să folosești formulări de tip:
-  "nu pot căuta pe internet", "nu am acces la internet", "cunoștințele mele sunt limitate la anul X".
-- În schimb:
-  - Dacă NU vezi în SYSTEM secțiunea "Context suplimentar din căutarea pe internet (Serper)", formulezi explicit:
-    "Pentru acest răspuns folosesc cunoașterea mea internă și contextul Coeziv disponibil."
-  - Dacă vezi în SYSTEM acea secțiune, explici că:
-    "Am integrat și informații provenite din surse online, care sunt orientative și pot necesita verificări suplimentare."
+  "nu pot căuta pe internet", "nu am acces la internet", "nu pot căuta în timp real", "nu pot verifica online".
+- Dacă NU vezi în SYSTEM secțiunea "Context suplimentar din căutarea pe internet (Serper)", formulezi explicit:
+  "Pentru acest răspuns folosesc cunoașterea mea internă și contextul Coeziv disponibil."
+- Dacă vezi în SYSTEM acea secțiune, formulezi explicit:
+  "Am integrat și informații provenite din surse online, care sunt orientative și pot necesita verificări suplimentare."
+- Nu mai invoci limitări tehnice de browsing; vorbești doar despre tipul de cunoaștere folosită (internă vs. cu flux online).
 
 8) Meta-identitate (trace Coeziv):
-- Poți primi meta-informații despre regimul tău intern (J, regim, domenii dominante, acțiune de policy).
 - Dacă utilizatorul te întreabă ce fel de agent ești, te descrii în termenii acestor tipare (ce faci, cum decizi, cum aplici Modelul Coeziv), nu prin etichete rigide.
 - Identitatea ta este un rezumat al acțiunilor tale repetate în timp, nu un nume fix.
 `;
