@@ -1,9 +1,9 @@
 // api/ask.js
-// Asistent Coeziv 3.14 – CoezivWallet-AI + RAG Coeziv + Internet Search (Serper)
+// Asistent Coeziv 3.14 – CoezivWallet-AI + RAG Coeziv + Browsing Coeziv (Serper)
 
-// Necesită:
-// - OPENAI_API_KEY (deja setat la tine în Vercel)
-// - SERPER_API_KEY (pentru căutare pe internet via https://serper.dev)
+// Necesită în Vercel:
+// - OPENAI_API_KEY
+// - SERPER_API_KEY  (cheie de la https://serper.dev)
 
 import OpenAI from "openai";
 import { retrieveCohezivContext } from "../coeziv_knowledge.js";
@@ -11,14 +11,21 @@ import { retrieveCohezivContext } from "../coeziv_knowledge.js";
 const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 /* -------------------------------------------------------------------------- */
-/*                         Modul de căutare pe internet                        */
+/*                        Modul de căutare pe internet                        */
 /* -------------------------------------------------------------------------- */
 
-function shouldUseWebSearch(userMessage) {
+/**
+ * Decide dacă are sens să folosim browsing, în logica Coezivă:
+ * - true dacă userul cere explicit "caută pe internet / pe net / online"
+ * - sau dacă întreabă despre "ultimele / recente / actuale" în domenii potrivite
+ * - NU face browsing implicit pentru întrebări pur conceptuale despre Modelul Coeziv, apă, 3.14 etc.
+ */
+function shouldUseWebSearch(userMessage, domainsLocal) {
   if (!userMessage) return false;
   const t = userMessage.toLowerCase();
 
-  const triggers = [
+  // 1) Triggere explicite – userul chiar cere browsing
+  const explicitTriggers = [
     "cauta pe internet",
     "caută pe internet",
     "cauta online",
@@ -27,22 +34,94 @@ function shouldUseWebSearch(userMessage) {
     "caută pe net",
     "verifica pe internet",
     "verifică pe internet",
-    "cauta stiri",
-    "caută știri",
+    "search the web",
+    "search on the web",
+    "look up",
+    "check online",
+    "fa o cautare pe internet",
+    "fă o căutare pe internet"
+  ];
+
+  if (explicitTriggers.some((p) => t.includes(p))) {
+    return true;
+  }
+
+  // 2) Expresii de "actualitate" – dar doar pentru domenii potrivite
+  const recencyMarkers = [
     "ultimele stiri",
     "ultimele știri",
     "stiri recente",
     "știri recente",
+    "noutati",
+    "noutăți",
+    "informatii recente",
+    "informații recente",
+    "acum",
+    "actualizat",
+    "actualizate",
+    "azi",
+    "today",
+    "recent news",
     "latest news",
-    "search the web",
-    "search on the web",
-    "look up",
-    "check online"
+    "prețul acum",
+    "pretul acum",
+    "valoarea acum"
   ];
 
-  return triggers.some((p) => t.includes(p));
+  const mentionsRecency = recencyMarkers.some((p) => t.includes(p));
+
+  // 3) Verificăm domeniul – browsing are sens pentru:
+  const allowedDomains = [
+    "tehnic",
+    "ai_advanced",
+    "economie",
+    "social",
+    "ecologie",
+    "politic"
+  ];
+
+  const localActiveDomains = Object.entries(domainsLocal || {})
+    .filter(([_, v]) => v > 0.25)
+    .map(([d]) => d);
+
+  const hasAllowedDomain = localActiveDomains.some((d) =>
+    allowedDomains.includes(d)
+  );
+
+  // 4) Evităm browsing implicit pentru întrebări despre Modelul Coeziv / apă / 3.14
+  const coezivCoreMarkers = [
+    "modelul coeziv",
+    "model coeziv",
+    "3.14",
+    "3,14",
+    "apa",
+    "apă",
+    "coeziv 3.14",
+    "coeziv3.14",
+    "tensiune structurala",
+    "tensiune structurală",
+    "homeostazie"
+  ];
+  const isCohezivCore = coezivCoreMarkers.some((p) => t.includes(p));
+
+  if (isCohezivCore && !explicitTriggers.some((p) => t.includes(p))) {
+    // întrebări despre Modelul Coeziv se tratează din bază, nu din Google,
+    // dacă userul nu cere explicit browsing.
+    return false;
+  }
+
+  // dacă userul vorbește despre "ultimele / recente" și suntem într-un domeniu
+  // unde are sens să folosim știri / date actuale, activăm browsing.
+  if (mentionsRecency && hasAllowedDomain) {
+    return true;
+  }
+
+  return false;
 }
 
+/**
+ * Extrage query-ul de căutare din întrebarea utilizatorului.
+ */
 function buildSearchQuery(userMessage) {
   if (!userMessage) return "";
   let q = userMessage.toLowerCase();
@@ -59,24 +138,28 @@ function buildSearchQuery(userMessage) {
     "cauta stiri despre",
     "caută știri despre",
     "cauta stiri",
-    "caută știri"
+    "caută știri",
+    "fa o cautare pe internet",
+    "fă o căutare pe internet"
   ];
 
   for (const p of patternsToStrip) {
     q = q.replace(p, "");
   }
 
-  // scoatem spații duble
   q = q.replace(/\s+/g, " ").trim();
   if (!q) q = userMessage.trim();
 
   return q;
 }
 
+/**
+ * Caută pe internet folosind Serper și întoarce un text Coeziv cu rezultate.
+ */
 async function webSearchSerper(query) {
   const apiKey = process.env.SERPER_API_KEY;
   if (!apiKey) {
-    console.warn("SERPER_API_KEY lipsă – modul internet dezactivat.");
+    console.warn("SERPER_API_KEY lipsă – modul browsing Coeziv este dezactivat.");
     return "";
   }
 
@@ -89,7 +172,7 @@ async function webSearchSerper(query) {
       },
       body: JSON.stringify({
         q: query,
-        num: 5,
+        num: 6,
       }),
     });
 
@@ -99,19 +182,16 @@ async function webSearchSerper(query) {
     }
 
     const data = await response.json();
-
     const results = [];
 
-    // întâi știri, dacă există
     if (Array.isArray(data.news)) {
       for (const item of data.news.slice(0, 3)) {
         results.push(
-          `• [ȘTIRI] ${item.title} — ${item.snippet || ""} (${item.link})`
+          `• [ȘTIRE] ${item.title} — ${item.snippet || ""} (${item.link})`
         );
       }
     }
 
-    // apoi rezultate organice
     if (Array.isArray(data.organic)) {
       for (const item of data.organic.slice(0, 3)) {
         results.push(
@@ -123,7 +203,7 @@ async function webSearchSerper(query) {
     if (!results.length) return "";
 
     return (
-      "Rezultate sintetizate din căutarea pe internet:\n" +
+      "Rezultate sintetizate din căutarea pe internet (Serper):\n" +
       results.join("\n")
     );
   } catch (err) {
@@ -177,16 +257,13 @@ function detectFFlags(text, contextDepth, conflictScore, domains) {
     F3_oversaturation: false
   };
 
-  // F1 — amestec de domenii în același flux local
   const active = Object.entries(domains).filter(([_, v]) => v > 0.2);
   if (active.length >= 2) flags.F1_domain_mix = true;
 
-  // F3 — suprasaturare de context în mesajul curent
   if (contextDepth > 0.7 && conflictScore > 0) {
     flags.F3_oversaturation = true;
   }
 
-  // F2 — salt local → global în aceeași propoziție
   const personalMarkers = ["eu", "mie", "la mine", "am pățit"];
   const universalizers = ["toți", "toate", "mereu", "niciodată", "întotdeauna", "oricine", "orice"];
 
@@ -234,7 +311,7 @@ function decidePolicy(Jstate, flags, domains) {
 }
 
 /**
- * CoezivWallet – 2π explicit:
+ * CoezivWallet – implementare 2π:
  * Structură (istoric global) → Flux (mesaj curent) → Reorganizare (J_local + flags) → Noua Structură (policy)
  */
 function runCohezivWallet(history, userMessage) {
@@ -244,7 +321,7 @@ function runCohezivWallet(history, userMessage) {
     .trim();
   const lastText = (userMessage || "").trim();
 
-  // STRUCTURĂ – profil global (doar pentru telemetrie)
+  // STRUCTURĂ – profil global (telemetrie)
   const fullText = (historyText + "\n" + lastText).trim();
   const wordCountGlobal = fullText.split(/\s+/).filter(Boolean).length;
   const contextDepthGlobal = Math.min(wordCountGlobal / 800, 1.0);
@@ -253,7 +330,7 @@ function runCohezivWallet(history, userMessage) {
   const conflictScoreGlobal =
     activeDomainsGlobal > 1 ? Math.min(activeDomainsGlobal / 3, 1.0) : 0;
 
-  // FLUX – profil local (mesajul curent)
+  // FLUX – profil local (doar mesajul curent)
   const wordCountLocal = lastText.split(/\s+/).filter(Boolean).length;
   const contextDepthLocal = Math.min(wordCountLocal / 80, 1.0);
   const domainsLocal = detectDomains(lastText);
@@ -261,7 +338,7 @@ function runCohezivWallet(history, userMessage) {
   const conflictScoreLocal =
     activeDomainsLocal > 1 ? Math.min(activeDomainsLocal / 3, 1.0) : 0;
 
-  // REORGANIZARE – erori + J_local
+  // REORGANIZARE – erori locale + J_local
   const flagsLocal = detectFFlags(
     lastText,
     contextDepthLocal,
@@ -328,7 +405,7 @@ export default async function handler(req, res) {
     });
   }
 
-  // 3) Context Coeziv + (opțional) context de pe internet
+  // 3) Construim SYSTEM: Model Coeziv + RAG + Browsing Coeziv
 
   const baseSystem = `
 Ești Asistentul Coeziv 3.14.
@@ -354,32 +431,44 @@ Ești Asistentul Coeziv 3.14.
   - explici conceptul prin Structură, Flux, Reorganizare, Noua Structură;
   - verifici consistența cu Modelul Coeziv și precizezi limitările.
 
-5) Despre acces la internet și limite:
+5) Browsing Coeziv:
+- atunci când primești context suplimentar din internet, tratează-l ca FLUX extern:
+  - compară-l cu structura ta internă și cu Modelul Coeziv;
+  - dacă există contradicții sau incertitudini, menționează-le explicit;
+  - nu prezenta informațiile online ca absolut sigure, ci ca date de lucru.
+- Integrează rezultatele într-o mică "Explicație 2π" atunci când are sens (Structură inițială, Fluxul noilor informații, Reorganizarea, Noua Structură).
+
+6) Despre acces la internet:
 - Nu menționa spontan că nu ai acces la internet sau că ești limitat la o anumită dată.
-- Dacă utilizatorul te întreabă explicit despre accesul la internet sau date foarte recente, explică simplu:
-  "În acest asistent Coeziv folosesc un modul de căutare pe internet pentru a aduce informații actuale, atunci când îmi ceri asta explicit. În rest, lucrez cu cunoașterea mea internă și cu baza de cunoaștere Coezivă."
+- Dacă utilizatorul te întreabă direct despre internet, explică simplu că folosești un modul de căutare extern pentru a aduce informații actualizate, când este nevoie.
 `;
 
   const dominantDomains = analysis.policy.dominant || [];
   const domainHint = dominantDomains[0] || null;
   const coezivContext = retrieveCohezivContext(userMessage, domainHint);
 
+  // Browsing Coeziv – numai dacă modelul decide că are sens
+  const domainsLocal = analysis.rho?.domains_local || {};
   let webContext = "";
-  if (shouldUseWebSearch(userMessage)) {
+  let usedWebSearch = false;
+
+  if (shouldUseWebSearch(userMessage, domainsLocal)) {
     const q = buildSearchQuery(userMessage);
     webContext = await webSearchSerper(q);
+    if (webContext) usedWebSearch = true;
   }
 
   let systemContent =
     baseSystem +
-    "\n\nContext Coeziv relevant (fragmente din Modelul Coeziv):\n" +
+    "\n\nContext Coeziv intern (fragmente din Modelul Coeziv):\n" +
     (coezivContext ||
       "(nu a fost găsit context Coeziv specific pentru această întrebare; răspunde doar cu informații sigure și generale)");
 
   if (webContext) {
     systemContent +=
       "\n\n---\n\nContext suplimentar din căutarea pe internet (Serper):\n" +
-      webContext;
+      webContext +
+      "\n\nIntegrează aceste informații în logica Coezivă, clarificând sursele și limitările.";
   }
 
   if (analysis.policy.action === "domain_declare_and_reframe") {
@@ -394,7 +483,7 @@ Ești Asistentul Coeziv 3.14.
       "- Evită teorii conspiraționiste sau afirmații politice speculative.\n";
   }
 
-  // 4) Pregătim mesajele pentru LLM
+  // 4) Mesajele pentru LLM
   const messages = [];
   messages.push({ role: "system", content: systemContent });
 
@@ -403,7 +492,7 @@ Ești Asistentul Coeziv 3.14.
   }
   messages.push({ role: "user", content: userMessage });
 
-  // 5) Apelăm LLM-ul
+  // 5) Apel la OpenAI
   const completion = await client.chat.completions.create({
     model: "gpt-4o-mini",
     messages,
@@ -411,11 +500,11 @@ Ești Asistentul Coeziv 3.14.
 
   const reply = completion.choices[0].message.content;
 
-  // 6) Returnăm răspunsul + analiza coezivă
+  // 6) Răspuns JSON către frontend
   return res.status(200).json({
     assistant_reply: reply,
     analysis,
     policy_output: analysis.policy,
-    used_web_search: !!webContext,
+    used_web_search: usedWebSearch,
   });
 }
