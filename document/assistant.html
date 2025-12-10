@@ -371,27 +371,89 @@
       chatEl.appendChild(row);
       chatEl.scrollTop = chatEl.scrollHeight;
       return row;
-    }
+<script>
+    const chatEl   = document.getElementById("chat");
+    const qEl      = document.getElementById("q");
+    const sendBtn  = document.getElementById("send");
+    const statusEl = document.getElementById("status");
 
-    function renderHistory() {
-      for (const m of history) {
-        if (m.role === "user") {
-          appendBubble("user", m.content, null, { animate: false });
-        } else if (m.role === "assistant") {
-          appendBubble("ai", m.content, m.meta || null, { animate: false });
+    // Istoric doar în memoria paginii (NU se mai salvează în localStorage)
+    let history = [];
+
+    function typewriter(el, fullText, speed = 12) {
+      let i = 0;
+      function step() {
+        if (i <= fullText.length) {
+          el.textContent = fullText.slice(0, i);
+          i++;
+          chatEl.scrollTop = chatEl.scrollHeight;
+          setTimeout(step, speed);
         }
       }
+      step();
     }
 
-    // încărcăm istoric din localStorage
-    try {
-      const saved = localStorage.getItem("coeziv_history_v1");
-      if (saved) {
-        history = JSON.parse(saved);
-        renderHistory();
+    function appendBubble(role, text, meta = null, options = {}) {
+      const row = document.createElement("div");
+      row.className = "bubble-row " + role;
+
+      const bubble = document.createElement("div");
+      bubble.className = "bubble " + role;
+
+      if (role === "ai" && options.animate) {
+        bubble.textContent = "";
+      } else {
+        bubble.textContent = text;
       }
-    } catch (e) {
-      history = [];
+
+      row.appendChild(bubble);
+
+      if (meta) {
+        const metaDiv = document.createElement("div");
+        metaDiv.className = "bubble-meta";
+
+        if (meta.J != null) {
+          const jChip = document.createElement("span");
+          jChip.className = "meta-chip";
+          jChip.textContent = `J = ${meta.J.toFixed(2)}`;
+          metaDiv.appendChild(jChip);
+        }
+        if (meta.regime) {
+          const rChip = document.createElement("span");
+          rChip.className = "meta-chip";
+          rChip.textContent = `Regim: ${meta.regime}`;
+          metaDiv.appendChild(rChip);
+        }
+        if (meta.action) {
+          const aChip = document.createElement("span");
+          aChip.className = "meta-chip";
+          aChip.textContent = `Acțiune: ${meta.action}`;
+          metaDiv.appendChild(aChip);
+        }
+
+        row.appendChild(metaDiv);
+      }
+
+      chatEl.appendChild(row);
+      chatEl.scrollTop = chatEl.scrollHeight;
+
+      if (role === "ai" && options.animate) {
+        typewriter(bubble, text);
+      }
+
+      return row;
+    }
+
+    function appendTyping(){
+      const row = document.createElement("div");
+      row.className = "bubble-row ai";
+      const bubble = document.createElement("div");
+      bubble.className = "bubble ai typing";
+      bubble.textContent = "CoEziv AI se gândește…";
+      row.appendChild(bubble);
+      chatEl.appendChild(row);
+      chatEl.scrollTop = chatEl.scrollHeight;
+      return row;
     }
 
     async function ask(){
@@ -401,7 +463,6 @@
       statusEl.textContent = "";
       appendBubble("user", q, null, { animate: false });
       history.push({ role: "user", content: q });
-      localStorage.setItem("coeziv_history_v1", JSON.stringify(history));
 
       qEl.value = "";
       sendBtn.disabled = true;
@@ -426,9 +487,9 @@
         typingRow.remove();
 
         const replyText =
-          data.assistant_reply ||
-          data.answer ||
-          "Fără răspuns valid.";
+          (typeof data.assistant_reply === "string" && data.assistant_reply.trim().length > 0)
+            ? data.assistant_reply
+            : "Nu am primit un răspuns inteligibil. Poți repeta, te rog, întrebarea?";
 
         let meta = null;
         if(data.analysis && data.analysis.j_state){
@@ -449,7 +510,6 @@
 
         appendBubble("ai", replyText, meta, { animate: true });
         history.push({ role: "assistant", content: replyText, meta });
-        localStorage.setItem("coeziv_history_v1", JSON.stringify(history));
 
       } catch (e){
         typingRow.remove();
