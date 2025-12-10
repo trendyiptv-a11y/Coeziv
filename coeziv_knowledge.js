@@ -1,366 +1,238 @@
 // coeziv_knowledge.js
-// Bază de cunoaștere + RAG pentru Asistentul Coeziv 3.14
-// Include domenii: biologic, psihologic, tehnic, generic, neuro, economie, ecologie, social, ai_advanced
-
-export const coezivDocs = [
-  // --- MODEL COEZIV DE BAZĂ ---
-
-  {
-    id: "baza-3_14",
-    domain: "biologic",
-    title: "Modelul Coeziv 3.14 – raportul apei",
-    content: `
-Modelul Coeziv 3.14 pornește de la comportamentul apei pure în jurul
-temperaturii de 43°C. 43°C este considerat un punct de stabilitate internă
-maximă a apei, asociat cu o coeziune internă ridicată și o organizare
-structurală coerentă. 25°C este referința pentru o stare mai flexibilă.
-
-Raportul 3.14 nu este un număr „magic”, ci o metaforă cuantificată:
-raportul dintre o stare internă de coeziune maximă și o stare flexibilă.
-În acest model, apa este folosită ca matrice de referință pentru homeostazie,
-reglaj fin și tranziții de fază în sisteme biologice.
-
-Modelul Coeziv 3.14 nu inventează proprietăți fizice noi ale apei,
-ci folosește intervalul termic și densitatea ca reper pentru a descrie
-diferența dintre „stare stabilă” și „stare flexibilă”.
-`
-  },
-
-  {
-    id: "praguri-apei",
-    domain: "biologic",
-    title: "Praguri de tranziție: 39.86°C și 44.7°C",
-    content: `
-În Modelul Coeziv apar două praguri de tranziție conceptuală:
-
-• 39.86°C – prag de intrare în zona de tensiune structurală crescută,
-unde sistemele biologice încep să își modifice modul de funcționare,
-intrând într-o zonă de stres controlat.
-
-• 44.7°C – prag de ieșire din zona de stabilitate; peste acest punct,
-homeostazia este greu de menținut iar sistemul intră în regim critic.
-
-Aceste praguri sunt folosite ca repere conceptuale pentru a descrie
-când un sistem se află într-o stare „aproape de limită”, chiar dacă
-în alte domenii (psihologie, tehnologie, AI) nu lucrăm direct cu temperaturi.
-`
-  },
-
-  {
-    id: "model-2pi",
-    domain: "generic",
-    title: "Modelul 2π – ciclu de transformare",
-    content: `
-Modelul 2π descrie dinamica universală în patru faze:
-
-1. Structură – o configurație inițială relativ stabilă.
-2. Flux – apar perturbații, informație nouă, stres, input.
-3. Reorganizare – sistemul reconfigurază conexiunile pentru a integra fluxul.
-4. Noua Structură – apare o stare nouă, mai stabilă sau mai adaptată.
-
-În biologie, acest ciclu descrie adaptarea și procesele de homeostazie.
-În psihologie, poate descrie o criză urmată de integrare și schimbare
-de perspectivă. În tehnologie și AI, reprezintă cicluri iterative de
-îmbunătățire: versiune inițială, feedback, refactorizare, noua versiune.
-`
-  },
-
-  {
-    id: "regulator-coeziv",
-    domain: "generic",
-    title: "Regulatorul Coeziv – erori F1..F6",
-    content: `
-Regulatorul Coeziv definește un set de blocaje conceptuale frecvente:
-
-F1 – Amestec de domenii: combinarea necritică a fizicii cu psihologia,
-a metaforei cu termodinamica, a homeostaziei cu IT fără precizarea
-nivelului de analiză.
-
-F2 – Salt abuziv de la local la global: dintr-un exemplu particular se
-trage o concluzie despre întregul sistem sau societate.
-
-F3 – Suprasaturare de context: prea multe informații eterogene puse
-în același cadru, fără structurare sau prioritizare.
-
-F4 – Confuzie micro–macro: amestec între mecanisme locale (celule,
-neuroni, noduri de rețea) și comportament global (organism, psihic,
-sistem social sau AI) fără o punte clară între niveluri.
-
-F5 – Confuzia dintre tensiune și energie: tensiunea structurală este
-un descriptor de stare, nu o sursă de „energie liberă” miraculoasă.
-
-F6 – Utilizare numerică improprie a raportului 3.14 în domenii non-fizice:
-3.14 este folosit ca analog conceptual, nu ca constantă numerică în
-psihologie, AI sau economie.
-
-Regulatorul Coeziv este folosit pentru a menține claritatea și
-consistența interpretărilor interdisciplinare.
-`
-  },
-
-  {
-    id: "apa-homeostazie",
-    domain: "biologic",
-    title: "Apa ca matrice de homeostazie",
-    content: `
-În Modelul Coeziunii, apa este privită ca matrice universală pentru
-homeostazie și coerență internă. Proporția ei în corp, structura
-rețelei de apă intra- și extracelulară, sensibilitatea la temperatură
-și presiune permit descrierea fină a stărilor de echilibru și dezechilibru.
-
-Apa nu este „magică”, ci un mediu foarte sensibil la condiții, ceea ce
-o face un bun indicator de stare. 3.14 și pragurile termice sunt
-instrumente conceptuale pentru a discuta despre:
-
-• stabilitate internă maximă vs flexibilitate;
-• tranziții de fază în sisteme biologice;
-• modul în care corpul gestionează stresul termic și metabolic.
-`
-  },
-
-  // --- PSIHLOGIE / SISTEME UMANE ---
-
-  {
-    id: "psihologie-coeziva",
-    domain: "psihologic",
-    title: "Psihologia în Modelul Coeziv",
-    content: `
-Modelul Coeziv aplică structura 2π și conceptul de tensiune structurală
-și în psihologie. În loc să vorbim doar despre „emoții” difuze,
-considerăm că există structuri interne (convingeri, reprezentări,
-scheme de relaționare) care suportă fluxul de experiență.
-
-Când fluxul este intens sau contradictoriu, tensiunea structurală crește.
-Dacă sistemul psihic poate să reorganizeze aceste structuri (prin reflecție,
-terapie, insight, învățare), apare o nouă structură mai stabilă.
-Dacă nu, tensiunea rămâne ridicată și pot apărea simptome, rigidizare
-sau colaps de funcționare.
-
-Modelul Coeziv nu reduce psihologia la biologie, dar folosește analogiile
-cu homeostazia și apa ca să descrie mai precis procesele de reglaj intern.
-`
-  },
-
-  // --- AI / TEHNIC ---
-
-  {
-    id: "ai-coeziv",
-    domain: "tehnic",
-    title: "AI și Modelul Coeziv",
-    content: `
-În inteligența artificială, Modelul Coeziv este folosit ca metaforă
-structurală pentru a descrie:
-
-• ρ_struct – profilul structural al unui sistem AI: cum sunt organizate
-modulele, rutele de informație, memoria și mecanismele de decizie.
-
-• J – o măsură conceptuală a tensiunii structurale: cât de aproape este
-sistemul de o stare de confuzie, conflict între module, sau regim critic.
-
-• Ciclul 2π – modul în care un AI trece de la o configurație stabilă
-de răspuns, prin flux de inputuri dificile, la reorganizare (adaptare
-de politici, reglaje de siguranță, schimbări de rutare) și apoi la o
-nouă structură mai robustă.
-
-CohezivWallet-AI este o aplicație directă a acestui model: un strat
-care observă tensiunea, detectează erorile F1..F3 și ghidează sistemul
-spre răspunsuri mai coerente și mai stabile.
-`
-  },
-
-  {
-    id: "vocabular-coeziv",
-    domain: "generic",
-    title: "Vocabularul Coeziv – termeni cheie",
-    content: `
-Câteva concepte cheie în Modelul Coeziv:
-
-• ρ_struct – profil structural: distribuția fluxurilor, încărcarea
-pe module, gradul de conflict intern.
-
-• J – tensiune structurală: un scalar conceptual care indică cât de aproape
-este sistemul de o tranziție de fază sau de o zonă critică.
-
-• Fazele 2π – Structură, Flux, Reorganizare, Noua Structură.
-
-• Frontiere critice – zone în care mici schimbări de flux duc la schimbări
-mari de structură.
-
-• Regim ordonat / mixt / tensionat – tipuri de funcționare ale unui sistem:
-de la stabil și clar până la aproape instabil.
-
-Acest vocabular nu este o teorie fizică nouă, ci un limbaj pentru a
-discuta coerent despre sisteme complexe (biologice, psihologice, sociale,
-tehnice sau AI).
-`
-  },
-
-  // --- DOMENII NOI: NEURO, ECONOMIE, ECOLOGIE, SOCIAL, AI-ADVANCED ---
-
-  {
-    id: "neuro-coeziv",
-    domain: "neuro",
-    title: "Neuroștiințe în Modelul Coeziv",
-    content: `
-În neuroștiințe, Modelul Coeziv este folosit ca structură conceptuală
-pentru a descrie modul în care rețelele neuronale se adaptează la fluxul
-de experiență.
-
-Structură – configurația actuală a conexiunilor sinaptice și a
-rețelelor funcționale.
-
-Flux – stimulii senzoriali, informația cognitivă, emoțiile, stresul.
-
-Reorganizare – plasticitatea sinaptică, modificarea ponderilor, pruning,
-crearea de noi conexiuni.
-
-Noua structură – rețele mai eficiente sau mai rigide, în funcție de
-expunere și de mecanismele de reglaj.
-
-Modelul Coeziv nu înlocuiește modele biofizice ale neuronilor și nu
-introduce temperatură numerică în neuroștiințe. 3.14 este folosit doar
-ca analog conceptual pentru raportul dintre stabilitate internă și
-flexibilitate a rețelei neuronale.
-`
-  },
-
-  {
-    id: "economie-coeziva",
-    domain: "economie",
-    title: "Economie și sisteme financiare în Modelul Coeziv",
-    content: `
-În economie, Modelul Coeziv este folosit pentru a descrie stabilitatea
-și tranzițiile de fază ale sistemelor financiare.
-
-Structură – instituțiile, regulile, contractele, rețelele de schimb.
-
-Flux – tranzacții, capital, informații de piață, șocuri externe.
-
-Reorganizare – ajustare de politici, reconfigurarea rețelelor comerciale,
-modificarea strategiilor.
-
-Noua structură – o nouă stare de echilibru (sau dezechilibru stabil),
-cu altă distribuție a resurselor și altă tensiune structurală.
-
-Modelul Coeziv nu atribuie numeric 3.14 sau temperaturi piețelor financiare.
-Vorbește despre „stări ordonate, mixte sau tensionate” ca analog conceptual
-pentru volatilitate, risc și reziliență economică.
-`
-  },
-
-  {
-    id: "ecologie-coeziva",
-    domain: "ecologie",
-    title: "Ecologie Coezivă – ecosisteme și reziliență",
-    content: `
-În ecologie, Modelul Coeziv este utilizat pentru a descrie modul în care
-ecosistemele își mențin sau își pierd stabilitatea în fața fluxurilor
-de schimb (energie, materie, informație).
-
-Structură – speciile, relațiile trofice, rețeaua de habitate.
-
-Flux – migrație, perturbări climatice, introducerea de specii noi,
-activitatea umană.
-
-Reorganizare – adaptare, succesiune ecologică, schimbarea compoziției
-speciilor, reorganizarea lanțurilor trofice.
-
-Noua structură – un ecosistem mai rezilient sau mai vulnerabil.
-
-Modelul Coeziv nu confundă apa ca lichid cu ecologia ca știință.
-Folosește conceptul de coeziune pentru a discuta despre cât de bine
-„țin laolaltă” relațiile dintr-un ecosistem sub stres.
-`
-  },
-
-  {
-    id: "social-coeziv",
-    domain: "social",
-    title: "Dinamică socială Coezivă",
-    content: `
-În domeniul social, Modelul Coeziv descrie modul în care grupurile,
-organizațiile și instituțiile gestionează tensiunea internă.
-
-Structură – norme, roluri, ierarhii, contracte sociale.
-
-Flux – conflicte, crize, informații contradictorii, schimbări rapide.
-
-Reorganizare – renegociere de roluri, reformă instituțională,
-reconfigurare de alianțe.
-
-Noua structură – o comunitate mai coezivă sau mai fragmentată.
-
-Modelul nu reduce oamenii la molecule și nu aplică numeric temperatura
-sau 3.14 pe societate. Utilizează doar analogia: niveluri diferite de
-coeziune și flexibilitate într-un grup.
-`
-  },
-
-  {
-    id: "ai-advanced-coeziv",
-    domain: "ai_advanced",
-    title: "AI avansat – sisteme multi-agent și CoezivWallet",
-    content: `
-În sisteme AI avansate, Modelul Coeziv poate fi folosit pentru:
-
-• a descrie tensiunea structurală dintre module (sau agenți);
-• a urmări conflictele dintre obiective locale și globale;
-• a decide când este nevoie de reorganizare arhitecturală.
-
-Structură – graf de module sau agenți, politici, memorii, canale de comunicare.
-
-Flux – cereri ale utilizatorilor, date noi, instrucțiuni contradictorii,
-constrângeri de siguranță.
-
-Reorganizare – schimbarea rutelor de mesaje, ajustarea politicilor,
-introducerea de noi reguli de coordonare.
-
-Noua structură – un sistem AI mai robust, cu tensiune J mai mică
-pentru același tip de input.
-
-CohezivWallet-AI este exemplul concret: un strat care monitorizează J,
-identifică erori F1..F3 și alege politicile conversaționale potrivite
-(normal_answer, clarify_first, reframe, etc.).
-`
-  }
-];
-
-
-// --- RAG SIMPLU (scor de similaritate + bonus de domeniu) ---
-
-function scoreDoc(query, doc, domainHint) {
-  const q = query.toLowerCase().split(/\s+/).filter(Boolean);
-  const text = (doc.title + " " + doc.content).toLowerCase();
-
-  let score = 0;
-  for (const w of q) {
-    if (w.length < 3) continue;
-    if (text.includes(w)) score += 1;
+// CoezivKnowledge – RAG simplu peste fișierele HTML ale Modelului Coeziv
+
+import fs from "fs";
+import path from "path";
+
+let KNOWLEDGE_CACHE = null;
+
+function loadKnowledge() {
+  if (KNOWLEDGE_CACHE) return KNOWLEDGE_CACHE;
+
+  const baseDir = process.cwd(); // rădăcina proiectului pe Vercel
+  const knowledgeDir = path.join(baseDir, "knowledge");
+
+  const files = [
+    {
+      id: "baza",
+      title: "Modelul Coeziv – Bază",
+      filename: "model_coeziv_baza.html",
+    },
+    {
+      id: "extins",
+      title: "Modelul Coeziv – Extins",
+      filename: "model_coeziv_extins.html",
+    },
+    {
+      id: "extra",
+      title: "Modelul Coeziv – Extra",
+      filename: "model_coeziv_extra.html",
+    },
+    {
+      id: "v5",
+      title: "Modelul Coeziv – v5",
+      filename: "model_coeziv_v5.html",
+    },
+    {
+      id: "vocabular",
+      title: "Vocabular Coeziv Complex",
+      filename: "vocabular_coeziv_complex.html",
+    },
+  ];
+
+  const docs = [];
+
+  for (const f of files) {
+    try {
+      const fullPath = path.join(knowledgeDir, f.filename);
+      const raw = fs.readFileSync(fullPath, "utf8");
+
+      // curățăm HTML-ul rudimentar → text
+      const text = raw
+        .replace(/<script[\s\S]*?<\/script>/gi, " ")
+        .replace(/<style[\s\S]*?<\/style>/gi, " ")
+        .replace(/<[^>]+>/g, " ")
+        .replace(/&nbsp;/g, " ")
+        .replace(/&amp;/g, "&")
+        .replace(/\s+/g, " ")
+        .trim();
+
+      docs.push({
+        id: f.id,
+        title: f.title,
+        filename: f.filename,
+        text,
+      });
+    } catch (err) {
+      console.warn(
+        `[CohezivKnowledge] Nu am putut citi fișierul ${f.filename}:`,
+        err.message
+      );
+    }
   }
 
-  // bonus dacă domeniul se potrivește cu domainHint
-  if (domainHint && doc.domain === domainHint) {
-    score += 2;
-  }
-
-  return score;
+  KNOWLEDGE_CACHE = docs;
+  return KNOWLEDGE_CACHE;
 }
 
 /**
- * Returnează până la k fragmente relevante din baza Coezivă,
- * concatenate într-un singur string, gata de pus în mesajul SYSTEM.
+ * Sparge textul în segmente mai mici (chunk-uri) pentru scorare.
  */
-export function retrieveCohezivContext(query, domainHint = null, k = 3) {
-  if (!query || !query.trim()) return "";
+function chunkText(text, chunkSize = 800, overlap = 150) {
+  const chunks = [];
+  if (!text) return chunks;
 
-  const scored = coezivDocs
-    .map(d => ({ ...d, score: scoreDoc(query, d, domainHint) }))
-    .filter(d => d.score > 0)
-    .sort((a, b) => b.score - a.score)
-    .slice(0, k);
+  let start = 0;
+  while (start < text.length) {
+    const end = Math.min(start + chunkSize, text.length);
+    const slice = text.slice(start, end).trim();
+    if (slice.length > 50) {
+      chunks.push(slice);
+    }
+    if (end === text.length) break;
+    start = end - overlap;
+    if (start < 0) start = 0;
+  }
+  return chunks;
+}
 
-  if (!scored.length) return "";
+/**
+ * Scor simplu: număr de apariții ale keyword-urilor în chunk (case-insensitive).
+ */
+function scoreChunk(chunk, keywords) {
+  const lower = chunk.toLowerCase();
+  let score = 0;
+  for (const kw of keywords) {
+    if (!kw) continue;
+    const k = kw.toLowerCase().trim();
+    if (!k || k.length < 2) continue;
+    // scor simplu: +1 dacă apare, +2 dacă apare de mai multe ori
+    const regex = new RegExp(`\\b${escapeRegex(k)}\\b`, "gi");
+    const matches = lower.match(regex);
+    if (matches && matches.length > 0) {
+      score += 1 + matches.length * 0.5;
+    }
+  }
+  return score;
+}
 
-  const parts = scored.map(d => `# ${d.title}\n${d.content.trim()}`);
-  return parts.join("\n\n---\n\n");
+function escapeRegex(str) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+/**
+ * Construiește lista de keyword-uri pornind de la întrebarea userului și topicHint.
+ */
+function buildKeywords(question, topicHint) {
+  const combined = (topicHint || "") + " " + (question || "");
+  const lower = combined.toLowerCase();
+
+  // scoatem elemente foarte comune
+  const stopwords = [
+    "si",
+    "și",
+    "sau",
+    "este",
+    "e",
+    "sunt",
+    "un",
+    "o",
+    "la",
+    "in",
+    "în",
+    "de",
+    "despre",
+    "cum",
+    "ce",
+    "care",
+    "cand",
+    "când",
+    "pentru",
+    "cu",
+    "din",
+    "mai",
+    "foarte",
+    "mult",
+    "putin",
+    "puțin",
+    "modelul",
+    "model",
+  ];
+
+  const words = lower
+    .split(/\s+/)
+    .map((w) => w.replace(/[^a-zăîâșț0-9]/gi, ""))
+    .filter((w) => w && w.length > 2 && !stopwords.includes(w));
+
+  // deduplicăm, dar păstrăm ordinea
+  const seen = new Set();
+  const keywords = [];
+  for (const w of words) {
+    if (!seen.has(w)) {
+      seen.add(w);
+      keywords.push(w);
+    }
+  }
+
+  // dacă nu iese nimic, măcar punem topicHint brut
+  if (!keywords.length && topicHint) {
+    keywords.push(topicHint.toLowerCase());
+  }
+
+  return keywords;
+}
+
+/**
+ * retrieveCohezivContext – funcția folosită de ask.js
+ *
+ * @param {string} userMessage – întrebarea actuală
+ * @param {string|null} topicHint – hint venit din CoezivEngine (domeniu sau topic concret)
+ * @returns {string} – fragmente relevante din baza Coezivă (sau șir gol)
+ */
+export function retrieveCohezivContext(userMessage, topicHint) {
+  const docs = loadKnowledge();
+  if (!docs || !docs.length) {
+    return "";
+  }
+
+  const keywords = buildKeywords(userMessage, topicHint);
+  if (!keywords.length) {
+    return "";
+  }
+
+  const scoredChunks = [];
+
+  for (const doc of docs) {
+    const chunks = chunkText(doc.text);
+    for (const chunk of chunks) {
+      const score = scoreChunk(chunk, keywords);
+      if (score > 0) {
+        scoredChunks.push({
+          docId: doc.id,
+          title: doc.title,
+          filename: doc.filename,
+          text: chunk,
+          score,
+        });
+      }
+    }
+  }
+
+  if (!scoredChunks.length) {
+    return "";
+  }
+
+  // sortăm după scor descrescător
+  scoredChunks.sort((a, b) => b.score - a.score);
+
+  // luăm top 3–4 fragmente
+  const top = scoredChunks.slice(0, 4);
+
+  const out = top
+    .map((c, idx) => {
+      return `[#${idx + 1} – ${c.title}]\n${c.text}`;
+    })
+    .join("\n\n---\n\n");
+
+  return out;
 }
