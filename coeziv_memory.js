@@ -4,9 +4,15 @@
 import fs from "fs";
 import path from "path";
 
-// Director în care salvăm fișierele de memorie.
-// În producție pe Vercel, pentru persistență reală, ar trebui înlocuit cu un DB (KV, Postgres etc.).
-const DATA_DIR = path.join(process.cwd(), "coeziv_data");
+// ---------------------------------------------------------------------------
+// Director de date
+// - pe Vercel / serverless: folosim /tmp (singurul writeable)
+// - local: folosim ./coeziv_data în proiect
+// ---------------------------------------------------------------------------
+
+const DATA_DIR = process.env.VERCEL
+  ? "/tmp/coeziv_data"
+  : path.join(process.cwd(), "coeziv_data");
 
 function ensureDataDir() {
   try {
@@ -62,30 +68,6 @@ function cosineSim(a, b) {
 
 // ---------------------- Structura memoriei Coezive ---------------------------
 
-/**
- * Structură de memorie:
- * {
- *   userId,
- *   createdAt,
- *   updatedAt,
- *   pattern: {
- *     style: { concise, detailed, warm, neutral },
- *     coeziv_familiarity, // 0..1
- *     avg_J,              // medie a tensiunii
- *     domains: { economie: count, tehnic: count, ... }
- *   },
- *   vectors: [
- *     {
- *       id,
- *       text,        // un fragment relevant (întrebare + răspuns)
- *       tags: [ ... ],
- *       bow         // bag-of-words simplu
- *     },
- *     ...
- *   ]
- * }
- */
-
 function createEmptyMemory(userId) {
   const now = new Date().toISOString();
   return {
@@ -136,11 +118,6 @@ export function saveUserMemory(memory) {
 
 /**
  * Actualizează memoria în funcție de o interacțiune user ↔ asistent.
- * @param {Object} params
- *  - userId
- *  - userMessage
- *  - assistantReply
- *  - engine (obiectul returnat de runCoezivEngine – cu j_state, policy, intent, identity_trace)
  */
 export function updateMemoryFromInteraction({
   userId,
@@ -167,7 +144,13 @@ export function updateMemoryFromInteraction({
 
   // dacă utilizatorul menționează Modelul Coeziv tot mai des, crește familiaritatea
   const lower = (userMessage || "").toLowerCase();
-  const coezivMarkers = ["modelul coeziv", "model coeziv", "coeziv 3.14", "3.14", "homeostazie"];
+  const coezivMarkers = [
+    "modelul coeziv",
+    "model coeziv",
+    "coeziv 3.14",
+    "3.14",
+    "homeostazie",
+  ];
   if (coezivMarkers.some((m) => lower.includes(m))) {
     mem.pattern.coeziv_familiarity = Math.min(
       1,
@@ -175,7 +158,7 @@ export function updateMemoryFromInteraction({
     );
   }
 
-  // ajustăm puțin stilul în funcție de feedback textual direct
+  // ajustăm stilul
   if (lower.includes("mai detaliat") || lower.includes("explică mai mult")) {
     mem.pattern.style.detailed = Math.min(1, mem.pattern.style.detailed + 0.05);
     mem.pattern.style.concise = Math.max(0, mem.pattern.style.concise - 0.05);
@@ -185,7 +168,7 @@ export function updateMemoryFromInteraction({
     mem.pattern.style.detailed = Math.max(0, mem.pattern.style.detailed - 0.05);
   }
 
-  // 2) Actualizare memorie "vectorială" simplă – stocăm doar unele interacțiuni
+  // 2) Memorie "vectorială" simplă – stocăm doar unele interacțiuni
   const combined = `${userMessage || ""}\n---\n${assistantReply || ""}`.trim();
   if (combined.length > 40) {
     const bow = textToVector(combined);
@@ -193,13 +176,14 @@ export function updateMemoryFromInteraction({
     mem.vectors.push({
       id,
       text: combined,
-      tags: engine && engine.policy && engine.policy.dominant
-        ? engine.policy.dominant
-        : [],
+      tags:
+        engine && engine.policy && engine.policy.dominant
+          ? engine.policy.dominant
+          : [],
       bow,
     });
 
-    // limităm numărul de fragmente ca să nu crească la infinit
+    // limităm numărul de fragmente
     if (mem.vectors.length > 200) {
       mem.vectors = mem.vectors.slice(mem.vectors.length - 200);
     }
@@ -222,8 +206,10 @@ export function retrieveMemoryContext({ userId, query, maxItems = 4 }) {
   const pf = mem.pattern;
   if (pf) {
     const styleHints = [];
-    if (pf.style.detailed > pf.style.concise + 0.1) styleHints.push("preferință: explicații detaliate");
-    if (pf.style.concise > pf.style.detailed + 0.1) styleHints.push("preferință: răspunsuri concise");
+    if (pf.style.detailed > pf.style.concise + 0.1)
+      styleHints.push("preferință: explicații detaliate");
+    if (pf.style.concise > pf.style.detailed + 0.1)
+      styleHints.push("preferință: răspunsuri concise");
     if (pf.style.warm > 0.6) styleHints.push("preferință: ton cald");
     if (pf.style.neutral > 0.6) styleHints.push("preferință: ton mai neutru");
 
@@ -270,4 +256,33 @@ export function retrieveMemoryContext({ userId, query, maxItems = 4 }) {
     summary: summaryParts.join(" "),
     snippets,
   };
+}
+
+/**
+ * Helper pentru SYSTEM: întoarce un STRING gata de inserat.
+ * Poți face .trim() pe el fără probleme.
+ */
+export function retrieveMemoryContextText(options) {
+  const { summary, snippets } = retrieveMemoryContext(options || {});
+  const parts = [];
+
+  if (summary && summary.trim()) {
+    parts.push("Profil și pattern Coeziv din memorie:");
+    parts.push(summary.trim());
+  }
+
+  if (snippets && snippets.length) {
+    parts.push(
+      "Fragmente relevante din conversațiile anterioare (memorie Coezivă):"
+    );
+    for (const sn of snippets) {
+      const scoreStr =
+        typeof sn.score === "number"
+          ? ` [relevanță ≈ ${sn.score.toFixed(2)}]`
+          : "";
+      parts.push(`•${scoreStr} ${sn.text}`);
+    }
+  }
+
+  return parts.join("\n");
 }
