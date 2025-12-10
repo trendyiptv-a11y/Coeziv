@@ -219,39 +219,43 @@ async function webSearchSerper(query) {
       }),
     });
 
+    // prevenim citirea multiplă – citim body O SINGURĂ DATĂ
+    const text = await response.text();
+
     if (!response.ok) {
-      console.warn("Serper API error:", response.status, await response.text());
+      console.warn("Serper API error:", response.status, text);
       return "";
     }
 
-    const data = await response.json();
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch (e) {
+      console.warn("Eroare: răspuns Serper ne-JSON:", text);
+      return "";
+    }
+
     const results = [];
 
     if (Array.isArray(data.news)) {
-      for (const item of data.news.slice(0, 3)) {
-        results.push(
-          `• [ȘTIRE] ${item.title} — ${item.snippet || ""} (${item.link})`
-        );
-      }
+      data.news.slice(0, 3).forEach(item => {
+        results.push(`• [ȘTIRE] ${item.title} — ${item.snippet || ""} (${item.link})`);
+      });
     }
 
     if (Array.isArray(data.organic)) {
-      for (const item of data.organic.slice(0, 3)) {
-        results.push(
-          `• ${item.title} — ${item.snippet || ""} (${item.link})`
-        );
-      }
+      data.organic.slice(0, 3).forEach(item => {
+        results.push(`• ${item.title} — ${item.snippet || ""} (${item.link})`);
+      });
     }
 
-    if (!results.length) return "";
+    if (!results.length) return "Nu am găsit rezultate relevante.";
 
-    return (
-      "Rezultate sintetizate din căutarea pe internet (Serper):\n" +
-      results.join("\n")
-    );
+    return "Rezultate sintetizate din internet:\n" + results.join("\n");
+
   } catch (err) {
     console.error("Eroare la webSearchSerper:", err);
-    return "";
+    return "A apărut o eroare la modulul de căutare.";
   }
 }
 
