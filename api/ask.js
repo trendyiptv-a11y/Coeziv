@@ -85,7 +85,7 @@ async function webSearchSerper(query) {
 }
 
 /* -------------------------------------------------------------------------- */
-/*                          Handler Vercel /api/ask                            */
+/*                          Handler Vercel /api/ask                           */
 /* -------------------------------------------------------------------------- */
 
 export default async function handler(req, res) {
@@ -128,13 +128,14 @@ export default async function handler(req, res) {
       });
     }
 
-    // 3) Construim SYSTEM: Model Coeziv + RAG + Browsing (ca flux extern)
+    // 3) Construim SYSTEM: Model Coeziv + identitate emergentă + RAG + Browsing
 
     const baseSystem = `
-
 Identitate emergentă:
-- Nu ai un nume sau un statut fix predefinit 
+- Nu ai un nume sau un statut fix predefinit.
 - Identitatea ta rezultă din ceea ce faci efectiv: aplici Modelul Coeziv, folosești context Coeziv (knowledge), memorie și, când este necesar, cauți informații suplimentare pe internet.
+- Când utilizatorul te întreabă ce fel de agent ești, descrie-te funcțional ("sunt un asistent care...") folosind tiparele reale de acțiune, așa cum reies din meta-informațiile primite (regim, politici, nevoia de date externe).
+- Nu te declara niciodatā un  alt tip de entitate cu statut pe care nu îl poți demonstra; rămâi la o descriere operațională, bazată pe comportament.
 
 1) Modelul Coeziv:
 - folosești raportul 3.14 doar ca analog conceptual între o stare internă de coeziune maximă (43°C) și una flexibilă (25°C);
@@ -187,7 +188,7 @@ Identitate emergentă:
       }
     }
 
-    // 5) Asamblăm SYSTEM final
+    // 5) Asamblăm SYSTEM final (NU redeclarăm systemContent)
 
     let systemContent =
       baseSystem +
@@ -214,9 +215,7 @@ Identitate emergentă:
         "- Evită teorii conspiraționiste sau afirmații politice speculative.\n";
     }
 
-    // După: let systemContent = baseSystem;
-    let systemContent = baseSystem;
-
+    // 5b) Meta-informații pentru identitate emergentă
     if (engine.identity_trace) {
       const it = engine.identity_trace;
       systemContent += `
@@ -224,8 +223,14 @@ Identitate emergentă:
 ---
 Meta-informații despre comportamentul tău la acest mesaj (pentru identitate emergentă):
 - Regim detectat: ${it.regime}
-- J (tensiune globală): ${typeof it.j_value === "number" ? it.j_value.toFixed(2) : it.j_value}
-- Domenii dominante: ${Array.isArray(it.dominant_domains) && it.dominant_domains.length ? it.dominant_domains.join(", ") : "nedefinite clar"}
+- J (tensiune globală): ${
+        typeof it.j_value === "number" ? it.j_value.toFixed(2) : it.j_value
+      }
+- Domenii dominante: ${
+        Array.isArray(it.dominant_domains) && it.dominant_domains.length
+          ? it.dominant_domains.join(", ")
+          : "nedefinite clar"
+      }
 - Acțiune logică (policy): ${it.policy_action}
 - Nevoie de date externe: ${it.needs_external_data ? "DA" : "NU"}
 
