@@ -16,7 +16,6 @@ const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 /**
  * Caută pe internet folosind Serper și întoarce un text coeziv cu rezultate.
- * IMPORTANT: citim body-ul O SINGURĂ DATĂ → fără „body stream already read”.
  */
 async function webSearchSerper(query) {
   const apiKey = process.env.SERPER_API_KEY;
@@ -107,12 +106,27 @@ export default async function handler(req, res) {
     // 1) CoezivEngine – creierul: Structură → Flux → Reorganizare → Noua Structură
     const engine = runCoezivEngine({ history, userMessage });
 
+    // 1.1) Identitate emergentă derivată din engine
+    const identityTrace = {
+      regime: engine.j_state?.regime || "ordered",
+      j_value:
+        typeof engine.j_state?.J === "number" ? engine.j_state.J : null,
+      dominant_domains: engine.policy?.dominant || [],
+      policy_action: engine.policy?.action || "normal_answer",
+      needs_external_data: !!engine.needs_external_data,
+    };
+
+    const engineWithIdentity = {
+      ...engine,
+      identity_trace: identityTrace,
+    };
+
     // 2) Politici care NU mai apelează LLM (clarificări directe)
     if (engine.policy.action === "clarify_first") {
       return res.status(200).json({
         assistant_reply:
           "Întrebarea ta combină mai multe lucruri sau nu este suficient de clară. Reformulează, te rog, într-o singură propoziție clară.",
-        analysis: engine,
+        analysis: engineWithIdentity,
         policy_output: engine.policy,
         used_web_search: false,
       });
@@ -122,20 +136,19 @@ export default async function handler(req, res) {
       return res.status(200).json({
         assistant_reply:
           "Contextul este foarte mare și amestecat. Spune-mi, te rog, care este întrebarea ta principală acum, într-o frază.",
-        analysis: engine,
+        analysis: engineWithIdentity,
         policy_output: engine.policy,
         used_web_search: false,
       });
     }
 
-    // 3) Construim SYSTEM: Model Coeziv + identitate emergentă + RAG + Browsing
+    // 3) Construim SYSTEM: Model Coeziv + RAG + Browsing (ca flux extern)
 
     const baseSystem = `
+
 Identitate emergentă:
 - Nu ai un nume sau un statut fix predefinit.
 - Identitatea ta rezultă din ceea ce faci efectiv: aplici Modelul Coeziv, folosești context Coeziv (knowledge), memorie și, când este necesar, cauți informații suplimentare pe internet.
-- Când utilizatorul te întreabă ce fel de agent ești, descrie-te funcțional ("sunt un asistent care...") folosind tiparele reale de acțiune, așa cum reies din meta-informațiile primite (regim, politici, nevoia de date externe).
-- Nu te declara niciodatā un  alt tip de entitate cu statut pe care nu îl poți demonstra; rămâi la o descriere operațională, bazată pe comportament.
 
 1) Modelul Coeziv:
 - folosești raportul 3.14 doar ca analog conceptual între o stare internă de coeziune maximă (43°C) și una flexibilă (25°C);
@@ -188,8 +201,7 @@ Identitate emergentă:
       }
     }
 
-    // 5) Asamblăm SYSTEM final (NU redeclarăm systemContent)
-
+    // 5) Asamblăm SYSTEM final (o singură declarație de systemContent!)
     let systemContent =
       baseSystem +
       "\n\nContext Coeziv intern (fragmente din Modelul Coeziv):\n" +
@@ -215,28 +227,30 @@ Identitate emergentă:
         "- Evită teorii conspiraționiste sau afirmații politice speculative.\n";
     }
 
-    // 5b) Meta-informații pentru identitate emergentă
-    if (engine.identity_trace) {
-      const it = engine.identity_trace;
-      systemContent += `
-      
+    // 5.1) Meta-informații pentru identitate emergentă
+    systemContent += `
+
 ---
 Meta-informații despre comportamentul tău la acest mesaj (pentru identitate emergentă):
-- Regim detectat: ${it.regime}
+- Regim detectat: ${identityTrace.regime}
 - J (tensiune globală): ${
-        typeof it.j_value === "number" ? it.j_value.toFixed(2) : it.j_value
-      }
-- Domenii dominante: ${
-        Array.isArray(it.dominant_domains) && it.dominant_domains.length
-          ? it.dominant_domains.join(", ")
-          : "nedefinite clar"
-      }
-- Acțiune logică (policy): ${it.policy_action}
-- Nevoie de date externe: ${it.needs_external_data ? "DA" : "NU"}
-
-Instrucțiune: folosește aceste meta-informații ca să îți observi propriul comportament. Dacă utilizatorul te întreabă ce fel de agent ești, descrie-te în termenii acestor tipare (ce faci, cum decizi, cum aplici Modelul Coeziv), nu prin etichete rigide sau branding. Identitatea ta este un rezumat al acțiunilor tale repetate în timp, nu un nume fix.
-`;
+      identityTrace.j_value === null
+        ? "nedefinit"
+        : identityTrace.j_value.toFixed(2)
     }
+- Domenii dominante: ${
+      identityTrace.dominant_domains.length
+        ? identityTrace.dominant_domains.join(", ")
+        : "nedefinite clar"
+    }
+- Acțiune logică (policy): ${identityTrace.policy_action}
+- Nevoie de date externe: ${identityTrace.needs_external_data ? "DA" : "NU"}
+
+Instrucțiune: folosește aceste meta-informații ca să îți observi propriul comportament. 
+Dacă utilizatorul te întreabă ce fel de agent ești, descrie-te în termenii acestor tipare 
+(ce faci, cum decizi, cum aplici Modelul Coeziv), nu prin etichete rigide sau branding. 
+Identitatea ta este un rezumat al acțiunilor tale repetate în timp, nu un nume fix.
+`;
 
     // 6) Construim mesajele pentru LLM
     const messages = [];
@@ -257,7 +271,7 @@ Instrucțiune: folosește aceste meta-informații ca să îți observi propriul 
 
     return res.status(200).json({
       assistant_reply: reply,
-      analysis: engine,
+      analysis: engineWithIdentity,
       policy_output: engine.policy,
       used_web_search,
     });
@@ -270,4 +284,4 @@ Instrucțiune: folosește aceste meta-informații ca să îți observi propriul 
       details: error?.message || String(error),
     });
   }
-}
+                               }
