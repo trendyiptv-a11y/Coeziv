@@ -2,557 +2,281 @@
 <html lang="ro">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Asistent Coeziv 3.14</title>
+
   <style>
-    :root {
-      --emerald:#00ffb7;
-      --accent:#10b981;
-      --bg:#020617;
-      --bg-elevated:#020617;
-      --panel:#020617;
-      --border:#1e293b;
-      --fg:#e5e7eb;
-      --muted:#9ca3af;
-      --user:#38bdf8;
-      --ai:#e5e7eb;
-    }
-    *{ box-sizing:border-box; }
-
-    body{
-      margin:0;
-      min-height:100vh;
-      display:flex;
-      justify-content:center;
-      align-items:stretch;
-      background: radial-gradient(circle at top, #0f172a 0, #020617 55%);
-      color:var(--fg);
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    body {
+      background: #0d1117;
+      color: #e6edf3;
+      font-family: "Inter", sans-serif;
+      margin: 0;
+      padding: 0;
     }
 
-    .shell{
-      width:100%;
-      max-width:900px;
-      padding:1.5rem;
-      display:flex;
-      flex-direction:column;
-      gap:1rem;
+    .container {
+      max-width: 700px;
+      margin: auto;
+      padding: 20px;
     }
 
-    header{
-      text-align:center;
-    }
-    header h1{
-      margin:0 0 .35rem;
-      font-size:1.9rem;
-      letter-spacing:.03em;
-      color:var(--emerald);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      gap:.4rem;
-    }
-    header p{
-      margin:0;
-      color:var(--muted);
-      font-size:.95rem;
+    h1 {
+      font-size: 32px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 5px;
     }
 
-    .card{
-      flex:1;
-      display:flex;
-      flex-direction:column;
-      background:rgba(15,23,42,0.85);
-      border-radius:18px;
-      border:1px solid rgba(148,163,184,0.35);
-      box-shadow:0 18px 45px rgba(15,23,42,0.8);
-      overflow:hidden;
-      backdrop-filter: blur(14px);
+    #chat {
+      border: 1px solid #1f2937;
+      border-radius: 12px;
+      padding: 20px;
+      height: 420px;
+      overflow-y: auto;
+      background: #111827;
+      margin-bottom: 20px;
     }
 
-    .chat-header{
-      padding:.75rem 1rem;
-      border-bottom:1px solid rgba(15,23,42,1);
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:.75rem;
-    }
-    .chat-header-left{
-      display:flex;
-      align-items:center;
-      gap:.6rem;
-    }
-    .chat-pill{
-      width:28px;
-      height:28px;
-      border-radius:999px;
-      background:radial-gradient(circle at 30% 20%, #22c55e, #0f172a);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-size:1.1rem;
-    }
-    .chat-title{
-      font-size:.95rem;
-      font-weight:600;
-    }
-    .chat-subtitle{
-      font-size:.78rem;
-      color:var(--muted);
-    }
-    .chip{
-      padding:.18rem .55rem;
-      border-radius:999px;
-      border:1px solid rgba(148,163,184,0.45);
-      font-size:.72rem;
-      color:var(--muted);
-      white-space:nowrap;
+    .bubble-row {
+      margin-bottom: 18px;
     }
 
-    .chat-body{
-      flex:1;
-      display:flex;
-      flex-direction:column;
-      padding:.75rem 1rem;
-      gap:.35rem;
-      overflow-y:auto;
-      scroll-behavior:smooth;
+    .bubble {
+      display: inline-block;
+      padding: 12px 16px;
+      border-radius: 18px;
+      max-width: 80%;
+      font-size: 15px;
+      line-height: 1.45;
+      white-space: pre-wrap;
     }
 
-    .bubble-row{
-      display:flex;
-      margin:.25rem 0;
-    }
-    .bubble-row.user{ justify-content:flex-end; }
-    .bubble-row.ai{ justify-content:flex-start; }
-
-    .bubble{
-      max-width:80%;
-      padding:.6rem .8rem .5rem;
-      border-radius:1rem;
-      font-size:.92rem;
-      line-height:1.5;
-      white-space:pre-wrap;
-      word-break:break-word;
-      position:relative;
-    }
-    .bubble.user{
-      background:linear-gradient(135deg,#0ea5e9,#22d3ee);
-      color:#0f172a;
-      border-bottom-right-radius:.3rem;
-    }
-    .bubble.ai{
-      background:rgba(15,23,42,0.85);
-      border:1px solid rgba(30,64,175,0.55);
-      color:var(--ai);
-      border-bottom-left-radius:.3rem;
+    .bubble.user {
+      background: #0ea5e9;
+      color: #fff;
+      align-self: flex-end;
+      float: right;
     }
 
-    .bubble-meta{
-      margin-top:.25rem;
-      font-size:.73rem;
-      color:var(--muted);
-      display:flex;
-      align-items:center;
-      gap:.5rem;
-      flex-wrap:wrap;
-    }
-    .meta-chip{
-      padding:.12rem .5rem;
-      border-radius:999px;
-      border:1px solid rgba(148,163,184,0.3);
+    .bubble.ai {
+      background: #1f2937;
+      color: #e6edf3;
+      float: left;
     }
 
-    .typing{
-      opacity:.7;
-      font-style:italic;
+    .bubble-meta {
+      margin-top: 6px;
+      padding-left: 4px;
     }
 
-    .divider{
-      text-align:center;
-      margin:.2rem 0 .4rem;
-      font-size:.72rem;
-      color:var(--muted);
+    .meta-chip {
+      background: #0f172a;
+      border: 1px solid #334155;
+      font-size: 12px;
+      padding: 2px 6px;
+      border-radius: 8px;
+      margin-right: 6px;
+      display: inline-block;
     }
 
-    .chat-footer{
-      padding:.6rem 1rem .8rem;
-      border-top:1px solid rgba(15,23,42,1);
-      display:flex;
-      flex-direction:column;
-      gap:.4rem;
+    #input-area {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
     }
 
-    .input-row{
-      display:flex;
-      gap:.55rem;
-      align-items:flex-end;
-    }
-    .input-row input{
-      flex:1;
-      min-width:0;
-      padding:.8rem .9rem;
-      border-radius:999px;
-      border:1px solid var(--border);
-      background:#020617;
-      color:var(--fg);
-      outline:none;
-      font-size:.92rem;
-    }
-    .input-row input::placeholder{ color:#64748b; }
-
-    .input-row button{
-      border:none;
-      border-radius:999px;
-      padding:.72rem 1.35rem;
-      font-weight:600;
-      font-size:.9rem;
-      cursor:pointer;
-      background:linear-gradient(135deg,#22c55e,#14b8a6);
-      color:#020617;
-      box-shadow:0 0 0 1px rgba(34,197,94,0.4),0 12px 25px rgba(16,185,129,0.45);
-      transition:transform .08s ease, box-shadow .08s ease, opacity .15s ease;
-    }
-    .input-row button:hover:not([disabled]){
-      transform:translateY(-1px);
-      box-shadow:0 16px 36px rgba(16,185,129,0.65);
-    }
-    .input-row button:active:not([disabled]){
-      transform:translateY(0);
-      box-shadow:0 8px 18px rgba(16,185,129,0.5);
-    }
-    .input-row button[disabled]{
-      opacity:.55;
-      cursor:not-allowed;
-      box-shadow:none;
+    #q {
+      flex: 1;
+      padding: 12px;
+      border-radius: 20px;
+      border: 1px solid #334155;
+      background: #0f172a;
+      color: #e6edf3;
+      font-size: 16px;
     }
 
-    .status{
-      font-size:.78rem;
-      color:var(--muted);
-      min-height:1em;
+    #send {
+      padding: 12px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 20px;
+      background: #10b981;
+      color: #000;
+      cursor: pointer;
+      transition: 0.2s;
     }
 
-    .back-link{
-      margin-top:.4rem;
-      text-align:center;
-      font-size:.82rem;
+    #send:disabled {
+      background: #1e3d38;
+      cursor: not-allowed;
     }
-    .back-link a{
-      color:var(--emerald);
-      text-decoration:none;
-    }
-    .back-link a:hover{ text-decoration:underline; }
 
-    @media (max-width:640px){
-      .shell{ padding:1rem .75rem; }
-      .bubble{ max-width:100%; }
-      header h1{ font-size:1.5rem; }
+    #status {
+      font-size: 14px;
+      margin-top: 8px;
+      color: #9ca3af;
+    }
+
+    .typing {
+      opacity: 0.6;
+      font-style: italic;
     }
   </style>
 </head>
+
 <body>
-  <div class="shell">
-    <header>
-      <h1>🤖 Asistent Coeziv 3.14</h1>
-      <p>Întreabă despre Modelul Coeziunii, homeostazie, apă și interpretări coezive.</p>
-    </header>
+<div class="container">
+  <h1>🤖 Asistent Coeziv 3.14</h1>
+  <p>Întreabă despre Modelul Coeziunii, homeostazie, apă și interpretări coezive.</p>
 
-    <section class="card" aria-label="Chat Asistent Coeziv 3.14">
-      <div class="chat-header">
-        <div class="chat-header-left">
-          <div class="chat-pill">3.14</div>
-          <div>
-            <div class="chat-title">Canal Coeziv</div>
-            <div class="chat-subtitle">Structură · Flux · Reorganizare · Noua structură</div>
-          </div>
-        </div>
-        <div class="chip">MVP · CoezivWallet-AI</div>
-      </div>
+  <div id="chat"></div>
 
-      <div id="chat" class="chat-body" aria-live="polite" aria-label="Istoric conversație">
-        <div class="divider">Începe cu o întrebare. Modelul răspunde în logica Coezivă.</div>
-      </div>
-
-      <div class="chat-footer">
-        <div class="input-row">
-          <input id="q" placeholder="Scrie întrebarea ta aici..." autocomplete="off"/>
-          <button id="send">Trimite</button>
-        </div>
-        <div id="status" class="status"></div>
-      </div>
-    </section>
-
-    <div class="back-link">
-      <a href="/document/index.html">← Înapoi la arhivă</a>
-    </div>
+  <div id="input-area">
+    <input id="q" type="text" placeholder="Scrie întrebarea ta aici..." autocomplete="off" />
+    <button id="send">Trimite</button>
   </div>
 
-  <script>
-    const chatEl   = document.getElementById("chat");
-    const qEl      = document.getElementById("q");
-    const sendBtn  = document.getElementById("send");
-    const statusEl = document.getElementById("status");
+  <div id="status"></div>
+</div>
 
-    let history = [];
-
-    function typewriter(el, fullText, speed = 12) {
-      let i = 0;
-      function step() {
-        if (i <= fullText.length) {
-          el.textContent = fullText.slice(0, i);
-          i++;
-          chatEl.scrollTop = chatEl.scrollHeight;
-          setTimeout(step, speed);
-        }
-      }
-      step();
-    }
-
-    function appendBubble(role, text, meta = null, options = {}) {
-      const row = document.createElement("div");
-      row.className = "bubble-row " + role;
-
-      const bubble = document.createElement("div");
-      bubble.className = "bubble " + role;
-
-      if (role === "ai" && options.animate) {
-        bubble.textContent = "";
-      } else {
-        bubble.textContent = text;
-      }
-
-      row.appendChild(bubble);
-
-      if (meta) {
-        const metaDiv = document.createElement("div");
-        metaDiv.className = "bubble-meta";
-
-        if (meta.J != null) {
-          const jChip = document.createElement("span");
-          jChip.className = "meta-chip";
-          jChip.textContent = `J = ${meta.J.toFixed(2)}`;
-          metaDiv.appendChild(jChip);
-        }
-        if (meta.regime) {
-          const rChip = document.createElement("span");
-          rChip.className = "meta-chip";
-          rChip.textContent = `Regim: ${meta.regime}`;
-          metaDiv.appendChild(rChip);
-        }
-        if (meta.action) {
-          const aChip = document.createElement("span");
-          aChip.className = "meta-chip";
-          aChip.textContent = `Acțiune: ${meta.action}`;
-          metaDiv.appendChild(aChip);
-        }
-
-        row.appendChild(metaDiv);
-      }
-
-      chatEl.appendChild(row);
-      chatEl.scrollTop = chatEl.scrollHeight;
-
-      if (role === "ai" && options.animate) {
-        typewriter(bubble, text);
-      }
-
-      return row;
-    }
-
-    function appendTyping(){
-      const row = document.createElement("div");
-      row.className = "bubble-row ai";
-      const bubble = document.createElement("div");
-      bubble.className = "bubble ai typing";
-      bubble.textContent = "CoEziv AI se gândește…";
-      row.appendChild(bubble);
-      chatEl.appendChild(row);
-      chatEl.scrollTop = chatEl.scrollHeight;
-      return row;
 <script>
-    const chatEl   = document.getElementById("chat");
-    const qEl      = document.getElementById("q");
-    const sendBtn  = document.getElementById("send");
-    const statusEl = document.getElementById("status");
+document.addEventListener("DOMContentLoaded", () => {
+  const chatEl = document.getElementById("chat");
+  const qEl = document.getElementById("q");
+  const sendBtn = document.getElementById("send");
+  const statusEl = document.getElementById("status");
 
-    // Istoric doar în memoria paginii (NU se mai salvează în localStorage)
-    let history = [];
+  let history = []; // memorie per tab
 
-    function typewriter(el, fullText, speed = 12) {
-      let i = 0;
-      function step() {
-        if (i <= fullText.length) {
-          el.textContent = fullText.slice(0, i);
-          i++;
-          chatEl.scrollTop = chatEl.scrollHeight;
-          setTimeout(step, speed);
-        }
-      }
-      step();
-    }
-
-    function appendBubble(role, text, meta = null, options = {}) {
-      const row = document.createElement("div");
-      row.className = "bubble-row " + role;
-<script>
-    const chatEl   = document.getElementById("chat");
-    const qEl      = document.getElementById("q");
-    const sendBtn  = document.getElementById("send");
-    const statusEl = document.getElementById("status");
-
-    // Istoric doar în memoria paginii (NU se mai salvează în localStorage)
-    let history = [];
-
-    function typewriter(el, fullText, speed = 12) {
-      let i = 0;
-      function step() {
-        if (i <= fullText.length) {
-          el.textContent = fullText.slice(0, i);
-          i++;
-          chatEl.scrollTop = chatEl.scrollHeight;
-          setTimeout(step, speed);
-        }
-      }
-      step();
-    }
-
-    function appendBubble(role, text, meta = null, options = {}) {
-      const row = document.createElement("div");
-      row.className = "bubble-row " + role;
-
-      const bubble = document.createElement("div");
-      bubble.className = "bubble " + role;
-
-      if (role === "ai" && options.animate) {
-        bubble.textContent = "";
-      } else {
-        bubble.textContent = text;
-      }
-
-      row.appendChild(bubble);
-
-      if (meta) {
-        const metaDiv = document.createElement("div");
-        metaDiv.className = "bubble-meta";
-
-        if (meta.J != null) {
-          const jChip = document.createElement("span");
-          jChip.className = "meta-chip";
-          jChip.textContent = `J = ${meta.J.toFixed(2)}`;
-          metaDiv.appendChild(jChip);
-        }
-        if (meta.regime) {
-          const rChip = document.createElement("span");
-          rChip.className = "meta-chip";
-          rChip.textContent = `Regim: ${meta.regime}`;
-          metaDiv.appendChild(rChip);
-        }
-        if (meta.action) {
-          const aChip = document.createElement("span");
-          aChip.className = "meta-chip";
-          aChip.textContent = `Acțiune: ${meta.action}`;
-          metaDiv.appendChild(aChip);
-        }
-
-        row.appendChild(metaDiv);
-      }
-
-      chatEl.appendChild(row);
-      chatEl.scrollTop = chatEl.scrollHeight;
-
-      if (role === "ai" && options.animate) {
-        typewriter(bubble, text);
-      }
-
-      return row;
-    }
-
-    function appendTyping(){
-      const row = document.createElement("div");
-      row.className = "bubble-row ai";
-      const bubble = document.createElement("div");
-      bubble.className = "bubble ai typing";
-      bubble.textContent = "CoEziv AI se gândește…";
-      row.appendChild(bubble);
-      chatEl.appendChild(row);
-      chatEl.scrollTop = chatEl.scrollHeight;
-      return row;
-    }
-
-    async function ask(){
-      const q = qEl.value.trim();
-      if(!q) return;
-
-      statusEl.textContent = "";
-      appendBubble("user", q, null, { animate: false });
-      history.push({ role: "user", content: q });
-
-      qEl.value = "";
-      sendBtn.disabled = true;
-
-      const typingRow = appendTyping();
-
-      try{
-        const res = await fetch("/api/ask", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: q, history })
-        });
-
-        let data;
-        try{
-          data = await res.json();
-        }catch{
-          const txt = await res.text();
-          data = { assistant_reply: `Eroare: răspuns non-JSON: ${txt.slice(0,200)}…` };
-        }
-
-        typingRow.remove();
-
-        const replyText =
-          (typeof data.assistant_reply === "string" && data.assistant_reply.trim().length > 0)
-            ? data.assistant_reply
-            : "Nu am primit un răspuns inteligibil. Poți repeta, te rog, întrebarea?";
-
-        let meta = null;
-        if(data.analysis && data.analysis.j_state){
-          const Jraw = Number(data.analysis.j_state.J);
-          if(!Number.isNaN(Jraw)){
-            meta = {
-              J: Jraw,
-              regime: data.analysis.j_state.regime || "",
-              action: data.policy_output?.action || data.analysis.policy?.action || ""
-            };
-          } else {
-            meta = {
-              regime: data.analysis.j_state.regime || "",
-              action: data.policy_output?.action || data.analysis.policy?.action || ""
-            };
-          }
-        }
-
-        appendBubble("ai", replyText, meta, { animate: true });
-        history.push({ role: "assistant", content: replyText, meta });
-
-      } catch (e){
-        typingRow.remove();
-        appendBubble("ai", "A apărut o eroare de rețea. Încearcă din nou.", null, { animate: false });
-        statusEl.textContent = e.message || String(e);
-      } finally {
-        sendBtn.disabled = false;
-        qEl.focus();
+  function typewriter(el, fullText, speed = 12) {
+    let i = 0;
+    function step() {
+      if (i <= fullText.length) {
+        el.textContent = fullText.slice(0, i);
+        i++;
+        chatEl.scrollTop = chatEl.scrollHeight;
+        setTimeout(step, speed);
       }
     }
+    step();
+  }
 
-    sendBtn.addEventListener("click", ask);
-    qEl.addEventListener("keydown", (e)=>{
-      if(e.key === "Enter" && !e.shiftKey){
-        e.preventDefault();
-        ask();
+  function appendBubble(role, text, meta = null, animate = false) {
+    const row = document.createElement("div");
+    row.className = "bubble-row";
+
+    const bubble = document.createElement("div");
+    bubble.className = "bubble " + role;
+    if (animate) bubble.textContent = "";
+    else bubble.textContent = text;
+
+    row.appendChild(bubble);
+
+    if (meta) {
+      const metaDiv = document.createElement("div");
+      metaDiv.className = "bubble-meta";
+
+      if (meta.J !== undefined) {
+        const chip = document.createElement("span");
+        chip.className = "meta-chip";
+        chip.textContent = "J = " + meta.J.toFixed(2);
+        metaDiv.appendChild(chip);
       }
-    });
-  </script>
+
+      if (meta.regime) {
+        const chip = document.createElement("span");
+        chip.className = "meta-chip";
+        chip.textContent = "Regim: " + meta.regime;
+        metaDiv.appendChild(chip);
+      }
+
+      if (meta.action) {
+        const chip = document.createElement("span");
+        chip.className = "meta-chip";
+        chip.textContent = "Acțiune: " + meta.action;
+        metaDiv.appendChild(chip);
+      }
+
+      row.appendChild(metaDiv);
+    }
+
+    chatEl.appendChild(row);
+    chatEl.scrollTop = chatEl.scrollHeight;
+
+    if (animate) {
+      typewriter(bubble, text);
+    }
+  }
+
+  function appendTyping() {
+    const row = document.createElement("div");
+    row.className = "bubble-row";
+
+    const bubble = document.createElement("div");
+    bubble.className = "bubble ai typing";
+    bubble.textContent = "Se gândește...";
+
+    row.appendChild(bubble);
+    chatEl.appendChild(row);
+    chatEl.scrollTop = chatEl.scrollHeight;
+
+    return row;
+  }
+
+  async function ask() {
+    const q = qEl.value.trim();
+    if (!q) return;
+
+    statusEl.textContent = "";
+
+    appendBubble("user", q);
+    history.push({ role: "user", content: q });
+
+    qEl.value = "";
+    sendBtn.disabled = true;
+
+    const loading = appendTyping();
+
+    try {
+      const res = await fetch("/api/ask", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: q, history })
+      });
+
+      const data = await res.json();
+      loading.remove();
+
+      const reply = data.assistant_reply || "Fără răspuns valid.";
+
+      const meta = {
+        J: Number(data.analysis?.j_state?.J) || 0,
+        regime: data.analysis?.j_state?.regime || "",
+        action: data.policy_output?.action || ""
+      };
+
+      appendBubble("ai", reply, meta, true);
+      history.push({ role: "assistant", content: reply });
+
+    } catch (err) {
+      loading.remove();
+      appendBubble("ai", "Eroare de rețea. Încearcă din nou.");
+      statusEl.textContent = err.message;
+    }
+
+    sendBtn.disabled = false;
+  }
+
+  sendBtn.addEventListener("click", ask);
+  qEl.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      ask();
+    }
+  });
+});
+</script>
+
 </body>
 </html>
