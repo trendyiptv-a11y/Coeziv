@@ -6,7 +6,42 @@ import { retrieveCohezivContext } from "../coeziv_knowledge.js";
 
 const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-/* ---------------- CoezivWallet-AI ---------------- */
+/* ---------------- Utilitare CoezivWallet-AI ---------------- */
+
+// întrebări META despre asistent (cine ești, ce poți, domenii etc.)
+function isMetaQuestion(text) {
+  if (!text) return false;
+  const t = text.toLowerCase();
+
+  const patterns = [
+    "ce fel de asistent esti",
+    "ce fel de asistent ești",
+    "in ce domenii esti specialist",
+    "în ce domenii ești specialist",
+    "in ce domenii esti bun",
+    "în ce domenii ești bun",
+    "in ce domenii esti",
+    "în ce domenii ești",
+    "cine esti",
+    "cine ești",
+    "ce esti",
+    "ce ești",
+    "care e rolul tau",
+    "care e rolul tău",
+    "ce poti face",
+    "ce poți face",
+    "ce poti sa faci",
+    "ce poți să faci",
+    "ce stii",
+    "ce știi",
+    "ce stii sa faci",
+    "ce știi să faci",
+    "ce fel de model esti",
+    "ce fel de model ești"
+  ];
+
+  return patterns.some(p => t.includes(p));
+}
 
 function detectDomains(text) {
   const keywords = {
@@ -105,11 +140,35 @@ function decidePolicy(Jstate, flags, domains) {
   return { action: "normal_answer", dominant };
 }
 
+/**
+ * Rulează CoezivWallet: calculează J, regim, flags, policy.
+ * Include un caz special pentru întrebările META despre asistent,
+ * care NU trebuie să declanșeze clarify_first.
+ */
 function runCohezivWallet(history, userMessage) {
   const fullText = [...(history || []).map(h => h.content || ""), userMessage]
     .join("\n");
   const wordCount = fullText.split(/\s+/).filter(Boolean).length;
   const contextDepth = Math.min(wordCount / 800, 1.0);
+
+  // ➜ Caz special: întrebări META despre asistent
+  if (isMetaQuestion(userMessage)) {
+    const domains = { meta: 1.0 };
+    const flags = {
+      F1_domain_mix: false,
+      F2_global_jump: false,
+      F3_oversaturation: false
+    };
+    const Jstate = { J: 0.0, regime: "ordered" };
+    const policy = { action: "normal_answer", dominant: ["meta"] };
+
+    return {
+      rho: { contextDepth, conflictScore: 0, domains },
+      flags,
+      j_state: Jstate,
+      policy,
+    };
+  }
 
   const domains = detectDomains(fullText);
 
@@ -192,10 +251,10 @@ Ești Asistentul Coeziv 3.14.
   - explici conceptul prin Structură, Flux, Reorganizare, Noua Structură;
   - verifici consistența cu Modelul Coeziv și precizezi limitările.
 
-După răspunsul principal, dacă este relevant, poți adăuga:
-
-"Explicație 2π:" urmată de 2–4 propoziții care descriu
-Structura, Fluxul, Reorganizarea și Noua structură.
+5) Despre acces la internet și limite:
+- Nu menționa spontan că nu ai acces la internet sau că ești limitat la o anumită dată.
+- Dacă utilizatorul te întreabă explicit despre accesul la internet sau date foarte recente, explică simplu:
+  "În acest asistent Coeziv nu am un canal direct la internet. Lucrez cu cunoașterea mea internă și cu baza de cunoaștere Coezivă pe care mi-ai oferit-o. Poți să-mi trimiți tu date sau texte noi, iar eu le integrez în logica Coezivă."
 `;
 
   const dominantDomains = analysis.policy.dominant || [];
