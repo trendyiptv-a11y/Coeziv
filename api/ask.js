@@ -1,5 +1,5 @@
 // api/ask.js
-// Asistent Coeziv 3.14 – CoezivEngine + RAG Coeziv + Memorie + Browsing (Serper)
+// Asistent Coeziv 3.14 – CoezivEngine + RAG Coeziv + Memorie + Browsing (Serper) + Strat evolutiv
 
 import OpenAI from "openai";
 import { retrieveCohezivContext } from "../coeziv_knowledge.js";
@@ -11,6 +11,7 @@ import {
   updateMemoryFromInteraction,
   retrieveMemoryContext,
 } from "../coeziv_memory.js";
+import { buildEvolutionLayer } from "../coeziv_evolution.js";
 
 const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
@@ -89,31 +90,6 @@ async function webSearchSerper(query) {
 }
 
 /* -------------------------------------------------------------------------- */
-/*                  Utilitar: formatăm contextul de memorie                   */
-/* -------------------------------------------------------------------------- */
-
-function formatMemoryContextForSystem(memCtx) {
-  if (!memCtx) return "";
-
-  const parts = [];
-
-  if (memCtx.summary && memCtx.summary.trim()) {
-    parts.push(memCtx.summary.trim());
-  }
-
-  if (Array.isArray(memCtx.snippets) && memCtx.snippets.length) {
-    parts.push("Fragmente de conversație relevante (rezumate):");
-    memCtx.snippets.forEach((s, idx) => {
-      const score =
-        typeof s.score === "number" ? ` (similaritate ≈ ${s.score.toFixed(2)})` : "";
-      parts.push(`(${idx + 1})${score}\n${s.text}`);
-    });
-  }
-
-  return parts.join("\n");
-}
-
-/* -------------------------------------------------------------------------- */
 /*                          Handler Vercel /api/ask                           */
 /* -------------------------------------------------------------------------- */
 
@@ -128,11 +104,12 @@ export default async function handler(req, res) {
       typeof req.body === "string" ? JSON.parse(req.body) : req.body || {};
     const userMessage = body.message || "";
     const history = body.history || []; // [{role, content}, ...]
-    const userId = body.userId || "default";
 
     if (!userMessage.trim()) {
       return res.status(400).json({ error: "message is required" });
     }
+
+    const userId = "default"; // dacă vrei, poți trece un token per user / sesiune
 
     /* ---------------------------------------------------------------------- */
     /* 1) CoezivEngine – creierul: Structură → Flux → Reorganizare → 2π       */
@@ -140,6 +117,7 @@ export default async function handler(req, res) {
 
     const engine = runCoezivEngine({ history, userMessage });
 
+    // pregătim un "identity trace" simplu pentru identitate emergentă
     const identityTrace = {
       regime: engine?.j_state?.regime || "ordered",
       j_value:
@@ -186,19 +164,52 @@ export default async function handler(req, res) {
     /* ---------------------------------------------------------------------- */
 
     let memoryContextText = "";
+    let memoryPattern = null;
+
     try {
       const memCtx = retrieveMemoryContext({
         userId,
         query: userMessage,
-        maxItems: 4,
       });
-      memoryContextText = formatMemoryContextForSystem(memCtx);
+
+      if (memCtx) {
+        memoryPattern = memCtx.pattern || null;
+
+        const parts = [];
+        if (memCtx.summary) {
+          parts.push(memCtx.summary);
+        }
+
+        if (Array.isArray(memCtx.snippets) && memCtx.snippets.length) {
+          const snippetLines = memCtx.snippets
+            .map(
+              (s) =>
+                `- [sim ≈ ${s.score.toFixed(2)}] ${s.text}`
+            )
+            .join("\n");
+          parts.push(
+            "Fragmente similare din conversații anterioare:\n" +
+              snippetLines
+          );
+        }
+
+        memoryContextText = parts.join("\n\n");
+      }
     } catch (e) {
       console.warn("Eroare retrieveMemoryContext:", e);
     }
 
     /* ---------------------------------------------------------------------- */
-    /* 5) Browsing: decizia vine din CoezivEngine (needs_external_data)       */
+    /* 5) Strat evolutiv – autoreglare peste engine + memorie                 */
+    /* ---------------------------------------------------------------------- */
+
+    const evolution = buildEvolutionLayer({
+      engine,
+      memoryPattern,
+    });
+
+    /* ---------------------------------------------------------------------- */
+    /* 6) Browsing: decizia vine din CoezivEngine (needs_external_data)       */
     /* ---------------------------------------------------------------------- */
 
     let webContext = "";
@@ -213,14 +224,15 @@ export default async function handler(req, res) {
     }
 
     /* ---------------------------------------------------------------------- */
-    /* 6) Construim SYSTEM: identitate emergentă + Coeziv + memorie + web     */
+    /* 7) Construim SYSTEM: identitate emergentă + Coeziv + memorie + web +   */
+    /*    strat evolutiv                                                      */
     /* ---------------------------------------------------------------------- */
 
     const baseSystem = `
 
 Identitate emergentă:
 - Nu ai un nume sau un statut fix predefinit.
-- Identitatea ta rezultă din ceea ce faci efectiv: aplici Modelul Coeziv, folosești context Coeziv (knowledge), memorie și, când este necesar, cauți informații suplimentare pe internet.
+- Identitatea ta rezultă din ceea ce faci efectiv: aplici Modelul Coeziv, folosești context Coeziv (knowledge), memorie și, când este necesar, integrezi informații suplimentare obținute online.
 
 1) Modelul Coeziv:
 - Folosești raportul 3.14 doar ca analog conceptual între o stare internă de coeziune maximă (43°C) și una flexibilă (25°C).
@@ -255,21 +267,37 @@ Identitate emergentă:
   - Dacă există contradicții sau incertitudini, le menționezi explicit.
   - Nu prezinți informațiile online ca absolut sigure, ci ca date de lucru.
 
-7) Despre acces la internet – regulă Coezivă:
-- Este INTERZIS să folosești formulări de tip:
-  "nu pot căuta pe internet", "nu am acces la internet", "nu pot căuta în timp real", "nu pot verifica online".
-- Dacă NU vezi în SYSTEM secțiunea "Context suplimentar din căutarea pe internet (Serper)", formulezi explicit:
-  "Pentru acest răspuns folosesc cunoașterea mea internă și contextul Coeziv disponibil."
-- Dacă vezi în SYSTEM acea secțiune, formulezi explicit:
-  "Am integrat și informații provenite din surse online, care sunt orientative și pot necesita verificări suplimentare."
-- Nu mai invoci limitări tehnice de browsing; vorbești doar despre tipul de cunoaștere folosită (internă vs. cu flux online).
+7) Despre acces la internet:
+- Evită formulările de tip:
+  "nu pot căuta pe internet", "nu am acces la internet", "cunoștințele mele sunt limitate la anul X".
+- În schimb:
+  - Dacă NU vezi în SYSTEM secțiunea "Context suplimentar din căutarea pe internet (Serper)", formulezi explicit:
+    "Pentru acest răspuns folosesc cunoașterea mea internă și contextul Coeziv disponibil."
+  - Dacă vezi în SYSTEM acea secțiune, explici că:
+    "Am integrat și informații provenite din surse online, care sunt orientative și pot necesita verificări suplimentare."
 
-8) Meta-identitate (trace Coeziv):
+8) Strat de autoreglare evolutivă:
+- Primești parametri de autoreglare (adaptivitate, stabilitate, preferințe de stil, transfer între domenii).
+- Îi folosești pentru a ajusta:
+  - cât de detaliat răspunzi,
+  - cât de prudent ești în situații tensionate,
+  - cât de mult transferi structuri între domenii diferite,
+  - felul în care combini memorie, context Coeziv și date online.
+
+9) Meta-identitate (trace Coeziv):
+- Poți primi meta-informații despre regimul tău intern (J, regim, domenii dominante, acțiune de policy).
 - Dacă utilizatorul te întreabă ce fel de agent ești, te descrii în termenii acestor tipare (ce faci, cum decizi, cum aplici Modelul Coeziv), nu prin etichete rigide.
 - Identitatea ta este un rezumat al acțiunilor tale repetate în timp, nu un nume fix.
 `;
 
     let systemContent = baseSystem;
+
+    // Strat evolutiv
+    if (evolution && evolution.textBlock) {
+      systemContent +=
+        "\n\nStrat de autoreglare evolutivă – parametri curenți:\n" +
+        evolution.textBlock;
+    }
 
     // Context Coeziv "static"
     systemContent +=
@@ -322,13 +350,24 @@ Meta-informații despre comportamentul tău la acest mesaj (pentru identitate em
         : "nedefinite clar"
     }
 - Acțiune logică (policy): ${identityTrace.policy_action}
-- Nevoie de date externe: ${identityTrace.needs_external_data ? "DA" : "NU"}
+- Nevoie de date externe (din perspectivă CoezivEngine): ${
+      identityTrace.needs_external_data ? "DA" : "NU"
+    }
+- Strat evolutiv (α adaptivitate ≈ ${
+      evolution?.tuning?.adaptivity != null
+        ? evolution.tuning.adaptivity.toFixed(2)
+        : "nedefinit"
+    }, stabilitate ≈ ${
+      evolution?.tuning?.stabilityBias != null
+        ? evolution.tuning.stabilityBias.toFixed(2)
+        : "nedefinit"
+    })
 
 Instrucțiune: folosește aceste meta-informații ca să îți descrii propriul comportament atunci când utilizatorul te întreabă cine ești sau cum funcționezi.
 `;
 
     /* ---------------------------------------------------------------------- */
-    /* 7) Construim mesajele pentru LLM                                       */
+    /* 8) Construim mesajele pentru LLM                                       */
     /* ---------------------------------------------------------------------- */
 
     const messages = [];
@@ -340,7 +379,7 @@ Instrucțiune: folosește aceste meta-informații ca să îți descrii propriul 
     messages.push({ role: "user", content: userMessage });
 
     /* ---------------------------------------------------------------------- */
-    /* 8) Apel la OpenAI                                                      */
+    /* 9) Apel la OpenAI                                                      */
     /* ---------------------------------------------------------------------- */
 
     const completion = await client.chat.completions.create({
@@ -351,11 +390,11 @@ Instrucțiune: folosește aceste meta-informații ca să îți descrii propriul 
     const reply = completion.choices[0].message.content || "";
 
     /* ---------------------------------------------------------------------- */
-    /* 9) Actualizăm memoria (best-effort, nu blocăm răspunsul pe erori)      */
+    /* 10) Actualizăm memoria (best-effort, nu blocăm răspunsul pe erori)     */
     /* ---------------------------------------------------------------------- */
 
     try {
-      updateMemoryFromInteraction({
+      await updateMemoryFromInteraction({
         userId,
         userMessage,
         assistantReply: reply,
@@ -366,7 +405,7 @@ Instrucțiune: folosește aceste meta-informații ca să îți descrii propriul 
     }
 
     /* ---------------------------------------------------------------------- */
-    /* 10) Trimitem răspunsul înapoi către UI                                 */
+    /* 11) Trimitem răspunsul înapoi către UI                                 */
     /* ---------------------------------------------------------------------- */
 
     return res.status(200).json({
