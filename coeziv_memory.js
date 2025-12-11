@@ -252,9 +252,11 @@ export function retrieveMemoryContext({ userId, query, maxItems = 4 }) {
       }));
   }
 
+  // 🔥 AICI e modificarea importantă: expunem și pattern-ul întreg
   return {
     summary: summaryParts.join(" "),
     snippets,
+    pattern: mem.pattern || null,
   };
 }
 
