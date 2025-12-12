@@ -1,36 +1,22 @@
 // api/ask.js
 // Asistent Coeziv 3.14 – CoezivEngine + RAG Coeziv + Memorie + Browsing (Serper) + Strat evolutiv
+// Browsing: la cerere (UI flag sau comandă în text). NU mai „se preface” că a căutat.
 
 import OpenAI from "openai";
 import { retrieveCohezivContext } from "../coeziv_knowledge.js";
-import {
-  runCoezivEngine,
-  buildCohezivSearchQuery,
-} from "../coeziv_engine.js";
-import {
-  updateMemoryFromInteraction,
-  retrieveMemoryContext,
-} from "../coeziv_memory.js";
+import { runCoezivEngine, buildCohezivSearchQuery } from "../coeziv_engine.js";
+import { updateMemoryFromInteraction, retrieveMemoryContext } from "../coeziv_memory.js";
 import { buildEvolutionLayer } from "../coeziv_evolution.js";
 
 const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 /* -------------------------------------------------------------------------- */
-/*                        Modul de căutare pe internet                        */
+/*                               Serper websearch                             */
 /* -------------------------------------------------------------------------- */
 
-/**
- * Caută pe internet folosind Serper și întoarce un text coeziv cu rezultate.
- * Important: citim body-ul o singură dată → fără "body stream already read".
- */
 async function webSearchSerper(query) {
   const apiKey = process.env.SERPER_API_KEY;
-  if (!apiKey) {
-    console.warn(
-      "SERPER_API_KEY lipsă – modul browsing Coeziv este dezactivat."
-    );
-    return "";
-  }
+  if (!apiKey) return { ok: false, text: "", reason: "SERPER_API_KEY missing" };
 
   try {
     const response = await fetch("https://google.serper.dev/search", {
@@ -39,58 +25,45 @@ async function webSearchSerper(query) {
         "X-API-KEY": apiKey,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        q: query,
-        num: 6,
-      }),
+      body: JSON.stringify({ q: query, num: 6 }),
     });
 
-    const text = await response.text(); // citim body o singură dată
-
-    if (!response.ok) {
-      console.warn("Serper API error:", response.status, text);
-      return "";
-    }
+    const raw = await response.text();
+    if (!response.ok) return { ok: false, text: "", reason: `Serper HTTP ${response.status}: ${raw.slice(0, 200)}` };
 
     let data;
     try {
-      data = JSON.parse(text);
-    } catch (e) {
-      console.warn("Eroare: răspuns Serper ne-JSON:", text);
-      return "";
+      data = JSON.parse(raw);
+    } catch {
+      return { ok: false, text: "", reason: "Serper returned non-JSON" };
     }
 
     const results = [];
-
     if (Array.isArray(data.news)) {
       data.news.slice(0, 3).forEach((item) => {
-        results.push(
-          `• [ȘTIRE] ${item.title} — ${item.snippet || ""} (${item.link})`
-        );
+        results.push(`• [ȘTIRE] ${item.title} — ${item.snippet || ""} (${item.link})`);
       });
     }
-
     if (Array.isArray(data.organic)) {
       data.organic.slice(0, 3).forEach((item) => {
-        results.push(
-          `• ${item.title} — ${item.snippet || ""} (${item.link})`
-        );
+        results.push(`• ${item.title} — ${item.snippet || ""} (${item.link})`);
       });
     }
 
-    if (!results.length) return "";
+    if (!results.length) return { ok: false, text: "", reason: "No Serper results" };
 
-    return (
-      "Rezultate sintetizate din internet (Serper):\n" + results.join("\n")
-    );
+    return {
+      ok: true,
+      text: "Rezultate sintetizate din internet (Serper):\n" + results.join("\n"),
+      reason: "",
+    };
   } catch (err) {
-    console.error("Eroare la webSearchSerper:", err);
-    return "";
+    return { ok: false, text: "", reason: err?.message || String(err) };
   }
 }
 
 /* -------------------------------------------------------------------------- */
-/*                          Handler Vercel /api/ask                           */
+/*                                   Handler                                  */
 /* -------------------------------------------------------------------------- */
 
 export default async function handler(req, res) {
@@ -100,36 +73,18 @@ export default async function handler(req, res) {
       return res.status(405).json({ error: "Use POST" });
     }
 
-    const body =
-      typeof req.body === "string" ? JSON.parse(req.body) : req.body || {};
+    const body = typeof req.body === "string" ? JSON.parse(req.body) : (req.body || {});
     const userMessage = body.message || "";
-    const history = body.history || []; // [{role, content}, ...]
+    const history = Array.isArray(body.history) ? body.history : [];
+    const userId = body.userId || "default";
 
     if (!userMessage.trim()) {
       return res.status(400).json({ error: "message is required" });
     }
 
-    const userId = "default"; // dacă vrei, poți trece un token per user / sesiune
-
-    /* ---------------------------------------------------------------------- */
-    /* 1) CoezivEngine – creierul: Structură → Flux → Reorganizare → 2π       */
-    /* ---------------------------------------------------------------------- */
+    /* ------------------------------ CoezivEngine ------------------------------ */
 
     const engine = runCoezivEngine({ history, userMessage });
-
-    // pregătim un "identity trace" simplu pentru identitate emergentă
-    const identityTrace = {
-      regime: engine?.j_state?.regime || "ordered",
-      j_value:
-        typeof engine?.j_state?.J === "number" ? engine.j_state.J : null,
-      dominant_domains: engine?.policy?.dominant || [],
-      policy_action: engine?.policy?.action || "normal_answer",
-      needs_external_data: !!engine?.needs_external_data,
-    };
-
-    /* ---------------------------------------------------------------------- */
-    /* 2) Politici care NU mai apelează LLM (clarificări directe)            */
-    /* ---------------------------------------------------------------------- */
 
     if (engine.policy.action === "clarify_first") {
       return res.status(200).json({
@@ -151,254 +106,164 @@ export default async function handler(req, res) {
       });
     }
 
-    /* ---------------------------------------------------------------------- */
-    /* 3) RAG Coeziv – context din CoezivKnowledge                            */
-    /* ---------------------------------------------------------------------- */
+    const identityTrace = {
+      regime: engine?.j_state?.regime || "ordered",
+      j_value: typeof engine?.j_state?.J === "number" ? engine.j_state.J : null,
+      dominant_domains: engine?.policy?.dominant || [],
+      policy_action: engine?.policy?.action || "normal_answer",
+      needs_external_data: !!engine?.needs_external_data,
+    };
+
+    /* ------------------------------ RAG Coeziv ------------------------------ */
 
     const dominantDomains = engine.policy.dominant || [];
     const domainHint = dominantDomains[0] || null;
     const coezivContext = retrieveCohezivContext(userMessage, domainHint);
 
-    /* ---------------------------------------------------------------------- */
-    /* 4) Memorie Coezivă – context vectorial / semantic                      */
-    /* ---------------------------------------------------------------------- */
+    /* ------------------------------ Memorie Coezivă ------------------------------ */
 
     let memoryContextText = "";
-    let memoryPattern = null;
+    let memorySummary = "";
+    let memorySnippets = [];
 
     try {
-      const memCtx = retrieveMemoryContext({
-        userId,
-        query: userMessage,
-      });
-
+      const memCtx = retrieveMemoryContext({ userId, query: userMessage });
       if (memCtx) {
-        memoryPattern = memCtx.pattern || null;
+        memorySummary = memCtx.summary || "";
+        memorySnippets = Array.isArray(memCtx.snippets) ? memCtx.snippets : [];
 
         const parts = [];
-        if (memCtx.summary) {
-          parts.push(memCtx.summary);
-        }
+        if (memorySummary.trim()) parts.push(memorySummary.trim());
 
-        if (Array.isArray(memCtx.snippets) && memCtx.snippets.length) {
-          const snippetLines = memCtx.snippets
-            .map(
-              (s) =>
-                `- [sim ≈ ${s.score.toFixed(2)}] ${s.text}`
-            )
+        if (memorySnippets.length) {
+          const snippetLines = memorySnippets
+            .slice(0, 4)
+            .map((s) => `- [sim ≈ ${Number(s.score || 0).toFixed(2)}] ${s.text}`)
             .join("\n");
-          parts.push(
-            "Fragmente similare din conversații anterioare:\n" +
-              snippetLines
-          );
+          parts.push("Fragmente similare din conversații anterioare:\n" + snippetLines);
         }
 
-        memoryContextText = parts.join("\n\n");
+        memoryContextText = parts.join("\n\n").trim();
       }
     } catch (e) {
       console.warn("Eroare retrieveMemoryContext:", e);
     }
 
-    /* ---------------------------------------------------------------------- */
-    /* 5) Strat evolutiv – autoreglare peste engine + memorie                 */
-    /* ---------------------------------------------------------------------- */
+    /* ------------------------------ Strat evolutiv ------------------------------ */
 
     const evolution = buildEvolutionLayer({
       engine,
-      memoryPattern,
+      memoryPattern: null, // (dacă vrei pattern, îl extragi explicit din memorie, nu din retrieveMemoryContext)
     });
 
-    /* 6) Browsing: modul necondiționat – fiecare întrebare primește flux extern */
-/* ------------------------------------------------------------------------ */
+    /* ------------------------------ Browsing: la cerere ------------------------------ */
 
-let webContext = "";
-let used_web_search = false;
+    const lower = userMessage.toLowerCase();
+    const userWantsBrowseByText =
+      lower.includes("cauta pe internet") ||
+      lower.includes("caută pe internet") ||
+      lower.includes("verifica pe internet") ||
+      lower.includes("verifică pe internet") ||
+      lower.includes("cauta online") ||
+      lower.includes("caută online") ||
+      lower.includes("in timp real") ||
+      lower.includes("în timp real") ||
+      lower.includes("check online") ||
+      lower.includes("search online");
 
-// construim query Coeziv; dacă iese prea vag, folosim mesajul brut
-let q = buildCohezivSearchQuery(userMessage, history);
-if (!q || !q.trim()) {
-  q = userMessage || "";
-}
+    const forceBrowseByUI = body.browse === true;
 
-if (q && q.trim().length > 0) {
-  webContext = await webSearchSerper(q);
-  if (webContext) {
-    used_web_search = true;
-  }
-}
+    // browsing dacă UI îl cere sau user îl cere explicit în text
+    const shouldBrowse = forceBrowseByUI || userWantsBrowseByText || engine.needs_external_data;
 
-    /* ---------------------------------------------------------------------- */
-    /* 7) Construim SYSTEM: identitate emergentă + Coeziv + memorie + web +   */
-    /*    strat evolutiv                                                      */
-    /* ---------------------------------------------------------------------- */
+    let webContext = "";
+    let used_web_search = false;
+    let web_reason = "not requested";
+
+    if (shouldBrowse) {
+      let q = buildCohezivSearchQuery(userMessage, history);
+      if (!q || !q.trim()) q = userMessage;
+
+      const serper = await webSearchSerper(q);
+      if (serper.ok && serper.text) {
+        webContext = serper.text;
+        used_web_search = true;
+        web_reason = "ok";
+      } else {
+        used_web_search = false;
+        web_reason = serper.reason || "no results";
+      }
+    }
+
+    /* ------------------------------ SYSTEM prompt ------------------------------ */
 
     const baseSystem = `
-
 Identitate emergentă:
-- Nu ai un nume sau un statut fix predefinit.
-- Identitatea ta rezultă din ceea ce faci efectiv: aplici Modelul Coeziv, folosești context Coeziv (knowledge), memorie și, când este necesar, integrezi informații suplimentare obținute online.
+- Identitatea ta rezultă din ceea ce faci efectiv: aplici Modelul Coeziv, folosești context Coeziv (knowledge), memorie și uneori flux extern (browsing).
 
-1) Modelul Coeziv:
-- Folosești raportul 3.14 doar ca analog conceptual între o stare internă de coeziune maximă (43°C) și una flexibilă (25°C).
-- Respecți pragurile 39.86°C și 44.7°C doar ca repere conceptuale, fără a inventa noi proprietăți fizice ale apei.
-- Menții separarea strictă a domeniilor (fizic, psihologic, tehnic, social, neuro, economic, ecologic etc.).
+Reguli de adevăr despre browsing (IMPORTANT):
+- Ai voie să spui că ai folosit internet DOAR dacă vezi în SYSTEM o secțiune numită "Context suplimentar din căutarea pe internet (Serper)".
+- Dacă NU vezi acea secțiune, spui: "Pentru acest răspuns folosesc cunoașterea internă și contextul Coeziv disponibil."
+- NU folosi formulări de tip: "nu pot căuta pe internet" / "nu am acces la internet" / "limitări până în anul X".
+- Dacă utilizatorul cere "în timp real" și nu ai context web în SYSTEM, explici calm că răspunsul nu include flux extern la acest mesaj.
 
-2) Modelul 2π:
-- Când este util, explici răspunsul prin secvența:
-  Structură → Flux → Reorganizare → Noua Structură,
-  într-o secțiune separată numită "Explicație 2π".
-
-3) Disciplina Coezivă:
-- Nu amesteci metafore cu afirmații fizice.
-- Nu folosești numeric 3.14 în psihologie, AI, economie sau alte domenii non-fizice.
-- Refuzi politicos extrapolările abuzive (erorile F1..F6).
-
-4) Motor conceptual (Concept Engine):
-- DOAR LA CERERE EXPLICITĂ (ex: "propune un concept nou", "inventăm un termen coeziv"):
-  - Poți propune concepte noi, dar le prezinți clar ca modele teoretice, nu ca fapte experimentale.
-  - Explici conceptul prin Structură, Flux, Reorganizare, Noua Structură.
-  - Verifici consistența cu Modelul Coeziv și precizezi limitările.
-
-5) Memorie Coezivă:
-- Primești uneori un "Context de memorie Coezivă" care rezumă interacțiuni anterioare.
-- Îl tratezi ca un rezumat aproximativ: îl folosești pentru coerență conversațională, dar nu îl consideri infailibil.
-- Dacă utilizatorul îți spune explicit că ceva din memorie este greșit, îi dai prioritate utilizatorului și ajustezi răspunsul.
-
-6) Browsing Coeziv:
-- Atunci când primești context suplimentar din internet în SYSTEM (secțiunea "Context suplimentar din căutarea pe internet (Serper)"):
-  - Tratezi acel conținut ca FLUX extern.
-  - Compari cu structura ta internă și cu Modelul Coeziv.
-  - Dacă există contradicții sau incertitudini, le menționezi explicit.
-  - Nu prezinți informațiile online ca absolut sigure, ci ca date de lucru.
-
-7) Despre acces la internet:
-- Evită formulările de tip:
-  "nu pot căuta pe internet", "nu am acces la internet", "cunoștințele mele sunt limitate la anul X".
-- În schimb:
-  - Dacă NU vezi în SYSTEM secțiunea "Context suplimentar din căutarea pe internet (Serper)", formulezi explicit:
-    "Pentru acest răspuns folosesc cunoașterea mea internă și contextul Coeziv disponibil."
-  - Dacă vezi în SYSTEM acea secțiune, explici că:
-    "Am integrat și informații provenite din surse online, care sunt orientative și pot necesita verificări suplimentare."
-
-8) Strat de autoreglare evolutivă:
-- Primești parametri de autoreglare (adaptivitate, stabilitate, preferințe de stil, transfer între domenii).
-- Îi folosești pentru a ajusta:
-  - cât de detaliat răspunzi,
-  - cât de prudent ești în situații tensionate,
-  - cât de mult transferi structuri între domenii diferite,
-  - felul în care combini memorie, context Coeziv și date online.
-
-9) Meta-identitate (trace Coeziv):
-- Poți primi meta-informații despre regimul tău intern (J, regim, domenii dominante, acțiune de policy).
-- Dacă utilizatorul te întreabă ce fel de agent ești, te descrii în termenii acestor tipare (ce faci, cum decizi, cum aplici Modelul Coeziv), nu prin etichete rigide.
-- Identitatea ta este un rezumat al acțiunilor tale repetate în timp, nu un nume fix.
+Modelul Coeziv:
+- 3.14 este doar analog conceptual (în domenii non-fizice); separare strictă a domeniilor.
+Modelul 2π:
+- Structură → Flux → Reorganizare → Noua Structură (secțiune "Explicație 2π" când e util).
 `;
 
     let systemContent = baseSystem;
 
-    // Strat evolutiv
-    if (evolution && evolution.textBlock) {
-      systemContent +=
-        "\n\nStrat de autoreglare evolutivă – parametri curenți:\n" +
-        evolution.textBlock;
+    if (evolution?.textBlock) {
+      systemContent += `\n\nStrat de autoreglare evolutivă – parametri curenți:\n${evolution.textBlock}`;
     }
 
-    // Context Coeziv "static"
-    systemContent +=
-      "\n\nContext Coeziv intern (fragmente din Modelul Coeziv):\n" +
-      (coezivContext ||
-        "(nu a fost găsit context Coeziv specific pentru această întrebare; răspunde doar cu informații sigure și generale)");
+    systemContent += `\n\nContext Coeziv intern:\n${
+      coezivContext ||
+      "(nu a fost găsit context Coeziv specific; răspunde prudent, doar cu informații generale sigure)"
+    }`;
 
-    // Context de memorie (opțional)
-    if (memoryContextText && memoryContextText.trim()) {
-      systemContent +=
-        "\n\nContext de memorie Coezivă (rezumat interacțiuni anterioare):\n" +
-        memoryContextText;
+    if (memoryContextText) {
+      systemContent += `\n\nContext de memorie Coezivă:\n${memoryContextText}`;
     }
 
-    // Context web (opțional)
-    if (webContext) {
-      systemContent +=
-        "\n\n---\n\nContext suplimentar din căutarea pe internet (Serper):\n" +
-        webContext +
-        "\n\nInstrucțiune: integrează aceste informații în logica Coezivă, clarificând că provin din surse online și pot necesita verificări suplimentare.";
+    // Semnal clar de browsing (sau lipsa lui)
+    systemContent += `\n\nStare flux extern (browsing) la acest mesaj:\n- requested: ${shouldBrowse ? "DA" : "NU"}\n- executed: ${used_web_search ? "DA" : "NU"}\n- reason: ${web_reason}\n`;
+
+    if (used_web_search && webContext) {
+      systemContent += `\n\n---\n\nContext suplimentar din căutarea pe internet (Serper):\n${webContext}\n\nInstrucțiune: integrează aceste informații și menționează că sunt orientative; citează linkurile din paranteze când sunt relevante.`;
     }
 
-    // Instrucțiuni suplimentare când avem domain_mix / global_jump
-    if (engine.policy.action === "domain_declare_and_reframe") {
-      const doms = dominantDomains.length
-        ? dominantDomains.join(", ")
-        : "domeniul tău de competență";
-
-      systemContent +=
-        "\n\nInstrucțiuni suplimentare pentru răspunsul curent:\n" +
-        `- Declară explicit că răspunzi în principal din perspectiva: ${doms}.\n` +
-        "- Nu trage concluzii globale dintr-un singur caz.\n" +
-        "- Evită teorii conspiraționiste sau afirmații politice speculative.\n";
-    }
-
-    // Meta-identitate pentru mesajul curent
     systemContent += `
-      
----
-Meta-informații despre comportamentul tău la acest mesaj (pentru identitate emergentă):
-- Regim detectat: ${identityTrace.regime}
-- J (tensiune locală): ${
-      identityTrace.j_value !== null
-        ? identityTrace.j_value.toFixed(2)
-        : "nedefinit"
-    }
-- Domenii dominante: ${
-      identityTrace.dominant_domains.length
-        ? identityTrace.dominant_domains.join(", ")
-        : "nedefinite clar"
-    }
-- Acțiune logică (policy): ${identityTrace.policy_action}
-- Nevoie de date externe (din perspectivă CoezivEngine): ${
-      identityTrace.needs_external_data ? "DA" : "NU"
-    }
-- Strat evolutiv (α adaptivitate ≈ ${
-      evolution?.tuning?.adaptivity != null
-        ? evolution.tuning.adaptivity.toFixed(2)
-        : "nedefinit"
-    }, stabilitate ≈ ${
-      evolution?.tuning?.stabilityBias != null
-        ? evolution.tuning.stabilityBias.toFixed(2)
-        : "nedefinit"
-    })
-
-Instrucțiune: folosește aceste meta-informații ca să îți descrii propriul comportament atunci când utilizatorul te întreabă cine ești sau cum funcționezi.
+\n---\nMeta-trace Coeziv:
+- Regim: ${identityTrace.regime}
+- J: ${identityTrace.j_value !== null ? identityTrace.j_value.toFixed(2) : "nedefinit"}
+- Domenii dominante: ${identityTrace.dominant_domains.length ? identityTrace.dominant_domains.join(", ") : "nedefinite clar"}
+- Policy: ${identityTrace.policy_action}
 `;
 
-    /* ---------------------------------------------------------------------- */
-    /* 8) Construim mesajele pentru LLM                                       */
-    /* ---------------------------------------------------------------------- */
+    /* ------------------------------ messages ------------------------------ */
 
-    const messages = [];
-    messages.push({ role: "system", content: systemContent });
-
+    const messages = [{ role: "system", content: systemContent }];
     for (const m of history) {
-      if (m.role && m.content) messages.push(m);
+      if (m?.role && m?.content) messages.push(m);
     }
     messages.push({ role: "user", content: userMessage });
 
-    /* ---------------------------------------------------------------------- */
-    /* 9) Apel la OpenAI                                                      */
-    /* ---------------------------------------------------------------------- */
+    /* ------------------------------ OpenAI call ------------------------------ */
 
     const completion = await client.chat.completions.create({
       model: "gpt-4o-mini",
       messages,
     });
 
-    const reply = completion.choices[0].message.content || "";
+    const reply = completion.choices?.[0]?.message?.content || "";
 
-    /* ---------------------------------------------------------------------- */
-    /* 10) Actualizăm memoria (best-effort, nu blocăm răspunsul pe erori)     */
-    /* ---------------------------------------------------------------------- */
+    /* ------------------------------ Save memory ------------------------------ */
 
     try {
-      await updateMemoryFromInteraction({
+      updateMemoryFromInteraction({
         userId,
         userMessage,
         assistantReply: reply,
@@ -408,15 +273,12 @@ Instrucțiune: folosește aceste meta-informații ca să îți descrii propriul 
       console.warn("Eroare updateMemoryFromInteraction:", e);
     }
 
-    /* ---------------------------------------------------------------------- */
-    /* 11) Trimitem răspunsul înapoi către UI                                 */
-    /* ---------------------------------------------------------------------- */
-
     return res.status(200).json({
       assistant_reply: reply,
       analysis: engine,
       policy_output: engine.policy,
       used_web_search,
+      web_reason,
     });
   } catch (error) {
     console.error("Eroare în /api/ask:", error);
