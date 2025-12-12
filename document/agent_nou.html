@@ -57,19 +57,6 @@
             color: #e6edf3;
             float: left;
         }
-        .bubble-meta {
-            margin-top: 6px;
-            padding-left: 4px;
-        }
-        .meta-chip {
-            background: #0f172a;
-            border: 1px solid #334155;
-            font-size: 12px;
-            padding: 2px 6px;
-            border-radius: 8px;
-            margin-right: 6px;
-            display: inline-block;
-        }
         #input-area {
             display: flex;
             gap: 10px;
@@ -94,10 +81,6 @@
             cursor: pointer;
             transition: 0.2s;
         }
-        #send:disabled {
-            background: #1e3d38;
-            cursor: not-allowed;
-        }
         #copy {
             padding: 12px 20px;
             font-size: 16px;
@@ -107,19 +90,6 @@
             color: #fff;
             cursor: pointer;
             transition: 0.2s;
-        }
-        #copy:disabled {
-            background: #1e3d38;
-            cursor: not-allowed;
-        }
-        #status {
-            font-size: 14px;
-            margin-top: 8px;
-            color: #9ca3af;
-        }
-        .typing {
-            opacity: 0.6;
-            font-style: italic;
         }
     </style>
 </head>
@@ -145,87 +115,18 @@
         const statusEl = document.getElementById("status");
 
         let history = []; // memorie per tab
-        let lastReply = ""; // pentru a salva ultimul răspuns
 
-        function typewriter(el, fullText, speed = 12) {
-            let i = 0;
-            function step() {
-                if (i <= fullText.length) {
-                    el.textContent = fullText.slice(0, i);
-                    i++;
-                    chatEl.scrollTop = chatEl.scrollHeight;
-                    setTimeout(step, speed);
-                }
-            }
-            step();
-        }
-
-        function appendBubble(role, text, meta = null, animate = false) {
+        function appendBubble(role, text) {
             const row = document.createElement("div");
             row.className = "bubble-row";
 
             const bubble = document.createElement("div");
             bubble.className = "bubble " + role;
-            if (animate) bubble.textContent = "";
-            else bubble.textContent = text;
-
-            row.appendChild(bubble);
-
-            if (meta) {
-                const metaDiv = document.createElement("div");
-                metaDiv.className = "bubble-meta";
-
-                if (meta.J !== undefined) {
-                    const chip = document.createElement("span");
-                    chip.className = "meta-chip";
-                    chip.textContent = "J = " + meta.J.toFixed(2);
-                    metaDiv.appendChild(chip);
-                }
-
-                if (meta.regime) {
-                    const chip = document.createElement("span");
-                    chip.className = "meta-chip";
-                    chip.textContent = "Regim: " + meta.regime;
-                    metaDiv.appendChild(chip);
-                }
-
-                if (meta.action) {
-                    const chip = document.createElement("span");
-                    chip.className = "meta-chip";
-                    chip.textContent = "Acțiune: " + meta.action;
-                    metaDiv.appendChild(chip);
-                }
-
-                row.appendChild(metaDiv);
-            }
-
-            chatEl.appendChild(row);
-            chatEl.scrollTop = chatEl.scrollHeight;
-
-            if (animate) {
-                typewriter(bubble, text);
-            }
-
-            // Salvează ultimul răspuns
-            if (role === "ai") {
-                lastReply = text;
-                copyBtn.disabled = false; // activează butonul de copiere
-            }
-        }
-
-        function appendTyping() {
-            const row = document.createElement("div");
-            row.className = "bubble-row";
-
-            const bubble = document.createElement("div");
-            bubble.className = "bubble ai typing";
-            bubble.textContent = "Se gândește...";
+            bubble.textContent = text;
 
             row.appendChild(bubble);
             chatEl.appendChild(row);
             chatEl.scrollTop = chatEl.scrollHeight;
-
-            return row;
         }
 
         async function ask() {
@@ -240,7 +141,7 @@
             qEl.value = "";
             sendBtn.disabled = true;
             copyBtn.disabled = true; // dezactivează butonul de copiere
-            const loading = appendTyping();
+            appendBubble("ai", "Se gândește...");
 
             try {
                 const res = await fetch("/api/ask", {
@@ -250,18 +151,12 @@
                 });
 
                 const data = await res.json();
-                loading.remove();
-
                 const reply = data.assistant_reply || "Fără răspuns valid.";
-                const meta = {
-                    J: Number(data.analysis?.j_state?.J) || 0,
-                    regime: data.analysis?.j_state?.regime || "",
-                    action: data.policy_output?.action || ""
-                };
-                appendBubble("ai", reply, meta, true);
+                appendBubble("ai", reply);
+                
                 history.push({ role: "assistant", content: reply });
+                copyBtn.disabled = false; // activează butonul de copiere
             } catch (err) {
-                loading.remove();
                 appendBubble("ai", "Eroare de rețea. Încearcă din nou.");
                 statusEl.textContent = err.message;
             }
@@ -269,10 +164,11 @@
             sendBtn.disabled = false;
         }
 
-        // Copiaza textul in clipboard
+        // Copiază tot chatul în clipboard
         copyBtn.addEventListener("click", () => {
-            navigator.clipboard.writeText(lastReply).then(() => {
-                alert("Textul a fost copiat!");
+            const chatText = chatEl.innerText; // obține textul din întregul chat
+            navigator.clipboard.writeText(chatText).then(() => {
+                alert("Chatul a fost copiat!");
             }).catch(err => {
                 alert("Eroare la copiere: " + err);
             });
