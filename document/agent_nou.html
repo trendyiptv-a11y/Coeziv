@@ -11,14 +11,16 @@
             font-family: "Inter", sans-serif;
             margin: 0;
             padding: 0;
+            overflow-x: hidden; /* Evită derularea orizontală */
         }
         .container {
             max-width: 700px;
             margin: auto;
             padding: 20px;
+            width: 90%; /* Adaugă 90% lățime pentru mobil */
         }
         h1 {
-            font-size: 32px;
+            font-size: 2rem; /* Dimensiune relativă la font */
             font-weight: 700;
             display: flex;
             align-items: center;
@@ -42,7 +44,7 @@
             padding: 12px 16px;
             border-radius: 18px;
             max-width: 80%;
-            font-size: 15px;
+            font-size: 1rem; /* Dimensiunea fontului în rem */
             line-height: 1.45;
             white-space: pre-wrap;
         }
@@ -74,160 +76,172 @@
             display: flex;
             gap: 10px;
             margin-top: 10px;
+            flex-direction: column; /* Aranjează pe verticală pe mobil */
         }
         #q {
-            flex: 1;
             padding: 12px;
             border-radius: 20px;
             border: 1px solid #334155;
             background: #0f172a;
             color: #e6edf3;
-            font-size: 16px;
+            font-size: 1rem; /* Dimensiunea fontului în rem */
+            width: 100%; /* Lățime completă pe mobil */
+        }
+        #send, #copy {
+            padding: 12px 20px;
+            font-size: 1rem; /* Dimensiunea fontului în rem */
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: 0.2s;
+            flex-shrink: 0; /* Evită micșorarea butoanelor */
+            width: 100%; /* Lățime completă pe mobil */
         }
         #send {
-            padding: 12px 20px;
-            font-size: 16px;
-            border: none;
-            border-radius: 20px;
             background: #10b981;
             color: #000;
-            cursor: pointer;
-            transition: 0.2s;
         }
         #copy {
-            padding: 12px 20px;
-            font-size: 16px;
-            border: none;
-            border-radius: 20px;
             background: #3b82f6;
             color: #fff;
-            cursor: pointer;
-            transition: 0.2s;
+        }
+
+        /* Media Query pentru dispozitive mai mici */
+        @media (min-width: 768px) {
+            #input-area {
+                flex-direction: row; /* Aranjare pe orizontală pe tablete și desktop */
+            }
+            #q {
+                flex: 1; /* Flex pe lățime */
+            }
+            #send, #copy {
+                width: auto; /* Lățimea butoanelor devine automată pe desktop */
+            }
         }
     </style>
 </head>
 <body>
-<div class="container">
-    <h1>🤖 Asistent Coeziv 3.14</h1>
-    <p>Întreabă despre Modelul Coeziunii, homeostazie, apă și interpretări coezive.</p>
+    <div class="container">
+        <h1>🤖 Asistent Coeziv 3.14</h1>
+        <p>Întreabă despre Modelul Coeziunii, homeostazie, apă și interpretări coezive.</p>
 
-    <div id="chat"></div>
-    <div id="input-area">
-        <input id="q" type="text" placeholder="Scrie întrebarea ta aici..." autocomplete="off" />
-        <button id="send">Trimite</button>
-        <button id="copy" disabled>Copiază</button>
+        <div id="chat"></div>
+        <div id="input-area">
+            <input id="q" type="text" placeholder="Scrie întrebarea ta aici..." autocomplete="off" />
+            <button id="send">Trimite</button>
+            <button id="copy" disabled>Copiază</button>
+        </div>
+        <div id="status"></div>
     </div>
-    <div id="status"></div>
-</div>
-<script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const chatEl = document.getElementById("chat");
-        const qEl = document.getElementById("q");
-        const sendBtn = document.getElementById("send");
-        const copyBtn = document.getElementById("copy");
-        const statusEl = document.getElementById("status");
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const chatEl = document.getElementById("chat");
+            const qEl = document.getElementById("q");
+            const sendBtn = document.getElementById("send");
+            const copyBtn = document.getElementById("copy");
+            const statusEl = document.getElementById("status");
 
-        let history = []; // memorie per tab
+            let history = []; // memorie per tab 
 
-        function appendBubble(role, text, meta = null) {
-            const row = document.createElement("div");
-            row.className = "bubble-row";
+            function appendBubble(role, text, meta = null) {
+                const row = document.createElement("div");
+                row.className = "bubble-row";
 
-            const bubble = document.createElement("div");
-            bubble.className = "bubble " + role;
-            bubble.textContent = text;
+                const bubble = document.createElement("div");
+                bubble.className = "bubble " + role;
+                bubble.textContent = text;
 
-            row.appendChild(bubble);
+                row.appendChild(bubble);
 
-            if (meta) {
-                const metaDiv = document.createElement("div");
-                metaDiv.className = "bubble-meta";
+                if (meta) {
+                    const metaDiv = document.createElement("div");
+                    metaDiv.className = "bubble-meta";
 
-                if (meta.J !== undefined) {
-                    const chip = document.createElement("span");
-                    chip.className = "meta-chip";
-                    chip.textContent = "J = " + meta.J.toFixed(2);
-                    metaDiv.appendChild(chip);
+                    if (meta.J !== undefined) {
+                        const chip = document.createElement("span");
+                        chip.className = "meta-chip";
+                        chip.textContent = "J = " + meta.J.toFixed(2);
+                        metaDiv.appendChild(chip);
+                    }
+
+                    if (meta.regime) {
+                        const chip = document.createElement("span");
+                        chip.className = "meta-chip";
+                        chip.textContent = "Regim: " + meta.regime;
+                        metaDiv.appendChild(chip);
+                    }
+
+                    if (meta.action) {
+                        const chip = document.createElement("span");
+                        chip.className = "meta-chip";
+                        chip.textContent = "Acțiune: " + meta.action;
+                        metaDiv.appendChild(chip);
+                    }
+
+                    row.appendChild(metaDiv);
                 }
 
-                if (meta.regime) {
-                    const chip = document.createElement("span");
-                    chip.className = "meta-chip";
-                    chip.textContent = "Regim: " + meta.regime;
-                    metaDiv.appendChild(chip);
-                }
-
-                if (meta.action) {
-                    const chip = document.createElement("span");
-                    chip.className = "meta-chip";
-                    chip.textContent = "Acțiune: " + meta.action;
-                    metaDiv.appendChild(chip);
-                }
-
-                row.appendChild(metaDiv);
+                chatEl.appendChild(row);
+                chatEl.scrollTop = chatEl.scrollHeight;
             }
 
-            chatEl.appendChild(row);
-            chatEl.scrollTop = chatEl.scrollHeight;
-        }
+            async function ask() {
+                const q = qEl.value.trim();
+                if (!q) return;
 
-        async function ask() {
-            const q = qEl.value.trim();
-            if (!q) return;
+                statusEl.textContent = "";
 
-            statusEl.textContent = "";
+                appendBubble("user", q);
+                history.push({ role: "user", content: q });
 
-            appendBubble("user", q);
-            history.push({ role: "user", content: q });
+                qEl.value = "";
+                sendBtn.disabled = true;
+                copyBtn.disabled = true; // dezactivează butonul de copiere
+                appendBubble("ai", "Se gândește...");
 
-            qEl.value = "";
-            sendBtn.disabled = true;
-            copyBtn.disabled = true; // dezactivează butonul de copiere
-            appendBubble("ai", "Se gândește...");
+                try {
+                    const res = await fetch("/api/ask", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ message: q, history })
+                    });
 
-            try {
-                const res = await fetch("/api/ask", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ message: q, history })
+                    const data = await res.json();
+                    const reply = data.assistant_reply || "Fără răspuns valid.";
+                    const meta = {
+                        J: Number(data.analysis?.j_state?.J) || 0,
+                        regime: data.analysis?.j_state?.regime || "",
+                        action: data.policy_output?.action || ""
+                    };
+                    appendBubble("ai", reply, meta);
+
+                    history.push({ role: "assistant", content: reply });
+                    copyBtn.disabled = false; // activează butonul de copiere
+                } catch (err) {
+                    appendBubble("ai", "Eroare de rețea. Încearcă din nou.");
+                    statusEl.textContent = err.message;
+                }
+
+                sendBtn.disabled = false;
+            }
+
+            // Copiază tot chatul în clipboard
+            copyBtn.addEventListener("click", () => {
+                const chatText = chatEl.innerText; // obține textul din întregul chat
+                navigator.clipboard.writeText(chatText).then(() => {
+                    alert("Chatul a fost copiat!");
+                }).catch(err => {
+                    alert("Eroare la copiere: " + err);
                 });
+            });
 
-                const data = await res.json();
-                const reply = data.assistant_reply || "Fără răspuns valid.";
-                const meta = {
-                    J: Number(data.analysis?.j_state?.J) || 0,
-                    regime: data.analysis?.j_state?.regime || "",
-                    action: data.policy_output?.action || ""
-                };
-                appendBubble("ai", reply, meta);
-
-                history.push({ role: "assistant", content: reply });
-                copyBtn.disabled = false; // activează butonul de copiere
-            } catch (err) {
-                appendBubble("ai", "Eroare de rețea. Încearcă din nou.");
-                statusEl.textContent = err.message;
-            }
-
-            sendBtn.disabled = false;
-        }
-
-        // Copiază tot chatul în clipboard
-        copyBtn.addEventListener("click", () => {
-            const chatText = chatEl.innerText; // obține textul din întregul chat
-            navigator.clipboard.writeText(chatText).then(() => {
-                alert("Chatul a fost copiat!");
-            }).catch(err => {
-                alert("Eroare la copiere: " + err);
+            sendBtn.addEventListener("click", ask);
+            qEl.addEventListener("keydown", (e) => {
+                if (e.key === "Enter") {
+                    ask();
+                }
             });
         });
-
-        sendBtn.addEventListener("click", ask);
-        qEl.addEventListener("keydown", (e) => {
-            if (e.key === "Enter") {
-                ask();
-            }
-        });
-    });
-</script>
+    </script>
 </body>
 </html>
