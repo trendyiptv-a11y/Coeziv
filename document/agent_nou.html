@@ -143,7 +143,8 @@
             white-space: nowrap;
         }
         .toggle input {
-            width: 14px; height: 14px;
+            width: 14px;
+            height: 14px;
             accent-color: var(--accent);
             cursor: pointer;
         }
@@ -166,6 +167,19 @@
             opacity: .55; cursor: not-allowed;
         }
 
+        .btn {
+            border: none;
+            border-radius: 999px;
+            padding: .72rem 1.1rem;
+            font-weight: 650;
+            font-size: .9rem;
+            cursor: pointer;
+            transition: transform .08s ease, box-shadow .08s ease, opacity .15s ease;
+            flex: 0 0 auto;
+            background: linear-gradient(135deg, #22c55e, #14b8a6); /* matching style */
+            color: #020617; /* matching text color */
+        }
+        
         .chat-body {
             flex: 1;
             display: flex;
@@ -198,7 +212,7 @@
             word-break: break-word;
         }
         .bubble.user {
-            background: linear-gradient(135deg,#0ea5e9,#22d3ee);
+            background: linear-gradient(135deg, #0ea5e9, #22d3ee);
             color: #0f172a;
             border-bottom-right-radius: .3rem;
         }
@@ -263,22 +277,6 @@
         }
         .input-row input::placeholder { color: #64748b; }
 
-        .btn {
-            border: none;
-            border-radius: 999px;
-            padding: .72rem 1.1rem;
-            font-weight: 650;
-            font-size: .9rem;
-            cursor: pointer;
-            transition: transform .08s ease, box-shadow .08s ease, opacity .15s ease;
-            flex: 0 0 auto;
-        }
-
-        #send {
-            background: linear-gradient(135deg, #22c55e, #14b8a6);
-            color: #020617;
-            box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.35), 0 12px 25px rgba(16, 185, 129, 0.35);
-        }
         #send:hover:not([disabled]) {
             transform: translateY(-1px);
             box-shadow: 0 16px 36px rgba(16, 185, 129, 0.55);
@@ -355,7 +353,7 @@
             <div class="chat-footer">
                 <div class="input-row">
                     <input id="q" placeholder="Scrie întrebarea ta aici..." autocomplete="off" />
-                    <input type="file" id="fileUpload" accept="*" />
+                    <input type="file" id="fileUpload" accept="*" class="btn" />
                     <button class="btn" id="send" type="button">Trimite</button>
                     <button class="btn" id="copy" type="button" disabled>Copiază</button>
                 </div>
@@ -372,12 +370,11 @@
         const statusEl = document.getElementById("status");
         const browseEl = document.getElementById("browse");
         const webBadge = document.getElementById("webBadge");
-        const fileUpload = document.getElementById("fileUpload"); // New file input
-        
+        const fileUpload = document.getElementById("fileUpload");
+
         // UI: conversația NU persistă la refresh
         let history = [];
 
-        // userId stabil pentru memorie server-side (nu pentru UI)
         const userIdKey = "coeziv_user_id_v1";
         let userId = "default";
         try {
@@ -536,6 +533,15 @@
             if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault();
                 ask();
+            }
+        });
+
+        fileUpload.addEventListener("change", (e) => {
+            const file = e.target.files[0]; // Obține primul fișier
+            if (file) {
+                appendBubble("user", `Ai încărcat fișierul: ${file.name}`, null);
+                // Resetare input file
+                fileUpload.value = ""; // Resetează câmpul de input pentru fișier
             }
         });
     </script>
