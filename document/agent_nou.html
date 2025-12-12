@@ -57,6 +57,19 @@
             color: #e6edf3;
             float: left;
         }
+        .bubble-meta {
+            margin-top: 6px;
+            padding-left: 4px;
+        }
+        .meta-chip {
+            background: #0f172a;
+            border: 1px solid #334155;
+            font-size: 12px;
+            padding: 2px 6px;
+            border-radius: 8px;
+            margin-right: 6px;
+            display: inline-block;
+        }
         #input-area {
             display: flex;
             gap: 10px;
@@ -116,7 +129,7 @@
 
         let history = []; // memorie per tab
 
-        function appendBubble(role, text) {
+        function appendBubble(role, text, meta = null) {
             const row = document.createElement("div");
             row.className = "bubble-row";
 
@@ -125,6 +138,35 @@
             bubble.textContent = text;
 
             row.appendChild(bubble);
+
+            if (meta) {
+                const metaDiv = document.createElement("div");
+                metaDiv.className = "bubble-meta";
+
+                if (meta.J !== undefined) {
+                    const chip = document.createElement("span");
+                    chip.className = "meta-chip";
+                    chip.textContent = "J = " + meta.J.toFixed(2);
+                    metaDiv.appendChild(chip);
+                }
+
+                if (meta.regime) {
+                    const chip = document.createElement("span");
+                    chip.className = "meta-chip";
+                    chip.textContent = "Regim: " + meta.regime;
+                    metaDiv.appendChild(chip);
+                }
+
+                if (meta.action) {
+                    const chip = document.createElement("span");
+                    chip.className = "meta-chip";
+                    chip.textContent = "Acțiune: " + meta.action;
+                    metaDiv.appendChild(chip);
+                }
+
+                row.appendChild(metaDiv);
+            }
+
             chatEl.appendChild(row);
             chatEl.scrollTop = chatEl.scrollHeight;
         }
@@ -152,8 +194,13 @@
 
                 const data = await res.json();
                 const reply = data.assistant_reply || "Fără răspuns valid.";
-                appendBubble("ai", reply);
-                
+                const meta = {
+                    J: Number(data.analysis?.j_state?.J) || 0,
+                    regime: data.analysis?.j_state?.regime || "",
+                    action: data.policy_output?.action || ""
+                };
+                appendBubble("ai", reply, meta);
+
                 history.push({ role: "assistant", content: reply });
                 copyBtn.disabled = false; // activează butonul de copiere
             } catch (err) {
