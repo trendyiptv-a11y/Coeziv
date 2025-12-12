@@ -208,20 +208,24 @@ export default async function handler(req, res) {
       memoryPattern,
     });
 
-    /* ---------------------------------------------------------------------- */
-    /* 6) Browsing: decizia vine din CoezivEngine (needs_external_data)       */
-    /* ---------------------------------------------------------------------- */
+    /* 6) Browsing: modul necondiționat – fiecare întrebare primește flux extern */
+/* ------------------------------------------------------------------------ */
 
-    let webContext = "";
-    let used_web_search = false;
+let webContext = "";
+let used_web_search = false;
 
-    if (engine.needs_external_data) {
-      const q = buildCohezivSearchQuery(userMessage, history);
-      if (q && q.trim().length > 0) {
-        webContext = await webSearchSerper(q);
-        if (webContext) used_web_search = true;
-      }
-    }
+// construim query Coeziv; dacă iese prea vag, folosim mesajul brut
+let q = buildCohezivSearchQuery(userMessage, history);
+if (!q || !q.trim()) {
+  q = userMessage || "";
+}
+
+if (q && q.trim().length > 0) {
+  webContext = await webSearchSerper(q);
+  if (webContext) {
+    used_web_search = true;
+  }
+}
 
     /* ---------------------------------------------------------------------- */
     /* 7) Construim SYSTEM: identitate emergentă + Coeziv + memorie + web +   */
