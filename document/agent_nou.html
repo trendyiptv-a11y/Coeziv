@@ -45,6 +45,7 @@
         header {
             text-align: center;
         }
+
         header h1 {
             margin: 0 0 .35rem;
             font-size: 1.85rem;
@@ -55,6 +56,7 @@
             justify-content: center;
             gap: .45rem;
         }
+
         header p {
             margin: 0;
             color: var(--muted);
@@ -103,10 +105,12 @@
             font-size: 1.05rem;
             flex: 0 0 auto;
         }
+
         .chat-title {
             font-size: .95rem;
             font-weight: 600;
         }
+
         .chat-subtitle {
             font-size: .78rem;
             color: var(--muted);
@@ -159,10 +163,12 @@
             cursor: pointer;
             transition: .12s ease;
         }
+        
         .btn-mini:hover {
             color: var(--fg);
             border-color: rgba(148, 163, 184, 0.65);
         }
+        
         .btn-mini:disabled {
             opacity: .55; cursor: not-allowed;
         }
@@ -176,10 +182,10 @@
             cursor: pointer;
             transition: transform .08s ease, box-shadow .08s ease, opacity .15s ease;
             flex: 0 0 auto;
-            background: linear-gradient(135deg, #22c55e, #14b8a6); /* matching style */
-            color: #020617; /* matching text color */
+            background: linear-gradient(135deg, #22c55e, #14b8a6);
+            color: #020617;
         }
-        
+
         .chat-body {
             flex: 1;
             display: flex;
@@ -353,9 +359,10 @@
             <div class="chat-footer">
                 <div class="input-row">
                     <input id="q" placeholder="Scrie întrebarea ta aici..." autocomplete="off" />
-                    <input type="file" id="fileUpload" accept="*" class="btn" />
                     <button class="btn" id="send" type="button">Trimite</button>
                     <button class="btn" id="copy" type="button" disabled>Copiază</button>
+                    <button class="btn" id="fileUpload" type="button" onclick="document.getElementById('fileInput').click();">Încarcă Fișier</button>
+                    <input type="file" id="fileInput" accept="*" style="display:none;" />
                 </div>
                 <div id="status" class="status"></div>
             </div>
@@ -370,7 +377,7 @@
         const statusEl = document.getElementById("status");
         const browseEl = document.getElementById("browse");
         const webBadge = document.getElementById("webBadge");
-        const fileUpload = document.getElementById("fileUpload");
+        const fileInput = document.getElementById("fileInput");
 
         // UI: conversația NU persistă la refresh
         let history = [];
@@ -536,12 +543,12 @@
             }
         });
 
-        fileUpload.addEventListener("change", (e) => {
+        fileInput.addEventListener("change", (e) => {
             const file = e.target.files[0]; // Obține primul fișier
             if (file) {
                 appendBubble("user", `Ai încărcat fișierul: ${file.name}`, null);
-                // Resetare input file
-                fileUpload.value = ""; // Resetează câmpul de input pentru fișier
+                // Resetează câmpul de input pentru fișier
+                fileInput.value = "";
             }
         });
     </script>
