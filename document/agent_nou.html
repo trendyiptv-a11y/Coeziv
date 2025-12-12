@@ -1,247 +1,482 @@
 <!DOCTYPE html>
 <html lang="ro">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Asistent Coeziv 3.14</title>
-    <style>
-        body {
-            background: #0d1117;
-            color: #e6edf3;
-            font-family: "Inter", sans-serif;
-            margin: 0;
-            padding: 0;
-            overflow-x: hidden; /* Evită derularea orizontală */
-        }
-        .container {
-            max-width: 700px;
-            margin: auto;
-            padding: 20px;
-            width: 90%; /* Adaugă 90% lățime pentru mobil */
-        }
-        h1 {
-            font-size: 2rem; /* Dimensiune relativă la font */
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 5px;
-        }
-        #chat {
-            border: 1px solid #1f2937;
-            border-radius: 12px;
-            padding: 20px;
-            height: 420px;
-            overflow-y: auto;
-            background: #111827;
-            margin-bottom: 20px;
-        }
-        .bubble-row {
-            margin-bottom: 18px;
-        }
-        .bubble {
-            display: inline-block;
-            padding: 12px 16px;
-            border-radius: 18px;
-            max-width: 80%;
-            font-size: 1rem; /* Dimensiunea fontului în rem */
-            line-height: 1.45;
-            white-space: pre-wrap;
-        }
-        .bubble.user {
-            background: #0ea5e9;
-            color: #fff;
-            align-self: flex-end;
-            float: right;
-        }
-        .bubble.ai {
-            background: #1f2937;
-            color: #e6edf3;
-            float: left;
-        }
-        .bubble-meta {
-            margin-top: 6px;
-            padding-left: 4px;
-        }
-        .meta-chip {
-            background: #0f172a;
-            border: 1px solid #334155;
-            font-size: 12px;
-            padding: 2px 6px;
-            border-radius: 8px;
-            margin-right: 6px;
-            display: inline-block;
-        }
-        #input-area {
-            display: flex;
-            gap: 10px;
-            margin-top: 10px;
-            flex-direction: column; /* Aranjează pe verticală pe mobil */
-        }
-        #q {
-            padding: 12px;
-            border-radius: 20px;
-            border: 1px solid #334155;
-            background: #0f172a;
-            color: #e6edf3;
-            font-size: 1rem; /* Dimensiunea fontului în rem */
-            width: 100%; /* Lățime completă pe mobil */
-        }
-        #send, #copy {
-            padding: 12px 20px;
-            font-size: 1rem; /* Dimensiunea fontului în rem */
-            border: none;
-            border-radius: 20px;
-            cursor: pointer;
-            transition: 0.2s;
-            flex-shrink: 0; /* Evită micșorarea butoanelor */
-            width: 100%; /* Lățime completă pe mobil */
-        }
-        #send {
-            background: #10b981;
-            color: #000;
-        }
-        #copy {
-            background: #3b82f6;
-            color: #fff;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Asistent Coeziv 3.14</title>
+  <style>
+    :root{
+      --bg:#0d1117;
+      --panel:#111827;
+      --border:#1f2937;
+      --fg:#e6edf3;
+      --muted:#9ca3af;
+      --user:#0ea5e9;
+      --ai:#1f2937;
+      --send:#10b981;
+      --copy:#3b82f6;
+      --chipbg:#0f172a;
+      --chipbd:#334155;
+    }
+    *{ box-sizing:border-box; }
 
-        /* Media Query pentru dispozitive mai mici */
-        @media (min-width: 768px) {
-            #input-area {
-                flex-direction: row; /* Aranjare pe orizontală pe tablete și desktop */
-            }
-            #q {
-                flex: 1; /* Flex pe lățime */
-            }
-            #send, #copy {
-                width: auto; /* Lățimea butoanelor devine automată pe desktop */
-            }
-        }
-    </style>
+    body{
+      background:var(--bg);
+      color:var(--fg);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, "Inter", sans-serif;
+      margin:0;
+      padding:0;
+      overflow-x:hidden;
+    }
+
+    .container{
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 18px;
+      width: 92%;
+    }
+
+    h1{
+      font-size: 1.8rem;
+      font-weight: 800;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      margin: 10px 0 6px;
+    }
+    p{
+      margin: 0 0 14px;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    .card{
+      border:1px solid var(--border);
+      border-radius: 14px;
+      background: rgba(17,24,39,0.72);
+      box-shadow: 0 16px 38px rgba(0,0,0,0.35);
+      overflow:hidden;
+    }
+
+    .toolbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding: 10px 12px;
+      border-bottom:1px solid var(--border);
+    }
+
+    .toolbar-left{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 6px 10px;
+      border:1px solid var(--chipbd);
+      background: var(--chipbg);
+      border-radius: 999px;
+      color: var(--fg);
+      font-size: 0.85rem;
+      user-select:none;
+      white-space:nowrap;
+    }
+
+    .switch{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 6px 10px;
+      border:1px solid var(--chipbd);
+      background: var(--chipbg);
+      border-radius: 999px;
+      font-size: 0.85rem;
+      user-select:none;
+      white-space:nowrap;
+    }
+    .switch input{
+      width: 16px;
+      height: 16px;
+      accent-color: var(--send);
+      cursor:pointer;
+    }
+
+    #chat{
+      padding: 14px 12px;
+      height: 62vh;
+      min-height: 380px;
+      max-height: 640px;
+      overflow-y:auto;
+      background: var(--panel);
+    }
+
+    .divider{
+      text-align:center;
+      color: var(--muted);
+      font-size: 0.85rem;
+      margin: 8px 0 14px;
+    }
+
+    .bubble-row{
+      display:flex;
+      margin: 10px 0;
+      width: 100%;
+    }
+    .bubble-row.user{ justify-content:flex-end; }
+    .bubble-row.ai{ justify-content:flex-start; }
+
+    .bubble{
+      padding: 12px 14px;
+      border-radius: 16px;
+      max-width: 86%;
+      font-size: 1rem;
+      line-height: 1.45;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .bubble.user{
+      background: var(--user);
+      color: #fff;
+      border-bottom-right-radius: 6px;
+    }
+    .bubble.ai{
+      background: var(--ai);
+      color: var(--fg);
+      border: 1px solid rgba(51,65,85,0.7);
+      border-bottom-left-radius: 6px;
+    }
+
+    .bubble-meta{
+      margin-top: 7px;
+      padding-left: 2px;
+      display:flex;
+      gap: 6px;
+      flex-wrap:wrap;
+    }
+    .meta-chip{
+      background: var(--chipbg);
+      border: 1px solid var(--chipbd);
+      font-size: 12px;
+      padding: 2px 7px;
+      border-radius: 999px;
+      color: var(--muted);
+    }
+
+    .footer{
+      padding: 12px;
+      border-top:1px solid var(--border);
+      background: rgba(17,24,39,0.5);
+    }
+
+    .input-area{
+      display:flex;
+      gap:10px;
+      flex-direction: column;
+    }
+
+    #q{
+      padding: 12px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--chipbd);
+      background: var(--chipbg);
+      color: var(--fg);
+      font-size: 1rem;
+      outline:none;
+      width: 100%;
+    }
+    #q::placeholder{ color:#64748b; }
+
+    .btnrow{
+      display:flex;
+      gap:10px;
+      flex-direction: column;
+    }
+
+    button{
+      padding: 12px 16px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 999px;
+      cursor:pointer;
+      transition: 0.15s;
+      width: 100%;
+      font-weight: 650;
+    }
+    button:disabled{
+      opacity: 0.55;
+      cursor:not-allowed;
+    }
+    #send{
+      background: var(--send);
+      color:#04130f;
+    }
+    #copy{
+      background: var(--copy);
+      color:#fff;
+    }
+    #reset{
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--chipbd);
+      font-weight: 600;
+    }
+    #reset:hover{
+      color: var(--fg);
+      border-color: rgba(148,163,184,0.65);
+    }
+
+    #status{
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 0.9rem;
+      min-height: 1.1em;
+      word-break: break-word;
+    }
+
+    @media (min-width: 768px){
+      .input-area{ flex-direction: row; align-items: flex-end; }
+      #q{ flex: 1; }
+      .btnrow{ flex-direction: row; width: auto; }
+      button{ width: auto; }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>🤖 Asistent Coeziv 3.14</h1>
-        <p>Întreabă despre Modelul Coeziunii, homeostazie, apă și interpretări coezive.</p>
+  <div class="container">
+    <h1>🤖 Asistent Coeziv 3.14</h1>
+    <p>Întreabă despre Modelul Coeziunii, homeostazie, apă și interpretări coezive. (Conversația se golește la refresh.)</p>
 
-        <div id="chat"></div>
-        <div id="input-area">
-            <input id="q" type="text" placeholder="Scrie întrebarea ta aici..." autocomplete="off" />
-            <button id="send">Trimite</button>
-            <button id="copy" disabled>Copiază</button>
+    <div class="card">
+      <div class="toolbar">
+        <div class="toolbar-left">
+          <div class="pill">Structură · Flux · Reorganizare · Noua structură</div>
+          <label class="switch" title="Când e ON, trimite către /api/ask browse=true. Agentul poate integra Serper dacă e activ.">
+            <input id="browse" type="checkbox" />
+            Browsing
+          </label>
+          <div class="pill" id="webBadge">Web: auto</div>
+        </div>
+        <button id="reset" type="button" title="Șterge conversația din UI (nu șterge memoria server).">Reset UI</button>
+      </div>
+
+      <div id="chat" aria-live="polite">
+        <div class="divider">Începe cu o întrebare.</div>
+      </div>
+
+      <div class="footer">
+        <div class="input-area">
+          <input id="q" type="text" placeholder="Scrie întrebarea ta aici..." autocomplete="off" />
+          <div class="btnrow">
+            <button id="send" type="button">Trimite</button>
+            <button id="copy" type="button" disabled>Copiază</button>
+          </div>
         </div>
         <div id="status"></div>
+      </div>
     </div>
-    <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            const chatEl = document.getElementById("chat");
-            const qEl = document.getElementById("q");
-            const sendBtn = document.getElementById("send");
-            const copyBtn = document.getElementById("copy");
-            const statusEl = document.getElementById("status");
+  </div>
 
-            let history = []; // memorie per tab 
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const chatEl   = document.getElementById("chat");
+      const qEl      = document.getElementById("q");
+      const sendBtn  = document.getElementById("send");
+      const copyBtn  = document.getElementById("copy");
+      const resetBtn = document.getElementById("reset");
+      const statusEl = document.getElementById("status");
+      const browseEl = document.getElementById("browse");
+      const webBadge = document.getElementById("webBadge");
 
-            function appendBubble(role, text, meta = null) {
-                const row = document.createElement("div");
-                row.className = "bubble-row";
+      // IMPORTANT: UI se golește la refresh (nu folosim localStorage pentru history).
+      let history = [];
 
-                const bubble = document.createElement("div");
-                bubble.className = "bubble " + role;
-                bubble.textContent = text;
+      // userId stabil (pt. memoria server-side). Nu include conversația, doar ID.
+      // Dacă NU vrei deloc memorie per user, șterge complet userId din payload.
+      const userIdKey = "coeziv_user_id_v1";
+      let userId = null;
+      try {
+        userId = localStorage.getItem(userIdKey);
+        if (!userId) {
+          userId = "u_" + Math.random().toString(36).slice(2) + "_" + Date.now().toString(36);
+          localStorage.setItem(userIdKey, userId);
+        }
+      } catch {
+        userId = "default";
+      }
 
-                row.appendChild(bubble);
+      function clearChatUI() {
+        chatEl.innerHTML = '<div class="divider">Începe cu o întrebare.</div>';
+        history = [];
+        copyBtn.disabled = true;
+        statusEl.textContent = "";
+        qEl.focus();
+      }
 
-                if (meta) {
-                    const metaDiv = document.createElement("div");
-                    metaDiv.className = "bubble-meta";
+      function appendBubble(role, text, meta = null) {
+        const row = document.createElement("div");
+        row.className = "bubble-row " + role;
 
-                    if (meta.J !== undefined) {
-                        const chip = document.createElement("span");
-                        chip.className = "meta-chip";
-                        chip.textContent = "J = " + meta.J.toFixed(2);
-                        metaDiv.appendChild(chip);
-                    }
+        const bubble = document.createElement("div");
+        bubble.className = "bubble " + role;
+        bubble.textContent = text;
 
-                    if (meta.regime) {
-                        const chip = document.createElement("span");
-                        chip.className = "meta-chip";
-                        chip.textContent = "Regim: " + meta.regime;
-                        metaDiv.appendChild(chip);
-                    }
+        row.appendChild(bubble);
 
-                    if (meta.action) {
-                        const chip = document.createElement("span");
-                        chip.className = "meta-chip";
-                        chip.textContent = "Acțiune: " + meta.action;
-                        metaDiv.appendChild(chip);
-                    }
+        if (meta) {
+          const metaDiv = document.createElement("div");
+          metaDiv.className = "bubble-meta";
 
-                    row.appendChild(metaDiv);
-                }
+          if (meta.J != null && !Number.isNaN(meta.J)) {
+            const chip = document.createElement("span");
+            chip.className = "meta-chip";
+            chip.textContent = "J = " + Number(meta.J).toFixed(2);
+            metaDiv.appendChild(chip);
+          }
+          if (meta.regime) {
+            const chip = document.createElement("span");
+            chip.className = "meta-chip";
+            chip.textContent = "Regim: " + meta.regime;
+            metaDiv.appendChild(chip);
+          }
+          if (meta.action) {
+            const chip = document.createElement("span");
+            chip.className = "meta-chip";
+            chip.textContent = "Acțiune: " + meta.action;
+            metaDiv.appendChild(chip);
+          }
+          if (meta.webUsed != null) {
+            const chip = document.createElement("span");
+            chip.className = "meta-chip";
+            chip.textContent = "Web: " + (meta.webUsed ? "DA" : "NU");
+            metaDiv.appendChild(chip);
+          }
 
-                chatEl.appendChild(row);
-                chatEl.scrollTop = chatEl.scrollHeight;
-            }
+          row.appendChild(metaDiv);
+        }
 
-            async function ask() {
-                const q = qEl.value.trim();
-                if (!q) return;
+        chatEl.appendChild(row);
+        chatEl.scrollTop = chatEl.scrollHeight;
+        return row;
+      }
 
-                statusEl.textContent = "";
+      function appendTyping() {
+        const row = document.createElement("div");
+        row.className = "bubble-row ai";
 
-                appendBubble("user", q);
-                history.push({ role: "user", content: q });
+        const bubble = document.createElement("div");
+        bubble.className = "bubble ai";
+        bubble.textContent = "Se gândește…";
 
-                qEl.value = "";
-                sendBtn.disabled = true;
-                copyBtn.disabled = true; // dezactivează butonul de copiere
-                appendBubble("ai", "Se gândește...");
+        row.appendChild(bubble);
+        chatEl.appendChild(row);
+        chatEl.scrollTop = chatEl.scrollHeight;
+        return row;
+      }
 
-                try {
-                    const res = await fetch("/api/ask", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ message: q, history })
-                    });
+      function currentChatText() {
+        // Înlocuiește multiple spații / păstrează lizibil
+        return chatEl.innerText.trim();
+      }
 
-                    const data = await res.json();
-                    const reply = data.assistant_reply || "Fără răspuns valid.";
-                    const meta = {
-                        J: Number(data.analysis?.j_state?.J) || 0,
-                        regime: data.analysis?.j_state?.regime || "",
-                        action: data.policy_output?.action || ""
-                    };
-                    appendBubble("ai", reply, meta);
+      copyBtn.addEventListener("click", async () => {
+        try {
+          const chatText = currentChatText();
+          if (!chatText) return;
+          await navigator.clipboard.writeText(chatText);
+          alert("Chatul a fost copiat!");
+        } catch (e) {
+          alert("Eroare la copiere: " + (e?.message || String(e)));
+        }
+      });
 
-                    history.push({ role: "assistant", content: reply });
-                    copyBtn.disabled = false; // activează butonul de copiere
-                } catch (err) {
-                    appendBubble("ai", "Eroare de rețea. Încearcă din nou.");
-                    statusEl.textContent = err.message;
-                }
+      resetBtn.addEventListener("click", clearChatUI);
 
-                sendBtn.disabled = false;
-            }
+      function updateWebBadge() {
+        // "auto" = off (agentul poate decide), "forced" = on (browse=true)
+        webBadge.textContent = browseEl.checked ? "Web: forced" : "Web: auto";
+      }
+      browseEl.addEventListener("change", updateWebBadge);
+      updateWebBadge();
 
-            // Copiază tot chatul în clipboard
-            copyBtn.addEventListener("click", () => {
-                const chatText = chatEl.innerText; // obține textul din întregul chat
-                navigator.clipboard.writeText(chatText).then(() => {
-                    alert("Chatul a fost copiat!");
-                }).catch(err => {
-                    alert("Eroare la copiere: " + err);
-                });
-            });
+      async function ask() {
+        const q = qEl.value.trim();
+        if (!q) return;
 
-            sendBtn.addEventListener("click", ask);
-            qEl.addEventListener("keydown", (e) => {
-                if (e.key === "Enter") {
-                    ask();
-                }
-            });
-        });
-    </script>
+        statusEl.textContent = "";
+
+        appendBubble("user", q);
+        history.push({ role: "user", content: q });
+
+        qEl.value = "";
+        sendBtn.disabled = true;
+        copyBtn.disabled = true;
+
+        const typingRow = appendTyping();
+
+        try {
+          const payload = {
+            message: q,
+            history,
+            browse: !!browseEl.checked,   // <— cheie: browsing din UI
+            userId,                       // <— pentru memorie server-side
+          };
+
+          const res = await fetch("/api/ask", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+
+          let data = null;
+          try {
+            data = await res.json();
+          } catch {
+            const txt = await res.text();
+            data = { assistant_reply: "Eroare: răspuns non-JSON: " + txt.slice(0, 250) };
+          }
+
+          typingRow.remove();
+
+          const reply = data.assistant_reply || data.answer || "Fără răspuns valid.";
+
+          const meta = {
+            J: Number(data?.analysis?.j_state?.J),
+            regime: data?.analysis?.j_state?.regime || "",
+            action: data?.policy_output?.action || data?.analysis?.policy?.action || "",
+            webUsed: !!data?.used_web_search
+          };
+
+          appendBubble("ai", reply, meta);
+          history.push({ role: "assistant", content: reply });
+
+          copyBtn.disabled = false;
+        } catch (err) {
+          try { typingRow.remove(); } catch {}
+          appendBubble("ai", "Eroare de rețea. Încearcă din nou.");
+          statusEl.textContent = err?.message || String(err);
+        } finally {
+          sendBtn.disabled = false;
+          qEl.focus();
+        }
+      }
+
+      sendBtn.addEventListener("click", ask);
+      qEl.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" && !e.shiftKey) {
+          e.preventDefault();
+          ask();
+        }
+      });
+
+      // Focus inițial
+      qEl.focus();
+    });
+  </script>
 </body>
 </html>
