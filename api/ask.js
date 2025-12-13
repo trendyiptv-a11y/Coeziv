@@ -1,6 +1,6 @@
 // api/ask.js
-// Asistent Coeziv 3.14 – CoezivEngine + RAG Coeziv + Memorie + Browsing (Serper) + Strat evolutiv
-// Browsing: la cerere (UI flag sau comandă în text). NU mai „se preface” că a căutat.
+// Asistent Coeziv 3.14 – CoezivEngine + RAG Coeziv + Memorie + Browsing (Serper) + Crawling + Strat evolutiv
+// Browsing/Crawling: la cerere (UI flags sau comandă în text). Nu pretinde acces extern fără context injectat.
 
 import OpenAI from "openai";
 import { retrieveCohezivContext } from "../coeziv_knowledge.js";
@@ -69,7 +69,7 @@ async function webSearchSerper(query) {
 }
 
 /* -------------------------------------------------------------------------- */
-/*                           Raw crawling (HTML fetch)                        */
+/*                             Raw crawling (HTML)                            */
 /* -------------------------------------------------------------------------- */
 
 function stripHtmlToText(html) {
@@ -82,10 +82,17 @@ function stripHtmlToText(html) {
     .trim();
 }
 
+function extractFirstUrl(text) {
+  const m = (text || "").match(/https?:\/\/[^\s)]+/i);
+  return m ? m[0] : null;
+}
+
 /**
- * Crawl minimal:
- * - dacă primește URL (http/https) -> fetch direct
- * - altfel -> folosește DuckDuckGo HTML ca punct de intrare
+ * crawlWebRaw:
+ * - dacă primește URL -> fetch direct
+ * - dacă primește query -> folosește DuckDuckGo HTML ca pagină „textuală”
+ *
+ * Notă: pentru site-uri foarte JS-heavy, crawling-ul brut poate produce text incomplet.
  */
 async function crawlWebRaw(urlOrQuery) {
   try {
@@ -108,12 +115,11 @@ async function crawlWebRaw(urlOrQuery) {
 
     if (!text) return { ok: false, text: "", reason: "empty crawl text" };
 
-    // limită de volum pentru cost/latency + prompt safety
     const clipped = text.slice(0, 20000);
 
     return {
       ok: true,
-      text: "Rezultate brute din crawling web:\n" + clipped,
+      text: clipped,
       reason: "",
     };
   } catch (err) {
@@ -132,7 +138,7 @@ export default async function handler(req, res) {
       return res.status(405).json({ error: "Use POST" });
     }
 
-    const body = typeof req.body === "string" ? JSON.parse(req.body) : (req.body || {});
+    const body = typeof req.body === "string" ? JSON.parse(req.body) : req.body || {};
     const userMessage = body.message || "";
     const history = Array.isArray(body.history) ? body.history : [];
     const userId = body.userId || "default";
@@ -152,6 +158,7 @@ export default async function handler(req, res) {
         analysis: engine,
         policy_output: engine.policy,
         used_web_search: false,
+        web_mode: "none",
         web_reason: "policy_clarify_first",
       });
     }
@@ -163,6 +170,7 @@ export default async function handler(req, res) {
         analysis: engine,
         policy_output: engine.policy,
         used_web_search: false,
+        web_mode: "none",
         web_reason: "policy_trim_context_and_clarify",
       });
     }
@@ -184,14 +192,11 @@ export default async function handler(req, res) {
     /* ------------------------------ Memorie Coezivă ------------------------------ */
 
     let memoryContextText = "";
-    let memorySummary = "";
-    let memorySnippets = [];
-
     try {
       const memCtx = retrieveMemoryContext({ userId, query: userMessage });
       if (memCtx) {
-        memorySummary = memCtx.summary || "";
-        memorySnippets = Array.isArray(memCtx.snippets) ? memCtx.snippets : [];
+        const memorySummary = memCtx.summary || "";
+        const memorySnippets = Array.isArray(memCtx.snippets) ? memCtx.snippets : [];
 
         const parts = [];
         if (memorySummary.trim()) parts.push(memorySummary.trim());
@@ -212,14 +217,16 @@ export default async function handler(req, res) {
 
     /* ------------------------------ Strat evolutiv ------------------------------ */
 
-    const evolution = buildEvolutionLayer({
-      engine,
-      memoryPattern: null,
-    });
+    const evolution = buildEvolutionLayer({ engine, memoryPattern: null });
 
-    /* ------------------------------ Browsing: la cerere ------------------------------ */
+    /* ------------------------------ Browsing/Crawling: la cerere ------------------------------ */
 
     const lower = userMessage.toLowerCase();
+
+    const isMeta = engine?.intent?.type === "meta";
+
+    const isMetaAboutBrowsing =
+      isMeta && /document|documente|link|internet|citi|citești|citesti|crawl|brows/i.test(lower);
 
     const userWantsBrowseByText =
       lower.includes("cauta pe internet") ||
@@ -233,7 +240,6 @@ export default async function handler(req, res) {
       lower.includes("check online") ||
       lower.includes("search online");
 
-    // detectare explicită de „citește documentul / extrage text integral”
     const wantsDocumentRead =
       lower.includes("citește documentul") ||
       lower.includes("citeste documentul") ||
@@ -247,10 +253,17 @@ export default async function handler(req, res) {
       lower.includes("printabil");
 
     const forceBrowseByUI = body.browse === true;
-    const forceCrawlRaw = body.crawl === true; // flag explicit din UI/payload
+    const forceCrawlRaw = body.crawl === true;
 
-    // browsing dacă UI îl cere sau user îl cere explicit în text sau engine semnalizează
-    const shouldBrowse = forceBrowseByUI || userWantsBrowseByText || engine.needs_external_data || wantsDocumentRead || forceCrawlRaw;
+    // IMPORTANT:
+    // - Nu pornim flux extern la întrebări meta doar din „engine.needs_external_data”.
+    // - Poți forța oricând cu body.browse/body.crawl sau cu comenzi explicite.
+    const shouldBrowse =
+      forceBrowseByUI ||
+      forceCrawlRaw ||
+      wantsDocumentRead ||
+      userWantsBrowseByText ||
+      (!isMeta && engine.needs_external_data);
 
     let webContext = "";
     let used_web_search = false;
@@ -258,25 +271,31 @@ export default async function handler(req, res) {
     let web_mode = "none"; // "serper" | "crawl_raw" | "none"
 
     if (shouldBrowse) {
+      // Dacă user a dat un URL, crawl pe URL e mai bun decât pe query
+      const urlInMessage = extractFirstUrl(userMessage);
+
       let q = buildCohezivSearchQuery(userMessage, history);
       if (!q || !q.trim()) q = userMessage;
 
-      // 🔴 document explicit -> crawl direct (nu doar search)
+      // document explicit -> crawl direct
       if (wantsDocumentRead || forceCrawlRaw) {
-        const crawl = await crawlWebRaw(q);
+        const crawlTarget = urlInMessage || q;
+        const crawl = await crawlWebRaw(crawlTarget);
+
         if (crawl.ok && crawl.text) {
           webContext = crawl.text;
           used_web_search = true;
           web_mode = "crawl_raw";
-          web_reason = "explicit_document_request";
+          web_reason = urlInMessage ? "explicit_document_url_crawl" : "explicit_document_request";
         } else {
           used_web_search = false;
           web_mode = "none";
           web_reason = crawl.reason || "crawl_failed";
         }
       } else {
-        // 🔵 caz normal -> Serper
+        // caz normal -> Serper
         const serper = await webSearchSerper(q);
+
         if (serper.ok && serper.text) {
           webContext = serper.text;
           used_web_search = true;
@@ -356,11 +375,25 @@ REGULI DE COMPORTAMENT
 - Nu inventezi conținut din linkuri.
 - Dacă există context extern, îl menționezi explicit.
 - Dacă nu există, rămâi strict în cunoașterea internă.
-
-Răspunsurile trebuie să fie clare, oneste, structurate și proporționale cu cererea utilizatorului.
 `;
 
     let systemContent = baseSystem;
+
+    // Hint meta: răspuns condiționat, nu absolut
+    if (isMetaAboutBrowsing) {
+      systemContent += `
+
+────────────────────────────────────────────────────────────
+CLARIFICARE META – CAPABILITĂȚI DE CITIRE DOCUMENTE ONLINE
+────────────────────────────────────────────────────────────
+
+Dacă utilizatorul întreabă despre capabilități (meta):
+- explici că POȚI citi documente online doar când utilizatorul cere explicit acest lucru
+  și când fluxul extern (browsing sau crawling) este executat pentru mesajul curent.
+- explici ce trebuie să facă utilizatorul: să ofere un link și să ceară „citește documentul / extrage textul”.
+- nu răspunzi cu afirmații absolute de tip „nu pot niciodată”.
+`;
+    }
 
     if (evolution?.textBlock) {
       systemContent += `\n\nStrat de autoreglare evolutivă – parametri curenți:\n${evolution.textBlock}`;
@@ -375,15 +408,15 @@ Răspunsurile trebuie să fie clare, oneste, structurate și proporționale cu c
       systemContent += `\n\nContext de memorie Coezivă:\n${memoryContextText}`;
     }
 
-    // Semnal clar de browsing (sau lipsa lui)
-    systemContent += `\n\nStare flux extern (browsing) la acest mesaj:\n- requested: ${shouldBrowse ? "DA" : "NU"}\n- executed: ${used_web_search ? "DA" : "NU"}\n- mode: ${web_mode}\n- reason: ${web_reason}\n`;
+    // Stare flux extern (requested vs executed)
+    systemContent += `\n\nStare flux extern (browsing/crawling) la acest mesaj:\n- requested: ${shouldBrowse ? "DA" : "NU"}\n- executed: ${used_web_search ? "DA" : "NU"}\n- mode: ${web_mode}\n- reason: ${web_reason}\n`;
 
-    // Injectare context extern – în secțiunea corectă, în funcție de web_mode
+    // Injectare context extern în secțiunea acceptată de reguli
     if (used_web_search && webContext) {
       if (web_mode === "serper") {
         systemContent += `\n\n---\n\nContext suplimentar din căutarea pe internet (Serper):\n${webContext}\n\nInstrucțiune: integrează aceste informații și menționează că sunt orientative; citează linkurile din paranteze când sunt relevante.`;
       } else if (web_mode === "crawl_raw") {
-        systemContent += `\n\n---\n\nRezultate brute din crawling web:\n${webContext.replace(/^Rezultate brute din crawling web:\n/, "")}\n\nInstrucțiune: tratează textul ca extras automat; poate conține zgomot. Extrage doar pasajele relevante și citează prudent când afirm garantat.`;
+        systemContent += `\n\n---\n\nRezultate brute din crawling web:\n${webContext}\n\nInstrucțiune: text extras automat; poate conține zgomot. Extrage doar pasajele relevante și menționează dacă anumite porțiuni sunt neclare sau incomplete.`;
       }
     }
 
@@ -430,8 +463,8 @@ Răspunsurile trebuie să fie clare, oneste, structurate și proporționale cu c
       analysis: engine,
       policy_output: engine.policy,
       used_web_search,
-      web_reason,
       web_mode,
+      web_reason,
     });
   } catch (error) {
     console.error("Eroare în /api/ask:", error);
