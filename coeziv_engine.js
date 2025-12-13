@@ -381,14 +381,13 @@ export function runCoezivEngine({ history, userMessage }) {
 
   const needs_external_data = intent.wants_internet || hasDynamicDomain;
 
-// --- Identitate emergentă: trasă din comportament, nu impusă ---
-
+  // --- Identitate emergentă: trasă din comportament, nu impusă ---
   const identity_trace = {
     // modul în care percepi tensiunea întrebării
-    regime, // ex: "ordered" | "mixed" | "tensed"
+    regime: j_state.regime, // "ordered" | "mixed" | "tensed"
 
-    // "tensiunea" globală
-    j_value: J,
+    // "tensiunea" locală (J)
+    j_value: j_state.J,
 
     // ce domenii par dominante în această întrebare
     dominant_domains: policy?.dominant || [],
@@ -399,7 +398,7 @@ export function runCoezivEngine({ history, userMessage }) {
     // ai nevoie sau nu de date externe
     needs_external_data,
   };
-  
+
   return {
     rho: {
       contextDepth_global,
@@ -413,6 +412,7 @@ export function runCoezivEngine({ history, userMessage }) {
     j_state,
     policy,
     intent,
-    needs_external_data
+    needs_external_data,
+    identity_trace
   };
 }
