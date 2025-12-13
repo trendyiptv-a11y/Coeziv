@@ -29,7 +29,13 @@ async function webSearchSerper(query) {
     });
 
     const raw = await response.text();
-    if (!response.ok) return { ok: false, text: "", reason: `Serper HTTP ${response.status}: ${raw.slice(0, 200)}` };
+    if (!response.ok) {
+      return {
+        ok: false,
+        text: "",
+        reason: `Serper HTTP ${response.status}: ${raw.slice(0, 200)}`,
+      };
+    }
 
     let data;
     try {
@@ -55,6 +61,59 @@ async function webSearchSerper(query) {
     return {
       ok: true,
       text: "Rezultate sintetizate din internet (Serper):\n" + results.join("\n"),
+      reason: "",
+    };
+  } catch (err) {
+    return { ok: false, text: "", reason: err?.message || String(err) };
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/*                           Raw crawling (HTML fetch)                        */
+/* -------------------------------------------------------------------------- */
+
+function stripHtmlToText(html) {
+  return (html || "")
+    .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, " ")
+    .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, " ")
+    .replace(/<noscript[^>]*>[\s\S]*?<\/noscript>/gi, " ")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+/**
+ * Crawl minimal:
+ * - dacă primește URL (http/https) -> fetch direct
+ * - altfel -> folosește DuckDuckGo HTML ca punct de intrare
+ */
+async function crawlWebRaw(urlOrQuery) {
+  try {
+    const input = (urlOrQuery || "").trim();
+    if (!input) return { ok: false, text: "", reason: "empty input" };
+
+    const url = /^https?:\/\//i.test(input)
+      ? input
+      : `https://duckduckgo.com/html/?q=${encodeURIComponent(input)}`;
+
+    const res = await fetch(url, {
+      redirect: "follow",
+      headers: { "User-Agent": "CoezivBot/1.0" },
+    });
+
+    if (!res.ok) return { ok: false, text: "", reason: `HTTP ${res.status}` };
+
+    const html = await res.text();
+    const text = stripHtmlToText(html);
+
+    if (!text) return { ok: false, text: "", reason: "empty crawl text" };
+
+    // limită de volum pentru cost/latency + prompt safety
+    const clipped = text.slice(0, 20000);
+
+    return {
+      ok: true,
+      text: "Rezultate brute din crawling web:\n" + clipped,
       reason: "",
     };
   } catch (err) {
@@ -93,6 +152,7 @@ export default async function handler(req, res) {
         analysis: engine,
         policy_output: engine.policy,
         used_web_search: false,
+        web_reason: "policy_clarify_first",
       });
     }
 
@@ -103,6 +163,7 @@ export default async function handler(req, res) {
         analysis: engine,
         policy_output: engine.policy,
         used_web_search: false,
+        web_reason: "policy_trim_context_and_clarify",
       });
     }
 
@@ -153,12 +214,13 @@ export default async function handler(req, res) {
 
     const evolution = buildEvolutionLayer({
       engine,
-      memoryPattern: null, // (dacă vrei pattern, îl extragi explicit din memorie, nu din retrieveMemoryContext)
+      memoryPattern: null,
     });
 
     /* ------------------------------ Browsing: la cerere ------------------------------ */
 
     const lower = userMessage.toLowerCase();
+
     const userWantsBrowseByText =
       lower.includes("cauta pe internet") ||
       lower.includes("caută pe internet") ||
@@ -171,41 +233,62 @@ export default async function handler(req, res) {
       lower.includes("check online") ||
       lower.includes("search online");
 
-    const forceBrowseByUI = body.browse === true;
+    // detectare explicită de „citește documentul / extrage text integral”
+    const wantsDocumentRead =
+      lower.includes("citește documentul") ||
+      lower.includes("citeste documentul") ||
+      lower.includes("extrage textul") ||
+      lower.includes("extrage conținutul") ||
+      lower.includes("extrage continutul") ||
+      lower.includes("textul ordonan") ||
+      lower.includes("transforma in html") ||
+      lower.includes("transformă în html") ||
+      lower.includes("html printabil") ||
+      lower.includes("printabil");
 
-    // browsing dacă UI îl cere sau user îl cere explicit în text
-    const shouldBrowse = forceBrowseByUI || userWantsBrowseByText || engine.needs_external_data;
+    const forceBrowseByUI = body.browse === true;
+    const forceCrawlRaw = body.crawl === true; // flag explicit din UI/payload
+
+    // browsing dacă UI îl cere sau user îl cere explicit în text sau engine semnalizează
+    const shouldBrowse = forceBrowseByUI || userWantsBrowseByText || engine.needs_external_data || wantsDocumentRead || forceCrawlRaw;
 
     let webContext = "";
     let used_web_search = false;
     let web_reason = "not requested";
+    let web_mode = "none"; // "serper" | "crawl_raw" | "none"
 
     if (shouldBrowse) {
-  let q = buildCohezivSearchQuery(userMessage, history);
-  if (!q || !q.trim()) q = userMessage;
+      let q = buildCohezivSearchQuery(userMessage, history);
+      if (!q || !q.trim()) q = userMessage;
 
-  // 🔴 CAZ SPECIAL: document cerut explicit
-  if (wantsDocumentRead || forceCrawlRaw) {
-    const crawl = await crawlWebRaw(q);
-    if (crawl.ok && crawl.text) {
-      webContext = crawl.text;
-      used_web_search = true;
-      web_mode = "crawl_raw";
-      web_reason = "explicit_document_request";
-    } else {
-      web_reason = crawl.reason || "crawl_failed";
+      // 🔴 document explicit -> crawl direct (nu doar search)
+      if (wantsDocumentRead || forceCrawlRaw) {
+        const crawl = await crawlWebRaw(q);
+        if (crawl.ok && crawl.text) {
+          webContext = crawl.text;
+          used_web_search = true;
+          web_mode = "crawl_raw";
+          web_reason = "explicit_document_request";
+        } else {
+          used_web_search = false;
+          web_mode = "none";
+          web_reason = crawl.reason || "crawl_failed";
+        }
+      } else {
+        // 🔵 caz normal -> Serper
+        const serper = await webSearchSerper(q);
+        if (serper.ok && serper.text) {
+          webContext = serper.text;
+          used_web_search = true;
+          web_mode = "serper";
+          web_reason = "ok";
+        } else {
+          used_web_search = false;
+          web_mode = "none";
+          web_reason = serper.reason || "no results";
+        }
+      }
     }
-  } else {
-    // 🔵 CAZ NORMAL: Serper
-    const serper = await webSearchSerper(q);
-    if (serper.ok && serper.text) {
-      webContext = serper.text;
-      used_web_search = true;
-      web_mode = "serper";
-      web_reason = "ok";
-    }
-  }
-}
 
     /* ------------------------------ SYSTEM prompt ------------------------------ */
 
@@ -293,10 +376,15 @@ Răspunsurile trebuie să fie clare, oneste, structurate și proporționale cu c
     }
 
     // Semnal clar de browsing (sau lipsa lui)
-    systemContent += `\n\nStare flux extern (browsing) la acest mesaj:\n- requested: ${shouldBrowse ? "DA" : "NU"}\n- executed: ${used_web_search ? "DA" : "NU"}\n- reason: ${web_reason}\n`;
+    systemContent += `\n\nStare flux extern (browsing) la acest mesaj:\n- requested: ${shouldBrowse ? "DA" : "NU"}\n- executed: ${used_web_search ? "DA" : "NU"}\n- mode: ${web_mode}\n- reason: ${web_reason}\n`;
 
+    // Injectare context extern – în secțiunea corectă, în funcție de web_mode
     if (used_web_search && webContext) {
-      systemContent += `\n\n---\n\nContext suplimentar din căutarea pe internet (Serper):\n${webContext}\n\nInstrucțiune: integrează aceste informații și menționează că sunt orientative; citează linkurile din paranteze când sunt relevante.`;
+      if (web_mode === "serper") {
+        systemContent += `\n\n---\n\nContext suplimentar din căutarea pe internet (Serper):\n${webContext}\n\nInstrucțiune: integrează aceste informații și menționează că sunt orientative; citează linkurile din paranteze când sunt relevante.`;
+      } else if (web_mode === "crawl_raw") {
+        systemContent += `\n\n---\n\nRezultate brute din crawling web:\n${webContext.replace(/^Rezultate brute din crawling web:\n/, "")}\n\nInstrucțiune: tratează textul ca extras automat; poate conține zgomot. Extrage doar pasajele relevante și citează prudent când afirm garantat.`;
+      }
     }
 
     systemContent += `
@@ -343,6 +431,7 @@ Răspunsurile trebuie să fie clare, oneste, structurate și proporționale cu c
       policy_output: engine.policy,
       used_web_search,
       web_reason,
+      web_mode,
     });
   } catch (error) {
     console.error("Eroare în /api/ask:", error);
