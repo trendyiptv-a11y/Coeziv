@@ -181,19 +181,31 @@ export default async function handler(req, res) {
     let web_reason = "not requested";
 
     if (shouldBrowse) {
-      let q = buildCohezivSearchQuery(userMessage, history);
-      if (!q || !q.trim()) q = userMessage;
+  let q = buildCohezivSearchQuery(userMessage, history);
+  if (!q || !q.trim()) q = userMessage;
 
-      const serper = await webSearchSerper(q);
-      if (serper.ok && serper.text) {
-        webContext = serper.text;
-        used_web_search = true;
-        web_reason = "ok";
-      } else {
-        used_web_search = false;
-        web_reason = serper.reason || "no results";
-      }
+  // 🔴 CAZ SPECIAL: document cerut explicit
+  if (wantsDocumentRead || forceCrawlRaw) {
+    const crawl = await crawlWebRaw(q);
+    if (crawl.ok && crawl.text) {
+      webContext = crawl.text;
+      used_web_search = true;
+      web_mode = "crawl_raw";
+      web_reason = "explicit_document_request";
+    } else {
+      web_reason = crawl.reason || "crawl_failed";
     }
+  } else {
+    // 🔵 CAZ NORMAL: Serper
+    const serper = await webSearchSerper(q);
+    if (serper.ok && serper.text) {
+      webContext = serper.text;
+      used_web_search = true;
+      web_mode = "serper";
+      web_reason = "ok";
+    }
+  }
+}
 
     /* ------------------------------ SYSTEM prompt ------------------------------ */
 
