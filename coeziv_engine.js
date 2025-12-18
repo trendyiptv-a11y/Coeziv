@@ -1,5 +1,8 @@
 // coeziv_engine.js
-// Motor cognitiv Coeziv – versiune simplificată + CONTRACT STABIL DE EXPORT
+// Motor cognitiv Coeziv – versiune stabilă
+// - contract de export păstrat
+// - Web = DOAR nevoie reală de date externe
+// - domeniile riscante NU mai pornesc web automat
 
 // --------------------------------------------------
 // CONFIG
@@ -16,33 +19,23 @@ const CONFIG = {
   J_TENSED: 1.0,
 
   OVERSAT_MIN_WORDS: 60,
-  OVERSAT_MIN_ACTIVE_DOMAINS: 2,
-
-  DYNAMIC_DOMAINS: new Set([
-    "economie",
-    "tehnic",
-    "ai_advanced",
-    "social",
-    "politic",
-    "ecologie"
-  ])
+  OVERSAT_MIN_ACTIVE_DOMAINS: 2
 };
 
 // --------------------------------------------------
-// KEYWORDS
+// KEYWORDS (domenii)
 // --------------------------------------------------
 
 const KEYWORDS = {
   medical: ["tensiune", "simptom", "vaccin", "doctor", "diagnostic", "tratament", "medic"],
   legal: ["contract", "instanta", "instanță", "avocat", "lege", "proces", "judecator", "judecător"],
-  politic: ["guvern", "stat", "partid", "politic", "alegeri", "parlament", "coruptie", "corupție"],
+  politic: ["guvern", "stat", "partid", "politic", "alegeri", "parlament"],
   psihologic: ["anxietate", "depresie", "teama", "teamă", "frica", "frică", "psiholog", "terapie"],
-  tehnic: ["algoritm", "server", "retea", "rețea", "programare", "cod", "ai", "model"],
-  neuro: ["neuron", "sinaps", "dopamin", "cortex", "hipocamp"],
-  economie: ["pia", "infla", "capital", "ofert", "cerer", "bani", "moned", "bitcoin", "crypto"],
-  ecologie: ["ecosistem", "habitat", "biodivers", "specie", "poluare", "climat"],
-  social: ["grup", "comunit", "institu", "societ", "norme"],
-  ai_advanced: ["agent", "multi-agent", "policy", "reinforcement", "embedding", "vector"]
+  tehnic: ["algoritm", "server", "retea", "rețea", "programare", "cod", "model", "software"],
+  ai_advanced: ["ai", "agent", "multi-agent", "policy", "reinforcement", "embedding"],
+  economie: ["preț", "pret", "infla", "capital", "pia", "bani", "moned", "bitcoin", "crypto"],
+  ecologie: ["ecosistem", "habitat", "biodivers", "poluare", "climat"],
+  social: ["grup", "comunit", "institu", "societ", "norme"]
 };
 
 // --------------------------------------------------
@@ -155,43 +148,99 @@ function decidePolicy(jState, flags, domains) {
 }
 
 // --------------------------------------------------
-// INTENT
+// INTENT & WEB RULES (CORECT)
 // --------------------------------------------------
 
 function inferIntent(userMessage = "") {
-  const lower = userMessage.toLowerCase();
+  const text = userMessage.trim();
+  const lower = text.toLowerCase();
 
   const isQuestion =
-    userMessage.endsWith("?") ||
-    ["ce", "cum", "de ce", "care", "cât", "unde"].some(w =>
+    text.endsWith("?") ||
+    ["ce", "cum", "de ce", "care", "cât", "unde", "când", "cand"].some(w =>
       lower.startsWith(w + " ")
     );
 
-  const wants_internet = [
-    "cauta",
-    "căut",
+  // comenzi explicite
+  const webCommands = [
+    "cauta pe internet",
+    "caută pe internet",
+    "cauta online",
+    "caută online",
+    "verifica pe internet",
+    "verifică pe internet",
+    "da-mi sursa",
+    "dă-mi sursa",
+    "citeaza",
+    "citează",
+    "link",
     "search",
-    "latest",
+    "look up"
+  ];
+  const wants_web_explicit = webCommands.some(p => lower.includes(p));
+
+  // recență / instabilitate
+  const recencyMarkers = [
     "azi",
     "acum",
+    "recent",
+    "ultimele",
+    "ultimele știri",
+    "update",
+    "latest",
+    "în timp real",
+    "in timp real",
+    "2024",
+    "2025"
+  ];
+  const mentions_recency = recencyMarkers.some(p => lower.includes(p));
+
+  // date volatile
+  const volatileMarkers = [
     "preț",
-    "price"
-  ].some(w => lower.includes(w));
+    "pret",
+    "price",
+    "curs",
+    "market cap",
+    "știri",
+    "stiri",
+    "breaking",
+    "release",
+    "vulnerabil"
+  ];
+  const wants_volatile_data = volatileMarkers.some(p => lower.includes(p));
+
+  // roluri schimbătoare
+  const roleMarkers = [
+    "cine este",
+    "cine e",
+    "ceo",
+    "președinte",
+    "presedinte",
+    "prim-ministru"
+  ];
+  const wants_current_role = roleMarkers.some(p => lower.includes(p));
+
+  const wants_internet =
+    wants_web_explicit ||
+    mentions_recency ||
+    wants_volatile_data ||
+    wants_current_role;
 
   return {
     type: isQuestion ? "question" : "statement",
-    wants_internet
+    wants_internet,
+    wants_web_explicit,
+    mentions_recency
   };
 }
 
 // --------------------------------------------------
-// ✅ EXPORT 1 — MOTOR PRINCIPAL
+// EXPORT 1 — MOTOR PRINCIPAL
 // --------------------------------------------------
 
 export function runCoezivEngine({ history = [], userMessage = "" }) {
-  const historyText = history.map(h => h.content || "").join("\n");
   const tokens = tokenize(userMessage);
-
   const domains = detectDomains(tokens);
   const cScore = conflictScore(domains);
 
@@ -201,9 +250,11 @@ export function runCoezivEngine({ history = [], userMessage = "" }) {
   const policy = decidePolicy(j_state, flags, domains);
   const intent = inferIntent(userMessage);
 
-  const hasDynamicDomain = policy.dominant.some(d =>
-    CONFIG.DYNAMIC_DOMAINS.has(d)
-  );
+  // risc separat de web
+  const riskDomains = new Set(["medical", "legal"]);
+  const risk_level = policy.dominant.some(d => riskDomains.has(d))
+    ? "high"
+    : "normal";
 
   return {
     rho: {
@@ -215,18 +266,21 @@ export function runCoezivEngine({ history = [], userMessage = "" }) {
     j_state,
     policy,
     intent,
-    needs_external_data: intent.wants_internet || hasDynamicDomain,
+    needs_external_data: intent.wants_internet,
+    risk_level,
     identity_trace: {
       regime: j_state.regime,
       j_value: j_state.J,
       dominant_domains: policy.dominant,
-      policy_action: policy.action
+      policy_action: policy.action,
+      web: intent.wants_internet,
+      risk: risk_level
     }
   };
 }
 
 // --------------------------------------------------
-// ✅ EXPORT 2 — BUILD SEARCH QUERY (NECESAR DE API)
+// EXPORT 2 — SEARCH QUERY BUILDER (CONTRACT API)
 // --------------------------------------------------
 
 export function buildCohezivSearchQuery(userMessage = "", history = []) {
