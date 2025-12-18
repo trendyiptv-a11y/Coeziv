@@ -1,588 +1,607 @@
 <!DOCTYPE html>
 <html lang="ro">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Asistent Coeziv 3.14</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Asistent Coeziv 3.14</title>
 
-    <style>
-        :root{
-            --bg:#0b0f17;
-            --panel:#0f1624;
-            --panel2:#101a2b;
-            --text:#e9edf6;
-            --muted:#a9b4c7;
-            --accent:#f2b94b;
-            --accent2:#c98000;
-            --border:rgba(255,255,255,0.10);
-            --danger:#ff6b6b;
-            --ok:#46d19e;
-        }
+  <style>
+    :root{
+      --bg:#0b0f17;
+      --panel:#0f1624;
+      --panel2:#101a2b;
+      --text:#e9edf6;
+      --muted:#a9b4c7;
+      --accent:#f2b94b;
+      --accent2:#c98000;
+      --border:rgba(255,255,255,0.10);
+      --danger:#ff6b6b;
+      --ok:#46d19e;
+    }
 
-        *{box-sizing:border-box;}
-        body{
-            margin:0;
-            font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
-            background: radial-gradient(1200px 700px at 20% 0%, #13203a 0%, var(--bg) 55%, #070b12 100%);
-            color:var(--text);
-        }
+    *{box-sizing:border-box;}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      background: radial-gradient(1200px 700px at 20% 0%, #13203a 0%, var(--bg) 55%, #070b12 100%);
+      color:var(--text);
+    }
 
-        .wrap{
-            max-width: 980px;
-            margin: 0 auto;
-            padding: 18px 14px 36px;
-        }
+    .wrap{
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 18px 14px 36px;
+    }
 
-        header{
-            display:flex;
-            align-items:center;
-            justify-content:space-between;
-            gap:12px;
-            padding: 16px 14px;
-            background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
-            border:1px solid var(--border);
-            border-radius: 16px;
-            box-shadow: 0 18px 45px rgba(15, 25, 45, 0.35);
-            backdrop-filter: blur(8px);
-        }
+    header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding: 16px 14px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+      border:1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: 0 18px 45px rgba(15, 25, 45, 0.35);
+      backdrop-filter: blur(8px);
+    }
 
-        .brand{
-            display:flex;
-            flex-direction:column;
-            gap:2px;
-        }
+    .brand{ display:flex; flex-direction:column; gap:2px; }
+    .brand h1{
+      margin:0;
+      font-size: 18px;
+      letter-spacing:0.2px;
+      font-weight: 650;
+    }
+    .brand .sub{
+      margin:0;
+      font-size: 12px;
+      color:var(--muted);
+    }
 
-        .brand h1{
-            margin:0;
-            font-size: 18px;
-            letter-spacing:0.2px;
-            font-weight: 650;
-        }
+    .statusbar{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
 
-        .brand .sub{
-            margin:0;
-            font-size: 12px;
-            color:var(--muted);
-        }
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 7px 10px;
+      border:1px solid var(--border);
+      border-radius: 999px;
+      background: rgba(255,255,255,0.04);
+      font-size: 12px;
+      color: var(--muted);
+    }
 
-        .statusbar{
-            display:flex;
-            align-items:center;
-            gap:10px;
-            flex-wrap:wrap;
-            justify-content:flex-end;
-        }
+    .dot{
+      width:8px;height:8px;border-radius:999px;
+      background: var(--ok);
+      box-shadow: 0 0 14px rgba(70,209,158,0.6);
+    }
+    .dot.off{
+      background: var(--danger);
+      box-shadow: 0 0 14px rgba(255,107,107,0.45);
+    }
 
-        .badge{
-            display:inline-flex;
-            align-items:center;
-            gap:8px;
-            padding: 7px 10px;
-            border:1px solid var(--border);
-            border-radius: 999px;
-            background: rgba(255,255,255,0.04);
-            font-size: 12px;
-            color: var(--muted);
-        }
+    .container{
+      margin-top: 14px;
+      display:grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 14px;
+    }
+    @media (max-width: 860px){
+      .container{grid-template-columns:1fr;}
+      .statusbar{justify-content:flex-start;}
+    }
 
-        .dot{
-            width:8px;height:8px;border-radius:999px;
-            background: var(--ok);
-            box-shadow: 0 0 14px rgba(70,209,158,0.6);
-        }
+    .card{
+      background: rgba(255,255,255,0.03);
+      border:1px solid var(--border);
+      border-radius: 16px;
+      overflow:hidden;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.25);
+    }
 
-        .dot.off{
-            background: var(--danger);
-            box-shadow: 0 0 14px rgba(255,107,107,0.45);
-        }
+    .card .head{
+      padding: 12px 14px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.01));
+      border-bottom: 1px solid var(--border);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+    }
 
-        .container{
-            margin-top: 14px;
-            display:grid;
-            grid-template-columns: 1.1fr 0.9fr;
-            gap: 14px;
-        }
+    .card .head h2{
+      margin:0;
+      font-size: 13px;
+      letter-spacing:0.3px;
+      text-transform:uppercase;
+      color: var(--muted);
+      font-weight: 700;
+    }
 
-        @media (max-width: 860px){
-            .container{grid-template-columns:1fr;}
-            .statusbar{justify-content:flex-start;}
-        }
+    .card .body{ padding: 12px 14px; }
 
-        .card{
-            background: rgba(255,255,255,0.03);
-            border:1px solid var(--border);
-            border-radius: 16px;
-            overflow:hidden;
-            box-shadow: 0 16px 40px rgba(0,0,0,0.25);
-        }
+    /* Chat */
+    #chat{
+      height: 540px;
+      overflow:auto;
+      padding: 14px;
+      display:flex;
+      flex-direction:column;
+      gap: 12px;
+      background: radial-gradient(1200px 700px at 10% 0%, rgba(242,185,75,0.06) 0%, rgba(255,255,255,0.02) 55%, rgba(0,0,0,0) 100%);
+    }
 
-        .card .head{
-            padding: 12px 14px;
-            background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.01));
-            border-bottom: 1px solid var(--border);
-            display:flex;
-            align-items:center;
-            justify-content:space-between;
-            gap: 10px;
-        }
+    .bubble{
+      max-width: 92%;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,0.05);
+      white-space:pre-wrap;
+      line-height: 1.45;
+    }
 
-        .card .head h2{
-            margin:0;
-            font-size: 13px;
-            letter-spacing:0.3px;
-            text-transform:uppercase;
-            color: var(--muted);
-            font-weight: 700;
-        }
+    .bubble.user{
+      align-self:flex-end;
+      background: rgba(242,185,75,0.10);
+      border-color: rgba(242,185,75,0.25);
+    }
 
-        .card .body{
-            padding: 12px 14px;
-        }
+    .bubble.assistant{
+      align-self:flex-start;
+      background: rgba(255,255,255,0.05);
+    }
 
-        /* Chat */
-        #chat{
-            height: 540px;
-            overflow:auto;
-            padding: 14px;
-            display:flex;
-            flex-direction:column;
-            gap: 12px;
-            background: radial-gradient(1200px 700px at 10% 0%, rgba(242,185,75,0.06) 0%, rgba(255,255,255,0.02) 55%, rgba(0,0,0,0) 100%);
-        }
+    /* --- Thinking animation (discret) --- */
+    .bubble.thinking{
+      opacity: 0.92;
+    }
+    .thinking-row{
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+    .thinking-label{
+      font-size: 13px;
+      color: var(--muted);
+      letter-spacing: 0.2px;
+    }
+    .dots{
+      display:inline-flex;
+      gap:6px;
+      align-items:center;
+      transform: translateY(1px);
+    }
+    .dots span{
+      width:6px; height:6px;
+      border-radius:999px;
+      background: rgba(233,237,246,0.55);
+      animation: dotPulse 1.2s infinite ease-in-out;
+    }
+    .dots span:nth-child(2){ animation-delay: 0.15s; }
+    .dots span:nth-child(3){ animation-delay: 0.30s; }
 
-        .bubble{
-            max-width: 92%;
-            padding: 10px 12px;
-            border-radius: 14px;
-            border:1px solid var(--border);
-            background: rgba(255,255,255,0.05);
-            white-space:pre-wrap;
-            line-height: 1.45;
-        }
+    @keyframes dotPulse{
+      0%, 80%, 100% { transform: translateY(0); opacity: 0.35; }
+      40% { transform: translateY(-3px); opacity: 0.95; }
+    }
 
-        .bubble.user{
-            align-self:flex-end;
-            background: rgba(242,185,75,0.10);
-            border-color: rgba(242,185,75,0.25);
-        }
+    .meta{
+      display:flex;
+      gap: 8px;
+      flex-wrap:wrap;
+      margin-top: 8px;
+    }
+    .meta-chip{
+      display:inline-flex;
+      align-items:center;
+      gap: 6px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.04);
+      font-size: 11px;
+      color: var(--muted);
+    }
 
-        .bubble.assistant{
-            align-self:flex-start;
-            background: rgba(255,255,255,0.05);
-        }
+    /* Input */
+    .composer{
+      display:flex;
+      gap:10px;
+      padding: 12px 14px;
+      border-top:1px solid var(--border);
+      background: rgba(0,0,0,0.18);
+    }
+    textarea{
+      flex:1;
+      resize:none;
+      min-height: 42px;
+      max-height: 120px;
+      padding: 10px 10px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: rgba(0,0,0,0.25);
+      color: var(--text);
+      outline:none;
+    }
+    textarea:focus{
+      border-color: rgba(242,185,75,0.35);
+      box-shadow: 0 0 0 4px rgba(242,185,75,0.10);
+    }
+    button{
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(242,185,75,0.35);
+      background: rgba(242,185,75,0.18);
+      color: var(--text);
+      cursor:pointer;
+      font-weight: 650;
+    }
+    button:hover{background: rgba(242,185,75,0.22);}
+    button:disabled{
+      opacity:0.6;
+      cursor:not-allowed;
+    }
 
-        .meta{
-            display:flex;
-            gap: 8px;
-            flex-wrap:wrap;
-            margin-top: 8px;
-        }
-        .meta-chip{
-            display:inline-flex;
-            align-items:center;
-            gap: 6px;
-            padding: 4px 8px;
-            border-radius: 999px;
-            border: 1px solid var(--border);
-            background: rgba(255,255,255,0.04);
-            font-size: 11px;
-            color: var(--muted);
-        }
+    /* Side panel */
+    .kv{
+      display:grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      align-items:center;
+      padding: 8px 0;
+      border-bottom: 1px dashed rgba(255,255,255,0.10);
+    }
+    .kv:last-child{border-bottom:none;}
+    .k{color:var(--muted); font-size: 12px;}
+    .v{font-size: 12px; font-weight: 650;}
+    .small{
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.45;
+      margin-top: 8px;
+    }
 
-        /* Input */
-        .composer{
-            display:flex;
-            gap:10px;
-            padding: 12px 14px;
-            border-top:1px solid var(--border);
-            background: rgba(0,0,0,0.18);
-        }
-        textarea{
-            flex:1;
-            resize:none;
-            min-height: 42px;
-            max-height: 120px;
-            padding: 10px 10px;
-            border-radius: 12px;
-            border: 1px solid var(--border);
-            background: rgba(0,0,0,0.25);
-            color: var(--text);
-            outline:none;
-        }
-        textarea:focus{
-            border-color: rgba(242,185,75,0.35);
-            box-shadow: 0 0 0 4px rgba(242,185,75,0.10);
-        }
-        button{
-            padding: 10px 12px;
-            border-radius: 12px;
-            border: 1px solid rgba(242,185,75,0.35);
-            background: rgba(242,185,75,0.18);
-            color: var(--text);
-            cursor:pointer;
-            font-weight: 650;
-        }
-        button:hover{background: rgba(242,185,75,0.22);}
-        button:disabled{
-            opacity:0.6;
-            cursor:not-allowed;
-        }
+    .toggleRow{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: rgba(255,255,255,0.03);
+      margin-top: 10px;
+    }
+    .toggleRow label{
+      display:flex;
+      gap: 10px;
+      align-items:center;
+      cursor:pointer;
+      color: var(--muted);
+      font-size: 12px;
+      user-select:none;
+    }
+    input[type="checkbox"]{
+      width: 18px; height: 18px;
+      accent-color: var(--accent);
+    }
 
-        /* Side panel */
-        .kv{
-            display:grid;
-            grid-template-columns: 1fr auto;
-            gap: 8px;
-            align-items:center;
-            padding: 8px 0;
-            border-bottom: 1px dashed rgba(255,255,255,0.10);
-        }
-        .kv:last-child{border-bottom:none;}
-        .k{color:var(--muted); font-size: 12px;}
-        .v{font-size: 12px; font-weight: 650;}
-        .small{
-            font-size: 12px;
-            color: var(--muted);
-            line-height: 1.45;
-            margin-top: 8px;
-        }
-
-        .toggleRow{
-            display:flex;
-            align-items:center;
-            justify-content:space-between;
-            gap:10px;
-            padding: 10px 12px;
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            background: rgba(255,255,255,0.03);
-            margin-top: 10px;
-        }
-        .toggleRow label{
-            display:flex;
-            gap: 10px;
-            align-items:center;
-            cursor:pointer;
-            color: var(--muted);
-            font-size: 12px;
-            user-select:none;
-        }
-        input[type="checkbox"]{
-            width: 18px; height: 18px;
-            accent-color: var(--accent);
-        }
-
-        .pill{
-            display:inline-flex;
-            align-items:center;
-            padding: 4px 8px;
-            border-radius: 999px;
-            font-size: 11px;
-            border:1px solid var(--border);
-            background: rgba(255,255,255,0.03);
-            color: var(--muted);
-        }
-    </style>
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,0.03);
+      color: var(--muted);
+    }
+  </style>
 </head>
 
 <body>
 <div class="wrap">
-    <header>
-        <div class="brand">
-            <h1>Asistent Coeziv 3.14</h1>
-            <p class="sub">UI simplu + telemetrie coezivă (J, regim, policy, web, risk)</p>
-        </div>
-        <div class="statusbar">
-            <span class="badge"><span class="dot" id="netDot"></span><span id="netTxt">Online</span></span>
-            <span class="badge"><span class="pill" id="webBadge">Web: NU</span></span>
-        </div>
-    </header>
-
-    <div class="container">
-        <!-- CHAT -->
-        <div class="card">
-            <div class="head">
-                <h2>Chat</h2>
-                <div class="pill" id="modePill">mode: coeziv</div>
-            </div>
-            <div id="chat"></div>
-
-            <div class="composer">
-                <textarea id="msg" placeholder="Scrie aici... (Enter = trimite, Shift+Enter = linie nouă)"></textarea>
-                <button id="sendBtn">Trimite</button>
-            </div>
-        </div>
-
-        <!-- TELEMETRIE -->
-        <div class="card">
-            <div class="head">
-                <h2>Telemetrie</h2>
-                <div class="pill" id="srvPill">/api/ask</div>
-            </div>
-            <div class="body">
-                <div class="kv">
-                    <div class="k">J (tensiune)</div>
-                    <div class="v" id="J">—</div>
-                </div>
-                <div class="kv">
-                    <div class="k">Regim</div>
-                    <div class="v" id="regime">—</div>
-                </div>
-                <div class="kv">
-                    <div class="k">Acțiune</div>
-                    <div class="v" id="action">—</div>
-                </div>
-                <div class="kv">
-                    <div class="k">Web (nevoie)</div>
-                    <div class="v" id="webNeed">—</div>
-                </div>
-                <div class="kv">
-                    <div class="k">Web (folosit)</div>
-                    <div class="v" id="webUsed">—</div>
-                </div>
-                <div class="kv">
-                    <div class="k">Risk</div>
-                    <div class="v" id="risk">—</div>
-                </div>
-                <div class="kv">
-                    <div class="k">Domenii</div>
-                    <div class="v" id="domains">—</div>
-                </div>
-
-                <div class="toggleRow">
-                    <label>
-                        <input type="checkbox" id="forceWeb" />
-                        Forțează Web (ignoră engine)
-                    </label>
-                    <span class="pill" id="forceWebPill">OFF</span>
-                </div>
-
-                <p class="small">
-                    <b>Notă:</b> „Web (nevoie)” este un semnal din engine că ar ajuta date externe (știri, prețuri, roluri actuale etc.).<br/>
-                    „Web (folosit)” indică dacă serverul chiar a făcut browsing.
-                </p>
-            </div>
-        </div>
+  <header>
+    <div class="brand">
+      <h1>Asistent Coeziv 3.14</h1>
+      <p class="sub">UI simplu + telemetrie coezivă (J, regim, policy, web, risk)</p>
     </div>
+    <div class="statusbar">
+      <span class="badge"><span class="dot" id="netDot"></span><span id="netTxt">Online</span></span>
+      <span class="badge"><span class="pill" id="webBadge">Web: NU</span></span>
+    </div>
+  </header>
+
+  <div class="container">
+    <!-- CHAT -->
+    <div class="card">
+      <div class="head">
+        <h2>Chat</h2>
+        <div class="pill" id="modePill">mode: coeziv</div>
+      </div>
+      <div id="chat"></div>
+
+      <div class="composer">
+        <textarea id="msg" placeholder="Scrie aici... (Enter = trimite, Shift+Enter = linie nouă)"></textarea>
+        <button id="sendBtn">Trimite</button>
+      </div>
+    </div>
+
+    <!-- TELEMETRIE -->
+    <div class="card">
+      <div class="head">
+        <h2>Telemetrie</h2>
+        <div class="pill" id="srvPill">/api/ask</div>
+      </div>
+      <div class="body">
+        <div class="kv"><div class="k">J (tensiune)</div><div class="v" id="J">—</div></div>
+        <div class="kv"><div class="k">Regim</div><div class="v" id="regime">—</div></div>
+        <div class="kv"><div class="k">Acțiune</div><div class="v" id="action">—</div></div>
+        <div class="kv"><div class="k">Web (nevoie)</div><div class="v" id="webNeed">—</div></div>
+        <div class="kv"><div class="k">Web (folosit)</div><div class="v" id="webUsed">—</div></div>
+        <div class="kv"><div class="k">Risk</div><div class="v" id="risk">—</div></div>
+        <div class="kv"><div class="k">Domenii</div><div class="v" id="domains">—</div></div>
+
+        <div class="toggleRow">
+          <label>
+            <input type="checkbox" id="forceWeb" />
+            Forțează Web (ignoră engine)
+          </label>
+          <span class="pill" id="forceWebPill">OFF</span>
+        </div>
+
+        <p class="small">
+          <b>Notă:</b> „Web (nevoie)” este un semnal din engine că ar ajuta date externe (știri, prețuri, roluri actuale etc.).<br/>
+          „Web (folosit)” indică dacă serverul chiar a făcut browsing.
+        </p>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
-    const chatEl = document.getElementById("chat");
-    const msgEl = document.getElementById("msg");
-    const sendBtn = document.getElementById("sendBtn");
+  const chatEl = document.getElementById("chat");
+  const msgEl = document.getElementById("msg");
+  const sendBtn = document.getElementById("sendBtn");
 
-    const netDot = document.getElementById("netDot");
-    const netTxt = document.getElementById("netTxt");
-    const webBadge = document.getElementById("webBadge");
+  const netDot = document.getElementById("netDot");
+  const netTxt = document.getElementById("netTxt");
+  const webBadge = document.getElementById("webBadge");
 
-    const JEl = document.getElementById("J");
-    const regimeEl = document.getElementById("regime");
-    const actionEl = document.getElementById("action");
-    const webNeedEl = document.getElementById("webNeed");
-    const webUsedEl = document.getElementById("webUsed");
-    const riskEl = document.getElementById("risk");
-    const domainsEl = document.getElementById("domains");
+  const JEl = document.getElementById("J");
+  const regimeEl = document.getElementById("regime");
+  const actionEl = document.getElementById("action");
+  const webNeedEl = document.getElementById("webNeed");
+  const webUsedEl = document.getElementById("webUsed");
+  const riskEl = document.getElementById("risk");
+  const domainsEl = document.getElementById("domains");
 
-    const forceWebEl = document.getElementById("forceWeb");
-    const forceWebPill = document.getElementById("forceWebPill");
+  const forceWebEl = document.getElementById("forceWeb");
+  const forceWebPill = document.getElementById("forceWebPill");
 
-    const history = [];
+  const history = [];
 
-    function setOnlineStatus(isOnline){
-        if(isOnline){
-            netDot.classList.remove("off");
-            netTxt.textContent = "Online";
-        }else{
-            netDot.classList.add("off");
-            netTxt.textContent = "Offline";
-        }
+  function setOnlineStatus(isOnline){
+    if(isOnline){
+      netDot.classList.remove("off");
+      netTxt.textContent = "Online";
+    }else{
+      netDot.classList.add("off");
+      netTxt.textContent = "Offline";
     }
-    window.addEventListener("online", ()=>setOnlineStatus(true));
-    window.addEventListener("offline", ()=>setOnlineStatus(false));
-    setOnlineStatus(navigator.onLine);
+  }
+  window.addEventListener("online", ()=>setOnlineStatus(true));
+  window.addEventListener("offline", ()=>setOnlineStatus(false));
+  setOnlineStatus(navigator.onLine);
 
-    forceWebEl.addEventListener("change", ()=>{
-        forceWebPill.textContent = forceWebEl.checked ? "ON" : "OFF";
-        forceWebPill.style.borderColor = forceWebEl.checked ? "rgba(242,185,75,0.45)" : "var(--border)";
+  forceWebEl.addEventListener("change", ()=>{
+    forceWebPill.textContent = forceWebEl.checked ? "ON" : "OFF";
+    forceWebPill.style.borderColor = forceWebEl.checked ? "rgba(242,185,75,0.45)" : "var(--border)";
+  });
+
+  // returnează wrapper-ul (ca să putem șterge bubble-ul de "thinking")
+  function appendBubble(role, text, meta){
+    const wrap = document.createElement("div");
+    const bub = document.createElement("div");
+    bub.className = "bubble " + role;
+
+    // thinking bubble: HTML discret cu 3 puncte animate
+    if (meta && meta.thinking) {
+      bub.classList.add("thinking");
+      bub.innerHTML = `
+        <div class="thinking-row">
+          <span class="thinking-label">${text || "Procesez"}</span>
+          <span class="dots" aria-label="Se gândește">
+            <span></span><span></span><span></span>
+          </span>
+        </div>
+      `;
+    } else {
+      bub.textContent = text;
+    }
+
+    wrap.appendChild(bub);
+
+    if(meta && role === "assistant" && !meta.thinking){
+      const metaDiv = document.createElement("div");
+      metaDiv.className = "meta";
+
+      if (!Number.isNaN(meta.J)) {
+        const jChip = document.createElement("span");
+        jChip.className = "meta-chip";
+        jChip.textContent = `J=${meta.J.toFixed(2)}`;
+        metaDiv.appendChild(jChip);
+      }
+      if (meta.regime) {
+        const rChip = document.createElement("span");
+        rChip.className = "meta-chip";
+        rChip.textContent = `Regim: ${meta.regime}`;
+        metaDiv.appendChild(rChip);
+      }
+      if (meta.action) {
+        const aChip = document.createElement("span");
+        aChip.className = "meta-chip";
+        aChip.textContent = `Acțiune: ${meta.action}`;
+        metaDiv.appendChild(aChip);
+      }
+
+      if (meta.webNeed != null) {
+        const wnChip = document.createElement("span");
+        wnChip.className = "meta-chip";
+        wnChip.textContent = `Web: ${meta.webNeed ? "DA" : "NU"}`;
+        metaDiv.appendChild(wnChip);
+      }
+      if (meta.webUsed != null) {
+        const wuChip = document.createElement("span");
+        wuChip.className = "meta-chip";
+        wuChip.textContent = `Web folosit: ${meta.webUsed ? "DA" : "NU"}`;
+        metaDiv.appendChild(wuChip);
+      }
+      if (meta.risk) {
+        const riskChip = document.createElement("span");
+        riskChip.className = "meta-chip";
+        riskChip.textContent = `Risk: ${meta.risk}`;
+        metaDiv.appendChild(riskChip);
+      }
+      if (meta.domains && Array.isArray(meta.domains) && meta.domains.length) {
+        const dChip = document.createElement("span");
+        dChip.className = "meta-chip";
+        dChip.textContent = `Domenii: ${meta.domains.slice(0,3).join(", ")}`;
+        metaDiv.appendChild(dChip);
+      }
+
+      wrap.appendChild(metaDiv);
+    }
+
+    chatEl.appendChild(wrap);
+    chatEl.scrollTop = chatEl.scrollHeight;
+    return wrap;
+  }
+
+  function setTelemetry(meta){
+    if(!meta) return;
+
+    const J = meta.J;
+    const regime = meta.regime || "—";
+    const action = meta.action || "—";
+
+    JEl.textContent = (!Number.isNaN(J)) ? J.toFixed(2) : "—";
+    regimeEl.textContent = regime;
+    actionEl.textContent = action;
+
+    webNeedEl.textContent = (meta.webNeed == null) ? "—" : (meta.webNeed ? "DA" : "NU");
+    webUsedEl.textContent = (meta.webUsed == null) ? "—" : (meta.webUsed ? "DA" : "NU");
+
+    riskEl.textContent = meta.risk || "—";
+    domainsEl.textContent = (meta.domains && meta.domains.length) ? meta.domains.join(", ") : "—";
+
+    // top badge uses webNeed
+    webBadge.textContent = `Web: ${(meta.webNeed ? "DA" : "NU")}`;
+  }
+
+  async function askAssistant(message){
+    const payload = { message, history };
+    if (forceWebEl.checked) payload.force_web = true;
+
+    const res = await fetch("/api/ask", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
     });
 
-    function appendBubble(role, text, meta){
-        const wrap = document.createElement("div");
-        const bub = document.createElement("div");
-        bub.className = "bubble " + role;
-        bub.textContent = text;
-
-        wrap.appendChild(bub);
-
-        if(meta && role === "assistant"){
-            const metaDiv = document.createElement("div");
-            metaDiv.className = "meta";
-
-            if (!Number.isNaN(meta.J)) {
-                const jChip = document.createElement("span");
-                jChip.className = "meta-chip";
-                jChip.textContent = `J=${meta.J.toFixed(2)}`;
-                metaDiv.appendChild(jChip);
-            }
-            if (meta.regime) {
-                const rChip = document.createElement("span");
-                rChip.className = "meta-chip";
-                rChip.textContent = `Regim: ${meta.regime}`;
-                metaDiv.appendChild(rChip);
-            }
-            if (meta.action) {
-                const aChip = document.createElement("span");
-                aChip.className = "meta-chip";
-                aChip.textContent = `Acțiune: ${meta.action}`;
-                metaDiv.appendChild(aChip);
-            }
-            if (meta.webNeed != null) {
-                    const wnChip = document.createElement("span");
-                    wnChip.className = "meta-chip";
-                    wnChip.textContent = `Web: ${meta.webNeed ? "DA" : "NU"}`;
-                    metaDiv.appendChild(wnChip);
-                }
-                if (meta.webUsed != null) {
-                    const wuChip = document.createElement("span");
-                    wuChip.className = "meta-chip";
-                    wuChip.textContent = `Web folosit: ${meta.webUsed ? "DA" : "NU"}`;
-                    metaDiv.appendChild(wuChip);
-                }
-                if (meta.risk) {
-                    const riskChip = document.createElement("span");
-                    riskChip.className = "meta-chip";
-                    riskChip.textContent = `Risk: ${meta.risk}`;
-                    metaDiv.appendChild(riskChip);
-                }
-                if (meta.domains && Array.isArray(meta.domains) && meta.domains.length) {
-                    const dChip = document.createElement("span");
-                    dChip.className = "meta-chip";
-                    dChip.textContent = `Domenii: ${meta.domains.slice(0,3).join(", ")}`;
-                    metaDiv.appendChild(dChip);
-                }
-
-            wrap.appendChild(metaDiv);
-        }
-
-        chatEl.appendChild(wrap);
-        chatEl.scrollTop = chatEl.scrollHeight;
+    // Robust parse: avoid "body stream already read"
+    const resClone = res.clone();
+    let data;
+    try {
+      data = await res.json();
+    } catch {
+      const txt = await resClone.text();
+      data = { assistant_reply: `Eroare: răspuns non-JSON: ${txt.slice(0, 200)}…` };
     }
 
-    function setTelemetry(meta){
-        if(!meta) return;
-
-        const J = meta.J;
-        const regime = meta.regime || "—";
-        const action = meta.action || "—";
-
-        JEl.textContent = (!Number.isNaN(J)) ? J.toFixed(2) : "—";
-        regimeEl.textContent = regime;
-        actionEl.textContent = action;
-
-        webNeedEl.textContent = (meta.webNeed == null) ? "—" : (meta.webNeed ? "DA" : "NU");
-        webUsedEl.textContent = (meta.webUsed == null) ? "—" : (meta.webUsed ? "DA" : "NU");
-
-        riskEl.textContent = meta.risk || "—";
-        domainsEl.textContent = (meta.domains && meta.domains.length) ? meta.domains.join(", ") : "—";
-
-        // top badge uses webNeed
-        webBadge.textContent = `Web: ${(meta.webNeed ? "DA" : "NU")}`;
+    if (!res.ok) {
+      const err = data?.error || data?.assistant_reply || "Eroare la server.";
+      throw new Error(err);
     }
 
-    async function askAssistant(message){
-        const payload = {
-            message,
-            history
-        };
+    return data;
+  }
 
-        // optional: force web at UI level (server should honor this if implemented)
-        if (forceWebEl.checked) payload.force_web = true;
+  async function handleSend(){
+    const text = msgEl.value.trim();
+    if(!text) return;
 
-        const res = await fetch("/api/ask", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload)
-        });
+    sendBtn.disabled = true;
+    appendBubble("user", text);
 
-        // Parse robust: Response body can be read only once.
-        // If JSON parsing fails, read text from a clone.
-        const resClone = res.clone();
-        let data;
-        try {
-            data = await res.json();
-        } catch {
-            const txt = await resClone.text();
-            data = { assistant_reply: `Eroare: răspuns non-JSON: ${txt.slice(0, 200)}…` };
-        }
+    history.push({ role:"user", content: text });
 
-        if (!res.ok) {
-            const err = data?.error || data?.assistant_reply || "Eroare la server.";
-            throw new Error(err);
-        }
+    // bubble discret "se gândește" (va fi înlocuit)
+    const thinkingWrap = appendBubble("assistant", "Procesez", { thinking: true });
 
-        return data;
+    try{
+      const data = await askAssistant(text);
+
+      const reply = data?.assistant_reply || data?.reply || "—";
+      history.push({ role:"assistant", content: reply });
+
+      // Meta extraction (compatibil vechi + nou)
+      const analysis = data?.analysis || data?.engine || data?.result || {};
+      const jState = analysis?.j_state || analysis?.jState || {};
+      const policy = data?.policy_output || analysis?.policy || {};
+      const trace = analysis?.identity_trace || {};
+
+      const meta = {
+        J: Number(jState?.J ?? trace?.j_value),
+        regime: (jState?.regime ?? trace?.regime ?? ""),
+        action: (policy?.action ?? trace?.policy_action ?? ""),
+        webNeed: !!(analysis?.needs_external_data ?? analysis?.needsExternalData ?? trace?.web),
+        webUsed: (data?.used_web_search != null) ? !!data.used_web_search : null,
+        risk: (analysis?.risk_level ?? trace?.risk ?? ""),
+        domains: (policy?.dominant ?? trace?.dominant_domains ?? [])
+      };
+
+      // înlocuiește bubble-ul "thinking"
+      if (thinkingWrap && thinkingWrap.parentNode) thinkingWrap.parentNode.removeChild(thinkingWrap);
+
+      appendBubble("assistant", reply, meta);
+      setTelemetry(meta);
+
+    }catch(e){
+      if (thinkingWrap && thinkingWrap.parentNode) thinkingWrap.parentNode.removeChild(thinkingWrap);
+
+      appendBubble("assistant", "A apărut o eroare de rețea sau server.\n\n" + (e?.message || ""), {
+        J: NaN, regime:"", action:"", webNeed:null, webUsed:null, risk:"", domains:[]
+      });
+    }finally{
+      sendBtn.disabled = false;
+      msgEl.value = "";
+      msgEl.focus();
     }
+  }
 
-    async function handleSend(){
-        const text = msgEl.value.trim();
-        if(!text) return;
-
-        sendBtn.disabled = true;
-        appendBubble("user", text);
-
-        history.push({ role:"user", content: text });
-
-        try{
-            const data = await askAssistant(text);
-
-            const reply = data?.assistant_reply || data?.reply || "—";
-            history.push({ role:"assistant", content: reply });
-
-            // Meta extraction: suportă structuri vechi + noi
-            const analysis = data?.analysis || data?.engine || data?.result || {};
-            const jState = analysis?.j_state || analysis?.jState || {};
-            const policy = data?.policy_output || analysis?.policy || {};
-            const trace = analysis?.identity_trace || {};
-
-            const meta = {
-                J: Number(jState?.J ?? trace?.j_value),
-                regime: (jState?.regime ?? trace?.regime ?? ""),
-                action: (policy?.action ?? trace?.policy_action ?? ""),
-                // Web: DA/NU = dacă engine zice că ar fi nevoie de date externe
-                webNeed: !!(analysis?.needs_external_data ?? analysis?.needsExternalData ?? trace?.web),
-                // Web folosit: DA/NU = dacă serverul chiar a făcut browsing
-                webUsed: (data?.used_web_search != null) ? !!data.used_web_search : null,
-                // Risk: normal/high (dacă există)
-                risk: (analysis?.risk_level ?? trace?.risk ?? ""),
-                domains: (policy?.dominant ?? trace?.dominant_domains ?? [])
-            };
-
-            appendBubble("assistant", reply, meta);
-            setTelemetry(meta);
-
-        }catch(e){
-            appendBubble("assistant", "A apărut o eroare de rețea sau server.\n\n" + (e?.message || ""), {
-                J: NaN, regime:"", action:"", webNeed:null, webUsed:null, risk:"", domains:[]
-            });
-        }finally{
-            sendBtn.disabled = false;
-            msgEl.value = "";
-            msgEl.focus();
-        }
+  sendBtn.addEventListener("click", handleSend);
+  msgEl.addEventListener("keydown", (e)=>{
+    if(e.key === "Enter" && !e.shiftKey){
+      e.preventDefault();
+      handleSend();
     }
+  });
 
-    sendBtn.addEventListener("click", handleSend);
-    msgEl.addEventListener("keydown", (e)=>{
-        if(e.key === "Enter" && !e.shiftKey){
-            e.preventDefault();
-            handleSend();
-        }
-    });
-
-    // initial greet
-    appendBubble("assistant", "Salut! Sunt Asistentul Coeziv. Spune-mi cu ce te pot ajuta 🙂", {
-        J: 0, regime:"ordered", action:"normal_answer", webNeed:false, webUsed:null, risk:"normal", domains:[]
-    });
+  // initial greet
+  appendBubble("assistant", "Salut! Sunt Asistentul Coeziv. Spune-mi cu ce te pot ajuta 🙂", {
+    J: 0, regime:"ordered", action:"normal_answer", webNeed:false, webUsed:null, risk:"normal", domains:[]
+  });
 </script>
 </body>
 </html>
