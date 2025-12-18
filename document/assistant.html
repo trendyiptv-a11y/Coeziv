@@ -89,6 +89,53 @@
       box-shadow: 0 0 14px rgba(255,107,107,0.45);
     }
 
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,0.03);
+      color: var(--muted);
+    }
+
+    /* Selector stil (discret) */
+    .selectWrap{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 6px 10px;
+      border:1px solid var(--border);
+      border-radius: 999px;
+      background: rgba(255,255,255,0.04);
+      color: var(--muted);
+      font-size: 12px;
+    }
+    select{
+      appearance:none;
+      -webkit-appearance:none;
+      -moz-appearance:none;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(0,0,0,0.22);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 6px 28px 6px 10px;
+      font-size: 12px;
+      outline:none;
+      cursor:pointer;
+    }
+    .selectWrap .chev{
+      margin-left:-22px;
+      pointer-events:none;
+      color: rgba(233,237,246,0.65);
+      font-size: 12px;
+    }
+    select:focus{
+      border-color: rgba(242,185,75,0.35);
+      box-shadow: 0 0 0 4px rgba(242,185,75,0.10);
+    }
+
     .container{
       margin-top: 14px;
       display:grid;
@@ -162,14 +209,8 @@
     }
 
     /* --- Thinking animation (discret) --- */
-    .bubble.thinking{
-      opacity: 0.92;
-    }
-    .thinking-row{
-      display:flex;
-      align-items:center;
-      gap:10px;
-    }
+    .bubble.thinking{ opacity: 0.92; }
+    .thinking-row{ display:flex; align-items:center; gap:10px; }
     .thinking-label{
       font-size: 13px;
       color: var(--muted);
@@ -189,7 +230,6 @@
     }
     .dots span:nth-child(2){ animation-delay: 0.15s; }
     .dots span:nth-child(3){ animation-delay: 0.30s; }
-
     @keyframes dotPulse{
       0%, 80%, 100% { transform: translateY(0); opacity: 0.35; }
       40% { transform: translateY(-3px); opacity: 0.95; }
@@ -247,10 +287,7 @@
       font-weight: 650;
     }
     button:hover{background: rgba(242,185,75,0.22);}
-    button:disabled{
-      opacity:0.6;
-      cursor:not-allowed;
-    }
+    button:disabled{ opacity:0.6; cursor:not-allowed; }
 
     /* Side panel */
     .kv{
@@ -296,16 +333,8 @@
       accent-color: var(--accent);
     }
 
-    .pill{
-      display:inline-flex;
-      align-items:center;
-      padding: 4px 8px;
-      border-radius: 999px;
-      font-size: 11px;
-      border:1px solid var(--border);
-      background: rgba(255,255,255,0.03);
-      color: var(--muted);
-    }
+    /* Ascundere telemetrie în stil Asistent */
+    .hidden{ display:none !important; }
   </style>
 </head>
 
@@ -316,7 +345,19 @@
       <h1>Asistent Coeziv 3.14</h1>
       <p class="sub">UI simplu + telemetrie coezivă (J, regim, policy, web, risk)</p>
     </div>
+
     <div class="statusbar">
+      <span class="selectWrap" title="Stil cognitiv UI">
+        Stil:
+        <select id="styleSelect">
+          <option value="operator">Operator</option>
+          <option value="explorator">Explorator</option>
+          <option value="academic">Academic</option>
+          <option value="asistent">Asistent</option>
+        </select>
+        <span class="chev">▾</span>
+      </span>
+
       <span class="badge"><span class="dot" id="netDot"></span><span id="netTxt">Online</span></span>
       <span class="badge"><span class="pill" id="webBadge">Web: NU</span></span>
     </div>
@@ -338,21 +379,21 @@
     </div>
 
     <!-- TELEMETRIE -->
-    <div class="card">
+    <div class="card" id="telemetryCard">
       <div class="head">
         <h2>Telemetrie</h2>
         <div class="pill" id="srvPill">/api/ask</div>
       </div>
       <div class="body">
-        <div class="kv"><div class="k">J (tensiune)</div><div class="v" id="J">—</div></div>
-        <div class="kv"><div class="k">Regim</div><div class="v" id="regime">—</div></div>
-        <div class="kv"><div class="k">Acțiune</div><div class="v" id="action">—</div></div>
-        <div class="kv"><div class="k">Web (nevoie)</div><div class="v" id="webNeed">—</div></div>
-        <div class="kv"><div class="k">Web (folosit)</div><div class="v" id="webUsed">—</div></div>
-        <div class="kv"><div class="k">Risk</div><div class="v" id="risk">—</div></div>
-        <div class="kv"><div class="k">Domenii</div><div class="v" id="domains">—</div></div>
+        <div class="kv" data-kv="J"><div class="k">J (tensiune)</div><div class="v" id="J">—</div></div>
+        <div class="kv" data-kv="regime"><div class="k">Regim</div><div class="v" id="regime">—</div></div>
+        <div class="kv" data-kv="action"><div class="k">Acțiune</div><div class="v" id="action">—</div></div>
+        <div class="kv" data-kv="webNeed"><div class="k">Web (nevoie)</div><div class="v" id="webNeed">—</div></div>
+        <div class="kv" data-kv="webUsed"><div class="k">Web (folosit)</div><div class="v" id="webUsed">—</div></div>
+        <div class="kv" data-kv="risk"><div class="k">Risk</div><div class="v" id="risk">—</div></div>
+        <div class="kv" data-kv="domains"><div class="k">Domenii</div><div class="v" id="domains">—</div></div>
 
-        <div class="toggleRow">
+        <div class="toggleRow" id="forceWebRow">
           <label>
             <input type="checkbox" id="forceWeb" />
             Forțează Web (ignoră engine)
@@ -360,7 +401,7 @@
           <span class="pill" id="forceWebPill">OFF</span>
         </div>
 
-        <p class="small">
+        <p class="small" id="telemetryNote">
           <b>Notă:</b> „Web (nevoie)” este un semnal din engine că ar ajuta date externe (știri, prețuri, roluri actuale etc.).<br/>
           „Web (folosit)” indică dacă serverul chiar a făcut browsing.
         </p>
@@ -388,8 +429,75 @@
 
   const forceWebEl = document.getElementById("forceWeb");
   const forceWebPill = document.getElementById("forceWebPill");
+  const forceWebRow = document.getElementById("forceWebRow");
+  const telemetryCard = document.getElementById("telemetryCard");
+
+  const styleSelect = document.getElementById("styleSelect");
 
   const history = [];
+
+  // -----------------------------
+  // Stiluri cognitive (UI)
+  // -----------------------------
+  const STYLE_CONFIG = {
+    operator: {
+      showTelemetry: true,
+      showForceWeb: true,
+      chips: ["J", "regime", "action", "webNeed", "webUsed", "risk", "domains"],
+      telemetry: ["J", "regime", "action", "webNeed", "webUsed", "risk", "domains"]
+    },
+    explorator: {
+      showTelemetry: true,
+      showForceWeb: false,
+      chips: ["regime", "webNeed"],
+      telemetry: ["regime", "webNeed"]
+    },
+    academic: {
+      showTelemetry: true,
+      showForceWeb: false,
+      chips: ["regime", "webNeed", "risk"],
+      telemetry: ["regime", "webNeed", "risk"]
+    },
+    asistent: {
+      showTelemetry: false,
+      showForceWeb: false,
+      chips: [],
+      telemetry: []
+    }
+  };
+
+  function getStyle() {
+    return localStorage.getItem("ui_style") || "operator";
+  }
+  function setStyle(style) {
+    localStorage.setItem("ui_style", style);
+  }
+
+  function applyStyleToTelemetry() {
+    const style = getStyle();
+    const cfg = STYLE_CONFIG[style] || STYLE_CONFIG.operator;
+
+    telemetryCard.classList.toggle("hidden", !cfg.showTelemetry);
+    forceWebRow.classList.toggle("hidden", !cfg.showForceWeb);
+
+    document.querySelectorAll("[data-kv]").forEach(row => {
+      const key = row.getAttribute("data-kv");
+      row.classList.toggle("hidden", !cfg.telemetry.includes(key));
+    });
+  }
+
+  function filterMetaForStyle(meta) {
+    const style = getStyle();
+    const cfg = STYLE_CONFIG[style] || STYLE_CONFIG.operator;
+
+    if (!meta) return null;
+
+    const out = {};
+    for (const k of cfg.chips) out[k] = meta[k];
+    // păstrăm thinking flag dacă există
+    if (meta.thinking) out.thinking = true;
+    return out;
+  }
 
   function setOnlineStatus(isOnline){
     if(isOnline){
@@ -403,6 +511,19 @@
   window.addEventListener("online", ()=>setOnlineStatus(true));
   window.addEventListener("offline", ()=>setOnlineStatus(false));
   setOnlineStatus(navigator.onLine);
+
+  // init style selector
+  (function initStyle(){
+    const s = getStyle();
+    styleSelect.value = s;
+    applyStyleToTelemetry();
+  })();
+
+  styleSelect.addEventListener("change", ()=>{
+    setStyle(styleSelect.value);
+    applyStyleToTelemetry();
+    // nu re-randăm istoricul (intenționat simplu). Se aplică la mesajele noi.
+  });
 
   forceWebEl.addEventListener("change", ()=>{
     forceWebPill.textContent = forceWebEl.checked ? "ON" : "OFF";
@@ -432,55 +553,60 @@
 
     wrap.appendChild(bub);
 
+    // meta chips pentru assistant (dar filtrate de stil)
     if(meta && role === "assistant" && !meta.thinking){
-      const metaDiv = document.createElement("div");
-      metaDiv.className = "meta";
+      const metaFiltered = filterMetaForStyle(meta);
+      const cfg = STYLE_CONFIG[getStyle()] || STYLE_CONFIG.operator;
 
-      if (!Number.isNaN(meta.J)) {
-        const jChip = document.createElement("span");
-        jChip.className = "meta-chip";
-        jChip.textContent = `J=${meta.J.toFixed(2)}`;
-        metaDiv.appendChild(jChip);
-      }
-      if (meta.regime) {
-        const rChip = document.createElement("span");
-        rChip.className = "meta-chip";
-        rChip.textContent = `Regim: ${meta.regime}`;
-        metaDiv.appendChild(rChip);
-      }
-      if (meta.action) {
-        const aChip = document.createElement("span");
-        aChip.className = "meta-chip";
-        aChip.textContent = `Acțiune: ${meta.action}`;
-        metaDiv.appendChild(aChip);
-      }
+      if (metaFiltered && cfg.chips.length > 0) {
+        const metaDiv = document.createElement("div");
+        metaDiv.className = "meta";
 
-      if (meta.webNeed != null) {
-        const wnChip = document.createElement("span");
-        wnChip.className = "meta-chip";
-        wnChip.textContent = `Web: ${meta.webNeed ? "DA" : "NU"}`;
-        metaDiv.appendChild(wnChip);
-      }
-      if (meta.webUsed != null) {
-        const wuChip = document.createElement("span");
-        wuChip.className = "meta-chip";
-        wuChip.textContent = `Web folosit: ${meta.webUsed ? "DA" : "NU"}`;
-        metaDiv.appendChild(wuChip);
-      }
-      if (meta.risk) {
-        const riskChip = document.createElement("span");
-        riskChip.className = "meta-chip";
-        riskChip.textContent = `Risk: ${meta.risk}`;
-        metaDiv.appendChild(riskChip);
-      }
-      if (meta.domains && Array.isArray(meta.domains) && meta.domains.length) {
-        const dChip = document.createElement("span");
-        dChip.className = "meta-chip";
-        dChip.textContent = `Domenii: ${meta.domains.slice(0,3).join(", ")}`;
-        metaDiv.appendChild(dChip);
-      }
+        if ("J" in metaFiltered && !Number.isNaN(metaFiltered.J)) {
+          const jChip = document.createElement("span");
+          jChip.className = "meta-chip";
+          jChip.textContent = `J=${metaFiltered.J.toFixed(2)}`;
+          metaDiv.appendChild(jChip);
+        }
+        if (metaFiltered.regime) {
+          const rChip = document.createElement("span");
+          rChip.className = "meta-chip";
+          rChip.textContent = `Regim: ${metaFiltered.regime}`;
+          metaDiv.appendChild(rChip);
+        }
+        if (metaFiltered.action) {
+          const aChip = document.createElement("span");
+          aChip.className = "meta-chip";
+          aChip.textContent = `Acțiune: ${metaFiltered.action}`;
+          metaDiv.appendChild(aChip);
+        }
+        if (metaFiltered.webNeed != null) {
+          const wnChip = document.createElement("span");
+          wnChip.className = "meta-chip";
+          wnChip.textContent = `Web: ${metaFiltered.webNeed ? "DA" : "NU"}`;
+          metaDiv.appendChild(wnChip);
+        }
+        if (metaFiltered.webUsed != null) {
+          const wuChip = document.createElement("span");
+          wuChip.className = "meta-chip";
+          wuChip.textContent = `Web folosit: ${metaFiltered.webUsed ? "DA" : "NU"}`;
+          metaDiv.appendChild(wuChip);
+        }
+        if (metaFiltered.risk) {
+          const riskChip = document.createElement("span");
+          riskChip.className = "meta-chip";
+          riskChip.textContent = `Risk: ${metaFiltered.risk}`;
+          metaDiv.appendChild(riskChip);
+        }
+        if (metaFiltered.domains && Array.isArray(metaFiltered.domains) && metaFiltered.domains.length) {
+          const dChip = document.createElement("span");
+          dChip.className = "meta-chip";
+          dChip.textContent = `Domenii: ${metaFiltered.domains.slice(0,3).join(", ")}`;
+          metaDiv.appendChild(dChip);
+        }
 
-      wrap.appendChild(metaDiv);
+        wrap.appendChild(metaDiv);
+      }
     }
 
     chatEl.appendChild(wrap);
@@ -489,29 +615,37 @@
   }
 
   function setTelemetry(meta){
+    const style = getStyle();
+    const cfg = STYLE_CONFIG[style] || STYLE_CONFIG.operator;
+
     if(!meta) return;
+
+    // badge sus: arată mereu webNeed (dar în stil asistent rămâne util)
+    webBadge.textContent = `Web: ${(meta.webNeed ? "DA" : "NU")}`;
+
+    if (!cfg.showTelemetry) return;
 
     const J = meta.J;
     const regime = meta.regime || "—";
     const action = meta.action || "—";
 
-    JEl.textContent = (!Number.isNaN(J)) ? J.toFixed(2) : "—";
-    regimeEl.textContent = regime;
-    actionEl.textContent = action;
+    // setăm doar câmpurile vizibile în stil (restul rămân)
+    if (cfg.telemetry.includes("J")) JEl.textContent = (!Number.isNaN(J)) ? J.toFixed(2) : "—";
+    if (cfg.telemetry.includes("regime")) regimeEl.textContent = regime;
+    if (cfg.telemetry.includes("action")) actionEl.textContent = action;
 
-    webNeedEl.textContent = (meta.webNeed == null) ? "—" : (meta.webNeed ? "DA" : "NU");
-    webUsedEl.textContent = (meta.webUsed == null) ? "—" : (meta.webUsed ? "DA" : "NU");
+    if (cfg.telemetry.includes("webNeed")) webNeedEl.textContent = (meta.webNeed == null) ? "—" : (meta.webNeed ? "DA" : "NU");
+    if (cfg.telemetry.includes("webUsed")) webUsedEl.textContent = (meta.webUsed == null) ? "—" : (meta.webUsed ? "DA" : "NU");
 
-    riskEl.textContent = meta.risk || "—";
-    domainsEl.textContent = (meta.domains && meta.domains.length) ? meta.domains.join(", ") : "—";
-
-    // top badge uses webNeed
-    webBadge.textContent = `Web: ${(meta.webNeed ? "DA" : "NU")}`;
+    if (cfg.telemetry.includes("risk")) riskEl.textContent = meta.risk || "—";
+    if (cfg.telemetry.includes("domains")) domainsEl.textContent = (meta.domains && meta.domains.length) ? meta.domains.join(", ") : "—";
   }
 
   async function askAssistant(message){
     const payload = { message, history };
-    if (forceWebEl.checked) payload.force_web = true;
+
+    // Forțează web doar în stiluri care expun controlul (operator)
+    if ((getStyle() === "operator") && forceWebEl.checked) payload.force_web = true;
 
     const res = await fetch("/api/ask", {
       method: "POST",
@@ -537,13 +671,30 @@
     return data;
   }
 
+  function extractMeta(data) {
+    // Meta extraction (compatibil vechi + nou)
+    const analysis = data?.analysis || data?.engine || data?.result || {};
+    const jState = analysis?.j_state || analysis?.jState || {};
+    const policy = data?.policy_output || analysis?.policy || {};
+    const trace = analysis?.identity_trace || {};
+
+    return {
+      J: Number(jState?.J ?? trace?.j_value),
+      regime: (jState?.regime ?? trace?.regime ?? ""),
+      action: (policy?.action ?? trace?.policy_action ?? ""),
+      webNeed: !!(analysis?.needs_external_data ?? analysis?.needsExternalData ?? trace?.web),
+      webUsed: (data?.used_web_search != null) ? !!data.used_web_search : null,
+      risk: (analysis?.risk_level ?? trace?.risk ?? ""),
+      domains: (policy?.dominant ?? trace?.dominant_domains ?? [])
+    };
+  }
+
   async function handleSend(){
     const text = msgEl.value.trim();
     if(!text) return;
 
     sendBtn.disabled = true;
     appendBubble("user", text);
-
     history.push({ role:"user", content: text });
 
     // bubble discret "se gândește" (va fi înlocuit)
@@ -555,21 +706,7 @@
       const reply = data?.assistant_reply || data?.reply || "—";
       history.push({ role:"assistant", content: reply });
 
-      // Meta extraction (compatibil vechi + nou)
-      const analysis = data?.analysis || data?.engine || data?.result || {};
-      const jState = analysis?.j_state || analysis?.jState || {};
-      const policy = data?.policy_output || analysis?.policy || {};
-      const trace = analysis?.identity_trace || {};
-
-      const meta = {
-        J: Number(jState?.J ?? trace?.j_value),
-        regime: (jState?.regime ?? trace?.regime ?? ""),
-        action: (policy?.action ?? trace?.policy_action ?? ""),
-        webNeed: !!(analysis?.needs_external_data ?? analysis?.needsExternalData ?? trace?.web),
-        webUsed: (data?.used_web_search != null) ? !!data.used_web_search : null,
-        risk: (analysis?.risk_level ?? trace?.risk ?? ""),
-        domains: (policy?.dominant ?? trace?.dominant_domains ?? [])
-      };
+      const meta = extractMeta(data);
 
       // înlocuiește bubble-ul "thinking"
       if (thinkingWrap && thinkingWrap.parentNode) thinkingWrap.parentNode.removeChild(thinkingWrap);
@@ -598,10 +735,10 @@
     }
   });
 
-  // initial greet
-  appendBubble("assistant", "Salut! Sunt Asistentul Coeziv. Spune-mi cu ce te pot ajuta 🙂", {
-    J: 0, regime:"ordered", action:"normal_answer", webNeed:false, webUsed:null, risk:"normal", domains:[]
-  });
+  // greet (respectă stilul ales)
+  const initialMeta = { J: 0, regime:"ordered", action:"normal_answer", webNeed:false, webUsed:null, risk:"normal", domains:[] };
+  appendBubble("assistant", "Salut! Sunt Asistentul Coeziv. Spune-mi cu ce te pot ajuta 🙂", initialMeta);
+  setTelemetry(initialMeta);
 </script>
 </body>
 </html>
