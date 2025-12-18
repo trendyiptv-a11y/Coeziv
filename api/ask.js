@@ -5,8 +5,7 @@
 import OpenAI from "openai";
 import { retrieveCohezivContext } from "../coeziv_knowledge.js";
 import { runCoezivEngine } from "../coeziv_engine.js";
-import { updateMemoryFromInteraction, retrieveMemoryContext } from "../coeziv_memory.js";
-import { buildEvolutionLayer } from "../coeziv_evolution.js";
+import * as CoezivOrchestrator from "../coeziv_orchestrator.js";
 
 const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
@@ -51,7 +50,6 @@ function buildCohezivSearchQuery(userMessage, history) {
 
   const base = (userMessage || "").trim();
   const combo = [base, ...lastUsers].filter(Boolean).join(" | ");
-  // ținem query-ul scurt ca să nu “înecăm” search-ul
   return combo.slice(0, 380);
 }
 
@@ -110,7 +108,6 @@ async function crawlWebRaw(urlOrQuery) {
     const input = (urlOrQuery || "").trim();
     if (!input) return { ok: false, text: "", reason: "empty input" };
 
-    // dacă nu e URL, folosim o pagină HTML simplă DDG ca fallback “raw crawl”
     const url = /^https?:\/\//i.test(input)
       ? input
       : `https://duckduckgo.com/html/?q=${encodeURIComponent(input)}`;
@@ -128,7 +125,6 @@ async function crawlWebRaw(urlOrQuery) {
     if (!text) return { ok: false, text: "", reason: "empty crawl text" };
 
     const clipped = text.slice(0, 20000);
-
     return { ok: true, text: clipped, reason: "" };
   } catch (err) {
     return { ok: false, text: "", reason: err?.message || String(err) };
@@ -155,9 +151,32 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: "message is required" });
     }
 
-    /* ------------------------------ CoezivEngine ------------------------------ */
+    /* ------------------------------ Orchestrator (CoEZiv) ------------------------------ */
 
-    const engine = runCoezivEngine({ history, userMessage });
+    const buildSystemContext =
+      CoezivOrchestrator?.buildSystemContext ||
+      CoezivOrchestrator?.default?.buildSystemContext;
+
+    const commitInteraction =
+      CoezivOrchestrator?.commitInteraction ||
+      CoezivOrchestrator?.default?.commitInteraction;
+
+    // Orchestratorul decide și agregă: engine + memorie + evoluție + reguli interne.
+    // Dacă, din orice motiv, orchestratorul nu este disponibil, păstrăm fallback-ul stabil.
+    const ctx = buildSystemContext
+      ? buildSystemContext({
+          userId,
+          history,
+          userMessage,
+          options: {
+            maxMemoryItems: 4,
+            forceWeb: body.browse === true,
+            forceCrawl: body.crawl === true,
+          },
+        })
+      : null;
+
+    const engine = ctx?.engine || runCoezivEngine({ history, userMessage });
 
     if (engine.policy.action === "clarify_first") {
       return res.status(200).json({
@@ -197,35 +216,8 @@ export default async function handler(req, res) {
     const domainHint = dominantDomains[0] || null;
     const coezivContext = retrieveCohezivContext(userMessage, domainHint);
 
-    /* ------------------------------ Memorie Coezivă ------------------------------ */
-
-    let memoryContextText = "";
-    try {
-      const memCtx = retrieveMemoryContext({ userId, query: userMessage });
-      if (memCtx) {
-        const memorySummary = memCtx.summary || "";
-        const memorySnippets = Array.isArray(memCtx.snippets) ? memCtx.snippets : [];
-
-        const parts = [];
-        if (memorySummary.trim()) parts.push(memorySummary.trim());
-
-        if (memorySnippets.length) {
-          const snippetLines = memorySnippets
-            .slice(0, 4)
-            .map((s) => `- [sim ≈ ${Number(s.score || 0).toFixed(2)}] ${s.text}`)
-            .join("\n");
-          parts.push("Fragmente similare din conversații anterioare:\n" + snippetLines);
-        }
-
-        memoryContextText = parts.join("\n\n").trim();
-      }
-    } catch (e) {
-      console.warn("Eroare retrieveMemoryContext:", e);
-    }
-
-    /* ------------------------------ Strat evolutiv ------------------------------ */
-
-    const evolution = buildEvolutionLayer({ engine, memoryPattern: null });
+    // Text agregat de orchestrator (memorie + evoluție + reguli engine).
+    const orchestratorSystemText = (ctx?.systemText || "").trim();
 
     /* ------------------------------ Browsing/Crawling: la cerere ------------------------------ */
 
@@ -262,9 +254,6 @@ export default async function handler(req, res) {
     const forceBrowseByUI = body.browse === true;
     const forceCrawlRaw = body.crawl === true;
 
-    // IMPORTANT:
-    // - Nu pornim flux extern la întrebări meta doar din „engine.needs_external_data”.
-    // - Poți forța oricând cu body.browse/body.crawl sau cu comenzi explicite.
     const shouldBrowse =
       forceBrowseByUI ||
       forceCrawlRaw ||
@@ -278,13 +267,11 @@ export default async function handler(req, res) {
     let web_mode = "none"; // "serper" | "crawl_raw" | "none"
 
     if (shouldBrowse) {
-      // Dacă user a dat un URL, crawl pe URL e mai bun decât pe query
       const urlInMessage = extractFirstUrl(userMessage);
 
       let q = buildCohezivSearchQuery(userMessage, history);
       if (!q || !q.trim()) q = userMessage;
 
-      // document explicit -> crawl direct
       if (wantsDocumentRead || forceCrawlRaw) {
         const crawlTarget = urlInMessage || q;
         const crawl = await crawlWebRaw(crawlTarget);
@@ -300,7 +287,6 @@ export default async function handler(req, res) {
           web_reason = crawl.reason || "crawl_failed";
         }
       } else {
-        // caz normal -> Serper
         const serper = await webSearchSerper(q);
 
         if (serper.ok && serper.text) {
@@ -372,14 +358,9 @@ DISCIPLINĂ COEZIVĂ
     // Model/Knowledge
     systemContent += `\n---\nContext Coeziv (knowledge):\n${coezivContext || "(none)"}\n`;
 
-    // Memorie
-    if (memoryContextText) {
-      systemContent += `\n---\nMemorie Coezivă (rezumat + fragmente):\n${memoryContextText}\n`;
-    }
-
-    // Evoluție
-    if (evolution) {
-      systemContent += `\n---\nStrat evolutiv (heuristic):\n${JSON.stringify(evolution, null, 2)}\n`;
+    // Context Orchestrator (memorie + evoluție + reguli)
+    if (orchestratorSystemText) {
+      systemContent += `\n---\nContext Orchestrator (memorie + evoluție + reguli):\n${orchestratorSystemText}\n`;
     }
 
     // Meta: dacă e meta despre browsing, forțăm clarificarea adevărului
@@ -421,17 +402,19 @@ DISCIPLINĂ COEZIVĂ
 
     const reply = completion.choices?.[0]?.message?.content || "";
 
-    /* ------------------------------ Save memory ------------------------------ */
+    /* ------------------------------ Save memory (via orchestrator) ------------------------------ */
 
     try {
-      updateMemoryFromInteraction({
-        userId,
-        userMessage,
-        assistantReply: reply,
-        engine,
-      });
+      if (commitInteraction) {
+        commitInteraction({
+          userId,
+          userMessage,
+          assistantReply: reply,
+          engine,
+        });
+      }
     } catch (e) {
-      console.warn("Eroare updateMemoryFromInteraction:", e);
+      console.warn("Eroare commitInteraction (orchestrator):", e);
     }
 
     return res.status(200).json({
