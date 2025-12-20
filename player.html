@@ -3,15 +3,15 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>M3U Editor FAST – Multi Group (curat)</title>
+  <title>M3U Editor MEGA – Multi Group + Export TS/UA/Ref</title>
   <style>
     :root { color-scheme: light dark; }
     body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 0; }
-    .wrap { max-width: 1180px; margin: 0 auto; padding: 16px; }
+    .wrap { max-width: 1200px; margin: 0 auto; padding: 16px; }
     .card { border: 1px solid rgba(127,127,127,.25); border-radius: 16px; padding: 14px; }
     h1 { margin: 0 0 10px; font-size: 1.1rem; }
     .row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
-    input, select, button {
+    input, select, button, textarea {
       padding: 8px 10px; border-radius: 12px;
       border: 1px solid rgba(127,127,127,.35);
       background: transparent;
@@ -19,8 +19,9 @@
     }
     input[type="file"] { max-width: 100%; }
     input[type="text"] { flex: 1 1 320px; }
-    button:disabled { opacity: .5; cursor: not-allowed; }
+    textarea { width: 100%; min-height: 90px; resize: vertical; }
     button { cursor: pointer; }
+    button:disabled { opacity: .5; cursor: not-allowed; }
     .meta { font-size: .9rem; opacity: .8; }
     .pill { display:inline-block; padding: 2px 8px; border: 1px solid rgba(127,127,127,.35); border-radius: 999px; font-size: .8rem; opacity: .9; }
 
@@ -47,7 +48,7 @@
     .grid2 { display:grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     @media (max-width: 700px){ .grid2{ grid-template-columns: 1fr; } }
 
-    .groupBox { max-height: 170px; }
+    .groupBox { max-height: 180px; }
     .gRow {
       display:grid; grid-template-columns: 28px 1fr;
       gap: 10px;
@@ -57,13 +58,17 @@
     }
     .gRow:last-child { border-bottom: none; }
     .gTitle { font-weight: 650; }
+
+    .panel { border: 1px solid rgba(127,127,127,.25); border-radius: 14px; padding: 10px; }
     .warn { color: #c98000; }
+    .ok { color: #2aa14a; }
+    .small { font-size: .85rem; opacity: .85; }
   </style>
 </head>
 <body>
   <div class="wrap">
     <div class="card">
-      <h1>M3U Editor FAST (120MB+) — multi-select grupuri (curat)</h1>
+      <h1>M3U Editor MEGA (120MB+) — multi-grup + export “force TS / UA / referer”</h1>
 
       <div class="row">
         <input id="file" type="file" accept=".m3u,.m3u8,text/plain,audio/x-mpegurl,application/vnd.apple.mpegurl" />
@@ -76,74 +81,135 @@
         <div class="progress"><div class="bar" id="bar"></div></div>
         <span class="pill" id="stats">0 entries</span>
         <span class="pill" id="groupsCount">0 groups</span>
-      </div>
-
-      <div class="row" style="margin-top:10px;">
-        <input id="q" type="text" placeholder="Caută (title/url/group) — pentru liste mari, min 2-3 caractere" />
-        <select id="limit" title="Max rezultate afișate">
-          <option value="200">200</option>
-          <option value="500" selected>500</option>
-          <option value="2000">2000</option>
-          <option value="5000">5000</option>
-        </select>
-        <select id="minChars" title="Min caractere pentru rezultate când nu filtrezi grupuri">
-          <option value="1">min 1</option>
-          <option value="2" selected>min 2</option>
-          <option value="3">min 3</option>
-        </select>
-      </div>
-
-      <div style="margin-top:10px;">
-        <div class="row">
-          <input id="groupQ" type="text" placeholder="Filtrează lista de grupuri (ex: RO, EN, SPORT...)" />
-          <label class="row" style="gap:8px;">
-            <input id="allGroups" type="checkbox" checked />
-            <span class="meta">All groups</span>
-          </label>
-          <span class="pill" id="groupState">All</span>
-        </div>
-        <div class="list groupBox" id="groupBox" style="margin-top:8px;"></div>
-        <div class="meta" style="margin-top:8px;">
-          <span class="warn">Comportament:</span>
-          All groups = fără filtru de grup. Dacă debifezi All, pornește „None selected” (nu trece nimic până bifezi grupuri).
-        </div>
+        <span class="pill" id="groupState">All</span>
       </div>
 
       <div class="split">
+        <!-- LEFT -->
         <div>
-          <div class="meta" style="margin: 6px 0 8px;">Rezultate (până la limit)</div>
+          <div class="row" style="margin-top:6px;">
+            <input id="q" type="text" placeholder="Caută (title/url/group) — pentru fișiere mari, min 2-3 caractere" />
+            <select id="limit" title="Max rezultate afișate">
+              <option value="200">200</option>
+              <option value="500" selected>500</option>
+              <option value="2000">2000</option>
+              <option value="5000">5000</option>
+            </select>
+            <select id="minChars" title="Min caractere pentru rezultate când nu filtrezi grupuri">
+              <option value="1">min 1</option>
+              <option value="2" selected>min 2</option>
+              <option value="3">min 3</option>
+            </select>
+          </div>
+
+          <div class="panel" style="margin-top:10px;">
+            <div class="row">
+              <input id="groupQ" type="text" placeholder="Filtrează lista de grupuri (ex: RO, EN, SPORT...)" />
+              <label class="row" style="gap:8px; flex:0 0 auto;">
+                <input id="allGroups" type="checkbox" checked />
+                <span class="meta">All groups</span>
+              </label>
+              <button id="selectNone" type="button">None</button>
+              <button id="selectAll" type="button">All</button>
+            </div>
+
+            <div class="list groupBox" id="groupBox" style="margin-top:8px;"></div>
+
+            <div class="meta" style="margin-top:8px;">
+              <span class="warn">Comportament:</span>
+              All = fără filtru. Debifezi All → “None selected” (nu trece nimic până bifezi grupuri).
+            </div>
+          </div>
+
+          <div class="meta" style="margin: 10px 0 8px;">Rezultate</div>
           <div class="list" id="results"></div>
           <div class="meta" id="resultsHint" style="margin-top:8px;"></div>
         </div>
 
+        <!-- RIGHT -->
         <div>
-          <div class="meta" style="margin: 6px 0 8px;">Editare intrare</div>
+          <div class="panel">
+            <div class="meta" style="margin-bottom:8px;">Opțiuni export (pentru compatibilitate în aplicații IPTV)</div>
 
-          <div class="grid2">
-            <div>
-              <div class="meta">Title</div>
-              <input id="eTitle" type="text" />
+            <div class="row">
+              <label class="row" style="gap:8px;">
+                <input id="forceTs" type="checkbox" checked />
+                <span>Force .ts dacă lipsește extensia</span>
+              </label>
             </div>
-            <div>
-              <div class="meta">Group</div>
-              <input id="eGroup" type="text" />
+
+            <div class="row" style="margin-top:6px;">
+              <label class="row" style="gap:8px;">
+                <input id="forceM3u8" type="checkbox" />
+                <span>Force .m3u8 dacă lipsește extensia</span>
+              </label>
+            </div>
+
+            <div class="meta small" style="margin-top:8px;">
+              Dacă bifezi ambele, are prioritate <b>.m3u8</b>. (Poți lăsa doar TS.)
+            </div>
+
+            <hr style="opacity:.25; margin: 12px 0;">
+
+            <div class="row">
+              <label class="row" style="gap:8px;">
+                <input id="addUA" type="checkbox" />
+                <span>Adaugă User-Agent (EXTVLCOPT)</span>
+              </label>
+            </div>
+            <input id="uaValue" type="text" placeholder="ex: VLC/3.0.20 LibVLC/3.0.20" style="margin-top:6px;" />
+
+            <div class="row" style="margin-top:10px;">
+              <label class="row" style="gap:8px;">
+                <input id="addRef" type="checkbox" />
+                <span>Adaugă Referrer (EXTVLCOPT)</span>
+              </label>
+            </div>
+            <input id="refValue" type="text" placeholder="ex: http://site.tld/" style="margin-top:6px;" />
+
+            <div class="meta small" style="margin-top:10px;">
+              Unele aplicații ignoră EXTVLCOPT. Dacă merge pe Xtream dar nu pe M3U, acest hack uneori ajută.
             </div>
           </div>
 
-          <div style="margin-top:10px;">
-            <div class="meta">URL</div>
-            <input id="eUrl" type="text" />
+          <div class="panel" style="margin-top:12px;">
+            <div class="meta" style="margin-bottom:8px;">Editare intrare</div>
+
+            <div class="grid2">
+              <div>
+                <div class="meta">Title</div>
+                <input id="eTitle" type="text" />
+              </div>
+              <div>
+                <div class="meta">Group</div>
+                <input id="eGroup" type="text" />
+              </div>
+            </div>
+
+            <div style="margin-top:10px;">
+              <div class="meta">URL</div>
+              <input id="eUrl" type="text" />
+            </div>
+
+            <div class="row" style="margin-top:10px;">
+              <button id="save" disabled>💾 Save</button>
+              <button id="duplicate" disabled>⎘ Duplicate</button>
+              <button id="remove" disabled>🗑 Delete</button>
+              <button id="clearSel" disabled>Clear selection</button>
+            </div>
+
+            <div class="meta small" style="margin-top:10px;">
+              Notă: acest editor exportă format simplu (#EXTINF + URL + headere “##### GROUP #####”).
+              Dacă vrei export <span class="ok">lossless</span> (cu tvg-logo, tvg-id etc.), pot extinde.
+            </div>
           </div>
 
-          <div class="row" style="margin-top:10px;">
-            <button id="save" disabled>💾 Save</button>
-            <button id="duplicate" disabled>⎘ Duplicate</button>
-            <button id="remove" disabled>🗑 Delete</button>
-            <button id="clearSel" disabled>Clear selection</button>
-          </div>
-
-          <div class="meta" style="margin-top:10px;">
-            Notă: exportul e simplu (#EXTINF + URL + headere „##### GROUP #####”). Dacă vrei păstrare completă a atributelor IPTV (tvg-logo etc.), pot extinde modelul “lossless”.
+          <div class="panel" style="margin-top:12px;">
+            <div class="meta" style="margin-bottom:8px;">Test rapid (diagnostic)</div>
+            <div class="meta small">
+              Dacă aplicația îți “încarcă M3U” dar nu redă:
+              încearcă export cu <b>Force .ts</b> ON și, dacă tot nu, încearcă și cu User-Agent.
+            </div>
           </div>
         </div>
       </div>
@@ -162,6 +228,7 @@
     bar: $("#bar"),
     stats: $("#stats"),
     groupsCount: $("#groupsCount"),
+    groupState: $("#groupState"),
 
     q: $("#q"),
     limit: $("#limit"),
@@ -169,11 +236,19 @@
 
     groupQ: $("#groupQ"),
     allGroups: $("#allGroups"),
-    groupState: $("#groupState"),
+    selectNone: $("#selectNone"),
+    selectAll: $("#selectAll"),
     groupBox: $("#groupBox"),
 
     results: $("#results"),
     resultsHint: $("#resultsHint"),
+
+    forceTs: $("#forceTs"),
+    forceM3u8: $("#forceM3u8"),
+    addUA: $("#addUA"),
+    uaValue: $("#uaValue"),
+    addRef: $("#addRef"),
+    refValue: $("#refValue"),
 
     eTitle: $("#eTitle"),
     eGroup: $("#eGroup"),
@@ -191,16 +266,14 @@
   let entries = [];
   /** groupName -> count */
   let groupCounts = new Map();
-
-  /** @type {number[]} indexe din entries pentru rezultate curente */
+  /** @type {number[]} */
   let viewIdx = [];
-
   let selectedIndex = -1;
 
   /**
    * groupMode:
-   *  - "all": nu aplicăm filtru de grup (toate grupurile sunt incluse)
-   *  - "none": nimic selectat -> nu trece nimic până bifezi grupuri
+   *  - "all": nu aplicăm filtru de grup (toate incluse)
+   *  - "none": nimic selectat -> 0 rezultate
    *  - "some": doar grupurile din selectedGroups
    */
   let groupMode = "all";
@@ -209,10 +282,9 @@
 
   const HEADER_RE = /^\s*#+\s*(.*?)\s*#+\s*$/; // ##### GROUP #####
   const YIELD_EVERY = 8000;
-  const GROUP_UI_MAX = 500;
+  const GROUP_UI_MAX = 600;
   const SEARCH_DEBOUNCE_MS = 220;
 
-  // ----- Helpers -----
   function setStatus(t){ el.status.textContent = t; }
   function esc(s){
     return String(s ?? "")
@@ -222,14 +294,6 @@
   }
   function getLimit(){ return parseInt(el.limit.value, 10) || 500; }
   function getMinChars(){ return parseInt(el.minChars.value, 10) || 2; }
-  function downloadText(filename, text, mime){
-    const blob = new Blob([text], {type: mime || "audio/x-mpegurl"});
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = filename;
-    a.click();
-    setTimeout(()=>URL.revokeObjectURL(a.href), 1500);
-  }
 
   function groupStateLabel(){
     if (groupMode === "all") return "All";
@@ -237,15 +301,10 @@
     return `${selectedGroups.size} selected`;
   }
 
-  function syncGroupControls(){
-    el.allGroups.checked = (groupMode === "all");
-    el.groupState.textContent = groupStateLabel();
+  function syncHeaderPills(){
     el.groupsCount.textContent = `${groupCounts.size.toLocaleString("ro-RO")} groups`;
-  }
-
-  function canShowResultsWithoutQuery(){
-    // dacă ai filtru de grup (some), are sens să afișezi chiar și fără query
-    return groupMode === "some";
+    el.groupState.textContent = groupStateLabel();
+    el.allGroups.checked = (groupMode === "all");
   }
 
   function passesGroupFilter(entry){
@@ -261,15 +320,14 @@
     viewIdx = [];
     clearSelection(true);
 
-    // reset group state
     groupMode = "all";
     selectedGroups = new Set();
-    syncGroupControls();
-    el.groupBox.innerHTML = "";
-    el.results.innerHTML = "";
-    el.resultsHint.textContent = "";
 
     el.bar.style.width = "0%";
+    el.results.innerHTML = "";
+    el.resultsHint.textContent = "";
+    syncHeaderPills();
+
     setStatus(`Parsing ${file.name}...`);
 
     const decoder = new TextDecoder("utf-8", { fatal:false });
@@ -303,7 +361,6 @@
         }
         if (line.startsWith("#")) continue;
 
-        // URL line
         const m = pendingTitle.match(HEADER_RE);
         if (m){
           const g = (m[1] || "").trim();
@@ -318,17 +375,14 @@
           group: currentGroup || "Ungrouped"
         };
         entries.push(entry);
-
-        const gname = entry.group;
-        groupCounts.set(gname, (groupCounts.get(gname) || 0) + 1);
-
+        groupCounts.set(entry.group, (groupCounts.get(entry.group) || 0) + 1);
         pendingTitle = "";
 
         if (entries.length % YIELD_EVERY === 0){
           const pct = Math.min(100, Math.round((read / total) * 100));
           el.bar.style.width = pct + "%";
           el.stats.textContent = `${entries.length.toLocaleString("ro-RO")} entries`;
-          syncGroupControls();
+          syncHeaderPills();
           setStatus(`Parsing... ${pct}%`);
           await new Promise(r => setTimeout(r, 0));
         }
@@ -338,13 +392,14 @@
     buffer += decoder.decode();
     el.bar.style.width = "100%";
     el.stats.textContent = `${entries.length.toLocaleString("ro-RO")} entries`;
-    syncGroupControls();
+    syncHeaderPills();
 
     setStatus(`Gata: ${file.name} · ${entries.length.toLocaleString("ro-RO")} intrări · ${groupCounts.size.toLocaleString("ro-RO")} groups`);
 
     renderGroupBox();
     buildAndRenderResults();
-    el.exportAll.disabled = entries.length === 0;
+
+    el.exportAll.disabled = (entries.length === 0);
   }
 
   // ----- Group UI -----
@@ -361,7 +416,6 @@
       if (shown > GROUP_UI_MAX) break;
 
       const count = groupCounts.get(g) || 0;
-
       let checked = false;
       if (groupMode === "all") checked = true;
       else if (groupMode === "none") checked = false;
@@ -371,103 +425,93 @@
       row.className = "gRow";
       row.innerHTML = `
         <div><input type="checkbox" /></div>
-        <div>
-          <div class="gTitle">${esc(g)} <span class="pill">${count}</span></div>
-        </div>
+        <div><div class="gTitle">${esc(g)} <span class="pill">${count}</span></div></div>
       `;
       const cb = row.querySelector("input");
       cb.checked = checked;
 
-      cb.addEventListener("change", () => {
-        onToggleGroup(g, cb.checked);
-      });
-
+      cb.addEventListener("change", () => onToggleGroup(g, cb.checked));
       el.groupBox.appendChild(row);
     }
 
-    // hint dacă sunt prea multe
     if (shown >= GROUP_UI_MAX){
       const hint = document.createElement("div");
       hint.className = "meta";
       hint.style.padding = "8px 10px";
-      hint.textContent = `Afișez max ${GROUP_UI_MAX} grupuri. Folosește filtrul de grupuri pentru a vedea restul.`;
+      hint.textContent = `Afișez max ${GROUP_UI_MAX} grupuri. Folosește filtrul de grupuri pentru restul.`;
       el.groupBox.appendChild(hint);
     }
   }
 
   function onToggleGroup(groupName, isChecked){
-    // Reguli:
-    // - Dacă ești în "all" și debifezi un grup => treci în "some" și selectezi toate EXCEPT acel grup.
-    // - Dacă ești în "none" și bifezi ceva => treci în "some" și adaugi acel grup.
-    // - Dacă ești în "some" => adaugi/scoți din set.
+    // logic curat:
+    // - all + debifezi un grup => some = toate minus acel grup
+    // - none + bifezi => some = {grup}
+    // - some => add/remove; dacă 0 => none; dacă toate => all
     if (groupMode === "all"){
-      if (isChecked) return; // bifat deja, nimic
+      if (isChecked) return;
       groupMode = "some";
       selectedGroups = new Set(groupCounts.keys());
       selectedGroups.delete(groupName);
+      if (selectedGroups.size === 0) groupMode = "none";
     } else if (groupMode === "none"){
-      if (!isChecked) return; // deja false
+      if (!isChecked) return;
       groupMode = "some";
       selectedGroups = new Set([groupName]);
-    } else { // some
+    } else {
       if (isChecked) selectedGroups.add(groupName);
       else selectedGroups.delete(groupName);
 
       if (selectedGroups.size === 0){
-        // dacă ai scos tot, rămâi în "none"
         groupMode = "none";
       } else if (selectedGroups.size === groupCounts.size){
-        // dacă ai ajuns să le ai pe toate, revii la "all"
         groupMode = "all";
         selectedGroups.clear();
       }
     }
 
-    syncGroupControls();
-    // rerender group list (ca să reflecte corect checked)
+    syncHeaderPills();
     renderGroupBox();
     scheduleRebuildResults();
   }
 
-  // allGroups checkbox behavior:
-  // checked -> all
-  // unchecked -> none
-  function onAllGroupsChanged(){
-    if (el.allGroups.checked){
-      groupMode = "all";
-      selectedGroups.clear();
-    } else {
-      groupMode = "none";
-      selectedGroups.clear();
-    }
-    syncGroupControls();
+  function setGroupModeAll(){
+    groupMode = "all";
+    selectedGroups.clear();
+    syncHeaderPills();
     renderGroupBox();
     scheduleRebuildResults();
+  }
+
+  function setGroupModeNone(){
+    groupMode = "none";
+    selectedGroups.clear();
+    syncHeaderPills();
+    renderGroupBox();
+    scheduleRebuildResults();
+  }
+
+  function onAllGroupsChanged(){
+    if (el.allGroups.checked) setGroupModeAll();
+    else setGroupModeNone();
   }
 
   // ----- Results -----
   function buildViewIndexes(){
     viewIdx = [];
     const q = (el.q.value || "").trim().toLowerCase();
-    const lim = getLimit();
-
     const hasQuery = q.length > 0;
     const min = getMinChars();
+    const lim = getLimit();
 
-    // UX: dacă nu ai query și nu ai filtru de grup, nu scana (fișier mare)
-    if (!hasQuery && !canShowResultsWithoutQuery()){
-      return;
-    }
+    if (entries.length === 0) return;
+    if (groupMode === "none") return;
 
-    // dacă nu filtrezi grupuri și query e prea scurt, nu scana
-    if (groupMode === "all" && hasQuery && q.length < min){
-      return;
-    }
+    // UX: dacă nu ai query și ești pe "all", nu scana (fișier mare)
+    if (!hasQuery && groupMode === "all") return;
 
-    // dacă groupMode none => zero rezultate
-    if (groupMode === "none"){
-      return;
-    }
+    // dacă ești pe "all", cerem query minim
+    if (groupMode === "all" && hasQuery && q.length < min) return;
 
     for (let i = 0; i < entries.length; i++){
       const e = entries[i];
@@ -485,11 +529,10 @@
 
   function renderResults(){
     el.results.innerHTML = "";
+    el.exportResults.disabled = true;
 
-    // default messages
     if (entries.length === 0){
       el.results.innerHTML = `<div class="item"><div class="idx">—</div><div><div class="title">Nimic încărcat</div><div class="sub">Încarcă un .m3u/.m3u8</div></div></div>`;
-      el.exportResults.disabled = true;
       el.resultsHint.textContent = "";
       return;
     }
@@ -498,22 +541,19 @@
     const min = getMinChars();
 
     if (groupMode === "none"){
-      el.results.innerHTML = `<div class="item"><div class="idx">ℹ️</div><div><div class="title">None selected</div><div class="sub">Bifează cel puțin un grup sau activează All.</div></div></div>`;
-      el.exportResults.disabled = true;
+      el.results.innerHTML = `<div class="item"><div class="idx">ℹ️</div><div><div class="title">None selected</div><div class="sub">Bifează grupuri sau activează All.</div></div></div>`;
       el.resultsHint.textContent = "";
       return;
     }
 
     if (groupMode === "all" && q.length < min){
-      el.results.innerHTML = `<div class="item"><div class="idx">ℹ️</div><div><div class="title">Scrie minim ${min} caractere</div><div class="sub">Playlist mare: evităm scanarea inutilă fără query sau filtru de grup.</div></div></div>`;
-      el.exportResults.disabled = true;
+      el.results.innerHTML = `<div class="item"><div class="idx">ℹ️</div><div><div class="title">Scrie minim ${min} caractere</div><div class="sub">Playlist mare: evităm scanarea fără query sau filtru de grup.</div></div></div>`;
       el.resultsHint.textContent = "";
       return;
     }
 
     if (viewIdx.length === 0){
-      el.results.innerHTML = `<div class="item"><div class="idx">—</div><div><div class="title">Niciun rezultat</div><div class="sub">Schimbă căutarea sau grupurile selectate.</div></div></div>`;
-      el.exportResults.disabled = true;
+      el.results.innerHTML = `<div class="item"><div class="idx">—</div><div><div class="title">Niciun rezultat</div><div class="sub">Schimbă căutarea sau grupurile.</div></div></div>`;
       el.resultsHint.textContent = "";
       return;
     }
@@ -534,7 +574,7 @@
     }
 
     el.exportResults.disabled = false;
-    el.resultsHint.textContent = `Rezultate: ${viewIdx.length} (limit ${getLimit()}). Group: ${groupStateLabel()}`;
+    el.resultsHint.textContent = `Rezultate: ${viewIdx.length} (limit ${getLimit()}) · Group: ${groupStateLabel()}`;
   }
 
   function buildAndRenderResults(){
@@ -542,7 +582,7 @@
     renderResults();
   }
 
-  // ----- Selection / editor -----
+  // ----- Selection / Editor -----
   function clearSelection(skipRender){
     selectedIndex = -1;
     el.eTitle.value = "";
@@ -580,20 +620,16 @@
     const title = (el.eTitle.value || "").trim() || url;
     const group = (el.eGroup.value || "").trim() || "Ungrouped";
 
-    // update group counts if group changed
     const oldGroup = entries[selectedIndex].group;
-
     entries[selectedIndex] = { title, url, group };
 
     if (oldGroup !== group){
       groupCounts.set(oldGroup, Math.max(0, (groupCounts.get(oldGroup) || 1) - 1));
       if ((groupCounts.get(oldGroup) || 0) === 0) groupCounts.delete(oldGroup);
-
       groupCounts.set(group, (groupCounts.get(group) || 0) + 1);
 
-      // Dacă ești în "some" și ai editat grupul, nu modificăm selecția automat.
-      // Dar refacem UI de grupuri ca să apară count-ul corect.
-      syncGroupControls();
+      // dacă ești în "some" și ai schimbat group-ul, nu schimbăm selecția automat
+      syncHeaderPills();
       renderGroupBox();
     }
 
@@ -606,9 +642,9 @@
     const copy = { ...entries[selectedIndex] };
     entries.splice(selectedIndex + 1, 0, copy);
     groupCounts.set(copy.group, (groupCounts.get(copy.group) || 0) + 1);
-    setStatus("Duplicat.");
 
-    syncGroupControls();
+    setStatus("Duplicat.");
+    syncHeaderPills();
     renderGroupBox();
 
     selectEntry(selectedIndex + 1);
@@ -626,24 +662,63 @@
     if ((groupCounts.get(g) || 0) === 0) groupCounts.delete(g);
 
     setStatus("Șters.");
-
-    syncGroupControls();
+    syncHeaderPills();
     renderGroupBox();
 
     clearSelection(true);
     scheduleRebuildResults();
   }
 
-  // ----- Export -----
+  // ----- Export helpers -----
+  function normalizeUrl(url){
+    // păstrează querystring intact
+    const parts = url.split("?");
+    const base = parts[0];
+    const qs = parts.length > 1 ? "?" + parts.slice(1).join("?") : "";
+
+    const lower = base.toLowerCase();
+
+    const hasKnownExt =
+      lower.endsWith(".ts") || lower.endsWith(".m3u8") ||
+      lower.endsWith(".mp4") || lower.endsWith(".webm") ||
+      lower.endsWith(".mp3") || lower.endsWith(".aac") ||
+      lower.endsWith(".m4a") || lower.endsWith(".ogg") ||
+      lower.endsWith(".wav") || lower.endsWith(".flac");
+
+    if (hasKnownExt) return base + qs;
+
+    // dacă nu are extensie:
+    if (el.forceM3u8.checked) return base + ".m3u8" + qs;
+    if (el.forceTs.checked) return base + ".ts" + qs;
+
+    return base + qs;
+  }
+
+  function maybeVlcOptsLines(){
+    const lines = [];
+    if (el.addUA.checked){
+      const ua = (el.uaValue.value || "").trim();
+      if (ua) lines.push(`#EXTVLCOPT:http-user-agent=${ua}`);
+    }
+    if (el.addRef.checked){
+      const ref = (el.refValue.value || "").trim();
+      if (ref) lines.push(`#EXTVLCOPT:http-referrer=${ref}`);
+    }
+    return lines;
+  }
+
   function toM3U(list){
     // format simplu:
     // #EXTM3U
     // #EXTINF:-1,##### GROUP #####
     // #
+    // (opțional EXTVLCOPT)
     // #EXTINF:-1,Title
-    // URL
+    // URL (normalizat)
     let out = "#EXTM3U\n";
     let lastGroup = null;
+
+    const vlcOptLines = maybeVlcOptsLines();
 
     for (const e of list){
       const g = (e.group || "Ungrouped").trim() || "Ungrouped";
@@ -652,22 +727,40 @@
         out += `#\n`;
         lastGroup = g;
       }
+
+      // opțiuni VLC înainte de item (unii clienți cer exact aici)
+      for (const l of vlcOptLines) out += l + "\n";
+
       const title = (e.title || "").trim() || e.url;
       out += `#EXTINF:-1,${title}\n`;
-      out += `${e.url}\n`;
+      out += `${normalizeUrl(e.url)}\n`;
     }
     return out;
   }
 
   function exportAll(){
     const m3u = toM3U(entries);
-    downloadText("edited.m3u", m3u, "audio/x-mpegurl");
+    const name = "edited.m3u";
+    const mime = "audio/x-mpegurl";
+    const blob = new Blob([m3u], {type:mime});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = name;
+    a.click();
+    setTimeout(()=>URL.revokeObjectURL(a.href), 1500);
   }
 
   function exportResults(){
     const subset = viewIdx.map(i => entries[i]);
     const m3u = toM3U(subset);
-    downloadText("results.m3u", m3u, "audio/x-mpegurl");
+    const name = "results.m3u";
+    const mime = "audio/x-mpegurl";
+    const blob = new Blob([m3u], {type:mime});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = name;
+    a.click();
+    setTimeout(()=>URL.revokeObjectURL(a.href), 1500);
   }
 
   // ----- Debounce -----
@@ -690,6 +783,8 @@
 
   el.groupQ.addEventListener("input", () => renderGroupBox());
   el.allGroups.addEventListener("change", onAllGroupsChanged);
+  el.selectNone.addEventListener("click", setGroupModeNone);
+  el.selectAll.addEventListener("click", setGroupModeAll);
 
   el.save.addEventListener("click", saveSelected);
   el.duplicate.addEventListener("click", duplicateSelected);
@@ -699,10 +794,15 @@
   el.exportAll.addEventListener("click", exportAll);
   el.exportResults.addEventListener("click", exportResults);
 
-  // init view
+  // când schimbi opțiuni export, nu e nevoie să regenerezi rezultate; doar exportul se schimbă.
+  // (nimic de făcut)
+
+  // init
   el.stats.textContent = "0 entries";
-  syncGroupControls();
+  syncHeaderPills();
+  renderGroupBox();
   renderResults();
+
 })();
 </script>
 </body>
