@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>M3U Editor (HTML)</title>
+  <title>M3U Editor FAST (120MB+)</title>
   <style>
     :root { color-scheme: light dark; }
     body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin:0; }
@@ -12,15 +12,14 @@
     h1 { margin: 0 0 10px; font-size: 1.1rem; }
     .row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
     input[type="file"] { max-width: 100%; }
-    input[type="text"], textarea {
-      width: 100%;
+    input[type="text"] {
+      flex: 1 1 320px;
       padding: 8px 10px;
       border-radius: 12px;
       border: 1px solid rgba(127,127,127,.35);
       background: transparent;
       box-sizing: border-box;
     }
-    textarea { min-height: 160px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; }
     button, select {
       padding: 8px 10px;
       border-radius: 12px;
@@ -32,13 +31,16 @@
     .meta { font-size:.9rem; opacity:.8; }
     .pill { display:inline-block; padding: 2px 8px; border: 1px solid rgba(127,127,127,.35); border-radius: 999px; font-size:.8rem; opacity:.9; }
 
+    .progress { height: 10px; border-radius: 999px; border: 1px solid rgba(127,127,127,.25); overflow:hidden; flex:1 1 360px; }
+    .bar { height: 100%; width: 0%; background: rgba(255,170,0,.55); }
+
     .split { display:grid; grid-template-columns: 1.05fr .95fr; gap: 12px; margin-top: 12px; }
     @media (max-width: 940px){ .split{ grid-template-columns: 1fr; } }
 
     .list { max-height: 520px; overflow:auto; border-radius: 14px; border: 1px solid rgba(127,127,127,.25); }
     .item {
       display:grid;
-      grid-template-columns: 64px 1fr;
+      grid-template-columns: 70px 1fr;
       gap: 10px;
       padding: 10px 12px;
       border-bottom: 1px solid rgba(127,127,127,.14);
@@ -54,41 +56,51 @@
     @media (max-width: 700px){ .grid2 { grid-template-columns: 1fr; } }
 
     .warn { color: #c98000; }
+    .ok { color: #2aa14a; }
   </style>
 </head>
 <body>
   <div class="wrap">
     <div class="card">
-      <h1>M3U Editor (HTML) — editează Title / URL / Group și exportă .m3u</h1>
+      <h1>M3U Editor FAST — pentru playlist-uri mari (120MB+)</h1>
 
       <div class="row">
         <input id="file" type="file" accept=".m3u,.m3u8,text/plain,audio/x-mpegurl,application/vnd.apple.mpegurl" />
-        <button id="newEmpty">New</button>
-        <button id="export" disabled>⬇ Export .m3u</button>
-        <button id="exportSel" disabled>⬇ Export selection</button>
-        <span class="meta" id="status">Încarcă un .m3u/.m3u8.</span>
+        <button id="exportAll" disabled>⬇ Export all</button>
+        <button id="exportView" disabled>⬇ Export results</button>
+        <span class="meta" id="status">Încarcă un .m3u/.m3u8 (parsing streaming).</span>
       </div>
 
       <div class="row" style="margin-top:10px;">
-        <input id="q" type="text" placeholder="Caută (title / url / group) — arată doar rezultatele căutării" />
+        <div class="progress"><div class="bar" id="bar"></div></div>
+        <span class="pill" id="stats">0 entries</span>
+        <span class="pill" id="groups">0 groups</span>
+      </div>
+
+      <div class="row" style="margin-top:10px;">
+        <input id="q" type="text" placeholder="Caută (min 2 caractere) — title/url/group" />
         <select id="groupSel" style="min-width:220px;">
           <option value="__all__">All groups</option>
         </select>
-        <select id="limit" title="Câte rezultate afișăm">
-          <option value="100">100 results</option>
+        <select id="limit">
+          <option value="200">200 results</option>
           <option value="500" selected>500 results</option>
           <option value="2000">2000 results</option>
           <option value="5000">5000 results</option>
         </select>
-        <span class="pill" id="stats">0 entries</span>
+        <select id="minChars" title="Câte caractere minim pentru rezultate">
+          <option value="1">min 1</option>
+          <option value="2" selected>min 2</option>
+          <option value="3">min 3</option>
+        </select>
       </div>
 
       <div class="split">
         <div>
-          <div class="meta" style="margin: 6px 0 8px;">Rezultate (click pentru editare)</div>
+          <div class="meta" style="margin: 6px 0 8px;">Rezultate (nu randează nimic până nu cauți)</div>
           <div class="list" id="list"></div>
-          <div class="meta" style="margin-top:8px;">
-            Pentru playlist-uri uriașe: folosește căutarea + filtrele (nu încerca să vezi “tot”).
+          <div class="meta" id="hint" style="margin-top:8px;">
+            <span class="warn">Tip:</span> pentru 120MB, caută întâi (min 2-3 litere), altfel ar dura să “scaneze” fără sens.
           </div>
         </div>
 
@@ -113,103 +125,247 @@
 
           <div class="row" style="margin-top:10px;">
             <button id="save" disabled>💾 Save</button>
-            <button id="duplicate" disabled>⎘ Duplicate</button>
-            <button id="remove" disabled>🗑 Delete</button>
-            <button id="moveUp" disabled>↑ Move up</button>
-            <button id="moveDown" disabled>↓ Move down</button>
-            <button id="clearSel" disabled>Clear selection</button>
+            <button id="dup" disabled>⎘ Duplicate</button>
+            <button id="del" disabled>🗑 Delete</button>
+            <button id="clear" disabled>Clear selection</button>
           </div>
 
           <div class="meta" style="margin-top:10px;">
-            <span class="warn">Notă:</span> editorul păstrează formatul simplu (#EXTINF + URL). Dacă ai atribute complexe (tvg-logo etc.), pot fi pierdute în această versiune.
-            Dacă vrei să păstrăm atributele, îți fac o versiune “lossless”.
-          </div>
-
-          <hr style="opacity:.25; margin: 14px 0;">
-
-          <div class="meta">Mod rapid (raw): editează textul și re-parsează</div>
-          <textarea id="raw" placeholder="#EXTM3U ..."></textarea>
-          <div class="row" style="margin-top:10px;">
-            <button id="parseRaw">Parse raw</button>
-            <button id="refreshRaw" disabled>Refresh raw from model</button>
+            <span class="warn">Notă:</span> această versiune păstrează structura simplă (title/url/group). Dacă ai `tvg-logo` etc. și vrei păstrare completă, îți dau varianta “lossless”.
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <script>
-    const $ = (s) => document.querySelector(s);
+<script>
+  const $ = (s) => document.querySelector(s);
 
-    // UI
-    const el = {
-      file: $("#file"),
-      newEmpty: $("#newEmpty"),
-      export: $("#export"),
-      exportSel: $("#exportSel"),
-      status: $("#status"),
-      q: $("#q"),
-      groupSel: $("#groupSel"),
-      limit: $("#limit"),
-      stats: $("#stats"),
-      list: $("#list"),
+  const el = {
+    file: $("#file"),
+    status: $("#status"),
+    bar: $("#bar"),
+    stats: $("#stats"),
+    groups: $("#groups"),
 
-      eTitle: $("#eTitle"),
-      eGroup: $("#eGroup"),
-      eUrl: $("#eUrl"),
-      save: $("#save"),
-      duplicate: $("#duplicate"),
-      remove: $("#remove"),
-      moveUp: $("#moveUp"),
-      moveDown: $("#moveDown"),
-      clearSel: $("#clearSel"),
+    exportAll: $("#exportAll"),
+    exportView: $("#exportView"),
 
-      raw: $("#raw"),
-      parseRaw: $("#parseRaw"),
-      refreshRaw: $("#refreshRaw"),
-    };
+    q: $("#q"),
+    groupSel: $("#groupSel"),
+    limit: $("#limit"),
+    minChars: $("#minChars"),
 
-    // Model
-    // IMPORTANT: aici păstrăm doar title/url/group în versiunea simplă.
-    // (Dacă vrei lossless cu tvg-logo etc., îți fac imediat.)
-    let entries = []; // {title,url,group}
-    let selectedIndex = -1; // index în entries
-    let viewIdx = []; // indexe în entries (după filtrare)
+    list: $("#list"),
+    hint: $("#hint"),
 
-    const headerRe = /^\s*#+\s*(.*?)\s*#+\s*$/; // ##### GROUP #####
+    eTitle: $("#eTitle"),
+    eGroup: $("#eGroup"),
+    eUrl: $("#eUrl"),
+    save: $("#save"),
+    dup: $("#dup"),
+    del: $("#del"),
+    clear: $("#clear"),
+  };
 
-    function setStatus(t){ el.status.textContent = t; }
-    function esc(s){
-      return String(s ?? "")
-        .replaceAll("&","&amp;").replaceAll("<","&lt;")
-        .replaceAll(">","&gt;").replaceAll('"',"&quot;")
-        .replaceAll("'","&#039;");
-    }
+  let entries = []; // {title,url,group}
+  let selectedIndex = -1;
 
-    function rebuildGroupSelect(){
-      const groups = new Set(entries.map(e => (e.group || "").trim()).filter(Boolean));
-      const arr = ["__all__", ...Array.from(groups).sort((a,b)=>a.localeCompare(b))];
+  let viewIdx = [];
+  let groups = new Map(); // name -> count (for dropdown)
+  const headerRe = /^\s*#+\s*(.*?)\s*#+\s*$/; // ##### GROUP #####
 
-      const current = el.groupSel.value;
-      el.groupSel.innerHTML = "";
-      for (const g of arr){
-        const opt = document.createElement("option");
-        opt.value = g;
-        opt.textContent = (g === "__all__") ? "All groups" : g;
-        el.groupSel.appendChild(opt);
+  const DEBOUNCE_MS = 220;
+
+  function setStatus(t){ el.status.textContent = t; }
+  function esc(s){
+    return String(s ?? "")
+      .replaceAll("&","&amp;").replaceAll("<","&lt;")
+      .replaceAll(">","&gt;").replaceAll('"',"&quot;")
+      .replaceAll("'","&#039;");
+  }
+  function getLimit(){ return parseInt(el.limit.value, 10) || 500; }
+  function minChars(){ return parseInt(el.minChars.value, 10) || 2; }
+
+  function downloadText(filename, text, mime){
+    const blob = new Blob([text], {type: mime || "audio/x-mpegurl"});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    a.click();
+    setTimeout(()=>URL.revokeObjectURL(a.href), 1500);
+  }
+
+  function toM3U(list){
+    let out = "#EXTM3U\n";
+    let lastGroup = null;
+
+    for (const e of list){
+      const g = (e.group || "Ungrouped").trim() || "Ungrouped";
+      if (g !== lastGroup){
+        out += `#EXTINF:-1,##### ${g} #####\n`;
+        out += `#\n`;
+        lastGroup = g;
       }
-      // restore
-      if (arr.includes(current)) el.groupSel.value = current;
+      const title = (e.title || "").trim() || e.url;
+      out += `#EXTINF:-1,${title}\n`;
+      out += `${e.url}\n`;
+    }
+    return out;
+  }
+
+  function rebuildGroupSelectOnce(){
+    const current = el.groupSel.value;
+    el.groupSel.innerHTML = `<option value="__all__">All groups</option>`;
+    const names = Array.from(groups.keys()).sort((a,b)=>a.localeCompare(b));
+    for (const g of names){
+      const opt = document.createElement("option");
+      opt.value = g;
+      opt.textContent = `${g} (${groups.get(g)})`;
+      el.groupSel.appendChild(opt);
+    }
+    if ([...el.groupSel.options].some(o => o.value === current)) el.groupSel.value = current;
+  }
+
+  function clearSelection(){
+    selectedIndex = -1;
+    el.eTitle.value = "";
+    el.eGroup.value = "";
+    el.eUrl.value = "";
+
+    el.save.disabled = true;
+    el.dup.disabled = true;
+    el.del.disabled = true;
+    el.clear.disabled = true;
+  }
+
+  function enableEditor(){
+    el.save.disabled = false;
+    el.dup.disabled = false;
+    el.del.disabled = false;
+    el.clear.disabled = false;
+  }
+
+  function select(i){
+    selectedIndex = i;
+    const e = entries[i];
+    el.eTitle.value = e.title || "";
+    el.eGroup.value = e.group || "";
+    el.eUrl.value = e.url || "";
+    enableEditor();
+    renderResults(); // highlight active
+  }
+
+  function renderResults(){
+    el.stats.textContent = `${entries.length.toLocaleString("ro-RO")} entries`;
+    el.groups.textContent = `${groups.size.toLocaleString("ro-RO")} groups`;
+
+    el.exportAll.disabled = entries.length === 0;
+    el.exportView.disabled = viewIdx.length === 0;
+
+    el.list.innerHTML = "";
+
+    const q = el.q.value.trim().toLowerCase();
+    const gsel = el.groupSel.value;
+    const min = minChars();
+
+    if (entries.length === 0){
+      el.list.innerHTML = `<div class="item"><div class="idx">—</div><div><div class="title">Nimic încărcat</div><div class="sub">Încarcă un .m3u</div></div></div>`;
+      return;
     }
 
-    function parseM3U(text){
-      const lines = text.replace(/\r/g, "").split("\n");
-      const out = [];
-      let pendingTitle = "";
-      let currentGroup = "Ungrouped";
+    if (q.length < min && (gsel === "__all__")){
+      el.list.innerHTML = `<div class="item">
+        <div class="idx">ℹ️</div>
+        <div>
+          <div class="title">Scrie minim ${min} caractere ca să vezi rezultate</div>
+          <div class="sub">E intenționat (playlist mare). Dacă vrei, poți filtra direct pe un group.</div>
+        </div>
+      </div>`;
+      return;
+    }
 
-      for (const raw of lines){
-        const line = raw.trim();
+    const lim = getLimit();
+    viewIdx = buildViewIndexes(q, gsel, lim);
+
+    if (!viewIdx.length){
+      el.list.innerHTML = `<div class="item"><div class="idx">—</div><div><div class="title">Niciun rezultat</div><div class="sub">Încearcă altă căutare / alt group.</div></div></div>`;
+      el.exportView.disabled = true;
+      return;
+    }
+
+    for (const i of viewIdx){
+      const e = entries[i];
+      const div = document.createElement("div");
+      div.className = "item" + (i === selectedIndex ? " active" : "");
+      div.innerHTML = `
+        <div class="idx">#${i+1}</div>
+        <div>
+          <div class="title">${esc(e.title)}</div>
+          <div class="sub">${esc(e.group)} · ${esc(e.url)}</div>
+        </div>
+      `;
+      div.addEventListener("click", () => select(i));
+      el.list.appendChild(div);
+    }
+
+    el.exportView.disabled = false;
+    el.hint.innerHTML = `Rezultate: <span class="pill">${viewIdx.length}</span> (limit ${lim}).`;
+  }
+
+  function buildViewIndexes(qLower, gsel, lim){
+    const out = [];
+    const groupFilter = (gsel && gsel !== "__all__") ? gsel : "";
+
+    for (let i = 0; i < entries.length; i++){
+      const e = entries[i];
+      if (groupFilter && e.group !== groupFilter) continue;
+
+      if (qLower){
+        const hay = (e.title + " " + e.url + " " + (e.group || "")).toLowerCase();
+        if (!hay.includes(qLower)) continue;
+      }
+
+      out.push(i);
+      if (out.length >= lim) break;
+    }
+    return out;
+  }
+
+  // Streaming parser
+  async function loadFileStreaming(file){
+    setStatus(`Parsing ${file.name}...`);
+    el.bar.style.width = "0%";
+    entries = [];
+    groups = new Map();
+    viewIdx = [];
+    clearSelection();
+    renderResults();
+
+    const decoder = new TextDecoder("utf-8", { fatal:false });
+    const reader = file.stream().getReader();
+    const total = file.size;
+    let read = 0;
+
+    let buffer = "";
+    let pendingTitle = "";
+    let currentGroup = "Ungrouped";
+
+    const YIELD_EVERY = 8000;
+
+    while (true){
+      const {value, done} = await reader.read();
+      if (done) break;
+
+      read += value.byteLength;
+      buffer += decoder.decode(value, {stream:true});
+
+      let nl;
+      while ((nl = buffer.indexOf("\n")) !== -1){
+        const raw = buffer.slice(0, nl);
+        buffer = buffer.slice(nl + 1);
+
+        const line = raw.replace(/\r/g,"").trim();
         if (!line) continue;
 
         if (line.startsWith("#EXTINF:")){
@@ -218,10 +374,7 @@
           continue;
         }
 
-        if (line.startsWith("#")) {
-          // ignore other tags (#EXTM3U, #KODIPROP etc.)
-          continue;
-        }
+        if (line.startsWith("#")) continue;
 
         // URL line
         const m = pendingTitle.match(headerRe);
@@ -232,248 +385,122 @@
           continue;
         }
 
-        out.push({
+        const entry = {
           title: pendingTitle || line,
           url: line,
-          group: currentGroup || "Ungrouped",
-        });
+          group: currentGroup || "Ungrouped"
+        };
+        entries.push(entry);
+
+        // group counts
+        const gname = entry.group;
+        groups.set(gname, (groups.get(gname) || 0) + 1);
+
         pendingTitle = "";
-      }
-      return out;
-    }
 
-    function toM3U(list){
-      // Export format:
-      // #EXTM3U
-      // ##### GROUP #####
-      // #EXTINF:-1,Title
-      // URL
-      let out = "#EXTM3U\n";
-      let lastGroup = null;
-
-      for (const e of list){
-        const g = (e.group || "Ungrouped").trim() || "Ungrouped";
-        if (g !== lastGroup){
-          out += `#EXTINF:-1,##### ${g} #####\n`;
-          out += `#\n`; // separator comment (optional)
-          lastGroup = g;
+        if (entries.length % YIELD_EVERY === 0){
+          const pct = Math.min(100, Math.round((read / total) * 100));
+          el.bar.style.width = pct + "%";
+          el.stats.textContent = `${entries.length.toLocaleString("ro-RO")} entries`;
+          el.groups.textContent = `${groups.size.toLocaleString("ro-RO")} groups`;
+          setStatus(`Parsing... ${pct}%`);
+          await new Promise(r => setTimeout(r, 0));
         }
-        const title = (e.title || "").trim() || e.url;
-        out += `#EXTINF:-1,${title}\n`;
-        out += `${e.url}\n`;
       }
-      return out;
     }
 
-    function downloadText(filename, text, mime){
-      const blob = new Blob([text], {type: mime || "text/plain"});
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = filename;
-      a.click();
-      setTimeout(()=>URL.revokeObjectURL(a.href), 1500);
+    buffer += decoder.decode();
+    el.bar.style.width = "100%";
+    setStatus(`Gata: ${file.name} · ${entries.length.toLocaleString("ro-RO")} intrări · ${groups.size.toLocaleString("ro-RO")} groups`);
+    rebuildGroupSelectOnce();
+    renderResults();
+  }
+
+  // Debounced search
+  let t = null;
+  function scheduleRender(){
+    clearTimeout(t);
+    t = setTimeout(renderResults, DEBOUNCE_MS);
+  }
+
+  // Events
+  el.file.addEventListener("change", async () => {
+    const f = el.file.files?.[0];
+    if (!f) return;
+    await loadFileStreaming(f);
+  });
+
+  el.q.addEventListener("input", scheduleRender);
+  el.groupSel.addEventListener("change", () => { scheduleRender(); });
+  el.limit.addEventListener("change", () => { scheduleRender(); });
+  el.minChars.addEventListener("change", () => { scheduleRender(); });
+
+  el.save.addEventListener("click", () => {
+    if (selectedIndex < 0) return;
+    const url = el.eUrl.value.trim();
+    if (!url) return alert("URL lipsă.");
+
+    const title = el.eTitle.value.trim() || url;
+    const group = el.eGroup.value.trim() || "Ungrouped";
+
+    const oldGroup = entries[selectedIndex].group;
+
+    entries[selectedIndex] = { title, url, group };
+
+    // update group counts (simplu: recalculăm doar când se schimbă group)
+    if (oldGroup !== group){
+      groups.set(oldGroup, Math.max(0, (groups.get(oldGroup) || 1) - 1));
+      if ((groups.get(oldGroup) || 0) === 0) groups.delete(oldGroup);
+
+      groups.set(group, (groups.get(group) || 0) + 1);
+      rebuildGroupSelectOnce();
     }
 
-    function getLimit(){ return parseInt(el.limit.value, 10) || 500; }
+    setStatus("Salvat.");
+    renderResults();
+  });
 
-    function passesFilters(e){
-      const q = el.q.value.trim().toLowerCase();
-      const gsel = el.groupSel.value;
+  el.dup.addEventListener("click", () => {
+    if (selectedIndex < 0) return;
+    const copy = {...entries[selectedIndex]};
+    entries.splice(selectedIndex + 1, 0, copy);
+    groups.set(copy.group, (groups.get(copy.group) || 0) + 1);
+    setStatus("Duplicat.");
+    rebuildGroupSelectOnce();
+    select(selectedIndex + 1);
+  });
 
-      if (gsel && gsel !== "__all__"){
-        if ((e.group || "") !== gsel) return false;
-      }
+  el.del.addEventListener("click", () => {
+    if (selectedIndex < 0) return;
+    if (!confirm("Ștergi intrarea selectată?")) return;
+    const g = entries[selectedIndex].group;
+    entries.splice(selectedIndex, 1);
+    groups.set(g, Math.max(0, (groups.get(g) || 1) - 1));
+    if ((groups.get(g) || 0) === 0) groups.delete(g);
+    rebuildGroupSelectOnce();
+    setStatus("Șters.");
+    clearSelection();
+    renderResults();
+  });
 
-      if (!q) return true;
-      const hay = (e.title + " " + e.url + " " + (e.group || "")).toLowerCase();
-      return hay.includes(q);
-    }
+  el.clear.addEventListener("click", () => {
+    clearSelection();
+    renderResults();
+  });
 
-    function render(){
-      el.stats.textContent = `${entries.length.toLocaleString("ro-RO")} entries`;
-      el.export.disabled = entries.length === 0;
-      el.refreshRaw.disabled = entries.length === 0;
+  el.exportAll.addEventListener("click", () => {
+    const m3u = toM3U(entries);
+    downloadText("edited.m3u", m3u, "audio/x-mpegurl");
+  });
 
-      rebuildGroupSelect();
+  el.exportView.addEventListener("click", () => {
+    const subset = viewIdx.map(i => entries[i]);
+    const m3u = toM3U(subset);
+    downloadText("results.m3u", m3u, "audio/x-mpegurl");
+  });
 
-      // build view
-      viewIdx = [];
-      const lim = getLimit();
-      for (let i = 0; i < entries.length; i++){
-        if (!passesFilters(entries[i])) continue;
-        viewIdx.push(i);
-        if (viewIdx.length >= lim) break;
-      }
-
-      el.exportSel.disabled = viewIdx.length === 0;
-
-      el.list.innerHTML = "";
-      if (viewIdx.length === 0){
-        el.list.innerHTML = `<div class="item">
-          <div class="idx">—</div>
-          <div>
-            <div class="title">Niciun rezultat</div>
-            <div class="sub">Schimbă căutarea / group / limit.</div>
-          </div>
-        </div>`;
-        return;
-      }
-
-      for (let k = 0; k < viewIdx.length; k++){
-        const i = viewIdx[k];
-        const e = entries[i];
-        const div = document.createElement("div");
-        div.className = "item" + (i === selectedIndex ? " active" : "");
-        div.innerHTML = `
-          <div class="idx">#${i+1}</div>
-          <div>
-            <div class="title">${esc(e.title)}</div>
-            <div class="sub">${esc(e.group)} · ${esc(e.url)}</div>
-          </div>
-        `;
-        div.addEventListener("click", () => select(i));
-        el.list.appendChild(div);
-      }
-
-      setStatus(`Afișez ${viewIdx.length} rezultate (din ${entries.length.toLocaleString("ro-RO")}).`);
-    }
-
-    function select(i){
-      selectedIndex = i;
-      const e = entries[i];
-
-      el.eTitle.value = e.title || "";
-      el.eGroup.value = e.group || "";
-      el.eUrl.value = e.url || "";
-
-      el.save.disabled = false;
-      el.duplicate.disabled = false;
-      el.remove.disabled = false;
-      el.moveUp.disabled = (i <= 0);
-      el.moveDown.disabled = (i >= entries.length - 1);
-      el.clearSel.disabled = false;
-
-      render();
-    }
-
-    function clearSelection(){
-      selectedIndex = -1;
-      el.eTitle.value = "";
-      el.eGroup.value = "";
-      el.eUrl.value = "";
-
-      el.save.disabled = true;
-      el.duplicate.disabled = true;
-      el.remove.disabled = true;
-      el.moveUp.disabled = true;
-      el.moveDown.disabled = true;
-      el.clearSel.disabled = true;
-
-      render();
-    }
-
-    // Events
-    el.file.addEventListener("change", async () => {
-      const f = el.file.files?.[0];
-      if (!f) return;
-      const txt = await f.text();
-      entries = parseM3U(txt);
-      clearSelection();
-      el.raw.value = txt;
-      setStatus(`Încărcat: ${f.name} · ${entries.length.toLocaleString("ro-RO")} intrări`);
-      render();
-    });
-
-    el.newEmpty.addEventListener("click", () => {
-      entries = [];
-      el.raw.value = "#EXTM3U\n";
-      clearSelection();
-      setStatus("Playlist nou (gol).");
-      render();
-    });
-
-    el.q.addEventListener("input", () => render());
-    el.groupSel.addEventListener("change", () => render());
-    el.limit.addEventListener("change", () => render());
-
-    el.save.addEventListener("click", () => {
-      if (selectedIndex < 0) return;
-      const title = el.eTitle.value.trim();
-      const group = el.eGroup.value.trim() || "Ungrouped";
-      const url = el.eUrl.value.trim();
-
-      if (!url){
-        alert("URL lipsă.");
-        return;
-      }
-
-      entries[selectedIndex] = { title: title || url, group, url };
-      setStatus("Salvat.");
-      render();
-    });
-
-    el.duplicate.addEventListener("click", () => {
-      if (selectedIndex < 0) return;
-      const copy = {...entries[selectedIndex]};
-      entries.splice(selectedIndex + 1, 0, copy);
-      setStatus("Duplicat.");
-      select(selectedIndex + 1);
-    });
-
-    el.remove.addEventListener("click", () => {
-      if (selectedIndex < 0) return;
-      const ok = confirm("Ștergi intrarea selectată?");
-      if (!ok) return;
-      entries.splice(selectedIndex, 1);
-      setStatus("Șters.");
-      clearSelection();
-    });
-
-    el.moveUp.addEventListener("click", () => {
-      if (selectedIndex <= 0) return;
-      const i = selectedIndex;
-      [entries[i-1], entries[i]] = [entries[i], entries[i-1]];
-      select(i - 1);
-      setStatus("Mutat în sus.");
-    });
-
-    el.moveDown.addEventListener("click", () => {
-      if (selectedIndex < 0 || selectedIndex >= entries.length - 1) return;
-      const i = selectedIndex;
-      [entries[i], entries[i+1]] = [entries[i+1], entries[i]];
-      select(i + 1);
-      setStatus("Mutat în jos.");
-    });
-
-    el.clearSel.addEventListener("click", clearSelection);
-
-    el.export.addEventListener("click", () => {
-      const m3u = toM3U(entries);
-      downloadText("edited.m3u", m3u, "audio/x-mpegurl");
-    });
-
-    el.exportSel.addEventListener("click", () => {
-      const subset = viewIdx.map(i => entries[i]);
-      const m3u = toM3U(subset);
-      downloadText("selection.m3u", m3u, "audio/x-mpegurl");
-    });
-
-    el.parseRaw.addEventListener("click", () => {
-      const txt = el.raw.value || "";
-      entries = parseM3U(txt);
-      clearSelection();
-      setStatus(`Parsed raw: ${entries.length.toLocaleString("ro-RO")} intrări`);
-      render();
-    });
-
-    el.refreshRaw.addEventListener("click", () => {
-      const m3u = toM3U(entries);
-      el.raw.value = m3u;
-      setStatus("Raw refresh făcut din model.");
-    });
-
-    // init
-    render();
-  </script>
+  // initial
+  renderResults();
+</script>
 </body>
 </html>
