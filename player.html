@@ -1,0 +1,793 @@
+<!doctype html>
+<html lang="ro">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Playlist .m3u / .m3u8 — Audio + Video</title>
+  <style>
+    :root { color-scheme: light dark; }
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin:0; }
+    .wrap { max-width: 1100px; margin: 0 auto; padding: 16px; }
+    .card { border: 1px solid rgba(127,127,127,.25); border-radius: 16px; padding: 14px; }
+    h1 { margin: 0 0 10px; font-size: 1.1rem; }
+    .row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+    .row > * { flex: 0 0 auto; }
+    input[type="file"] { max-width: 100%; }
+    input[type="text"] {
+      flex: 1 1 280px;
+      padding: 8px 10px;
+      border-radius: 12px;
+      border: 1px solid rgba(127,127,127,.35);
+      background: transparent;
+    }
+    button, select {
+      padding: 8px 10px;
+      border-radius: 12px;
+      border: 1px solid rgba(127,127,127,.35);
+      background: transparent;
+      cursor: pointer;
+    }
+    button:disabled { opacity:.5; cursor:not-allowed; }
+    .meta { font-size:.9rem; opacity:.8; }
+    .pill { display:inline-block; padding: 2px 8px; border: 1px solid rgba(127,127,127,.35); border-radius: 999px; font-size:.8rem; opacity:.9; }
+    .split { display:grid; grid-template-columns: 1.1fr .9fr; gap: 12px; margin-top: 12px; }
+    @media (max-width: 920px){ .split{ grid-template-columns: 1fr; } }
+
+    .drop {
+      border: 1px dashed rgba(127,127,127,.45);
+      border-radius: 14px;
+      padding: 10px 12px;
+      background: rgba(127,127,127,.06);
+    }
+    .drop.dragover { outline: 2px solid rgba(255,170,0,.6); outline-offset: 2px; }
+
+    .list { max-height: 480px; overflow:auto; border-radius: 14px; border: 1px solid rgba(127,127,127,.25); }
+    .groupHeader {
+      position: sticky; top: 0;
+      background: rgba(0,0,0,.05);
+      backdrop-filter: blur(6px);
+      padding: 8px 10px;
+      font-weight: 700;
+      border-bottom: 1px solid rgba(127,127,127,.18);
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+    }
+    .groupHeader small { font-weight: 500; opacity: .8; }
+    .item {
+      display:grid;
+      grid-template-columns: 34px 1fr 120px;
+      gap: 10px;
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(127,127,127,.14);
+      cursor:pointer;
+    }
+    .item:last-child{ border-bottom:none; }
+    .item.active { outline: 2px solid rgba(255,170,0,.6); outline-offset:-2px; }
+    .idx { opacity:.7; font-variant-numeric: tabular-nums; }
+    .title { font-weight: 650; }
+    .url { font-size:.84rem; opacity:.75; word-break: break-all; }
+    .right { text-align:right; font-size:.84rem; opacity:.85; }
+    .tag { display:inline-block; padding: 1px 8px; border: 1px solid rgba(127,127,127,.35); border-radius: 999px; font-size:.75rem; margin-left: 6px; opacity:.9; }
+    .playerBox { display:grid; gap: 10px; }
+    audio, video { width: 100%; border-radius: 12px; }
+    .thumb {
+      width: 100%; height: 148px; border-radius: 12px;
+      border: 1px solid rgba(127,127,127,.25);
+      background: rgba(127,127,127,.08);
+      display:flex; align-items:center; justify-content:center;
+      font-size:.9rem; opacity:.85;
+      overflow:hidden;
+    }
+    .thumb img { width:100%; height:100%; object-fit: cover; display:block; }
+    .kv { display:grid; gap: 6px; font-size: .9rem; }
+    .kv div { display:flex; gap:8px; align-items:baseline; }
+    .kv b { min-width: 92px; opacity:.9; }
+    .warn { color: #c98000; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>Player .m3u / .m3u8 — Audio + Video (HLS inclus)</h1>
+
+      <div id="drop" class="drop">
+        <div class="row">
+          <input id="file" type="file" accept=".m3u,.m3u8,text/plain,audio/x-mpegurl,application/vnd.apple.mpegurl" />
+          <button id="demo">Demo</button>
+          <button id="restore">Restore last</button>
+          <span class="meta" id="status">Încarcă un fișier .m3u / .m3u8 sau fă drag & drop aici.</span>
+        </div>
+        <div class="meta" style="margin-top:6px;">
+          Tip: dacă ai un M3U cu căi relative, cel mai stabil e să rulezi pagina dintr-un server local (ex. <span class="pill">python -m http.server</span>).
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:10px;">
+        <button id="back">↩︎ Back</button>
+        <button id="prev">⏮ Prev</button>
+        <button id="playPause">▶️ Play</button>
+        <button id="next">⏭ Next</button>
+        <button id="stop">⏹ Stop</button>
+
+        <label class="row" style="gap:6px;">
+          <input id="shuffle" type="checkbox" />
+          <span>Shuffle</span>
+        </label>
+
+        <label class="row" style="gap:6px;">
+          <input id="repeat" type="checkbox" />
+          <span>Repeat</span>
+        </label>
+
+        <select id="mode" title="Cum alegem audio vs video">
+          <option value="auto">Auto (recomandat)</option>
+          <option value="audio">Forțează Audio</option>
+          <option value="video">Forțează Video</option>
+        </select>
+
+        <button id="copy">📋 Copy URL</button>
+        <button id="open">↗ Open tab</button>
+        <button id="export">⬇ Export (filtered .m3u)</button>
+      </div>
+
+      <div class="row" style="margin-top:10px;">
+        <input id="q" type="text" placeholder="Caută (titlu / URL / group)..." />
+        <select id="filterType" title="Filtru tip media">
+          <option value="all">All</option>
+          <option value="audio">Audio</option>
+          <option value="video">Video</option>
+          <option value="hls">HLS (.m3u8)</option>
+        </select>
+        <select id="groupSel" title="Filtru group">
+          <option value="__all__">All groups</option>
+        </select>
+        <span class="pill" id="now">Nimic redat</span>
+      </div>
+
+      <div class="split">
+        <div>
+          <div class="meta" style="margin: 6px 0 8px;">Playlist</div>
+          <div class="list" id="list"></div>
+        </div>
+
+        <div class="playerBox">
+          <div class="meta">Player</div>
+
+          <div class="thumb" id="thumb">Thumbnail / Poster (dacă e disponibil)</div>
+
+          <audio id="audio" controls></audio>
+          <video id="video" controls playsinline style="display:none"></video>
+
+          <div class="kv">
+            <div><b>Titlu</b><span id="mTitle">—</span></div>
+            <div><b>Group</b><span id="mGroup">—</span></div>
+            <div><b>Tip</b><span id="mType">—</span></div>
+            <div><b>Durată</b><span id="mDur">—</span></div>
+            <div><b>Video</b><span id="mDims">—</span></div>
+          </div>
+
+          <div class="meta" id="hint">
+            HLS: Safari redă nativ; Chrome/Firefox/Edge folosesc <span class="pill">hls.js</span>. Dacă un stream e blocat (CORS/tokens), folosește <span class="pill">Open tab</span>.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HLS pentru Chrome/Firefox/Edge -->
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+
+  <script>
+    const $ = (s) => document.querySelector(s);
+
+    // --- Elemente UI ---
+    const el = {
+      drop: $("#drop"),
+      file: $("#file"),
+      demo: $("#demo"),
+      restore: $("#restore"),
+      status: $("#status"),
+      list: $("#list"),
+      q: $("#q"),
+      filterType: $("#filterType"),
+      groupSel: $("#groupSel"),
+      mode: $("#mode"),
+      now: $("#now"),
+
+      back: $("#back"),
+      prev: $("#prev"),
+      playPause: $("#playPause"),
+      next: $("#next"),
+      stop: $("#stop"),
+      shuffle: $("#shuffle"),
+      repeat: $("#repeat"),
+      copy: $("#copy"),
+      open: $("#open"),
+      export: $("#export"),
+
+      audio: $("#audio"),
+      video: $("#video"),
+      thumb: $("#thumb"),
+
+      mTitle: $("#mTitle"),
+      mGroup: $("#mGroup"),
+      mType: $("#mType"),
+      mDur: $("#mDur"),
+      mDims: $("#mDims"),
+      hint: $("#hint"),
+    };
+
+    // --- Stare ---
+    let entries = [];          // {url,title,group,durationRaw,attrs:{...},meta:{...}}
+    let current = -1;          // index în entries
+    let hls = null;
+    let historyStack = [];     // indexe anterioare
+
+    const LS_KEY = "m3u_player_last_playlist_v2";
+
+    function setStatus(t){ el.status.textContent = t; }
+    function setNow(t){ el.now.textContent = t; }
+    function esc(s){
+      return String(s ?? "")
+        .replaceAll("&","&amp;").replaceAll("<","&lt;")
+        .replaceAll(">","&gt;").replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    // --- Detectare tip ---
+    function stripQuery(url){ return (url || "").split("?")[0].toLowerCase(); }
+    function isHls(url){
+      const u = stripQuery(url);
+      return u.endsWith(".m3u8") || u.includes("m3u8");
+    }
+    function isVideoFile(url){
+      const u = stripQuery(url);
+      return u.endsWith(".mp4") || u.endsWith(".webm") || u.endsWith(".mov") || u.endsWith(".mkv") || u.endsWith(".m4v");
+    }
+    function isAudioFile(url){
+      const u = stripQuery(url);
+      return u.endsWith(".mp3") || u.endsWith(".aac") || u.endsWith(".m4a") || u.endsWith(".ogg") || u.endsWith(".wav") || u.endsWith(".flac");
+    }
+    function inferType(entry){
+      if (isHls(entry.url)) return "hls";
+      if (isVideoFile(entry.url)) return "video";
+      if (isAudioFile(entry.url)) return "audio";
+      // fallback: dacă userul forțează, respectăm; altfel "unknown"
+      return "unknown";
+    }
+    function preferMedia(url){
+      const m = el.mode.value;
+      if (m === "audio") return "audio";
+      if (m === "video") return "video";
+      // auto:
+      if (isHls(url) || isVideoFile(url)) return "video";
+      return "audio";
+    }
+
+    // --- Parse M3U / M3U8 (EXTINF + EXTGRP + KODIPROP/ VLCOPT simple) ---
+    function parseM3U(text){
+      const lines = text.replace(/\r/g,"").split("\n");
+      const out = [];
+      let pending = {
+        title: "",
+        group: "",
+        durationRaw: "",
+        attrs: {}
+      };
+
+      function resetPending(){
+        pending = { title:"", group:"", durationRaw:"", attrs:{} };
+      }
+
+      for (const raw of lines){
+        const line = raw.trim();
+        if (!line) continue;
+
+        if (line.startsWith("#EXTINF:")){
+          // Ex: #EXTINF:-1 tvg-id="..." group-title="News",CNN
+          pending.durationRaw = line.slice(8).split(",")[0].trim();
+          const parts = line.split(",");
+          pending.title = (parts.slice(1).join(",") || "").trim();
+
+          // atribute gen tvg-logo, group-title etc.
+          const attrPart = line.substring(8, line.lastIndexOf(","));
+          const re = /([a-zA-Z0-9\-\_]+)\s*=\s*"([^"]*)"/g;
+          let m;
+          while ((m = re.exec(attrPart)) !== null){
+            pending.attrs[m[1]] = m[2];
+          }
+          if (pending.attrs["group-title"]) pending.group = pending.attrs["group-title"];
+          continue;
+        }
+
+        if (line.startsWith("#EXTGRP:")){
+          pending.group = line.slice(8).trim();
+          continue;
+        }
+
+        // Kodi props: #KODIPROP:inputstream.adaptive.license_key=...
+        if (line.startsWith("#KODIPROP:")){
+          const kv = line.slice(10).split("=");
+          const k = (kv[0] || "").trim();
+          const v = (kv.slice(1).join("=") || "").trim();
+          if (k) pending.attrs["KODIPROP:" + k] = v;
+          continue;
+        }
+
+        // VLC opts: #EXTVLCOPT:http-user-agent=...
+        if (line.startsWith("#EXTVLCOPT:")){
+          const kv = line.slice(10).split("=");
+          const k = (kv[0] || "").trim();
+          const v = (kv.slice(1).join("=") || "").trim();
+          if (k) pending.attrs["VLCOPT:" + k] = v;
+          continue;
+        }
+
+        if (line.startsWith("#")) {
+          // alte comentarii ignorate
+          continue;
+        }
+
+        // URL / path
+        out.push({
+          url: line,
+          title: pending.title,
+          group: pending.group,
+          durationRaw: pending.durationRaw,
+          attrs: {...pending.attrs},
+          meta: { duration: null, w: null, h: null } // completate după load
+        });
+        resetPending();
+      }
+      return out;
+    }
+
+    function prettyName(e){
+      if (e.title && e.title.trim()) return e.title.trim();
+      try{
+        const noQ = (e.url || "").split("?")[0];
+        const last = noQ.split("/").filter(Boolean).pop() || e.url;
+        return decodeURIComponent(last);
+      }catch{
+        return e.url;
+      }
+    }
+
+    // --- Render / filtre / grupuri ---
+    function rebuildGroupSelect(){
+      const groups = new Set(entries.map(e => (e.group || "").trim()).filter(Boolean));
+      const arr = ["__all__", ...Array.from(groups).sort((a,b)=>a.localeCompare(b))];
+
+      el.groupSel.innerHTML = "";
+      for (const g of arr){
+        const opt = document.createElement("option");
+        opt.value = g;
+        opt.textContent = (g === "__all__") ? "All groups" : g;
+        el.groupSel.appendChild(opt);
+      }
+    }
+
+    function passesFilters(e){
+      const q = el.q.value.trim().toLowerCase();
+      const ft = el.filterType.value;
+      const gsel = el.groupSel.value;
+
+      if (gsel && gsel !== "__all__"){
+        if ((e.group || "") !== gsel) return false;
+      }
+
+      const t = inferType(e);
+      if (ft === "audio" && t !== "audio") return false;
+      if (ft === "video" && t !== "video") return false;
+      if (ft === "hls" && t !== "hls") return false;
+
+      if (!q) return true;
+      const hay = (prettyName(e) + " " + (e.url||"") + " " + (e.group||"")).toLowerCase();
+      return hay.includes(q);
+    }
+
+    function renderList(){
+      el.list.innerHTML = "";
+      if (!entries.length){
+        el.list.innerHTML = `<div class="item"><div class="idx">–</div><div><div class="title">Nicio intrare</div><div class="url">Încarcă un .m3u / .m3u8</div></div><div class="right"></div></div>`;
+        return;
+      }
+
+      // grupare
+      const filtered = entries
+        .map((e,i)=>({e,i}))
+        .filter(x => passesFilters(x.e));
+
+      const byGroup = new Map();
+      for (const x of filtered){
+        const g = (x.e.group || "Ungrouped").trim() || "Ungrouped";
+        if (!byGroup.has(g)) byGroup.set(g, []);
+        byGroup.get(g).push(x);
+      }
+
+      const groupNames = Array.from(byGroup.keys()).sort((a,b)=>a.localeCompare(b));
+      let shownCount = 0;
+
+      for (const g of groupNames){
+        const arr = byGroup.get(g);
+        const header = document.createElement("div");
+        header.className = "groupHeader";
+        header.innerHTML = `<span>${esc(g)}</span><small>${arr.length} item(s)</small>`;
+        el.list.appendChild(header);
+
+        for (const {e,i} of arr){
+          shownCount++;
+          const div = document.createElement("div");
+          div.className = "item" + (i === current ? " active" : "");
+          const t = inferType(e);
+          const tag = t === "hls" ? "HLS" : (t === "video" ? "VIDEO" : (t === "audio" ? "AUDIO" : "UNK"));
+          const dur = e.meta?.duration ? formatTime(e.meta.duration) : (e.durationRaw ? e.durationRaw : "");
+          div.innerHTML = `
+            <div class="idx">${String(i+1).padStart(2,"0")}</div>
+            <div>
+              <div class="title">${esc(prettyName(e))}<span class="tag">${esc(tag)}</span></div>
+              <div class="url">${esc(e.url)}</div>
+            </div>
+            <div class="right">${esc(dur)}</div>
+          `;
+          div.addEventListener("click", () => selectAndPlay(i));
+          el.list.appendChild(div);
+        }
+      }
+
+      setStatus(`Afișez ${shownCount} / ${entries.length} · Mode=${el.mode.value} · Filtru=${el.filterType.value}`);
+    }
+
+    // --- Player logic ---
+    function destroyHls(){
+      if (hls){ try{ hls.destroy(); }catch{} }
+      hls = null;
+    }
+
+    function setPlayerVisibility(useVideo){
+      el.video.style.display = useVideo ? "" : "none";
+      el.audio.style.display = useVideo ? "none" : "";
+    }
+
+    function clearThumb(){
+      el.thumb.innerHTML = "Thumbnail / Poster (dacă e disponibil)";
+    }
+
+    function setThumbFromEntry(e){
+      // tvg-logo e comun în IPTV m3u
+      const logo = e.attrs?.["tvg-logo"] || e.attrs?.["logo"] || "";
+      if (logo){
+        el.thumb.innerHTML = `<img alt="logo" src="${esc(logo)}" />`;
+      } else {
+        clearThumb();
+      }
+    }
+
+    function setMetaPanel(e){
+      el.mTitle.textContent = prettyName(e);
+      el.mGroup.textContent = e.group || "—";
+      el.mType.textContent = inferType(e);
+      el.mDur.textContent = e.meta?.duration ? formatTime(e.meta.duration) : "—";
+      if (e.meta?.w && e.meta?.h) el.mDims.textContent = `${e.meta.w}×${e.meta.h}`;
+      else el.mDims.textContent = "—";
+    }
+
+    function syncPlayPause(isPlaying){
+      el.playPause.textContent = isPlaying ? "⏸ Pause" : "▶️ Play";
+    }
+
+    function playUrl(url){
+      destroyHls();
+
+      const pref = preferMedia(url);
+      const hlsNeeded = isHls(url);
+
+      if (pref === "video"){
+        setPlayerVisibility(true);
+
+        if (hlsNeeded && window.Hls && window.Hls.isSupported()){
+          hls = new Hls({ lowLatencyMode: true });
+          hls.loadSource(url);
+          hls.attachMedia(el.video);
+          el.video.play().catch(()=>{});
+          return;
+        }
+
+        // Safari HLS nativ sau fișier video direct
+        el.video.src = url;
+        el.video.play().catch(()=>{});
+        return;
+      }
+
+      // audio
+      setPlayerVisibility(false);
+      el.audio.src = url;
+      el.audio.play().catch(()=>{});
+    }
+
+    function selectAndPlay(i){
+      if (i < 0 || i >= entries.length) return;
+
+      if (current !== -1 && current !== i){
+        historyStack.push(current);
+        if (historyStack.length > 100) historyStack.shift();
+      }
+
+      current = i;
+      const e = entries[current];
+
+      setNow(`Redau: ${prettyName(e)}`);
+      setThumbFromEntry(e);
+      setMetaPanel(e);
+
+      playUrl(e.url);
+      syncPlayPause(true);
+      renderList();
+    }
+
+    function stop(){
+      destroyHls();
+      el.audio.pause(); el.video.pause();
+      el.audio.removeAttribute("src"); el.video.removeAttribute("src");
+      clearThumb();
+      setNow("Oprit");
+      syncPlayPause(false);
+      el.mTitle.textContent = "—";
+      el.mGroup.textContent = "—";
+      el.mType.textContent = "—";
+      el.mDur.textContent = "—";
+      el.mDims.textContent = "—";
+    }
+
+    function getNextIndex(dir){
+      if (!entries.length) return -1;
+      if (current === -1) return 0;
+
+      if (el.shuffle.checked){
+        if (entries.length === 1) return current;
+        let j = current;
+        while (j === current) j = Math.floor(Math.random() * entries.length);
+        return j;
+      }
+
+      let j = current + dir;
+      if (j >= entries.length) j = el.repeat.checked ? 0 : -1;
+      if (j < 0) j = el.repeat.checked ? entries.length - 1 : -1;
+      return j;
+    }
+
+    function onEnded(){
+      const j = getNextIndex(+1);
+      if (j === -1){ syncPlayPause(false); return; }
+      selectAndPlay(j);
+    }
+
+    // --- Metadata hooks (durată / dimensiuni) ---
+    function attachMetadataListeners(){
+      el.audio.addEventListener("loadedmetadata", () => {
+        if (current === -1) return;
+        const e = entries[current];
+        if (Number.isFinite(el.audio.duration)) e.meta.duration = el.audio.duration;
+        setMetaPanel(e);
+        renderList();
+      });
+
+      el.video.addEventListener("loadedmetadata", () => {
+        if (current === -1) return;
+        const e = entries[current];
+        if (Number.isFinite(el.video.duration)) e.meta.duration = el.video.duration;
+        if (el.video.videoWidth && el.video.videoHeight){
+          e.meta.w = el.video.videoWidth;
+          e.meta.h = el.video.videoHeight;
+        }
+        // dacă nu avem logo, încercăm un „poster” din video (nu putem face snapshot fără canvas/cors)
+        setMetaPanel(e);
+        renderList();
+      });
+
+      el.audio.addEventListener("ended", onEnded);
+      el.video.addEventListener("ended", onEnded);
+
+      // Erori utile
+      el.audio.addEventListener("error", () => {
+        el.hint.innerHTML = `<span class="warn">Audio error.</span> Posibil CORS / URL invalid. Încearcă <span class="pill">Open tab</span>.`;
+      });
+      el.video.addEventListener("error", () => {
+        el.hint.innerHTML = `<span class="warn">Video error.</span> Posibil CORS / tokens / HLS nepermis. Încearcă <span class="pill">Open tab</span>.`;
+      });
+    }
+
+    function formatTime(sec){
+      const s = Math.max(0, Math.floor(sec));
+      const h = Math.floor(s / 3600);
+      const m = Math.floor((s % 3600) / 60);
+      const r = s % 60;
+      if (h > 0) return `${h}:${String(m).padStart(2,"0")}:${String(r).padStart(2,"0")}`;
+      return `${m}:${String(r).padStart(2,"0")}`;
+    }
+
+    // --- Export filtered as .m3u ---
+    function exportFilteredM3U(){
+      const filtered = entries
+        .map((e,i)=>({e,i}))
+        .filter(x => passesFilters(x.e))
+        .map(x => x.e);
+
+      let out = "#EXTM3U\n";
+      for (const e of filtered){
+        const attrs = [];
+        // păstrăm o parte din atribute uzuale
+        const keep = ["tvg-id","tvg-name","tvg-logo","group-title"];
+        for (const k of keep){
+          if (e.attrs && e.attrs[k]) attrs.push(`${k}="${e.attrs[k]}"`);
+        }
+        const dur = (e.durationRaw && e.durationRaw !== "") ? e.durationRaw : "-1";
+        const grp = e.group ? ` group-title="${e.group}"` : "";
+        const attrStr = (attrs.length ? " " + attrs.join(" ") : "") + (grp && !attrs.find(a=>a.startsWith("group-title=")) ? grp : "");
+        out += `#EXTINF:${dur}${attrStr},${e.title || prettyName(e)}\n`;
+        out += `${e.url}\n`;
+      }
+
+      const blob = new Blob([out], {type:"audio/x-mpegurl"});
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "filtered.m3u";
+      a.click();
+      setTimeout(()=>URL.revokeObjectURL(a.href), 1500);
+    }
+
+    // --- Load / save playlist ---
+    function saveToLocalStorage(){
+      try{
+        const payload = {
+          savedAt: Date.now(),
+          entries
+        };
+        localStorage.setItem(LS_KEY, JSON.stringify(payload));
+      }catch{}
+    }
+
+    function restoreFromLocalStorage(){
+      try{
+        const raw = localStorage.getItem(LS_KEY);
+        if (!raw) { setStatus("Nu există playlist salvat."); return; }
+        const payload = JSON.parse(raw);
+        if (!payload?.entries?.length) { setStatus("Playlist salvat gol / invalid."); return; }
+        entries = payload.entries;
+        current = -1;
+        historyStack = [];
+        rebuildGroupSelect();
+        setStatus(`Restored last · ${entries.length} intrări`);
+        setNow("Nimic redat");
+        renderList();
+      }catch{
+        setStatus("Restore a eșuat (storage invalid).");
+      }
+    }
+
+    async function loadFile(file){
+      const txt = await file.text();
+      entries = parseM3U(txt);
+      current = -1;
+      historyStack = [];
+      rebuildGroupSelect();
+      setStatus(`Încărcat: ${file.name} · ${entries.length} intrări`);
+      setNow("Nimic redat");
+      renderList();
+      saveToLocalStorage();
+    }
+
+    // --- Drag & Drop ---
+    function setupDragDrop(){
+      el.drop.addEventListener("dragover", (ev)=>{
+        ev.preventDefault();
+        el.drop.classList.add("dragover");
+      });
+      el.drop.addEventListener("dragleave", ()=>{
+        el.drop.classList.remove("dragover");
+      });
+      el.drop.addEventListener("drop", async (ev)=>{
+        ev.preventDefault();
+        el.drop.classList.remove("dragover");
+        const f = ev.dataTransfer?.files?.[0];
+        if (f) await loadFile(f);
+      });
+    }
+
+    // --- UI events ---
+    el.file.addEventListener("change", async () => {
+      const f = el.file.files?.[0];
+      if (f) await loadFile(f);
+    });
+
+    el.q.addEventListener("input", renderList);
+    el.filterType.addEventListener("change", renderList);
+    el.groupSel.addEventListener("change", renderList);
+
+    el.mode.addEventListener("change", () => {
+      if (current !== -1) selectAndPlay(current);
+      else renderList();
+    });
+
+    el.playPause.addEventListener("click", () => {
+      if (current === -1){
+        if (entries.length) selectAndPlay(0);
+        return;
+      }
+      const usingAudio = el.audio.style.display !== "none";
+      const media = usingAudio ? el.audio : el.video;
+
+      if (media.paused){
+        media.play().catch(()=>{});
+        syncPlayPause(true);
+      } else {
+        media.pause();
+        syncPlayPause(false);
+      }
+    });
+
+    el.prev.addEventListener("click", () => {
+      const j = getNextIndex(-1);
+      if (j !== -1) selectAndPlay(j);
+    });
+
+    el.next.addEventListener("click", () => {
+      const j = getNextIndex(+1);
+      if (j !== -1) selectAndPlay(j);
+    });
+
+    el.back.addEventListener("click", () => {
+      const j = historyStack.pop();
+      if (typeof j === "number") selectAndPlay(j);
+    });
+
+    el.stop.addEventListener("click", stop);
+
+    el.copy.addEventListener("click", async () => {
+      if (current === -1) return;
+      const url = entries[current].url;
+      try{
+        await navigator.clipboard.writeText(url);
+        setStatus("URL copiat în clipboard.");
+        setTimeout(()=>renderList(), 900);
+      }catch{
+        alert(url);
+      }
+    });
+
+    el.open.addEventListener("click", () => {
+      if (current === -1) return;
+      window.open(entries[current].url, "_blank", "noopener,noreferrer");
+    });
+
+    el.export.addEventListener("click", exportFilteredM3U);
+
+    el.demo.addEventListener("click", () => {
+      const demo = `
+#EXTM3U
+#EXTINF:-1 group-title="Audio",SoundHelix 1
+https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3
+#EXTINF:-1 group-title="Audio",SoundHelix 2
+https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3
+#EXTINF:-1 group-title="Video",Big Buck Bunny (mp4)
+https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4
+`;
+      entries = parseM3U(demo);
+      current = -1;
+      historyStack = [];
+      rebuildGroupSelect();
+      setStatus(`Demo încărcat · ${entries.length} intrări`);
+      setNow("Nimic redat");
+      renderList();
+      saveToLocalStorage();
+    });
+
+    el.restore.addEventListener("click", restoreFromLocalStorage);
+
+    // --- init ---
+    attachMetadataListeners();
+    setupDragDrop();
+    rebuildGroupSelect();
+    renderList();
+  </script>
+</body>
+</html>
