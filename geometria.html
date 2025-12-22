@@ -1,0 +1,600 @@
+<!doctype html>
+<html lang="ro">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Colecții coezive — Geometria ca funcție în near-field (Axiome · Design Rules · Simulare · Protocol)</title>
+  <meta name="description" content="Document complet: axiome, metrici, reguli de proiectare, simulare teoretică și protocol A/B/C pentru geometria ca funcție în near-field." />
+  <style>
+    :root{
+      --bg:#070a10;
+      --panel:#0d1422;
+      --panel2:#0b1220;
+      --panel3:#09101c;
+      --text:#e8eef5;
+      --muted:#9db0c5;
+      --line:#203047;
+      --accent:#7aa2ff;
+      --accent2:#5eead4;
+      --warn:#fbbf24;
+      --bad:#fb7185;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+    }
+    html,body{margin:0; background:var(--bg); color:var(--text); font-family:var(--sans); line-height:1.6;}
+    a{color:var(--accent); text-decoration:none}
+    a:hover{text-decoration:underline}
+    header{
+      padding:30px 18px 18px;
+      border-bottom:1px solid var(--line);
+      background:
+        radial-gradient(900px 300px at 15% 0%, rgba(122,162,255,.18), transparent 60%),
+        radial-gradient(900px 300px at 80% 0%, rgba(94,234,212,.12), transparent 60%),
+        linear-gradient(180deg, #070a10 0%, #070a10 25%, #070d15 100%);
+    }
+    header .wrap{max-width:1160px; margin:0 auto;}
+    h1{margin:0 0 10px 0; font-size:22px;}
+    .subtitle{margin:0; color:var(--muted); max-width:1040px;}
+    main{max-width:1160px; margin:0 auto; padding:18px;}
+    .grid{display:grid; grid-template-columns:1fr; gap:14px;}
+    @media (min-width:1024px){ .grid{grid-template-columns: 1.2fr 0.8fr;} }
+    .card{
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:16px;
+      box-shadow: 0 0 0 1px rgba(0,0,0,.1) inset;
+    }
+    .card h2{margin:0 0 10px 0; font-size:16px;}
+    .card h3{margin:14px 0 8px 0; font-size:14px;}
+    .muted{color:var(--muted);}
+    .hr{height:1px; background:var(--line); margin:14px 0;}
+    ul,ol{margin:8px 0 8px 20px;}
+    li{margin:6px 0;}
+    .pillrow{display:flex; flex-wrap:wrap; gap:10px; margin-top:10px}
+    .pill{
+      display:inline-flex; gap:8px; align-items:center;
+      border:1px solid var(--line);
+      border-radius:999px;
+      padding:4px 10px;
+      color:var(--muted);
+      font-size:12px;
+      background: rgba(11,18,32,.45);
+    }
+    .pill b{color:var(--text); font-weight:600;}
+    .callout{
+      border:1px solid var(--line);
+      border-left:5px solid var(--accent);
+      background:var(--panel2);
+      border-radius:14px;
+      padding:12px;
+      margin:12px 0;
+    }
+    .callout.ok{border-left-color:var(--accent2);}
+    .callout.warn{border-left-color:var(--warn);}
+    .callout.bad{border-left-color:var(--bad);}
+    table{
+      width:100%;
+      border-collapse:collapse;
+      border:1px solid var(--line);
+      border-radius:14px;
+      overflow:hidden;
+      background:var(--panel3);
+    }
+    th,td{padding:10px; border-bottom:1px solid var(--line); vertical-align:top; text-align:left;}
+    th{background:#08101c; color:#cfe0f2; font-weight:600;}
+    tr:last-child td{border-bottom:none;}
+    code,pre{font-family:var(--mono); font-size:12.5px;}
+    pre{
+      background:#07101c;
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:12px;
+      overflow:auto;
+      margin:10px 0;
+    }
+    .toc a{display:block; padding:6px 0; color:var(--muted)}
+    .toc a:hover{color:var(--text)}
+    .tag{display:inline-block; font-size:12px; padding:2px 8px; border-radius:10px; border:1px solid var(--line); color:var(--muted); background:rgba(0,0,0,.15)}
+    .kbd{font-family:var(--mono); font-size:12px; border:1px solid var(--line); border-bottom-width:2px; padding:1px 6px; border-radius:8px; color:var(--text); background:rgba(0,0,0,.18)}
+    .footer{
+      max-width:1160px; margin:0 auto; padding:18px;
+      border-top:1px solid var(--line); color:var(--muted);
+    }
+    .two{display:grid; grid-template-columns:1fr; gap:12px}
+    @media (min-width:1024px){ .two{grid-template-columns:1fr 1fr;} }
+
+    /* simple SVG diagram container */
+    .svgwrap{
+      background:#07101c;
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:12px;
+    }
+
+    @media print{
+      :root{--bg:#fff; --panel:#fff; --panel2:#fff; --panel3:#fff; --text:#111; --muted:#333; --line:#ddd; --accent:#1d4ed8; --accent2:#0f766e;}
+      body{background:#fff; color:#111;}
+      header{background:#fff; border-bottom:1px solid #ddd;}
+      a{text-decoration:underline; color:#1d4ed8}
+      .card{break-inside:avoid;}
+      pre{background:#fff}
+      .svgwrap{background:#fff}
+    }
+  </style>
+</head>
+
+<body>
+<header>
+  <div class="wrap">
+    <h1>Colecții coezive — Geometria ca funcție în near-field</h1>
+    <p class="subtitle">
+      Document complet: axiome, metrici, reguli de proiectare, simulare teoretică și protocol A/B/C (cu sweep) pentru a demonstra, fără ambiguități,
+      că geometria poate acționa ca variabilă inginerească de control al cuplajului și distribuției câmpului electromagnetic în regim near-field.
+    </p>
+    <div class="pillrow" aria-label="metadata">
+      <span class="pill"><b>Versiune:</b> 1.0</span>
+      <span class="pill"><b>Regim:</b> Near-field (quasi-static)</span>
+      <span class="pill"><b>Metodă:</b> A/B/C + sweep</span>
+      <span class="pill"><b>Mecanism:</b> topologia curenților induși</span>
+      <span class="pill"><b>Stil:</b> rigoare & delimitări</span>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="grid">
+    <!-- ===================== LEFT COLUMN ===================== -->
+    <section class="card">
+      <h2 id="intro">1) Propoziția de poziționare</h2>
+
+      <div class="callout ok">
+        <b>Formulare defensabilă:</b><br/>
+        <span style="display:inline-block; margin-top:6px;">
+          <b>Geometria este o funcție inginerească de control al cuplajului și distribuției câmpului electromagnetic în regim near-field,
+          realizată prin topologia curenților induși, nu prin creșterea puterii sau a materialului.</b>
+        </span>
+      </div>
+
+      <p class="muted">
+        Această formulare este intenționat limitată la near-field și la mecanisme clasice (inducție, cuplaj, rezonanță, superpoziție),
+        pentru a evita extrapolări nejustificate.
+      </p>
+
+      <div class="hr"></div>
+
+      <h2 id="axiome">2) Cele 3 axiome</h2>
+
+      <h3>Axioma 1 — Topologia curentului indus</h3>
+      <p>
+        O geometrie are „funcție” asupra câmpului near-field <b>dacă și numai dacă</b> permite o <b>topologie de curent indus coerent</b>
+        (buclă/rezonator efectiv), astfel încât răspunsul să fie dominat de curentul indus <b>închis</b>, nu de curenți locali difuzi.
+      </p>
+      <div class="callout warn">
+        <b>Test de control:</b> dacă bucla este întreruptă (C), semnătura trebuie să dispară: <b>C ≈ A</b>.
+      </div>
+
+      <h3>Axioma 2 — Cuplaj deterministic</h3>
+      <p>
+        Funcția geometrică există doar dacă există un <b>cuplaj determinist</b> sursă–geometrie–sondă: modificarea geometriei produce
+        modificări <b>repetabile</b> ale metricilor în aceleași condiții (poziție, distanțe, frecvență, setări).
+      </p>
+      <div class="callout">
+        <b>Consecință:</b> fără jig stabil (poziționare repetabilă), funcția nu poate fi demonstrată; efectele devin indistincte de zgomot.
+      </div>
+
+      <h3>Axioma 3 — Semnătură specifică (spectrală sau spațială)</h3>
+      <p>
+        Funcția trebuie să se manifeste ca o semnătură <b>specifică</b>, detectabilă ca:
+        (a) semnătură spectrală (rezonanță: peak/dip, notch, Q) și/sau
+        (b) semnătură spațială (redistribuție în harta 2D a câmpului),
+        care <b>nu poate fi obținută</b> doar prin creșterea masei/materialului.
+      </p>
+      <div class="callout ok">
+        <b>Test minim recomandat:</b> pe sweep, B arată fingerprint; A nu; C nu (sau C urmează A).
+      </div>
+
+      <div class="hr"></div>
+
+      <h2 id="metrici">3) Metrici și criterii</h2>
+      <p class="muted">
+        Metricile sunt deliberate simple pentru replicare. Se pot rafina ulterior, dar acestea sunt suficiente
+        pentru a decide obiectiv dacă „geometria ca funcție” este demonstrată în setup-ul tău.
+      </p>
+
+      <table aria-label="Metrici recomandate">
+        <thead>
+          <tr>
+            <th>Metrică</th>
+            <th>Definiție</th>
+            <th>De ce contează</th>
+            <th>Prag orientativ</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>Δ(f) în dB</b></td>
+            <td>
+              Δ<sub>BA</sub>(f)=20·log10(V<sub>B</sub>(f)/V<sub>A</sub>(f))<br/>
+              Δ<sub>CA</sub>(f)=20·log10(V<sub>C</sub>(f)/V<sub>A</sub>(f))
+            </td>
+            <td>Compară direct efectul geometriei vs martor</td>
+            <td><b>≥ 2 dB</b> (ideal ≥ 3 dB) în jurul rezonanței</td>
+          </tr>
+          <tr>
+            <td><b>Fingerprint spectral</b></td>
+            <td>Peak/dip sau notch pe sweep</td>
+            <td>Specificitate: greu de confundat cu drift/poziție</td>
+            <td>Peak &amp; dip în ±10 kHz în jurul f<sub>r</sub></td>
+          </tr>
+          <tr>
+            <td><b>Stabilitate</b></td>
+            <td>σ(M1) pe repetări</td>
+            <td>Demonstrează determinism (Axioma 2)</td>
+            <td>σ mică față de diferența observată</td>
+          </tr>
+          <tr>
+            <td><b>Map 2D (opțional)</b></td>
+            <td>Harta V(x,y) sau |H(x,y)|</td>
+            <td>Arată redistribuția spațială</td>
+            <td>Pattern repetabil între scanări</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="hr"></div>
+
+      <h2 id="design-rules">4) Design Rules — reguli de proiectare</h2>
+      <p class="muted">
+        Regulile de mai jos sunt condiții practice pentru a obține o funcție geometrică măsurabilă în near-field.
+        Ele nu sunt „universal valabile” pentru orice configurație, dar sunt o bază solidă.
+      </p>
+
+      <h3>4.1 Reguli topologice (ne-negociabile)</h3>
+      <ul>
+        <li><b>Buclă închisă:</b> geometria trebuie să permită o buclă electrică efectivă (DC sau AC prin RLC).</li>
+        <li><b>Un mod dominant:</b> evită formele cu multe bucle echivalente (moduri multiple greu de controlat).</li>
+        <li><b>Control C:</b> proiectează o variantă ruptă (C) care invalidează topologia fără a schimba forma vizuală.</li>
+      </ul>
+
+      <h3>4.2 Reguli geometrice (recomandări validate)</h3>
+      <table aria-label="Recomandări geometrice">
+        <thead>
+          <tr>
+            <th>Parametru</th>
+            <th>Interval recomandat</th>
+            <th>Motiv</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Lățime traseu</td>
+            <td>1,5 – 3,0 mm</td>
+            <td>Reduce R → crește curentul indus și Q</td>
+          </tr>
+          <tr>
+            <td>Spacing</td>
+            <td>0,8 – 1,5 mm</td>
+            <td>Evită cuplaj excesiv între spire (pierderi, moduri parazite)</td>
+          </tr>
+          <tr>
+            <td>Număr spire</td>
+            <td>8 – 16 (compact)</td>
+            <td>Compromis între L, R și distribuția câmpului secundar</td>
+          </tr>
+          <tr>
+            <td>Zona activă</td>
+            <td>50–70% din aria plăcii</td>
+            <td>Potrivire cu zona de câmp maxim a sursei (evită periferia „moartă”)</td>
+          </tr>
+          <tr>
+            <td>Straturi</td>
+            <td>1–2 (în paralel)</td>
+            <td>Scade R fără a schimba topologia (via stitching recomandat)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout warn">
+        <b>Avertisment:</b> formele fractale sau „complexe” fără justificare electromagnetică tind să reducă Q și să producă rezultate instabile.
+      </div>
+
+      <h3>4.3 Matching (izolarea geometriei de material)</h3>
+      <ul>
+        <li><b>Dimensiune externă identică</b> pentru A/B/C.</li>
+        <li><b>Masă/suprafață comparabilă</b> (diferențe mici; dacă e necesar, folosește „dummy copper” simetric).</li>
+        <li><b>Montaj identic</b> (aceleași distanțe, orientare, suport, cabluri).</li>
+      </ul>
+
+      <div class="hr"></div>
+
+      <h2 id="simulare">5) Simulare teoretică (pură, fără măsurători)</h2>
+      <p class="muted">
+        Secțiunea de mai jos oferă un model predictiv minim. Nu înlocuiește un solver 3D, dar este suficient pentru:
+        (a) alegerea C de tuning, (b) estimarea Q, (c) predicția semnăturii peak/dip pe sweep.
+      </p>
+
+      <h3>5.1 Model echivalent</h3>
+      <ul>
+        <li>B este un rezonator <b>R–L–C</b> (L și R ale spiralei; C extern sau parazit).</li>
+        <li>Sonda citește un semnal proporțional cu <b>B<sub>total</sub></b> în punctul ei.</li>
+        <li>Răspunsul este suma: <code>B_total = B_primar + B_secundar</code> (vectorial, dependent de fază).</li>
+      </ul>
+
+      <h3>5.2 Formule utile</h3>
+      <pre>
+f_rez ≈ 1 / (2π√(L·C))
+ω = 2πf
+X_L = ωL
+Q ≈ ωL / R   (aprox. la rezonanță, pentru R dominant)
+
+Δ_BA(f) = 20·log10( V_B(f) / V_A(f) )
+Δ_CA(f) = 20·log10( V_C(f) / V_A(f) )
+      </pre>
+
+      <h3>5.3 „Predicția minimă” (ce cauți pe sweep)</h3>
+      <ul>
+        <li>În jurul f<sub>rez</sub>, B va produce un <b>fingerprint</b>: un peak și un dip (sau un notch pronunțat), în funcție de fază/cuplaj.</li>
+        <li>C (rupt) nu poate susține curent inductiv coerent ⇒ <b>nu are fingerprint</b> (C ≈ A).</li>
+        <li>Efectul realist pentru pasiv: <b>câțiva dB</b>, nu ordine de mărime.</li>
+      </ul>
+
+      <div class="callout ok">
+        <b>Regula de aur:</b> dacă modelul nu produce o semnătură spectrală distinctă pentru B, nu te aștepta să apară în mod robust în experiment.
+      </div>
+
+      <div class="hr"></div>
+
+      <h2 id="protocol">6) Protocol A/B/C (varianta robustă: sweep 50–200 kHz)</h2>
+
+      <h3>6.1 Ce construiești</h3>
+      <ul>
+        <li><b>A (martor):</b> placă identică, fără buclă coerentă (ex. cupru plin floating).</li>
+        <li><b>B (funcțional):</b> spirală închisă + condensator de tuning (opțional dar recomandat).</li>
+        <li><b>C (control topologic):</b> aceeași spirală, cu 2–3 gaps (open) care distrug bucla.</li>
+      </ul>
+
+      <h3>6.2 Setup recomandat</h3>
+      <div class="two">
+        <div class="svgwrap">
+          <div class="tag">Layout de test (concept)</div>
+          <svg viewBox="0 0 520 180" width="100%" height="220" aria-label="Diagrama setup">
+            <rect x="10" y="12" width="500" height="156" rx="14" fill="none" stroke="#203047" stroke-width="2"/>
+            <!-- source coil -->
+            <circle cx="90" cy="90" r="42" fill="none" stroke="#7aa2ff" stroke-width="4"/>
+            <circle cx="90" cy="90" r="24" fill="none" stroke="#7aa2ff" stroke-width="3" opacity="0.7"/>
+            <text x="36" y="25" fill="#9db0c5" font-family="ui-monospace,monospace" font-size="12">Sursă (bobină)</text>
+            <text x="56" y="160" fill="#9db0c5" font-family="ui-monospace,monospace" font-size="12">I(t), f sweep</text>
+
+            <!-- specimen slot -->
+            <rect x="205" y="48" width="110" height="84" rx="10" fill="none" stroke="#5eead4" stroke-width="3"/>
+            <text x="208" y="40" fill="#9db0c5" font-family="ui-monospace,monospace" font-size="12">Slot probă A/B/C</text>
+
+            <!-- probe coil -->
+            <circle cx="420" cy="90" r="28" fill="none" stroke="#7aa2ff" stroke-width="4"/>
+            <text x="388" y="25" fill="#9db0c5" font-family="ui-monospace,monospace" font-size="12">Sondă (buclă)</text>
+            <text x="374" y="160" fill="#9db0c5" font-family="ui-monospace,monospace" font-size="12">Vprobe(t)</text>
+
+            <!-- distance arrows -->
+            <line x1="132" y1="90" x2="205" y2="90" stroke="#203047" stroke-width="2"/>
+            <polygon points="132,90 140,86 140,94" fill="#203047"/>
+            <polygon points="205,90 197,86 197,94" fill="#203047"/>
+            <text x="140" y="78" fill="#9db0c5" font-family="ui-monospace,monospace" font-size="12">5 mm</text>
+
+            <line x1="315" y1="90" x2="392" y2="90" stroke="#203047" stroke-width="2"/>
+            <polygon points="315,90 323,86 323,94" fill="#203047"/>
+            <polygon points="392,90 384,86 384,94" fill="#203047"/>
+            <text x="332" y="78" fill="#9db0c5" font-family="ui-monospace,monospace" font-size="12">10 mm</text>
+          </svg>
+          <p class="muted" style="margin:10px 0 0 0">
+            Esențial: distanțe fixe, orientare fixă, cabluri fixate. Repetabilitate recomandată &lt; 0,5 mm.
+          </p>
+        </div>
+
+        <div>
+          <h3 style="margin-top:0;">Instrumentație</h3>
+          <ul>
+            <li><b>Ideal:</b> generator + amplificator + analizor de spectru / voltmetru RMS.</li>
+            <li><b>Minim:</b> generator + osciloscop (RMS sau FFT).</li>
+          </ul>
+
+          <div class="callout warn">
+            <b>Recomandare:</b> dacă poți, păstrează curentul în bobina sursă cât mai constant pe sweep (reduce ambiguitățile).
+          </div>
+
+          <h3>6.3 Sweep</h3>
+          <ul>
+            <li>Interval: <b>50–200 kHz</b></li>
+            <li>Pas: <b>1–2 kHz</b></li>
+            <li>Serii: 2 (ordine permutată: A→B→C, apoi C→A→B)</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3>6.4 Ce notezi</h3>
+      <ul>
+        <li>V<sub>A</sub>(f), V<sub>B</sub>(f), V<sub>C</sub>(f) (RMS sau Vpp consistent)</li>
+        <li>Setările instrumentului (range, filtrare, fereastră FFT dacă e cazul)</li>
+        <li>Distanțele și orientarea</li>
+      </ul>
+
+      <h3>6.5 Criteriu de „pozitiv” (minimal și defensabil)</h3>
+      <ol>
+        <li>Δ<sub>BA</sub>(f) prezintă <b>fingerprint</b> (peak/dip sau notch) în jurul unei frecvențe f<sub>r</sub>.</li>
+        <li>|Δ<sub>BA</sub>(f<sub>r</sub>)| ≥ <b>2 dB</b> (ideal ≥ 3 dB), repetabil în ambele serii.</li>
+        <li>Δ<sub>CA</sub>(f) rămâne aproape plat, fără fingerprint (C ≈ A).</li>
+      </ol>
+
+      <div class="callout ok">
+        <b>De ce sweep:</b> semnătura spectrală este mult mai specifică decât o diferență la un singur punct și reduce dramatic disputele.
+      </div>
+
+      <div class="hr"></div>
+
+      <h2 id="interpretare">7) Interpretare: matrice de concluzii</h2>
+      <table aria-label="Matrice interpretare">
+        <thead>
+          <tr>
+            <th>Observație</th>
+            <th>Concluzie</th>
+            <th>Ce faci apoi</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>B are fingerprint, C ≈ A</td>
+            <td><b>Funcție geometrică demonstrată</b> (axiome satisfăcute)</td>
+            <td>Optimizează Q/cuplaj; extinde la map 2D; documentează ca studiu de caz</td>
+          </tr>
+          <tr>
+            <td>B ≈ A, C ≈ A</td>
+            <td>Efect sub pragul setup-ului sau geometrie necuplată</td>
+            <td>Îmbunătățește jig-ul; schimbă distanțele; acord mai bun; altă geometrie</td>
+          </tr>
+          <tr>
+            <td>B diferă, dar C diferă similar</td>
+            <td>Efect de masă/material/poziționare, nu topologie</td>
+            <td>Matching masă/suprafață; verifică simetrie; refă controlul C</td>
+          </tr>
+          <tr>
+            <td>Rezultate instabile (σ mare)</td>
+            <td>Nu există determinism suficient</td>
+            <td>Fixează cabluri, sonda, distanțe; crește repetările</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="hr"></div>
+
+      <h2 id="delimitari">8) Delimitări (ce este și ce nu este)</h2>
+      <div class="callout bad">
+        <b>Nu este:</b> amplificare energetică, dispozitiv medical, „câmp informațional”, radiație RF la distanță, „rezonanță cosmică”.
+      </div>
+      <div class="callout ok">
+        <b>Este:</b> control pasiv/rezonant al cuplajului și distribuției câmpului near-field prin topologia curenților induși.
+      </div>
+
+      <div class="hr"></div>
+
+      <h2 id="manifest">9) Manifest coeziv</h2>
+      <blockquote style="margin:12px 0; padding-left:14px; border-left:4px solid var(--accent);">
+        <p style="margin:0;">
+          Forma nu este energie. Forma nu este sursă.<br/>
+          Forma este <b>modul în care energia este constrânsă să circule</b>.
+        </p>
+      </blockquote>
+
+      <h3>9.1 Ce afirmă</h3>
+      <ul>
+        <li>Câmpurile pot fi <b>structurate</b>, nu doar atenuate.</li>
+        <li>Topologia este o variabilă inginerească, nu un ornament.</li>
+        <li>Near-field-ul este un regim legitim, nu o zonă „neglijabilă”.</li>
+      </ul>
+
+      <h3>9.2 Ce NU afirmă</h3>
+      <ul>
+        <li>Nu afirmă generare de energie sau amplificare pasivă.</li>
+        <li>Nu afirmă efecte biologice/medicale sau „informaționale”.</li>
+        <li>Nu afirmă universalitate — funcția este contextuală și trebuie demonstrată.</li>
+      </ul>
+
+      <div class="callout ok">
+        <b>Principiul central:</b> Forma devine funcție atunci când poate fi <b>măsurată · controlată · invalidată · reprodusă</b>.
+      </div>
+
+      <div class="hr"></div>
+
+      <h2 id="glosar">10) Glosar scurt</h2>
+      <ul>
+        <li><b>Near-field:</b> regiune în care cuplajul este dominat de câmpurile locale (nu de radiație).</li>
+        <li><b>Topologie de curent:</b> felul în care se închid buclele de curent (închis vs rupt).</li>
+        <li><b>Fingerprint spectral:</b> semnătură de rezonanță (peak/dip/notch) pe sweep.</li>
+        <li><b>Matching:</b> controlul masei/suprafeței/materialului între probe pentru a izola geometria.</li>
+        <li><b>Jig:</b> dispozitiv de poziționare repetabilă (distanțe fixe, cabluri fixate).</li>
+      </ul>
+
+      <div class="hr"></div>
+
+      <h2 id="template">11) Template mini-raport (copy/paste)</h2>
+      <pre>
+Titlu:
+Data / Loc:
+Setup: (distanțe, sursă, sonda, setări instrument)
+Probe: A / B / C (descriere)
+Sweep: 50–200 kHz, pas __ kHz, serii __
+
+Rezultat:
+- f_r ≈ ____ kHz
+- Peak Δ_BA ≈ ____ dB la ____ kHz
+- Dip  Δ_BA ≈ ____ dB la ____ kHz
+- Δ_CA: max |Δ| ≈ ____ dB (fără fingerprint)
+
+Concluzie:
+(Axioma 1) ____  (Axioma 2) ____  (Axioma 3) ____
+      </pre>
+    </section>
+
+    <!-- ===================== RIGHT COLUMN ===================== -->
+    <aside class="card">
+      <h2>Cuprins</h2>
+      <div class="toc">
+        <a href="#intro">1) Poziționare</a>
+        <a href="#axiome">2) Axiome</a>
+        <a href="#metrici">3) Metrici</a>
+        <a href="#design-rules">4) Design Rules</a>
+        <a href="#simulare">5) Simulare teoretică</a>
+        <a href="#protocol">6) Protocol A/B/C + sweep</a>
+        <a href="#interpretare">7) Interpretare rezultate</a>
+        <a href="#delimitari">8) Delimitări</a>
+        <a href="#manifest">9) Manifest</a>
+        <a href="#glosar">10) Glosar</a>
+        <a href="#template">11) Template raport</a>
+      </div>
+
+      <div class="hr"></div>
+
+      <h2>Ghid rapid (în 6 pași)</h2>
+      <ol>
+        <li>Construiește jig-ul: distanțe fixe, cabluri fixate.</li>
+        <li>Fă A/B/C identice ca dimensiune; C = B rupt.</li>
+        <li>Adaugă condensator pe B pentru rezonanță în bandă.</li>
+        <li>Sweep 50–200 kHz (pas 1–2 kHz), două serii permutate.</li>
+        <li>Calculează Δ<sub>BA</sub>(f) și Δ<sub>CA</sub>(f) în dB.</li>
+        <li>Dacă B are fingerprint și C ≈ A, funcția e demonstrată.</li>
+      </ol>
+
+      <div class="hr"></div>
+
+      <h2>Checklist (validare)</h2>
+      <ul>
+        <li><span class="tag">Jig</span> Repetabilitate &lt; 0,5 mm</li>
+        <li><span class="tag">Control</span> C are 2–3 gaps clare</li>
+        <li><span class="tag">Sweep</span> Două serii cu ordine permutată</li>
+        <li><span class="tag">Criteriu</span> |Δ| ≥ 2 dB + fingerprint</li>
+        <li><span class="tag">Delimitări</span> Nu extrapola în afara near-field</li>
+      </ul>
+
+      <div class="hr"></div>
+
+      <h2>Note editoriale</h2>
+      <p class="muted">
+        Pentru tipărire: <span class="kbd">Ctrl</span> + <span class="kbd">P</span> și activează “Background graphics”.
+        Documentul este proiectat să arate bine și în print.
+      </p>
+
+      <div class="hr"></div>
+
+      <h2>Licențiere (opțional)</h2>
+      <p class="muted">
+        Dacă vrei distribuție liberă: CC BY 4.0 pentru text. Pentru CAD/protocoale hardware poți folosi o licență open hardware, dacă dorești.
+      </p>
+    </aside>
+  </div>
+</main>
+
+<div class="footer">
+  <div><b>Colecții coezive</b> — document de lucru. Focus: rigoare, replicabilitate, delimitări clare.</div>
+  <div class="muted">Versiunea 1.0.</div>
+</div>
+</body>
+</html>
