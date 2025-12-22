@@ -3,248 +3,620 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Coheziv 3.14 – Simulator (MVP)</title>
+  <title>Coheziv 3.14 — Evaluator de regim (MVP)</title>
+  <meta name="description" content="Evaluator conceptual Coeziv 3.14 (Structură–Flux–Reorganizare–Noua Structură, 2π, regim J). Single-file." />
   <style>
     :root{
-      --bg:#fcfcfc;
-      --card:#ffffff;
-      --text:#111;
-      --muted:#555;
-      --border:#e6e6e6;
-      --border2:#d8d8d8;
-      --soft:#fafafa;
-      --shadow: 0 6px 16px rgba(0,0,0,0.04);
-      --danger-bg:#fff7f7;
-      --danger-b:#ffd6d6;
-      --accent:#111;
-      --disabled:#f2f2f2;
+      --bg: #0b0d12;
+      --panel: rgba(255,255,255,0.06);
+      --panel2: rgba(255,255,255,0.08);
+      --stroke: rgba(255,255,255,0.10);
+      --text: rgba(255,255,255,0.92);
+      --muted: rgba(255,255,255,0.68);
+      --muted2: rgba(255,255,255,0.52);
+      --accent: #7c5cff;
+      --accent2:#35c2ff;
+      --good:#34d399;
+      --warn:#fbbf24;
+      --risk:#fb7185;
+      --shadow: 0 18px 60px rgba(0,0,0,0.50);
+      --shadow2: 0 12px 30px rgba(0,0,0,0.35);
+      --radius: 18px;
+      --radius2: 14px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
     }
     *{box-sizing:border-box}
+    html,body{height:100%}
     body{
       margin:0;
-      background:var(--bg);
-      color:var(--text);
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
-      line-height:1.4;
+      font-family: var(--sans);
+      color: var(--text);
+      background:
+        radial-gradient(900px 600px at 20% 10%, rgba(124,92,255,0.25), transparent 55%),
+        radial-gradient(900px 600px at 80% 20%, rgba(53,194,255,0.22), transparent 55%),
+        radial-gradient(900px 600px at 55% 85%, rgba(251,113,133,0.10), transparent 55%),
+        linear-gradient(180deg, #07080b 0%, #0b0d12 60%, #090a0e 100%);
+      overflow-x:hidden;
     }
-    main{
-      max-width: 900px;
+    a{color:inherit}
+    .wrap{
+      max-width: 1080px;
       margin: 0 auto;
-      padding: 32px 18px 60px;
+      padding: 28px 18px 70px;
     }
-    h1{margin:0;font-size:28px}
-    p{margin:10px 0;color:var(--muted)}
-    .badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
-    .badge{
-      display:inline-block;
-      padding:6px 10px;
-      border-radius:999px;
-      border:1px solid #ddd;
-      font-size:12px;
-      background:#fafafa;
-      color:#222;
+    header{
+      display:flex;
+      gap:16px;
+      align-items:flex-start;
+      justify-content:space-between;
+      flex-wrap:wrap;
+      margin-bottom: 18px;
     }
-    .progress{display:flex;gap:10px;margin:14px 0 22px}
-    .bar{flex:1;height:8px;border-radius:999px;background:#e7e7e7}
-    .bar.on{background:#111}
+    .title{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      max-width: 780px;
+    }
+    .title h1{
+      margin:0;
+      font-size: 26px;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+    .title p{
+      margin:0;
+      color: var(--muted);
+      line-height: 1.5;
+      font-size: 14px;
+    }
+    .pillRow{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+    .pill{
+      display:inline-flex;
+      gap:8px;
+      align-items:center;
+      padding: 8px 10px;
+      border: 1px solid var(--stroke);
+      border-radius: 999px;
+      background: rgba(255,255,255,0.04);
+      color: var(--muted);
+      font-size: 12px;
+      backdrop-filter: blur(8px);
+    }
+    .dot{
+      width:8px;height:8px;border-radius:99px;
+      background: var(--accent2);
+      box-shadow: 0 0 0 3px rgba(53,194,255,0.15);
+    }
+    .dot.warn{background: var(--warn); box-shadow:0 0 0 3px rgba(251,191,36,0.15)}
+    .dot.risk{background: var(--risk); box-shadow:0 0 0 3px rgba(251,113,133,0.15)}
+    .layout{
+      display:grid;
+      grid-template-columns: 1.35fr 0.95fr;
+      gap: 16px;
+      align-items:start;
+    }
+    @media (max-width: 980px){
+      .layout{grid-template-columns: 1fr; }
+    }
     .card{
-      border:1px solid var(--border);
-      border-radius:16px;
-      padding:18px;
-      box-shadow: var(--shadow);
-      background:var(--card);
+      border: 1px solid var(--stroke);
+      background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03));
+      border-radius: var(--radius);
+      box-shadow: var(--shadow2);
+      overflow:hidden;
     }
-    h2{margin:0 0 10px}
-    label{display:block;margin-top:12px;font-weight:600;color:#222}
-    select, textarea, input[type="text"]{
-      margin-top:6px;
-      padding:10px;
-      width:100%;
-      border-radius:10px;
-      border:1px solid var(--border2);
-      background:#fff;
-      font:inherit;
+    .cardHeader{
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--stroke);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
     }
-    textarea{resize:vertical}
-    input[type="range"]{width:100%; margin-top:6px}
-    .hint{
-      margin-top:10px;
-      color:#b00020;
+    .cardHeader .h{
+      display:flex; flex-direction:column; gap:4px;
     }
-    .panel{
-      margin-top:14px;
-      padding:12px;
-      border-radius:12px;
-      background:var(--soft);
-      border:1px solid #eee;
-      color:#333;
+    .cardHeader .h b{font-size: 14px; letter-spacing:-0.01em}
+    .cardHeader .h span{font-size: 12px; color: var(--muted2)}
+    .stepBadge{
+      font-size: 12px;
+      color: rgba(255,255,255,0.85);
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(124,92,255,0.35);
+      background: rgba(124,92,255,0.10);
+      white-space:nowrap;
     }
-    .panel strong{display:block;margin-bottom:6px}
-    .grid-actions{
+    .cardBody{padding: 16px}
+    .progress{
       display:flex;
       gap:10px;
-      margin-top:18px;
+      margin: 0 0 14px;
+    }
+    .bar{
+      height: 8px;
+      border-radius: 99px;
+      flex: 1;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.06);
+      overflow:hidden;
+      position:relative;
+    }
+    .bar > i{
+      position:absolute; inset:0;
+      transform: translateX(-100%);
+      background: linear-gradient(90deg, rgba(124,92,255,0.85), rgba(53,194,255,0.85));
+      transition: transform 320ms ease;
+    }
+    .bar.on > i{transform: translateX(0%)}
+    .grid2{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    @media (max-width: 620px){ .grid2{grid-template-columns: 1fr;} }
+
+    label{
+      display:block;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    select, textarea, input[type="number"], input[type="text"]{
+      width: 100%;
+      padding: 11px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(5,6,9,0.55);
+      color: rgba(255,255,255,0.92);
+      outline: none;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.03);
+    }
+    textarea{resize: vertical; min-height: 96px}
+    input[type="range"]{
+      width: 100%;
+      appearance: none;
+      height: 28px;
+      background: transparent;
+      margin: 0;
+      padding: 0;
+    }
+    input[type="range"]::-webkit-slider-runnable-track{
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.10);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    input[type="range"]::-webkit-slider-thumb{
+      appearance:none;
+      width: 18px; height:18px;
+      border-radius: 999px;
+      margin-top: -5px;
+      background: linear-gradient(180deg, rgba(124,92,255,1), rgba(53,194,255,1));
+      border: 1px solid rgba(255,255,255,0.25);
+      box-shadow: 0 10px 22px rgba(0,0,0,0.35);
+    }
+    .field{
+      padding: 12px;
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: var(--radius2);
+      background: rgba(255,255,255,0.03);
+    }
+    .row{
+      display:flex; gap:10px; flex-wrap:wrap; align-items:center;
+    }
+    .hint{
+      margin-top: 10px;
+      color: rgba(251,113,133,0.95);
+      font-size: 12px;
+      display:none;
+    }
+    .actions{
+      margin-top: 14px;
+      display:flex;
+      gap:10px;
       justify-content:space-between;
       flex-wrap:wrap;
     }
-    button{
-      padding:10px 14px;
-      border-radius:12px;
-      border:1px solid var(--border2);
-      background:#fff;
-      cursor:pointer;
-      font:inherit;
-    }
-    button.primary{
-      border:1px solid var(--accent);
-      background:var(--accent);
-      color:#fff;
-    }
-    button:disabled{
-      background:var(--disabled);
-      cursor:not-allowed;
-      color:#777;
-    }
-    .danger{
-      margin-top:14px;
-      padding:12px;
-      border-radius:12px;
-      border:1px solid var(--danger-b);
-      background:var(--danger-bg);
-      color:#333;
-    }
-    .danger b{display:block;margin-bottom:6px}
-    ul{margin:0;padding-left:18px}
-    li{margin-bottom:6px}
-    footer{
-      margin-top:14px;
-      color:#666;
-      font-size:12px;
-    }
-    .row{
-      display:flex;
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
       gap:10px;
-      flex-wrap:wrap;
-      margin-top:10px;
+      padding: 11px 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.05);
+      color: rgba(255,255,255,0.92);
+      cursor:pointer;
+      user-select:none;
+      transition: transform 120ms ease, background 160ms ease, border-color 160ms ease;
     }
-    .row .badge{background:#fff}
-    .thermo{
-      margin-top:14px;
-      border:1px solid #eee;
-      border-radius:14px;
-      padding:12px;
-      background:#fff;
+    .btn:hover{ transform: translateY(-1px); background: rgba(255,255,255,0.07); }
+    .btn:active{ transform: translateY(0px); }
+    .btn.primary{
+      background: linear-gradient(90deg, rgba(124,92,255,0.95), rgba(53,194,255,0.92));
+      border-color: rgba(255,255,255,0.18);
+      color: #0b0d12;
+      font-weight: 700;
     }
-    .thermo .scale{
+    .btn:disabled{
+      opacity: 0.45;
+      cursor:not-allowed;
+      transform:none;
+    }
+
+    /* Right panel */
+    .sideGrid{
+      display:grid;
+      gap: 16px;
+    }
+    .stat{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding: 12px;
+      border-radius: var(--radius2);
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.03);
+    }
+    .stat b{font-size: 12px; color: var(--muted)}
+    .stat span{font-size: 13px; color: rgba(255,255,255,0.92)}
+    .kbd{
+      font-family: var(--mono);
+      font-size: 11px;
+      padding: 5px 8px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.05);
+      color: rgba(255,255,255,0.85);
+      white-space:nowrap;
+    }
+    .disclaimer{
+      padding: 12px;
+      border-radius: var(--radius2);
+      border: 1px solid rgba(251,113,133,0.25);
+      background: rgba(251,113,133,0.06);
+      color: rgba(255,255,255,0.86);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    /* Gauge */
+    .gauge{
+      padding: 12px;
+      border-radius: var(--radius2);
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.03);
+    }
+    .gaugeTop{
+      display:flex; justify-content:space-between; align-items:flex-start; gap:10px; flex-wrap:wrap;
+      margin-bottom: 10px;
+    }
+    .gaugeTop b{font-size: 13px}
+    .gaugeTop span{font-size: 12px; color: var(--muted)}
+    .meter{
       position:relative;
-      height:140px;
-      border-radius:12px;
-      background:linear-gradient(#f7f7f7,#fff);
-      border:1px solid #eee;
+      height: 14px;
+      border-radius: 999px;
+      background:
+        linear-gradient(90deg,
+          rgba(52,211,153,0.85) 0%,
+          rgba(52,211,153,0.85) 34%,
+          rgba(251,191,36,0.90) 34%,
+          rgba(251,191,36,0.90) 67%,
+          rgba(251,113,133,0.92) 67%,
+          rgba(251,113,133,0.92) 100%);
+      border: 1px solid rgba(255,255,255,0.14);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06);
       overflow:hidden;
     }
-    .thermo .marker{
-      position:absolute;
-      left:0;
-      right:0;
-      height:2px;
-      background:#111;
-      opacity:0.25;
+    .tickRow{
+      display:flex;
+      justify-content:space-between;
+      margin-top: 8px;
+      color: var(--muted2);
+      font-size: 11px;
     }
-    .thermo .label{
+    .needle{
       position:absolute;
-      left:10px;
-      top:-10px;
-      font-size:12px;
-      color:#444;
-      background:#fff;
-      padding:2px 6px;
-      border-radius:999px;
-      border:1px solid #eee;
+      top:-7px;
+      width: 2px;
+      height: 28px;
+      background: rgba(255,255,255,0.92);
+      box-shadow: 0 0 0 3px rgba(255,255,255,0.12);
+      transform: translateX(-50%);
+      border-radius: 2px;
+      transition: left 320ms ease;
     }
-    .thermo .dot{
+    .needle::after{
+      content:"";
       position:absolute;
-      right:10px;
-      width:10px;
-      height:10px;
-      border-radius:999px;
-      background:#111;
-      transform: translateY(-50%);
+      left:50%;
+      top: -6px;
+      width: 10px; height: 10px;
+      border-radius: 999px;
+      transform: translateX(-50%);
+      background: rgba(255,255,255,0.92);
+      box-shadow: 0 10px 22px rgba(0,0,0,0.35);
     }
-    .small{font-size:12px;color:#666;margin-top:8px}
-    .topline{margin-bottom:18px}
-    .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;}
+
+    /* 2π timeline */
+    .cycle{
+      padding: 12px;
+      border-radius: var(--radius2);
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.03);
+    }
+    .cycleTop{
+      display:flex; justify-content:space-between; align-items:flex-start; gap:10px; flex-wrap:wrap;
+      margin-bottom: 10px;
+    }
+    .cycleTop b{font-size:13px}
+    .cycleTop span{font-size:12px;color:var(--muted)}
+    .steps{
+      display:grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+    @media (max-width: 560px){ .steps{grid-template-columns: 1fr 1fr;} }
+    .s{
+      padding: 10px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(0,0,0,0.10);
+      min-height: 72px;
+      display:flex; flex-direction:column; gap:6px;
+    }
+    .s small{color: var(--muted2); font-size: 11px}
+    .s b{font-size: 12px; letter-spacing:-0.01em}
+    .s.on{
+      border-color: rgba(124,92,255,0.35);
+      background: rgba(124,92,255,0.10);
+      box-shadow: 0 12px 30px rgba(124,92,255,0.10);
+    }
+
+    /* Output */
+    .out{
+      padding: 12px;
+      border-radius: var(--radius2);
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.03);
+    }
+    .out h3{
+      margin:0 0 10px;
+      font-size: 14px;
+      letter-spacing:-0.01em;
+    }
+    .kv{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    @media (max-width: 560px){ .kv{grid-template-columns: 1fr;} }
+    .k{
+      padding: 10px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(0,0,0,0.10);
+      display:flex; justify-content:space-between; gap:10px; align-items:center;
+    }
+    .k b{font-size:12px;color:var(--muted)}
+    .k span{font-size:12px;color:rgba(255,255,255,0.92)}
+    .msg{
+      color: rgba(255,255,255,0.88);
+      font-size: 13px;
+      line-height: 1.55;
+      margin: 8px 0 0;
+    }
+    .notes{
+      margin-top: 10px;
+      padding-left: 18px;
+      color: rgba(255,255,255,0.82);
+      font-size: 12px;
+      line-height:1.5;
+    }
+    .notes li{margin: 6px 0}
+    .footer{
+      margin-top: 16px;
+      color: var(--muted2);
+      font-size: 12px;
+      line-height:1.45;
+    }
   </style>
 </head>
 <body>
-  <main>
-    <header class="topline">
-      <h1>Coheziv 3.14 – Simulator de stare (MVP)</h1>
-      <p>
-        Implementare MVP a ciclului 2π (Structură → Flux → Reorganizare → Noua structură) și a zonelor conceptuale
-        (≈25°C, ≈39.86°C, ≈43°C, &gt;44.7°C). Model conceptual, nu instrument clinic.
-      </p>
-      <div class="badges">
-        <span class="badge" id="badgeStep">Step 1/3</span>
-        <span class="badge">Disclaimer: non-clinic</span>
-        <span class="badge">Fără 3.14 numeric în alte domenii</span>
+  <div class="wrap">
+    <header>
+      <div class="title">
+        <h1>Coheziv 3.14 — Evaluator de regim (MVP)</h1>
+        <p>
+          Instrument de analiză conceptuală bazat pe vocabularul Coeziv:
+          <b>Structură</b>, <b>Flux</b>, <b>Reorganizare</b>, <b>Noua Structură</b>, ciclul <b>2π</b> și regimuri <b>J</b>.
+          Nu este instrument clinic și nu produce diagnostic.
+        </p>
+        <div class="pillRow">
+          <span class="pill"><span class="dot"></span> model conceptual</span>
+          <span class="pill"><span class="dot warn"></span> regim J (ordered/mixed/tensed)</span>
+          <span class="pill"><span class="dot risk"></span> fără referințe la apă</span>
+        </div>
+      </div>
+      <div class="pillRow">
+        <span class="pill">Scurtături: <span class="kbd">Ctrl</span> + <span class="kbd">Enter</span> = Evaluează</span>
       </div>
     </header>
 
-    <div class="progress" aria-label="Progress">
-      <div class="bar on" id="bar1"></div>
-      <div class="bar" id="bar2"></div>
-      <div class="bar" id="bar3"></div>
+    <div class="layout">
+      <!-- Main / wizard -->
+      <section class="card" aria-label="Wizard">
+        <div class="cardHeader">
+          <div class="h">
+            <b id="stepTitle">1) Structură (S₀)</b>
+            <span id="stepSubtitle">Definește domeniul și structura inițială.</span>
+          </div>
+          <div class="stepBadge" id="stepBadge">Step 1/3</div>
+        </div>
+
+        <div class="cardBody">
+          <div class="progress" aria-label="Progres">
+            <div class="bar" id="p1"><i></i></div>
+            <div class="bar" id="p2"><i></i></div>
+            <div class="bar" id="p3"><i></i></div>
+          </div>
+
+          <div id="stepHost"></div>
+
+          <div class="actions">
+            <button class="btn" id="btnBack" type="button">Înapoi</button>
+            <div class="row">
+              <button class="btn" id="btnCopy" type="button" style="display:none">Copiază rezultat</button>
+              <button class="btn" id="btnReset" type="button" style="display:none">Reset</button>
+              <button class="btn primary" id="btnNext" type="button">Continuă</button>
+            </div>
+          </div>
+
+          <div class="hint" id="hintDomain">Selectează domeniul ca să păstrăm meta-coerența aplicării.</div>
+        </div>
+      </section>
+
+      <!-- Side / results -->
+      <aside class="sideGrid" aria-label="Rezumat">
+        <section class="card">
+          <div class="cardHeader">
+            <div class="h">
+              <b>Rezumat evaluare</b>
+              <span>Se actualizează la „Rezultat”.</span>
+            </div>
+            <div class="stepBadge" id="statusChip">idle</div>
+          </div>
+          <div class="cardBody">
+            <div class="stat">
+              <b>Domeniu</b>
+              <span id="sDomain">—</span>
+            </div>
+            <div class="stat" style="margin-top:10px">
+              <b>Regim J</b>
+              <span id="sRegime">—</span>
+            </div>
+
+            <div class="gauge" style="margin-top:12px">
+              <div class="gaugeTop">
+                <b>Zonă Coezivă</b>
+                <span id="sZoneLabel">—</span>
+              </div>
+              <div class="meter" role="img" aria-label="Indicator zonă Coezivă">
+                <div class="needle" id="needle" style="left:50%"></div>
+              </div>
+              <div class="tickRow">
+                <span>Flexibil</span>
+                <span>Tensiune</span>
+                <span>Coeziune ridicată</span>
+                <span>Supraîncărcare</span>
+              </div>
+            </div>
+
+            <div class="cycle" style="margin-top:12px">
+              <div class="cycleTop">
+                <b>Ciclul 2π</b>
+                <span id="sPhase">—</span>
+              </div>
+              <div class="steps" id="cycleSteps">
+                <div class="s" data-phase="Structură (S₀)"><small>1</small><b>Structură (S₀)</b><small>stare inițială</small></div>
+                <div class="s" data-phase="Flux (F)"><small>2</small><b>Flux (F)</b><small>intrări / presiuni</small></div>
+                <div class="s" data-phase="Reorganizare (R)"><small>3</small><b>Reorganizare (R)</b><small>ajustare structură</small></div>
+                <div class="s" data-phase="Noua structură (S₁)"><small>4</small><b>Noua structură (S₁)</b><small>stabilizare</small></div>
+              </div>
+            </div>
+
+            <div class="disclaimer" style="margin-top:12px">
+              <b>Disclaimer</b><br/>
+              Acest instrument operează ca <b>model conceptual</b>. Nu oferă diagnostic, evaluare clinică sau măsurare experimentală.
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="cardHeader">
+            <div class="h">
+              <b>Output</b>
+              <span>Mesaj + trasabilitate (notes).</span>
+            </div>
+            <div class="stepBadge">Coheziv 3.14</div>
+          </div>
+          <div class="cardBody">
+            <div class="out">
+              <h3>Rezultat</h3>
+              <div class="kv">
+                <div class="k"><b>Zonă</b><span id="oZone">—</span></div>
+                <div class="k"><b>Fază 2π</b><span id="oPhase">—</span></div>
+                <div class="k"><b>Regim J</b><span id="oRegime">—</span></div>
+                <div class="k"><b>Cod zonă</b><span id="oZoneCode" class="mono">—</span></div>
+              </div>
+              <div class="msg" id="oMsg">Completează pașii și rulează evaluarea.</div>
+              <ul class="notes" id="oNotes"></ul>
+              <div class="footer">
+                Notă: pragurile interne sunt folosite ca repere conceptuale de regim. UI-ul nu afișează temperaturi sau referințe la apă.
+              </div>
+            </div>
+          </div>
+        </section>
+      </aside>
     </div>
-
-    <section class="card" id="card">
-      <!-- Step content injected here -->
-    </section>
-
-    <footer>
-      Notă: zonele ≈25°C / ≈39.86°C / ≈43°C / &gt;44.7°C sunt folosite ca <b>repere conceptuale</b> pentru coeziune,
-      tensiune și supraîncărcare. Nu reprezintă măsurare fizică a apei, diagnostic medical sau evaluare psihologică.
-    </footer>
-  </main>
+  </div>
 
 <script>
-(function(){
-  // ---------- State ----------
-  const defaultState = () => ({
+(() => {
+  // -----------------------------
+  // State (single-file)
+  // -----------------------------
+  const STORAGE_KEY = "coheziv314_singlefile_pro_v1";
+
+  const defaults = () => ({
     step: 1,
     domain: "",
     structureDesc: "",
-    structureLevel: 3, // 1..5
+    structureLevel: 3,
     fluxType: "informațional",
-    fluxIntensity: 3, // 1..5
+    fluxIntensity: 3,
     fluxDuration: "mediu",
   });
 
-  const STORAGE_KEY = "coheziv314_mvp_state_v1";
+  let state = load();
 
-  function loadState(){
+  function load(){
     try{
       const raw = localStorage.getItem(STORAGE_KEY);
-      if(!raw) return defaultState();
-      const s = JSON.parse(raw);
-      return { ...defaultState(), ...s };
-    }catch(e){
-      return defaultState();
+      if(!raw) return defaults();
+      const obj = JSON.parse(raw);
+      return { ...defaults(), ...obj };
+    }catch(_){
+      return defaults();
     }
   }
 
-  function saveState(){
-    try{
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    }catch(e){}
+  function save(){
+    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(_){}
   }
 
-  let state = loadState();
+  const $ = (id) => document.getElementById(id);
 
-  // ---------- Helpers ----------
-  const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
+  // -----------------------------
+  // Coeziv vocabulary-only evaluation
+  // No mentions of water / no °C in UI.
+  // Internal thresholds are kept as "regime selectors".
+  // -----------------------------
+  function clamp(n, min, max){ return Math.max(min, Math.min(max, n)); }
 
-  function computeResult(s){
+  function evaluateCoheziv(s){
+    // validation
+    if(!s.domain){
+      return { ok:false, error:"Domeniul este obligatoriu (meta-coerență)." };
+    }
+
     const structure = clamp(+s.structureLevel, 1, 5);
     const intensity = clamp(+s.fluxIntensity, 1, 5);
 
@@ -256,363 +628,480 @@
       "schimbare externă": 1
     };
 
-    const score =
-      structure +
-      intensity +
-      (durationWeight[s.fluxDuration] ?? 1) +
-      (typeWeight[s.fluxType] ?? 1);
+    // Internal score used only for regime selection.
+    const score = structure + intensity + (durationWeight[s.fluxDuration] ?? 1) + (typeWeight[s.fluxType] ?? 1);
 
+    // Zone (vocabulary labels; no temperature symbols)
+    let zoneCode, zoneLabel;
+
+    if(score <= 6){
+      zoneCode  = "Z25";
+      zoneLabel = "Flexibil";
+    } else if(score <= 10){
+      zoneCode  = "Z39_86";
+      zoneLabel = "Tensiune reversibilă";
+    } else if(score <= 12){
+      zoneCode  = "Z43";
+      zoneLabel = "Coeziune ridicată / rigidizare";
+    } else {
+      zoneCode  = "Z44_7_PLUS";
+      zoneLabel = "Supraîncărcare";
+    }
+
+    // Phase 2π (heuristic)
     let phase2pi = "Flux (F)";
     if(score <= 5) phase2pi = "Structură (S₀)";
     else if(score <= 9) phase2pi = "Flux (F)";
     else if(score <= 12) phase2pi = "Reorganizare (R)";
     else phase2pi = "Noua structură (S₁)";
 
-    let zone = "≈25°C";
-    if(score <= 6) zone = "≈25°C";
-    else if(score <= 10) zone = "≈39.86°C";
-    else if(score <= 12) zone = "≈43°C";
-    else zone = ">44.7°C";
+    // Regime J (ordered / mixed / tensed)
+    let regimeJ = "ordered";
+    if(score <= 8) regimeJ = "ordered";
+    else if(score <= 12) regimeJ = "mixed";
+    else regimeJ = "tensed";
 
     const messages = {
-      "≈25°C":
-        "Sistemul este într-o stare flexibilă și adaptabilă. Coeziunea este suficientă pentru funcționare, iar integrarea fluxurilor este ușoară.",
-      "≈39.86°C":
-        "Sistemul este într-o zonă de tensiune reversibilă. Fluxurile sunt semnificative, dar reorganizarea poate readuce echilibrul.",
-      "≈43°C":
-        "Sistemul este într-o zonă de coeziune ridicată și coerentă, dar cu flexibilitate scăzută. Reorganizarea trebuie făcută disciplinat pentru a evita rigidizarea sau supraîncărcarea.",
-      ">44.7°C":
-        "Sistemul este într-o zonă de supraîncărcare conceptuală. Structura începe să cedeze; este necesară reducerea fluxului și o reorganizare clară pentru a evita colapsul structural."
+      Z25: "Regim flexibil: Structura permite integrarea fluxurilor cu reorganizare minimă. Monitorizează coerența și păstrează limitele explicite.",
+      Z39_86: "Tensiune reversibilă: Fluxurile cresc; reorganizarea (R) poate restabili coerența fără schimbări drastice. Clarifică priorități și canale de flux.",
+      Z43: "Coeziune ridicată: Structura este coerentă, dar flexibilitatea scade. Aplică reorganizare disciplinată (R) pentru a preveni rigidizarea și acumularea de tensiune.",
+      Z44_7_PLUS: "Supraîncărcare: Fluxul depășește capacitatea structurală. Reduce fluxul, restabilește limitele și definește o reorganizare clară înainte de stabilizare (S₁).",
     };
 
     const notes = [];
-    notes.push("Domeniu declarat: " + (s.domain || "(neselectat)"));
-    notes.push("Structură (1–5): " + structure);
-    notes.push("Flux: " + s.fluxType + ", intensitate (1–5): " + intensity + ", durată: " + s.fluxDuration);
+    notes.push(`Domeniu: ${s.domain}`);
+    notes.push(`Structură (nivel 1–5): ${structure}`);
+    notes.push(`Flux: ${s.fluxType} | intensitate (1–5): ${intensity} | durată: ${s.fluxDuration}`);
+    if((s.structureDesc || "").trim()) notes.push(`Descriere structură: ${s.structureDesc.trim()}`);
 
-    return { score, zone, phase2pi, message: messages[zone], notes };
+    return {
+      ok:true,
+      zoneCode, zoneLabel,
+      phase2pi,
+      regimeJ,
+      message: messages[zoneCode],
+      notes,
+      meta: { model:"Coheziv 3.14", disclaimer:"Model conceptual. Non-clinic." }
+    };
   }
 
-  function setStep(n){
-    state.step = n;
-    saveState();
-    render();
+  function needleLeft(zoneCode){
+    // Place needle across gauge: 0..100
+    // Flexibil ~ 12, Tensiune ~ 40, Coeziune ridicată ~ 70, Supraîncărcare ~ 92
+    if(zoneCode === "Z25") return 12;
+    if(zoneCode === "Z39_86") return 40;
+    if(zoneCode === "Z43") return 70;
+    return 92;
   }
 
-  function updateProgress(){
-    document.getElementById("badgeStep").textContent = "Step " + state.step + "/3";
-    document.getElementById("bar1").classList.toggle("on", state.step >= 1);
-    document.getElementById("bar2").classList.toggle("on", state.step >= 2);
-    document.getElementById("bar3").classList.toggle("on", state.step >= 3);
+  function setCycleActive(phase){
+    const nodes = document.querySelectorAll('#cycleSteps .s');
+    nodes.forEach(n => n.classList.toggle('on', n.getAttribute('data-phase') === phase));
   }
 
-  function thermoPosition(zone){
-    // Map zone to y position on 0..100 (top..bottom) scale for the dot.
-    // Not scientific; UI cue only.
-    if(zone === ">44.7°C") return 12;
-    if(zone === "≈43°C") return 35;
-    if(zone === "≈39.86°C") return 58;
-    return 82; // ≈25°C
-  }
-
-  // ---------- Render ----------
+  // -----------------------------
+  // Wizard steps (DOM)
+  // -----------------------------
   function render(){
-    updateProgress();
-    const card = document.getElementById("card");
-    card.innerHTML = "";
+    save();
+    renderHeader();
+    renderProgress();
+    renderStep();
+    renderSidePreview();
+  }
 
-    if(state.step === 1){
-      card.appendChild(step1());
-      card.appendChild(actions());
-    } else if(state.step === 2){
-      card.appendChild(step2());
-      card.appendChild(actions());
-    } else {
-      card.appendChild(step3());
-      card.appendChild(actions());
-    }
+  function renderHeader(){
+    const titles = {
+      1: ["1) Structură (S₀)", "Definește domeniul și structura inițială."],
+      2: ["2) Flux (F)", "Definește tipul, intensitatea și durata fluxului."],
+      3: ["3) Rezultat", "Rulează evaluarea și analizează zona, regimul J și faza 2π."]
+    };
+    $('stepTitle').textContent = titles[state.step][0];
+    $('stepSubtitle').textContent = titles[state.step][1];
+    $('stepBadge').textContent = `Step ${state.step}/3`;
+
+    $('btnBack').disabled = state.step === 1;
+
+    // Buttons
+    const isLast = state.step === 3;
+    $('btnCopy').style.display = isLast ? "inline-flex" : "none";
+    $('btnReset').style.display = isLast ? "inline-flex" : "none";
+    $('btnNext').textContent = isLast ? "Evaluează" : "Continuă";
+  }
+
+  function renderProgress(){
+    $('p1').classList.toggle('on', state.step >= 1);
+    $('p2').classList.toggle('on', state.step >= 2);
+    $('p3').classList.toggle('on', state.step >= 3);
   }
 
   function step1(){
-    const root = document.createElement("div");
+    const root = document.createElement('div');
+
     root.innerHTML = `
-      <h2>1) Structură (S₀)</h2>
+      <div class="grid2">
+        <div class="field">
+          <label for="domain">Domeniu (obligatoriu)</label>
+          <select id="domain">
+            <option value="">Alege domeniul…</option>
+            <option value="psihologic">psihologic</option>
+            <option value="social">social</option>
+            <option value="tehnic">tehnic</option>
+          </select>
+        </div>
 
-      <label for="domain">Domeniu (obligatoriu)</label>
-      <select id="domain">
-        <option value="">Alege domeniul…</option>
-        <option value="psihologic">psihologic</option>
-        <option value="social">social</option>
-        <option value="tehnic">tehnic</option>
-      </select>
-
-      <label for="structureDesc">Descriere structură (scurt)</label>
-      <textarea id="structureDesc" rows="4" placeholder="Ex: roluri clare, reguli de comunicare, limitări de resurse…"></textarea>
-
-      <label for="structureLevel">Nivel de structurare: <span id="slVal"></span> (1 flexibil → 5 rigid)</label>
-      <input type="range" id="structureLevel" min="1" max="5" step="1" />
-
-      <div class="panel">
-        <strong>Regulă de meta-coerență</strong>
-        Domeniul trebuie declarat înainte de aplicarea modelului.
+        <div class="field">
+          <label for="structureLevel">Nivel Structură: <span id="slVal" class="kbd"></span></label>
+          <input type="range" id="structureLevel" min="1" max="5" step="1" />
+          <div style="margin-top:8px;color:rgba(255,255,255,0.70);font-size:12px">
+            1 = flexibil, 5 = rigid.
+          </div>
+        </div>
       </div>
 
-      <div id="domainHint" class="hint" style="display:none">
-        Selectează domeniul ca să păstrăm meta-coerența aplicării.
+      <div class="field" style="margin-top:12px">
+        <label for="structureDesc">Descriere Structură (S₀)</label>
+        <textarea id="structureDesc" placeholder="Ex: roluri, limite, reguli, dependențe, resurse…"></textarea>
+      </div>
+
+      <div class="field" style="margin-top:12px">
+        <div class="row" style="justify-content:space-between">
+          <div>
+            <div style="font-size:13px;font-weight:700">Regulator de consistență conceptuală</div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.70);margin-top:6px">
+              Domeniul trebuie declarat înainte de evaluare.
+            </div>
+          </div>
+          <span class="kbd">meta-coerență</span>
+        </div>
       </div>
     `;
 
-    const domain = root.querySelector("#domain");
-    const structureDesc = root.querySelector("#structureDesc");
-    const structureLevel = root.querySelector("#structureLevel");
-    const slVal = root.querySelector("#slVal");
+    const domain = root.querySelector('#domain');
+    const structureLevel = root.querySelector('#structureLevel');
+    const structureDesc = root.querySelector('#structureDesc');
+    const slVal = root.querySelector('#slVal');
 
     domain.value = state.domain;
-    structureDesc.value = state.structureDesc;
     structureLevel.value = String(state.structureLevel);
+    structureDesc.value = state.structureDesc;
     slVal.textContent = String(state.structureLevel);
 
-    domain.addEventListener("change", (e)=>{
+    domain.addEventListener('change', (e) => {
       state.domain = e.target.value;
-      saveState();
-      render(); // refresh hint/buttons
+      $('hintDomain').style.display = "none";
+      renderSidePreview();
+      save();
     });
 
-    structureDesc.addEventListener("input", (e)=>{
-      state.structureDesc = e.target.value;
-      saveState();
-    });
-
-    structureLevel.addEventListener("input", (e)=>{
+    structureLevel.addEventListener('input', (e) => {
       state.structureLevel = +e.target.value;
       slVal.textContent = String(state.structureLevel);
-      saveState();
+      renderSidePreview();
+      save();
+    });
+
+    structureDesc.addEventListener('input', (e) => {
+      state.structureDesc = e.target.value;
+      save();
     });
 
     return root;
   }
 
   function step2(){
-    const root = document.createElement("div");
+    const root = document.createElement('div');
+
     root.innerHTML = `
-      <h2>2) Flux (F)</h2>
-
-      <label for="fluxType">Tip flux</label>
-      <select id="fluxType">
-        <option value="informațional">informațional</option>
-        <option value="emoțional">emoțional</option>
-        <option value="sarcini/cerințe">sarcini/cerințe</option>
-        <option value="schimbare externă">schimbare externă</option>
-      </select>
-
-      <label for="fluxIntensity">Intensitate flux: <span id="fiVal"></span> (1 mic → 5 mare)</label>
-      <input type="range" id="fluxIntensity" min="1" max="5" step="1" />
-
-      <label for="fluxDuration">Durată</label>
-      <select id="fluxDuration">
-        <option value="scurt">scurt</option>
-        <option value="mediu">mediu</option>
-        <option value="prelungit">prelungit</option>
-      </select>
-
-      <div class="panel">
-        <strong>Previzualizare internă (conceptuală)</strong>
-        <div class="row">
-          <span class="badge">Structură: <span id="pvS"></span>/5</span>
-          <span class="badge">Intensitate: <span id="pvI"></span>/5</span>
-          <span class="badge">Durată: <span id="pvD"></span></span>
+      <div class="grid2">
+        <div class="field">
+          <label for="fluxType">Tip Flux</label>
+          <select id="fluxType">
+            <option value="informațional">informațional</option>
+            <option value="emoțional">emoțional</option>
+            <option value="sarcini/cerințe">sarcini/cerințe</option>
+            <option value="schimbare externă">schimbare externă</option>
+          </select>
         </div>
-        <div class="small">Aceasta este o vizualizare de parametri, nu o măsurare științifică.</div>
+
+        <div class="field">
+          <label for="fluxDuration">Durată Flux</label>
+          <select id="fluxDuration">
+            <option value="scurt">scurt</option>
+            <option value="mediu">mediu</option>
+            <option value="prelungit">prelungit</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field" style="margin-top:12px">
+        <label for="fluxIntensity">Intensitate Flux: <span id="fiVal" class="kbd"></span></label>
+        <input type="range" id="fluxIntensity" min="1" max="5" step="1" />
+        <div style="margin-top:8px;color:rgba(255,255,255,0.70);font-size:12px">
+          1 = mică, 5 = mare.
+        </div>
+      </div>
+
+      <div class="field" style="margin-top:12px">
+        <div class="row" style="justify-content:space-between">
+          <div>
+            <div style="font-size:13px;font-weight:700">Previzualizare parametri</div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.70);margin-top:6px">
+              Parametri de intrare pentru evaluare (nu măsurare).
+            </div>
+          </div>
+          <span class="kbd">F (Flux)</span>
+        </div>
+        <div class="row" style="margin-top:10px">
+          <span class="pill">Structură: <span class="kbd" id="pvS">—</span></span>
+          <span class="pill">Intensitate: <span class="kbd" id="pvI">—</span></span>
+          <span class="pill">Durată: <span class="kbd" id="pvD">—</span></span>
+        </div>
       </div>
     `;
 
-    const fluxType = root.querySelector("#fluxType");
-    const fluxIntensity = root.querySelector("#fluxIntensity");
-    const fluxDuration = root.querySelector("#fluxDuration");
+    const fluxType = root.querySelector('#fluxType');
+    const fluxDuration = root.querySelector('#fluxDuration');
+    const fluxIntensity = root.querySelector('#fluxIntensity');
+    const fiVal = root.querySelector('#fiVal');
 
-    const fiVal = root.querySelector("#fiVal");
-    const pvS = root.querySelector("#pvS");
-    const pvI = root.querySelector("#pvI");
-    const pvD = root.querySelector("#pvD");
+    const pvS = root.querySelector('#pvS');
+    const pvI = root.querySelector('#pvI');
+    const pvD = root.querySelector('#pvD');
 
     fluxType.value = state.fluxType;
-    fluxIntensity.value = String(state.fluxIntensity);
     fluxDuration.value = state.fluxDuration;
-
+    fluxIntensity.value = String(state.fluxIntensity);
     fiVal.textContent = String(state.fluxIntensity);
-    pvS.textContent = String(state.structureLevel);
-    pvI.textContent = String(state.fluxIntensity);
-    pvD.textContent = state.fluxDuration;
 
-    fluxType.addEventListener("change", (e)=>{
+    const syncPreview = () => {
+      pvS.textContent = String(state.structureLevel);
+      pvI.textContent = String(state.fluxIntensity);
+      pvD.textContent = String(state.fluxDuration);
+    };
+    syncPreview();
+
+    fluxType.addEventListener('change', (e) => {
       state.fluxType = e.target.value;
-      saveState();
+      syncPreview();
+      renderSidePreview();
+      save();
     });
 
-    fluxIntensity.addEventListener("input", (e)=>{
+    fluxDuration.addEventListener('change', (e) => {
+      state.fluxDuration = e.target.value;
+      syncPreview();
+      renderSidePreview();
+      save();
+    });
+
+    fluxIntensity.addEventListener('input', (e) => {
       state.fluxIntensity = +e.target.value;
       fiVal.textContent = String(state.fluxIntensity);
-      pvI.textContent = String(state.fluxIntensity);
-      saveState();
-    });
-
-    fluxDuration.addEventListener("change", (e)=>{
-      state.fluxDuration = e.target.value;
-      pvD.textContent = state.fluxDuration;
-      saveState();
+      syncPreview();
+      renderSidePreview();
+      save();
     });
 
     return root;
   }
 
   function step3(){
-    const r = computeResult(state);
+    const root = document.createElement('div');
 
-    const root = document.createElement("div");
     root.innerHTML = `
-      <h2>3) Rezultat</h2>
-
-      <div class="row">
-        <span class="badge">Zonă: <b>${r.zone}</b></span>
-        <span class="badge">Fază 2π: <b>${r.phase2pi}</b></span>
-        <span class="badge">Domeniu: <b>${state.domain || "(neselectat)"}</b></span>
-      </div>
-
-      <p style="margin-top:12px;font-size:16px;line-height:1.5;color:#222">${r.message}</p>
-
-      <div class="thermo" aria-label="Thermometer (conceptual)">
-        <strong>Termometru conceptual (indicator vizual)</strong>
-        <div class="scale" style="margin-top:8px">
-          <div class="marker" style="top:18%"></div>
-          <div class="label" style="top:14%">>44.7°C</div>
-
-          <div class="marker" style="top:40%"></div>
-          <div class="label" style="top:36%">≈43°C</div>
-
-          <div class="marker" style="top:62%"></div>
-          <div class="label" style="top:58%">≈39.86°C</div>
-
-          <div class="marker" style="top:84%"></div>
-          <div class="label" style="top:80%">≈25°C</div>
-
-          <div class="dot" id="dot"></div>
+      <div class="field">
+        <div class="row" style="justify-content:space-between; align-items:flex-start">
+          <div>
+            <div style="font-size:13px;font-weight:800">Rulează evaluarea</div>
+            <div style="margin-top:6px;font-size:12px;color:rgba(255,255,255,0.70);line-height:1.45">
+              Apasă <span class="kbd">Evaluează</span> pentru a genera: Zonă Coezivă, Fază 2π și Regim J.
+              Nu se afișează temperaturi și nu apar referințe la apă.
+            </div>
+          </div>
+          <span class="kbd">2π</span>
         </div>
-        <div class="small">Acest termometru este o metaforă UI; nu este măsurare fizică.</div>
       </div>
 
-      <div class="panel">
-        <strong>Context (trasabilitate)</strong>
-        <ul id="notes"></ul>
-      </div>
-
-      <div class="danger">
-        <b>Disclaimer</b>
-        Acest rezultat este produs de un <b>model conceptual</b> inspirat de proprietățile apei și praguri termice folosite ca repere.
-        Nu reprezintă diagnostic, evaluare medicală sau psihologică și nu pretinde măsurare experimentală a unei stări reale.
-      </div>
-
-      <div class="panel">
-        <strong>Notă tehnică (intern)</strong>
-        Scor intern (doar pentru selectarea regimului): <span class="mono">${r.score}</span>
+      <div class="field" style="margin-top:12px">
+        <div class="row" style="justify-content:space-between">
+          <div>
+            <div style="font-size:13px;font-weight:700">Trasabilitate</div>
+            <div style="margin-top:6px;font-size:12px;color:rgba(255,255,255,0.70)">Rezultatul include “notes” cu intrările relevante.</div>
+          </div>
+          <span class="kbd">notes</span>
+        </div>
       </div>
     `;
-
-    const notesEl = root.querySelector("#notes");
-    r.notes.forEach(n=>{
-      const li = document.createElement("li");
-      li.textContent = n;
-      notesEl.appendChild(li);
-    });
-
-    const dot = root.querySelector("#dot");
-    dot.style.top = thermoPosition(r.zone) + "%";
 
     return root;
   }
 
-  function actions(){
-    const wrap = document.createElement("div");
-    wrap.className = "grid-actions";
+  function renderStep(){
+    const host = $('stepHost');
+    host.innerHTML = "";
+    $('hintDomain').style.display = "none";
 
-    const btnBack = document.createElement("button");
-    btnBack.textContent = "Înapoi";
-    btnBack.disabled = state.step === 1;
-    btnBack.addEventListener("click", ()=>{
-      if(state.step > 1) setStep(state.step - 1);
-    });
-
-    const right = document.createElement("div");
-    right.style.display = "flex";
-    right.style.gap = "10px";
-    right.style.flexWrap = "wrap";
-
-    const btnNext = document.createElement("button");
-    btnNext.textContent = "Continuă";
-    btnNext.className = "primary";
-
-    const btnCopy = document.createElement("button");
-    btnCopy.textContent = "Copiază rezultat";
-
-    const btnReset = document.createElement("button");
-    btnReset.textContent = "Reset";
-
-    const domainOk = state.domain !== "";
-    if(state.step === 1 && !domainOk){
-      btnNext.disabled = true;
-    }
-
-    btnNext.addEventListener("click", ()=>{
-      if(state.step === 1 && !domainOk){
-        // show hint by rerender (step1 toggles)
-        render();
-        const hint = document.querySelector("#domainHint");
-        if(hint) hint.style.display = "block";
-        return;
-      }
-      if(state.step < 3) setStep(state.step + 1);
-    });
-
-    btnCopy.addEventListener("click", async ()=>{
-      const r = computeResult(state);
-      const text = [
-        "Coheziv 3.14 – Rezultat (model conceptual)",
-        "Zonă: " + r.zone,
-        "Fază 2π: " + r.phase2pi,
-        "Mesaj: " + r.message,
-        ...r.notes.map(n => "- " + n),
-        "",
-        "Disclaimer: model conceptual, non-clinic."
-      ].join("\n");
-      try{
-        await navigator.clipboard.writeText(text);
-        alert("Rezultatul a fost copiat.");
-      }catch(e){
-        // fallback
-        prompt("Copiază manual:", text);
-      }
-    });
-
-    btnReset.addEventListener("click", ()=>{
-      state = defaultState();
-      saveState();
-      render();
-    });
-
-    if(state.step === 3){
-      right.appendChild(btnCopy);
-      right.appendChild(btnReset);
-    } else {
-      right.appendChild(btnNext);
-    }
-
-    wrap.appendChild(btnBack);
-    wrap.appendChild(right);
-
-    return wrap;
+    if(state.step === 1) host.appendChild(step1());
+    else if(state.step === 2) host.appendChild(step2());
+    else host.appendChild(step3());
   }
 
-  // ---------- Boot ----------
+  function renderSidePreview(){
+    $('sDomain').textContent = state.domain ? state.domain : "—";
+
+    // When not evaluated yet, keep side output minimal.
+    // We can do a "soft preview" by running evaluation only if domain exists.
+    if(!state.domain){
+      $('statusChip').textContent = "idle";
+      $('sRegime').textContent = "—";
+      $('sZoneLabel').textContent = "—";
+      $('sPhase').textContent = "—";
+      $('needle').style.left = "50%";
+      setCycleActive("");
+      $('oZone').textContent = "—";
+      $('oPhase').textContent = "—";
+      $('oRegime').textContent = "—";
+      $('oZoneCode').textContent = "—";
+      $('oMsg').textContent = "Completează pașii și rulează evaluarea.";
+      $('oNotes').innerHTML = "";
+      return;
+    }
+
+    // Soft preview: compute but do not mark as "ok" unless evaluated on step 3.
+    const r = evaluateCoheziv(state);
+    if(!r.ok){
+      $('statusChip').textContent = "idle";
+      return;
+    }
+
+    // Light preview in side panel (doesn't change "statusChip" to ok unless step3 action).
+    $('sRegime').textContent = r.regimeJ;
+    $('sZoneLabel').textContent = r.zoneLabel;
+    $('sPhase').textContent = r.phase2pi;
+    $('needle').style.left = needleLeft(r.zoneCode) + "%";
+    setCycleActive(r.phase2pi);
+  }
+
+  function doEvaluate(){
+    const r = evaluateCoheziv(state);
+    if(!r.ok){
+      $('statusChip').textContent = "error";
+      $('oMsg').textContent = r.error || "Eroare de validare.";
+      $('oNotes').innerHTML = "";
+      return null;
+    }
+
+    $('statusChip').textContent = "ok";
+    $('sDomain').textContent = state.domain;
+    $('sRegime').textContent = r.regimeJ;
+    $('sZoneLabel').textContent = r.zoneLabel;
+    $('sPhase').textContent = r.phase2pi;
+
+    $('needle').style.left = needleLeft(r.zoneCode) + "%";
+    setCycleActive(r.phase2pi);
+
+    $('oZone').textContent = r.zoneLabel;
+    $('oPhase').textContent = r.phase2pi;
+    $('oRegime').textContent = r.regimeJ;
+    $('oZoneCode').textContent = r.zoneCode;
+
+    $('oMsg').textContent = r.message;
+    $('oNotes').innerHTML = "";
+    r.notes.forEach(n => {
+      const li = document.createElement('li');
+      li.textContent = n;
+      $('oNotes').appendChild(li);
+    });
+
+    return r;
+  }
+
+  function resetAll(){
+    state = defaults();
+    save();
+    $('statusChip').textContent = "idle";
+    render();
+  }
+
+  async function copyResult(){
+    const r = doEvaluate();
+    if(!r) return;
+
+    const text = [
+      "Coheziv 3.14 — Rezultat (model conceptual)",
+      `Domeniu: ${state.domain}`,
+      `Zonă Coezivă: ${r.zoneLabel} (${r.zoneCode})`,
+      `Fază 2π: ${r.phase2pi}`,
+      `Regim J: ${r.regimeJ}`,
+      "",
+      `Mesaj: ${r.message}`,
+      "",
+      "Notes:",
+      ...r.notes.map(x => `- ${x}`),
+      "",
+      "Disclaimer: Model conceptual. Non-clinic."
+    ].join("\n");
+
+    try{
+      await navigator.clipboard.writeText(text);
+      $('statusChip').textContent = "copied";
+      setTimeout(()=> $('statusChip').textContent = "ok", 900);
+    }catch(_){
+      prompt("Copiază manual:", text);
+    }
+  }
+
+  // -----------------------------
+  // Events
+  // -----------------------------
+  $('btnBack').addEventListener('click', () => {
+    if(state.step > 1){ state.step -= 1; render(); }
+  });
+
+  $('btnNext').addEventListener('click', () => {
+    if(state.step === 1){
+      if(!state.domain){
+        $('hintDomain').style.display = "block";
+        return;
+      }
+      state.step = 2; render(); return;
+    }
+    if(state.step === 2){
+      state.step = 3; render(); return;
+    }
+    // step 3 => evaluate
+    doEvaluate();
+  });
+
+  $('btnReset').addEventListener('click', resetAll);
+  $('btnCopy').addEventListener('click', copyResult);
+
+  // keyboard shortcut: Ctrl+Enter to evaluate (from any step; will validate domain)
+  document.addEventListener('keydown', (e) => {
+    const isCtrlEnter = (e.ctrlKey || e.metaKey) && e.key === 'Enter';
+    if(!isCtrlEnter) return;
+    e.preventDefault();
+
+    if(!state.domain){
+      $('hintDomain').style.display = "block";
+      return;
+    }
+
+    if(state.step < 3){
+      state.step = 3;
+      render();
+    }
+    doEvaluate();
+  });
+
+  // initial render
   render();
+
+  // Ensure buttons visibility reflects step changes
+  const observer = new MutationObserver(() => renderHeader());
+  observer.observe($('stepHost'), { childList:true, subtree:true });
+
 })();
 </script>
 </body>
