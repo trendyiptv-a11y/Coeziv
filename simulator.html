@@ -3,872 +3,570 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Coheziv Auto — Evaluator regim (single-file)</title>
-  <meta name="description" content="Evaluator conceptual Coeziv pentru sisteme auto: Structură–Flux–Reorganizare–Noua Structură, 2π, regim J. Single-file." />
+  <title>Protocol experimental: Efectul geometriei (pattern) asupra câmpului near-field (EMI) — A/B/C</title>
   <style>
     :root{
-      --bg: #0b0d12;
-      --panel: rgba(255,255,255,0.06);
-      --stroke: rgba(255,255,255,0.10);
-      --text: rgba(255,255,255,0.92);
-      --muted: rgba(255,255,255,0.68);
-      --muted2: rgba(255,255,255,0.52);
-      --accent: #7c5cff;
-      --accent2:#35c2ff;
-      --good:#34d399;
+      --bg:#0b0f14;
+      --panel:#111826;
+      --text:#e6edf3;
+      --muted:#9fb0c0;
+      --accent:#7aa2ff;
+      --ok:#5eead4;
       --warn:#fbbf24;
-      --risk:#fb7185;
-      --shadow2: 0 12px 30px rgba(0,0,0,0.35);
-      --radius: 18px;
-      --radius2: 14px;
+      --bad:#fb7185;
+      --line:#223044;
       --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
     }
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0;
-      font-family: var(--sans);
-      color: var(--text);
-      background:
-        radial-gradient(900px 600px at 20% 10%, rgba(124,92,255,0.25), transparent 55%),
-        radial-gradient(900px 600px at 80% 20%, rgba(53,194,255,0.22), transparent 55%),
-        radial-gradient(900px 600px at 55% 85%, rgba(251,113,133,0.10), transparent 55%),
-        linear-gradient(180deg, #07080b 0%, #0b0d12 60%, #090a0e 100%);
-      overflow-x:hidden;
+    html,body{background:var(--bg); color:var(--text); font-family:var(--sans); line-height:1.5; margin:0;}
+    a{color:var(--accent); text-decoration:none}
+    a:hover{text-decoration:underline}
+    header{padding:28px 20px; border-bottom:1px solid var(--line); background:linear-gradient(180deg,#0b0f14 0%,#0b0f14 30%,#0a111b 100%);}
+    header h1{margin:0 0 6px 0; font-size:22px}
+    header p{margin:0; color:var(--muted); max-width:980px}
+    main{max-width:1100px; margin:0 auto; padding:20px}
+    .grid{display:grid; grid-template-columns:1fr; gap:14px}
+    @media (min-width:960px){ .grid{grid-template-columns: 1.15fr 0.85fr;} }
+    .card{background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:16px}
+    .card h2{margin:0 0 10px 0; font-size:16px}
+    .card h3{margin:14px 0 8px 0; font-size:14px}
+    .card p{margin:8px 0; color:var(--text)}
+    .muted{color:var(--muted)}
+    .pill{display:inline-block; padding:2px 10px; border:1px solid var(--line); border-radius:999px; color:var(--muted); font-size:12px}
+    .kpi{display:flex; gap:10px; flex-wrap:wrap}
+    .kpi .pill b{color:var(--text)}
+    .hr{height:1px; background:var(--line); margin:14px 0}
+    ul,ol{margin:8px 0 8px 20px}
+    li{margin:6px 0}
+    table{width:100%; border-collapse:collapse; overflow:hidden; border-radius:12px; border:1px solid var(--line); background:#0e1624}
+    th,td{border-bottom:1px solid var(--line); padding:10px; text-align:left; vertical-align:top}
+    th{color:#c9d7e6; font-weight:600; background:#0c1320}
+    tr:last-child td{border-bottom:none}
+    code, pre{font-family:var(--mono); font-size:12.5px}
+    pre{background:#0a111b; border:1px solid var(--line); padding:12px; border-radius:12px; overflow:auto}
+    .callout{border:1px solid var(--line); border-left:5px solid var(--accent); padding:12px; border-radius:12px; background:#0b1320}
+    .callout.warn{border-left-color:var(--warn)}
+    .callout.bad{border-left-color:var(--bad)}
+    .callout.ok{border-left-color:var(--ok)}
+    .checklist label{display:flex; gap:10px; align-items:flex-start; margin:8px 0; cursor:pointer}
+    .checklist input{margin-top:3px}
+    .two{display:grid; grid-template-columns:1fr; gap:12px}
+    @media (min-width:960px){ .two{grid-template-columns:1fr 1fr;} }
+    .svgwrap{background:#0a111b; border:1px solid var(--line); border-radius:12px; padding:12px}
+    .footer{padding:20px; color:var(--muted); border-top:1px solid var(--line); margin-top:14px}
+    .badge{display:inline-block; padding:2px 8px; border-radius:8px; font-size:12px; border:1px solid var(--line); color:var(--muted)}
+    .mono{font-family:var(--mono)}
+    .print-note{display:none}
+    @media print{
+      :root{--bg:#ffffff; --panel:#ffffff; --text:#111111; --muted:#333333; --line:#d0d0d0; --accent:#1d4ed8;}
+      body{background:#fff; color:#111}
+      header{background:#fff; border-bottom:1px solid #d0d0d0}
+      .card{break-inside:avoid}
+      a{color:#1d4ed8; text-decoration:underline}
+      .print-note{display:block; font-size:12px; color:#333}
     }
-    .wrap{max-width: 1120px; margin: 0 auto; padding: 28px 18px 70px;}
-    header{
-      display:flex; gap:16px; align-items:flex-start; justify-content:space-between;
-      flex-wrap:wrap; margin-bottom: 18px;
-    }
-    .title{display:flex; flex-direction:column; gap:8px; max-width: 820px;}
-    .title h1{margin:0; font-size:26px; letter-spacing:-0.02em; line-height:1.2;}
-    .title p{margin:0; color: var(--muted); line-height:1.5; font-size:14px;}
-    .pillRow{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
-    .pill{
-      display:inline-flex; gap:8px; align-items:center;
-      padding: 8px 10px; border: 1px solid var(--stroke); border-radius: 999px;
-      background: rgba(255,255,255,0.04); color: var(--muted); font-size: 12px;
-      backdrop-filter: blur(8px);
-    }
-    .dot{width:8px;height:8px;border-radius:99px;background: var(--accent2); box-shadow:0 0 0 3px rgba(53,194,255,0.15)}
-    .dot.warn{background: var(--warn); box-shadow:0 0 0 3px rgba(251,191,36,0.15)}
-    .dot.risk{background: var(--risk); box-shadow:0 0 0 3px rgba(251,113,133,0.15)}
-    .layout{display:grid; grid-template-columns: 1.35fr 0.95fr; gap: 16px; align-items:start;}
-    @media (max-width: 980px){ .layout{grid-template-columns: 1fr;} }
-
-    .card{
-      border: 1px solid var(--stroke);
-      background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03));
-      border-radius: var(--radius);
-      box-shadow: var(--shadow2);
-      overflow:hidden;
-    }
-    .cardHeader{
-      padding: 14px 16px; border-bottom: 1px solid var(--stroke);
-      display:flex; align-items:center; justify-content:space-between; gap:12px;
-    }
-    .cardHeader .h{display:flex; flex-direction:column; gap:4px;}
-    .cardHeader .h b{font-size: 14px; letter-spacing:-0.01em}
-    .cardHeader .h span{font-size: 12px; color: var(--muted2)}
-    .stepBadge{
-      font-size: 12px; color: rgba(255,255,255,0.85);
-      padding: 8px 10px; border-radius: 999px;
-      border: 1px solid rgba(124,92,255,0.35);
-      background: rgba(124,92,255,0.10); white-space:nowrap;
-    }
-    .cardBody{padding: 16px}
-
-    .progress{display:flex; gap:10px; margin: 0 0 14px;}
-    .bar{
-      height: 8px; border-radius: 99px; flex: 1;
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.06);
-      overflow:hidden; position:relative;
-    }
-    .bar > i{
-      position:absolute; inset:0; transform: translateX(-100%);
-      background: linear-gradient(90deg, rgba(124,92,255,0.85), rgba(53,194,255,0.85));
-      transition: transform 320ms ease;
-    }
-    .bar.on > i{transform: translateX(0%)}
-
-    .grid2{display:grid; grid-template-columns: 1fr 1fr; gap: 12px;}
-    @media (max-width: 620px){ .grid2{grid-template-columns: 1fr;} }
-
-    label{display:block; font-size: 12px; color: var(--muted); margin-bottom: 6px;}
-    select, textarea, input[type="text"]{
-      width: 100%; padding: 11px 12px; border-radius: 12px;
-      border: 1px solid rgba(255,255,255,0.14);
-      background: rgba(5,6,9,0.55);
-      color: rgba(255,255,255,0.92);
-      outline: none;
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.03);
-    }
-    textarea{resize: vertical; min-height: 96px}
-
-    input[type="range"]{
-      width: 100%; appearance: none; height: 28px; background: transparent; margin: 0; padding: 0;
-    }
-    input[type="range"]::-webkit-slider-runnable-track{
-      height: 10px; border-radius: 999px;
-      background: rgba(255,255,255,0.10);
-      border: 1px solid rgba(255,255,255,0.08);
-    }
-    input[type="range"]::-webkit-slider-thumb{
-      appearance:none; width: 18px; height:18px; border-radius: 999px; margin-top: -5px;
-      background: linear-gradient(180deg, rgba(124,92,255,1), rgba(53,194,255,1));
-      border: 1px solid rgba(255,255,255,0.25);
-      box-shadow: 0 10px 22px rgba(0,0,0,0.35);
-    }
-
-    .field{
-      padding: 12px; border: 1px solid rgba(255,255,255,0.10);
-      border-radius: var(--radius2); background: rgba(255,255,255,0.03);
-    }
-    .row{display:flex; gap:10px; flex-wrap:wrap; align-items:center;}
-    .kbd{
-      font-family: var(--mono);
-      font-size: 11px; padding: 5px 8px; border-radius: 10px;
-      border: 1px solid rgba(255,255,255,0.14);
-      background: rgba(255,255,255,0.05);
-      color: rgba(255,255,255,0.85); white-space:nowrap;
-    }
-    .hint{margin-top: 10px; color: rgba(251,113,133,0.95); font-size: 12px; display:none;}
-    .actions{
-      margin-top: 14px; display:flex; gap:10px; justify-content:space-between; flex-wrap:wrap;
-    }
-    .btn{
-      display:inline-flex; align-items:center; justify-content:center; gap:10px;
-      padding: 11px 14px; border-radius: 14px;
-      border: 1px solid rgba(255,255,255,0.14);
-      background: rgba(255,255,255,0.05);
-      color: rgba(255,255,255,0.92);
-      cursor:pointer; user-select:none;
-      transition: transform 120ms ease, background 160ms ease, border-color 160ms ease;
-    }
-    .btn:hover{ transform: translateY(-1px); background: rgba(255,255,255,0.07); }
-    .btn:active{ transform: translateY(0px); }
-    .btn.primary{
-      background: linear-gradient(90deg, rgba(124,92,255,0.95), rgba(53,194,255,0.92));
-      border-color: rgba(255,255,255,0.18);
-      color: #0b0d12;
-      font-weight: 700;
-    }
-    .btn:disabled{opacity:0.45; cursor:not-allowed; transform:none;}
-
-    .sideGrid{display:grid; gap: 16px;}
-    .stat{
-      display:flex; align-items:center; justify-content:space-between; gap:12px;
-      padding: 12px; border-radius: var(--radius2);
-      border: 1px solid rgba(255,255,255,0.10); background: rgba(255,255,255,0.03);
-    }
-    .stat b{font-size: 12px; color: var(--muted)}
-    .stat span{font-size: 13px; color: rgba(255,255,255,0.92)}
-
-    .disclaimer{
-      padding: 12px; border-radius: var(--radius2);
-      border: 1px solid rgba(251,113,133,0.25);
-      background: rgba(251,113,133,0.06);
-      color: rgba(255,255,255,0.86);
-      font-size: 12px; line-height: 1.45;
-    }
-
-    .gauge{
-      padding: 12px; border-radius: var(--radius2);
-      border: 1px solid rgba(255,255,255,0.10); background: rgba(255,255,255,0.03);
-    }
-    .gaugeTop{display:flex; justify-content:space-between; align-items:flex-start; gap:10px; flex-wrap:wrap; margin-bottom:10px;}
-    .gaugeTop b{font-size:13px}
-    .gaugeTop span{font-size:12px; color: var(--muted)}
-    .meter{
-      position:relative; height: 14px; border-radius: 999px;
-      background: linear-gradient(90deg,
-        rgba(52,211,153,0.85) 0%,
-        rgba(52,211,153,0.85) 34%,
-        rgba(251,191,36,0.90) 34%,
-        rgba(251,191,36,0.90) 67%,
-        rgba(251,113,133,0.92) 67%,
-        rgba(251,113,133,0.92) 100%);
-      border: 1px solid rgba(255,255,255,0.14);
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06);
-      overflow:hidden;
-    }
-    .needle{
-      position:absolute; top:-7px; width: 2px; height: 28px;
-      background: rgba(255,255,255,0.92);
-      box-shadow: 0 0 0 3px rgba(255,255,255,0.12);
-      transform: translateX(-50%); border-radius: 2px;
-      transition: left 320ms ease;
-    }
-    .needle::after{
-      content:""; position:absolute; left:50%; top: -6px;
-      width: 10px; height: 10px; border-radius: 999px;
-      transform: translateX(-50%); background: rgba(255,255,255,0.92);
-      box-shadow: 0 10px 22px rgba(0,0,0,0.35);
-    }
-    .tickRow{display:flex; justify-content:space-between; margin-top: 8px; color: var(--muted2); font-size: 11px;}
-
-    .cycle{
-      padding: 12px; border-radius: var(--radius2);
-      border: 1px solid rgba(255,255,255,0.10); background: rgba(255,255,255,0.03);
-    }
-    .cycleTop{display:flex; justify-content:space-between; align-items:flex-start; gap:10px; flex-wrap:wrap; margin-bottom:10px;}
-    .cycleTop b{font-size:13px}
-    .cycleTop span{font-size:12px; color: var(--muted)}
-    .steps{display:grid; grid-template-columns: repeat(4, 1fr); gap: 8px;}
-    @media (max-width: 560px){ .steps{grid-template-columns: 1fr 1fr;} }
-    .s{
-      padding: 10px; border-radius: 14px;
-      border: 1px solid rgba(255,255,255,0.10);
-      background: rgba(0,0,0,0.10);
-      min-height: 72px;
-      display:flex; flex-direction:column; gap:6px;
-    }
-    .s small{color: var(--muted2); font-size: 11px}
-    .s b{font-size: 12px; letter-spacing:-0.01em}
-    .s.on{
-      border-color: rgba(124,92,255,0.35);
-      background: rgba(124,92,255,0.10);
-      box-shadow: 0 12px 30px rgba(124,92,255,0.10);
-    }
-
-    .out{
-      padding: 12px; border-radius: var(--radius2);
-      border: 1px solid rgba(255,255,255,0.10); background: rgba(255,255,255,0.03);
-    }
-    .out h3{margin:0 0 10px; font-size: 14px; letter-spacing:-0.01em;}
-    .kv{display:grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;}
-    @media (max-width: 560px){ .kv{grid-template-columns: 1fr;} }
-    .k{
-      padding: 10px; border-radius: 14px;
-      border: 1px solid rgba(255,255,255,0.10); background: rgba(0,0,0,0.10);
-      display:flex; justify-content:space-between; gap:10px; align-items:center;
-    }
-    .k b{font-size:12px; color: var(--muted)}
-    .k span{font-size:12px; color: rgba(255,255,255,0.92)}
-    .msg{color: rgba(255,255,255,0.88); font-size: 13px; line-height: 1.55; margin: 8px 0 0;}
-    .notes{margin-top: 10px; padding-left: 18px; color: rgba(255,255,255,0.82); font-size: 12px; line-height:1.5;}
-    .notes li{margin: 6px 0}
-    .footer{margin-top: 16px; color: var(--muted2); font-size: 12px; line-height:1.45;}
   </style>
 </head>
 
 <body>
-  <div class="wrap">
-    <header>
-      <div class="title">
-        <h1>Coheziv Auto — Evaluator de regim (MVP)</h1>
-        <p>
-          Aplicație single-file pentru sisteme auto (tehnic). Folosește vocabularul Coeziv:
-          <b>Structură</b>, <b>Flux</b>, <b>Reorganizare</b>, <b>Noua Structură</b>, ciclul <b>2π</b> și regimuri <b>J</b>.
-          Nu menționează apă și nu afișează temperaturi.
-        </p>
-        <div class="pillRow">
-          <span class="pill"><span class="dot"></span> domeniu fix: auto</span>
-          <span class="pill"><span class="dot warn"></span> regim J (ordered/mixed/tensed)</span>
-          <span class="pill"><span class="dot risk"></span> output: zonă + 2π + notes</span>
+<header>
+  <h1>Protocol experimental A/B/C: Efectul geometriei (pattern) asupra câmpului near-field (EMI)</h1>
+  <p>
+    Document unic (HTML) — instrucțiuni detaliate, replicabile, pentru oricine dorește să verifice dacă o <b>geometrie conductivă pasivă</b>
+    (spirală/meandru) produce efect măsurabil asupra câmpului local (near-field), separat de efectul materialului sau masei.
+  </p>
+  <p class="print-note">
+    Sugestie tipărire: File → Print → „Background graphics” ON pentru a păstra structura vizuală.
+  </p>
+</header>
+
+<main>
+  <div class="grid">
+    <!-- LEFT COLUMN -->
+    <section class="card">
+      <h2>1) Rezumat executiv</h2>
+      <div class="kpi">
+        <span class="pill"><b>Scop:</b> izolare efect „geometrie”</span>
+        <span class="pill"><b>Tip test:</b> A/B/C (martor + pattern + pattern întrerupt)</span>
+        <span class="pill"><b>Regim:</b> near-field (H/E)</span>
+        <span class="pill"><b>Rezultat:</b> validare / falsificare</span>
+      </div>
+
+      <div class="hr"></div>
+
+      <h3>Întrebarea</h3>
+      <p>
+        <b>Are geometria (pattern-ul) unui conductor pasiv un efect măsurabil asupra câmpului electromagnetic local</b>,
+        când materialul, dimensiunea, masa și poziționarea sunt controlate?
+      </p>
+
+      <h3>Ipoteze</h3>
+      <ul>
+        <li><b>H₀ (nulă):</b> A ≈ B ≈ C în limitele erorii; geometria nu are efect detectabil în acest setup.</li>
+        <li><b>H₁ (alternativă):</b> B diferă consistent de A, iar C revine spre A; efect legat de „ordine” (continuitate/structură), nu doar de prezența cuprului.</li>
+      </ul>
+
+      <div class="callout warn">
+        <b>Important:</b> Acest protocol testează efecte EMI/near-field măsurabile. Nu afirmă și nu validează automat efecte biologice/medicale.
+      </div>
+
+      <div class="hr"></div>
+
+      <h2>2) Ce ai nevoie (echipamente și materiale)</h2>
+      <p class="muted">Alege una dintre variantele de instrumentație. Varianta 1 este ideală; varianta 2 este „buget”.</p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Categoria</th>
+            <th>Opțiune recomandată</th>
+            <th>Opțiune minimă</th>
+            <th>Note</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>Sursă de câmp</b></td>
+            <td>Convertor DC-DC (buck) cu frecvență fixă</td>
+            <td>Bobină excitată cu generator (10–500 kHz)</td>
+            <td>Important să fie <b>stabilă</b> și repetabilă. Evită surse cu control adaptiv agresiv.</td>
+          </tr>
+          <tr>
+            <td><b>Instrument măsură</b></td>
+            <td>Analizor de spectru + sondă near-field (H-probe)</td>
+            <td>Osciloscop + bobină mică (probe) + FFT</td>
+            <td>Ținta: amplitudine pe frecvența fundamentală și armonici + zgomot de fond.</td>
+          </tr>
+          <tr>
+            <td><b>Poziționare</b></td>
+            <td>Jig nemetalic (print 3D / lemn / plastic) + distanțiere</td>
+            <td>Șablon din carton rigid + bandă dublu-adezivă</td>
+            <td>Poziționarea este cea mai mare sursă de eroare. Asigură repetabilitate &lt; 0,5 mm.</td>
+          </tr>
+          <tr>
+            <td><b>Probe (A/B/C)</b></td>
+            <td>3 plăci PCB identice (FR4 + cupru) cu geometrii diferite</td>
+            <td>Folie cupru pe suport + tăiere manuală</td>
+            <td>Ideal: PCB pentru control geometric. Minim: folii, dar toleranțe mai slabe.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="hr"></div>
+
+      <h2>3) Designul probelor A/B/C (regulile care fac testul valid)</h2>
+      <ol>
+        <li><b>Același material și aceeași dimensiune externă</b> pentru toate probele (de ex. 100×100 mm).</li>
+        <li><b>Masă apropiată</b> (diferențe &lt; 5%). Dacă e nevoie, echilibrezi prin cupru „dummy” neconectat, dar <b>simetric</b>.</li>
+        <li><b>Orientare și distanță identice</b> față de sursă și față de sondă.</li>
+        <li><b>Fără schimbări</b> la sursă între probe (aceleași cabluri, aceeași alimentare, aceeași sarcină).</li>
+      </ol>
+
+      <h3>Definiția probelor</h3>
+      <ul>
+        <li><b>A (martor):</b> placă simplă. Variante acceptate:
+          <ul>
+            <li>FR4 cu cupru <b>plin</b> pe o față (neconectat) sau</li>
+            <li>FR4 fără cupru (dacă vrei să testezi strict efectul conductorului; însă atunci B/C trebuie comparate și cu o placă „cupru plin”).</li>
+          </ul>
+        </li>
+        <li><b>B (pattern coerent):</b> spirală/meandru <b>continuu</b>, un singur traseu, fără întreruperi.</li>
+        <li><b>C (pattern „rupt”):</b> geometric identic cu B, dar cu 1–3 întreruperi deliberate (open-circuit) care distrug continuitatea curentului.</li>
+      </ul>
+
+      <div class="callout ok">
+        <b>De ce B vs C e critic:</b> dacă B produce efect și C se apropie de A, atunci diferența ține de <b>structură/continuitate</b>,
+        nu doar de „mai mult cupru”.
+      </div>
+
+      <div class="hr"></div>
+
+      <h2>4) Două variante de test: alege una</h2>
+
+      <div class="two">
+        <div class="card" style="padding:14px; margin:0; background:#0e1624;">
+          <h3>Varianta 1 (recomandată): DC-DC + H-probe + analizor spectru</h3>
+          <ol>
+            <li>Montează sursa DC-DC pe o bază nemetalică.</li>
+            <li>Fixează sonda H la distanță constantă (ex. 10 mm) de zona cu câmp maxim (inductor/switch node).</li>
+            <li>Definește „slotul probei”: locul unde introduci A/B/C la distanță constantă de sursă (ex. 5 mm).</li>
+            <li>Măsoară spectrul 100 kHz–50 MHz (sau cât permite instrumentul).</li>
+          </ol>
+          <p class="muted">Cel mai frecvent vei vedea: fundamental (f_sw), armonici, și componente de comutație.</p>
+        </div>
+
+        <div class="card" style="padding:14px; margin:0; background:#0e1624;">
+          <h3>Varianta 2 (buget): bobină excitată + bobină probe + osciloscop FFT</h3>
+          <ol>
+            <li>Construiește o bobină sursă (ex. 20–50 spire pe un suport plastic).</li>
+            <li>Alimenteaz-o cu semnal sinus (ex. 50 kHz) din generator + amplificator (dacă e nevoie).</li>
+            <li>Bobina probă (mică, 5–10 spire) la distanță fixă; conectată la osciloscop.</li>
+            <li>Introdu A/B/C în același slot între sursă și bobina probă.</li>
+            <li>Înregistrează amplitudinea și FFT (armonici/zgomot).</li>
+          </ol>
+          <p class="muted">Avantaj: control excelent al frecvenței. Dezavantaj: sensibil la poziționare.</p>
         </div>
       </div>
-      <div class="pillRow">
-        <span class="pill">Scurtături: <span class="kbd">Ctrl</span> + <span class="kbd">Enter</span> = Evaluează</span>
+
+      <div class="hr"></div>
+
+      <h2>5) Jig-ul de poziționare (cea mai importantă piesă din experiment)</h2>
+      <p>
+        Scopul jig-ului este să asigure că <b>singura variabilă</b> este proba A/B/C. Totul altceva rămâne fix.
+      </p>
+
+      <h3>Specificație recomandată</h3>
+      <ul>
+        <li>Distanță sursă → probă: <b>5,0 mm</b> (distanțiere plastic).</li>
+        <li>Distanță probă → sondă: <b>10,0 mm</b> (sau conform sensibilității).</li>
+        <li>Toleranță repetabilitate: <b>&lt; 0,5 mm</b>.</li>
+        <li>Material jig: plastic, lemn, carton presat (evită metal).</li>
+      </ul>
+
+      <div class="callout warn">
+        <b>Regulă:</b> dacă scoți sonda sau schimbi cablurile, consideră că ai „resetat” experimentul și reiei seria completă.
       </div>
-    </header>
 
-    <div class="layout">
-      <!-- Main Wizard -->
-      <section class="card" aria-label="Wizard">
-        <div class="cardHeader">
-          <div class="h">
-            <b id="stepTitle">1) Structură (S₀) — sistem auto</b>
-            <span id="stepSubtitle">Definește vehiculul, subsistemul și starea structurală.</span>
-          </div>
-          <div class="stepBadge" id="stepBadge">Step 1/3</div>
+      <div class="hr"></div>
+
+      <h2>6) Protocol de măsurare (pas cu pas, replicabil)</h2>
+
+      <h3>6.1 Controlul mediului</h3>
+      <ul>
+        <li>Ține telefoane, laptopuri și încărcătoare departe de zona de test.</li>
+        <li>Nu atinge probele în timpul măsurării (mâna schimbă capacitivitatea/cuplajul).</li>
+        <li>Lasă sursa să se stabilizeze termic 3–5 minute înainte de măsurători.</li>
+      </ul>
+
+      <h3>6.2 Setări instrument (orientative)</h3>
+      <ul>
+        <li><b>Analizor spectru:</b> RBW moderat, detector RMS/peak; notează setările în tabel.</li>
+        <li><b>Osciloscop FFT:</b> fereastră fixă, număr de puncte mare; același range pentru toate probele.</li>
+      </ul>
+
+      <h3>6.3 Secvența de măsurare (recomandată: blocuri și repetări)</h3>
+      <ol>
+        <li>Măsoară <b>baseline</b> fără probă (slot gol) — 3 repetări.</li>
+        <li>Măsoară <b>A</b> — 5 repetări.</li>
+        <li>Măsoară <b>B</b> — 5 repetări.</li>
+        <li>Măsoară <b>C</b> — 5 repetări.</li>
+        <li>Repetă ordinea încă o dată cu ordinea permutată (ex. C → A → B) pentru a reduce bias-ul de drift.</li>
+      </ol>
+
+      <div class="callout ok">
+        <b>De ce repetări:</b> drift termic și micro-schimbări de poziție pot mima „efecte”. Repetările îți dau o distribuție, nu un punct.
+      </div>
+
+      <div class="hr"></div>
+
+      <h2>7) Ce anume notezi (metrici și criterii)</h2>
+
+      <h3>7.1 Metrici de bază (obligatorii)</h3>
+      <ul>
+        <li><b>M1:</b> Amplitudine la fundamental (f₀) [dBµV sau Vpp, după instrument].</li>
+        <li><b>M2:</b> Amplitudine la armonica 2 (2·f₀).</li>
+        <li><b>M3:</b> Amplitudine la armonica 3 (3·f₀).</li>
+        <li><b>M4:</b> Nivel mediu de zgomot într-o bandă (ex. f₀±5 kHz) sau într-un interval (ex. 1–10 MHz).</li>
+      </ul>
+
+      <h3>7.2 Metrici avansate (opțional, recomandat)</h3>
+      <ul>
+        <li><b>M5:</b> Stabilitate în timp: deviația standard a M1 pe 5 repetări.</li>
+        <li><b>M6:</b> „Notch”/deformare spectrală: apariția unei scăderi locale pe o bandă (dacă se observă).</li>
+      </ul>
+
+      <h3>7.3 Criterii de interpretare</h3>
+      <ul>
+        <li><b>Negativ (H₀):</b> diferențele A/B/C sunt în marja erorii (ex. &lt; 1–2 dB, în funcție de setup).</li>
+        <li><b>Pozitiv (H₁):</b> B diferă consistent de A (ex. ≥ 3 dB pe M1/M2/M3) și C se apropie de A.</li>
+        <li><b>Ambiguu:</b> B diferă, dar C diferă similar; indică efect de material/masă/poziție, nu de continuitate.</li>
+      </ul>
+
+      <div class="callout bad">
+        <b>Atenție la capcana clasică:</b> dacă nu controlezi poziționarea, vei vedea „efecte” false. Un jig bun bate orice interpretare.
+      </div>
+
+      <div class="hr"></div>
+
+      <h2>8) Tabele de lucru (completează pe măsură ce măsori)</h2>
+
+      <h3>8.1 Fișa setup</h3>
+      <table>
+        <tbody>
+          <tr><th>Data / Ora</th><td>________________________</td></tr>
+          <tr><th>Locație / Mediu</th><td>________________________</td></tr>
+          <tr><th>Sursă (tip/model)</th><td>________________________</td></tr>
+          <tr><th>Alimentare (V/A)</th><td>________________________</td></tr>
+          <tr><th>Sarcină (dacă e DC-DC)</th><td>________________________</td></tr>
+          <tr><th>f₀ (fundamental)</th><td>________________________</td></tr>
+          <tr><th>Sondă / Instrument</th><td>________________________</td></tr>
+          <tr><th>Distanțe (mm)</th><td>Sursă→Probă: ___ ; Probă→Sondă: ___ ; Sondă→Sursă: ___</td></tr>
+          <tr><th>Setări instrument (RBW/FFT etc.)</th><td>________________________</td></tr>
+        </tbody>
+      </table>
+
+      <h3 style="margin-top:14px;">8.2 Tabel măsurători (exemplu pentru M1–M4)</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Proba</th>
+            <th>Repetare</th>
+            <th>M1 (f₀)</th>
+            <th>M2 (2f₀)</th>
+            <th>M3 (3f₀)</th>
+            <th>M4 (noise band)</th>
+            <th>Observații</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Baseline (slot gol)</td><td>1</td><td>_____</td><td>_____</td><td>_____</td><td>_____</td><td>_____</td></tr>
+          <tr><td>Baseline (slot gol)</td><td>2</td><td>_____</td><td>_____</td><td>_____</td><td>_____</td><td>_____</td></tr>
+          <tr><td>Baseline (slot gol)</td><td>3</td><td>_____</td><td>_____</td><td>_____</td><td>_____</td><td>_____</td></tr>
+          <tr><td>A</td><td>1</td><td>_____</td><td>_____</td><td>_____</td><td>_____</td><td>_____</td></tr>
+          <tr><td>A</td><td>2</td><td>_____</td><td>_____</td><td>_____</td><td>_____</td><td>_____</td></tr>
+          <tr><td>A</td><td>3</td><td>_____</td><td>_____</td><td>_____</td><td>_____</td><td>_____</td></tr>
+          <tr><td>A</td><td>4</td><td>_____</td><td>_____</td><td>_____</td><td>_____</td><td>_____</td></tr>
+          <tr><td>A</td><td>5</td><td>_____</td><td>_____</td><td>_____</td><td>_____</td><td>_____</td></tr>
+          <tr><td>B</td><td>1</td><td>_____</td><td>_____</td><td>_____</td><td>_____</td><td>_____</td></tr>
+          <tr><td>B</td><td>2</td><td>_____</td><td>_____</td><td>_____</td><td>_____</td><td>_____</td></tr>
+          <tr><td>B</td><td>3</td><td>_____</td><td>_____</td><td>_____</td><td>_____</td><td>_____</td></tr>
+          <tr><td>B</td><td>4</td><td>_____</td><td>_____</td><td>_____</td><td>_____</td><td>_____</td></tr>
+          <tr><td>B</td><td>5</td><td>_____</td><td>_____</td><td>_____</td><td>_____</td><td>_____</td></tr>
+          <tr><td>C</td><td>1</td><td>_____</td><td>_____</td><td>_____</td><td>_____</td><td>_____</td></tr>
+          <tr><td>C</td><td>2</td><td>_____</td><td>_____</td><td>_____</td><td>_____</td><td>_____</td></tr>
+          <tr><td>C</td><td>3</td><td>_____</td><td>_____</td><td>_____</td><td>_____</td><td>_____</td></tr>
+          <tr><td>C</td><td>4</td><td>_____</td><td>_____</td><td>_____</td><td>_____</td><td>_____</td></tr>
+          <tr><td>C</td><td>5</td><td>_____</td><td>_____</td><td>_____</td><td>_____</td><td>_____</td></tr>
+        </tbody>
+      </table>
+
+      <div class="hr"></div>
+
+      <h2>9) Pattern-uri exemplu (B și C) — SVG (poți copia în orice editor)</h2>
+      <p class="muted">
+        Aceste SVG-uri sunt <b>model didactic</b> pentru a explica ideea B (continuu) și C (același, dar „rupt”).
+        Pentru PCB real, se redesenează în CAD (KiCad/Altium) cu lățimi/clearance conforme.
+      </p>
+
+      <div class="two">
+        <div class="svgwrap">
+          <div class="badge">B: pattern continuu (spirală pătrată simplificată)</div>
+          <svg viewBox="0 0 240 240" width="100%" height="260" aria-label="Pattern B">
+            <rect x="10" y="10" width="220" height="220" rx="14" fill="none" stroke="#223044" stroke-width="2"/>
+            <!-- spiral polyline -->
+            <path d="
+              M 30 30
+              L 210 30
+              L 210 210
+              L 30 210
+              L 30 50
+              L 190 50
+              L 190 190
+              L 50 190
+              L 50 70
+              L 170 70
+              L 170 170
+              L 70 170
+              L 70 90
+              L 150 90
+              L 150 150
+              L 90 150
+              L 90 110
+              L 130 110
+              L 130 130
+              L 110 130
+            " fill="none" stroke="#7aa2ff" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+            <circle cx="30" cy="30" r="6" fill="#5eead4"/>
+            <text x="42" y="28" fill="#9fb0c0" font-size="12" font-family="ui-monospace,monospace">IN</text>
+            <circle cx="110" cy="130" r="6" fill="#5eead4"/>
+            <text x="124" y="134" fill="#9fb0c0" font-size="12" font-family="ui-monospace,monospace">OUT</text>
+          </svg>
+          <p class="muted" style="margin:8px 0 0 0">
+            Pentru B pe PCB: un singur traseu continuu. Poți lăsa capetele neconectate (floating) sau le poți scurtcircuita la un pad comun,
+            dar fă identic la toate testele.
+          </p>
         </div>
 
-        <div class="cardBody">
-          <div class="progress" aria-label="Progres">
-            <div class="bar" id="p1"><i></i></div>
-            <div class="bar" id="p2"><i></i></div>
-            <div class="bar" id="p3"><i></i></div>
-          </div>
-
-          <div id="stepHost"></div>
-
-          <div class="actions">
-            <button class="btn" id="btnBack" type="button">Înapoi</button>
-            <div class="row">
-              <button class="btn" id="btnCopy" type="button" style="display:none">Copiază rezultat</button>
-              <button class="btn" id="btnReset" type="button" style="display:none">Reset</button>
-              <button class="btn primary" id="btnNext" type="button">Continuă</button>
-            </div>
-          </div>
-
-          <div class="hint" id="hintRequired">Completează câmpurile obligatorii (Vehicul și Subsistem).</div>
+        <div class="svgwrap">
+          <div class="badge">C: același pattern, dar cu întreruperi (open) deliberate</div>
+          <svg viewBox="0 0 240 240" width="100%" height="260" aria-label="Pattern C">
+            <rect x="10" y="10" width="220" height="220" rx="14" fill="none" stroke="#223044" stroke-width="2"/>
+            <!-- same spiral, but split with gaps -->
+            <path d="
+              M 30 30
+              L 210 30
+              L 210 210
+              L 30 210
+              L 30 50
+              L 190 50
+              L 190 190
+              L 50 190
+              L 50 70
+              L 170 70
+              L 170 170
+              L 70 170
+              L 70 90
+              L 150 90
+              L 150 150
+              L 90 150
+              L 90 110
+              L 130 110
+              L 130 130
+              L 110 130
+            " fill="none" stroke="#7aa2ff" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+            <!-- draw "gap" overlays -->
+            <line x1="210" y1="120" x2="210" y2="140" stroke="#0a111b" stroke-width="10" stroke-linecap="round"/>
+            <line x1="120" y1="50" x2="140" y2="50" stroke="#0a111b" stroke-width="10" stroke-linecap="round"/>
+            <line x1="70" y1="120" x2="70" y2="140" stroke="#0a111b" stroke-width="10" stroke-linecap="round"/>
+            <!-- mark gaps -->
+            <circle cx="210" cy="130" r="6" fill="#fb7185"/>
+            <circle cx="130" cy="50" r="6" fill="#fb7185"/>
+            <circle cx="70" cy="130" r="6" fill="#fb7185"/>
+            <text x="24" y="232" fill="#9fb0c0" font-size="12" font-family="ui-monospace,monospace">GAP x3</text>
+          </svg>
+          <p class="muted" style="margin:8px 0 0 0">
+            Pentru C pe PCB: păstrezi <b>aceeași geometrie</b>, dar introduci 1–3 „gaps” (open) de 0,5–2 mm.
+            Important: să nu apară scurtcircuite accidentale (lac, murdărie, umezeală).
+          </p>
         </div>
-      </section>
+      </div>
 
-      <!-- Side panels -->
-      <aside class="sideGrid" aria-label="Rezumat">
-        <section class="card">
-          <div class="cardHeader">
-            <div class="h">
-              <b>Rezumat evaluare</b>
-              <span>Se actualizează la „Rezultat”.</span>
-            </div>
-            <div class="stepBadge" id="statusChip">idle</div>
-          </div>
-          <div class="cardBody">
-            <div class="stat">
-              <b>Vehicul</b>
-              <span id="sVehicle">—</span>
-            </div>
-            <div class="stat" style="margin-top:10px">
-              <b>Subsistem</b>
-              <span id="sSubsystem">—</span>
-            </div>
-            <div class="stat" style="margin-top:10px">
-              <b>Regim J</b>
-              <span id="sRegime">—</span>
-            </div>
+      <div class="hr"></div>
 
-            <div class="gauge" style="margin-top:12px">
-              <div class="gaugeTop">
-                <b>Zonă Coezivă</b>
-                <span id="sZoneLabel">—</span>
-              </div>
-              <div class="meter" role="img" aria-label="Indicator zonă Coezivă">
-                <div class="needle" id="needle" style="left:50%"></div>
-              </div>
-              <div class="tickRow">
-                <span>Flexibil</span>
-                <span>Tensiune</span>
-                <span>Coeziune ridicată</span>
-                <span>Supraîncărcare</span>
-              </div>
-            </div>
+      <h2>10) Analiza rezultatelor (clar, fără interpretări „moi”)</h2>
+      <h3>10.1 Pași minimi</h3>
+      <ol>
+        <li>Calculează media (mean) și deviația standard (σ) pentru M1–M4 la A, B, C.</li>
+        <li>Calculează diferențele: Δ(B−A), Δ(C−A), Δ(B−C).</li>
+        <li>Decide pragul practic (ex. 3 dB) în funcție de stabilitatea setup-ului tău.</li>
+      </ol>
 
-            <div class="cycle" style="margin-top:12px">
-              <div class="cycleTop">
-                <b>Ciclul 2π</b>
-                <span id="sPhase">—</span>
-              </div>
-              <div class="steps" id="cycleSteps">
-                <div class="s" data-phase="Structură (S₀)"><small>1</small><b>Structură (S₀)</b><small>stare inițială</small></div>
-                <div class="s" data-phase="Flux (F)"><small>2</small><b>Flux (F)</b><small>încărcări</small></div>
-                <div class="s" data-phase="Reorganizare (R)"><small>3</small><b>Reorganizare (R)</b><small>adaptare</small></div>
-                <div class="s" data-phase="Noua structură (S₁)"><small>4</small><b>Noua structură (S₁)</b><small>stabilizare</small></div>
-              </div>
-            </div>
+      <h3>10.2 Interpretare tip „decizie”</h3>
+      <table>
+        <thead>
+          <tr><th>Observație</th><th>Concluzie probabilă</th><th>Acțiune</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>B ≈ A și C ≈ A</td>
+            <td>Nu există efect detectabil în acest setup</td>
+            <td>Crește sensibilitatea (altă distanță, altă bandă), sau acceptă H₀.</td>
+          </tr>
+          <tr>
+            <td>B diferă de A, iar C ≈ A</td>
+            <td>Efect legat de continuitatea/structura pattern-ului</td>
+            <td>Repetă cu alt pattern; testează mai multe frecvențe; optimizează.</td>
+          </tr>
+          <tr>
+            <td>B diferă de A, iar C diferă similar</td>
+            <td>Efect de material/masă/poziție, nu de „ordine”</td>
+            <td>Echilibrează masa, refă jig-ul, verifică simetria, repetă.</td>
+          </tr>
+          <tr>
+            <td>Rezultate instabile (σ mare)</td>
+            <td>Setup prea sensibil / drift / poziționare slabă</td>
+            <td>Îmbunătățește jig-ul, fixează sonda, scurtează cablurile, repetă.</td>
+          </tr>
+        </tbody>
+      </table>
 
-            <div class="disclaimer" style="margin-top:12px">
-              <b>Disclaimer</b><br/>
-              Model conceptual pentru clarificare tehnică. Nu înlocuiește diagnoza service, procedurile producătorului sau măsurătorile instrumentate.
-            </div>
-          </div>
-        </section>
+      <div class="hr"></div>
 
-        <section class="card">
-          <div class="cardHeader">
-            <div class="h">
-              <b>Output</b>
-              <span>Mesaj + trasabilitate (notes).</span>
-            </div>
-            <div class="stepBadge">Coheziv Auto</div>
-          </div>
-          <div class="cardBody">
-            <div class="out">
-              <h3>Rezultat</h3>
-              <div class="kv">
-                <div class="k"><b>Zonă</b><span id="oZone">—</span></div>
-                <div class="k"><b>Fază 2π</b><span id="oPhase">—</span></div>
-                <div class="k"><b>Regim J</b><span id="oRegime">—</span></div>
-                <div class="k"><b>Cod zonă</b><span id="oZoneCode" style="font-family:var(--mono)">—</span></div>
-              </div>
-              <div class="msg" id="oMsg">Completează pașii și rulează evaluarea.</div>
-              <ul class="notes" id="oNotes"></ul>
-              <div class="footer">
-                Notă: evaluarea folosește repere interne de regim pentru a produce Zonă Coezivă / 2π / J.
-                Nu afișează temperaturi și nu face referințe la apă.
-              </div>
-            </div>
-          </div>
-        </section>
-      </aside>
-    </div>
+      <h2>11) Checklist complet (de folosit ca „procedură de laborator”)</h2>
+      <div class="checklist">
+        <label><input type="checkbox" /> Sursa stabilizată termic (≥ 3 minute).</label>
+        <label><input type="checkbox" /> Sonda fixată; cablurile fixate; nu se mișcă între probe.</label>
+        <label><input type="checkbox" /> Jig nemetalic; distanțe măsurate și notate.</label>
+        <label><input type="checkbox" /> Probele A/B/C au aceeași dimensiune externă.</label>
+        <label><input type="checkbox" /> Probele A/B/C au masă apropiată (diferențe &lt; 5%).</label>
+        <label><input type="checkbox" /> S-a măsurat baseline (slot gol) de 3 ori.</label>
+        <label><input type="checkbox" /> S-au făcut ≥ 5 repetări pentru fiecare A/B/C.</label>
+        <label><input type="checkbox" /> Ordinea a fost permutată la a doua serie (control drift).</label>
+        <label><input type="checkbox" /> S-au notat setările instrumentului (RBW/FFT/scale).</label>
+        <label><input type="checkbox" /> S-au calculat mean și σ pentru M1–M4.</label>
+        <label><input type="checkbox" /> Concluzia se bazează pe prag clar (ex. 3 dB) și pe diferențe consistente.</label>
+      </div>
+
+      <div class="hr"></div>
+
+      <h2>12) Extensii utile (după ce reușești testul de bază)</h2>
+      <ul>
+        <li><b>Scanare spațială:</b> măsori M1 într-o grilă (ex. 5×5 puncte) pentru a vedea „pattern-ul câmpului”.</li>
+        <li><b>Mai multe geometrii:</b> spirală vs meandru vs celule repetate.</li>
+        <li><b>Mai multe distanțe:</b> 2 mm, 5 mm, 10 mm (near-field scade puternic cu distanța).</li>
+        <li><b>Mai multe frecvențe (varianta cu bobină):</b> sweep 10–500 kHz și observi unde apar diferențe.</li>
+      </ul>
+
+      <div class="callout ok">
+        <b>Regula de aur:</b> întâi obții un rezultat „curat” într-un singur punct (setup fix), abia apoi faci explorări (scan/sweep).
+      </div>
+    </section>
+
+    <!-- RIGHT COLUMN -->
+    <aside class="card">
+      <h2>Ghid rapid (pentru cei care vor să înceapă imediat)</h2>
+      <ol>
+        <li>Construiește un jig simplu: sursă fixă, slot probă, sondă fixă.</li>
+        <li>Fă 3 plăci: A (martor), B (spirală continuă), C (aceeași spirală cu 2–3 întreruperi).</li>
+        <li>Măsoară baseline, apoi A/B/C de 5 ori fiecare.</li>
+        <li>Compară diferențe în dB (sau Vpp) pe fundamental + armonici.</li>
+        <li>Concluzionează doar dacă diferențele sunt consistente și peste prag.</li>
+      </ol>
+
+      <div class="hr"></div>
+
+      <h2>Recomandări de parametri (pornire)</h2>
+      <table>
+        <tbody>
+          <tr><th>Dimensiune plăci</th><td>100×100 mm (sau 80×80 mm)</td></tr>
+          <tr><th>Material</th><td>FR4, cupru 1 oz</td></tr>
+          <tr><th>Lățime traseu (PCB)</th><td>1,0–2,0 mm (în funcție de clearance)</td></tr>
+          <tr><th>Clearance</th><td>0,5–1,0 mm</td></tr>
+          <tr><th>GAP (C)</th><td>0,5–2,0 mm, 2–3 locații</td></tr>
+          <tr><th>Distanțe</th><td>Sursă→Probă 5 mm; Probă→Sondă 10 mm</td></tr>
+        </tbody>
+      </table>
+
+      <div class="hr"></div>
+
+      <h2>Siguranță și bune practici</h2>
+      <div class="callout warn">
+        <ul style="margin:0 0 0 18px">
+          <li>La DC-DC, ai noduri cu dV/dt mare: evită scurtcircuite accidentale.</li>
+          <li>Nu lucra pe metal neizolat; folosește bază nemetalică.</li>
+          <li>Nu atinge placa în timpul măsurării (artefacte capacitive).</li>
+          <li>Dacă folosești amplificator pentru bobină: verifică încălzirea și curentul.</li>
+        </ul>
+      </div>
+
+      <div class="hr"></div>
+
+      <h2>FAQ (probleme frecvente)</h2>
+      <h3>„Văd diferențe, dar nu se repetă.”</h3>
+      <p class="muted">Cel mai probabil: poziționare, drift termic, mișcarea cablurilor, mâna aproape de setup. Fixează tot și repetă.</p>
+
+      <h3>„B și C sunt ambele diferite de A.”</h3>
+      <p class="muted">Efect de masă/material/suprafață, nu de continuitate. Echilibrează masa și verifică simetria/distanțele.</p>
+
+      <h3>„Nu văd nimic.”</h3>
+      <p class="muted">Crește sensibilitatea: micșorează distanța, alege o bandă unde sursa are energie, folosește probe H mai apropiate.</p>
+
+      <div class="hr"></div>
+
+      <h2>Livrabile (dacă vrei să evoluăm)</h2>
+      <ul>
+        <li>Fișiere KiCad pentru A/B/C (dimensiune aleasă) + gerbere.</li>
+        <li>Plan de măsurare „scan 2D” cu grilă și hartă (heatmap) a câmpului.</li>
+        <li>Set de pattern-uri candidate (spirală, meandru, celule) și criterii de selecție.</li>
+      </ul>
+
+      <div class="footer">
+        <span class="mono">Versiune:</span> 1.0 &nbsp;|&nbsp;
+        <span class="mono">Licență recomandată:</span> CC BY 4.0 (dacă vrei distribuție liberă) &nbsp;|&nbsp;
+        <span class="mono">Notă:</span> adaptează pragurile (dB) la instrumentația ta.
+      </div>
+    </aside>
   </div>
-
-<script>
-(() => {
-  const STORAGE_KEY = "coheziv_auto_singlefile_v1";
-  const defaults = () => ({
-    step: 1,
-    vehicle: "",              // ex: "VW Golf 7 1.6 TDI 2016"
-    subsystem: "",            // required
-    structureDesc: "",
-    structureLevel: 3,        // 1..5: robust/în stare bună -> fragil/îmbătrânit (interpretare UI)
-    usage: "urban",
-    fluxType: "sarcini/cerințe",
-    fluxIntensity: 3,         // 1..5
-    fluxDuration: "mediu",
-    symptoms: ""
-  });
-
-  let state = load();
-  const $ = (id) => document.getElementById(id);
-
-  function load(){
-    try{
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if(!raw) return defaults();
-      const obj = JSON.parse(raw);
-      return { ...defaults(), ...obj };
-    }catch(_){ return defaults(); }
-  }
-  function save(){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(_){ } }
-
-  function clamp(n, min, max){ return Math.max(min, Math.min(max, n)); }
-
-  // --- Coeziv evaluation for AUTO only ---
-  // No water / no °C. Use Coeziv vocabulary only.
-  function evaluateAuto(s){
-    const vehicleOk = (s.vehicle || "").trim().length > 0;
-    const subsystemOk = (s.subsystem || "").trim().length > 0;
-    if(!vehicleOk || !subsystemOk){
-      return { ok:false, error:"Vehicul și Subsistem sunt obligatorii." };
-    }
-
-    const structure = clamp(+s.structureLevel, 1, 5);
-    const intensity = clamp(+s.fluxIntensity, 1, 5);
-
-    const durationWeight = { "scurt": 0, "mediu": 1, "prelungit": 2 };
-    const typeWeight = {
-      "informațional": 1,         // ex: alerte/semnale, info din bord
-      "emoțional": 1,             // unused, păstrat generic
-      "sarcini/cerințe": 2,       // solicitare mecanică
-      "schimbare externă": 1      // ex: vreme, drum, altitudine
-    };
-
-    const usageWeight = {
-      "urban": 1,
-      "autostradă": 1,
-      "tractare/încărcare": 2,
-      "off-road": 2
-    };
-
-    // Internal score: selector de regim (nu măsurare).
-    // Pentru auto, "structureLevel" îl interpretăm ca: 1=robust/în stare bună, 5=fragil/îmbătrânit.
-    // Ca să păstrăm semnificația Coezivă (structură rigidă -> crește riscul), folosim direct valoarea.
-    const score =
-      structure +
-      intensity +
-      (durationWeight[s.fluxDuration] ?? 1) +
-      (typeWeight[s.fluxType] ?? 2) +
-      (usageWeight[s.usage] ?? 1);
-
-    let zoneCode, zoneLabel;
-    if(score <= 7){
-      zoneCode = "Z25";
-      zoneLabel = "Flexibil (funcționare stabilă)";
-    } else if(score <= 11){
-      zoneCode = "Z39_86";
-      zoneLabel = "Tensiune reversibilă (monitorizare/ajustare)";
-    } else if(score <= 14){
-      zoneCode = "Z43";
-      zoneLabel = "Coeziune ridicată / rigidizare (risc de degradare)";
-    } else {
-      zoneCode = "Z44_7_PLUS";
-      zoneLabel = "Supraîncărcare (risc de cedare)";
-    }
-
-    let phase2pi = "Flux (F)";
-    if(score <= 6) phase2pi = "Structură (S₀)";
-    else if(score <= 10) phase2pi = "Flux (F)";
-    else if(score <= 14) phase2pi = "Reorganizare (R)";
-    else phase2pi = "Noua structură (S₁)";
-
-    let regimeJ = "ordered";
-    if(score <= 9) regimeJ = "ordered";
-    else if(score <= 14) regimeJ = "mixed";
-    else regimeJ = "tensed";
-
-    const msg = {
-      Z25: "Regim stabil: Structura subsistemului integrează solicitările curente. Menține rutina de întreținere și limitele de operare.",
-      Z39_86: "Tensiune reversibilă: Solicitările sunt semnificative, dar încă gestionabile. Recomandat: reducere de flux (solicitare), verificări țintite și reorganizare minimă (R).",
-      Z43: "Coeziune ridicată / rigidizare: Subsistemul funcționează coerent, dar cu rezervă redusă la variații. Recomandat: reorganizare disciplinată (R) — proceduri de service, reglaje, înlocuiri preventive, evitarea suprasolicitării.",
-      Z44_7_PLUS: "Supraîncărcare: Solicitările depășesc capacitatea structurală. Recomandat: reducere imediată de flux, diagnostic service, stabilizare (S₁) înainte de reluarea regimului normal."
-    }[zoneCode];
-
-    const notes = [];
-    notes.push(`Vehicul: ${s.vehicle.trim()}`);
-    notes.push(`Subsistem: ${s.subsystem}`);
-    notes.push(`Structură (nivel 1–5): ${structure}`);
-    notes.push(`Utilizare: ${s.usage}`);
-    notes.push(`Flux: ${s.fluxType} | intensitate (1–5): ${intensity} | durată: ${s.fluxDuration}`);
-    if((s.structureDesc || "").trim()) notes.push(`Descriere Structură (S₀): ${s.structureDesc.trim()}`);
-    if((s.symptoms || "").trim()) notes.push(`Observații / simptome: ${s.symptoms.trim()}`);
-
-    return { ok:true, zoneCode, zoneLabel, phase2pi, regimeJ, message: msg, notes };
-  }
-
-  function needleLeft(zoneCode){
-    if(zoneCode === "Z25") return 12;
-    if(zoneCode === "Z39_86") return 40;
-    if(zoneCode === "Z43") return 70;
-    return 92;
-  }
-
-  function setCycleActive(phase){
-    const nodes = document.querySelectorAll('#cycleSteps .s');
-    nodes.forEach(n => n.classList.toggle('on', n.getAttribute('data-phase') === phase));
-  }
-
-  function renderHeader(){
-    const titles = {
-      1: ["1) Structură (S₀) — sistem auto", "Definește vehiculul, subsistemul și starea structurală."],
-      2: ["2) Flux (F) — solicitare", "Definește tipul fluxului, intensitatea și durata solicitării."],
-      3: ["3) Rezultat", "Rulează evaluarea și analizează zona, regimul J și faza 2π."]
-    };
-    $('stepTitle').textContent = titles[state.step][0];
-    $('stepSubtitle').textContent = titles[state.step][1];
-    $('stepBadge').textContent = `Step ${state.step}/3`;
-
-    $('btnBack').disabled = state.step === 1;
-
-    const isLast = state.step === 3;
-    $('btnCopy').style.display = isLast ? "inline-flex" : "none";
-    $('btnReset').style.display = isLast ? "inline-flex" : "none";
-    $('btnNext').textContent = isLast ? "Evaluează" : "Continuă";
-  }
-
-  function renderProgress(){
-    $('p1').classList.toggle('on', state.step >= 1);
-    $('p2').classList.toggle('on', state.step >= 2);
-    $('p3').classList.toggle('on', state.step >= 3);
-  }
-
-  function step1(){
-    const root = document.createElement('div');
-    root.innerHTML = `
-      <div class="grid2">
-        <div class="field">
-          <label for="vehicle">Vehicul (obligatoriu)</label>
-          <input id="vehicle" type="text" placeholder="Ex: VW Golf 7 1.6 TDI 2016" />
-          <div style="margin-top:8px;color:rgba(255,255,255,0.70);font-size:12px">
-            Folosit doar pentru trasabilitate (notes).
-          </div>
-        </div>
-
-        <div class="field">
-          <label for="subsystem">Subsistem (obligatoriu)</label>
-          <select id="subsystem">
-            <option value="">Alege subsistem…</option>
-            <option value="Motor">Motor</option>
-            <option value="Transmisie">Transmisie</option>
-            <option value="Frânare">Frânare</option>
-            <option value="Răcire">Răcire</option>
-            <option value="Electric / baterie / alternator">Electric / baterie / alternator</option>
-            <option value="Suspensie / direcție">Suspensie / direcție</option>
-            <option value="Climatizare">Climatizare</option>
-            <option value="Altul">Altul</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="grid2" style="margin-top:12px">
-        <div class="field">
-          <label for="structureLevel">Structură (nivel): <span id="slVal" class="kbd"></span></label>
-          <input type="range" id="structureLevel" min="1" max="5" step="1" />
-          <div style="margin-top:8px;color:rgba(255,255,255,0.70);font-size:12px">
-            1 = structură robustă / în stare bună, 5 = structură fragilă / îmbătrânită.
-          </div>
-        </div>
-
-        <div class="field">
-          <label for="usage">Context utilizare</label>
-          <select id="usage">
-            <option value="urban">urban</option>
-            <option value="autostradă">autostradă</option>
-            <option value="tractare/încărcare">tractare/încărcare</option>
-            <option value="off-road">off-road</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="field" style="margin-top:12px">
-        <label for="structureDesc">Descriere Structură (S₀)</label>
-        <textarea id="structureDesc" placeholder="Ex: întreținere recentă, piese înlocuite, istoricul subsistemului, limitări…"></textarea>
-      </div>
-    `;
-
-    const vehicle = root.querySelector('#vehicle');
-    const subsystem = root.querySelector('#subsystem');
-    const structureLevel = root.querySelector('#structureLevel');
-    const slVal = root.querySelector('#slVal');
-    const usage = root.querySelector('#usage');
-    const structureDesc = root.querySelector('#structureDesc');
-
-    vehicle.value = state.vehicle;
-    subsystem.value = state.subsystem;
-    structureLevel.value = String(state.structureLevel);
-    slVal.textContent = String(state.structureLevel);
-    usage.value = state.usage;
-    structureDesc.value = state.structureDesc;
-
-    const onReqChange = () => { $('hintRequired').style.display = "none"; renderSidePreview(); save(); };
-
-    vehicle.addEventListener('input', (e) => { state.vehicle = e.target.value; onReqChange(); });
-    subsystem.addEventListener('change', (e) => { state.subsystem = e.target.value; onReqChange(); });
-
-    structureLevel.addEventListener('input', (e) => {
-      state.structureLevel = +e.target.value;
-      slVal.textContent = String(state.structureLevel);
-      renderSidePreview(); save();
-    });
-
-    usage.addEventListener('change', (e) => { state.usage = e.target.value; renderSidePreview(); save(); });
-    structureDesc.addEventListener('input', (e) => { state.structureDesc = e.target.value; save(); });
-
-    return root;
-  }
-
-  function step2(){
-    const root = document.createElement('div');
-    root.innerHTML = `
-      <div class="grid2">
-        <div class="field">
-          <label for="fluxType">Tip Flux (solicitare)</label>
-          <select id="fluxType">
-            <option value="sarcini/cerințe">sarcini/cerințe (solicitare mecanică)</option>
-            <option value="schimbare externă">schimbare externă (drum, vreme, altitudine)</option>
-            <option value="informațional">informațional (alerte/semnale)</option>
-          </select>
-        </div>
-
-        <div class="field">
-          <label for="fluxDuration">Durată flux</label>
-          <select id="fluxDuration">
-            <option value="scurt">scurt</option>
-            <option value="mediu">mediu</option>
-            <option value="prelungit">prelungit</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="field" style="margin-top:12px">
-        <label for="fluxIntensity">Intensitate flux: <span id="fiVal" class="kbd"></span></label>
-        <input type="range" id="fluxIntensity" min="1" max="5" step="1" />
-        <div style="margin-top:8px;color:rgba(255,255,255,0.70);font-size:12px">
-          1 = mică, 5 = mare (solicitare / presiune operațională).
-        </div>
-      </div>
-
-      <div class="field" style="margin-top:12px">
-        <label for="symptoms">Observații / simptome (opțional)</label>
-        <textarea id="symptoms" placeholder="Ex: vibrații, zgomote, pierdere putere, martori bord, miros, variații…"></textarea>
-      </div>
-    `;
-
-    const fluxType = root.querySelector('#fluxType');
-    const fluxDuration = root.querySelector('#fluxDuration');
-    const fluxIntensity = root.querySelector('#fluxIntensity');
-    const fiVal = root.querySelector('#fiVal');
-    const symptoms = root.querySelector('#symptoms');
-
-    fluxType.value = state.fluxType;
-    fluxDuration.value = state.fluxDuration;
-    fluxIntensity.value = String(state.fluxIntensity);
-    fiVal.textContent = String(state.fluxIntensity);
-    symptoms.value = state.symptoms;
-
-    fluxType.addEventListener('change', (e) => { state.fluxType = e.target.value; renderSidePreview(); save(); });
-    fluxDuration.addEventListener('change', (e) => { state.fluxDuration = e.target.value; renderSidePreview(); save(); });
-    fluxIntensity.addEventListener('input', (e) => {
-      state.fluxIntensity = +e.target.value;
-      fiVal.textContent = String(state.fluxIntensity);
-      renderSidePreview(); save();
-    });
-    symptoms.addEventListener('input', (e) => { state.symptoms = e.target.value; save(); });
-
-    return root;
-  }
-
-  function step3(){
-    const root = document.createElement('div');
-    root.innerHTML = `
-      <div class="field">
-        <div class="row" style="justify-content:space-between; align-items:flex-start">
-          <div>
-            <div style="font-size:13px;font-weight:800">Rulează evaluarea</div>
-            <div style="margin-top:6px;font-size:12px;color:rgba(255,255,255,0.70);line-height:1.45">
-              Apasă <span class="kbd">Evaluează</span> pentru a genera: Zonă Coezivă, Fază 2π și Regim J.
-              Output-ul include „notes” pentru trasabilitate tehnică.
-            </div>
-          </div>
-          <span class="kbd">2π</span>
-        </div>
-      </div>
-    `;
-    return root;
-  }
-
-  function renderStep(){
-    const host = $('stepHost');
-    host.innerHTML = "";
-    $('hintRequired').style.display = "none";
-    if(state.step === 1) host.appendChild(step1());
-    else if(state.step === 2) host.appendChild(step2());
-    else host.appendChild(step3());
-  }
-
-  function renderSidePreview(){
-    $('sVehicle').textContent = state.vehicle?.trim() ? state.vehicle.trim() : "—";
-    $('sSubsystem').textContent = state.subsystem?.trim() ? state.subsystem.trim() : "—";
-
-    const r = evaluateAuto(state);
-    if(!r.ok){
-      $('statusChip').textContent = "idle";
-      $('sRegime').textContent = "—";
-      $('sZoneLabel').textContent = "—";
-      $('sPhase').textContent = "—";
-      $('needle').style.left = "50%";
-      setCycleActive("");
-      return;
-    }
-
-    // Soft preview (nu scrie în Output până nu evaluezi)
-    $('sRegime').textContent = r.regimeJ;
-    $('sZoneLabel').textContent = r.zoneLabel;
-    $('sPhase').textContent = r.phase2pi;
-    $('needle').style.left = needleLeft(r.zoneCode) + "%";
-    setCycleActive(r.phase2pi);
-  }
-
-  function doEvaluate(){
-    const r = evaluateAuto(state);
-    if(!r.ok){
-      $('statusChip').textContent = "error";
-      $('oMsg').textContent = r.error || "Eroare de validare.";
-      $('oNotes').innerHTML = "";
-      return null;
-    }
-
-    $('statusChip').textContent = "ok";
-    $('sVehicle').textContent = state.vehicle.trim();
-    $('sSubsystem').textContent = state.subsystem;
-    $('sRegime').textContent = r.regimeJ;
-    $('sZoneLabel').textContent = r.zoneLabel;
-    $('sPhase').textContent = r.phase2pi;
-
-    $('needle').style.left = needleLeft(r.zoneCode) + "%";
-    setCycleActive(r.phase2pi);
-
-    $('oZone').textContent = r.zoneLabel;
-    $('oPhase').textContent = r.phase2pi;
-    $('oRegime').textContent = r.regimeJ;
-    $('oZoneCode').textContent = r.zoneCode;
-
-    $('oMsg').textContent = r.message;
-    $('oNotes').innerHTML = "";
-    r.notes.forEach(n => {
-      const li = document.createElement('li');
-      li.textContent = n;
-      $('oNotes').appendChild(li);
-    });
-
-    return r;
-  }
-
-  function resetAll(){
-    state = defaults();
-    save();
-    $('statusChip').textContent = "idle";
-    $('oZone').textContent = "—";
-    $('oPhase').textContent = "—";
-    $('oRegime').textContent = "—";
-    $('oZoneCode').textContent = "—";
-    $('oMsg').textContent = "Completează pașii și rulează evaluarea.";
-    $('oNotes').innerHTML = "";
-    render();
-  }
-
-  async function copyResult(){
-    const r = doEvaluate();
-    if(!r) return;
-
-    const text = [
-      "Coheziv Auto — Rezultat (model conceptual)",
-      `Vehicul: ${state.vehicle.trim()}`,
-      `Subsistem: ${state.subsystem}`,
-      `Zonă Coezivă: ${r.zoneLabel} (${r.zoneCode})`,
-      `Fază 2π: ${r.phase2pi}`,
-      `Regim J: ${r.regimeJ}`,
-      "",
-      `Mesaj: ${r.message}`,
-      "",
-      "Notes:",
-      ...r.notes.map(x => `- ${x}`),
-      "",
-      "Disclaimer: Model conceptual. Nu înlocuiește diagnoza service."
-    ].join("\n");
-
-    try{
-      await navigator.clipboard.writeText(text);
-      $('statusChip').textContent = "copied";
-      setTimeout(()=> $('statusChip').textContent = "ok", 900);
-    }catch(_){
-      prompt("Copiază manual:", text);
-    }
-  }
-
-  function render(){
-    save();
-    renderHeader();
-    renderProgress();
-    renderStep();
-    renderSidePreview();
-
-    // Buttons state
-    $('btnBack').disabled = state.step === 1;
-    const isLast = state.step === 3;
-    $('btnCopy').style.display = isLast ? "inline-flex" : "none";
-    $('btnReset').style.display = isLast ? "inline-flex" : "none";
-  }
-
-  // Events
-  $('btnBack').addEventListener('click', () => { if(state.step > 1){ state.step -= 1; render(); } });
-
-  $('btnNext').addEventListener('click', () => {
-    if(state.step === 1){
-      const ok = (state.vehicle || "").trim() && (state.subsystem || "").trim();
-      if(!ok){ $('hintRequired').style.display = "block"; return; }
-      state.step = 2; render(); return;
-    }
-    if(state.step === 2){
-      state.step = 3; render(); return;
-    }
-    doEvaluate();
-  });
-
-  $('btnReset').addEventListener('click', resetAll);
-  $('btnCopy').addEventListener('click', copyResult);
-
-  document.addEventListener('keydown', (e) => {
-    const isCtrlEnter = (e.ctrlKey || e.metaKey) && e.key === 'Enter';
-    if(!isCtrlEnter) return;
-    e.preventDefault();
-
-    const ok = (state.vehicle || "").trim() && (state.subsystem || "").trim();
-    if(!ok){ $('hintRequired').style.display = "block"; return; }
-
-    if(state.step < 3){ state.step = 3; render(); }
-    doEvaluate();
-  });
-
-  // Init
-  render();
-})();
-</script>
+</main>
 </body>
 </html>
