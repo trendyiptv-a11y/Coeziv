@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sinteză simplă: Corpul uman prin lentila coezivă</title>
+  <style>
+    :root{
+      --accent:#c98000;
+      --accentSoft:#ffe8b5;
+      --bg:#fffdf6;
+      --panel:#fffaf0;
+      --text:#2b1b00;
+      --muted:#6b4a1a;
+      --shadow:0 6px 18px rgba(0,0,0,0.06);
+      --radius:14px;
+    }
+    *{box-sizing:border-box;}
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background:var(--bg);
+      color:var(--text);
+      line-height:1.65;
+    }
+    .wrap{max-width:980px;margin:24px auto;padding:16px;}
+    header{
+      text-align:center;
+      padding:18px 12px 10px;
+    }
+    .badge{
+      display:inline-block;
+      padding:5px 12px;
+      border-radius:999px;
+      background:var(--accentSoft);
+      color:var(--muted);
+      font-size:0.85rem;
+      margin-bottom:10px;
+    }
+    h1{
+      margin:0;
+      color:var(--accent);
+      font-size:1.7rem;
+      letter-spacing:0.2px;
+    }
+    .subtitle{
+      margin:8px auto 0;
+      max-width:780px;
+      color:var(--muted);
+      font-size:0.98rem;
+    }
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap:12px;
+      margin-top:14px;
+    }
+    .section{
+      background:var(--panel);
+      border-radius:var(--radius);
+      padding:16px 14px;
+      box-shadow:var(--shadow);
+      margin:14px 0;
+    }
+    h2{
+      margin:0 0 8px;
+      color:var(--accent);
+      font-size:1.22rem;
+    }
+    h3{
+      margin:10px 0 6px;
+      font-size:1.02rem;
+    }
+    p{margin:8px 0;}
+    ul{margin:6px 0 6px 18px;}
+    .small{font-size:0.92rem;color:#4a3d2a;}
+    .callout{
+      background:#fff4dc;
+      border-left:4px solid var(--accent);
+      padding:10px 12px;
+      border-radius:10px;
+      margin:10px 0;
+      font-size:0.95rem;
+    }
+    .warning{
+      background:#ffe9d7;
+      border-left-color:#d46a00;
+    }
+    .card{
+      background:#fff7e4;
+      border-radius:12px;
+      padding:12px;
+      border:1px solid #f0e0c2;
+    }
+    .steps{
+      counter-reset: step;
+      list-style:none;
+      padding-left:0;
+      margin:0;
+    }
+    .steps li{
+      counter-increment: step;
+      padding:10px 10px 10px 48px;
+      position:relative;
+      border-radius:12px;
+      background:#fffef8;
+      border:1px solid #f0e0c2;
+      margin:10px 0;
+    }
+    .steps li::before{
+      content: counter(step);
+      position:absolute;
+      left:12px; top:10px;
+      width:26px; height:26px;
+      border-radius:999px;
+      display:flex; align-items:center; justify-content:center;
+      background:var(--accentSoft);
+      color:var(--muted);
+      font-weight:700;
+    }
+    .pillrow{margin-top:8px;}
+    .pill{
+      display:inline-block;
+      font-size:0.78rem;
+      padding:3px 9px;
+      border-radius:999px;
+      border:1px solid #ead8b6;
+      background:#fffef7;
+      color:#6a5a44;
+      margin:3px 6px 0 0;
+    }
+    footer{
+      text-align:center;
+      color:#746553;
+      font-size:0.85rem;
+      padding:14px 8px 24px;
+    }
+    @media (max-width:760px){
+      .grid{grid-template-columns:1fr;}
+      h1{font-size:1.45rem;}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="badge">Sinteză pentru toată lumea · Corpul uman · Lentilă coezivă</div>
+      <h1>Corpul uman, simplu și coerent (lentila coezivă)</h1>
+      <p class="subtitle">
+        Ideea de bază: corpul este un sistem viu care își păstrează funcționarea printr-un echilibru continuu între
+        <b>stabilitate</b> și <b>adaptare</b> — iar apa din corp joacă un rol central.
+      </p>
+    </header>
+
+    <section class="section">
+      <h2>1) Imaginea mare, în 30 de secunde</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>Corpul ca „rețea de susținere”</h3>
+          <p class="small">
+            Nu suntem doar organe puse unul lângă altul. Suntem o rețea de țesuturi și lichide care
+            țin procesele împreună și le coordonează.
+          </p>
+          <div class="pillrow">
+            <span class="pill">țesuturi</span>
+            <span class="pill">lichide</span>
+            <span class="pill">legături</span>
+            <span class="pill">coordonare</span>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Apa: mediul în care se întâmplă totul</h3>
+          <p class="small">
+            O mare parte din corp este apă, iar la nivel de molecule apa domină.
+            De aceea, multe procese depind de cum se comportă apa în interiorul celulelor.
+          </p>
+          <div class="pillrow">
+            <span class="pill">celule</span>
+            <span class="pill">transport</span>
+            <span class="pill">temperatură</span>
+            <span class="pill">echilibru intern</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout">
+        <b>Pe scurt:</b> viața înseamnă „menținere a coerenței interne” în timp ce lumea din jur se schimbă.
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>2) Patru pași care descriu viața în corp</h2>
+      <p class="small">
+        Ca să fie ușor de urmărit, putem descrie funcționarea corpului printr-o succesiune repetată de pași:
+      </p>
+
+      <ol class="steps">
+        <li>
+          <b>Starea de bază:</b> corpul are o organizare stabilă (temperatură, pH, sare, apă în celule, ritmuri).
+        </li>
+        <li>
+          <b>Ce se mișcă:</b> apar schimbări (mâncare, efort, stres, infecție, căldură/rece) și corpul trebuie să răspundă.
+        </li>
+        <li>
+          <b>Rearanjare:</b> corpul ajustează (respirație, circulație, hormoni, rinichi, transpirație, inflamație).
+        </li>
+        <li>
+          <b>Stare stabilizată:</b> se ajunge la o nouă „normalitate” (poate aproape de cea inițială, poate ușor diferită).
+        </li>
+      </ol>
+
+      <div class="callout warning">
+        <b>Important:</b> „echilibru” nu înseamnă nemișcare. Înseamnă reglaj continuu, ca un termostat bun.
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>3) Unde se vede asta în corp, concret</h2>
+
+      <div class="grid">
+        <div class="card">
+          <h3>Temperatura</h3>
+          <p class="small">
+            Corpul ține temperatura într-un interval îngust. Când crește prea mult, proteinele și enzimele
+            încep să funcționeze prost. Când scade, reacțiile devin prea lente.
+          </p>
+        </div>
+        <div class="card">
+          <h3>Apă + săruri (electroliți)</h3>
+          <p class="small">
+            Celulele au nevoie de un raport corect între apă și săruri. Rinichii, setea și hormonii
+            ajustează fin acest raport ca să păstreze funcția nervilor și mușchilor.
+          </p>
+        </div>
+        <div class="card">
+          <h3>pH (aciditate)</h3>
+          <p class="small">
+            Sângele și lichidele corpului sunt menținute aproape neutre. Respirația (CO₂) și rinichii
+            sunt două „roți” principale care mențin pH-ul stabil.
+          </p>
+        </div>
+        <div class="card">
+          <h3>Energie și combustibil</h3>
+          <p class="small">
+            După masă depozităm, între mese eliberăm. Ficatul și hormonii țin glicemia în limite,
+            ca creierul și mușchii să aibă combustibil constant.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>4) Rolul apei explicat „pe limba tuturor”</h2>
+      <p>
+        Apa din corp nu este doar „umplutură”. Ea este mediul în care:
+      </p>
+      <ul>
+        <li>se dizolvă substanțele și se pot transporta;</li>
+        <li>se fac reacțiile chimice ale vieții;</li>
+        <li>se mențin formele proteinelor (structuri fragile, sensibile la temperatură și mediu);</li>
+        <li>se propagă semnalele electrice și chimice între celule.</li>
+      </ul>
+
+      <div class="callout">
+        <b>O propoziție utilă:</b> sănătatea este capacitatea corpului de a-și păstra ordinea internă
+        în apă, în sânge și în celule, în ciuda schimbărilor din exterior.
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>5) Ce să reții (rezumat final)</h2>
+      <ul>
+        <li>Corpul este o rețea vie care se reglează continuu.</li>
+        <li>Schimbarea este normală; important este reglajul și revenirea la funcționare bună.</li>
+        <li>Apa este mediul central al proceselor din corp.</li>
+        <li>„Bună funcționare” = coerență internă + adaptare la mediu.</li>
+      </ul>
+    </section>
+
+    <footer>
+      Document educativ (sinteză simplă). Poate fi folosit ca pagină de prezentare sau material introductiv.
+    </footer>
+  </div>
+</body>
+</html>
