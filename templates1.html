@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="ro" data-template="orbit">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Motion Templates — 5 Variants (Single File)</title>
+  <style>
+    /* =========================================================
+       SINGLE-FILE MOTION SYSTEM (5 templates)
+       Templates:
+         1) Orbit / Kinetic Rings
+         2) Parallax Grid / Drift
+         3) Elastic Cards / Spring UI
+         4) Timeline Flow / Progress Stream
+         5) Kinetic Typography / Marquee + Reveal
+
+       - No external assets
+       - Accessible: prefers-reduced-motion supported
+       - Switcher changes data-template on <html>
+       ========================================================= */
+
+    :root{
+      /* Base tokens */
+      --bg: #0b1020;
+      --surface: rgba(255,255,255,.06);
+      --surface-2: rgba(255,255,255,.09);
+      --fg: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.70);
+      --line: rgba(255,255,255,.14);
+
+      --a: #7c4dff;
+      --b: #00e5ff;
+      --c: #facc15;
+      --d: #e11d48;
+
+      --r-lg: 20px;
+      --r-md: 14px;
+
+      --shadow: 0 18px 60px rgba(0,0,0,.45);
+
+      --speed-1: 6s;
+      --speed-2: 14s;
+      --speed-3: 24s;
+      --ease: cubic-bezier(.2,.8,.2,1);
+    }
+
+    *{ box-sizing:border-box; }
+    html, body{ height:100%; }
+    body{
+      margin:0;
+      font: 16px/1.55 system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      color: var(--fg);
+      background:
+        radial-gradient(1000px 600px at 15% 10%, color-mix(in oklab, var(--a) 35%, transparent), transparent 60%),
+        radial-gradient(900px 520px at 80% 15%, color-mix(in oklab, var(--b) 24%, transparent), transparent 55%),
+        radial-gradient(1200px 680px at 50% 110%, color-mix(in oklab, var(--c) 14%, transparent), transparent 60%),
+        var(--bg);
+      overflow-x:hidden;
+    }
+
+    /* ---------- Reduced motion ---------- */
+    @media (prefers-reduced-motion: reduce){
+      *{ animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+    }
+
+    /* ---------- Layout ---------- */
+    .appbar{
+      position:sticky; top:0; z-index:50;
+      background: rgba(10,14,30,.70);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(14px);
+    }
+    .appbar__inner{
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 12px 16px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 12px;
+    }
+    .brand{
+      display:flex; align-items:center; gap:10px;
+      font-weight:900; letter-spacing:.06em; text-transform:uppercase; font-size:13px;
+    }
+    .mark{
+      width:12px; height:12px; border-radius:50%;
+      background: linear-gradient(135deg, var(--a), var(--b));
+      box-shadow: 0 0 22px color-mix(in oklab, var(--b) 35%, transparent);
+    }
+    .wrap{ max-width:1120px; margin:0 auto; padding: 18px 16px 70px; }
+
+    /* ---------- Controls ---------- */
+    .controls{
+      display:flex; flex-wrap:wrap; gap:8px; align-items:center;
+    }
+    .chip{
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.06);
+      color: var(--fg);
+      padding: 9px 10px;
+      border-radius: 999px;
+      cursor:pointer;
+      font: 13px/1.1 system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      transition: transform .15s var(--ease), background .15s var(--ease);
+    }
+    .chip:hover{ transform: translateY(-1px); background: rgba(255,255,255,.09); }
+    .chip[aria-pressed="true"]{
+      background: linear-gradient(135deg, color-mix(in oklab, var(--a) 55%, transparent), color-mix(in oklab, var(--b) 45%, transparent));
+      border-color: rgba(255,255,255,.20);
+    }
+    .hint{ color: var(--muted); font-size: 13px; }
+
+    /* ---------- Shared components ---------- */
+    .card{
+      border: 1px solid var(--line);
+      background: var(--surface);
+      border-radius: var(--r-lg);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      position:relative;
+    }
+    .pad{ padding: 18px; }
+    .muted{ color: var(--muted); }
+    .mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; }
+    h1{ margin:0; font-size: 44px; line-height: 1.06; letter-spacing: -.02em; }
+    h2{ margin:0 0 8px; font-size: 18px; }
+    .lead{ margin: 10px 0 0; color: var(--muted); max-width: 75ch; font-size: 18px; }
+
+    .grid{
+      margin-top: 14px;
+      display:grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 14px;
+    }
+    @media (max-width: 980px){
+      h1{ font-size: 36px; }
+      .grid{ grid-template-columns: 1fr; }
+    }
+
+    .btnrow{ display:flex; gap:10px; flex-wrap:wrap; margin-top: 14px; }
+    .btn{
+      display:inline-flex; align-items:center; justify-content:center;
+      padding:10px 12px;
+      border-radius: 12px;
+      border:1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.06);
+      color: var(--fg);
+      text-decoration:none;
+      transition: transform .15s var(--ease), background .15s var(--ease);
+    }
+    .btn:hover{ transform: translateY(-1px); background: rgba(255,255,255,.09); }
+    .btn.primary{
+      border-color: transparent;
+      background: linear-gradient(135deg, color-mix(in oklab, var(--a) 85%, #000 15%), color-mix(in oklab, var(--b) 70%, #000 30%));
+      box-shadow: 0 0 0 1px rgba(255,255,255,.10) inset, 0 18px 60px color-mix(in oklab, var(--b) 18%, transparent);
+    }
+
+    .badge{
+      display:inline-flex; align-items:center; gap:8px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.06);
+      font-size: 13px;
+      font-weight: 700;
+      color: rgba(255,255,255,.86);
+    }
+    .dot{
+      width:8px; height:8px; border-radius:50%;
+      background: linear-gradient(135deg, var(--a), var(--b));
+      box-shadow: 0 0 18px color-mix(in oklab, var(--a) 22%, transparent);
+    }
+
+    /* ---------- Stage container for variants ---------- */
+    .stage{ margin-top: 14px; }
+    .variant{ display:none; }
+    html[data-template="orbit"]   .variant.orbit{ display:block; }
+    html[data-template="parallax"] .variant.parallax{ display:block; }
+    html[data-template="elastic"]  .variant.elastic{ display:block; }
+    html[data-template="timeline"] .variant.timeline{ display:block; }
+    html[data-template="type"]     .variant.type{ display:block; }
+
+    /* =========================================================
+       TEMPLATE 1: ORBIT / Kinetic Rings
+       ========================================================= */
+    .orbit-hero{
+      min-height: 420px;
+      background:
+        radial-gradient(800px 420px at 20% 10%, rgba(124,77,255,.22), transparent 60%),
+        radial-gradient(700px 380px at 80% 30%, rgba(0,229,255,.18), transparent 55%),
+        rgba(255,255,255,.02);
+    }
+    .orbit-hero::before{
+      content:"";
+      position:absolute; inset:-2px;
+      background: radial-gradient(600px 240px at 15% 0%, rgba(0,229,255,.18), transparent 60%);
+      opacity:.85; pointer-events:none;
+    }
+    .orbits{
+      position:absolute; inset:0; pointer-events:none;
+      display:grid; place-items:center;
+      opacity:.95;
+    }
+    .ring{
+      position:absolute;
+      width: 520px; height: 520px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,.14);
+      box-shadow: 0 0 0 1px rgba(0,0,0,.15) inset;
+      animation: spin var(--speed-3) linear infinite;
+    }
+    .ring.r2{ width: 380px; height: 380px; animation-duration: var(--speed-2); border-color: rgba(255,255,255,.18); }
+    .ring.r3{ width: 260px; height: 260px; animation-duration: var(--speed-1); border-color: rgba(255,255,255,.22); }
+
+    .sat{
+      position:absolute;
+      width: 14px; height: 14px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--a), var(--b));
+      box-shadow: 0 0 18px rgba(0,229,255,.35);
+      top: 50%; left: 50%;
+      transform-origin: 0 0;
+      animation: orbit var(--speed-2) linear infinite;
+    }
+    .sat.s2{ width: 10px; height: 10px; animation-duration: var(--speed-1); background: linear-gradient(135deg, var(--c), var(--b)); }
+    .sat.s3{ width: 8px; height: 8px; animation-duration: var(--speed-3); background: linear-gradient(135deg, var(--d), var(--a)); }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes orbit{
+      from{ transform: rotate(0deg) translateX(190px) translateY(-190px); }
+      to  { transform: rotate(360deg) translateX(190px) translateY(-190px); }
+    }
+
+    /* =========================================================
+       TEMPLATE 2: PARALLAX GRID / Drift
+       ========================================================= */
+    .parallax-hero{
+      min-height: 420px;
+      background: rgba(255,255,255,.02);
+    }
+    .parallax-bg{
+      position:absolute; inset:0; pointer-events:none;
+      overflow:hidden;
+    }
+    .layer{
+      position:absolute; inset:-40%;
+      background:
+        repeating-linear-gradient(0deg, rgba(255,255,255,.08), rgba(255,255,255,.08) 1px, transparent 1px, transparent 44px),
+        repeating-linear-gradient(90deg, rgba(255,255,255,.06), rgba(255,255,255,.06) 1px, transparent 1px, transparent 44px);
+      transform: translate3d(0,0,0);
+      opacity:.38;
+      animation: driftA var(--speed-3) linear infinite;
+    }
+    .layer.l2{
+      opacity:.24;
+      filter: blur(1px);
+      animation: driftB var(--speed-2) linear infinite;
+    }
+    .layer.l3{
+      opacity:.18;
+      filter: blur(2px);
+      animation: driftC var(--speed-1) linear infinite;
+    }
+    @keyframes driftA{ to { transform: translate3d(120px, 80px, 0); } }
+    @keyframes driftB{ to { transform: translate3d(-140px, 90px, 0); } }
+    @keyframes driftC{ to { transform: translate3d(160px, -120px, 0); } }
+
+    .parallax-glow{
+      position:absolute; inset:0; pointer-events:none;
+      background:
+        radial-gradient(520px 220px at 18% 20%, rgba(0,229,255,.18), transparent 65%),
+        radial-gradient(620px 260px at 82% 35%, rgba(124,77,255,.20), transparent 65%),
+        radial-gradient(700px 300px at 55% 85%, rgba(250,204,21,.10), transparent 70%);
+      opacity:.95;
+    }
+
+    /* =========================================================
+       TEMPLATE 3: ELASTIC CARDS / Spring UI
+       ========================================================= */
+    .elastic-hero{
+      min-height: 420px;
+      background: rgba(255,255,255,.02);
+    }
+    .elastic-grid{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 14px;
+    }
+    @media (max-width: 980px){ .elastic-grid{ grid-template-columns: 1fr; } }
+
+    .spring-card{
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      border-radius: var(--r-lg);
+      padding: 14px;
+      transition: transform .18s var(--ease), background .18s var(--ease);
+      position:relative;
+      overflow:hidden;
+    }
+    .spring-card::before{
+      content:"";
+      position:absolute; inset:-40px;
+      background: radial-gradient(260px 140px at 20% 20%, rgba(0,229,255,.14), transparent 65%),
+                  radial-gradient(260px 140px at 80% 60%, rgba(124,77,255,.16), transparent 65%);
+      opacity:.9;
+      filter: blur(8px);
+      transform: scale(1.2);
+      transition: transform .28s var(--ease);
+      pointer-events:none;
+    }
+    .spring-card > *{ position:relative; }
+
+    .spring-card:hover{
+      transform: translateY(-6px) scale(1.01);
+      background: rgba(255,255,255,.08);
+    }
+    .spring-card:hover::before{ transform: scale(1.35) rotate(4deg); }
+
+    /* “springy” entry animation */
+    .spring-card{ animation: pop .6s var(--ease) both; }
+    .spring-card:nth-child(2){ animation-delay: .06s; }
+    .spring-card:nth-child(3){ animation-delay: .12s; }
+    @keyframes pop{
+      0%{ transform: translateY(10px) scale(.98); opacity: 0; }
+      60%{ transform: translateY(-4px) scale(1.02); opacity: 1; }
+      100%{ transform: translateY(0) scale(1); }
+    }
+
+    /* =========================================================
+       TEMPLATE 4: TIMELINE FLOW / Progress Stream
+       ========================================================= */
+    .timeline-hero{
+      min-height: 420px;
+      background: rgba(255,255,255,.02);
+    }
+    .stream{
+      position:absolute; inset:0; pointer-events:none;
+      opacity:.9;
+    }
+    .stream svg{ width:100%; height:100%; display:block; }
+    .dash{
+      stroke-dasharray: 10 14;
+      animation: dashMove 2.8s linear infinite;
+    }
+    @keyframes dashMove{ to { stroke-dashoffset: -160; } }
+
+    .steps{
+      margin-top: 14px;
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+    .step{
+      display:flex; gap:12px; align-items:flex-start;
+      padding: 12px;
+      border:1px solid rgba(255,255,255,.14);
+      border-radius: var(--r-md);
+      background: rgba(255,255,255,.06);
+      position:relative;
+      overflow:hidden;
+    }
+    .step::after{
+      content:"";
+      position:absolute; inset:0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.06), transparent);
+      transform: translateX(-100%);
+      animation: shimmer 2.6s linear infinite;
+      opacity:.55;
+      pointer-events:none;
+    }
+    .step:nth-child(2)::after{ animation-delay: .6s; }
+    .step:nth-child(3)::after{ animation-delay: 1.2s; }
+    @keyframes shimmer{ to { transform: translateX(100%); } }
+
+    .bubble{
+      width:28px; height:28px; border-radius:10px;
+      background: linear-gradient(135deg, var(--a), var(--b));
+      box-shadow: 0 14px 48px rgba(0,229,255,.14);
+      flex: 0 0 auto;
+    }
+
+    /* =========================================================
+       TEMPLATE 5: KINETIC TYPOGRAPHY / Marquee + Reveal
+       ========================================================= */
+    .type-hero{
+      min-height: 420px;
+      background: rgba(255,255,255,.02);
+    }
+    .marquee{
+      position:absolute; left:0; right:0; top: 22px;
+      overflow:hidden;
+      border-top: 1px solid rgba(255,255,255,.14);
+      border-bottom: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.04);
+      pointer-events:none;
+    }
+    .marquee__track{
+      display:flex;
+      width:max-content;
+      gap: 24px;
+      padding: 10px 0;
+      animation: marquee 18s linear infinite;
+      opacity:.85;
+    }
+    .marquee__item{
+      font-weight:900;
+      letter-spacing:.10em;
+      text-transform:uppercase;
+      font-size: 12px;
+      color: rgba(255,255,255,.80);
+      white-space:nowrap;
+    }
+    @keyframes marquee{ to { transform: translateX(-50%); } }
+
+    .reveal{
+      display:inline-block;
+      position:relative;
+      overflow:hidden;
+      vertical-align:bottom;
+    }
+    .reveal::after{
+      content:"";
+      position:absolute; inset:0;
+      background: linear-gradient(90deg, rgba(0,229,255,.22), rgba(124,77,255,.22));
+      transform: translateX(-120%);
+      animation: wipe 1.2s var(--ease) both;
+    }
+    .reveal span{
+      display:inline-block;
+      transform: translateY(110%);
+      animation: rise .9s var(--ease) .18s both;
+    }
+    @keyframes wipe{ 0%{ transform: translateX(-120%); } 60%{ transform: translateX(0%); } 100%{ transform: translateX(120%); } }
+    @keyframes rise{ to{ transform: translateY(0%); } }
+
+    /* Footer */
+    footer{
+      margin-top: 18px;
+      border-top: 1px solid rgba(255,255,255,.14);
+      padding-top: 14px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+  </style>
+</head>
+
+<body>
+  <header class="appbar">
+    <div class="appbar__inner">
+      <div class="brand"><span class="mark"></span> Motion Templates</div>
+      <div class="controls" role="group" aria-label="Selectează un template">
+        <button class="chip" data-template="orbit" aria-pressed="true" type="button">Orbit</button>
+        <button class="chip" data-template="parallax" aria-pressed="false" type="button">Parallax</button>
+        <button class="chip" data-template="elastic" aria-pressed="false" type="button">Elastic</button>
+        <button class="chip" data-template="timeline" aria-pressed="false" type="button">Timeline</button>
+        <button class="chip" data-template="type" aria-pressed="false" type="button">Kinetic Type</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="hint">Tema: mișcare. Aceeași pagină, 5 „template-uri” complet diferite (vizual + motion language).</div>
+
+    <section class="stage">
+
+      <!-- TEMPLATE 1 -->
+      <div class="variant orbit">
+        <section class="card orbit-hero">
+          <div class="orbits" aria-hidden="true">
+            <div class="ring"></div>
+            <div class="ring r2"></div>
+            <div class="ring r3"></div>
+            <div class="sat"></div>
+            <div class="sat s2"></div>
+            <div class="sat s3"></div>
+          </div>
+
+          <div class="pad" style="position:relative;">
+            <span class="badge"><span class="dot"></span> Orbit — mișcare circulară, „calm tech”</span>
+            <h1 style="margin-top:10px;">Un sistem care transmite energie prin orbite</h1>
+            <p class="lead">Ritm constant, rotații lente, accent pe stabilitate și precizie. Bun pentru produse tech, AI, instrumente de analiză.</p>
+            <div class="btnrow">
+              <a class="btn primary" href="#">Start</a>
+              <a class="btn" href="#">Docs</a>
+              <a class="btn" href="#">Pricing</a>
+            </div>
+
+            <div class="grid">
+              <div class="card" style="background:rgba(255,255,255,.05); box-shadow:none;">
+                <div class="pad">
+                  <h2>Principiu</h2>
+                  <p class="muted">Mișcare predictibilă = încredere. Orbitele sunt decor, nu distragere.</p>
+                  <div class="muted mono">$ motion = "orbit";</div>
+                </div>
+              </div>
+              <div class="card" style="background:rgba(255,255,255,.05); box-shadow:none;">
+                <div class="pad">
+                  <h2>Detaliu</h2>
+                  <p class="muted">Viteză mare doar pentru sateliți mici; ring-urile rămân lente.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- TEMPLATE 2 -->
+      <div class="variant parallax">
+        <section class="card parallax-hero">
+          <div class="parallax-bg" aria-hidden="true">
+            <div class="layer l1"></div>
+            <div class="layer l2"></div>
+            <div class="layer l3"></div>
+            <div class="parallax-glow"></div>
+          </div>
+
+          <div class="pad" style="position:relative;">
+            <span class="badge"><span class="dot"></span> Parallax — drift + adâncime</span>
+            <h1 style="margin-top:10px;">O grilă care „alunecă” și creează profunzime</h1>
+            <p class="lead">Mișcare direcțională, straturi multiple, senzație de navigare în spațiu. Bun pentru portofolii, studiouri, lansări.</p>
+            <div class="btnrow">
+              <a class="btn primary" href="#">Vezi proiecte</a>
+              <a class="btn" href="#">Servicii</a>
+              <a class="btn" href="#">Contact</a>
+            </div>
+
+            <div class="grid">
+              <div class="card" style="background:rgba(255,255,255,.05); box-shadow:none;">
+                <div class="pad">
+                  <h2>Straturi</h2>
+                  <p class="muted">3 layer-e cu drift diferit. Ochii percep adâncime fără scroll JS.</p>
+                </div>
+              </div>
+              <div class="card" style="background:rgba(255,255,255,.05); box-shadow:none;">
+                <div class="pad">
+                  <h2>Regulă</h2>
+                  <p class="muted">Contrast redus în background, ca textul să rămână prioritar.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- TEMPLATE 3 -->
+      <div class="variant elastic">
+        <section class="card elastic-hero">
+          <div class="pad">
+            <span class="badge"><span class="dot"></span> Elastic — micro-interacțiuni „springy”</span>
+            <h1 style="margin-top:10px;">Interfață cu carduri elastice și reacții rapide</h1>
+            <p class="lead">Intrări „pop”, hover cu elasticitate, senzație tactilă. Bun pentru produse consumer, aplicații mobile, dashboard-uri moderne.</p>
+            <div class="btnrow">
+              <a class="btn primary" href="#">Create</a>
+              <a class="btn" href="#">Import</a>
+              <a class="btn" href="#">Settings</a>
+            </div>
+
+            <div class="elastic-grid">
+              <div class="spring-card">
+                <h2>Card 01</h2>
+                <p class="muted">Motion scurt, feedback imediat, densitate moderată.</p>
+                <div class="muted mono">ease: spring-like</div>
+              </div>
+              <div class="spring-card">
+                <h2>Card 02</h2>
+                <p class="muted">Decor blur intern. Hover = energie controlată.</p>
+                <div class="muted mono">hover: lift + glow</div>
+              </div>
+              <div class="spring-card">
+                <h2>Card 03</h2>
+                <p class="muted">Secvențiere (stagger) pentru coeziune vizuală.</p>
+                <div class="muted mono">stagger: 60ms</div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- TEMPLATE 4 -->
+      <div class="variant timeline">
+        <section class="card timeline-hero">
+          <div class="stream" aria-hidden="true">
+            <svg viewBox="0 0 1200 520" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="sg" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0" stop-color="rgba(0,229,255,.22)"/>
+                  <stop offset=".55" stop-color="rgba(124,77,255,.20)"/>
+                  <stop offset="1" stop-color="rgba(250,204,21,.12)"/>
+                </linearGradient>
+              </defs>
+
+              <path d="M-50 360 C 180 240, 360 210, 520 235 C 700 260, 860 360, 1250 280"
+                    fill="none" stroke="url(#sg)" stroke-width="3" class="dash" />
+              <path d="M-50 390 C 210 270, 390 245, 560 270 C 740 300, 900 395, 1250 320"
+                    fill="none" stroke="rgba(255,255,255,.12)" stroke-width="2" class="dash" />
+            </svg>
+          </div>
+
+          <div class="pad" style="position:relative;">
+            <span class="badge"><span class="dot"></span> Timeline — flux + progres continuu</span>
+            <h1 style="margin-top:10px;">Un „flow” care arată progresul ca mișcare</h1>
+            <p class="lead">Dash-urile se deplasează (stream), iar item-urile au shimmer discret. Bun pentru onboarding, roadmap, procese, delivery.</p>
+
+            <div class="grid">
+              <div class="card" style="background:rgba(255,255,255,.05); box-shadow:none;">
+                <div class="pad">
+                  <h2>Pași</h2>
+                  <div class="steps">
+                    <div class="step">
+                      <div class="bubble" aria-hidden="true"></div>
+                      <div>
+                        <strong>Definește</strong>
+                        <div class="muted">Setează obiective și metrici.</div>
+                      </div>
+                    </div>
+                    <div class="step">
+                      <div class="bubble" aria-hidden="true"></div>
+                      <div>
+                        <strong>Construiește</strong>
+                        <div class="muted">Iterează pe componente și tokens.</div>
+                      </div>
+                    </div>
+                    <div class="step">
+                      <div class="bubble" aria-hidden="true"></div>
+                      <div>
+                        <strong>Lansează</strong>
+                        <div class="muted">Deploy + monitorizare.</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card" style="background:rgba(255,255,255,.05); box-shadow:none;">
+                <div class="pad">
+                  <h2>Control</h2>
+                  <p class="muted">Motion-ul semnifică „curgere”, nu „show”. Amplitudine mică, durată medie.</p>
+                  <div class="btnrow">
+                    <a class="btn primary" href="#">Roadmap</a>
+                    <a class="btn" href="#">Changelog</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </section>
+      </div>
+
+      <!-- TEMPLATE 5 -->
+      <div class="variant type">
+        <section class="card type-hero">
+          <div class="marquee" aria-hidden="true">
+            <div class="marquee__track">
+              <div class="marquee__item">MOTION • TYPE • RHYTHM •</div>
+              <div class="marquee__item">MOTION • TYPE • RHYTHM •</div>
+              <div class="marquee__item">MOTION • TYPE • RHYTHM •</div>
+              <div class="marquee__item">MOTION • TYPE • RHYTHM •</div>
+              <div class="marquee__item">MOTION • TYPE • RHYTHM •</div>
+              <div class="marquee__item">MOTION • TYPE • RHYTHM •</div>
+            </div>
+          </div>
+
+          <div class="pad" style="position:relative; padding-top: 64px;">
+            <span class="badge"><span class="dot"></span> Kinetic Type — text ca „motor” vizual</span>
+            <h1 style="margin-top:10px;">
+              <span class="reveal"><span>Textul</span></span>
+              <span class="reveal"><span>devine</span></span>
+              <span class="reveal"><span>mișcare</span></span>
+            </h1>
+            <p class="lead">Marquee discret + reveal/wipe pe titlu. Bun pentru brand pages, evenimente, campanii, landing-uri creative.</p>
+
+            <div class="btnrow">
+              <a class="btn primary" href="#">Get tickets</a>
+              <a class="btn" href="#">Lineup</a>
+              <a class="btn" href="#">Venue</a>
+            </div>
+
+            <div class="grid" style="margin-top:14px;">
+              <div class="card" style="background:rgba(255,255,255,.05); box-shadow:none;">
+                <div class="pad">
+                  <h2>Regulă</h2>
+                  <p class="muted">Kinetic typography trebuie să fie rară și precisă: headline + micro-loop.</p>
+                </div>
+              </div>
+              <div class="card" style="background:rgba(255,255,255,.05); box-shadow:none;">
+                <div class="pad">
+                  <h2>Fallback</h2>
+                  <p class="muted">Cu <span class="mono">prefers-reduced-motion</span>, totul devine static automat.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+    </section>
+
+    <footer>
+      <div class="muted">
+        Sfat: dacă vrei să separi în fișiere, extrage fiecare <span class="mono">.variant</span> ca template individual și păstrează switcher-ul pentru demo.
+      </div>
+    </footer>
+  </main>
+
+  <script>
+    (function(){
+      const root = document.documentElement;
+      const chips = Array.from(document.querySelectorAll(".chip"));
+
+      function setTemplate(t){
+        root.setAttribute("data-template", t);
+        chips.forEach(b => b.setAttribute("aria-pressed", String(b.dataset.template === t)));
+        try { localStorage.setItem("motion-template", t); } catch(_) {}
+      }
+
+      // restore
+      try {
+        const saved = localStorage.getItem("motion-template");
+        if (saved) setTemplate(saved);
+      } catch(_) {}
+
+      chips.forEach(b => b.addEventListener("click", () => setTemplate(b.dataset.template)));
+    })();
+  </script>
+</body>
+</html>
