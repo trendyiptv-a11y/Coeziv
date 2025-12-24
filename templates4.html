@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Scrollytelling Report — Single-File Template</title>
+  <style>
+    /* =========================================================
+       SCROLLYTELLING REPORT (single file)
+       - Narrative layout: sticky visual + scrolling chapters
+       - Background evolves per chapter
+       - No external assets
+       - Accessible: reduced motion supported
+       ========================================================= */
+
+    :root{
+      --bg: #070a12;
+      --fg: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.70);
+      --line: rgba(255,255,255,.14);
+
+      --paper: rgba(255,255,255,.06);
+      --paper2: rgba(255,255,255,.08);
+
+      --a: #7c4dff;
+      --b: #00e5ff;
+      --c: #facc15;
+      --d: #ef4444;
+
+      --r-lg: 22px;
+      --r-md: 16px;
+
+      --shadow: 0 18px 70px rgba(0,0,0,.55);
+
+      --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+      --sans: system-ui, -apple-system, Segoe UI, Roboto, Arial;
+
+      --vh: 100vh; /* updated by JS for mobile */
+    }
+
+    *{ box-sizing:border-box; }
+    html, body{ height:100%; }
+    body{
+      margin:0;
+      font: 16px/1.55 var(--sans);
+      color: var(--fg);
+      background: var(--bg);
+      overflow-x:hidden;
+    }
+
+    @media (prefers-reduced-motion: reduce){
+      *{ animation:none !important; transition:none !important; scroll-behavior:auto !important; }
+    }
+
+    /* ---------- Global background layer that changes per step ---------- */
+    .bg{
+      position:fixed; inset:0; z-index:-1;
+      background:
+        radial-gradient(900px 560px at 18% 10%, rgba(124,77,255,.16), transparent 60%),
+        radial-gradient(900px 540px at 84% 18%, rgba(0,229,255,.12), transparent 55%),
+        radial-gradient(1200px 720px at 50% 115%, rgba(250,204,21,.08), transparent 60%),
+        var(--bg);
+      transition: filter .6s ease, transform .6s ease, opacity .6s ease;
+      transform: scale(1.02);
+    }
+    .bg::after{
+      content:"";
+      position:absolute; inset:0;
+      background:
+        radial-gradient(520px 220px at 20% 20%, rgba(0,229,255,.10), transparent 65%),
+        radial-gradient(620px 260px at 82% 35%, rgba(124,77,255,.10), transparent 65%);
+      opacity:.9;
+      pointer-events:none;
+      transition: opacity .6s ease;
+      filter: blur(0.2px);
+    }
+
+    /* Step themes */
+    body[data-step="0"] .bg{ filter: saturate(1.05) contrast(1.05); }
+    body[data-step="1"] .bg{
+      filter: saturate(1.20) contrast(1.10);
+      transform: scale(1.05) translate3d(0,-6px,0);
+    }
+    body[data-step="2"] .bg{
+      filter: saturate(1.10) contrast(1.15) hue-rotate(10deg);
+      transform: scale(1.06) translate3d(0,-12px,0);
+    }
+    body[data-step="3"] .bg{
+      filter: saturate(1.00) contrast(1.22) hue-rotate(24deg);
+      transform: scale(1.07) translate3d(0,-18px,0);
+    }
+    body[data-step="4"] .bg{
+      filter: saturate(0.95) contrast(1.28) hue-rotate(36deg);
+      transform: scale(1.08) translate3d(0,-22px,0);
+    }
+
+    /* ---------- Top bar ---------- */
+    .bar{
+      position:sticky; top:0; z-index:50;
+      backdrop-filter: blur(16px);
+      background: rgba(7,10,18,.70);
+      border-bottom: 1px solid var(--line);
+    }
+    .bar__inner{
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 12px 16px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 12px;
+    }
+    .brand{
+      display:flex; align-items:center; gap:10px;
+      font-weight:900;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      font-size: 12px;
+    }
+    .mark{
+      width:12px; height:12px; border-radius:50%;
+      background: linear-gradient(135deg, var(--a), var(--b));
+      box-shadow: 0 0 20px rgba(0,229,255,.22);
+    }
+    .meta{
+      display:flex; gap:10px; flex-wrap:wrap; align-items:center;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 12px;
+    }
+    .pill{
+      display:inline-flex; align-items:center; gap:8px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.04);
+    }
+    .dot{
+      width: 8px; height: 8px; border-radius:50%;
+      background: rgba(56,189,248,.90);
+      box-shadow: 0 0 14px rgba(56,189,248,.22);
+    }
+
+    /* ---------- Page layout ---------- */
+    .wrap{ max-width: 1180px; margin:0 auto; padding: 16px 16px 80px; }
+
+    .hero{
+      border-radius: 24px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.05);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      position:relative;
+    }
+    .hero__pad{ padding: 18px; }
+    h1{
+      margin: 6px 0 0;
+      font-size: 46px;
+      line-height: 1.02;
+      letter-spacing: -.03em;
+    }
+    .lead{
+      margin: 10px 0 0;
+      color: var(--muted);
+      max-width: 78ch;
+      font-size: 18px;
+    }
+    @media (max-width: 980px){ h1{ font-size: 36px; } }
+
+    .hero__grid{
+      display:grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap: 14px;
+      margin-top: 12px;
+    }
+    @media (max-width: 980px){ .hero__grid{ grid-template-columns: 1fr; } }
+
+    .card{
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.05);
+      border-radius: var(--r-lg);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .pad{ padding: 16px; }
+    .muted{ color: var(--muted); }
+    .mono{ font-family: var(--mono); }
+    .small{ font-size: 12px; }
+    h2{
+      margin:0 0 8px;
+      font-size: 14px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.86);
+    }
+
+    .btnrow{ display:flex; gap:10px; flex-wrap:wrap; margin-top: 14px; }
+    .btn{
+      display:inline-flex; align-items:center; justify-content:center;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.05);
+      color: var(--fg);
+      text-decoration:none;
+      cursor:pointer;
+      transition: transform .14s ease, background .14s ease;
+    }
+    .btn:hover{ transform: translateY(-1px); background: rgba(255,255,255,.08); }
+    .btn.primary{
+      border-color: transparent;
+      background: linear-gradient(135deg, rgba(124,77,255,.85), rgba(0,229,255,.65));
+      box-shadow: 0 0 0 1px rgba(255,255,255,.10) inset, 0 18px 60px rgba(0,229,255,.10);
+    }
+
+    /* ---------- Scrollytelling section ---------- */
+    .story{
+      margin-top: 14px;
+      display:grid;
+      grid-template-columns: 1.05fr .95fr;
+      gap: 14px;
+      align-items:start;
+    }
+    @media (max-width: 980px){ .story{ grid-template-columns: 1fr; } }
+
+    .sticky{
+      position: sticky;
+      top: 74px;
+      height: calc(var(--vh) - 100px);
+      min-height: 420px;
+      border-radius: var(--r-lg);
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.05);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .sticky__inner{ position:relative; height:100%; }
+    .viz{
+      position:absolute; inset:0;
+      opacity: .95;
+      transition: opacity .45s ease, transform .45s ease, filter .45s ease;
+      transform: scale(1.03);
+    }
+    .viz svg{ width:100%; height:100%; display:block; }
+    .viz::after{
+      content:"";
+      position:absolute; inset:0;
+      background: radial-gradient(700px 280px at 20% 0%, rgba(0,229,255,.12), transparent 60%),
+                  radial-gradient(750px 320px at 90% 30%, rgba(124,77,255,.12), transparent 60%),
+                  linear-gradient(180deg, rgba(255,255,255,.10), transparent 55%);
+      opacity:.9;
+      pointer-events:none;
+      transition: opacity .45s ease;
+    }
+
+    .viz[data-viz="0"]{ filter: saturate(1.05) contrast(1.05); }
+    .viz[data-viz="1"]{ filter: saturate(1.15) contrast(1.10); }
+    .viz[data-viz="2"]{ filter: saturate(1.10) contrast(1.18) hue-rotate(10deg); }
+    .viz[data-viz="3"]{ filter: saturate(1.00) contrast(1.25) hue-rotate(22deg); }
+    .viz[data-viz="4"]{ filter: saturate(0.95) contrast(1.30) hue-rotate(32deg); }
+
+    .hud{
+      position:absolute; left: 14px; right: 14px; bottom: 14px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.22);
+      border-radius: 16px;
+      padding: 12px;
+      backdrop-filter: blur(12px);
+    }
+    .hud__top{
+      display:flex; align-items:center; justify-content:space-between; gap: 10px; flex-wrap:wrap;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: rgba(255,255,255,.80);
+    }
+    .hud__bar{
+      margin-top: 10px;
+      height: 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      overflow:hidden;
+    }
+    .hud__bar > span{
+      display:block;
+      height:100%;
+      width: 12%;
+      background: linear-gradient(90deg, rgba(0,229,255,.70), rgba(124,77,255,.70));
+      transition: width .45s ease;
+    }
+
+    /* Chapters */
+    .chapters{
+      display:grid;
+      gap: 12px;
+    }
+    .chapter{
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.05);
+      border-radius: var(--r-lg);
+      padding: 16px;
+      min-height: 52vh;
+      box-shadow: var(--shadow);
+      position:relative;
+      overflow:hidden;
+    }
+    .chapter::before{
+      content:"";
+      position:absolute; inset:-60px;
+      background:
+        radial-gradient(240px 160px at 20% 20%, rgba(0,229,255,.10), transparent 70%),
+        radial-gradient(260px 180px at 80% 60%, rgba(124,77,255,.10), transparent 70%);
+      filter: blur(10px);
+      opacity:.75;
+      pointer-events:none;
+    }
+    .chapter > *{ position:relative; }
+
+    .kpis{
+      margin-top: 12px;
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    @media (max-width: 980px){ .kpis{ grid-template-columns:1fr; } }
+    .kpi{
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.04);
+      border-radius: var(--r-md);
+      padding: 12px;
+    }
+    .kpi .label{ color: var(--muted); font-size: 12px; }
+    .kpi .value{ font-weight: 900; font-size: 20px; letter-spacing:-.02em; margin-top: 4px; }
+    .kpi .meta{ margin-top: 6px; font-family: var(--mono); font-size: 12px; color: rgba(255,255,255,.55); }
+
+    .callout{
+      margin-top: 12px;
+      border-left: 3px solid rgba(255,255,255,.60);
+      padding-left: 12px;
+      color: var(--muted);
+    }
+
+    /* Footer */
+    footer{
+      margin-top: 14px;
+      border-top: 1px solid rgba(255,255,255,.12);
+      padding-top: 14px;
+      color: var(--muted);
+      font-size: 12px;
+      display:flex; justify-content:space-between; gap: 10px; flex-wrap:wrap;
+    }
+  </style>
+</head>
+
+<body data-step="0">
+  <div class="bg" aria-hidden="true"></div>
+
+  <header class="bar">
+    <div class="bar__inner">
+      <div class="brand"><span class="mark"></span> Scrollytelling Report</div>
+      <div class="meta">
+        <span class="pill"><span class="dot"></span> step <span class="mono" id="stepLabel">0</span>/4</span>
+        <span class="pill">progress <span class="mono" id="progLabel">0%</span></span>
+        <span class="pill">mode <span class="mono" id="modeLabel">interactive</span></span>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="hero">
+      <div class="hero__pad">
+        <h1>Raport care se citește ca o poveste</h1>
+        <p class="lead">Template de tip scrollytelling: în stânga ai vizualul „sticky”, în dreapta ai capitolele. Pe măsură ce scrollezi, se schimbă vizualul și fundalul global.</p>
+
+        <div class="hero__grid">
+          <div class="card" style="background:rgba(255,255,255,.04); box-shadow:none;">
+            <div class="pad">
+              <h2>Use cases</h2>
+              <div class="muted">Rapoarte, post-mortem, lansări, pitch decks, storytelling pentru produs.</div>
+              <div class="btnrow">
+                <a class="btn primary" href="#story">Start story</a>
+                <button class="btn" id="toggleMode" type="button">Reduce motion</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="card" style="background:rgba(255,255,255,.04); box-shadow:none;">
+            <div class="pad">
+              <h2>Spec</h2>
+              <div class="muted small mono">
+                sticky viz + chapters<br/>
+                step detection via IntersectionObserver<br/>
+                global bg step-based<br/>
+                prefers-reduced-motion friendly
+              </div>
+              <div class="callout">
+                Tip: poți înlocui SVG-urile cu grafice reale (SVG/canvas), fără să schimbi structura.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="story" class="story" aria-label="Scrollytelling">
+      <!-- Sticky visualization -->
+      <aside class="sticky" aria-label="Vizualizare sticky">
+        <div class="sticky__inner">
+          <div class="viz" id="viz" data-viz="0" aria-hidden="true">
+            <!-- abstract “report” SVG that changes by step using JS (colors + path) -->
+            <svg viewBox="0 0 900 600" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="g0" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0" stop-color="rgba(124,77,255,.30)"/>
+                  <stop offset=".55" stop-color="rgba(0,229,255,.20)"/>
+                  <stop offset="1" stop-color="rgba(250,204,21,.12)"/>
+                </linearGradient>
+                <pattern id="p0" width="72" height="72" patternUnits="userSpaceOnUse">
+                  <path d="M72 0H0V72" fill="none" stroke="rgba(255,255,255,.10)" stroke-width="1"/>
+                  <path d="M0 36H72M36 0V72" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="1"/>
+                </pattern>
+              </defs>
+              <rect width="900" height="600" fill="url(#g0)"/>
+              <rect width="900" height="600" fill="url(#p0)" opacity=".75"/>
+              <path id="wave" d="M-40 440 C 120 320, 260 320, 380 270 C 520 210, 680 240, 940 160"
+                    fill="none" stroke="rgba(255,255,255,.18)" stroke-width="18" stroke-linecap="round" opacity=".65"/>
+              <path id="wave2" d="M-40 480 C 140 360, 280 360, 410 320 C 560 265, 720 290, 940 210"
+                    fill="none" stroke="rgba(0,0,0,.18)" stroke-width="12" stroke-linecap="round" opacity=".35"/>
+              <g opacity=".9">
+                <circle cx="220" cy="210" r="5" fill="rgba(255,255,255,.60)"/>
+                <circle cx="520" cy="240" r="5" fill="rgba(255,255,255,.55)"/>
+                <circle cx="760" cy="170" r="4" fill="rgba(255,255,255,.50)"/>
+              </g>
+            </svg>
+          </div>
+
+          <div class="hud" aria-label="HUD">
+            <div class="hud__top">
+              <div>chapter: <span class="mono" id="chapterName">Intro</span></div>
+              <div>signal: <span class="mono" id="signal">LOW</span></div>
+            </div>
+            <div class="hud__bar" aria-label="Progres capitole">
+              <span id="hudBar"></span>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Chapters -->
+      <div class="chapters" aria-label="Capitole">
+        <section class="chapter" data-step="0" data-title="Intro">
+          <h2>Capitol 1 — Context</h2>
+          <p class="muted">Pornești cu contextul. Cititorul trebuie să înțeleagă „de ce contează” înainte să vadă cifrele. Vizualul este calm, cu amplitudine mică.</p>
+
+          <div class="kpis" aria-label="KPI-uri context">
+            <div class="kpi">
+              <div class="label">Scope</div>
+              <div class="value">Q4</div>
+              <div class="meta">cadru temporal</div>
+            </div>
+            <div class="kpi">
+              <div class="label">Coverage</div>
+              <div class="value">EU + US</div>
+              <div class="meta">regiuni</div>
+            </div>
+            <div class="kpi">
+              <div class="label">Audience</div>
+              <div class="value">Exec</div>
+              <div class="meta">stakeholders</div>
+            </div>
+          </div>
+
+          <div class="callout">Regulă: pentru scrollytelling bun, fiecare capitol ar trebui să răspundă la o întrebare clară.</div>
+        </section>
+
+        <section class="chapter" data-step="1" data-title="Baseline">
+          <h2>Capitol 2 — Baseline</h2>
+          <p class="muted">Aici definești baseline-ul: ce era „normal”. Vizualul devine mai contrastat, iar semnalul crește ușor.</p>
+
+          <div class="kpis" aria-label="KPI-uri baseline">
+            <div class="kpi">
+              <div class="label">p95</div>
+              <div class="value">172 ms</div>
+              <div class="meta">median week</div>
+            </div>
+            <div class="kpi">
+              <div class="label">SLO</div>
+              <div class="value">99.94%</div>
+              <div class="meta">target</div>
+            </div>
+            <div class="kpi">
+              <div class="label">Errors</div>
+              <div class="value">0.12%</div>
+              <div class="meta">avg</div>
+            </div>
+          </div>
+
+          <div class="callout">Recomandare: pune doar 2–3 metrici cheie per capitol, altfel cititorul se pierde.</div>
+        </section>
+
+        <section class="chapter" data-step="2" data-title="Shift">
+          <h2>Capitol 3 — Schimbarea</h2>
+          <p class="muted">Evenimentul declanșator: o schimbare de trafic, o lansare, o dependență degradată. Vizualul începe să sugereze “derivă”.</p>
+
+          <div class="kpis" aria-label="KPI-uri shift">
+            <div class="kpi">
+              <div class="label">Traffic</div>
+              <div class="value">+38%</div>
+              <div class="meta">peak day</div>
+            </div>
+            <div class="kpi">
+              <div class="label">p99</div>
+              <div class="value">310 ms</div>
+              <div class="meta">spike</div>
+            </div>
+            <div class="kpi">
+              <div class="label">Queue</div>
+              <div class="value">1.8k</div>
+              <div class="meta">depth</div>
+            </div>
+          </div>
+
+          <div class="callout">Într-un raport real, aici pui link-uri către grafice detaliate (apendix) sau drill-down.</div>
+        </section>
+
+        <section class="chapter" data-step="3" data-title="Response">
+          <h2>Capitol 4 — Răspunsul</h2>
+          <p class="muted">Ce ai făcut: mitigări, tuning, rollback, scaling. Vizualul este mai „sharp” și contrastat, semnalul e HIGH.</p>
+
+          <div class="kpis" aria-label="KPI-uri response">
+            <div class="kpi">
+              <div class="label">Mitigation</div>
+              <div class="value">12 min</div>
+              <div class="meta">time to contain</div>
+            </div>
+            <div class="kpi">
+              <div class="label">Rollback</div>
+              <div class="value">Yes</div>
+              <div class="meta">build</div>
+            </div>
+            <div class="kpi">
+              <div class="label">Recovery</div>
+              <div class="value">99.97%</div>
+              <div class="meta">SLO restored</div>
+            </div>
+          </div>
+
+          <div class="callout">Aici arată bine un checklist de acțiuni și un timeline cu timestamps.</div>
+        </section>
+
+        <section class="chapter" data-step="4" data-title="Outcome">
+          <h2>Capitol 5 — Concluzii</h2>
+          <p class="muted">Închei cu învățăminte și acțiuni concrete. Vizualul se stabilizează, dar rămâne „energizat”.</p>
+
+          <div class="kpis" aria-label="KPI-uri outcome">
+            <div class="kpi">
+              <div class="label">Action items</div>
+              <div class="value">7</div>
+              <div class="meta">tracked</div>
+            </div>
+            <div class="kpi">
+              <div class="label">Owner</div>
+              <div class="value">EU-2</div>
+              <div class="meta">on-call</div>
+            </div>
+            <div class="kpi">
+              <div class="label">Next review</div>
+              <div class="value">14d</div>
+              <div class="meta">cadence</div>
+            </div>
+          </div>
+
+          <div class="callout">Regulă: concluzia trebuie să fie acționabilă. Fără „fluff”.</div>
+
+          <div class="btnrow">
+            <a class="btn primary" href="#" onclick="return false;">Export summary</a>
+            <a class="btn" href="#" onclick="return false;">Open appendix</a>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <footer>
+      <div>Scrollytelling template • sticky viz + chapters</div>
+      <div class="mono">IntersectionObserver • step-based background</div>
+    </footer>
+  </main>
+
+  <script>
+    (function(){
+      // Improve viewport height calc on mobile
+      function setVh(){
+        document.documentElement.style.setProperty("--vh", (window.innerHeight) + "px");
+      }
+      setVh();
+      window.addEventListener("resize", setVh);
+
+      const body = document.body;
+      const chapters = Array.from(document.querySelectorAll(".chapter"));
+      const viz = document.getElementById("viz");
+      const wave = document.getElementById("wave");
+      const wave2 = document.getElementById("wave2");
+
+      const stepLabel = document.getElementById("stepLabel");
+      const progLabel = document.getElementById("progLabel");
+      const modeLabel = document.getElementById("modeLabel");
+      const chapterName = document.getElementById("chapterName");
+      const signal = document.getElementById("signal");
+      const hudBar = document.getElementById("hudBar");
+      const toggleMode = document.getElementById("toggleMode");
+
+      // Mode: reduced motion (manual toggle) — complements prefers-reduced-motion
+      let reduced = false;
+      toggleMode.addEventListener("click", () => {
+        reduced = !reduced;
+        body.style.scrollBehavior = reduced ? "auto" : "";
+        viz.style.transition = reduced ? "none" : "";
+        document.querySelectorAll(".bg, .viz, .hud__bar > span").forEach(el => {
+          el.style.transition = reduced ? "none" : "";
+        });
+        modeLabel.textContent = reduced ? "reduced" : "interactive";
+        toggleMode.textContent = reduced ? "Enable motion" : "Reduce motion";
+      });
+
+      function setStep(step){
+        body.setAttribute("data-step", String(step));
+        viz.setAttribute("data-viz", String(step));
+        stepLabel.textContent = String(step);
+
+        // HUD info
+        const titles = ["Intro", "Baseline", "Shift", "Response", "Outcome"];
+        const sig = ["LOW", "MED", "MED+", "HIGH", "STABLE"];
+        chapterName.textContent = titles[step] || "—";
+        signal.textContent = sig[step] || "—";
+
+        // Progress bar
+        const pct = Math.round((step / 4) * 100);
+        hudBar.style.width = `${Math.max(12, pct)}%`;
+        progLabel.textContent = `${pct}%`;
+
+        // Change SVG path “language” per step (subtle but visible)
+        const waves = [
+          ["M-40 440 C 120 320, 260 320, 380 270 C 520 210, 680 240, 940 160",
+           "M-40 480 C 140 360, 280 360, 410 320 C 560 265, 720 290, 940 210"],
+          ["M-40 460 C 140 310, 280 330, 390 250 C 530 160, 650 250, 940 120",
+           "M-40 500 C 160 350, 300 360, 430 300 C 560 230, 740 310, 940 190"],
+          ["M-40 470 C 160 340, 300 300, 420 265 C 560 205, 690 290, 940 150",
+           "M-40 515 C 180 375, 320 350, 460 320 C 600 280, 760 340, 940 230"],
+          ["M-40 450 C 170 320, 310 250, 450 240 C 600 230, 720 260, 940 130",
+           "M-40 520 C 190 390, 350 340, 500 320 C 650 300, 780 320, 940 220"],
+          ["M-40 460 C 160 330, 320 310, 460 260 C 600 215, 720 245, 940 140",
+           "M-40 510 C 180 380, 350 360, 510 320 C 660 280, 790 300, 940 220"],
+        ];
+        const [w1, w2] = waves[step] || waves[0];
+        wave.setAttribute("d", w1);
+        wave2.setAttribute("d", w2);
+
+        // Slightly adjust opacity to feel “responsive”
+        viz.style.opacity = reduced ? "1" : "0.98";
+        requestAnimationFrame(() => { viz.style.opacity = "0.95"; });
+      }
+
+      // IntersectionObserver to detect active chapter
+      const opts = { root: null, threshold: [0.45, 0.55, 0.65] };
+      const seen = new Map();
+
+      const io = new IntersectionObserver((entries) => {
+        // Choose the entry with the largest intersection ratio
+        let best = null;
+        for(const e of entries){
+          if(!e.isIntersecting) continue;
+          if(!best || e.intersectionRatio > best.intersectionRatio) best = e;
+        }
+        if(best){
+          const step = parseInt(best.target.getAttribute("data-step") || "0", 10);
+          if(!seen.get(best.target) || seen.get(best.target) !== step){
+            seen.set(best.target, step);
+          }
+          setStep(step);
+        }
+      }, opts);
+
+      chapters.forEach(ch => io.observe(ch));
+
+      // Initialize
+      setStep(0);
+    })();
+  </script>
+</body>
+</html>
