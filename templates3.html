@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Command Center — Single-File Dashboard</title>
+  <style>
+    /* =========================================================
+       COMMAND CENTER (single file)
+       - Dense ops dashboard (NOC/mission-control feel)
+       - Status lights, live-like ticks, log stream, KPIs
+       - No external assets
+       - prefers-reduced-motion respected
+       ========================================================= */
+
+    :root{
+      --bg: #070a12;
+      --panel: rgba(255,255,255,.06);
+      --panel2: rgba(255,255,255,.08);
+      --line: rgba(255,255,255,.14);
+      --line2: rgba(255,255,255,.10);
+
+      --fg: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.70);
+      --dim: rgba(255,255,255,.50);
+
+      --ok: #22c55e;
+      --warn: #f59e0b;
+      --crit: #ef4444;
+      --info: #38bdf8;
+
+      --a: #7c4dff;
+      --b: #00e5ff;
+
+      --r-lg: 20px;
+      --r-md: 14px;
+      --r-sm: 10px;
+
+      --shadow: 0 18px 70px rgba(0,0,0,.55);
+
+      --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+      --sans: system-ui, -apple-system, Segoe UI, Roboto, Arial;
+
+      --grid-gap: 12px;
+      --tick: 2200ms;
+    }
+
+    *{ box-sizing:border-box; }
+    html, body{ height:100%; }
+    body{
+      margin:0;
+      font: 14px/1.45 var(--sans);
+      color: var(--fg);
+      background:
+        radial-gradient(900px 520px at 15% 10%, rgba(124,77,255,.14), transparent 60%),
+        radial-gradient(900px 520px at 85% 18%, rgba(0,229,255,.12), transparent 55%),
+        radial-gradient(1200px 680px at 50% 120%, rgba(56,189,248,.08), transparent 60%),
+        var(--bg);
+      overflow-x:hidden;
+    }
+
+    @media (prefers-reduced-motion: reduce){
+      *{ animation:none !important; transition:none !important; }
+    }
+
+    /* ---------- Appbar ---------- */
+    .appbar{
+      position:sticky; top:0; z-index:50;
+      background: rgba(7,10,18,.70);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(16px);
+    }
+    .appbar__inner{
+      max-width: 1220px;
+      margin: 0 auto;
+      padding: 12px 16px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 12px;
+    }
+    .brand{
+      display:flex; align-items:center; gap:10px;
+      font-weight: 900;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      font-size: 12px;
+    }
+    .mark{
+      width: 12px; height: 12px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--a), var(--b));
+      box-shadow: 0 0 20px rgba(0,229,255,.22);
+    }
+    .statusbar{
+      display:flex; gap:10px; flex-wrap:wrap; align-items:center;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 12px;
+    }
+    .pill{
+      display:inline-flex; align-items:center; gap:8px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--line2);
+      background: rgba(255,255,255,.04);
+    }
+    .dot{
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--info);
+      box-shadow: 0 0 14px rgba(56,189,248,.22);
+    }
+    .dot.ok{ background: var(--ok); box-shadow: 0 0 14px rgba(34,197,94,.22); }
+    .dot.warn{ background: var(--warn); box-shadow: 0 0 14px rgba(245,158,11,.20); }
+    .dot.crit{ background: var(--crit); box-shadow: 0 0 14px rgba(239,68,68,.20); }
+
+    .actions{
+      display:flex; gap:8px; flex-wrap:wrap; align-items:center;
+    }
+    .btn{
+      display:inline-flex; align-items:center; justify-content:center;
+      padding: 9px 10px;
+      border-radius: 12px;
+      border: 1px solid var(--line2);
+      background: rgba(255,255,255,.04);
+      color: var(--fg);
+      cursor:pointer;
+      font: 12px/1 var(--sans);
+      transition: transform .14s ease, background .14s ease;
+      text-decoration:none;
+    }
+    .btn:hover{ transform: translateY(-1px); background: rgba(255,255,255,.07); }
+    .btn.primary{
+      border-color: transparent;
+      background: linear-gradient(135deg, rgba(124,77,255,.85), rgba(0,229,255,.65));
+      box-shadow: 0 0 0 1px rgba(255,255,255,.10) inset, 0 18px 60px rgba(0,229,255,.10);
+    }
+
+    /* ---------- Layout ---------- */
+    .wrap{ max-width:1220px; margin:0 auto; padding: 16px 16px 70px; }
+    .grid{
+      display:grid;
+      grid-template-columns: 1.3fr 1fr 1fr;
+      gap: var(--grid-gap);
+      align-items:start;
+    }
+    .row2{
+      margin-top: var(--grid-gap);
+      display:grid;
+      grid-template-columns: 1.6fr 1fr;
+      gap: var(--grid-gap);
+      align-items:start;
+    }
+    @media (max-width: 1100px){
+      .grid{ grid-template-columns: 1fr; }
+      .row2{ grid-template-columns: 1fr; }
+    }
+
+    /* ---------- Panels ---------- */
+    .panel{
+      border: 1px solid var(--line2);
+      background: var(--panel);
+      border-radius: var(--r-lg);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      position:relative;
+    }
+    .panel__head{
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line2);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+      background: rgba(255,255,255,.03);
+    }
+    .title{
+      display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;
+    }
+    .title h2{
+      margin:0;
+      font-size: 13px;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.88);
+    }
+    .sub{
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--dim);
+    }
+    .panel__body{ padding: 14px; }
+
+    /* ---------- KPI strip ---------- */
+    .kpis{
+      display:grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+    @media (max-width: 1100px){ .kpis{ grid-template-columns: repeat(2, 1fr); } }
+    .kpi{
+      border: 1px solid var(--line2);
+      background: rgba(255,255,255,.04);
+      border-radius: var(--r-md);
+      padding: 12px;
+      position:relative;
+      overflow:hidden;
+    }
+    .kpi::before{
+      content:"";
+      position:absolute; inset:-60px;
+      background:
+        radial-gradient(200px 120px at 20% 30%, rgba(0,229,255,.16), transparent 70%),
+        radial-gradient(220px 140px at 80% 60%, rgba(124,77,255,.14), transparent 70%);
+      opacity:.8;
+      filter: blur(10px);
+      pointer-events:none;
+    }
+    .kpi > *{ position:relative; }
+    .kpi .label{ color: var(--muted); font-size: 12px; }
+    .kpi .value{ font-weight: 900; font-size: 20px; letter-spacing: -.02em; margin-top: 4px; }
+    .kpi .meta{ margin-top: 6px; font-family: var(--mono); font-size: 12px; color: var(--dim); display:flex; justify-content:space-between; gap:10px; }
+    .trend.up{ color: rgba(34,197,94,.90); }
+    .trend.down{ color: rgba(239,68,68,.92); }
+    .trend.flat{ color: rgba(245,158,11,.92); }
+
+    /* ---------- “Map” / topology ---------- */
+    .topology{
+      height: 320px;
+      border: 1px solid var(--line2);
+      border-radius: var(--r-md);
+      background: rgba(255,255,255,.03);
+      overflow:hidden;
+      position:relative;
+    }
+    .topology svg{ width:100%; height:100%; display:block; }
+    .pulse{
+      animation: pulse 1.7s ease-in-out infinite;
+      transform-origin: center;
+    }
+    @keyframes pulse{
+      0%,100%{ opacity: .45; transform: scale(1); }
+      50%{ opacity: .95; transform: scale(1.22); }
+    }
+
+    /* ---------- Charts (SVG) ---------- */
+    .spark{
+      height: 88px;
+      border: 1px solid var(--line2);
+      border-radius: var(--r-md);
+      background: rgba(255,255,255,.03);
+      overflow:hidden;
+    }
+    .spark svg{ width:100%; height:100%; display:block; }
+
+    /* ---------- Service table ---------- */
+    .table{
+      width:100%;
+      border-collapse: collapse;
+      font-family: var(--mono);
+      font-size: 12px;
+    }
+    .table th, .table td{
+      text-align:left;
+      padding: 10px 10px;
+      border-bottom: 1px solid rgba(255,255,255,.10);
+      color: rgba(255,255,255,.86);
+      vertical-align:middle;
+      white-space:nowrap;
+    }
+    .table th{
+      color: rgba(255,255,255,.62);
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      font-size: 11px;
+    }
+    .badge{
+      display:inline-flex; align-items:center; gap:8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.04);
+      font-weight: 700;
+    }
+    .badge small{ color: var(--dim); font-weight: 600; }
+    .latency{ color: rgba(255,255,255,.82); }
+    .right{ text-align:right; }
+
+    /* ---------- Log stream ---------- */
+    .log{
+      height: 360px;
+      overflow:auto;
+      border: 1px solid var(--line2);
+      border-radius: var(--r-md);
+      background: rgba(0,0,0,.18);
+      padding: 10px;
+      font-family: var(--mono);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+    .log::-webkit-scrollbar{ width: 10px; }
+    .log::-webkit-scrollbar-thumb{ background: rgba(255,255,255,.12); border-radius: 999px; }
+
+    .entry{
+      display:grid;
+      grid-template-columns: 86px 84px 1fr;
+      gap: 10px;
+      padding: 8px 8px;
+      border-bottom: 1px dashed rgba(255,255,255,.10);
+      align-items:start;
+    }
+    .entry:last-child{ border-bottom:none; }
+    .ts{ color: rgba(255,255,255,.55); }
+    .lvl{
+      display:inline-flex; align-items:center; gap:8px;
+      color: rgba(255,255,255,.80);
+    }
+    .lvl .dot{ width:7px; height:7px; }
+    .msg{ color: rgba(255,255,255,.86); }
+    .ctx{ color: rgba(255,255,255,.56); margin-top: 2px; }
+
+    /* ---------- Footer ---------- */
+    footer{
+      margin-top: var(--grid-gap);
+      border-top: 1px solid rgba(255,255,255,.12);
+      padding-top: 14px;
+      color: var(--muted);
+      font-size: 12px;
+      display:flex;
+      justify-content:space-between;
+      gap: 10px;
+      flex-wrap:wrap;
+    }
+
+    /* ---------- Micro “tick” animation ---------- */
+    .tick{
+      animation: tick var(--tick) steps(1,end) infinite;
+    }
+    @keyframes tick{ 50%{ opacity: .35; } }
+
+    /* ---------- Utility ---------- */
+    .split{
+      display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between;
+    }
+    .kv{
+      display:flex; gap:12px; flex-wrap:wrap; align-items:center;
+      font-family: var(--mono); font-size: 12px;
+      color: var(--muted);
+    }
+    .kv b{ color: rgba(255,255,255,.88); font-weight: 800; }
+  </style>
+</head>
+
+<body>
+  <header class="appbar">
+    <div class="appbar__inner">
+      <div class="brand"><span class="mark"></span> Command Center</div>
+
+      <div class="statusbar" aria-label="Status global">
+        <span class="pill"><span class="dot ok"></span> HEALTH: <b style="color:rgba(255,255,255,.88); font-weight:900;">GREEN</b></span>
+        <span class="pill"><span class="dot warn"></span> INCIDENTS: <span class="tick">02</span></span>
+        <span class="pill"><span class="dot"></span> REGION: eu-central</span>
+        <span class="pill"><span class="dot ok"></span> SLO: 99.94%</span>
+      </div>
+
+      <div class="actions">
+        <button class="btn" id="freezeBtn" type="button">Freeze</button>
+        <button class="btn" id="clearBtn" type="button">Clear Logs</button>
+        <a class="btn primary" href="#" onclick="return false;">Acknowledge</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <!-- KPI ROW -->
+    <section class="panel">
+      <div class="panel__head">
+        <div class="title">
+          <h2>System Snapshot</h2>
+          <span class="sub">last tick: <span id="lastTick">—</span></span>
+        </div>
+        <div class="kv">
+          <span>build <b id="buildId">#9f2c</b></span>
+          <span>uptime <b id="uptime">—</b></span>
+          <span>errors/min <b id="epm">—</b></span>
+        </div>
+      </div>
+      <div class="panel__body">
+        <div class="kpis" aria-label="KPI-uri">
+          <div class="kpi">
+            <div class="label">Requests / min</div>
+            <div class="value" id="rpm">—</div>
+            <div class="meta"><span>p95</span><span class="latency" id="p95">—</span></div>
+          </div>
+          <div class="kpi">
+            <div class="label">CPU (cluster)</div>
+            <div class="value" id="cpu">—</div>
+            <div class="meta"><span>steal</span><span class="trend flat" id="steal">—</span></div>
+          </div>
+          <div class="kpi">
+            <div class="label">Memory (used)</div>
+            <div class="value" id="mem">—</div>
+            <div class="meta"><span>swap</span><span class="trend down" id="swap">—</span></div>
+          </div>
+          <div class="kpi">
+            <div class="label">Queue Depth</div>
+            <div class="value" id="qdepth">—</div>
+            <div class="meta"><span>drain</span><span class="trend up" id="drain">—</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- MAIN GRID -->
+    <section class="grid">
+      <!-- Topology -->
+      <section class="panel">
+        <div class="panel__head">
+          <div class="title">
+            <h2>Topology</h2>
+            <span class="sub">edges + nodes</span>
+          </div>
+          <div class="kv">
+            <span>nodes <b id="nodes">—</b></span>
+            <span>links <b id="links">—</b></span>
+          </div>
+        </div>
+        <div class="panel__body">
+          <div class="topology" aria-label="Hartă infrastructură (simulare)">
+            <svg viewBox="0 0 900 420" preserveAspectRatio="none" role="img" aria-label="Topology map">
+              <defs>
+                <linearGradient id="lg" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0" stop-color="rgba(124,77,255,.30)"/>
+                  <stop offset=".55" stop-color="rgba(0,229,255,.20)"/>
+                  <stop offset="1" stop-color="rgba(56,189,248,.16)"/>
+                </linearGradient>
+                <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+                  <feGaussianBlur stdDeviation="6" result="b"/>
+                  <feMerge>
+                    <feMergeNode in="b"/>
+                    <feMergeNode in="SourceGraphic"/>
+                  </feMerge>
+                </filter>
+              </defs>
+
+              <rect x="0" y="0" width="900" height="420" fill="rgba(255,255,255,.02)"/>
+              <path d="M80 320 C 180 240, 280 250, 360 210 C 470 155, 560 200, 640 170 C 720 140, 790 150, 850 110"
+                    fill="none" stroke="url(#lg)" stroke-width="2" opacity=".70" class="dash"/>
+
+              <path d="M110 90 C 200 120, 290 110, 370 140 C 450 170, 520 250, 610 260 C 720 275, 790 240, 860 260"
+                    fill="none" stroke="rgba(255,255,255,.10)" stroke-width="2" opacity=".75" class="dash"/>
+
+              <!-- nodes -->
+              <g filter="url(#glow)">
+                <circle cx="90" cy="320" r="8" fill="rgba(34,197,94,.75)"/>
+                <circle cx="210" cy="250" r="8" fill="rgba(56,189,248,.75)"/>
+                <circle cx="360" cy="210" r="8" fill="rgba(56,189,248,.75)"/>
+                <circle cx="520" cy="200" r="8" fill="rgba(245,158,11,.85)" class="pulse"/>
+                <circle cx="640" cy="170" r="8" fill="rgba(56,189,248,.75)"/>
+                <circle cx="790" cy="150" r="8" fill="rgba(34,197,94,.75)"/>
+
+                <circle cx="140" cy="120" r="7" fill="rgba(56,189,248,.75)"/>
+                <circle cx="280" cy="110" r="7" fill="rgba(34,197,94,.75)"/>
+                <circle cx="410" cy="155" r="7" fill="rgba(56,189,248,.75)"/>
+                <circle cx="560" cy="240" r="7" fill="rgba(56,189,248,.75)"/>
+                <circle cx="720" cy="270" r="7" fill="rgba(245,158,11,.80)" class="pulse"/>
+                <circle cx="860" cy="260" r="7" fill="rgba(56,189,248,.75)"/>
+              </g>
+            </svg>
+          </div>
+
+          <div class="split" style="margin-top:12px;">
+            <span class="pill"><span class="dot ok"></span> core-services OK</span>
+            <span class="pill"><span class="dot warn"></span> edge latency elevated</span>
+            <span class="pill"><span class="dot"></span> tracing on</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Performance -->
+      <section class="panel">
+        <div class="panel__head">
+          <div class="title">
+            <h2>Performance</h2>
+            <span class="sub">sparks + p95/p99</span>
+          </div>
+          <div class="kv">
+            <span>p99 <b id="p99">—</b></span>
+            <span>apdex <b id="apdex">—</b></span>
+          </div>
+        </div>
+        <div class="panel__body">
+          <div class="spark" aria-label="Sparkline requests">
+            <svg viewBox="0 0 600 140" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="sg1" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0" stop-color="rgba(0,229,255,.22)"/>
+                  <stop offset="1" stop-color="rgba(0,229,255,0)"/>
+                </linearGradient>
+              </defs>
+              <rect width="600" height="140" fill="rgba(255,255,255,.02)"/>
+              <path id="sparkAfill" d="" fill="url(#sg1)"></path>
+              <path id="sparkA" d="" fill="none" stroke="rgba(0,229,255,.62)" stroke-width="2"></path>
+            </svg>
+          </div>
+
+          <div class="spark" style="margin-top:10px;" aria-label="Sparkline latency">
+            <svg viewBox="0 0 600 140" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="sg2" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0" stop-color="rgba(124,77,255,.22)"/>
+                  <stop offset="1" stop-color="rgba(124,77,255,0)"/>
+                </linearGradient>
+              </defs>
+              <rect width="600" height="140" fill="rgba(255,255,255,.02)"/>
+              <path id="sparkBfill" d="" fill="url(#sg2)"></path>
+              <path id="sparkB" d="" fill="none" stroke="rgba(124,77,255,.62)" stroke-width="2"></path>
+            </svg>
+          </div>
+
+          <div class="split" style="margin-top:12px;">
+            <span class="pill"><span class="dot ok"></span> autoscaling stable</span>
+            <span class="pill"><span class="dot"></span> sampling 10%</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Services table -->
+      <section class="panel">
+        <div class="panel__head">
+          <div class="title">
+            <h2>Services</h2>
+            <span class="sub">latency + error rate</span>
+          </div>
+          <div class="kv">
+            <span>healthy <b id="healthy">—</b></span>
+            <span>degraded <b id="degraded">—</b></span>
+          </div>
+        </div>
+        <div class="panel__body" style="padding:0;">
+          <div style="padding: 12px 14px; border-bottom:1px solid rgba(255,255,255,.10);">
+            <span class="badge"><span class="dot ok"></span> environment <small>prod</small></span>
+          </div>
+          <div style="padding: 6px 10px;">
+            <table class="table" aria-label="Tabel servicii">
+              <thead>
+                <tr>
+                  <th>Service</th>
+                  <th>Status</th>
+                  <th class="right">p95</th>
+                  <th class="right">err%</th>
+                </tr>
+              </thead>
+              <tbody id="svcBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </section>
+
+    <!-- LOG + NOTES -->
+    <section class="row2">
+      <section class="panel">
+        <div class="panel__head">
+          <div class="title">
+            <h2>Event Stream</h2>
+            <span class="sub">log tail</span>
+          </div>
+          <div class="kv">
+            <span>rate <b id="logRate">—</b></span>
+            <span>buffer <b id="logBuf">—</b></span>
+          </div>
+        </div>
+        <div class="panel__body">
+          <div class="log" id="log" role="log" aria-label="Stream evenimente (simulare)"></div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel__head">
+          <div class="title">
+            <h2>Runbook</h2>
+            <span class="sub">what to do next</span>
+          </div>
+          <div class="kv">
+            <span>oncall <b>EU-2</b></span>
+            <span>eta <b id="eta">—</b></span>
+          </div>
+        </div>
+        <div class="panel__body">
+          <div class="badge"><span class="dot warn"></span> current focus <small>edge latency</small></div>
+
+          <div style="margin-top:12px; display:grid; gap:10px;">
+            <div class="pill" style="justify-content:space-between;">
+              <span><span class="dot"></span> Check CDN POP saturation</span>
+              <span class="mono" style="color:var(--dim);">run: cdn/pop</span>
+            </div>
+            <div class="pill" style="justify-content:space-between;">
+              <span><span class="dot ok"></span> Verify DB replication lag</span>
+              <span class="mono" style="color:var(--dim);">run: db/lag</span>
+            </div>
+            <div class="pill" style="justify-content:space-between;">
+              <span><span class="dot warn"></span> Reduce sampling if needed</span>
+              <span class="mono" style="color:var(--dim);">run: trace/sampling</span>
+            </div>
+            <div class="pill" style="justify-content:space-between;">
+              <span><span class="dot crit"></span> Escalate if p99 &gt; threshold</span>
+              <span class="mono" style="color:var(--dim);">run: incident/escalate</span>
+            </div>
+          </div>
+
+          <div style="margin-top:14px; padding-top:14px; border-top:1px solid rgba(255,255,255,.10);">
+            <div class="muted" style="font-family:var(--mono); font-size:12px;">
+              Tip: activează „Freeze” ca să îngheți simularea și să citești log-urile.
+            </div>
+          </div>
+        </div>
+      </section>
+    </section>
+
+    <footer>
+      <div>Command Center template • single-file • no dependencies</div>
+      <div class="mono">prefers-reduced-motion: supported • ticks: <span id="tickMs">—</span></div>
+    </footer>
+  </main>
+
+  <script>
+    (function(){
+      const $ = (id) => document.getElementById(id);
+
+      const state = {
+        frozen: false,
+        start: Date.now(),
+        build: randomHex(4),
+        sparkA: makeSeries(32, 780, 980),
+        sparkB: makeSeries(32, 120, 220),
+        logMax: 140,
+        logRate: 6, // entries per tick
+        services: [
+          { name: "api-gateway", baseP95: 140, baseErr: 0.08, status: "OK" },
+          { name: "auth",        baseP95: 110, baseErr: 0.03, status: "OK" },
+          { name: "billing",     baseP95: 180, baseErr: 0.12, status: "OK" },
+          { name: "search",      baseP95: 210, baseErr: 0.18, status: "DEGRADED" },
+          { name: "profile",     baseP95: 130, baseErr: 0.05, status: "OK" },
+          { name: "notifications", baseP95: 160, baseErr: 0.10, status: "OK" }
+        ]
+      };
+
+      const els = {
+        lastTick: $("lastTick"),
+        buildId: $("buildId"),
+        uptime: $("uptime"),
+        epm: $("epm"),
+        rpm: $("rpm"),
+        p95: $("p95"),
+        cpu: $("cpu"),
+        steal: $("steal"),
+        mem: $("mem"),
+        swap: $("swap"),
+        qdepth: $("qdepth"),
+        drain: $("drain"),
+        nodes: $("nodes"),
+        links: $("links"),
+        p99: $("p99"),
+        apdex: $("apdex"),
+        healthy: $("healthy"),
+        degraded: $("degraded"),
+        svcBody: $("svcBody"),
+        log: $("log"),
+        logRate: $("logRate"),
+        logBuf: $("logBuf"),
+        eta: $("eta"),
+        tickMs: $("tickMs"),
+        sparkA: $("sparkA"),
+        sparkAfill: $("sparkAfill"),
+        sparkB: $("sparkB"),
+        sparkBfill: $("sparkBfill"),
+        freezeBtn: $("freezeBtn"),
+        clearBtn: $("clearBtn"),
+      };
+
+      els.buildId.textContent = "#" + state.build;
+      els.tickMs.textContent = getCSSVar("--tick").trim();
+
+      // Controls
+      els.freezeBtn.addEventListener("click", () => {
+        state.frozen = !state.frozen;
+        els.freezeBtn.textContent = state.frozen ? "Unfreeze" : "Freeze";
+        if (!state.frozen) scrollLogToBottom();
+      });
+      els.clearBtn.addEventListener("click", () => {
+        els.log.innerHTML = "";
+      });
+
+      // Initial render
+      renderServices();
+      seedLogs(22);
+      tick(); // first tick
+      const interval = setInterval(() => { if(!state.frozen) tick(); }, msFromCSS("--tick", 2200));
+
+      function tick(){
+        const now = new Date();
+        els.lastTick.textContent = now.toLocaleTimeString("ro-RO", { hour:"2-digit", minute:"2-digit", second:"2-digit" });
+
+        // uptime
+        const upMs = Date.now() - state.start;
+        els.uptime.textContent = fmtUptime(upMs);
+
+        // global metrics (simulate)
+        const rpm = jitter(8600, 520);
+        const p95 = jitter(172, 28);
+        const p99 = Math.round(p95 * jitter(1.55, 0.12));
+        const cpu = clamp(jitter(63, 10), 0, 100);
+        const steal = clamp(jitter(0.8, 0.5), 0, 6);
+        const mem = clamp(jitter(71, 8), 0, 100);
+        const swap = clamp(jitter(0.6, 0.4), 0, 5);
+        const qd = clamp(Math.round(jitter(320, 160)), 0, 2000);
+        const drain = clamp(jitter(1.2, 0.5), 0, 4.0);
+        const epm = clamp(Math.round(jitter(18, 10)), 0, 120);
+
+        els.rpm.textContent = rpm.toLocaleString("ro-RO");
+        els.p95.textContent = p95 + " ms";
+        els.p99.textContent = p99 + " ms";
+        els.cpu.textContent = cpu.toFixed(0) + "%";
+        els.steal.textContent = steal.toFixed(1) + "%";
+        els.mem.textContent = mem.toFixed(0) + "%";
+        els.swap.textContent = swap.toFixed(1) + "%";
+        els.qdepth.textContent = qd.toLocaleString("ro-RO");
+        els.drain.textContent = drain.toFixed(1) + "/s";
+        els.epm.textContent = epm.toString();
+
+        // topology counts
+        const nodes = 12 + Math.round(jitter(0, 1));
+        const links = 18 + Math.round(jitter(0, 2));
+        els.nodes.textContent = String(nodes);
+        els.links.textContent = String(links);
+
+        // apdex (derived)
+        const apdex = clamp(1 - (p95 - 120) / 220, 0.65, 0.99);
+        els.apdex.textContent = apdex.toFixed(2);
+
+        // services update
+        updateServices(p95, epm);
+
+        // sparks update
+        pushSeries(state.sparkA, rpm / 10);
+        pushSeries(state.sparkB, p95);
+        renderSpark(els.sparkA, els.sparkAfill, state.sparkA, 600, 140);
+        renderSpark(els.sparkB, els.sparkBfill, state.sparkB, 600, 140);
+
+        // logs
+        appendLogs(state.logRate);
+
+        // log meta
+        els.logRate.textContent = `${state.logRate}/tick`;
+        els.logBuf.textContent = `${Math.min(els.log.children.length, state.logMax)}/${state.logMax}`;
+
+        // ETA (fake)
+        const etaMin = clamp(Math.round(jitter(14, 7)), 3, 40);
+        els.eta.textContent = `${etaMin} min`;
+      }
+
+      function renderServices(){
+        els.svcBody.innerHTML = state.services.map(s => {
+          const dotClass = s.status === "OK" ? "ok" : (s.status === "DEGRADED" ? "warn" : "crit");
+          return `
+            <tr>
+              <td>${esc(s.name)}</td>
+              <td><span class="badge"><span class="dot ${dotClass}"></span>${esc(s.status)}</span></td>
+              <td class="right latency" data-p95="${esc(s.name)}">—</td>
+              <td class="right latency" data-err="${esc(s.name)}">—</td>
+            </tr>
+          `;
+        }).join("");
+      }
+
+      function updateServices(globalP95, epm){
+        // Slightly bias "search" and one edge service
+        let healthy = 0, degraded = 0;
+
+        state.services.forEach(s => {
+          const bias = (s.name === "search") ? 1.35 : (s.name === "billing" ? 1.10 : 1.00);
+          const p95 = Math.round(jitter(s.baseP95, 22) * bias + (globalP95 - 160) * 0.35);
+          const err = clamp(s.baseErr + (epm/2000) * bias + jitter(0, 0.03), 0, 5);
+
+          let status = "OK";
+          if (p95 > 240 || err > 0.8) status = "DEGRADED";
+          if (p95 > 320 || err > 1.8) status = "IMPACT";
+
+          s.status = status;
+          if (status === "OK") healthy++;
+          else degraded++;
+
+          const p95Cell = document.querySelector(`[data-p95="${CSS.escape(s.name)}"]`);
+          const errCell = document.querySelector(`[data-err="${CSS.escape(s.name)}"]`);
+          if (p95Cell) p95Cell.textContent = `${p95} ms`;
+          if (errCell) errCell.textContent = `${err.toFixed(2)}`;
+
+          // update badge dot by replacing class (simple)
+          const row = p95Cell?.closest("tr");
+          const dot = row?.querySelector(".dot");
+          if (dot){
+            dot.classList.remove("ok","warn","crit");
+            dot.classList.add(status === "OK" ? "ok" : (status === "DEGRADED" ? "warn" : "crit"));
+          }
+        });
+
+        els.healthy.textContent = String(healthy);
+        els.degraded.textContent = String(degraded);
+      }
+
+      function seedLogs(n){
+        for(let i=0;i<n;i++) appendLogs(1, true);
+        scrollLogToBottom();
+      }
+
+      function appendLogs(n, silent){
+        const frag = document.createDocumentFragment();
+        for(let i=0;i<n;i++){
+          const entry = makeLogEntry();
+          frag.appendChild(entry);
+        }
+        els.log.appendChild(frag);
+
+        // trim
+        while (els.log.children.length > state.logMax){
+          els.log.removeChild(els.log.firstChild);
+        }
+        if(!silent) scrollLogToBottom();
+      }
+
+      function scrollLogToBottom(){
+        els.log.scrollTop = els.log.scrollHeight;
+      }
+
+      function makeLogEntry(){
+        const now = new Date();
+        const ts = now.toLocaleTimeString("ro-RO", { hour:"2-digit", minute:"2-digit", second:"2-digit" });
+
+        // weighted levels
+        const roll = Math.random();
+        let lvl = "INFO", cls = "";
+        if (roll < 0.08){ lvl="WARN"; cls="warn"; }
+        if (roll < 0.02){ lvl="CRIT"; cls="crit"; }
+        if (roll > 0.88){ lvl="OK"; cls="ok"; }
+
+        const svc = pick(state.services).name;
+        const msg = messageFor(lvl, svc);
+
+        const div = document.createElement("div");
+        div.className = "entry";
+        div.innerHTML = `
+          <div class="ts">${ts}</div>
+          <div class="lvl"><span class="dot ${cls}"></span>${lvl}</div>
+          <div>
+            <div class="msg">${esc(msg)}</div>
+            <div class="ctx">${esc(`svc=${svc} trace=${randomHex(8)} span=${randomHex(6)} region=eu-central`)}</div>
+          </div>
+        `;
+        return div;
+      }
+
+      function messageFor(lvl, svc){
+        const m = {
+          "OK": [
+            `Recovered: ${svc} latency back within SLO`,
+            `Autoscaler: ${svc} stabilized (desired replicas reached)`,
+            `Cache: warmup completed for ${svc}`
+          ],
+          "INFO": [
+            `Deploy: rolling update in progress for ${svc}`,
+            `Trace sampling adjusted for ${svc}`,
+            `Healthcheck: ${svc} passed (200)`,
+            `Routing: shifting 5% traffic to canary for ${svc}`
+          ],
+          "WARN": [
+            `Latency elevated: ${svc} p95 above baseline`,
+            `Retry rate increased for ${svc}`,
+            `Queue depth rising for ${svc}`,
+            `Edge POP saturation detected near ${svc}`
+          ],
+          "CRIT": [
+            `Error burst: ${svc} 5xx spike detected`,
+            `Timeouts: upstream dependency degraded for ${svc}`,
+            `Circuit breaker open: ${svc} fallback engaged`
+          ]
+        };
+        return pick(m[lvl] || m["INFO"]);
+      }
+
+      // --------- Spark helpers ---------
+      function makeSeries(n, min, max){
+        const a = [];
+        for(let i=0;i<n;i++) a.push(jitter((min+max)/2, (max-min)/5));
+        return a;
+      }
+      function pushSeries(arr, v){
+        arr.push(v);
+        while(arr.length > 32) arr.shift();
+      }
+      function renderSpark(path, fillPath, series, w, h){
+        const min = Math.min(...series);
+        const max = Math.max(...series);
+        const pad = 10;
+        const scaleX = (w - pad*2) / (series.length - 1);
+        const scaleY = (h - pad*2) / (max - min || 1);
+
+        let d = "";
+        series.forEach((v, i) => {
+          const x = pad + i * scaleX;
+          const y = h - pad - (v - min) * scaleY;
+          d += (i === 0 ? `M ${x.toFixed(2)} ${y.toFixed(2)}` : ` L ${x.toFixed(2)} ${y.toFixed(2)}`);
+        });
+
+        // fill
+        const lastX = pad + (series.length - 1) * scaleX;
+        const baseY = h - pad;
+        const dFill = `${d} L ${lastX.toFixed(2)} ${baseY.toFixed(2)} L ${pad.toFixed(2)} ${baseY.toFixed(2)} Z`;
+
+        path.setAttribute("d", d);
+        fillPath.setAttribute("d", dFill);
+      }
+
+      // --------- Utilities ---------
+      function jitter(center, spread){
+        return center + (Math.random() * 2 - 1) * spread;
+      }
+      function clamp(n, a, b){ return Math.max(a, Math.min(b, n)); }
+      function pick(arr){ return arr[Math.floor(Math.random() * arr.length)]; }
+      function randomHex(len){
+        const chars = "abcdef0123456789";
+        let s = "";
+        for(let i=0;i<len;i++) s += chars[Math.floor(Math.random()*chars.length)];
+        return s;
+      }
+      function fmtUptime(ms){
+        const sec = Math.floor(ms/1000);
+        const d = Math.floor(sec / 86400);
+        const h = Math.floor((sec % 86400) / 3600);
+        const m = Math.floor((sec % 3600) / 60);
+        const s = sec % 60;
+        const parts = [];
+        if (d) parts.push(d + "d");
+        parts.push(String(h).padStart(2,"0") + "h");
+        parts.push(String(m).padStart(2,"0") + "m");
+        parts.push(String(s).padStart(2,"0") + "s");
+        return parts.join(" ");
+      }
+      function esc(str){
+        return String(str)
+          .replaceAll("&","&amp;")
+          .replaceAll("<","&lt;")
+          .replaceAll(">","&gt;")
+          .replaceAll('"',"&quot;")
+          .replaceAll("'","&#039;");
+      }
+      function msFromCSS(varName, fallback){
+        try{
+          const v = getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+          if(!v) return fallback;
+          if(v.endsWith("ms")) return parseFloat(v);
+          if(v.endsWith("s")) return parseFloat(v) * 1000;
+          return fallback;
+        }catch(_){ return fallback; }
+      }
+      function getCSSVar(varName){
+        return getComputedStyle(document.documentElement).getPropertyValue(varName) || "";
+      }
+    })();
+  </script>
+</body>
+</html>
