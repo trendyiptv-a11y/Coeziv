@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="ro" data-theme="hybrid">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Theme Builder — Tokens + Export (Single File)</title>
+  <style>
+    :root{
+      --bg:#f6f7fb;
+      --surface:#ffffff;
+      --paper:rgba(255,255,255,.78);
+      --fg:#0b1220;
+      --muted:rgba(11,18,32,.70);
+      --line:rgba(11,18,32,.12);
+
+      --accent-1:#7c4dff;
+      --accent-2:#00e5ff;
+      --accent-3:#facc15;
+
+      --r-sm:12px; --r-md:16px; --r-lg:20px;
+      --shadow-1: 0 10px 30px rgba(16,24,40,.10);
+      --shadow-2: 0 18px 60px rgba(10,18,40,.16);
+
+      --font-sans: system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      --font-serif: Georgia, "Times New Roman", serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+
+      --h1:44px; --h2:18px; --lead:18px;
+      --hero-media-opacity:.85;
+    }
+
+    *{ box-sizing:border-box; }
+    html, body{ height:100%; }
+    body{
+      margin:0;
+      font:16px/1.55 var(--font-sans);
+      color:var(--fg);
+      background:
+        radial-gradient(900px 520px at 18% 10%, color-mix(in oklab, var(--accent-1) 22%, transparent), transparent 60%),
+        radial-gradient(900px 520px at 84% 18%, color-mix(in oklab, var(--accent-2) 16%, transparent), transparent 55%),
+        radial-gradient(1100px 680px at 50% 105%, color-mix(in oklab, var(--accent-3) 10%, transparent), transparent 60%),
+        var(--bg);
+      overflow-x:hidden;
+    }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce){
+      *{ animation:none !important; transition:none !important; scroll-behavior:auto !important; }
+    }
+
+    /* Layout */
+    .appbar{
+      position:sticky; top:0; z-index:50;
+      background: var(--paper);
+      border-bottom:1px solid rgba(0,0,0,.08);
+      backdrop-filter: blur(12px);
+    }
+    .appbar__inner{
+      max-width:1120px; margin:0 auto;
+      padding:12px 16px;
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+    }
+    .brand{ display:flex; align-items:center; gap:10px; font-weight:900; letter-spacing:.06em; text-transform:uppercase; font-size:13px; }
+    .mark{
+      width:12px; height:12px; border-radius:50%;
+      background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+      box-shadow: 0 0 18px color-mix(in oklab, var(--accent-2) 22%, transparent);
+    }
+    .wrap{ max-width:1120px; margin:0 auto; padding:18px 16px 70px; }
+
+    .grid{ display:grid; grid-template-columns: 1.15fr .85fr; gap:14px; align-items:start; }
+    @media (max-width: 980px){ .grid{ grid-template-columns:1fr; } }
+
+    /* Components */
+    .card{
+      background: var(--surface);
+      border: 1px solid rgba(0,0,0,.08);
+      border-radius: var(--r-lg);
+      box-shadow: var(--shadow-1);
+      overflow:hidden;
+    }
+    .card.glass{
+      background: color-mix(in oklab, var(--surface) 40%, transparent);
+      border: 1px solid color-mix(in oklab, var(--line) 70%, white 30%);
+      box-shadow: var(--shadow-2);
+      backdrop-filter: blur(14px);
+    }
+    .pad{ padding:18px; }
+    .muted{ color: var(--muted); }
+    .mono{ font-family: var(--font-mono); }
+    h1{ margin:10px 0; font-size:var(--h1); line-height:1.05; letter-spacing:-.02em; }
+    h2{ margin:0 0 8px; font-size:var(--h2); }
+    .lead{ margin:0; font-size:var(--lead); max-width:72ch; }
+
+    .row{ display:flex; gap:10px; flex-wrap:wrap; margin-top:14px; }
+    .btn{
+      display:inline-flex; align-items:center; justify-content:center;
+      padding:10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(0,0,0,.10);
+      background: rgba(255,255,255,.92);
+      color: var(--fg);
+      text-decoration:none;
+      cursor:pointer;
+      transition: transform .15s ease, background .15s ease;
+    }
+    .btn:hover{ transform: translateY(-1px); }
+    .btn.primary{
+      border-color: transparent;
+      color:#fff;
+      background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+      box-shadow: 0 0 0 1px rgba(255,255,255,.18) inset, 0 14px 48px color-mix(in oklab, var(--accent-2) 16%, transparent);
+    }
+    .btn.ghost{
+      background: rgba(255,255,255,.65);
+    }
+
+    /* Preview hero */
+    .hero{
+      position:relative;
+      min-height: 360px;
+      border-radius: calc(var(--r-lg) + 2px);
+      overflow:hidden;
+    }
+    .hero .media{
+      position:absolute; inset:0; pointer-events:none;
+      opacity: var(--hero-media-opacity);
+    }
+    .hero .media svg{
+      width:100%; height:100%; display:block;
+      transform: scale(1.03);
+      filter: saturate(1.08) contrast(1.04);
+    }
+    .hero .overlay{
+      position:absolute; inset:0; pointer-events:none;
+      background:
+        radial-gradient(700px 280px at 20% 0%, color-mix(in oklab, var(--accent-2) 18%, transparent), transparent 60%),
+        radial-gradient(750px 320px at 90% 30%, color-mix(in oklab, var(--accent-1) 20%, transparent), transparent 60%),
+        linear-gradient(180deg, rgba(255,255,255,.16), transparent 55%);
+      opacity:.95;
+    }
+    .hero .inner{ position:relative; }
+    .pill{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:7px 10px;
+      border-radius:999px;
+      border:1px solid rgba(0,0,0,.10);
+      background: rgba(255,255,255,.70);
+      font-weight:700;
+      font-size:13px;
+      color: rgba(0,0,0,.70);
+    }
+    .dot{
+      width:8px; height:8px; border-radius:50%;
+      background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+      box-shadow: 0 0 16px color-mix(in oklab, var(--accent-1) 16%, transparent);
+    }
+
+    .kpis{ display:grid; grid-template-columns: repeat(3, 1fr); gap:12px; margin-top:14px; }
+    @media (max-width:980px){ .kpis{ grid-template-columns:1fr; } }
+    .kpi{
+      border-radius: var(--r-md);
+      border: 1px solid rgba(0,0,0,.10);
+      background: rgba(255,255,255,.86);
+      padding:12px;
+    }
+    .num{ font-weight:900; font-size:22px; letter-spacing:-.01em; }
+    .bar{ height:10px; border-radius:999px; background: rgba(0,0,0,.07); overflow:hidden; border:1px solid rgba(0,0,0,.10); }
+    .bar > span{ display:block; height:100%; width:62%; background: rgba(0,0,0,.78); }
+
+    /* Builder controls */
+    .group{ border-top: 1px solid rgba(0,0,0,.10); padding-top: 14px; margin-top: 14px; }
+    .field{ display:grid; grid-template-columns: 1fr auto; gap:10px; align-items:center; padding: 10px 0; border-bottom: 1px dashed rgba(0,0,0,.12); }
+    .field:last-child{ border-bottom:none; }
+    label{ font-weight:700; font-size:13px; }
+    .val{ font-family: var(--font-mono); color: var(--muted); font-size: 12px; justify-self:end; }
+    input[type="range"]{ width:100%; }
+    input[type="color"]{ width:46px; height:34px; padding:0; border:1px solid rgba(0,0,0,.15); border-radius: 10px; background:transparent; cursor:pointer; }
+    .two{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    @media (max-width: 980px){ .two{ grid-template-columns:1fr; } }
+
+    textarea{
+      width:100%;
+      min-height: 250px;
+      resize: vertical;
+      border-radius: 14px;
+      border: 1px solid rgba(0,0,0,.12);
+      padding: 12px;
+      font: 12px/1.5 var(--font-mono);
+      background: rgba(255,255,255,.88);
+      color: rgba(0,0,0,.88);
+    }
+
+    .note{
+      border-left: 3px solid rgba(0,0,0,.75);
+      padding-left: 12px;
+      color: var(--muted);
+      font-size: 13px;
+      margin: 10px 0 0;
+    }
+  </style>
+</head>
+
+<body>
+  <header class="appbar">
+    <div class="appbar__inner">
+      <div class="brand"><span class="mark"></span> Theme Builder</div>
+      <div class="row" style="margin:0;">
+        <button class="btn ghost" id="resetBtn" type="button">Reset</button>
+        <button class="btn" id="exportBtn" type="button">Export CSS</button>
+        <button class="btn primary" id="copyBtn" type="button">Copiază</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="grid">
+      <!-- Preview -->
+      <div class="card glass">
+        <div class="pad">
+          <div class="pill"><span class="dot"></span> Preview • tokens live</div>
+          <h1>Îți construiești tema din sliders</h1>
+          <p class="lead muted">Ajustează culori, raze, umbră și opacitatea media. Apoi exportă CSS tokens.</p>
+        </div>
+
+        <div class="hero card glass" style="margin:0 14px 14px;">
+          <div class="media" aria-hidden="true">
+            <svg viewBox="0 0 1600 720" preserveAspectRatio="xMidYMid slice">
+              <defs>
+                <linearGradient id="hg" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0" stop-color="var(--accent-1)" stop-opacity=".28"/>
+                  <stop offset=".55" stop-color="var(--accent-2)" stop-opacity=".20"/>
+                  <stop offset="1" stop-color="var(--accent-3)" stop-opacity=".14"/>
+                </linearGradient>
+                <pattern id="grid" width="80" height="80" patternUnits="userSpaceOnUse">
+                  <path d="M80 0H0V80" fill="none" stroke="rgba(255,255,255,.10)" stroke-width="1"/>
+                  <path d="M0 40H80M40 0V80" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="1"/>
+                </pattern>
+              </defs>
+              <rect width="1600" height="720" fill="url(#hg)"/>
+              <rect width="1600" height="720" fill="url(#grid)" opacity=".75"/>
+              <g opacity=".9">
+                <circle cx="420" cy="300" r="170" fill="none" stroke="rgba(255,255,255,.16)" stroke-width="2"/>
+                <circle cx="1180" cy="320" r="210" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="2"/>
+              </g>
+            </svg>
+          </div>
+          <div class="overlay" aria-hidden="true"></div>
+
+          <div class="pad inner">
+            <div class="two">
+              <div>
+                <h2>Card</h2>
+                <p class="muted" style="margin:0;">Acesta reflectă tokens: radius, shadow, colors.</p>
+                <div class="row">
+                  <a class="btn primary" href="#" onclick="return false;">Primary</a>
+                  <a class="btn" href="#" onclick="return false;">Secondary</a>
+                </div>
+              </div>
+              <div class="kpis">
+                <div class="kpi">
+                  <div class="muted" style="font-size:13px;">Venit</div>
+                  <div class="num">€ 42.300</div>
+                  <div class="muted" style="font-size:13px;">+8%</div>
+                </div>
+                <div class="kpi">
+                  <div class="muted" style="font-size:13px;">Ticket-uri</div>
+                  <div class="num">128</div>
+                  <div class="muted" style="font-size:13px;">-12%</div>
+                </div>
+                <div class="kpi">
+                  <div class="muted" style="font-size:13px;">Progres</div>
+                  <div class="num">62%</div>
+                  <div class="bar"><span></span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pad">
+          <div class="note">
+            Următorul pas după builder: salvezi export-ul într-un fișier <span class="mono">theme-*.css</span> și îl folosești în repo-ul tău.
+          </div>
+        </div>
+      </div>
+
+      <!-- Builder -->
+      <div class="card">
+        <div class="pad">
+          <h2>Controls</h2>
+          <p class="muted" style="margin:0;">Schimbările sunt live. Exportă tokens ca CSS.</p>
+
+          <div class="group">
+            <h2 style="margin:0 0 8px;">Colors</h2>
+
+            <div class="field">
+              <div>
+                <label for="bg">Background</label>
+                <div class="muted small">--bg</div>
+              </div>
+              <div style="display:flex; gap:10px; align-items:center;">
+                <input id="bg" type="color" value="#f6f7fb" />
+                <div class="val" id="bgVal">#f6f7fb</div>
+              </div>
+            </div>
+
+            <div class="field">
+              <div>
+                <label for="surface">Surface</label>
+                <div class="muted small">--surface</div>
+              </div>
+              <div style="display:flex; gap:10px; align-items:center;">
+                <input id="surface" type="color" value="#ffffff" />
+                <div class="val" id="surfaceVal">#ffffff</div>
+              </div>
+            </div>
+
+            <div class="field">
+              <div>
+                <label for="fg">Foreground</label>
+                <div class="muted small">--fg</div>
+              </div>
+              <div style="display:flex; gap:10px; align-items:center;">
+                <input id="fg" type="color" value="#0b1220" />
+                <div class="val" id="fgVal">#0b1220</div>
+              </div>
+            </div>
+
+            <div class="field">
+              <div>
+                <label for="accent1">Accent 1</label>
+                <div class="muted small">--accent-1</div>
+              </div>
+              <div style="display:flex; gap:10px; align-items:center;">
+                <input id="accent1" type="color" value="#7c4dff" />
+                <div class="val" id="accent1Val">#7c4dff</div>
+              </div>
+            </div>
+
+            <div class="field">
+              <div>
+                <label for="accent2">Accent 2</label>
+                <div class="muted small">--accent-2</div>
+              </div>
+              <div style="display:flex; gap:10px; align-items:center;">
+                <input id="accent2" type="color" value="#00e5ff" />
+                <div class="val" id="accent2Val">#00e5ff</div>
+              </div>
+            </div>
+
+            <div class="field">
+              <div>
+                <label for="accent3">Accent 3</label>
+                <div class="muted small">--accent-3</div>
+              </div>
+              <div style="display:flex; gap:10px; align-items:center;">
+                <input id="accent3" type="color" value="#facc15" />
+                <div class="val" id="accent3Val">#facc15</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="group">
+            <h2 style="margin:0 0 8px;">Radius</h2>
+
+            <div class="field">
+              <div>
+                <label for="rsm">Small</label>
+                <div class="muted small">--r-sm</div>
+              </div>
+              <div style="display:flex; gap:10px; align-items:center; width: 220px;">
+                <input id="rsm" type="range" min="0" max="28" value="12" />
+                <div class="val" id="rsmVal">12px</div>
+              </div>
+            </div>
+
+            <div class="field">
+              <div>
+                <label for="rmd">Medium</label>
+                <div class="muted small">--r-md</div>
+              </div>
+              <div style="display:flex; gap:10px; align-items:center; width: 220px;">
+                <input id="rmd" type="range" min="0" max="32" value="16" />
+                <div class="val" id="rmdVal">16px</div>
+              </div>
+            </div>
+
+            <div class="field">
+              <div>
+                <label for="rlg">Large</label>
+                <div class="muted small">--r-lg</div>
+              </div>
+              <div style="display:flex; gap:10px; align-items:center; width: 220px;">
+                <input id="rlg" type="range" min="0" max="40" value="20" />
+                <div class="val" id="rlgVal">20px</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="group">
+            <h2 style="margin:0 0 8px;">Shadow + Media</h2>
+
+            <div class="field">
+              <div>
+                <label for="shadow">Shadow intensity</label>
+                <div class="muted small">--shadow-1/2 (simplificat)</div>
+              </div>
+              <div style="display:flex; gap:10px; align-items:center; width: 220px;">
+                <input id="shadow" type="range" min="0" max="100" value="35" />
+                <div class="val" id="shadowVal">35%</div>
+              </div>
+            </div>
+
+            <div class="field">
+              <div>
+                <label for="mediaOp">Hero media opacity</label>
+                <div class="muted small">--hero-media-opacity</div>
+              </div>
+              <div style="display:flex; gap:10px; align-items:center; width: 220px;">
+                <input id="mediaOp" type="range" min="0" max="100" value="85" />
+                <div class="val" id="mediaOpVal">0.85</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="group">
+            <h2 style="margin:0 0 8px;">Export</h2>
+            <textarea id="export" readonly></textarea>
+            <div class="row">
+              <button class="btn" id="downloadBtn" type="button">Descarcă theme.css</button>
+              <button class="btn ghost" id="saveLocalBtn" type="button">Salvează în browser</button>
+            </div>
+            <p class="muted small" style="margin:10px 0 0;">
+              Export-ul este doar tokens. Componentele rămân stabile în proiectul tău.
+            </p>
+          </div>
+
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    (function(){
+      const root = document.documentElement;
+
+      const els = {
+        bg:        document.getElementById("bg"),
+        surface:   document.getElementById("surface"),
+        fg:        document.getElementById("fg"),
+        accent1:   document.getElementById("accent1"),
+        accent2:   document.getElementById("accent2"),
+        accent3:   document.getElementById("accent3"),
+        rsm:       document.getElementById("rsm"),
+        rmd:       document.getElementById("rmd"),
+        rlg:       document.getElementById("rlg"),
+        shadow:    document.getElementById("shadow"),
+        mediaOp:   document.getElementById("mediaOp"),
+        export:    document.getElementById("export"),
+      };
+
+      const valEls = {
+        bg: document.getElementById("bgVal"),
+        surface: document.getElementById("surfaceVal"),
+        fg: document.getElementById("fgVal"),
+        accent1: document.getElementById("accent1Val"),
+        accent2: document.getElementById("accent2Val"),
+        accent3: document.getElementById("accent3Val"),
+        rsm: document.getElementById("rsmVal"),
+        rmd: document.getElementById("rmdVal"),
+        rlg: document.getElementById("rlgVal"),
+        shadow: document.getElementById("shadowVal"),
+        mediaOp: document.getElementById("mediaOpVal"),
+      };
+
+      const defaults = {
+        bg:"#f6f7fb", surface:"#ffffff", fg:"#0b1220",
+        accent1:"#7c4dff", accent2:"#00e5ff", accent3:"#facc15",
+        rsm:12, rmd:16, rlg:20,
+        shadow:35, mediaOp:85
+      };
+
+      function clamp(n, a, b){ return Math.max(a, Math.min(b, n)); }
+
+      function computeShadows(intensityPct){
+        // intensity 0..100
+        const t = clamp(intensityPct, 0, 100) / 100;
+        const a1 = (0.10 * t).toFixed(3);
+        const a2 = (0.16 * t).toFixed(3);
+        return {
+          s1: `0 10px 30px rgba(16,24,40,${a1})`,
+          s2: `0 18px 60px rgba(10,18,40,${a2})`
+        };
+      }
+
+      function setVar(name, value){
+        root.style.setProperty(name, value);
+      }
+
+      function refreshExport(){
+        const bg = els.bg.value;
+        const surface = els.surface.value;
+        const fg = els.fg.value;
+        const a1 = els.accent1.value;
+        const a2 = els.accent2.value;
+        const a3 = els.accent3.value;
+
+        const rsm = parseInt(els.rsm.value, 10);
+        const rmd = parseInt(els.rmd.value, 10);
+        const rlg = parseInt(els.rlg.value, 10);
+
+        const shadow = parseInt(els.shadow.value, 10);
+        const mediaOp = parseInt(els.mediaOp.value, 10) / 100;
+
+        const sh = computeShadows(shadow);
+
+        const css = `/* theme-generated.css (tokens only) */
+:root{
+  --bg: ${bg};
+  --surface: ${surface};
+  --paper: rgba(255,255,255,.78);
+  --fg: ${fg};
+  --muted: rgba(11,18,32,.70);
+  --line: rgba(11,18,32,.12);
+
+  --accent-1: ${a1};
+  --accent-2: ${a2};
+  --accent-3: ${a3};
+
+  --r-sm: ${rsm}px;
+  --r-md: ${rmd}px;
+  --r-lg: ${rlg}px;
+
+  --shadow-1: ${sh.s1};
+  --shadow-2: ${sh.s2};
+
+  --hero-media-opacity: ${mediaOp.toFixed(2)};
+}
+`;
+        els.export.value = css;
+      }
+
+      function applyAll(){
+        setVar("--bg", els.bg.value);
+        setVar("--surface", els.surface.value);
+        setVar("--fg", els.fg.value);
+
+        setVar("--accent-1", els.accent1.value);
+        setVar("--accent-2", els.accent2.value);
+        setVar("--accent-3", els.accent3.value);
+
+        setVar("--r-sm", `${els.rsm.value}px`);
+        setVar("--r-md", `${els.rmd.value}px`);
+        setVar("--r-lg", `${els.rlg.value}px`);
+
+        const sh = computeShadows(parseInt(els.shadow.value, 10));
+        setVar("--shadow-1", sh.s1);
+        setVar("--shadow-2", sh.s2);
+
+        const op = (parseInt(els.mediaOp.value, 10) / 100).toFixed(2);
+        setVar("--hero-media-opacity", op);
+
+        // UI values
+        valEls.bg.textContent = els.bg.value;
+        valEls.surface.textContent = els.surface.value;
+        valEls.fg.textContent = els.fg.value;
+        valEls.accent1.textContent = els.accent1.value;
+        valEls.accent2.textContent = els.accent2.value;
+        valEls.accent3.textContent = els.accent3.value;
+        valEls.rsm.textContent = `${els.rsm.value}px`;
+        valEls.rmd.textContent = `${els.rmd.value}px`;
+        valEls.rlg.textContent = `${els.rlg.value}px`;
+        valEls.shadow.textContent = `${els.shadow.value}%`;
+        valEls.mediaOp.textContent = op;
+
+        refreshExport();
+      }
+
+      function reset(){
+        els.bg.value = defaults.bg;
+        els.surface.value = defaults.surface;
+        els.fg.value = defaults.fg;
+        els.accent1.value = defaults.accent1;
+        els.accent2.value = defaults.accent2;
+        els.accent3.value = defaults.accent3;
+        els.rsm.value = defaults.rsm;
+        els.rmd.value = defaults.rmd;
+        els.rlg.value = defaults.rlg;
+        els.shadow.value = defaults.shadow;
+        els.mediaOp.value = defaults.mediaOp;
+        applyAll();
+      }
+
+      // Load saved state if any
+      function loadSaved(){
+        try{
+          const raw = localStorage.getItem("theme-builder-state");
+          if(!raw) return false;
+          const s = JSON.parse(raw);
+          if(!s || typeof s !== "object") return false;
+
+          const map = [
+            ["bg","bg"], ["surface","surface"], ["fg","fg"],
+            ["accent1","accent1"], ["accent2","accent2"], ["accent3","accent3"],
+            ["rsm","rsm"], ["rmd","rmd"], ["rlg","rlg"],
+            ["shadow","shadow"], ["mediaOp","mediaOp"]
+          ];
+          map.forEach(([key, id]) => {
+            if(s[key] !== undefined && els[id]){
+              els[id].value = String(s[key]);
+            }
+          });
+          applyAll();
+          return true;
+        }catch(_){ return false; }
+      }
+
+      function saveLocal(){
+        const s = {
+          bg: els.bg.value,
+          surface: els.surface.value,
+          fg: els.fg.value,
+          accent1: els.accent1.value,
+          accent2: els.accent2.value,
+          accent3: els.accent3.value,
+          rsm: parseInt(els.rsm.value,10),
+          rmd: parseInt(els.rmd.value,10),
+          rlg: parseInt(els.rlg.value,10),
+          shadow: parseInt(els.shadow.value,10),
+          mediaOp: parseInt(els.mediaOp.value,10)
+        };
+        try{
+          localStorage.setItem("theme-builder-state", JSON.stringify(s));
+          alert("Salvat în browser.");
+        }catch(_){
+          alert("Nu am putut salva în browser (localStorage indisponibil).");
+        }
+      }
+
+      function downloadCSS(){
+        const blob = new Blob([els.export.value], { type: "text/css;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "theme-generated.css";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      }
+
+      async function copyCSS(){
+        const text = els.export.value;
+        try{
+          await navigator.clipboard.writeText(text);
+          alert("CSS copiat în clipboard.");
+        }catch(_){
+          // fallback
+          els.export.focus();
+          els.export.select();
+          document.execCommand("copy");
+          alert("CSS copiat (fallback).");
+        }
+      }
+
+      // Wire events
+      Object.values(els).forEach(el => {
+        if(!el || el === els.export) return;
+        el.addEventListener("input", applyAll);
+      });
+
+      document.getElementById("resetBtn").addEventListener("click", reset);
+      document.getElementById("exportBtn").addEventListener("click", () => {
+        refreshExport();
+        els.export.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+      document.getElementById("copyBtn").addEventListener("click", copyCSS);
+      document.getElementById("downloadBtn").addEventListener("click", downloadCSS);
+      document.getElementById("saveLocalBtn").addEventListener("click", saveLocal);
+
+      // init
+      if(!loadSaved()) applyAll();
+    })();
+  </script>
+</body>
+</html>
