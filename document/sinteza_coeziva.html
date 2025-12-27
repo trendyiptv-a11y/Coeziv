@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Sinteză Coezivă — femeie & bărbat, familie, ruptură, vindecare</title>
+  <style>
+    :root{
+      --bg:#fff8ea;
+      --panel:#fffdf8;
+      --ink:#2b1b00;
+      --muted:#6b4a1a;
+      --accent:#c98000;
+      --accent2:#a85a00;
+      --soft:#ffe8b5;
+      --line:#eadcc3;
+      --shadow: 0 10px 30px rgba(0,0,0,.08);
+      --radius:18px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, sans-serif;
+      color:var(--ink);
+      background: radial-gradient(1200px 700px at 20% -10%, #fff1c9 0%, transparent 65%),
+                  radial-gradient(1200px 700px at 90% 0%, #ffe6c0 0%, transparent 60%),
+                  var(--bg);
+      line-height:1.6;
+    }
+    a{color:var(--accent2); text-decoration:none}
+    a:hover{text-decoration:underline}
+    .wrap{max-width:980px; margin:0 auto; padding:22px 16px 70px}
+    header{
+      padding:18px 16px;
+      margin:10px 0 18px;
+      background:linear-gradient(180deg,#fff8e8, #fffdf8);
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      position:relative;
+      overflow:hidden;
+    }
+    header:before{
+      content:"";
+      position:absolute; inset:-40px -60px auto auto;
+      width:260px; height:260px; border-radius:50%;
+      background: radial-gradient(circle at 30% 30%, #ffe7b2 0%, #ffd18a 40%, transparent 70%);
+      opacity:.55;
+      transform: rotate(10deg);
+      pointer-events:none;
+    }
+    .badge{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:6px 12px;
+      border-radius:999px;
+      background: var(--soft);
+      color: var(--muted);
+      font-size:12px;
+      border:1px solid #f2d79f;
+      width:fit-content;
+    }
+    h1{
+      margin:12px 0 6px;
+      font-size: clamp(26px, 3.2vw, 38px);
+      letter-spacing:-0.02em;
+      color: var(--accent2);
+    }
+    .sub{
+      margin:0;
+      color:var(--muted);
+      font-size: 15px;
+      max-width: 70ch;
+    }
+    .grid{
+      display:grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap:14px;
+      margin-top:14px;
+    }
+    @media (max-width: 880px){
+      .grid{grid-template-columns:1fr}
+    }
+    .card{
+      background: var(--panel);
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding:14px 14px 12px;
+    }
+    .card h2{
+      margin:0 0 6px;
+      font-size: 18px;
+      color: var(--accent2);
+    }
+    .card p{margin:6px 0}
+    .pillrow{display:flex; flex-wrap:wrap; gap:8px; margin-top:10px}
+    .pill{
+      font-size: 12px;
+      padding:4px 10px;
+      border-radius: 999px;
+      border:1px solid #efd9b3;
+      background:#fff4dc;
+      color:#6a4a18;
+      white-space:nowrap;
+    }
+    .toc a{display:block; padding:6px 8px; border-radius:10px}
+    .toc a:hover{background:#fff4dc}
+    section{
+      margin:14px 0;
+      background: var(--panel);
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    section .hd{
+      padding:14px 16px 10px;
+      border-bottom:1px solid var(--line);
+      background:linear-gradient(180deg,#fff9eb, #fffdf8);
+      display:flex; align-items:flex-start; justify-content:space-between; gap:12px;
+    }
+    section h2{
+      margin:0;
+      font-size: 20px;
+      color: var(--accent2);
+      letter-spacing:-0.01em;
+    }
+    .hint{
+      color:var(--muted);
+      font-size: 13px;
+      margin-top:4px;
+      max-width: 70ch;
+    }
+    section .bd{padding:12px 16px 16px}
+    .list{
+      margin:10px 0 0 0;
+      padding:0;
+      list-style:none;
+      display:grid;
+      gap:10px;
+    }
+    .item{
+      display:flex; gap:10px; align-items:flex-start;
+      padding:10px 10px;
+      border:1px solid #f0e0c7;
+      border-radius: 14px;
+      background:#fffaf0;
+    }
+    .dot{
+      width:30px; height:30px; border-radius:10px;
+      background: #ffe8b5;
+      border:1px solid #f2d79f;
+      display:flex; align-items:center; justify-content:center;
+      flex: 0 0 auto;
+      font-size: 16px;
+    }
+    .item b{color:#3a2400}
+    .quote{
+      margin:12px 0 4px;
+      padding:12px 12px;
+      border-left:4px solid var(--accent);
+      background:#fff4dc;
+      border-radius: 12px;
+      color:#3a2400;
+      font-size: 15px;
+    }
+    .two{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:12px;
+      margin-top:10px;
+    }
+    @media (max-width: 740px){
+      .two{grid-template-columns:1fr}
+    }
+    .mini{
+      border:1px solid #f0e0c7;
+      border-radius: 14px;
+      background:#fffaf0;
+      padding:10px 12px;
+    }
+    .mini h3{
+      margin:0 0 6px;
+      font-size: 16px;
+      color:#7a4b00;
+    }
+    .mini ul{margin:0; padding-left:18px}
+    .mini li{margin:4px 0}
+    .footer{
+      margin-top:16px;
+      color:var(--muted);
+      font-size: 12.5px;
+      text-align:center;
+      padding:16px;
+      opacity:.9;
+    }
+    .kicker{
+      display:inline-flex; gap:8px; align-items:center;
+      font-size:12px; color:var(--muted);
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid #f0e0c7;
+      background:#fffaf0;
+    }
+    .hr{
+      height:1px; background:var(--line); border:0; margin:10px 0 0;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <header>
+      <div class="badge">🌿 Sinteză coezivă · în limbaj simplu · fără formule</div>
+      <h1>Femeie & bărbat, familie, ruptură și vindecare — o sinteză clară</h1>
+      <p class="sub">
+        O prezentare unitară (în continuitate cu perspectiva biblică), cu accent pe legături: ce ține viața laolaltă,
+        ce o rupe și cum se poate reface stabilitatea.
+      </p>
+
+      <div class="grid">
+        <div class="card">
+          <h2>Ideea centrală</h2>
+          <p><b>Viața se ține prin relații clare, roluri asumate și sens trăit.</b></p>
+          <p>Când aceste legături se slăbesc, apare confuzia. Când se refac, apare pacea și stabilitatea.</p>
+          <div class="pillrow">
+            <span class="pill">relație</span>
+            <span class="pill">rol asumat</span>
+            <span class="pill">siguranță</span>
+            <span class="pill">sens</span>
+            <span class="pill">responsabilitate</span>
+          </div>
+        </div>
+        <div class="card toc">
+          <h2>Cuprins</h2>
+          <a href="#fundament">1) Fundament</a>
+          <a href="#roluri">2) Femeie & bărbat</a>
+          <a href="#familie">3) Familia</a>
+          <a href="#ruptura">4) Ruptura (păcatul)</a>
+          <a href="#confuzie">5) Confuzia modernă</a>
+          <a href="#vindecare-cuplu">6) Vindecare în cuplu</a>
+          <a href="#vindecare-roluri">7) Vindecarea rolurilor</a>
+          <a href="#om-singur">8) Stabilitate când ești singur</a>
+        </div>
+      </div>
+    </header>
+
+    <section id="fundament">
+      <div class="hd">
+        <div>
+          <h2>1) Fundament</h2>
+          <div class="hint">În Biblie, omul este gândit pentru relație: cu Dumnezeu, cu sine, cu celălalt, cu lumea.</div>
+        </div>
+        <div class="kicker">🧭 nu „cine e mai sus?”, ci „ce ține viața laolaltă?”</div>
+      </div>
+      <div class="bd">
+        <div class="quote"><b>Cheie:</b> Coeziunea unei vieți nu se vede doar în reguli, ci în calitatea legăturilor.</div>
+        <ul class="list">
+          <li class="item">
+            <div class="dot">🤝</div>
+            <div><b>Relația</b> este „țesătura” care ține omul întreg.</div>
+          </li>
+          <li class="item">
+            <div class="dot">🧱</div>
+            <div><b>Rolurile</b> sunt direcții de viață (nu uniforme rigide).</div>
+          </li>
+          <li class="item">
+            <div class="dot">🌱</div>
+            <div><b>Sensul</b> dă stabilitate: fără sens, omul se fragmentează.</div>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="roluri">
+      <div class="hd">
+        <div>
+          <h2>2) Femeie & bărbat</h2>
+          <div class="hint">Nu identici, nu în competiție: diferiți, dar potriviți pentru unitate.</div>
+        </div>
+        <div class="kicker">🧩 complementaritate, nu concurență</div>
+      </div>
+      <div class="bd">
+        <div class="two">
+          <div class="mini">
+            <h3>Rolul bărbatului (simplu)</h3>
+            <ul>
+              <li><b>direcție</b> (inițiativă, orientare)</li>
+              <li><b>structură</b> (cadru, delimitare sănătoasă)</li>
+              <li><b>protecție</b> (siguranță, asumare)</li>
+            </ul>
+          </div>
+          <div class="mini">
+            <h3>Rolul femeii (simplu)</h3>
+            <ul>
+              <li><b>viață</b> (creștere, continuitate)</li>
+              <li><b>legătură</b> (conectare, apropiere)</li>
+              <li><b>sens relațional</b> (finețe, grijă)</li>
+            </ul>
+          </div>
+        </div>
+        <div class="quote">
+          <b>Imagine:</b> bărbatul oferă cadrul, femeia oferă legătura vie. Separat se fragilizează; împreună se stabilizează.
+        </div>
+      </div>
+    </section>
+
+    <section id="familie">
+      <div class="hd">
+        <div>
+          <h2>3) Familia</h2>
+          <div class="hint">Prima structură în care viața crește fără să se destrame.</div>
+        </div>
+        <div class="kicker">🏠 stabilitate prin prezență</div>
+      </div>
+      <div class="bd">
+        <ul class="list">
+          <li class="item"><div class="dot">👨</div><div><b>Tatăl</b> fixează cadrul: direcție, limite bune, siguranță.</div></li>
+          <li class="item"><div class="dot">👩</div><div><b>Mama</b> ține legătura vie: conectare, continuitate, sens.</div></li>
+          <li class="item"><div class="dot">👶</div><div><b>Copilul</b> este rezultatul viu al unității — nu proiect, nu accesoriu.</div></li>
+        </ul>
+        <div class="quote">
+          Familia nu funcționează prin perfecțiune, ci prin <b>prezență stabilă</b> și <b>responsabilitate</b>.
+        </div>
+      </div>
+    </section>
+
+    <section id="ruptura">
+      <div class="hd">
+        <div>
+          <h2>4) Ruptura (păcatul)</h2>
+          <div class="hint">Mai întâi se rupe încrederea și legătura — apoi vin faptele și consecințele.</div>
+        </div>
+        <div class="kicker">🕯️ ruptura înaintea greșelii</div>
+      </div>
+      <div class="bd">
+        <ul class="list">
+          <li class="item"><div class="dot">🙈</div><div><b>Cu Dumnezeu:</b> apare frica, ascunderea, vina.</div></li>
+          <li class="item"><div class="dot">⚖️</div><div><b>Între bărbat și femeie:</b> apare acuzația, defensiva, lupta de putere.</div></li>
+          <li class="item"><div class="dot">🧠</div><div><b>Cu sine:</b> rușine, confuzie, fragmentare interioară.</div></li>
+          <li class="item"><div class="dot">🌍</div><div><b>Cu lumea:</b> viața devine grea; munca devine povară.</div></li>
+        </ul>
+        <div class="quote">
+          <b>Clar:</b> păcatul nu e doar „încălcarea unei reguli”, ci <b>dezorganizarea legăturilor</b> care susțin viața.
+        </div>
+      </div>
+    </section>
+
+    <section id="confuzie">
+      <div class="hd">
+        <div>
+          <h2>5) Confuzia modernă</h2>
+          <div class="hint">Când reperele slăbesc, identitatea nu mai e descoperită — e inventată din presiune și teamă.</div>
+        </div>
+        <div class="kicker">🌪️ instabilitate → competiție</div>
+      </div>
+      <div class="bd">
+        <div class="two">
+          <div class="mini">
+            <h3>Ce se întâmplă cu bărbatul</h3>
+            <ul>
+              <li>ori devine rigid, ori dispare</li>
+              <li>confundă forța cu agresivitatea</li>
+              <li>pierde sensul asumării</li>
+            </ul>
+          </div>
+          <div class="mini">
+            <h3>Ce se întâmplă cu femeia</h3>
+            <ul>
+              <li>este împinsă să fie „tot”</li>
+              <li>obosește ținând totul singură</li>
+              <li>confundă controlul cu siguranța</li>
+            </ul>
+          </div>
+        </div>
+        <div class="quote">
+          Confuzia nu este libertate. Libertatea sănătoasă are <b>structură</b> și <b>sens</b>.
+        </div>
+      </div>
+    </section>
+
+    <section id="vindecare-cuplu">
+      <div class="hd">
+        <div>
+          <h2>6) Vindecare în cuplu</h2>
+          <div class="hint">Unitatea se reconstruiește prin refacerea legăturii, nu prin „cine are dreptate”.</div>
+        </div>
+        <div class="kicker">🧵 legătura înaintea problemei</div>
+      </div>
+      <div class="bd">
+        <ul class="list">
+          <li class="item"><div class="dot">🛑</div><div><b>Opriți lupta de putere:</b> „nu unul împotriva altuia, ci amândoi pentru relație”.</div></li>
+          <li class="item"><div class="dot">🧭</div><div><b>Întoarceți-vă la asumare:</b> mai puțină vină, mai mult rol trăit.</div></li>
+          <li class="item"><div class="dot">👂</div><div><b>Ascultare reală:</b> ca să vă auziți, nu ca să câștigați.</div></li>
+          <li class="item"><div class="dot">🧱</div><div><b>Siguranță zilnică:</b> consecvență, cuvânt ținut, gesturi mici și constante.</div></li>
+          <li class="item"><div class="dot">🧩</div><div><b>Acceptați diferența:</b> unitatea nu cere identitate, ci legătură.</div></li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="vindecare-roluri">
+      <div class="hd">
+        <div>
+          <h2>7) Vindecarea rolurilor fără rigiditate</h2>
+          <div class="hint">Între două extreme: rigiditate („șablon dur”) și dizolvare („nimic nu contează”).</div>
+        </div>
+        <div class="kicker">⚖️ asumare liberă</div>
+      </div>
+      <div class="bd">
+        <div class="two">
+          <div class="mini">
+            <h3>Bărbat vindecat</h3>
+            <ul>
+              <li>prezent, asumat</li>
+              <li>responsabil fără agresivitate</li>
+              <li>sprijin, nu presiune</li>
+            </ul>
+          </div>
+          <div class="mini">
+            <h3>Femeie vindecată</h3>
+            <ul>
+              <li>conectare fără control</li>
+              <li>sens și viață emoțională</li>
+              <li>sprijin fără epuizare</li>
+            </ul>
+          </div>
+        </div>
+        <div class="quote">
+          Rolurile sunt pentru <b>viață</b>, nu pentru dominare. Sunt direcții, nu uniforme.
+        </div>
+      </div>
+    </section>
+
+    <section id="om-singur">
+      <div class="hd">
+        <div>
+          <h2>8) Stabilitate când ești singur</h2>
+          <div class="hint">Singur nu înseamnă incomplet. Înseamnă un sezon în care îți întărești interiorul.</div>
+        </div>
+        <div class="kicker">🌿 întreg înainte de „împreună”</div>
+      </div>
+      <div class="bd">
+        <ul class="list">
+          <li class="item"><div class="dot">🪞</div><div><b>Relație bună cu tine:</b> fără auto-judecată și comparație constantă.</div></li>
+          <li class="item"><div class="dot">⏳</div><div><b>Ritm simplu:</b> somn, hrană, muncă — stabilitatea vine din consecvență.</div></li>
+          <li class="item"><div class="dot">🎯</div><div><b>Sens mai mare decât tine:</b> contribuție, slujire, ajutor real.</div></li>
+          <li class="item"><div class="dot">🧑‍🤝‍🧑</div><div><b>Fără izolare:</b> câțiva oameni reali sunt suficienți.</div></li>
+          <li class="item"><div class="dot">🌤️</div><div><b>Nu te defini prin lipsă:</b> viața are sezoane; unele sunt de pregătire.</div></li>
+        </ul>
+        <div class="quote">
+          Un om stabil singur este, paradoxal, cel mai pregătit pentru o relație sănătoasă.
+        </div>
+
+        <hr class="hr" />
+        <p class="footer">
+          <b>Concluzie:</b> Viața se ține prin relații clare, rol asumat și sens trăit.  
+          Când acestea se rup → confuzie. Când se refac → pace.
+        </p>
+      </div>
+    </section>
+
+    <div class="footer">
+      Realizat ca sinteză „frumoasă și completă” — pentru citire pe telefon și desktop. ☺️
+    </div>
+  </div>
+</body>
+</html>
