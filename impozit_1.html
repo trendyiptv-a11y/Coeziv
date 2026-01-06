@@ -1,0 +1,636 @@
+<!doctype html>
+<html lang="ro">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Calculator impozit clădire (PF) – 2025 vs 2026 + Anexe (power user)</title>
+  <style>
+    :root { --gap: 12px; --b: #d0d7de; --bg: #f6f8fa; }
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 0; background: #fff; color: #111; }
+    header { padding: 18px 20px; border-bottom: 1px solid var(--b); background: var(--bg); }
+    main { max-width: 1020px; margin: 0 auto; padding: 20px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--gap); }
+    @media (max-width: 920px) { .grid { grid-template-columns: 1fr; } }
+    .card { border: 1px solid var(--b); border-radius: 12px; padding: 14px; background: #fff; }
+    .card h2 { margin: 0 0 10px 0; font-size: 16px; }
+    label { display: block; font-size: 13px; margin-bottom: 6px; color: #222; }
+    input, select { width: 100%; padding: 9px 10px; border: 1px solid var(--b); border-radius: 10px; font-size: 14px; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--gap); }
+    @media (max-width: 920px) { .row { grid-template-columns: 1fr; } }
+    .hint { font-size: 12px; color: #444; margin-top: 6px; line-height: 1.35; }
+    .note { font-size: 12px; color: #333; background: #fff7d6; border: 1px solid #f1d77a; padding: 10px; border-radius: 12px; }
+    .btns { display: flex; gap: var(--gap); flex-wrap: wrap; margin-top: 10px; }
+    button { padding: 10px 12px; border: 1px solid var(--b); border-radius: 12px; background: var(--bg); cursor: pointer; font-size: 14px; }
+    button:hover { filter: brightness(0.98); }
+    button.danger { background: #fff; }
+    details { margin-top: 10px; }
+    summary { cursor: pointer; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { border: 1px solid var(--b); padding: 8px; text-align: left; vertical-align: top; }
+    th { background: var(--bg); }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+
+    .kpi { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: var(--gap); margin-top: 8px; }
+    @media (max-width: 920px) { .kpi { grid-template-columns: 1fr; } }
+    .kpi .box { border: 1px solid var(--b); border-radius: 12px; padding: 12px; background: #fff; }
+    .kpi .lbl { font-size: 12px; color: #444; }
+    .kpi .val { font-size: 18px; font-weight: 800; margin-top: 4px; }
+    .kpi .sub { font-size: 12px; color: #444; margin-top: 6px; }
+    .small { font-size: 12px; color: #444; }
+    .pill { display:inline-block; padding: 2px 8px; border: 1px solid var(--b); border-radius: 999px; font-size: 12px; background: #fff; }
+
+    .anexeHeader { display:flex; align-items:center; justify-content:space-between; gap: var(--gap); flex-wrap: wrap; }
+    .anexeList { margin-top: 10px; display: grid; gap: 10px; }
+    .anexaItem { border: 1px solid var(--b); border-radius: 12px; padding: 12px; background: #fff; }
+    .anexaTop { display:flex; align-items:center; justify-content:space-between; gap: var(--gap); }
+    .anexaTitle { font-weight: 700; }
+    .anexaActions { display:flex; gap: 8px; flex-wrap: wrap; }
+    .anexaActions button { padding: 8px 10px; font-size: 13px; }
+    .inline { display:flex; gap: 10px; align-items:center; flex-wrap: wrap; }
+    .inline .small { margin: 0; }
+    .muted { color: #666; }
+    .right { text-align:right; }
+  </style>
+</head>
+<body>
+<header>
+  <div style="max-width:1020px;margin:0 auto;">
+    <div style="font-weight:700;">Calculator impozit clădire (PF) – comparație 2025 vs 2026 + anexe (power user)</div>
+    <div style="font-size:12px;color:#333;margin-top:4px;">
+      Total = clădire principală + Σ anexe (clădiri distincte). E/F rămâne pentru subsol/demisol/mansardă din aceeași clădire.
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="note">
+    Introdu datele și calculatorul recalculează <b>instant</b> pentru 2025 și 2026. Cota (%) și bonificația (%) se introduc manual (HCL local).
+  </div>
+
+  <div class="grid" style="margin-top: 14px;">
+    <section class="card">
+      <h2>1) Clădire principală</h2>
+
+      <div class="row">
+        <div>
+          <label for="suprafata">Suprafața construită desfășurată (m²)</label>
+          <input id="suprafata" type="number" min="0" step="0.01" value="100" />
+          <div class="hint">Folosește suprafața construită desfășurată din evidențele fiscale/acte.</div>
+        </div>
+
+        <div>
+          <label for="cotaParte">Cota-parte de proprietate (ex.: 1 = 100%, 0.5 = 50%)</label>
+          <input id="cotaParte" type="number" min="0" step="0.01" value="1" />
+        </div>
+      </div>
+
+      <div class="row" style="margin-top: var(--gap);">
+        <div>
+          <label for="tip">Tip clădire (A–D)</label>
+          <select id="tip">
+            <option value="A" selected>A – beton armat / cărămidă arsă / materiale tratate termic/chimic</option>
+            <option value="B">B – lemn / piatră / cărămidă nearsă / materiale netratate</option>
+            <option value="C">C – anexă (beton/cărămidă arsă/materiale tratate)</option>
+            <option value="D">D – anexă (lemn/piatră/cărămidă nearsă/materiale netratate)</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="utilitati">Utilități (condiții cumulative)</label>
+          <select id="utilitati">
+            <option value="DA" selected>Cu apă + canalizare + electric + încălzire</option>
+            <option value="NU">Fără (lipsește cel puțin una)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row" style="margin-top: var(--gap);">
+        <div>
+          <label for="subsolRegim">Regim E/F (subsol/demisol/mansardă la aceeași adresă)</label>
+          <select id="subsolRegim">
+            <option value="NONE" selected>Nu se aplică (calcul standard)</option>
+            <option value="E">E – utilizate ca locuință (75% din suma aplicabilă clădirii)</option>
+            <option value="F">F – utilizate în alte scopuri (50% din suma aplicabilă clădirii)</option>
+          </select>
+          <div class="hint">E/F se aplică doar pentru părți ale aceleiași clădiri (nu pentru anexe separate).</div>
+        </div>
+
+        <div>
+          <label for="blocReducere">Reducere coeficient (doar apartament în bloc &gt;3 niveluri și &gt;8 apartamente)</label>
+          <select id="blocReducere">
+            <option value="NU" selected>Nu / nu știu</option>
+            <option value="DA">Da (se scade 0,10 din coeficient)</option>
+          </select>
+          <div class="hint">Pentru case, selectează „Nu”.</div>
+        </div>
+      </div>
+
+      <details>
+        <summary><b>Vezi valori impozabile pe m² (2025 și 2026)</b></summary>
+        <div style="margin-top:10px;">
+          <table>
+            <thead>
+              <tr>
+                <th rowspan="2">Tip</th>
+                <th colspan="2">2025 (lei/m²)</th>
+                <th colspan="2">2026 (lei/m²)</th>
+              </tr>
+              <tr>
+                <th>Cu utilități</th><th>Fără utilități</th>
+                <th>Cu utilități</th><th>Fără utilități</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>A</td><td class="mono">1460</td><td class="mono">876</td><td class="mono">2677</td><td class="mono">1606</td></tr>
+              <tr><td>B</td><td class="mono">438</td><td class="mono">292</td><td class="mono">803</td><td class="mono">535</td></tr>
+              <tr><td>C</td><td class="mono">292</td><td class="mono">256</td><td class="mono">535</td><td class="mono">469</td></tr>
+              <tr><td>D</td><td class="mono">183</td><td class="mono">110</td><td class="mono">335</td><td class="mono">201</td></tr>
+              <tr><td>E</td><td colspan="4">75% din suma aplicabilă clădirii (A–D)</td></tr>
+              <tr><td>F</td><td colspan="4">50% din suma aplicabilă clădirii (A–D)</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
+    </section>
+
+    <section class="card">
+      <h2>2) Date localitate (coeficient + cotă)</h2>
+
+      <div class="row">
+        <div>
+          <label for="rang">Rang localitate</label>
+          <select id="rang">
+            <option value="0">Rang 0 (București)</option>
+            <option value="I">Rang I</option>
+            <option value="II" selected>Rang II (majoritatea municipiilor)</option>
+            <option value="III">Rang III</option>
+            <option value="IV">Rang IV</option>
+            <option value="V">Rang V</option>
+          </select>
+        </div>
+        <div>
+          <label for="zona">Zona în cadrul localității</label>
+          <select id="zona">
+            <option value="A" selected>Zona A</option>
+            <option value="B">Zona B</option>
+            <option value="C">Zona C</option>
+            <option value="D">Zona D</option>
+          </select>
+          <div class="hint">Zona este cea folosită de UAT (decizia de impunere / nomenclator zonal).</div>
+        </div>
+      </div>
+
+      <div class="row" style="margin-top: var(--gap);">
+        <div>
+          <label for="cotaProc">Cota de impozit locală (%) – clădire rezidențială PF</label>
+          <input id="cotaProc" type="number" min="0" step="0.001" value="0.1" />
+          <div class="hint">Ex.: 0,1 înseamnă 0,1%.</div>
+        </div>
+        <div>
+          <label for="bonificatieProc">Bonificație la plată integrală până la 31 martie (%)</label>
+          <input id="bonificatieProc" type="number" min="0" max="50" step="0.1" value="10" />
+          <div class="hint">Se stabilește local. Dacă nu se acordă, pune 0.</div>
+        </div>
+      </div>
+
+      <details>
+        <summary><b>Vezi coeficienții (zonă + rang)</b></summary>
+        <div style="margin-top:10px;">
+          <table>
+            <thead>
+              <tr>
+                <th>Zonă</th>
+                <th>Rang 0</th><th>Rang I</th><th>Rang II</th><th>Rang III</th><th>Rang IV</th><th>Rang V</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>A</td><td class="mono">2.60</td><td class="mono">2.50</td><td class="mono">2.40</td><td class="mono">2.30</td><td class="mono">1.10</td><td class="mono">1.05</td></tr>
+              <tr><td>B</td><td class="mono">2.50</td><td class="mono">2.40</td><td class="mono">2.30</td><td class="mono">2.20</td><td class="mono">1.05</td><td class="mono">1.00</td></tr>
+              <tr><td>C</td><td class="mono">2.40</td><td class="mono">2.30</td><td class="mono">2.20</td><td class="mono">2.10</td><td class="mono">1.00</td><td class="mono">0.95</td></tr>
+              <tr><td>D</td><td class="mono">2.30</td><td class="mono">2.20</td><td class="mono">2.10</td><td class="mono">2.00</td><td class="mono">0.95</td><td class="mono">0.90</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
+
+      <div class="btns">
+        <button id="resetBtn" type="button">Reset</button>
+      </div>
+
+      <div class="hint" style="margin-top:10px;">
+        Recalcul instant la orice modificare, inclusiv anexe.
+      </div>
+    </section>
+  </div>
+
+  <section class="card" style="margin-top: var(--gap);">
+    <div class="anexeHeader">
+      <h2 style="margin:0;">3) Anexe (clădiri distincte)</h2>
+      <div class="inline">
+        <button id="addAnexaBtn" type="button">+ Adaugă anexă</button>
+        <button id="clearAnexeBtn" type="button" class="danger">Șterge toate anexele</button>
+        <span class="small muted">Anexele folosesc aceeași zonă/rang/cotă ca localitatea.</span>
+      </div>
+    </div>
+
+    <div class="hint" style="margin-top:8px;">
+      Exemple: garaj, magazie, șopron, bucătărie de vară. Dacă este subsol/demisol/mansardă din aceeași clădire, folosește E/F la clădirea principală, nu anexă.
+    </div>
+
+    <div id="anexeList" class="anexeList"></div>
+  </section>
+
+  <section class="card" style="margin-top: var(--gap);">
+    <h2>4) Rezultat (instant)</h2>
+
+    <div class="kpi">
+      <div class="box">
+        <div class="lbl">Total impozit anual <span class="pill">2025</span></div>
+        <div id="out2025" class="val">—</div>
+        <div id="out2025b" class="sub">—</div>
+      </div>
+
+      <div class="box">
+        <div class="lbl">Total impozit anual <span class="pill">2026</span></div>
+        <div id="out2026" class="val">—</div>
+        <div id="out2026b" class="sub">—</div>
+      </div>
+
+      <div class="box">
+        <div class="lbl">Diferență 2026 vs 2025</div>
+        <div id="outDelta" class="val">—</div>
+        <div id="outDeltaPct" class="sub">—</div>
+      </div>
+    </div>
+
+    <div id="err" class="small" style="margin-top:10px;"></div>
+    <div class="hint" style="margin-top:10px;">
+      Notă: rezultatele sunt estimative; nu includ majorări speciale (ex. clădire neîngrijită) sau scutiri individuale. Cota (%) și bonificația sunt locale.
+    </div>
+  </section>
+</main>
+
+<script>
+  // Valori impozabile (lei/m²) pentru 2025 și 2026.
+  const baseLeiPerMpByYear = {
+    2025: {
+      A: { DA: 1460, NU: 876 },
+      B: { DA: 438,  NU: 292 },
+      C: { DA: 292,  NU: 256 },
+      D: { DA: 183,  NU: 110 }
+    },
+    2026: {
+      A: { DA: 2677, NU: 1606 },
+      B: { DA: 803,  NU: 535  },
+      C: { DA: 535,  NU: 469  },
+      D: { DA: 335,  NU: 201  }
+    }
+  };
+
+  // Coeficienți zonă + rang.
+  const coef = {
+    A: { "0": 2.60, "I": 2.50, "II": 2.40, "III": 2.30, "IV": 1.10, "V": 1.05 },
+    B: { "0": 2.50, "I": 2.40, "II": 2.30, "III": 2.20, "IV": 1.05, "V": 1.00 },
+    C: { "0": 2.40, "I": 2.30, "II": 2.20, "III": 2.10, "IV": 1.00, "V": 0.95 },
+    D: { "0": 2.30, "I": 2.20, "II": 2.10, "III": 2.00, "IV": 0.95, "V": 0.90 }
+  };
+
+  // --- Utilities ---
+  function numFromValue(v) {
+    const n = Number(String(v).replace(",", "."));
+    return Number.isFinite(n) ? n : NaN;
+  }
+  function num(id) { return numFromValue(document.getElementById(id).value); }
+  function fmtLei(x) {
+    return new Intl.NumberFormat("ro-RO", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(x) + " lei";
+  }
+  function fmtPct(x) {
+    return new Intl.NumberFormat("ro-RO", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(x) + "%";
+  }
+  function clamp(x, min, max) { return Math.min(max, Math.max(min, x)); }
+
+  // --- Core compute for ONE "building unit" (main or anexa) ---
+  function computeBuildingForYear(year, building, shared) {
+    const baza = baseLeiPerMpByYear[year][building.tip][building.utilitati];
+
+    let coefCorectie = coef[shared.zona][shared.rang];
+    if (shared.blocReducere === "DA" && building.isMain) {
+      coefCorectie = Math.max(0, coefCorectie - 0.10);
+    }
+
+    // E/F only for main building (parts of same building).
+    let factorEF = 1.0;
+    if (building.isMain) {
+      if (shared.subsolRegim === "E") factorEF = 0.75;
+      if (shared.subsolRegim === "F") factorEF = 0.50;
+    }
+
+    const valoareImpozabila = building.suprafata * baza * coefCorectie * factorEF * shared.cotaParte;
+    const cotaFractie = shared.cotaProc / 100.0;
+    const impozitAnual = valoareImpozabila * cotaFractie;
+    const bonifFractie = shared.bonifProc / 100.0;
+    const impozitCuBonif = impozitAnual * (1 - bonifFractie);
+
+    return { impozitAnual, impozitCuBonif };
+  }
+
+  // --- State: anexe list ---
+  let anexe = [];
+  let anexaSeq = 0;
+
+  function newAnexa() {
+    anexaSeq += 1;
+    return {
+      id: "anx_" + anexaSeq,
+      name: "Anexă " + anexaSeq,
+      suprafata: 20,
+      tip: "C",
+      utilitati: "NU"
+    };
+  }
+
+  function renderAnexeList() {
+    const host = document.getElementById("anexeList");
+    host.innerHTML = "";
+
+    if (anexe.length === 0) {
+      const empty = document.createElement("div");
+      empty.className = "small muted";
+      empty.textContent = "Nu ai anexe adăugate.";
+      host.appendChild(empty);
+      return;
+    }
+
+    anexe.forEach((a, idx) => {
+      const item = document.createElement("div");
+      item.className = "anexaItem";
+      item.dataset.id = a.id;
+
+      item.innerHTML = `
+        <div class="anexaTop">
+          <div class="anexaTitle">${escapeHtml(a.name)}</div>
+          <div class="anexaActions">
+            <button type="button" data-act="up" ${idx===0 ? "disabled" : ""}>Sus</button>
+            <button type="button" data-act="down" ${idx===anexe.length-1 ? "disabled" : ""}>Jos</button>
+            <button type="button" data-act="dup">Duplică</button>
+            <button type="button" data-act="del">Șterge</button>
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:10px;">
+          <div>
+            <label>Nume (opțional)</label>
+            <input data-field="name" type="text" value="${escapeAttr(a.name)}" />
+          </div>
+          <div>
+            <label>Suprafața construită desfășurată (m²)</label>
+            <input data-field="suprafata" type="number" min="0" step="0.01" value="${escapeAttr(a.suprafata)}" />
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:10px;">
+          <div>
+            <label>Tip anexă (C/D)</label>
+            <select data-field="tip">
+              <option value="C" ${a.tip==="C" ? "selected" : ""}>C – anexă (beton/cărămidă arsă/materiale tratate)</option>
+              <option value="D" ${a.tip==="D" ? "selected" : ""}>D – anexă (lemn/piatră/cărămidă nearsă/materiale netratate)</option>
+            </select>
+          </div>
+          <div>
+            <label>Utilități</label>
+            <select data-field="utilitati">
+              <option value="DA" ${a.utilitati==="DA" ? "selected" : ""}>Cu utilități</option>
+              <option value="NU" ${a.utilitati==="NU" ? "selected" : ""}>Fără utilități</option>
+            </select>
+          </div>
+        </div>
+      `;
+
+      // Events: buttons + inputs
+      item.addEventListener("click", (ev) => {
+        const btn = ev.target.closest("button[data-act]");
+        if (!btn) return;
+        const act = btn.dataset.act;
+        handleAnexaAction(a.id, act);
+      });
+
+      item.addEventListener("input", (ev) => {
+        const fieldEl = ev.target.closest("[data-field]");
+        if (!fieldEl) return;
+        const field = fieldEl.dataset.field;
+        updateAnexaField(a.id, field, fieldEl.value);
+        render(); // instant recalc
+      });
+
+      item.addEventListener("change", (ev) => {
+        const fieldEl = ev.target.closest("[data-field]");
+        if (!fieldEl) return;
+        const field = fieldEl.dataset.field;
+        updateAnexaField(a.id, field, fieldEl.value);
+        render(); // instant recalc
+      });
+
+      host.appendChild(item);
+    });
+  }
+
+  function handleAnexaAction(id, act) {
+    const idx = anexe.findIndex(x => x.id === id);
+    if (idx === -1) return;
+
+    if (act === "del") {
+      anexe.splice(idx, 1);
+    } else if (act === "dup") {
+      const copy = structuredCloneSafe(anexe[idx]);
+      copy.id = "anx_" + (++anexaSeq);
+      copy.name = copy.name + " (copie)";
+      anexe.splice(idx + 1, 0, copy);
+    } else if (act === "up" && idx > 0) {
+      [anexe[idx - 1], anexe[idx]] = [anexe[idx], anexe[idx - 1]];
+    } else if (act === "down" && idx < anexe.length - 1) {
+      [anexe[idx + 1], anexe[idx]] = [anexe[idx], anexe[idx + 1]];
+    }
+
+    renderAnexeList();
+    render();
+  }
+
+  function updateAnexaField(id, field, value) {
+    const a = anexe.find(x => x.id === id);
+    if (!a) return;
+
+    if (field === "suprafata") a.suprafata = numFromValue(value);
+    else if (field === "tip") a.tip = value;
+    else if (field === "utilitati") a.utilitati = value;
+    else if (field === "name") a.name = value;
+  }
+
+  function structuredCloneSafe(obj) {
+    // For broad browser support
+    return JSON.parse(JSON.stringify(obj));
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+  }
+  function escapeAttr(s) {
+    // Minimal for attribute contexts
+    return escapeHtml(s);
+  }
+
+  // --- Inputs, validation, render ---
+  function readSharedInputs() {
+    return {
+      suprafata: num("suprafata"),
+      cotaParte: num("cotaParte"),
+      tip: document.getElementById("tip").value,
+      utilitati: document.getElementById("utilitati").value,
+      subsolRegim: document.getElementById("subsolRegim").value,
+      blocReducere: document.getElementById("blocReducere").value,
+      rang: document.getElementById("rang").value,
+      zona: document.getElementById("zona").value,
+      cotaProc: num("cotaProc"),
+      bonifProc: num("bonificatieProc")
+    };
+  }
+
+  function validate(shared) {
+    const errs = [];
+    if (!(shared.suprafata > 0)) errs.push("Suprafața clădirii principale trebuie să fie > 0.");
+    if (!(shared.cotaParte > 0 && shared.cotaParte <= 1.0)) errs.push("Cota-parte trebuie să fie > 0 și ≤ 1.");
+    if (!(shared.cotaProc >= 0)) errs.push("Cota (%) trebuie să fie ≥ 0.");
+    if (!(shared.bonifProc >= 0 && shared.bonifProc <= 50)) errs.push("Bonificația (%) trebuie să fie între 0 și 50.");
+
+    // Validate anexe
+    anexe.forEach((a, i) => {
+      if (!(a.suprafata > 0)) errs.push(`Anexa ${i + 1}: suprafața trebuie să fie > 0.`);
+      if (!["C","D"].includes(a.tip)) errs.push(`Anexa ${i + 1}: tip invalid.`);
+      if (!["DA","NU"].includes(a.utilitati)) errs.push(`Anexa ${i + 1}: utilități invalid.`);
+    });
+
+    return errs;
+  }
+
+  function sumTotalsForYear(year, shared) {
+    // Main building
+    const mainBuilding = {
+      isMain: true,
+      suprafata: shared.suprafata,
+      tip: shared.tip,
+      utilitati: shared.utilitati
+    };
+
+    let totalAnual = 0;
+    let totalCuBonif = 0;
+
+    const m = computeBuildingForYear(year, mainBuilding, shared);
+    totalAnual += m.impozitAnual;
+    totalCuBonif += m.impozitCuBonif;
+
+    // Anexe: separate buildings, no E/F, no blocReducere
+    anexe.forEach(a => {
+      const b = { isMain: false, suprafata: a.suprafata, tip: a.tip, utilitati: a.utilitati };
+      const r = computeBuildingForYear(year, b, shared);
+      totalAnual += r.impozitAnual;
+      totalCuBonif += r.impozitCuBonif;
+    });
+
+    return { totalAnual, totalCuBonif };
+  }
+
+  function render() {
+    const shared = readSharedInputs();
+    const errs = validate(shared);
+
+    const errEl = document.getElementById("err");
+    const out2025 = document.getElementById("out2025");
+    const out2026 = document.getElementById("out2026");
+    const out2025b = document.getElementById("out2025b");
+    const out2026b = document.getElementById("out2026b");
+    const outDelta = document.getElementById("outDelta");
+    const outDeltaPct = document.getElementById("outDeltaPct");
+
+    if (errs.length) {
+      errEl.textContent = "Erori: " + errs.join(" ");
+      out2025.textContent = "—";
+      out2026.textContent = "—";
+      out2025b.textContent = "—";
+      out2026b.textContent = "—";
+      outDelta.textContent = "—";
+      outDeltaPct.textContent = "—";
+      return;
+    }
+
+    errEl.textContent = "";
+
+    const t2025 = sumTotalsForYear(2025, shared);
+    const t2026 = sumTotalsForYear(2026, shared);
+
+    out2025.textContent = fmtLei(t2025.totalAnual);
+    out2026.textContent = fmtLei(t2026.totalAnual);
+
+    if (shared.bonifProc > 0) {
+      out2025b.textContent = `Cu bonificație (${fmtPct(shared.bonifProc)}): ${fmtLei(t2025.totalCuBonif)}`;
+      out2026b.textContent = `Cu bonificație (${fmtPct(shared.bonifProc)}): ${fmtLei(t2026.totalCuBonif)}`;
+    } else {
+      out2025b.textContent = "Fără bonificație.";
+      out2026b.textContent = "Fără bonificație.";
+    }
+
+    const delta = t2026.totalAnual - t2025.totalAnual;
+    outDelta.textContent = (delta >= 0 ? "+" : "") + fmtLei(delta);
+
+    const pct = t2025.totalAnual === 0 ? null : (delta / t2025.totalAnual) * 100;
+    outDeltaPct.textContent = (pct === null)
+      ? "—"
+      : `Variație: ${(pct >= 0 ? "+" : "") + fmtPct(pct)}`;
+  }
+
+  function resetAll() {
+    document.getElementById("suprafata").value = 100;
+    document.getElementById("cotaParte").value = 1;
+    document.getElementById("tip").value = "A";
+    document.getElementById("utilitati").value = "DA";
+    document.getElementById("subsolRegim").value = "NONE";
+    document.getElementById("blocReducere").value = "NU";
+    document.getElementById("rang").value = "II";
+    document.getElementById("zona").value = "A";
+    document.getElementById("cotaProc").value = 0.1;
+    document.getElementById("bonificatieProc").value = 10;
+
+    anexe = [];
+    anexaSeq = 0;
+    renderAnexeList();
+    render();
+  }
+
+  // --- Wiring ---
+  const ids = [
+    "suprafata","cotaParte","tip","utilitati","subsolRegim","blocReducere",
+    "rang","zona","cotaProc","bonificatieProc"
+  ];
+  ids.forEach(id => {
+    document.getElementById(id).addEventListener("input", render);
+    document.getElementById(id).addEventListener("change", render);
+  });
+
+  document.getElementById("resetBtn").addEventListener("click", resetAll);
+
+  document.getElementById("addAnexaBtn").addEventListener("click", () => {
+    anexe.push(newAnexa());
+    renderAnexeList();
+    render();
+  });
+
+  document.getElementById("clearAnexeBtn").addEventListener("click", () => {
+    anexe = [];
+    renderAnexeList();
+    render();
+  });
+
+  // Init
+  renderAnexeList();
+  render();
+</script>
+</body>
+</html>
