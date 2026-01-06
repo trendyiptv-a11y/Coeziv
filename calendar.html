@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="ro">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ANUL ZILEI – Un calendar de sens</title>
+  <meta name="description" content="ANUL ZILEI – 365 de zile, aceeași lumină, un centru neschimbat." />
+
+  <style>
+    :root{
+      /* Paletă „aur de icoană” */
+      --bg: #f6eedb;
+      --gold-light: #fff1c9;
+      --gold-mid: #e8c979;
+      --gold-deep: #b28a2e;
+
+      --card: rgba(255,255,255,0.75);
+      --text: rgba(32,24,12,0.95);
+      --muted: rgba(32,24,12,0.70);
+      --line: rgba(120,85,25,0.28);
+      --shadow: 0 18px 45px rgba(90,60,20,0.18);
+
+      --radius: 18px;
+      --max: 1040px;
+
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+
+    *{ box-sizing: border-box; }
+
+    body{
+      margin:0;
+      font-family: var(--sans);
+      color: var(--text);
+      background:
+        radial-gradient(900px 600px at 20% 10%, rgba(255,215,120,0.55), transparent 60%),
+        radial-gradient(800px 600px at 80% 20%, rgba(255,235,180,0.65), transparent 55%),
+        radial-gradient(900px 700px at 50% 90%, rgba(220,170,70,0.35), transparent 60%),
+        linear-gradient(180deg, #fff4d8 0%, #f6eedb 55%, #efe2c4 100%);
+      line-height: 1.6;
+    }
+
+    .wrap{
+      width: min(var(--max), calc(100% - 48px));
+      margin: 0 auto;
+      padding: 40px 0 64px;
+    }
+
+    header{
+      padding: 32px 28px;
+      border-radius: calc(var(--radius) + 8px);
+      background: linear-gradient(180deg, rgba(255,245,210,0.85), rgba(255,255,255,0.55));
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+    }
+
+    h1{
+      margin: 6px 0 12px;
+      font-size: clamp(30px, 4vw, 46px);
+      letter-spacing: -0.02em;
+    }
+
+    .lead{
+      font-size: clamp(16px, 2vw, 18px);
+      color: var(--muted);
+      max-width: 75ch;
+    }
+
+    .card{
+      margin-top: 22px;
+      padding: 22px 24px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    h2{
+      margin: 0 0 12px;
+      font-size: 22px;
+    }
+
+    ul{
+      margin: 10px 0 0;
+      padding-left: 20px;
+    }
+
+    li{
+      margin: 8px 0;
+      color: var(--muted);
+    }
+
+    /* Pills aurii */
+    .pillrow{
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .pill{
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(140,100,30,0.35);
+      background: linear-gradient(180deg, #fff2cc, #e6c46b);
+      color: rgba(40,28,10,0.85);
+      font-size: 14px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.6);
+    }
+
+    .formula{
+      margin-top: 18px;
+      padding: 18px 20px;
+      border-radius: 14px;
+      background: linear-gradient(180deg, #f7e6b8, #edd28a);
+      border: 1px solid rgba(140,100,30,0.35);
+      font-family: var(--mono);
+      font-size: 15px;
+    }
+
+    .muted{
+      color: var(--muted);
+      margin-top: 8px;
+      font-family: var(--sans);
+    }
+
+    .phases{
+      margin-top: 28px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 18px;
+    }
+
+    .phase{
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 18px 18px 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .phase h3{
+      margin: 0 0 6px;
+      font-size: 18px;
+    }
+
+    .range{
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .question{
+      margin-top: 12px;
+      padding: 10px 12px;
+      border-left: 4px solid var(--gold-deep);
+      background: rgba(255,245,210,0.6);
+      border-radius: 10px;
+      font-size: 14px;
+    }
+
+    .daily{
+      margin-top: 32px;
+    }
+
+    textarea{
+      width: 100%;
+      min-height: 120px;
+      padding: 14px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.8);
+      font-family: var(--sans);
+      font-size: 14px;
+      color: var(--text);
+    }
+
+    .footer{
+      margin-top: 14px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    @media print{
+      body{ background:#fff; }
+      .wrap{ width:100%; padding:0; }
+      .card, header, .phase{ box-shadow:none; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+
+    <header>
+      <h1>ANUL ZILEI</h1>
+      <p class="lead">
+        Un calendar de sens.  
+        Nu despre „când”, ci despre „cum” stai în ziua de azi.
+      </p>
+    </header>
+
+    <section class="card">
+      <h2>Pe înțelesul tuturor</h2>
+      <ul>
+        <li><strong>Ziua</strong> este unitatea reală.</li>
+        <li><strong>Lumina</strong> este măsura care nu minte.</li>
+        <li><strong>Centrul</strong> nu se mută.</li>
+        <li>Tot ce se verifică este <strong>orientarea</strong>.</li>
+      </ul>
+
+      <div class="pillrow">
+        <div class="pill">Unitate: ziua</div>
+        <div class="pill">Măsură: lumina</div>
+        <div class="pill">Centru: Hristos</div>
+        <div class="pill">Scop: orientare</div>
+      </div>
+
+      <div class="formula">
+        365 de zile × aceeași lumină × un om care se apropie
+        <div class="muted">Nu e despre „când”, ci despre „cum”.</div>
+      </div>
+    </section>
+
+    <section class="phases">
+      <div class="phase">
+        <h3>I. Nașterea</h3>
+        <div class="range">Zilele 1–90</div>
+        <p>Primirea luminii, început fără grabă.</p>
+        <div class="question">Am primit ziua sau am intrat în ea cu zgomot?</div>
+      </div>
+
+      <div class="phase">
+        <h3>II. Lucrarea</h3>
+        <div class="range">Zilele 91–180</div>
+        <p>Fidelitate în repetiție, nu doar eficiență.</p>
+        <div class="question">Am fost orientat sau doar ocupat?</div>
+      </div>
+
+      <div class="phase">
+        <h3>III. Jertfa</h3>
+        <div class="range">Zilele 181–270</div>
+        <p>Renunțare asumată pentru a păstra centrul.</p>
+        <div class="question">Ce am refuzat azi ca să rămân întreg?</div>
+      </div>
+
+      <div class="phase">
+        <h3>IV. Odihna</h3>
+        <div class="range">Zilele 271–365</div>
+        <p>Pace care nu depinde de rezultate.</p>
+        <div class="question">Pot lăsa ziua să se închidă fără explicații?</div>
+      </div>
+    </section>
+
+    <section class="card daily">
+      <h2>Pagina de azi</h2>
+      <textarea placeholder="Câteva rânduri sunt suficiente. Important e adevărul lor."></textarea>
+      <div class="footer">
+        Reper constant: centrul nu se mută; orientarea se verifică zilnic.
+      </div>
+    </section>
+
+  </div>
+</body>
+</html>
