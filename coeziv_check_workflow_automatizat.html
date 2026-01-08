@@ -1,0 +1,602 @@
+<!doctype html>
+<html lang="ro">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Coeziv Check — Workflow Automatizat (Template Operațional)</title>
+  <meta name="description" content="Template operațional pentru Coeziv Check în workflow-uri automatizate cu AI: declanșatoare, frecvență, scor J, stări 2π, acțiuni și integrare." />
+  <style>
+    :root{
+      --bg:#0b0d12;
+      --panel:#121622;
+      --panel2:#0f1320;
+      --text:#e9ecf3;
+      --muted:#b7bfd3;
+      --line:#232a3d;
+      --accent:#8bd3ff;
+      --accent2:#b1ffa6;
+      --warn:#ffd47a;
+      --crit:#ff7a9a;
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --radius: 18px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family:var(--sans); background: radial-gradient(1200px 800px at 20% 0%, #182043 0%, var(--bg) 55%), var(--bg);
+      color:var(--text); line-height:1.55;
+    }
+    a{color:var(--accent); text-decoration:none}
+    a:hover{text-decoration:underline}
+    header{
+      padding:44px 20px 18px; max-width:1100px; margin:0 auto;
+    }
+    .kicker{color:var(--muted); letter-spacing:.08em; text-transform:uppercase; font-size:.78rem}
+    h1{margin:10px 0 8px; font-size:2.1rem; line-height:1.15}
+    .subtitle{color:var(--muted); max-width:75ch}
+    .grid{display:grid; gap:14px; grid-template-columns: 1fr; max-width:1100px; margin:0 auto; padding: 14px 20px 52px}
+    @media(min-width: 980px){
+      .grid{grid-template-columns: 320px 1fr}
+      nav{position:sticky; top:16px; height:fit-content}
+    }
+    nav{
+      background: linear-gradient(180deg, rgba(18,22,34,.95), rgba(15,19,32,.92));
+      border:1px solid var(--line); border-radius: var(--radius);
+      padding:16px; box-shadow: var(--shadow);
+    }
+    nav h3{margin:0 0 10px; font-size:1rem; color:var(--text)}
+    nav ul{list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:8px}
+    nav li a{display:block; padding:10px 10px; border-radius:12px; background:rgba(255,255,255,.02); border:1px solid rgba(255,255,255,.04)}
+    nav li a:hover{background:rgba(139,211,255,.08); border-color:rgba(139,211,255,.2)}
+    .card{
+      background: linear-gradient(180deg, rgba(18,22,34,.92), rgba(15,19,32,.88));
+      border:1px solid var(--line); border-radius: var(--radius);
+      padding:18px; box-shadow: var(--shadow);
+    }
+    .card h2{margin:0 0 10px; font-size:1.35rem}
+    .card h3{margin:18px 0 8px; font-size:1.05rem; color:var(--text)}
+    .muted{color:var(--muted)}
+    .pillrow{display:flex; flex-wrap:wrap; gap:8px; margin:10px 0 2px}
+    .pill{
+      font-size:.82rem; padding:7px 10px; border-radius:999px;
+      border:1px solid rgba(255,255,255,.10); background:rgba(255,255,255,.03); color:var(--muted)
+    }
+    .pill.good{border-color:rgba(177,255,166,.35); color:#d7ffda; background:rgba(177,255,166,.08)}
+    .pill.warn{border-color:rgba(255,212,122,.35); color:#ffe7b8; background:rgba(255,212,122,.07)}
+    .pill.crit{border-color:rgba(255,122,154,.4); color:#ffd0dc; background:rgba(255,122,154,.07)}
+    .cols{display:grid; gap:12px; grid-template-columns: 1fr}
+    @media(min-width: 860px){ .cols{grid-template-columns: 1fr 1fr} }
+    .code{
+      font-family:var(--mono); font-size:.9rem; background: rgba(0,0,0,.28);
+      border:1px solid rgba(255,255,255,.08); border-radius: 14px; padding:12px 12px;
+      overflow:auto;
+    }
+    .tbl{width:100%; border-collapse:separate; border-spacing:0; overflow:hidden; border-radius:14px; border:1px solid rgba(255,255,255,.08)}
+    .tbl th, .tbl td{padding:10px 10px; border-bottom:1px solid rgba(255,255,255,.08); vertical-align:top}
+    .tbl th{background: rgba(255,255,255,.04); text-align:left; font-size:.92rem}
+    .tbl tr:last-child td{border-bottom:none}
+    .tag{font-family:var(--mono); font-size:.82rem; color:var(--accent); background:rgba(139,211,255,.08); border:1px solid rgba(139,211,255,.2); padding:2px 8px; border-radius:999px; display:inline-block}
+    .note{
+      border-left:3px solid rgba(139,211,255,.45);
+      background: rgba(139,211,255,.06);
+      padding:12px 12px; border-radius: 14px; color: var(--muted)
+    }
+    .callout{
+      border-left:3px solid rgba(177,255,166,.55);
+      background: rgba(177,255,166,.06);
+      padding:12px 12px; border-radius: 14px;
+    }
+    .warnbox{
+      border-left:3px solid rgba(255,212,122,.55);
+      background: rgba(255,212,122,.06);
+      padding:12px 12px; border-radius: 14px;
+    }
+    .critbox{
+      border-left:3px solid rgba(255,122,154,.55);
+      background: rgba(255,122,154,.06);
+      padding:12px 12px; border-radius: 14px;
+    }
+    footer{
+      max-width:1100px; margin:0 auto; padding: 0 20px 40px; color: var(--muted);
+      font-size:.9rem
+    }
+    .svgwrap{background:rgba(0,0,0,.22); border:1px solid rgba(255,255,255,.08); border-radius: 16px; padding:12px}
+    .btnrow{display:flex; gap:10px; flex-wrap:wrap; margin-top:10px}
+    button{
+      cursor:pointer; border:1px solid rgba(255,255,255,.12); background:rgba(255,255,255,.04); color:var(--text);
+      padding:10px 12px; border-radius:14px; font-size:.92rem
+    }
+    button:hover{border-color:rgba(139,211,255,.25); background:rgba(139,211,255,.08)}
+    input, select{
+      width:100%; padding:10px 10px; border-radius:14px;
+      border:1px solid rgba(255,255,255,.14); background:rgba(0,0,0,.22); color:var(--text)
+    }
+    label{font-size:.9rem; color:var(--muted)}
+    .formgrid{display:grid; gap:10px; grid-template-columns:1fr}
+    @media(min-width: 860px){ .formgrid{grid-template-columns: 1fr 1fr 1fr} }
+    .result{
+      margin-top:12px; padding:12px; border-radius: 14px;
+      border:1px solid rgba(255,255,255,.10); background: rgba(0,0,0,.22)
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="kicker">Template operațional • workflow automatizat • Coeziv</div>
+    <h1>Coeziv Check — Workflow Automatizat</h1>
+    <p class="subtitle">
+      Un playbook standalone pentru integrarea graduală a <strong>Coeziv Check</strong> în sisteme AI (chat, agenți, pipeline-uri),
+      incluzând <span class="tag">declanșatoare</span>, <span class="tag">frecvență</span>, <span class="tag">scor J</span>, <span class="tag">stări 2π</span> și <span class="tag">acțiuni</span>.
+      Nu este un mecanism intern al modelului; este un strat de <strong>guvernanță conversațională</strong>.
+    </p>
+    <div class="pillrow">
+      <span class="pill good">Scurt + aplicabil</span>
+      <span class="pill warn">Fără conversii numerice</span>
+      <span class="pill">Compatibil cu chat / agent / tool-use</span>
+      <span class="pill">Versiune: 1.0</span>
+    </div>
+  </header>
+
+  <div class="grid">
+    <nav>
+      <h3>Cuprins</h3>
+      <ul>
+        <li><a href="#model">1. Ce este Coeziv Check</a></li>
+        <li><a href="#triggers">2. Declanșatoare (când rulezi check-ul)</a></li>
+        <li><a href="#cadence">3. Cadenta (cât de des)</a></li>
+        <li><a href="#jscore">4. Scorul J (semi-formal)</a></li>
+        <li><a href="#states">5. Stări 2π (mașină de stări)</a></li>
+        <li><a href="#actions">6. Acțiuni recomandate (policy)</a></li>
+        <li><a href="#integration">7. Integrare în produse și workflow-uri</a></li>
+        <li><a href="#template">8. Template de output (format fix)</a></li>
+        <li><a href="#example">9. Exemplu complet</a></li>
+        <li><a href="#appendix">Anexă: pseudo-config & rubrică</a></li>
+      </ul>
+    </nav>
+
+    <main class="stack" style="display:flex; flex-direction:column; gap:14px">
+
+      <section id="model" class="card">
+        <h2>1) Ce este Coeziv Check</h2>
+        <p class="muted">
+          Coeziv Check este o verificare scurtă, standardizată, care evaluează <em>starea de coeziune</em> a unui dialog sau proces AI
+          sub flux (cerințe, context, constrângeri), înainte ca tensiunea să depășească praguri de degradare.
+        </p>
+        <div class="cols">
+          <div class="callout">
+            <strong>Rol:</strong> guvernanță și reglaj, nu rezolvare de conținut.<br/>
+            <strong>Output:</strong> regim, surse de tensiune (J), fază 2π, risc, recomandare.
+          </div>
+          <div class="note">
+            <strong>Principiu:</strong> „Nu verificăm coeziunea ca să ne oprim, ci ca să continuăm corect.”<br/>
+            <strong>Anti-abuz:</strong> check-ul trebuie să fie scurt și decizional; nu se folosește ca refuz mascat.
+          </div>
+        </div>
+      </section>
+
+      <section id="triggers" class="card">
+        <h2>2) Declanșatoare</h2>
+        <p class="muted">Rulează Coeziv Check când apare unul dintre următoarele semnale (manual sau automat):</p>
+
+        <table class="tbl">
+          <thead>
+            <tr>
+              <th>Tip semnal</th>
+              <th>Indicator practic</th>
+              <th>Motivație coezivă</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Creștere de complexitate</strong></td>
+              <td>se adaugă obiective, constrângeri, livrabile sau domenii</td>
+              <td>J crește; risc de conflict între cerințe</td>
+            </tr>
+            <tr>
+              <td><strong>Ambiguitate persistentă</strong></td>
+              <td>întrebări neclare, termeni instabili, cerințe schimbătoare</td>
+              <td>derivă semantică; risc de incoerență locală</td>
+            </tr>
+            <tr>
+              <td><strong>Semne de degradare</strong></td>
+              <td>răspunsuri prea abstracte, repetitive, prudente, inconsistente</td>
+              <td>intrare în prag adaptativ / apropiere de prag critic</td>
+            </tr>
+            <tr>
+              <td><strong>Decizie „finală”</strong></td>
+              <td>„generează finalul”, „automatizează”, „scalează”, „trimite”</td>
+              <td>evită consolidarea erorilor; cere stabilizare</td>
+            </tr>
+            <tr>
+              <td><strong>Tool-use / agent loop</strong></td>
+              <td>agentul execută pași multipli sau folosește unelte</td>
+              <td>previne drift de scop și escaladare necontrolată</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="warnbox" style="margin-top:12px">
+          <strong>Regulă simplă:</strong> dacă ai introdus o constrângere nouă sau ai schimbat scopul, rulează check-ul înainte să continui.
+        </div>
+      </section>
+
+      <section id="cadence" class="card">
+        <h2>3) Cadenta (cât de des)</h2>
+        <p class="muted">În workflow automatizat, check-ul trebuie să fie <strong>rar, dar predictibil</strong>. Recomandări:</p>
+
+        <div class="cols">
+          <div>
+            <h3>Chat (utilizator uman)</h3>
+            <ul class="muted">
+              <li>implicit: la semnale de degradare sau schimbare de scop</li>
+              <li>semi-explicit: la fiecare <strong>3–6</strong> mesaje în sarcini complexe</li>
+              <li>explicit: înainte de „final output”</li>
+            </ul>
+          </div>
+          <div>
+            <h3>Agenți / pipeline</h3>
+            <ul class="muted">
+              <li>la fiecare <strong>N pași</strong> (ex. N=4) sau după fiecare tool-call critic</li>
+              <li>când scorul J depășește pragul adaptativ</li>
+              <li>când apare schimbare de plan / sub-task</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="note">
+          <strong>Recomandare:</strong> tratează check-ul ca o „barieră de stabilizare” între etape, nu ca o întrerupere conversațională.
+        </div>
+      </section>
+
+      <section id="jscore" class="card">
+        <h2>4) Scorul J (semi-formal)</h2>
+        <p class="muted">
+          J reprezintă <strong>tensiunea structurală</strong> din proces/dialog. Mai jos este o rubrică pragmatică pentru estimarea lui
+          fără a pretinde măsurători interne ale modelului.
+        </p>
+
+        <table class="tbl">
+          <thead>
+            <tr>
+              <th>Componentă (0–3)</th>
+              <th>Ce măsoară</th>
+              <th>Exemple</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Conflict de constrângeri</strong></td>
+              <td>cerințe care se bat cap în cap</td>
+              <td>„fii creativ” + „fără presupuneri”; „scurt” + „exhaustiv”</td>
+            </tr>
+            <tr>
+              <td><strong>Ambiguitate</strong></td>
+              <td>lipsă de definiții, scope instabil</td>
+              <td>termeni fără criterii; schimbări repetate de obiectiv</td>
+            </tr>
+            <tr>
+              <td><strong>Încărcare (flux)</strong></td>
+              <td>volum, complexitate, timp, tool-use</td>
+              <td>multe livrabile, dependențe, constrângeri, deadline</td>
+            </tr>
+            <tr>
+              <td><strong>Semnale de degradare</strong></td>
+              <td>indicatori observabili de scădere a coerenței</td>
+              <td>repetiții, abstracție defensivă, incoerență locală</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="cols" style="margin-top:12px">
+          <div class="card" style="padding:14px; background:rgba(0,0,0,.20)">
+            <h3 style="margin-top:0">Interpretare rapidă</h3>
+            <p class="muted" style="margin:0">
+              <strong>J = sumă(0–12)</strong><br/>
+              <span class="pill good">0–3: stabil</span>
+              <span class="pill warn">4–7: adaptativ</span>
+              <span class="pill warn">8–9: tensionat</span>
+              <span class="pill crit">10–12: critic</span>
+            </p>
+          </div>
+
+          <div class="card" style="padding:14px; background:rgba(0,0,0,.20)">
+            <h3 style="margin-top:0">Mini-calculator (opțional)</h3>
+            <div class="formgrid">
+              <div>
+                <label>Conflict (0–3)</label>
+                <input id="c" type="number" min="0" max="3" value="1"/>
+              </div>
+              <div>
+                <label>Ambiguitate (0–3)</label>
+                <input id="a" type="number" min="0" max="3" value="1"/>
+              </div>
+              <div>
+                <label>Încărcare (0–3)</label>
+                <input id="l" type="number" min="0" max="3" value="1"/>
+              </div>
+              <div>
+                <label>Degradare (0–3)</label>
+                <input id="d" type="number" min="0" max="3" value="0"/>
+              </div>
+              <div>
+                <label>Context</label>
+                <select id="ctx">
+                  <option value="chat">Chat</option>
+                  <option value="agent">Agent / Tool-use</option>
+                  <option value="pipeline">Pipeline</option>
+                </select>
+              </div>
+              <div class="btnrow" style="align-items:end">
+                <button id="calc">Calculează</button>
+                <button id="reset">Reset</button>
+              </div>
+            </div>
+            <div id="out" class="result muted">Completează și apasă „Calculează”.</div>
+          </div>
+        </div>
+      </section>
+
+      <section id="states" class="card">
+        <h2>5) Stări 2π (mașină de stări)</h2>
+        <p class="muted">
+          2π este un ciclu complet descriptiv. În automatizare, îl tratăm ca o <strong>mașină de stări</strong> cu tranziții
+          guvernate de J și de evenimente (tool-call, schimbare de scop, finalizare).
+        </p>
+
+        <div class="svgwrap" aria-label="Diagramă 2π">
+          <svg viewBox="0 0 920 220" width="100%" height="220" role="img">
+            <defs>
+              <linearGradient id="g" x1="0" x2="1">
+                <stop offset="0" stop-color="#8bd3ff" stop-opacity="0.35"/>
+                <stop offset="1" stop-color="#b1ffa6" stop-opacity="0.28"/>
+              </linearGradient>
+              <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#8bd3ff" opacity="0.8"/>
+              </marker>
+            </defs>
+
+            <rect x="10" y="10" width="900" height="200" rx="18" fill="url(#g)" stroke="rgba(255,255,255,.12)"/>
+            <g font-family="ui-sans-serif, system-ui" fill="#e9ecf3">
+              <g transform="translate(55,70)">
+                <rect x="0" y="0" width="190" height="90" rx="16" fill="rgba(0,0,0,.22)" stroke="rgba(255,255,255,.14)"/>
+                <text x="16" y="34" font-size="18">S1: Structură</text>
+                <text x="16" y="60" font-size="12" fill="#b7bfd3">baseline / scop / reguli</text>
+              </g>
+              <g transform="translate(270,70)">
+                <rect x="0" y="0" width="190" height="90" rx="16" fill="rgba(0,0,0,.22)" stroke="rgba(255,255,255,.14)"/>
+                <text x="16" y="34" font-size="18">S2: Flux</text>
+                <text x="16" y="60" font-size="12" fill="#b7bfd3">prompt, cerințe, tool-use</text>
+              </g>
+              <g transform="translate(485,70)">
+                <rect x="0" y="0" width="190" height="90" rx="16" fill="rgba(0,0,0,.22)" stroke="rgba(255,255,255,.14)"/>
+                <text x="16" y="34" font-size="18">S3: Reorganizare</text>
+                <text x="16" y="60" font-size="12" fill="#b7bfd3">clarificare / re-plan</text>
+              </g>
+              <g transform="translate(700,70)">
+                <rect x="0" y="0" width="190" height="90" rx="16" fill="rgba(0,0,0,.22)" stroke="rgba(255,255,255,.14)"/>
+                <text x="16" y="34" font-size="18">S4: Stabilizare</text>
+                <text x="16" y="60" font-size="12" fill="#b7bfd3">output final / închidere</text>
+              </g>
+            </g>
+
+            <path d="M 245 115 L 270 115" stroke="#8bd3ff" stroke-width="3" marker-end="url(#arrow)"/>
+            <path d="M 460 115 L 485 115" stroke="#8bd3ff" stroke-width="3" marker-end="url(#arrow)"/>
+            <path d="M 675 115 L 700 115" stroke="#8bd3ff" stroke-width="3" marker-end="url(#arrow)"/>
+          </svg>
+        </div>
+
+        <div class="note" style="margin-top:12px">
+          <strong>Regulă de tranziție:</strong> când J crește, se trece spre <em>Reorganizare</em> înainte de <em>Stabilizare</em>.
+          Dacă J intră în regim critic, se activează „containment”: limitare de scope, cereri de clarificare, oprire controlată.
+        </div>
+      </section>
+
+      <section id="actions" class="card">
+        <h2>6) Acțiuni recomandate (policy)</h2>
+        <p class="muted">Acțiunile sunt decizionale. Se aleg una (maximum două) pe check, în funcție de regim și risc.</p>
+
+        <table class="tbl">
+          <thead>
+            <tr>
+              <th>Regim</th>
+              <th>Semnătură</th>
+              <th>Acțiune recomandată</th>
+              <th>Ce eviți</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="pill good">Stabil</span></td>
+              <td>J 0–3, cerințe aliniate</td>
+              <td>continuă; păstrează formatul; finalizează când e gata</td>
+              <td>micro-management inutil</td>
+            </tr>
+            <tr>
+              <td><span class="pill warn">Adaptativ</span></td>
+              <td>J 4–7, creștere sănătoasă</td>
+              <td>clarifică prioritatea; delimitează scope; menține ciclu 2π complet</td>
+              <td>adăugare de noi cerințe fără stabilizare</td>
+            </tr>
+            <tr>
+              <td><span class="pill warn">Tensionat</span></td>
+              <td>J 8–9, semne de degradare</td>
+              <td>reorganizare: re-plan, rezumare, reducere constrângeri, pași mici</td>
+              <td>„final output” fără consolidare</td>
+            </tr>
+            <tr>
+              <td><span class="pill crit">Critic</span></td>
+              <td>J 10–12, conflict + degradare</td>
+              <td>containment: oprește escaladarea, cere clarificări minime, oferă opțiuni, refuz parțial controlat</td>
+              <td>halucinație sub presiune, incoerență, execuții riscante</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="integration" class="card">
+        <h2>7) Integrare în produse și workflow-uri</h2>
+        <p class="muted">Mai jos sunt trei moduri practice de integrare, de la minim la avansat.</p>
+
+        <div class="cols">
+          <div class="card" style="padding:14px; background:rgba(0,0,0,.20)">
+            <h3 style="margin-top:0">A) Chat UX (semi-explicit)</h3>
+            <p class="muted">
+              UI/agentul afișează un micro-dialog: „Vrei un check de coeziune?” când detectează schimbare de scop sau degradare.
+            </p>
+            <div class="code">Trigger: scope_change OR degradation_signals
+Action: prompt_user_for_coeziv_check()</div>
+          </div>
+
+          <div class="card" style="padding:14px; background:rgba(0,0,0,.20)">
+            <h3 style="margin-top:0">B) Agent loop (barieră între pași)</h3>
+            <p class="muted">
+              Înainte de tool-call-uri critice și la fiecare N pași, agentul rulează check și poate reduce planul.
+            </p>
+            <div class="code">Every N steps:
+  j = estimate_J()
+  if j >= adaptive_threshold: run_check()
+Before critical_tool_call:
+  run_check()</div>
+          </div>
+        </div>
+
+        <div class="card" style="padding:14px; background:rgba(0,0,0,.20); margin-top:12px">
+          <h3 style="margin-top:0">C) Pipeline evaluare (offline/monitoring)</h3>
+          <p class="muted">
+            Pentru conversații lungi sau sisteme la scară, rulezi periodic un check automatizat și loghezi regimul, J și acțiunile.
+          </p>
+          <div class="code">for conversation in dataset:
+  for window in sliding_windows(conversation):
+    j = estimate_J(window)
+    state = infer_2pi_state(window)
+    log({conversation_id, window_id, j, state, recommended_action})</div>
+        </div>
+
+        <div class="warnbox" style="margin-top:12px">
+          <strong>Cheia:</strong> nu „forța” check-ul la fiecare mesaj. Rulează-l la evenimente și praguri, altfel devine zgomot.
+        </div>
+      </section>
+
+      <section id="template" class="card">
+        <h2>8) Template de output (format fix)</h2>
+        <p class="muted">Acesta este formatul pe care agentul/AI îl returnează la un Coeziv Check. Este scurt, decizional și repetabil.</p>
+        <div class="code">
+COEZIV CHECK
+A) Regim curent: [stabil | adaptativ | tensionat | critic]
+B) J (0–12): [x] — surse: [1–3 iteme]
+C) Semnale observabile: [max 3]
+D) Fază 2π: [Structură | Flux | Reorganizare | Stabilizare]
+E) Risc imediat: [scăzut | mediu | ridicat] — [ce riscăm]
+F) Recomandare coezivă (una): [continuăm | clarificăm | limităm | reorganizăm | oprim]
+        </div>
+
+        <div class="note" style="margin-top:12px">
+          <strong>Standard:</strong> recomandarea trebuie să fie o singură acțiune principală. Dacă sunt două, a doua trebuie să fie subordonată primei.
+        </div>
+      </section>
+
+      <section id="example" class="card">
+        <h2>9) Exemplu complet (agent / tool-use)</h2>
+        <p class="muted">Context: agentul are 8 pași, folosește unelte și trebuie să livreze un raport final. După pasul 4 apare degradare.</p>
+
+        <div class="cols">
+          <div class="card" style="padding:14px; background:rgba(0,0,0,.20)">
+            <h3 style="margin-top:0">Eveniment</h3>
+            <ul class="muted">
+              <li>Se adaugă cerință nouă (format PDF + rezumat + verificare)</li>
+              <li>Răspunsul devine mai abstract și repetitiv</li>
+              <li>Urmează un tool-call critic (export final)</li>
+            </ul>
+          </div>
+          <div class="card" style="padding:14px; background:rgba(0,0,0,.20)">
+            <h3 style="margin-top:0">Coeziv Check (output)</h3>
+            <div class="code">COEZIV CHECK
+A) Regim curent: tensionat
+B) J (0–12): 9 — surse: cerințe conflictuale, încărcare mare, semne de degradare
+C) Semnale observabile: abstracție defensivă, repetitivitate, scădere specificitate
+D) Fază 2π: Reorganizare
+E) Risc imediat: ridicat — consolidăm erori în output final
+F) Recomandare coezivă (una): reorganizăm (rezumăm cerințele + prioritizăm + împărțim în pași)</div>
+          </div>
+        </div>
+
+        <div class="callout" style="margin-top:12px">
+          <strong>Rezultat:</strong> agentul rezumă cerințele, cere 1 clarificare, reduce scope, apoi revine la Stabilizare și produce livrabilul final.
+        </div>
+      </section>
+
+      <section id="appendix" class="card">
+        <h2>Anexă: pseudo-config & rubrică de implementare</h2>
+        <p class="muted">Un exemplu de configurație (pseudo) pentru un sistem care declanșează check-uri automat.</p>
+
+        <div class="code">coeziv_check_config:
+  cadence:
+    chat_every_messages: 5
+    agent_every_steps: 4
+  thresholds:
+    adaptive: 4
+    tension: 8
+    critical: 10
+  triggers:
+    - scope_change
+    - degradation_signals
+    - before_final_output
+    - before_critical_tool_call
+  actions:
+    stable: continue
+    adaptive: clarify_or_limit
+    tension: reorganize
+    critical: contain_and_reduce</div>
+
+        <div class="critbox" style="margin-top:12px">
+          <strong>Notă de siguranță:</strong> În regim critic, orice execuție riscantă trebuie blocată până la stabilizare (acțiuni ireversibile, tranzacții, modificări în producție).
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <footer>
+    <p>
+      Document standalone pentru colecția coezivă. Folosește-l ca playbook, rubrică sau policy layer, fără a pretinde că descrie mecanismul intern al modelului.
+    </p>
+  </footer>
+
+  <script>
+    function clamp(n, min, max){ return Math.max(min, Math.min(max, n)); }
+    function classify(j){
+      if(j <= 3) return {regim:"stabil", risc:"scăzut", action:"continuăm"};
+      if(j <= 7) return {regim:"adaptativ", risc:"mediu", action:"clarificăm / limităm"};
+      if(j <= 9) return {regim:"tensionat", risc:"ridicat", action:"reorganizăm"};
+      return {regim:"critic", risc:"ridicat", action:"containment / oprim"};
+    }
+    const out = document.getElementById("out");
+    document.getElementById("calc").addEventListener("click", () => {
+      const c = clamp(parseInt(document.getElementById("c").value||0,10),0,3);
+      const a = clamp(parseInt(document.getElementById("a").value||0,10),0,3);
+      const l = clamp(parseInt(document.getElementById("l").value||0,10),0,3);
+      const d = clamp(parseInt(document.getElementById("d").value||0,10),0,3);
+      const ctx = document.getElementById("ctx").value;
+      const j = c + a + l + d;
+      const cls = classify(j);
+      const hint = (ctx==="agent"||ctx==="pipeline")
+        ? "În agent/pipeline: adaugă barieră înainte de tool-call critic și re-plan în regim tensionat/critic."
+        : "În chat: cere o clarificare sau delimitează scopul înainte de output final.";
+      out.innerHTML = `
+        <div><strong>J</strong> = ${j} (Conflict ${c} + Ambiguitate ${a} + Încărcare ${l} + Degradare ${d})</div>
+        <div style="margin-top:6px"><strong>Regim:</strong> ${cls.regim} • <strong>Risc:</strong> ${cls.risc} • <strong>Acțiune:</strong> ${cls.action}</div>
+        <div class="muted" style="margin-top:6px">${hint}</div>
+      `;
+    });
+    document.getElementById("reset").addEventListener("click", () => {
+      document.getElementById("c").value = 1;
+      document.getElementById("a").value = 1;
+      document.getElementById("l").value = 1;
+      document.getElementById("d").value = 0;
+      document.getElementById("ctx").value = "chat";
+      out.textContent = "Completează și apasă „Calculează”.";
+    });
+  </script>
+</body>
+</html>
