@@ -1,0 +1,441 @@
+<!doctype html>
+<html lang="ro">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Axiomele Coeziunii — Forma normativă a Modelului Coeziv</title>
+  <meta name="description" content="Axiomele Coeziunii: forma normativă a Modelului Coeziv (π / 2π) pentru evaluarea sistemelor sub flux." />
+  <style>
+    :root{
+      --bg: #0b0f17;
+      --card: #101826;
+      --text: #e8eefc;
+      --muted: rgba(232,238,252,.72);
+      --soft: rgba(232,238,252,.12);
+      --accent: #7aa2ff;
+      --accent2: #9bffcf;
+      --danger: #ff6b6b;
+      --shadow: 0 12px 30px rgba(0,0,0,.45);
+      --radius: 18px;
+      --max: 1040px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font: 16px/1.55 ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      color:var(--text);
+      background:
+        radial-gradient(1200px 700px at 15% 10%, rgba(122,162,255,.18), transparent 55%),
+        radial-gradient(900px 600px at 80% 30%, rgba(155,255,207,.10), transparent 55%),
+        radial-gradient(700px 500px at 50% 90%, rgba(122,162,255,.10), transparent 60%),
+        var(--bg);
+    }
+    a{color:var(--accent); text-decoration:none}
+    a:hover{text-decoration:underline}
+    .wrap{max-width:var(--max); margin:0 auto; padding:28px 20px 64px}
+    header{
+      position:relative;
+      padding:28px 22px;
+      border:1px solid var(--soft);
+      background: linear-gradient(180deg, rgba(16,24,38,.92), rgba(16,24,38,.72));
+      border-radius: calc(var(--radius) + 6px);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    header:before{
+      content:"";
+      position:absolute; inset:-2px;
+      background: radial-gradient(600px 260px at 25% 0%, rgba(122,162,255,.22), transparent 60%),
+                  radial-gradient(520px 240px at 85% 40%, rgba(155,255,207,.14), transparent 60%);
+      pointer-events:none;
+      opacity:.95;
+    }
+    header > *{position:relative; z-index:1}
+    .kicker{
+      display:inline-flex;
+      gap:10px;
+      align-items:center;
+      padding:6px 10px;
+      border-radius: 999px;
+      border:1px solid var(--soft);
+      background: rgba(0,0,0,.18);
+      color:var(--muted);
+      font-size: 13px;
+      letter-spacing:.25px;
+    }
+    h1{
+      margin:14px 0 6px;
+      font-size: clamp(28px, 4vw, 44px);
+      line-height:1.14;
+      letter-spacing:-.6px;
+    }
+    .subtitle{
+      margin:0;
+      color:var(--muted);
+      font-size: clamp(15px, 2.2vw, 18px);
+      max-width: 76ch;
+    }
+    .meta{
+      display:flex; flex-wrap:wrap; gap:10px 14px;
+      margin-top:16px;
+      color:var(--muted);
+      font-size:13px;
+    }
+    .pill{
+      border:1px solid var(--soft);
+      background: rgba(0,0,0,.18);
+      padding:6px 10px;
+      border-radius:999px;
+    }
+
+    .grid{
+      display:grid;
+      gap:16px;
+      margin-top:18px;
+    }
+    @media(min-width: 900px){
+      .grid{grid-template-columns: 1.1fr .9fr}
+    }
+    .card{
+      border:1px solid var(--soft);
+      background: rgba(16,24,38,.72);
+      border-radius: var(--radius);
+      padding:18px 18px;
+      box-shadow: 0 10px 22px rgba(0,0,0,.25);
+    }
+    h2{
+      margin:0 0 10px;
+      font-size: 18px;
+      letter-spacing:-.2px;
+    }
+    p{margin:0 0 12px}
+    p:last-child{margin-bottom:0}
+    ul{margin:0; padding-left: 18px; color:var(--muted)}
+    li{margin:6px 0}
+    .toc a{display:block; padding:8px 10px; border-radius:12px}
+    .toc a:hover{background: rgba(122,162,255,.10); text-decoration:none}
+    .toc small{color:var(--muted)}
+    .section{margin-top:18px}
+    .section-title{
+      display:flex; align-items:baseline; justify-content:space-between; gap:12px;
+      margin:22px 0 12px;
+    }
+    .section-title h2{margin:0; font-size: 20px}
+    .section-title span{color:var(--muted); font-size:13px}
+    .axioms{
+      display:grid; gap:12px;
+    }
+    @media(min-width: 900px){
+      .axioms{grid-template-columns: 1fr 1fr}
+    }
+    .axiom{
+      border:1px solid var(--soft);
+      background: linear-gradient(180deg, rgba(16,24,38,.78), rgba(16,24,38,.60));
+      border-radius: var(--radius);
+      padding:16px;
+    }
+    .axiom h3{
+      margin:0 0 8px;
+      font-size: 16px;
+      letter-spacing:-.2px;
+      display:flex; gap:10px; align-items:center; flex-wrap:wrap;
+    }
+    .tag{
+      font-size:12px;
+      padding:4px 8px;
+      border-radius:999px;
+      border:1px solid var(--soft);
+      background: rgba(0,0,0,.16);
+      color:var(--muted);
+    }
+    blockquote{
+      margin:10px 0 0;
+      padding:12px 12px;
+      border-left: 3px solid rgba(122,162,255,.65);
+      background: rgba(122,162,255,.08);
+      border-radius: 12px;
+      color: var(--text);
+    }
+    .note{
+      border:1px solid var(--soft);
+      background: rgba(0,0,0,.14);
+      padding:12px 14px;
+      border-radius: var(--radius);
+      color: var(--muted);
+    }
+    .statement{
+      border:1px solid rgba(155,255,207,.22);
+      background: linear-gradient(180deg, rgba(155,255,207,.10), rgba(16,24,38,.62));
+      padding:16px 16px;
+      border-radius: calc(var(--radius) + 6px);
+      box-shadow: 0 10px 24px rgba(0,0,0,.25);
+    }
+    .statement h2{margin:0 0 8px}
+    .statement p{color:var(--text); font-size: 17px; margin:0}
+    .two-col{
+      display:grid; gap:12px;
+    }
+    @media(min-width: 900px){
+      .two-col{grid-template-columns: 1fr 1fr}
+    }
+    .anti .bad{
+      border-left: 3px solid rgba(255,107,107,.75);
+      background: rgba(255,107,107,.08);
+    }
+    .footer{
+      margin-top:22px;
+      color: var(--muted);
+      font-size: 13px;
+      display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap;
+      border-top: 1px solid var(--soft);
+      padding-top: 14px;
+    }
+    .kbd{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12px;
+      padding:2px 6px;
+      border-radius: 8px;
+      border:1px solid var(--soft);
+      background: rgba(0,0,0,.20);
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="kicker">
+        <span class="kbd">π / 2π</span>
+        <span>Forma normativă a Modelului Coeziv</span>
+      </div>
+      <h1>Axiomele Coeziunii</h1>
+      <p class="subtitle">
+        Un set de principii normative pentru evaluarea sistemelor sub flux: stabilitate, flexibilitate, praguri și reorganizare.
+        Acest document este conceput pentru a fi citat și aplicat transversal (biologie, organizații, AI, sisteme sociale).
+      </p>
+      <div class="meta">
+        <span class="pill">Document: Normativ</span>
+        <span class="pill">Scop: Criteriu de evaluare</span>
+        <span class="pill">Natură: Cadru meta (interpretativ)</span>
+      </div>
+    </header>
+
+    <div class="grid">
+      <section class="card toc" aria-label="Cuprins">
+        <h2>Cuprins</h2>
+        <small>Navigare rapidă</small>
+        <div style="height:10px"></div>
+        <a href="#scop">1. Scop și domeniu</a>
+        <a href="#limite">2. Limitări și delimitări</a>
+        <a href="#axiome">3. Axiomele Coeziunii</a>
+        <a href="#declaratie">4. Declarația normativă</a>
+        <a href="#utilizare">5. Cum se folosește (practic)</a>
+        <a href="#anti">6. Încălcări tipice (anti-axiome)</a>
+      </section>
+
+      <aside class="card">
+        <h2>De reținut</h2>
+        <p class="note">
+          Axiomele nu sunt o teorie de domeniu și nu concurează cu modelele locale. Ele sunt un
+          <strong>filtru preliminar</strong> pentru sănătatea structurală a unui sistem: înainte de performanță, optimizare sau scalare.
+        </p>
+        <div style="height:10px"></div>
+        <h2>Termeni-cheie</h2>
+        <ul>
+          <li><strong>Coeziune</strong>: capacitatea de a rămâne întreg și funcțional sub flux.</li>
+          <li><strong>Flexibilitate</strong>: capacitatea de reorganizare fără pierderea identității funcționale.</li>
+          <li><strong>Flux</strong>: intrări care solicită structura (energie, informație, stres, volum, cerere).</li>
+          <li><strong>Prag adaptativ</strong>: tensiune reversibilă și gestionabilă.</li>
+          <li><strong>Prag critic</strong>: degradare sau colaps structural probabil.</li>
+          <li><strong>Ciclu complet (2π)</strong>: structură → flux → reorganizare → noua structură.</li>
+        </ul>
+      </aside>
+    </div>
+
+    <section id="scop" class="section card">
+      <div class="section-title">
+        <h2>1. Scop și domeniu</h2>
+        <span>De ce există acest document</span>
+      </div>
+      <p>
+        Acest text definește <strong>Axiomele Coeziunii</strong> ca formă normativă a Modelului Coeziv. Axiomele sunt destinate să devină
+        un <strong>standard de judecată</strong> și un <strong>limbaj comun</strong> pentru evaluarea sistemelor sub flux:
+        sisteme biologice, psihologice, organizaționale, tehnice (inclusiv AI) și sociale.
+      </p>
+      <p class="note">
+        Principiul central: <strong>nu optimizăm ceea ce nu poate rămâne coerent</strong>. Performanța este un rezultat; coeziunea este condiția.
+      </p>
+    </section>
+
+    <section id="limite" class="section card">
+      <div class="section-title">
+        <h2>2. Limitări și delimitări</h2>
+        <span>Ce NU pretind axiomele</span>
+      </div>
+      <ul>
+        <li>Axiomele nu sunt „fizică” sau „biologie” nouă și nu introduc constante măsurabile universal.</li>
+        <li>π și 2π sunt etichete mnemonic-structurale (raport / ciclu complet), nu mecanisme matematice rulate de sistem.</li>
+        <li>Nu există conversie numerică între temperaturi și fenomene psihologice, sociale sau AI.</li>
+        <li>Axiomele nu garantează succesul; ele reduc probabilitatea de degradare și colaps sub flux intens.</li>
+      </ul>
+    </section>
+
+    <section id="axiome" class="section">
+      <div class="section-title">
+        <h2>3. Axiomele Coeziunii</h2>
+        <span>Set canonic (I–V)</span>
+      </div>
+
+      <div class="axioms">
+        <div class="axiom">
+          <h3>Axioma I — Prioritatea coeziunii <span class="tag">normă</span></h3>
+          <blockquote>
+            Orice sistem trebuie evaluat mai întâi prin capacitatea sa de a-și menține coeziunea sub flux,
+            înainte de a fi evaluat pentru performanță.
+          </blockquote>
+          <p class="note" style="margin-top:10px">
+            Implicație practică: orice plan de optimizare începe cu o verificare a integrității structurale.
+          </p>
+        </div>
+
+        <div class="axiom">
+          <h3>Axioma II — Tensiunea este inevitabilă <span class="tag">realism</span></h3>
+          <blockquote>
+            Tensiunea nu este un defect al sistemelor funcționale, ci o condiție necesară a adaptării.
+          </blockquote>
+          <p class="note" style="margin-top:10px">
+            Implicație: eliminarea tensiunii cu orice preț duce la rigiditate; tolerarea ei fără guvernanță duce la degradare.
+          </p>
+        </div>
+
+        <div class="axiom">
+          <h3>Axioma III — Există praguri <span class="tag">limită</span></h3>
+          <blockquote>
+            Orice sistem are un prag adaptativ și un prag critic; depășirea celui din urmă conduce la degradare
+            sau colaps structural.
+          </blockquote>
+          <p class="note" style="margin-top:10px">
+            Implicație: trebuie urmărite regimuri, nu doar indicatori izolați; „încă puțin” poate schimba regimul.
+          </p>
+        </div>
+
+        <div class="axiom">
+          <h3>Axioma IV — Reorganizarea este parte din funcționare <span class="tag">2π</span></h3>
+          <blockquote>
+            Un sistem care nu poate parcurge un ciclu complet de reorganizare își consumă coeziunea.
+          </blockquote>
+          <p class="note" style="margin-top:10px">
+            Implicație: blocarea reorganizării (de exemplu, menținerea artificială a unei structuri depășite) crește riscul de colaps.
+          </p>
+        </div>
+
+        <div class="axiom">
+          <h3>Axioma V — Coeziunea nu se maximizează <span class="tag">echilibru</span></h3>
+          <blockquote>
+            Coeziunea nu este un obiectiv de maximizare, ci o condiție de echilibru între stabilitate și flexibilitate.
+          </blockquote>
+          <p class="note" style="margin-top:10px">
+            Implicație: prea multă coeziune devine rigiditate; prea multă flexibilitate devine derivă.
+          </p>
+        </div>
+
+        <div class="axiom">
+          <h3>Nota de integrare — Indicatori (ex. „J”) <span class="tag">opțional</span></h3>
+          <p>
+            În aplicații practice, tensiunea structurală poate fi urmărită prin indicatori locali (în funcție de domeniu):
+            coerență, conflict de constrângeri, stabilitate a proceselor, rate de eroare, timp de recuperare.
+          </p>
+          <p class="note">
+            Axiomele nu impun un singur indicator; ele impun <strong>observarea pragurilor</strong> și menținerea ciclului complet de reorganizare.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section id="declaratie" class="section statement">
+      <h2>4. Declarația normativă</h2>
+      <p>
+        <strong>Un sistem este sănătos nu atunci când performează maxim, ci atunci când poate susține performanța fără a-și pierde coeziunea.</strong>
+      </p>
+    </section>
+
+    <section id="utilizare" class="section card">
+      <div class="section-title">
+        <h2>5. Cum se folosește (practic)</h2>
+        <span>Checklist minimal</span>
+      </div>
+
+      <div class="two-col">
+        <div class="note">
+          <h3 style="margin:0 0 8px;font-size:16px">Întrebări standard (pentru orice domeniu)</h3>
+          <ul>
+            <li>Unde este sistemul pe axa <strong>stabilitate ↔ flexibilitate</strong>?</li>
+            <li>Care este fluxul dominant și cum afectează structura?</li>
+            <li>Suntem sub prag adaptativ, între praguri sau peste prag critic?</li>
+            <li>Există un mecanism real de reorganizare (2π) sau doar menținere forțată?</li>
+            <li>Ce se întâmplă cu coeziunea dacă optimizăm încă 10–20% performanța?</li>
+          </ul>
+        </div>
+
+        <div class="note">
+          <h3 style="margin:0 0 8px;font-size:16px">Reguli de decizie (normative)</h3>
+          <ul>
+            <li>Dacă pragul critic este probabil: <strong>reduce fluxul</strong> înainte de orice optimizare.</li>
+            <li>Dacă reorganizarea este blocată: <strong>deblochează ciclul</strong> înainte de scalare.</li>
+            <li>Dacă tensiunea crește: <strong>caută conflicte de constrângeri</strong> și elimină contradicțiile.</li>
+            <li>Dacă performanța crește dar coeziunea scade: <strong>nu accepta trade-off-ul</strong> fără guvernanță explicită.</li>
+          </ul>
+        </div>
+      </div>
+
+      <p style="margin-top:12px" class="note">
+        Sugestie de utilizare: aplică axiomele în faza de design (pre-implementare), în faza de scalare și în post-incident (analiză după degradare).
+      </p>
+    </section>
+
+    <section id="anti" class="section card anti">
+      <div class="section-title">
+        <h2>6. Încălcări tipice (anti-axiome)</h2>
+        <span>Simptome și riscuri</span>
+      </div>
+
+      <div class="two-col">
+        <div class="note bad">
+          <h3 style="margin:0 0 8px;font-size:16px;color:var(--text)">Anti-Axioma I — Performanța înainte de coeziune</h3>
+          <p>Când optimizarea precede sănătatea structurală, apar câștiguri rapide urmate de instabilitate și costuri de recuperare disproporționate.</p>
+        </div>
+
+        <div class="note bad">
+          <h3 style="margin:0 0 8px;font-size:16px;color:var(--text)">Anti-Axioma II — Zero tensiune ca ideal</h3>
+          <p>Eliminarea tensiunii elimină adaptarea. Rezultatul este rigiditate, fragilitate și reacție disproporționată la șocuri mici.</p>
+        </div>
+
+        <div class="note bad">
+          <h3 style="margin:0 0 8px;font-size:16px;color:var(--text)">Anti-Axioma III — Negarea pragurilor</h3>
+          <p>„Mai putem trage puțin” devine strategie. Sistemul trece de regim fără avertisment, iar recuperarea devine dificilă sau imposibilă.</p>
+        </div>
+
+        <div class="note bad">
+          <h3 style="margin:0 0 8px;font-size:16px;color:var(--text)">Anti-Axioma IV — Menținere fără reorganizare</h3>
+          <p>Se păstrează o structură depășită prin forță. Coeziunea este consumată, iar colapsul apare prin acumulare, nu printr-un singur eveniment.</p>
+        </div>
+
+        <div class="note bad" style="grid-column: 1 / -1;">
+          <h3 style="margin:0 0 8px;font-size:16px;color:var(--text)">Anti-Axioma V — Maximizarea coeziunii</h3>
+          <p>„Totul trebuie să fie perfect coerent” produce rigiditate și suprimă variația adaptivă. Sistemul devine stabil pe termen scurt și fragil pe termen lung.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="footer">
+      <div>
+        <strong>Document:</strong> Axiomele Coeziunii (π / 2π) — formă normativă a Modelului Coeziv
+      </div>
+      <div>
+        Tip: HTML standalone · Poate fi integrat în colecția coezivă ca pagină canonică
+      </div>
+    </div>
+  </div>
+</body>
+</html>
