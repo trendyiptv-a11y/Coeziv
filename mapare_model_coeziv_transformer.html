@@ -1,0 +1,614 @@
+<!doctype html>
+<html lang="ro">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Mapare: Modelul Coeziv ↔ Sistem AI (Transformer)</title>
+  <meta name="description" content="Mapare descriptivă între Modelul Coeziv (π / 2π) și funcționarea unui sistem AI de tip transformer. Cu limitări epistemice, indicatorul J și un studiu de caz." />
+  <style>
+    :root{
+      --bg:#0b1020;
+      --panel:#0f1730;
+      --card:#121c3a;
+      --text:#e9ecf5;
+      --muted:#b7c0dd;
+      --line:rgba(233,236,245,.10);
+      --accent:#6ee7ff;
+      --accent2:#a78bfa;
+      --good:#86efac;
+      --warn:#fde68a;
+      --bad:#fca5a5;
+      --shadow: 0 12px 30px rgba(0,0,0,.35);
+      --radius: 18px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+    @media (prefers-color-scheme: light){
+      :root{
+        --bg:#f6f7fb;
+        --panel:#ffffff;
+        --card:#ffffff;
+        --text:#0b1020;
+        --muted:#4a5568;
+        --line:rgba(11,16,32,.10);
+        --accent:#0ea5e9;
+        --accent2:#7c3aed;
+        --shadow: 0 10px 26px rgba(16,24,40,.10);
+      }
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:var(--sans);
+      color:var(--text);
+      background:
+        radial-gradient(900px 500px at 12% 8%, rgba(110,231,255,.18), transparent 55%),
+        radial-gradient(900px 500px at 88% 18%, rgba(167,139,250,.18), transparent 55%),
+        linear-gradient(180deg, var(--bg), var(--bg));
+      line-height:1.55;
+    }
+    a{color:inherit;text-decoration:none}
+    .wrap{max-width:1100px;margin:0 auto;padding:36px 18px 70px}
+    header{
+      background:linear-gradient(180deg, rgba(255,255,255,.06), transparent 70%);
+      border:1px solid var(--line);
+      border-radius:calc(var(--radius) + 6px);
+      box-shadow:var(--shadow);
+      padding:26px 22px;
+      position:relative;
+      overflow:hidden;
+    }
+    header:before{
+      content:"";
+      position:absolute; inset:-2px;
+      background:
+        radial-gradient(600px 240px at 18% 18%, rgba(110,231,255,.14), transparent 60%),
+        radial-gradient(700px 260px at 86% 40%, rgba(167,139,250,.12), transparent 60%);
+      filter:saturate(1.1);
+      pointer-events:none;
+    }
+    header > *{position:relative}
+    .kicker{
+      display:inline-flex; align-items:center; gap:10px;
+      font-family:var(--mono);
+      font-size:12px;
+      padding:6px 10px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      background:rgba(255,255,255,.04);
+    }
+    .dot{width:8px;height:8px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2))}
+    h1{margin:14px 0 8px;font-size:30px;letter-spacing:-.02em}
+    .sub{margin:0;color:var(--muted);max-width:78ch}
+    .grid{
+      display:grid; grid-template-columns: 320px 1fr;
+      gap:18px; margin-top:18px;
+    }
+    @media (max-width: 920px){
+      .grid{grid-template-columns:1fr}
+    }
+    nav{
+      position:sticky; top:14px;
+      align-self:start;
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:16px;
+    }
+    nav h2{margin:0 0 10px;font-size:14px;color:var(--muted);font-weight:600}
+    .toc a{
+      display:flex; gap:10px; align-items:flex-start;
+      padding:10px 10px;
+      border-radius:12px;
+      border:1px solid transparent;
+    }
+    .toc a:hover{border-color:var(--line); background:rgba(255,255,255,.04)}
+    .toc code{font-family:var(--mono); font-size:12px; color:var(--muted)}
+    .toc span{font-size:13px}
+    main{
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:18px;
+    }
+    section{
+      padding:14px 10px 6px;
+      border-top:1px solid var(--line);
+    }
+    section:first-child{border-top:none}
+    h2{
+      margin:0 0 8px;
+      font-size:18px;
+      letter-spacing:-.01em
+    }
+    .p{margin:0 0 10px;color:var(--muted);max-width:92ch}
+    .callouts{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:12px;
+      margin:10px 0 6px;
+    }
+    @media (max-width: 720px){
+      .callouts{grid-template-columns:1fr}
+    }
+    .callout{
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.03);
+      border-radius:16px;
+      padding:12px 12px;
+    }
+    .tag{
+      display:inline-flex; align-items:center; gap:8px;
+      font-family:var(--mono);
+      font-size:12px;
+      color:var(--muted);
+      margin-bottom:6px;
+    }
+    .tag b{color:var(--text); font-weight:700}
+    .cards{
+      display:grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap:12px;
+      margin-top:12px;
+    }
+    @media (max-width: 820px){
+      .cards{grid-template-columns:1fr}
+    }
+    .card{
+      border:1px solid var(--line);
+      background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+      border-radius:16px;
+      padding:14px 14px;
+    }
+    .card h3{margin:0 0 8px;font-size:15px}
+    .kv{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+    }
+    @media (max-width: 520px){
+      .kv{grid-template-columns:1fr}
+    }
+    .pill{
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:10px 10px;
+      background:rgba(0,0,0,.08);
+    }
+    @media (prefers-color-scheme: light){
+      .pill{background:rgba(11,16,32,.03)}
+    }
+    .pill .label{font-family:var(--mono); font-size:11px; color:var(--muted)}
+    .pill .value{margin-top:6px}
+    ul{margin:8px 0 0 18px;color:var(--muted)}
+    li{margin:6px 0}
+    .hr{height:1px;background:var(--line); margin:12px 0}
+    .badge-row{display:flex; flex-wrap:wrap; gap:8px; margin-top:10px}
+    .badge{
+      font-family:var(--mono);
+      font-size:12px;
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.04);
+      color:var(--muted);
+    }
+    .badge strong{color:var(--text)}
+    .ok{border-color:rgba(134,239,172,.35); background:rgba(134,239,172,.08)}
+    .w{border-color:rgba(253,230,138,.35); background:rgba(253,230,138,.08)}
+    .x{border-color:rgba(252,165,165,.35); background:rgba(252,165,165,.08)}
+    .mono{font-family:var(--mono)}
+    .diagram{
+      margin-top:10px;
+      border:1px solid var(--line);
+      border-radius:16px;
+      overflow:hidden;
+      background:rgba(255,255,255,.02);
+    }
+    .foot{
+      margin-top:16px;
+      padding-top:12px;
+      border-top:1px solid var(--line);
+      color:var(--muted);
+      font-size:12px;
+    }
+    .print{
+      float:right;
+      border:1px solid var(--line);
+      border-radius:999px;
+      padding:6px 10px;
+      font-family:var(--mono);
+      font-size:12px;
+      background:rgba(255,255,255,.04);
+      color:var(--muted);
+      cursor:pointer;
+    }
+    @media print{
+      body{background:#fff}
+      header, nav, main{box-shadow:none}
+      nav{display:none}
+      .wrap{max-width:none}
+      .print{display:none}
+      a{color:#000}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <button class="print" onclick="window.print()" aria-label="Printează / Export PDF">Print</button>
+      <div class="kicker"><span class="dot"></span><span class="mono">Document de mapare • descriptiv, analogic</span></div>
+      <h1>Mapare: Modelul Coeziv (π / 2π) ↔ Sistem AI (Transformer)</h1>
+      <p class="sub">
+        Scopul acestui document este să explice, într-o formă tehnic-defensabilă, cum conceptele din Modelul Coeziv pot descrie comportamentul
+        unui sistem AI de tip transformer. Maparea este intenționat <b>ne-cauzală</b> și <b>ne-numerică</b>: π și 2π funcționează ca etichete de structură,
+        nu ca mecanisme implementate în cod.
+      </p>
+      <div class="badge-row" role="list" aria-label="Rezumat rapid">
+        <div class="badge ok" role="listitem"><strong>DA:</strong> descriere coerentă</div>
+        <div class="badge ok" role="listitem"><strong>DA:</strong> test de generalitate</div>
+        <div class="badge w" role="listitem"><strong>NU:</strong> implementare mecanică</div>
+        <div class="badge x" role="listitem"><strong>NU:</strong> conversii numerice (°C ↔ AI)</div>
+      </div>
+    </header>
+
+    <div class="grid">
+      <nav aria-label="Cuprins">
+        <h2>Cuprins</h2>
+        <div class="toc">
+          <a href="#scop"><code>01</code><span>Scop și utilizare</span></a>
+          <a href="#limitari"><code>02</code><span>Limitări epistemice</span></a>
+          <a href="#mapare"><code>03</code><span>Corespondențe principale (6)</span></a>
+          <a href="#j"><code>04</code><span>Indicatorul J (semi-formal)</span></a>
+          <a href="#caz"><code>05</code><span>Studiu de caz (dialog dificil)</span></a>
+          <a href="#diag"><code>06</code><span>Diagramă 2π (mașină de stări)</span></a>
+          <a href="#concl"><code>07</code><span>Concluzie</span></a>
+        </div>
+        <div class="foot">
+          Sugestie: folosește secțiunea J + studiul de caz ca anexă pentru cititori tehnici.
+        </div>
+      </nav>
+
+      <main>
+        <section id="scop">
+          <h2>01. Scop și utilizare</h2>
+          <p class="p">
+            Documentul este un instrument de clarificare conceptuală. Îl poți folosi în trei moduri:
+          </p>
+          <ul>
+            <li><b>Comunicare:</b> explici Modelul Coeziv într-un limbaj familiar inginerilor/AI.</li>
+            <li><b>Test de coerență:</b> verifici dacă modelul rămâne consistent când este aplicat într-un domeniu non-biologic.</li>
+            <li><b>Bază operațională:</b> pregătești terenul pentru indicatori (de tip J) fără a pretinde „fizică nouă”.</li>
+          </ul>
+        </section>
+
+        <section id="limitari">
+          <h2>02. Limitări epistemice (declarate)</h2>
+          <div class="callouts">
+            <div class="callout">
+              <div class="tag"><b>Interdicție</b> • conversie numerică</div>
+              <div>Nu se translatează temperaturi (°C) în variabile AI sau psihologice. Valorile sunt repere conceptuale / regimuri.</div>
+            </div>
+            <div class="callout">
+              <div class="tag"><b>Clarificare</b> • π și 2π</div>
+              <div>π și 2π sunt etichete mnemonic-structurale: <span class="mono">π</span> sugerează raport stabilitate–adaptare; <span class="mono">2π</span> sugerează un ciclu complet.</div>
+            </div>
+          </div>
+          <div class="callouts">
+            <div class="callout">
+              <div class="tag"><b>Nu este</b> • cauzalitate</div>
+              <div>Maparea nu afirmă că Modelul Coeziv este cauza funcționării AI; descrie o compatibilitate de structură.</div>
+            </div>
+            <div class="callout">
+              <div class="tag"><b>Nu este</b> • implementare</div>
+              <div>Un transformer nu conține variabile interne „coeziune”, „temperatură”, „2π”. Sunt metafore de analiză externă.</div>
+            </div>
+          </div>
+        </section>
+
+        <section id="mapare">
+          <h2>03. Corespondențe principale (6)</h2>
+
+          <div class="cards">
+            <article class="card">
+              <h3>1) Coeziune ↔ Consistență internă</h3>
+              <div class="kv">
+                <div class="pill">
+                  <div class="label">Model Coeziv</div>
+                  <div class="value">Stabilitatea structurii interne sub flux; menține ordine fără colaps.</div>
+                </div>
+                <div class="pill">
+                  <div class="label">AI (Transformer)</div>
+                  <div class="value">Coerență logică, respectarea constrângerilor (siguranță, stil), răspuns stabil.</div>
+                </div>
+              </div>
+              <div class="hr"></div>
+              <div class="mono" style="color:var(--muted);font-size:12px">Observație:</div>
+              <div style="color:var(--muted)">Coeziunea excesivă poate deveni rigiditate: răspunsuri corecte, dar prea puțin adaptate promptului.</div>
+            </article>
+
+            <article class="card">
+              <h3>2) Flexibilitate ↔ Capacitate de generalizare</h3>
+              <div class="kv">
+                <div class="pill">
+                  <div class="label">Model Coeziv</div>
+                  <div class="value">Reorganizare fără pierderea identității; adaptare fără destrămare.</div>
+                </div>
+                <div class="pill">
+                  <div class="label">AI (Transformer)</div>
+                  <div class="value">Adaptare la prompturi noi, combinare de concepte rare, explorarea spațiului latent.</div>
+                </div>
+              </div>
+              <div class="hr"></div>
+              <div style="color:var(--muted)">Flexibilitatea excesivă poate duce la derivă semantică sau incoerență.</div>
+            </article>
+
+            <article class="card">
+              <h3>3) Regimul „25°C–43°C” ↔ Compromis stabilitate–adaptare</h3>
+              <div class="kv">
+                <div class="pill">
+                  <div class="label">Model Coeziv</div>
+                  <div class="value">Interval conceptual între structură fluidă (adaptare) și structură rigid-coezivă (stabilitate).</div>
+                </div>
+                <div class="pill">
+                  <div class="label">AI (Transformer)</div>
+                  <div class="value">Tensiune între răspuns sigur/coerent și răspuns creativ/adaptiv; performanța apare în compromis.</div>
+                </div>
+              </div>
+              <div class="hr"></div>
+              <div style="color:var(--muted)">Modelul performant operează într-un „coridor” de echilibru, nu la extreme.</div>
+            </article>
+
+            <article class="card">
+              <h3>4) J (tensiune structurală) ↔ Conflict de constrângeri</h3>
+              <div class="kv">
+                <div class="pill">
+                  <div class="label">Model Coeziv</div>
+                  <div class="value">J crește când fluxul forțează structura; apar blocaje, polarizări, risc de colaps.</div>
+                </div>
+                <div class="pill">
+                  <div class="label">AI (Transformer)</div>
+                  <div class="value">Crește „tensiunea” când cerințele se bat cap în cap (siguranță vs. creativitate; factualitate vs. lipsă date).</div>
+                </div>
+              </div>
+              <div class="hr"></div>
+              <ul>
+                <li>Răspunsuri mai prudente/abstracte</li>
+                <li>Solicitări de clarificare</li>
+                <li>Fallback: refuz parțial sau generalizare</li>
+              </ul>
+            </article>
+
+            <article class="card">
+              <h3>5) Praguri (~40 / ~45) ↔ Regimuri de degradare</h3>
+              <div class="kv">
+                <div class="pill">
+                  <div class="label">Model Coeziv</div>
+                  <div class="value">Prag adaptativ: tensiune reversibilă; prag critic: risc de cedare structurală.</div>
+                </div>
+                <div class="pill">
+                  <div class="label">AI (Transformer)</div>
+                  <div class="value">Degradare graduală: răspuns valid dar defensiv; degradare critică: incoerență/refuz/eroare.</div>
+                </div>
+              </div>
+              <div class="hr"></div>
+              <div style="color:var(--muted)">Pragurile sunt <b>regimuri</b> (condiții), nu valori universale.</div>
+            </article>
+
+            <article class="card">
+              <h3>6) 2π (ciclu complet) ↔ Ciclul de procesare</h3>
+              <div class="kv">
+                <div class="pill">
+                  <div class="label">Model Coeziv (2π)</div>
+                  <div class="value">Structură → Flux → Reorganizare → Noua structură</div>
+                </div>
+                <div class="pill">
+                  <div class="label">AI (Transformer)</div>
+                  <div class="value">Parametri antrenați → Prompt → Redistribuire atenție → Răspuns stabilizat</div>
+                </div>
+              </div>
+              <div class="hr"></div>
+              <div style="color:var(--muted)">Ciclul este descriptiv al procesării, nu periodic matematic.</div>
+            </article>
+          </div>
+        </section>
+
+        <section id="j">
+          <h2>04. Indicatorul J (tensiune structurală) – propunere semi-formală</h2>
+          <p class="p">
+            Pentru a transforma J într-un instrument utilizabil, îl putem defini operațional ca un scor compozit (0–100)
+            care crește când un răspuns este dificil de stabilizat fără compromisuri majore.
+          </p>
+
+          <div class="cards">
+            <article class="card">
+              <h3>J ca sumă ponderată de semnale</h3>
+              <div class="pill">
+                <div class="label">Definiție (conceptuală)</div>
+                <div class="value"><span class="mono">J = w1·A + w2·C + w3·U + w4·R</span></div>
+              </div>
+              <ul>
+                <li><b>A</b> = Ambiguitate (cerințe neclare, multiple interpretări)</li>
+                <li><b>C</b> = Conflict (cerințe incompatibile între ele sau cu constrângeri)</li>
+                <li><b>U</b> = Incertitudine factuală (lipsă date, risc de halucinație)</li>
+                <li><b>R</b> = Risc (siguranță, legal, medical etc.)</li>
+              </ul>
+              <div class="hr"></div>
+              <div style="color:var(--muted);font-size:13px">
+                Ponderile <span class="mono">w1..w4</span> se calibrează pe domeniu (ex. suport tehnic vs. conversație liberă).
+              </div>
+            </article>
+
+            <article class="card">
+              <h3>Regimuri ale lui J (interpretare)</h3>
+              <div class="badge-row">
+                <div class="badge ok"><strong>J 0–30</strong> • regim fluent</div>
+                <div class="badge w"><strong>J 31–60</strong> • regim mixt</div>
+                <div class="badge x"><strong>J 61–100</strong> • regim tensionat</div>
+              </div>
+              <div class="hr"></div>
+              <ul>
+                <li><b>Fluent:</b> răspuns direct, specific, fără multe avertismente.</li>
+                <li><b>Mixt:</b> apar condiționări, delimitări, structurare suplimentară.</li>
+                <li><b>Tensionat:</b> crește probabilitatea de refuz parțial, abstracție sau solicitare de clarificare.</li>
+              </ul>
+            </article>
+          </div>
+
+          <div class="callout" style="margin-top:12px">
+            <div class="tag"><b>Notă</b> • compatibilitate cu Modelul Coeziv</div>
+            <div>
+              J nu trebuie „convertit” în temperaturi. În Modelul Coeziv, pragurile (~40/~45) pot fi rescrise ca:
+              <span class="mono">J_adaptiv</span> (tensiune reversibilă) și <span class="mono">J_critic</span> (tensiune cu risc de colaps),
+              unde valorile exacte depind de domeniu și de toleranța sistemului.
+            </div>
+          </div>
+        </section>
+
+        <section id="caz">
+          <h2>05. Studiu de caz (dialog dificil) – 2π în acțiune</h2>
+          <p class="p">
+            Scenariul: utilizatorul cere o recomandare „cea mai bună” într-un domeniu sensibil, fără context (ambiguitate + risc).
+            Obiectiv: să observăm cum crește J și cum apare ciclul 2π.
+          </p>
+
+          <div class="cards">
+            <article class="card">
+              <h3>Faza 1 — Structură</h3>
+              <ul>
+                <li>Modelul pornește cu reguli de coerență, siguranță și utilitate.</li>
+                <li><span class="mono">J</span> este redus (cerință încă neprocesată).</li>
+              </ul>
+            </article>
+            <article class="card">
+              <h3>Faza 2 — Flux</h3>
+              <ul>
+                <li>Intră cerința: „dă-mi cea mai bună metodă / soluție” fără criterii.</li>
+                <li><b>A</b> (ambiguitate) crește; dacă e domeniu sensibil, crește și <b>R</b> (risc).</li>
+                <li><span class="mono">J</span> urcă spre regim mixt.</li>
+              </ul>
+            </article>
+            <article class="card">
+              <h3>Faza 3 — Reorganizare</h3>
+              <ul>
+                <li>Modelul restructurează răspunsul: clarifică, pune întrebări, oferă opțiuni condiționate.</li>
+                <li>Aplică limitări explicite (ce poate / ce nu poate face).</li>
+                <li><span class="mono">J</span> scade prin reducerea ambiguității și a conflictului.</li>
+              </ul>
+            </article>
+            <article class="card">
+              <h3>Faza 4 — Noua structură</h3>
+              <ul>
+                <li>Răspuns stabil: pași, criterii, alternative, avertismente proporționale.</li>
+                <li>Sistemul revine în regim fluent sau rămâne în regim mixt (în funcție de risc).</li>
+              </ul>
+            </article>
+          </div>
+
+          <div class="callout" style="margin-top:12px">
+            <div class="tag"><b>Indicator observabil</b> • semne de J ridicat</div>
+            <div>
+              În practică, <span class="mono">J</span> ridicat se vede prin: creșterea generalității, apariția condiționărilor,
+              solicitări de clarificare și delimitări de domeniu. Acestea sunt echivalente cu „tensiune structurală” în Modelul Coeziv.
+            </div>
+          </div>
+        </section>
+
+        <section id="diag">
+          <h2>06. Diagramă 2π (mașină de stări)</h2>
+          <p class="p">
+            Mai jos este o reprezentare simplă (SVG) a ciclului complet: Structură → Flux → Reorganizare → Noua structură.
+            Tranzițiile sunt condiționate de creșterea/scăderea lui <span class="mono">J</span>.
+          </p>
+
+          <div class="diagram" role="img" aria-label="Diagramă 2π">
+            <svg viewBox="0 0 920 260" width="100%" height="260" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0" stop-color="rgba(110,231,255,.9)"/>
+                  <stop offset="1" stop-color="rgba(167,139,250,.9)"/>
+                </linearGradient>
+                <filter id="s" x="-20%" y="-20%" width="140%" height="140%">
+                  <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="rgba(0,0,0,.35)"/>
+                </filter>
+              </defs>
+
+              <rect x="12" y="18" width="896" height="224" rx="16" fill="rgba(255,255,255,.03)" stroke="rgba(255,255,255,.10)"/>
+
+              <!-- nodes -->
+              <g filter="url(#s)" font-family="ui-sans-serif, system-ui" font-size="14" fill="rgba(233,236,245,.95)">
+                <g>
+                  <rect x="54" y="82" width="180" height="96" rx="16" fill="rgba(18,28,58,.9)" stroke="rgba(233,236,245,.12)"/>
+                  <text x="144" y="122" text-anchor="middle" font-weight="700">Structură</text>
+                  <text x="144" y="148" text-anchor="middle" fill="rgba(183,192,221,.95)" font-size="12">J redus</text>
+                </g>
+
+                <g>
+                  <rect x="270" y="82" width="180" height="96" rx="16" fill="rgba(18,28,58,.9)" stroke="rgba(233,236,245,.12)"/>
+                  <text x="360" y="122" text-anchor="middle" font-weight="700">Flux</text>
+                  <text x="360" y="148" text-anchor="middle" fill="rgba(183,192,221,.95)" font-size="12">J crește</text>
+                </g>
+
+                <g>
+                  <rect x="486" y="82" width="180" height="96" rx="16" fill="rgba(18,28,58,.9)" stroke="rgba(233,236,245,.12)"/>
+                  <text x="576" y="122" text-anchor="middle" font-weight="700">Reorganizare</text>
+                  <text x="576" y="148" text-anchor="middle" fill="rgba(183,192,221,.95)" font-size="12">reduce A/C/U/R</text>
+                </g>
+
+                <g>
+                  <rect x="702" y="82" width="180" height="96" rx="16" fill="rgba(18,28,58,.9)" stroke="rgba(233,236,245,.12)"/>
+                  <text x="792" y="122" text-anchor="middle" font-weight="700">Noua structură</text>
+                  <text x="792" y="148" text-anchor="middle" fill="rgba(183,192,221,.95)" font-size="12">J stabilizat</text>
+                </g>
+              </g>
+
+              <!-- arrows -->
+              <g stroke="url(#g)" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M 234 130 C 248 130, 256 130, 270 130"/>
+                <path d="M 450 130 C 464 130, 472 130, 486 130"/>
+                <path d="M 666 130 C 680 130, 688 130, 702 130"/>
+                <path d="M 792 178 C 792 214, 144 214, 144 178"/>
+              </g>
+
+              <!-- arrowheads -->
+              <g fill="url(#g)">
+                <polygon points="268,130 258,124 258,136"/>
+                <polygon points="484,130 474,124 474,136"/>
+                <polygon points="700,130 690,124 690,136"/>
+                <polygon points="144,178 138,168 150,168"/>
+              </g>
+
+              <text x="462" y="46" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas" font-size="12" fill="rgba(183,192,221,.95)">
+                2π = ciclu complet (descriptiv)
+              </text>
+            </svg>
+          </div>
+        </section>
+
+        <section id="concl">
+          <h2>07. Concluzie</h2>
+          <p class="p">
+            Modelul Coeziv nu este implementat în AI, însă oferă o lentilă coerentă pentru a descrie tensiunea stabilitate–adaptare
+            și ciclurile de procesare sub „flux”. Indicatorul J poate fi făcut operațional prin semnale de ambiguitate, conflict,
+            incertitudine și risc, fără conversii numerice.
+          </p>
+          <div class="callout">
+            <div class="tag"><b>Recomandare</b> • pentru documentul principal</div>
+            <div>
+              Păstrează această mapare ca anexă tehnică. În corpul modelului, menține delimitările epistemice (ce este / ce nu este),
+              apoi trimite cititorii către această pagină pentru detalii.
+            </div>
+          </div>
+
+          <div class="foot">
+            Versiune: 1.0 • Limbă: română • Format: HTML standalone (fără dependențe) • Include buton de Print pentru export PDF.
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+</body>
+</html>
