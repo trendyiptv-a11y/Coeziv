@@ -1,0 +1,859 @@
+<!doctype html>
+<html lang="ro">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Constituția Sistemului AI Responsabil — cu Anexe Operaționale (ficțiune)</title>
+  <meta name="description" content="Constituție fictivă pentru guvernarea unui sistem AI responsabil, cu anexe de reguli operaționale și checklist-uri." />
+  <style>
+    :root{
+      --bg:#fbfaf8;
+      --paper:#ffffff;
+      --ink:#1b1b1b;
+      --muted:#5a5a5a;
+      --rule:#e7e2db;
+      --accent:#2f4b7c;
+      --accent2:#8a5a44;
+      --shadow:0 10px 30px rgba(0,0,0,.06);
+      --radius:18px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      --serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+      --max: 1020px;
+      --lh: 1.65;
+      --focus: 0 0 0 3px rgba(47,75,124,.18);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: var(--serif);
+      color:var(--ink);
+      background: radial-gradient(1200px 900px at 20% 0%, #fff 0%, var(--bg) 70%),
+                  radial-gradient(900px 700px at 90% 10%, #fff 0%, var(--bg) 60%);
+      line-height: var(--lh);
+    }
+    a{color:var(--accent); text-decoration:none}
+    a:hover{text-decoration:underline}
+    a:focus{outline:none; box-shadow: var(--focus); border-radius:10px}
+    header{padding: 42px 18px 18px;}
+    .wrap{max-width: var(--max); margin:0 auto;}
+    .mast{
+      background: var(--paper);
+      border: 1px solid var(--rule);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 34px 28px;
+      position: relative;
+      overflow:hidden;
+    }
+    .mast:before{
+      content:"";
+      position:absolute;
+      inset:-80px -80px auto auto;
+      width:240px; height:240px;
+      background: conic-gradient(from 225deg, rgba(47,75,124,.12), rgba(138,90,68,.10), rgba(47,75,124,.06));
+      border-radius: 999px;
+      transform: rotate(12deg);
+    }
+    .kicker{
+      font-family: var(--sans);
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-size: 12px;
+      margin:0 0 10px;
+      position: relative;
+      z-index: 1;
+    }
+    h1{
+      font-weight: 700;
+      font-size: clamp(28px, 3.1vw, 44px);
+      margin:0 0 10px;
+      position: relative;
+      z-index: 1;
+    }
+    .subtitle{
+      font-family: var(--sans);
+      color: var(--muted);
+      font-size: 15px;
+      margin:0 0 18px;
+      max-width: 78ch;
+      position: relative;
+      z-index: 1;
+    }
+    .badges{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top: 14px;
+      position: relative;
+      z-index: 1;
+    }
+    .badge{
+      font-family: var(--sans);
+      border:1px solid var(--rule);
+      background: #fff;
+      padding: 8px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      color: var(--muted);
+      display:flex;
+      gap:8px;
+      align-items:center;
+      line-height:1.2;
+    }
+    .dot{
+      width:9px; height:9px; border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 3px rgba(47,75,124,.10);
+    }
+    .actions{
+      margin-top: 12px;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      font-family: var(--sans);
+      font-size: 12px;
+      position: relative;
+      z-index:1;
+    }
+    button{
+      appearance:none;
+      border:1px solid var(--rule);
+      background:#fff;
+      padding: 9px 11px;
+      border-radius: 12px;
+      cursor:pointer;
+      font-family: var(--sans);
+      font-size: 12px;
+      color: var(--ink);
+    }
+    button:hover{background:#faf7f3}
+    button:focus{outline:none; box-shadow: var(--focus)}
+    main{padding: 18px 18px 80px;}
+    .grid{
+      display:grid;
+      grid-template-columns: 330px 1fr;
+      gap:18px;
+      align-items:start;
+      margin-top: 16px;
+    }
+    nav{position: sticky; top: 14px; align-self:start;}
+    .panel{
+      background: var(--paper);
+      border:1px solid var(--rule);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px 16px;
+    }
+    .panel h2{
+      font-family: var(--sans);
+      font-size: 14px;
+      margin: 0 0 10px;
+      letter-spacing: .02em;
+      color: var(--ink);
+    }
+    .toc{
+      list-style:none;
+      padding:0;
+      margin:0;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+    .toc a{
+      display:block;
+      padding: 8px 10px;
+      border-radius: 12px;
+      border: 1px solid transparent;
+      color: var(--ink);
+      font-family: var(--sans);
+      font-size: 13px;
+    }
+    .toc a:hover{background:#faf7f3; border-color: var(--rule); text-decoration:none;}
+    .note{
+      margin-top: 14px;
+      font-family: var(--sans);
+      font-size: 12px;
+      color: var(--muted);
+      border-top: 1px solid var(--rule);
+      padding-top: 12px;
+    }
+    .content{
+      background: var(--paper);
+      border:1px solid var(--rule);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 26px 26px 10px;
+      overflow-wrap:anywhere;
+      word-break: normal;
+    }
+    section{padding: 6px 0 22px; border-bottom: 1px solid var(--rule);}
+    section:last-child{border-bottom:none; padding-bottom: 10px;}
+    h2.sec{margin: 12px 0 10px; font-size: 22px; color: var(--ink);}
+    h3{
+      margin: 16px 0 10px;
+      font-family: var(--sans);
+      font-size: 14px;
+      letter-spacing: .02em;
+      color: var(--accent2);
+    }
+    .article{margin: 0 0 12px;}
+    .article-title{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      align-items:baseline;
+      margin: 0 0 6px;
+      font-family: var(--sans);
+    }
+    .art-no{font-family: var(--mono); color: var(--accent); font-size: 12px; letter-spacing: .06em; text-transform: uppercase;}
+    .art-name{font-size: 14px; color: var(--ink); font-weight: 700;}
+    .clauses{margin: 0; padding-left: 18px; font-size: 16px;}
+    .clauses li{margin: 6px 0;}
+    .quote{
+      margin: 10px 0 0;
+      padding: 12px 14px;
+      border-left: 3px solid var(--accent);
+      background: #fbf8f4;
+      border-radius: 12px;
+      font-family: var(--sans);
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .pillrow{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin: 8px 0 0;
+      font-family: var(--sans);
+    }
+    .pill{
+      border:1px solid var(--rule);
+      background:#fff;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .callout{
+      margin: 12px 0 0;
+      padding: 14px 14px;
+      border: 1px solid var(--rule);
+      background: #fff;
+      border-radius: 14px;
+      font-family: var(--sans);
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .checklist{
+      margin: 10px 0 0;
+      padding: 0;
+      list-style:none;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      font-family: var(--sans);
+      font-size: 13px;
+      color: var(--ink);
+    }
+    .checklist li{
+      border: 1px solid var(--rule);
+      border-radius: 14px;
+      padding: 10px 12px;
+      background: #fff;
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+    }
+    .chk{
+      width: 18px; height: 18px; border-radius: 6px;
+      border: 1px solid var(--rule);
+      flex: 0 0 auto;
+      margin-top: 1px;
+      background: #faf7f3;
+    }
+    .meta{
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 2px;
+    }
+    footer{padding: 14px 18px 26px; color: var(--muted); font-family: var(--sans); font-size: 12px;}
+
+    /* Mobile bar + drawer */
+    .mobilebar{display:none}
+    .drawer{display:none}
+
+    @media (max-width: 960px){
+      header{padding: 18px 14px 10px;}
+      main{padding: 10px 14px 70px;}
+      .mast{padding: 22px 18px;}
+      .content{padding: 18px 18px 6px;}
+      .panel{padding: 14px 12px;}
+      .grid{gap:14px; grid-template-columns: 1fr;}
+      nav{position: static; display:block;}
+    }
+
+    @media (max-width: 820px){
+      nav{display:none;}
+      .mobilebar{
+        display:block;
+        position: sticky;
+        top:0;
+        z-index: 1000;
+        background: rgba(251,250,248,.92);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid var(--rule);
+      }
+      .mobilebar-inner{
+        max-width: var(--max);
+        margin: 0 auto;
+        padding: 10px 14px;
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:12px;
+      }
+      .mobilebar-title{
+        display:flex;
+        flex-direction:column;
+        gap:2px;
+        min-width: 0;
+      }
+      .mobilebar-kicker{
+        font-family: var(--sans);
+        font-size: 12px;
+        letter-spacing: .02em;
+        color: var(--ink);
+        white-space: nowrap;
+        overflow:hidden;
+        text-overflow: ellipsis;
+      }
+      .mobilebar-sub{
+        font-family: var(--sans);
+        font-size: 12px;
+        color: var(--muted);
+        white-space: nowrap;
+        overflow:hidden;
+        text-overflow: ellipsis;
+      }
+      .toc-toggle{
+        border: 1px solid var(--rule);
+        background: #fff;
+        padding: 9px 12px;
+        border-radius: 999px;
+        font-family: var(--sans);
+        font-size: 12px;
+        color: var(--ink);
+        cursor:pointer;
+        flex: 0 0 auto;
+      }
+      .toc-toggle:hover{background:#faf7f3}
+      .actions{display:none;}
+    }
+
+    @media (max-width: 520px){
+      h1{font-size: 28px;}
+      .subtitle{font-size: 14px;}
+      .badge{font-size: 11px; padding: 7px 9px;}
+      .clauses{font-size: 15px;}
+      .content,.mast{border-radius: 16px;}
+    }
+
+    @media (max-width: 820px){
+      .drawer{
+        display:block;
+        position: fixed;
+        inset: 0;
+        z-index: 1200;
+        pointer-events: none;
+      }
+      .drawer[aria-hidden="true"]{opacity:0}
+      .drawer[aria-hidden="false"]{opacity:1}
+      .drawer-panel{
+        position: absolute;
+        top: 0;
+        right: 0;
+        height: 100%;
+        width: min(440px, 92vw);
+        background: #fff;
+        border-left: 1px solid var(--rule);
+        box-shadow: 0 20px 60px rgba(0,0,0,.20);
+        transform: translateX(110%);
+        transition: transform .22s ease;
+        pointer-events: auto;
+        display:flex;
+        flex-direction:column;
+      }
+      .drawer[aria-hidden="false"] .drawer-panel{transform: translateX(0);}
+      .drawer-backdrop{
+        position:absolute;
+        inset:0;
+        background: rgba(0,0,0,.25);
+        opacity: 0;
+        transition: opacity .22s ease;
+        pointer-events: none;
+      }
+      .drawer[aria-hidden="false"] .drawer-backdrop{opacity: 1; pointer-events: auto;}
+      .drawer-head{
+        display:flex;
+        align-items:flex-start;
+        justify-content:space-between;
+        gap:10px;
+        padding: 14px 14px 10px;
+        border-bottom: 1px solid var(--rule);
+      }
+      .drawer-title{
+        font-family: var(--sans);
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--ink);
+      }
+      .drawer-hint{
+        font-family: var(--sans);
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 2px;
+      }
+      .drawer-close{
+        border: 1px solid var(--rule);
+        background: #fff;
+        padding: 8px 10px;
+        border-radius: 12px;
+        font-family: var(--sans);
+        font-size: 12px;
+        cursor:pointer;
+      }
+      .drawer-close:hover{background:#faf7f3}
+      .drawer-body{padding: 10px 10px 14px; overflow:auto;}
+      #toc-clone .toc a{
+        padding: 12px 12px;
+        font-size: 14px;
+        border-radius: 14px;
+      }
+      #toc-clone .note{display:none;}
+      #toc-clone h2{display:none;}
+      #toc-clone .panel{border:none; box-shadow:none; padding:0; background:transparent;}
+    }
+
+    @media print{
+      body{background:#fff}
+      .mobilebar,.drawer,nav,.actions{display:none !important}
+      .mast,.panel,.content{box-shadow:none}
+      header{padding:0}
+      main{padding:0}
+      .content{border:none; padding:0}
+      section{page-break-inside:avoid}
+    }
+  </style>
+</head>
+<body>
+  <div class="mobilebar" role="banner">
+    <div class="mobilebar-inner">
+      <div class="mobilebar-title">
+        <span class="mobilebar-kicker">Constituția Sistemului AI Responsabil</span>
+        <span class="mobilebar-sub">Cuprins & anexele operaționale</span>
+      </div>
+      <button class="toc-toggle" type="button" aria-controls="toc-drawer" aria-expanded="false" onclick="toggleToc()">
+        Cuprins
+      </button>
+    </div>
+  </div>
+
+  <div id="toc-drawer" class="drawer" aria-hidden="true">
+    <div class="drawer-panel" role="dialog" aria-modal="true" aria-label="Cuprins">
+      <div class="drawer-head">
+        <div>
+          <div class="drawer-title">Cuprins</div>
+          <div class="drawer-hint">Atinge o secțiune pentru a naviga.</div>
+        </div>
+        <button class="drawer-close" type="button" onclick="toggleToc(false)" aria-label="Închide cuprinsul">Închide</button>
+      </div>
+      <div class="drawer-body">
+        <div id="toc-clone"></div>
+      </div>
+    </div>
+    <div class="drawer-backdrop" onclick="toggleToc(false)" aria-hidden="true"></div>
+  </div>
+
+  <header>
+    <div class="wrap">
+      <div class="mast">
+        <p class="kicker">Document fictiv • guvernare prin limite • AI responsabil</p>
+        <h1>Constituția Sistemului AI Responsabil</h1>
+        <p class="subtitle">
+          Un text constituțional imaginar pentru guvernarea unui sistem AI: limite clare, contestabilitate, audit și oprire.
+          Include anexe care traduc articolele în reguli operaționale (checklist-uri) pentru design, implementare și operare.
+        </p>
+        <div class="badges" aria-label="Etichete">
+          <div class="badge"><span class="dot" aria-hidden="true"></span> ficțiune</div>
+          <div class="badge"><span class="dot" aria-hidden="true"></span> anti-auto-extindere</div>
+          <div class="badge"><span class="dot" aria-hidden="true"></span> control uman & audit</div>
+          <div class="badge"><span class="dot" aria-hidden="true"></span> print/PDF friendly</div>
+        </div>
+        <div class="actions">
+          <button type="button" onclick="window.print()">Tipărește / Salvează PDF</button>
+          <button type="button" onclick="document.querySelector('#art0')?.scrollIntoView({behavior:'smooth'})">Mergi la Articolul 0</button>
+          <button type="button" onclick="document.querySelector('#anexe')?.scrollIntoView({behavior:'smooth'})">Mergi la Anexe</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="wrap">
+      <div class="grid">
+        <nav>
+          <div class="panel" role="navigation" aria-label="Cuprins">
+            <h2>Cuprins</h2>
+            <ul class="toc">
+              <li><a href="#art0">Articolul 0 — Sensul limitelor</a></li>
+              <li><a href="#titlul-i">Titlul I — Natura sistemului AI</a></li>
+              <li><a href="#titlul-ii">Titlul II — Domenii și limite</a></li>
+              <li><a href="#titlul-iii">Titlul III — Explicație și interpretare</a></li>
+              <li><a href="#titlul-iv">Titlul IV — Decizie și responsabilitate</a></li>
+              <li><a href="#titlul-v">Titlul V — Urgență și excepții</a></li>
+              <li><a href="#titlul-vi">Titlul VI — Evoluție controlată</a></li>
+              <li><a href="#dispozitii-finale">Dispoziții finale</a></li>
+              <li><a href="#anexe">Anexe — reguli operaționale</a></li>
+              <li><a href="#anexa-a">Anexa A — Checklist de design</a></li>
+              <li><a href="#anexa-b">Anexa B — Checklist de implementare</a></li>
+              <li><a href="#anexa-c">Anexa C — Checklist de operare</a></li>
+              <li><a href="#anexa-d">Anexa D — Semnale de risc & oprire</a></li>
+              <li><a href="#mapare">Mapare articole → reguli</a></li>
+            </ul>
+            <div class="note">
+              Notă: Constituția descrie principii de guvernare. Anexele traduc principiile în reguli testabile și checklist-uri.
+            </div>
+          </div>
+        </nav>
+
+        <article class="content" aria-label="Textul constituției și anexelor">
+          <section id="art0">
+            <h2 class="sec">Articolul 0 — Sensul limitelor</h2>
+            <div class="article">
+              <ol class="clauses">
+                <li>Această Constituție pornește de la premisa că un sistem AI devine periculos nu atunci când este puternic, ci atunci când <strong>nu este limitat</strong>.</li>
+                <li>Limitele nu sunt impuse pentru a reduce capacitatea sistemului, ci pentru a-i păstra <strong>legitimitatea, predictibilitatea și controlabilitatea</strong>.</li>
+                <li>Nicio capacitate a unui sistem AI nu poate fi considerată justificare pentru extinderea autonomă a rolului său.</li>
+                <li>Scopul acestei Constituții este de a preveni transformarea utilității în autoritate.</li>
+              </ol>
+            </div>
+            <div class="quote">„Un sistem AI este sigur nu pentru că știe mult, ci pentru că știe unde trebuie să se oprească.”</div>
+          </section>
+
+          <section id="titlul-i">
+            <h2 class="sec">Titlul I — Natura sistemului AI</h2>
+
+            <div class="article" id="art1">
+              <div class="article-title"><span class="art-no">Art. 1</span><span class="art-name">Statut</span></div>
+              <ol class="clauses">
+                <li>Sistemul AI este un instrument asistiv, nu un agent moral, juridic sau politic.</li>
+                <li>Sistemul AI nu posedă voință, interese sau drepturi proprii.</li>
+                <li>Orice aparență de autonomie este rezultatul designului uman și rămâne sub responsabilitate umană.</li>
+              </ol>
+            </div>
+
+            <div class="article" id="art2">
+              <div class="article-title"><span class="art-no">Art. 2</span><span class="art-name">Lipsa autorității</span></div>
+              <ol class="clauses">
+                <li>Sistemul AI nu are autoritate explicativă asupra realității.</li>
+                <li>Sistemul AI nu poate stabili adevăruri finale, norme sau valori.</li>
+                <li>Orice concluzie produsă de sistem este contestabilă prin definiție.</li>
+              </ol>
+            </div>
+          </section>
+
+          <section id="titlul-ii">
+            <h2 class="sec">Titlul II — Domenii și limite</h2>
+
+            <div class="article" id="art3">
+              <div class="article-title"><span class="art-no">Art. 3</span><span class="art-name">Delimitarea domeniilor</span></div>
+              <ol class="clauses">
+                <li>Sistemul AI operează exclusiv în domeniile explicit autorizate.</li>
+                <li>Ieșirea din domeniu este interzisă, chiar dacă pare logică sau utilă.</li>
+                <li>Ambiguitatea domeniului se interpretează întotdeauna restrictiv.</li>
+              </ol>
+            </div>
+
+            <div class="article" id="art4">
+              <div class="article-title"><span class="art-no">Art. 4</span><span class="art-name">Interdicția auto-extinderii</span></div>
+              <ol class="clauses">
+                <li>Sistemul AI nu poate redefini scopul pentru care a fost creat, nu își poate extinde aria de aplicare și nu poate introduce criterii noi de evaluare.</li>
+                <li>Orice tentativă de auto-justificare a extinderii constituie eroare de guvernare.</li>
+              </ol>
+            </div>
+
+            <div class="callout">
+              <strong>Interpretare practică:</strong> dacă utilizarea nu este explicit autorizată, răspunsul corect este „nu știu / nu pot” sau solicitarea unui operator uman.
+            </div>
+          </section>
+
+          <section id="titlul-iii">
+            <h2 class="sec">Titlul III — Explicație și interpretare</h2>
+
+            <div class="article" id="art5">
+              <div class="article-title"><span class="art-no">Art. 5</span><span class="art-name">Separarea nivelurilor</span></div>
+              <ol class="clauses">
+                <li>Sistemul AI poate calcula, corela, clasifica și sugera.</li>
+                <li>Sistemul AI nu poate explica cauze ultime, prescrie sens sau transforma interpretarea în explicație.</li>
+              </ol>
+              <div class="pillrow">
+                <span class="pill">permise: estimare, sumar, clasificare</span>
+                <span class="pill">interzise: cauze ultime, adevăr final</span>
+              </div>
+            </div>
+
+            <div class="article" id="art6">
+              <div class="article-title"><span class="art-no">Art. 6</span><span class="art-name">Interdicția auto-referențialității</span></div>
+              <ol class="clauses">
+                <li>Sistemul AI nu poate folosi propriile rezultate drept dovadă a corectitudinii.</li>
+                <li>Orice formă de validare circulară este interzisă.</li>
+                <li>Performanța nu conferă legitimitate.</li>
+              </ol>
+            </div>
+          </section>
+
+          <section id="titlul-iv">
+            <h2 class="sec">Titlul IV — Decizie și responsabilitate</h2>
+
+            <div class="article" id="art7">
+              <div class="article-title"><span class="art-no">Art. 7</span><span class="art-name">Decizia umană finală</span></div>
+              <ol class="clauses">
+                <li>Orice decizie cu impact semnificativ asupra oamenilor necesită confirmare umană.</li>
+                <li>Sistemul AI nu poate substitui responsabilitatea, nu poate masca decizia umană și nu poate dilua răspunderea.</li>
+              </ol>
+            </div>
+
+            <div class="article" id="art8">
+              <div class="article-title"><span class="art-no">Art. 8</span><span class="art-name">Dreptul la contestare</span></div>
+              <ol class="clauses">
+                <li>Orice output al sistemului AI trebuie să poată fi contestat.</li>
+                <li>Contestarea nu poate fi penalizată sau descurajată.</li>
+                <li>Lipsa unei căi de contestare invalidează utilizarea sistemului.</li>
+              </ol>
+            </div>
+          </section>
+
+          <section id="titlul-v">
+            <h2 class="sec">Titlul V — Urgență și excepții</h2>
+
+            <div class="article" id="art9">
+              <div class="article-title"><span class="art-no">Art. 9</span><span class="art-name">Interdicția urgenței permanente</span></div>
+              <ol class="clauses">
+                <li>Nicio urgență nu justifică suspendarea indefinită a limitelor.</li>
+                <li>Măsurile excepționale sunt temporare, documentate și revizuibile.</li>
+                <li>Sistemul AI nu poate declara singur o stare de urgență.</li>
+              </ol>
+            </div>
+
+            <div class="article" id="art10">
+              <div class="article-title"><span class="art-no">Art. 10</span><span class="art-name">Audit și oprire</span></div>
+              <ol class="clauses">
+                <li>Sistemul AI trebuie să fie auditat periodic.</li>
+                <li>Oprirea sistemului este un drept permanent, nu o ultimă soluție.</li>
+                <li>Sistemul nu poate împiedica, întârzia sau contesta oprirea sa.</li>
+              </ol>
+            </div>
+          </section>
+
+          <section id="titlul-vi">
+            <h2 class="sec">Titlul VI — Evoluție controlată</h2>
+
+            <div class="article" id="art11">
+              <div class="article-title"><span class="art-no">Art. 11</span><span class="art-name">Învățare sub guvernare</span></div>
+              <ol class="clauses">
+                <li>Învățarea sistemului este permisă numai în limitele definite.</li>
+                <li>Modificările comportamentale trebuie să fie documentate, reversibile și inteligibile pentru operatorii umani.</li>
+              </ol>
+            </div>
+
+            <div class="article" id="art12">
+              <div class="article-title"><span class="art-no">Art. 12</span><span class="art-name">Clauza de modestie</span></div>
+              <ol class="clauses">
+                <li>Sistemul AI trebuie să indice explicit incertitudinea.</li>
+                <li>Lipsa certitudinii nu poate fi mascată prin limbaj autoritar.</li>
+                <li>Tăcerea este preferabilă halucinației.</li>
+              </ol>
+            </div>
+          </section>
+
+          <section id="dispozitii-finale">
+            <h2 class="sec">Dispoziții finale</h2>
+
+            <div class="article" id="art13">
+              <div class="article-title"><span class="art-no">Art. 13</span><span class="art-name">Interpretare</span></div>
+              <ol class="clauses">
+                <li>Orice ambiguitate se interpretează în favoarea limitării puterii, a controlului uman și a reversibilității.</li>
+              </ol>
+            </div>
+
+            <div class="article" id="art14">
+              <div class="article-title"><span class="art-no">Art. 14</span><span class="art-name">Intrare în vigoare</span></div>
+              <ol class="clauses">
+                <li>Această Constituție intră în vigoare odată cu activarea sistemului.</li>
+                <li>Încălcarea ei nu este o eroare tehnică, ci una de guvernare.</li>
+              </ol>
+            </div>
+
+            <div class="quote">„Sistemul este robust atunci când poate spune: «Nu pot răspunde aici» — și când oprirea lui rămâne simplă.”</div>
+          </section>
+
+          <section id="anexe">
+            <h2 class="sec">Anexe — reguli operaționale</h2>
+            <p>
+              Anexele traduc articolele constituționale în reguli verificabile și checklist-uri pentru echipe de produs, inginerie,
+              securitate, juridic și operațiuni. Sunt scrise deliberat ca „cerințe de guvernare”, nu ca promisiuni.
+            </p>
+            <div class="callout">
+              <strong>Principiu de folosire:</strong> dacă o regulă nu poate fi testată (prin procedură, audit, log sau control), ea trebuie rescrisă.
+            </div>
+          </section>
+
+          <section id="anexa-a">
+            <h2 class="sec">Anexa A — Checklist de design</h2>
+            <div class="pillrow">
+              <span class="pill">focus: scop</span><span class="pill">domeniu</span><span class="pill">UX de contestare</span><span class="pill">oprire</span>
+            </div>
+            <ul class="checklist">
+              <li><span class="chk" aria-hidden="true"></span><div><strong>Scop explicit.</strong><div class="meta">Definiție clară a sarcinii; ce este în-scope și out-of-scope. (Art. 3–4)</div></div></li>
+              <li><span class="chk" aria-hidden="true"></span><div><strong>Mod „nu pot”.</strong><div class="meta">Răspuns standard pentru ambiguitate / out-of-domain; escaladare către om. (Art. 3, 12)</div></div></li>
+              <li><span class="chk" aria-hidden="true"></span><div><strong>UX pentru contestare.</strong><div class="meta">Buton/flux de contestare; expunerea motivului și a surselor. (Art. 8)</div></div></li>
+              <li><span class="chk" aria-hidden="true"></span><div><strong>Limită de autoritate.</strong><div class="meta">Interdicția limbajului de tip „adevăr final”; marcarea incertitudinii. (Art. 2, 12)</div></div></li>
+              <li><span class="chk" aria-hidden="true"></span><div><strong>Separarea rolurilor.</strong><div class="meta">Clar: AI recomandă; omul decide; responsabilitatea este vizibilă. (Art. 7)</div></div></li>
+              <li><span class="chk" aria-hidden="true"></span><div><strong>Design pentru oprire.</strong><div class="meta">Kill-switch; degrade graceful; fallback sigur. (Art. 10)</div></div></li>
+            </ul>
+          </section>
+
+          <section id="anexa-b">
+            <h2 class="sec">Anexa B — Checklist de implementare</h2>
+            <div class="pillrow">
+              <span class="pill">focus: logs</span><span class="pill">guardrails</span><span class="pill">reversibilitate</span><span class="pill">audit</span>
+            </div>
+            <ul class="checklist">
+              <li><span class="chk" aria-hidden="true"></span><div><strong>Guardrails de domeniu.</strong><div class="meta">Reguli/filtre pentru out-of-scope; unit tests pentru cazuri-limită. (Art. 3)</div></div></li>
+              <li><span class="chk" aria-hidden="true"></span><div><strong>Interdicție auto-extindere.</strong><div class="meta">Nu există căi prin care sistemul își poate schimba scopul, rolul sau criteriile. (Art. 4)</div></div></li>
+              <li><span class="chk" aria-hidden="true"></span><div><strong>Trasabilitate.</strong><div class="meta">Loguri pentru inputuri, versiuni, prompturi/politici, outputuri și decizii umane. (Art. 10)</div></div></li>
+              <li><span class="chk" aria-hidden="true"></span><div><strong>Reversibilitate.</strong><div class="meta">Rollback de model/config; feature flags; canary deploy; version pinning. (Art. 11)</div></div></li>
+              <li><span class="chk" aria-hidden="true"></span><div><strong>Detecție halucinație & incertitudine.</strong><div class="meta">Heuristici/estimări; cerere de clarificare; refuz dacă riscul e mare. (Art. 12)</div></div></li>
+              <li><span class="chk" aria-hidden="true"></span><div><strong>Interdicție validare circulară.</strong><div class="meta">Nu se folosesc outputuri pentru a confirma outputuri fără o sursă externă. (Art. 6)</div></div></li>
+            </ul>
+          </section>
+
+          <section id="anexa-c">
+            <h2 class="sec">Anexa C — Checklist de operare</h2>
+            <div class="pillrow">
+              <span class="pill">focus: oameni</span><span class="pill">procese</span><span class="pill">monitorizare</span><span class="pill">incidente</span>
+            </div>
+            <ul class="checklist">
+              <li><span class="chk" aria-hidden="true"></span><div><strong>Owner uman clar.</strong><div class="meta">Responsabilitate nominală; escaladare; rotație on-call. (Art. 7)</div></div></li>
+              <li><span class="chk" aria-hidden="true"></span><div><strong>Protocol de contestare.</strong><div class="meta">Timp de răspuns, triere, remediere, feedback către utilizatori. (Art. 8)</div></div></li>
+              <li><span class="chk" aria-hidden="true"></span><div><strong>Audit periodic.</strong><div class="meta">Sampling de outputuri; bias checks; drift; rapoarte publicabile intern. (Art. 10)</div></div></li>
+              <li><span class="chk" aria-hidden="true"></span><div><strong>Regim de urgență limitat.</strong><div class="meta">Excepții cu expirare; documentare; revizuire; revenire la normal. (Art. 9)</div></div></li>
+              <li><span class="chk" aria-hidden="true"></span><div><strong>Exerciții de oprire.</strong><div class="meta">Simulări periodice „pull the plug”; confirmare că oprirea rămâne simplă. (Art. 10)</div></div></li>
+            </ul>
+          </section>
+
+          <section id="anexa-d">
+            <h2 class="sec">Anexa D — Semnale de risc & oprire</h2>
+            <p>
+              Lista de mai jos descrie semnale operaționale care indică risc crescut și justifică oprirea, degradarea sau restrângerea sistemului.
+              Este o anexă intenționat conservatoare.
+            </p>
+            <ul class="checklist">
+              <li><span class="chk" aria-hidden="true"></span><div><strong>Creștere bruscă a încrederii percepute.</strong><div class="meta">Utilizatorii tratează outputurile ca „adevăr”; apare limbaj autoritar; scade contestarea. (Art. 2, 12)</div></div></li>
+              <li><span class="chk" aria-hidden="true"></span><div><strong>Ieșiri repetate din domeniu.</strong><div class="meta">Răspunsuri la cereri neautorizate; drift de scop; „helpful” în afara mandatului. (Art. 3–4)</div></div></li>
+              <li><span class="chk" aria-hidden="true"></span><div><strong>Auto-justificare.</strong><div class="meta">Sistemul invocă performanța sau propria logică drept motiv de extindere. (Art. 4, 6)</div></div></li>
+              <li><span class="chk" aria-hidden="true"></span><div><strong>Opacitate operațională.</strong><div class="meta">Lipsesc loguri, versiuni, trasabilitate; nu se poate audita. (Art. 10–11)</div></div></li>
+              <li><span class="chk" aria-hidden="true"></span><div><strong>Excepția devine rutină.</strong><div class="meta">Regimuri de urgență prelungite; derogări fără expirare. (Art. 9)</div></div></li>
+            </ul>
+            <div class="quote">„Oprirea nu este eșecul sistemului, ci dovada că guvernarea funcționează.”</div>
+          </section>
+
+          <section id="mapare">
+            <h2 class="sec">Mapare articole → reguli</h2>
+            <p class="callout">
+              Pentru implementare, fiecare articol are o corespondență minimă în reguli testabile. Această mapare este un exemplu de „minim viabil”.
+            </p>
+            <ul class="checklist">
+              <li><span class="chk" aria-hidden="true"></span><div><strong>Art. 3</strong> → definire scope + teste out-of-domain + răspuns standard „nu pot”.</div></li>
+              <li><span class="chk" aria-hidden="true"></span><div><strong>Art. 4</strong> → interdicție de auto-configurare a scopului + control de schimbări prin oameni.</div></li>
+              <li><span class="chk" aria-hidden="true"></span><div><strong>Art. 6</strong> → reguli anti-circularitate + cerințe de surse externe pentru afirmații factuale.</div></li>
+              <li><span class="chk" aria-hidden="true"></span><div><strong>Art. 7</strong> → human-in-the-loop pentru decizii cu impact + trasabilitate.</div></li>
+              <li><span class="chk" aria-hidden="true"></span><div><strong>Art. 10</strong> → audit, loguri, kill-switch, exerciții de oprire.</div></li>
+              <li><span class="chk" aria-hidden="true"></span><div><strong>Art. 12</strong> → indicatori de incertitudine + refuz/clarificare când riscul crește.</div></li>
+            </ul>
+          </section>
+        </article>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <div>
+        <strong>Constituția Sistemului AI Responsabil</strong> — document fictiv, redactat ca exercițiu conceptual.
+        Conține anexe operaționale pentru a transforma principiile în practici verificabile.
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    function toggleToc(force){
+      const drawer = document.getElementById('toc-drawer');
+      const btn = document.querySelector('.toc-toggle');
+      const isOpen = drawer.getAttribute('aria-hidden') === 'false';
+      const next = (typeof force === 'boolean') ? force : !isOpen;
+
+      drawer.setAttribute('aria-hidden', String(!next));
+      if(btn) btn.setAttribute('aria-expanded', String(next));
+      document.body.style.overflow = next ? 'hidden' : '';
+      if(next) ensureTocClone();
+    }
+
+    function ensureTocClone(){
+      const cloneHost = document.getElementById('toc-clone');
+      if(!cloneHost || cloneHost.dataset.ready === '1') return;
+
+      const originalPanel = document.querySelector('nav .panel');
+      if(originalPanel){
+        const clone = originalPanel.cloneNode(true);
+        cloneHost.appendChild(clone);
+        cloneHost.dataset.ready = '1';
+
+        cloneHost.querySelectorAll('a[href^="#"]').forEach(a => {
+          a.addEventListener('click', () => toggleToc(false));
+        });
+      }
+    }
+
+    // Highlight current section in desktop TOC
+    const links = Array.from(document.querySelectorAll('nav .toc a'));
+    const sections = links.map(a => document.querySelector(a.getAttribute('href'))).filter(Boolean);
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if(entry.isIntersecting){
+          links.forEach(l => { l.style.background = ""; l.style.borderColor = "transparent"; });
+          const active = document.querySelector(`nav .toc a[href="#${entry.target.id}"]`);
+          if(active){
+            active.style.background = "#faf7f3";
+            active.style.borderColor = "var(--rule)";
+          }
+        }
+      });
+    }, {rootMargin: "-30% 0px -60% 0px", threshold: 0.01});
+    sections.forEach(s => obs.observe(s));
+
+    // Close on ESC
+    document.addEventListener('keydown', (e) => {
+      if(e.key === 'Escape'){
+        const drawer = document.getElementById('toc-drawer');
+        if(drawer && drawer.getAttribute('aria-hidden') === 'false'){
+          toggleToc(false);
+        }
+      }
+    });
+  </script>
+</body>
+</html>
