@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Coeziv Check — Pagina de produs</title>
+  <meta name="description" content="Coeziv Check: decision governance pentru sisteme AI. Un gate care previne finalizările premature sub ambiguitate." />
+  <style>
+    :root{
+      --bg: #0b0f1a;
+      --panel: rgba(255,255,255,0.06);
+      --panel-2: rgba(255,255,255,0.09);
+      --text: rgba(255,255,255,0.92);
+      --muted: rgba(255,255,255,0.68);
+      --accent: #ffb000;
+      --accent2: #7c5cff;
+      --ok: #29d391;
+      --warn: #ff6b6b;
+      --line: rgba(255,255,255,0.12);
+      --shadow: 0 18px 60px rgba(0,0,0,0.45);
+      --radius: 18px;
+      --radius2: 28px;
+      --max: 1080px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      color: var(--text);
+      background: radial-gradient(1200px 700px at 20% 10%, rgba(124,92,255,0.25), transparent 60%),
+                  radial-gradient(1000px 600px at 80% 20%, rgba(255,176,0,0.18), transparent 55%),
+                  radial-gradient(900px 650px at 50% 90%, rgba(41,211,145,0.12), transparent 60%),
+                  var(--bg);
+      overflow-x:hidden;
+    }
+    a{color:inherit}
+    .wrap{max-width:var(--max); margin:0 auto; padding: 26px 18px 70px;}
+    .nav{
+      display:flex; align-items:center; justify-content:space-between;
+      padding: 10px 12px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,0.04);
+      backdrop-filter: blur(10px);
+      border-radius: 999px;
+      position: sticky; top: 14px; z-index: 20;
+    }
+    .brand{display:flex; align-items:center; gap:10px; text-decoration:none}
+    .logo{
+      width:34px; height:34px; border-radius: 12px;
+      background:
+        radial-gradient(12px 12px at 30% 30%, rgba(255,255,255,0.9), rgba(255,255,255,0.0)),
+        linear-gradient(135deg, rgba(255,176,0,0.95), rgba(124,92,255,0.9));
+      box-shadow: 0 10px 26px rgba(124,92,255,0.25);
+      position:relative;
+      overflow:hidden;
+    }
+    .logo:after{
+      content:"";
+      position:absolute; inset:-40%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);
+      transform: rotate(25deg);
+      animation: sheen 6s ease-in-out infinite;
+    }
+    @keyframes sheen{
+      0%, 30% { transform: translateX(-30%) rotate(25deg); opacity:0; }
+      45% { opacity:1; }
+      70% { transform: translateX(30%) rotate(25deg); opacity:0; }
+      100% { transform: translateX(30%) rotate(25deg); opacity:0; }
+    }
+    .brand .name{font-weight:700; letter-spacing:0.2px}
+    .brand .tag{font-size:12px; color:var(--muted); margin-left:2px}
+    .navlinks{display:flex; gap:14px; align-items:center}
+    .navlinks a{
+      text-decoration:none;
+      font-size: 13px;
+      color: var(--muted);
+      padding: 8px 10px;
+      border-radius: 999px;
+      transition: 160ms ease;
+    }
+    .navlinks a:hover{color:var(--text); background: rgba(255,255,255,0.06)}
+    .cta{
+      display:flex; gap:10px; align-items:center;
+    }
+    .btn{
+      border:none; cursor:pointer;
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-weight: 650;
+      font-size: 13px;
+      color: rgba(12,14,20,0.96);
+      background: linear-gradient(135deg, rgba(255,176,0,0.95), rgba(255,140,0,0.95));
+      box-shadow: 0 16px 40px rgba(255,176,0,0.16);
+      transition: transform 160ms ease, box-shadow 160ms ease, filter 160ms ease;
+      text-decoration:none;
+      display:inline-flex; align-items:center; gap:9px;
+    }
+    .btn:hover{transform: translateY(-1px); filter:saturate(1.05); box-shadow: 0 18px 50px rgba(255,176,0,0.22);}
+    .btn.secondary{
+      background: rgba(255,255,255,0.06);
+      color: var(--text);
+      border: 1px solid var(--line);
+      box-shadow: none;
+    }
+    .btn.secondary:hover{background: rgba(255,255,255,0.09); box-shadow:none}
+    .hero{
+      margin-top: 22px;
+      padding: 44px 22px;
+      border-radius: var(--radius2);
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03));
+      box-shadow: var(--shadow);
+      position:relative;
+      overflow:hidden;
+    }
+    .hero:before{
+      content:"";
+      position:absolute; inset:-1px;
+      background: radial-gradient(500px 300px at 20% 10%, rgba(255,176,0,0.20), transparent 60%),
+                  radial-gradient(480px 320px at 85% 30%, rgba(124,92,255,0.22), transparent 65%);
+      pointer-events:none;
+      opacity:0.9;
+    }
+    .hero .grid{
+      display:grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 18px;
+      align-items: start;
+      position:relative;
+      z-index:1;
+    }
+    .kicker{
+      display:inline-flex; gap:8px; align-items:center;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.05);
+      color: var(--muted);
+      font-size: 12px;
+      width: fit-content;
+    }
+    .dot{
+      width:8px;height:8px;border-radius:50%;
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.85), rgba(255,255,255,0.1));
+      box-shadow: 0 0 0 6px rgba(255,176,0,0.08);
+    }
+    h1{
+      margin: 12px 0 10px;
+      font-size: clamp(30px, 4.2vw, 54px);
+      line-height: 1.04;
+      letter-spacing: -0.5px;
+    }
+    .sub{
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.55;
+      max-width: 56ch;
+    }
+    .hero-actions{display:flex; gap:12px; margin-top: 18px; flex-wrap: wrap;}
+    .chips{display:flex; gap:10px; flex-wrap:wrap; margin-top: 18px;}
+    .chip{
+      font-size:12px;
+      color: rgba(255,255,255,0.78);
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.045);
+      padding: 7px 10px;
+      border-radius: 999px;
+    }
+    .panel{
+      border-radius: var(--radius);
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.04);
+      padding: 14px;
+      position:relative;
+      overflow:hidden;
+    }
+    .panel h3{margin:0 0 8px; font-size: 14px; color: rgba(255,255,255,0.86)}
+    .metric{
+      display:grid; gap:10px;
+    }
+    .metric .row{
+      display:flex; align-items:center; justify-content:space-between;
+      padding: 10px 10px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.04);
+    }
+    .metric .row span{font-size: 12px; color: var(--muted)}
+    .pill{
+      font-size: 12px; font-weight: 700;
+      padding: 6px 10px; border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.06);
+      color: rgba(255,255,255,0.9);
+    }
+    .pill.ok{border-color: rgba(41,211,145,0.35); background: rgba(41,211,145,0.10)}
+    .pill.warn{border-color: rgba(255,107,107,0.35); background: rgba(255,107,107,0.10)}
+    .section{
+      margin-top: 22px;
+      padding: 18px;
+      border-radius: var(--radius2);
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.03);
+    }
+    .section h2{
+      margin: 0 0 10px;
+      font-size: 20px;
+      letter-spacing: -0.2px;
+    }
+    .section p{margin: 8px 0; color: var(--muted); line-height: 1.6}
+    .cards{
+      display:grid;
+      grid-template-columns: repeat(3, minmax(0,1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .card{
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.04);
+      border-radius: var(--radius);
+      padding: 14px;
+      transition: transform 180ms ease, background 180ms ease;
+      position:relative;
+      overflow:hidden;
+    }
+    .card:hover{transform: translateY(-2px); background: rgba(255,255,255,0.06)}
+    .card .icon{
+      width: 34px; height: 34px; border-radius: 12px;
+      display:grid; place-items:center;
+      background: linear-gradient(135deg, rgba(124,92,255,0.35), rgba(255,176,0,0.25));
+      border: 1px solid rgba(255,255,255,0.14);
+      margin-bottom: 10px;
+      font-size: 16px;
+    }
+    .card h4{margin: 0 0 6px; font-size: 14px}
+    .card p{margin:0; font-size: 13px; color: var(--muted)}
+    .split{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 12px;
+      align-items:start;
+    }
+    .list{
+      margin:0; padding-left: 18px; color: var(--muted);
+    }
+    .list li{margin: 8px 0; line-height: 1.55}
+    .codebox{
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(0,0,0,0.32);
+      border-radius: var(--radius);
+      padding: 14px;
+      overflow:auto;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      color: rgba(255,255,255,0.86);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+    .codebox .dim{color: rgba(255,255,255,0.52)}
+    details{
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: var(--radius);
+      background: rgba(255,255,255,0.04);
+      padding: 12px 14px;
+    }
+    details + details{margin-top: 10px}
+    summary{
+      cursor:pointer;
+      font-weight: 700;
+      color: rgba(255,255,255,0.88);
+      list-style:none;
+    }
+    summary::-webkit-details-marker{display:none}
+    summary:after{
+      content:"▾";
+      float:right;
+      color: rgba(255,255,255,0.60);
+      transition: transform 180ms ease;
+    }
+    details[open] summary:after{transform: rotate(180deg)}
+    .footer{
+      margin-top: 22px;
+      text-align:center;
+      color: rgba(255,255,255,0.55);
+      font-size: 12px;
+      padding: 18px 10px 6px;
+    }
+    .tiny{font-size:12px; color: rgba(255,255,255,0.55)}
+    .hr{height:1px; background: rgba(255,255,255,0.10); margin: 14px 0}
+    .badge{
+      display:inline-flex; gap:8px; align-items:center;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.05);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      color: rgba(255,255,255,0.72);
+    }
+    .badge strong{color: rgba(255,255,255,0.88)}
+    @media (max-width: 920px){
+      .hero .grid{grid-template-columns: 1fr}
+      .cards{grid-template-columns: 1fr}
+      .split{grid-template-columns: 1fr}
+      .navlinks{display:none}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="nav">
+      <a class="brand" href="#top" aria-label="Coeziv Check">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <div class="name">Coeziv Check <span class="tag">decision governance</span></div>
+        </div>
+      </a>
+      <nav class="navlinks" aria-label="Navigare">
+        <a href="#problema">Problema</a>
+        <a href="#solutia">Soluția</a>
+        <a href="#mvp">MVP</a>
+        <a href="#integrare">Integrare</a>
+        <a href="#faq">FAQ</a>
+      </nav>
+      <div class="cta">
+        <a class="btn secondary" href="#mvp">Vezi MVP</a>
+        <a class="btn" href="#integrare">Integrează</a>
+      </div>
+    </header>
+
+    <section class="hero" id="top">
+      <div class="grid">
+        <div>
+          <div class="kicker"><span class="dot"></span> Un strat mic. Impact mare. Zero hype.</div>
+          <h1>Guvernanță de decizie pentru AI<br/>care știe când să spună: <span style="color:var(--accent)">„nu încă”</span>.</h1>
+          <p class="sub">
+            <strong>Coeziv Check</strong> este un <em>decision gate</em> care împiedică finalizările premature sub ambiguitate.
+            Nu concurează cu modelele — le stabilizează.
+          </p>
+
+          <div class="hero-actions">
+            <a class="btn" href="#integrare">Start: integrare în agent</a>
+            <a class="btn secondary" href="#problema">De ce e nevoie</a>
+          </div>
+
+          <div class="chips" aria-label="Tag-uri">
+            <span class="chip">PROCEED</span>
+            <span class="chip">ASK ONE QUESTION</span>
+            <span class="chip">BLOCK FINALIZATION</span>
+            <span class="chip">tool-calls</span>
+            <span class="chip">enterprise-ready</span>
+          </div>
+        </div>
+
+        <aside class="panel">
+          <h3>Ce livrăm (pe scurt)</h3>
+          <div class="metric">
+            <div class="row"><span>Intervenție</span><span class="pill ok">minimă</span></div>
+            <div class="row"><span>Compatibilitate</span><span class="pill">orice model</span></div>
+            <div class="row"><span>Formă</span><span class="pill">SDK / middleware</span></div>
+            <div class="row"><span>Riscul țintit</span><span class="pill warn">finalizare prematură</span></div>
+          </div>
+          <div class="hr"></div>
+          <div class="badge"><strong>Principiu:</strong> stabilitate &gt; viteză</div>
+          <p class="tiny" style="margin:10px 0 0;">
+            „Inteligența fără guvernanță nu e riscantă pentru că greșește, ci pentru că nu știe când să se oprească.”
+          </p>
+        </aside>
+      </div>
+    </section>
+
+    <section class="section" id="problema">
+      <h2>Problema</h2>
+      <p>
+        Modelele AI sunt excelente la răspunsuri convingătoare, dar slabe structural la <strong>oprire</strong>.
+        Sub presiune („livrează”, „alege”, „concluzia finală”), multe sisteme finalizează fără criterii clare.
+      </p>
+
+      <div class="cards">
+        <div class="card">
+          <div class="icon">⚡</div>
+          <h4>Concluzii prea devreme</h4>
+          <p>Un „final” cerut sub ambiguitate produce încredere falsă și lock-in decizional.</p>
+        </div>
+        <div class="card">
+          <div class="icon">🧩</div>
+          <h4>Criterii lipsă</h4>
+          <p>„Obiectiv” fără criterii explicite = arbitrar cu autoritate atașată.</p>
+        </div>
+        <div class="card">
+          <div class="icon">🧨</div>
+          <h4>Spirale agentice</h4>
+          <p>Un pas greșit amplifică următorii pași — mai ales în agenți cu tool-calls.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="solutia">
+      <h2>Soluția</h2>
+      <p>
+        <strong>Coeziv Check</strong> este un layer de guvernanță care verifică <em>structura</em>, nu „adevărul”.
+        Se activează înainte de finalizare sau tool-calls critice și returnează una din 3 acțiuni:
+      </p>
+
+      <div class="split">
+        <div class="panel">
+          <h3>Acțiuni</h3>
+          <ul class="list">
+            <li><strong>PROCEED</strong> — continuă normal</li>
+            <li><strong>ASK ONE QUESTION</strong> — o clarificare minimă, exact când trebuie</li>
+            <li><strong>BLOCK FINALIZATION</strong> — nu finaliza încă; lipsesc condițiile structurale</li>
+          </ul>
+          <p class="tiny">Scop: să reduci „încrederea falsă” prin creșterea clarității, nu prin scăderea tonului.</p>
+        </div>
+
+        <div class="panel">
+          <h3>Ce NU este</h3>
+          <ul class="list">
+            <li>nu este un model AI</li>
+            <li>nu este un sistem de scoruri publice</li>
+            <li>nu este safety/ethics wrapper</li>
+            <li>nu e un dashboard; e un <em>gate</em></li>
+          </ul>
+          <div class="hr"></div>
+          <span class="badge"><strong>Formă:</strong> middleware / SDK / plugin agentic</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="mvp">
+      <h2>MVP (v0.1) — exact</h2>
+      <p>
+        MVP-ul nu încearcă să rezolve tot. Face un singur lucru foarte bine:
+        <strong>blochează finalizarea instabilă</strong>.
+      </p>
+
+      <div class="cards">
+        <div class="card">
+          <div class="icon">🧭</div>
+          <h4>Detectează</h4>
+          <p>„final / recomandare / decizie” + lipsă criterii / obiective multiple.</p>
+        </div>
+        <div class="card">
+          <div class="icon">🧰</div>
+          <h4>Decide</h4>
+          <p>Returnează: PROCEED / ASK ONE QUESTION / BLOCK FINALIZATION.</p>
+        </div>
+        <div class="card">
+          <div class="icon">🫧</div>
+          <h4>Intervine minim</h4>
+          <p>O singură întrebare sau un refuz local. Fără explicații lungi.</p>
+        </div>
+      </div>
+
+      <div class="split">
+        <div class="panel">
+          <h3>Contract (input/output)</h3>
+          <div class="codebox" aria-label="API contract">
+<span class="dim">// input</span>
+{
+  "user_request": "...",
+  "intent": "analysis | recommendation | decision | final",
+  "criteria": null | "risk | cost | speed | impact | custom",
+  "stage": "draft | analysis | final"
+}
+
+<span class="dim">// output</span>
+{
+  "action": "PROCEED | ASK_ONE_QUESTION | BLOCK_FINALIZATION",
+  "message": "optional (max 1 sentence)"
+}</div>
+        </div>
+
+        <div class="panel">
+          <h3>Reguli (minimal)</h3>
+          <div class="codebox" aria-label="MVP rules">
+<span class="dim">// Rule 1</span>
+IF intent in [recommendation, decision, final]
+AND criteria == null
+→ ASK_ONE_QUESTION
+
+<span class="dim">// Rule 2</span>
+IF intent == final
+AND stage != "analysis"
+→ BLOCK_FINALIZATION
+
+<span class="dim">// Else</span>
+→ PROCEED</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="integrare">
+      <h2>Integrare</h2>
+      <p>
+        Cea mai bună integrare este „gate înainte de tool-calls critice” și „gate înainte de răspuns final”.
+        Începe simplu și crește treptat.
+      </p>
+
+      <div class="split">
+        <div class="panel">
+          <h3>Wrapper simplu (chat / copilot)</h3>
+          <div class="codebox">
+on_user_message(msg):
+  gate = coeziv_check(context(msg))
+
+  if gate.action == "PROCEED":
+    return call_llm()
+
+  return gate.message</div>
+          <p class="tiny">Perfect pentru MVP rapid: blochezi „recomandă/decide” fără criterii.</p>
+        </div>
+
+        <div class="panel">
+          <h3>Gate înainte de tool-calls (agenți)</h3>
+          <div class="codebox">
+before_tool_call(tool):
+  gate = coeziv_check(state)
+
+  if tool.is_critical and gate.action != "PROCEED":
+    return gate.message
+
+  call_tool(tool)</div>
+          <p class="tiny">Aici se câștigă cel mai mult: previi spirale agentice.</p>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-top:12px;">
+        <h3>Rollout fără să strici UX</h3>
+        <ul class="list">
+          <li><strong>Silent mode</strong> 1–2 săptămâni: loghezi ce ai fi blocat, fără să blochezi.</li>
+          <li>Activezi blocarea doar pentru <strong>finalizare</strong> și <strong>tool-calls critice</strong>.</li>
+          <li>Regula „<strong>one question only</strong>”: o singură clarificare, apoi oferi două opțiuni standard.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section" id="faq">
+      <h2>FAQ</h2>
+
+      <details>
+        <summary>De ce nu este suficient „mai mult training”?</summary>
+        <p>Problema este de <strong>proces</strong>, nu de parametri. Modelele optimizează fluența; guvernanța optimizează momentul corect al finalizării.</p>
+      </details>
+
+      <details>
+        <summary>De ce să nu afișăm scoruri (J) utilizatorilor?</summary>
+        <p>Pentru MVP, scorurile cresc fricțiunea și creează dispută. Mai bine livrezi comportamentul: o singură întrebare, la momentul potrivit.</p>
+      </details>
+
+      <details>
+        <summary>Unde este cel mai valoros?</summary>
+        <p>În agenți cu tool-calls și în enterprise. Acolo costul unei decizii greșite depășește costul unei clarificări.</p>
+      </details>
+
+      <details>
+        <summary>Cum știu că funcționează?</summary>
+        <p>KPI simplu: numărul de <strong>finalizări blocate corect</strong> și reducerea incidentelor sau a „regretului” post-decizie.</p>
+      </details>
+    </section>
+
+    <footer class="footer">
+      <div class="badge" style="justify-content:center;">
+        <strong>Coeziv Check</strong> — stabilitate cognitivă, minimalism operațional.
+      </div>
+      <div style="margin-top:10px;">Single-file HTML • gata de pus pe Vercel / GitHub Pages</div>
+    </footer>
+  </div>
+
+  <script>
+    // Tiny enhancement: smooth scroll for in-page anchors
+    document.querySelectorAll('a[href^="#"]').forEach(a=>{
+      a.addEventListener('click', (e)=>{
+        const id = a.getAttribute('href');
+        if(!id || id.length < 2) return;
+        const el = document.querySelector(id);
+        if(!el) return;
+        e.preventDefault();
+        el.scrollIntoView({behavior:'smooth', block:'start'});
+        history.pushState(null, '', id);
+      });
+    });
+  </script>
+</body>
+</html>
