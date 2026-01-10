@@ -1,0 +1,691 @@
+<!doctype html>
+<html lang="ro">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Constituția Republicii de Limită (ficțiune)</title>
+  <meta name="description" content="O constituție fictivă, construită ca model de guvernare prin limite: nici o putere nu devine totală." />
+  <style>
+    :root{
+      --bg:#fbfaf8;
+      --paper:#ffffff;
+      --ink:#1b1b1b;
+      --muted:#5a5a5a;
+      --rule:#e7e2db;
+      --accent:#2f4b7c;
+      --accent2:#8a5a44;
+      --shadow:0 10px 30px rgba(0,0,0,.06);
+      --radius:18px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      --serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+      --max: 980px;
+      --lh: 1.6;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: var(--serif);
+      color:var(--ink);
+      background: radial-gradient(1200px 900px at 20% 0%, #fff 0%, var(--bg) 70%),
+                  radial-gradient(900px 700px at 90% 10%, #fff 0%, var(--bg) 60%);
+      line-height: var(--lh);
+    }
+    a{color:var(--accent); text-decoration:none}
+    a:hover{text-decoration:underline}
+    header{
+      padding: 42px 18px 18px;
+    }
+    .wrap{max-width: var(--max); margin:0 auto;}
+    .mast{
+      background: var(--paper);
+      border: 1px solid var(--rule);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 34px 28px;
+      position: relative;
+      overflow:hidden;
+    }
+    .mast:before{
+      content:"";
+      position:absolute;
+      inset:-80px -80px auto auto;
+      width:220px; height:220px;
+      background: conic-gradient(from 225deg, rgba(47,75,124,.12), rgba(138,90,68,.10), rgba(47,75,124,.06));
+      border-radius: 999px;
+      filter: blur(0px);
+      transform: rotate(10deg);
+    }
+    .kicker{
+      font-family: var(--sans);
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-size: 12px;
+      margin:0 0 10px;
+      position: relative;
+      z-index: 1;
+    }
+    h1{
+      font-family: var(--serif);
+      font-weight: 700;
+      font-size: clamp(28px, 3.1vw, 44px);
+      margin:0 0 10px;
+      position: relative;
+      z-index: 1;
+    }
+    .subtitle{
+      font-family: var(--sans);
+      color: var(--muted);
+      font-size: 15px;
+      margin:0 0 18px;
+      max-width: 72ch;
+      position: relative;
+      z-index: 1;
+    }
+    .badges{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top: 14px;
+      position: relative;
+      z-index: 1;
+    }
+    .badge{
+      font-family: var(--sans);
+      border:1px solid var(--rule);
+      background: #fff;
+      padding: 8px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      color: var(--muted);
+      display:flex;
+      gap:8px;
+      align-items:center;
+      line-height:1.2;
+    }
+    .dot{
+      width:9px; height:9px; border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 3px rgba(47,75,124,.10);
+    }
+    main{padding: 18px 18px 80px;}
+    .grid{
+      display:grid;
+      grid-template-columns: 320px 1fr;
+      gap:18px;
+      align-items:start;
+      margin-top: 16px;
+    }
+    @media (max-width: 960px){
+      .grid{grid-template-columns: 1fr;}
+    }
+    nav{
+      position: sticky;
+      top: 14px;
+      align-self:start;
+    }
+    .panel{
+      background: var(--paper);
+      border:1px solid var(--rule);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px 16px;
+    }
+    .panel h2{
+      font-family: var(--sans);
+      font-size: 14px;
+      margin: 0 0 10px;
+      letter-spacing: .02em;
+      color: var(--ink);
+    }
+    .toc{
+      list-style:none;
+      padding:0;
+      margin:0;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+    .toc a{
+      display:block;
+      padding: 8px 10px;
+      border-radius: 12px;
+      border: 1px solid transparent;
+      color: var(--ink);
+      font-family: var(--sans);
+      font-size: 13px;
+    }
+    .toc a:hover{
+      background:#faf7f3;
+      border-color: var(--rule);
+      text-decoration:none;
+    }
+    .note{
+      margin-top: 14px;
+      font-family: var(--sans);
+      font-size: 12px;
+      color: var(--muted);
+      border-top: 1px solid var(--rule);
+      padding-top: 12px;
+    }
+    .content{
+      background: var(--paper);
+      border:1px solid var(--rule);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 26px 26px 10px;
+    }
+    section{
+      padding: 6px 0 22px;
+      border-bottom: 1px solid var(--rule);
+    }
+    section:last-child{border-bottom:none; padding-bottom: 10px;}
+    h2.sec{
+      margin: 12px 0 10px;
+      font-size: 22px;
+      color: var(--ink);
+    }
+    h3{
+      margin: 16px 0 10px;
+      font-family: var(--sans);
+      font-size: 14px;
+      letter-spacing: .02em;
+      color: var(--accent2);
+    }
+    .article{
+      margin: 0 0 12px;
+    }
+    .article-title{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      align-items:baseline;
+      margin: 0 0 6px;
+      font-family: var(--sans);
+    }
+    .art-no{
+      font-family: var(--mono);
+      color: var(--accent);
+      font-size: 12px;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+    .art-name{
+      font-size: 14px;
+      color: var(--ink);
+      font-weight: 700;
+    }
+    .clauses{
+      margin: 0;
+      padding-left: 18px;
+      font-size: 16px;
+    }
+    .clauses li{
+      margin: 6px 0;
+    }
+    .quote{
+      margin: 10px 0 0;
+      padding: 12px 14px;
+      border-left: 3px solid var(--accent);
+      background: #fbf8f4;
+      border-radius: 12px;
+      font-family: var(--sans);
+      font-size: 13px;
+      color: var(--muted);
+    }
+    footer{
+      padding: 14px 18px 26px;
+      color: var(--muted);
+      font-family: var(--sans);
+      font-size: 12px;
+    }
+    .print{
+      margin-top: 12px;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      font-family: var(--sans);
+      font-size: 12px;
+    }
+    button{
+      appearance:none;
+      border:1px solid var(--rule);
+      background:#fff;
+      padding: 9px 11px;
+      border-radius: 12px;
+      cursor:pointer;
+      font-family: var(--sans);
+      font-size: 12px;
+      color: var(--ink);
+    }
+    button:hover{background:#faf7f3}
+    @media print{
+      body{background:#fff}
+      nav{display:none}
+      .mast,.panel,.content{box-shadow:none}
+      header{padding: 0}
+      main{padding:0}
+      .grid{display:block}
+      .content{border:none; padding:0}
+      section{page-break-inside:avoid}
+      .print{display:none}
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <div class="mast">
+        <p class="kicker">Document fictiv • model de guvernare prin limite</p>
+        <h1>Constituția Republicii de Limită</h1>
+        <p class="subtitle">
+          Acest text este o constituție imaginară: o arhitectură de frâne și echilibre menită să împiedice
+          ca o putere, o majoritate ori o idee să devină totală. Nu oferă un program politic; oferă un mod de a rămâne deschis.
+        </p>
+        <div class="badges" aria-label="Etichete">
+          <div class="badge"><span class="dot" aria-hidden="true"></span> ficțiune</div>
+          <div class="badge"><span class="dot" aria-hidden="true"></span> orientată pe limite</div>
+          <div class="badge"><span class="dot" aria-hidden="true"></span> separarea puterilor</div>
+          <div class="badge"><span class="dot" aria-hidden="true"></span> drepturi ca zone de non-intruziune</div>
+        </div>
+        <div class="print">
+          <button type="button" onclick="window.print()">Tipărește / Salvează PDF</button>
+          <button type="button" onclick="document.querySelector('#preambul')?.scrollIntoView({behavior:'smooth'})">Mergi la Preambul</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="wrap">
+      <div class="grid">
+        <nav>
+          <div class="panel" role="navigation" aria-label="Cuprins">
+            <h2>Cuprins</h2>
+            <ul class="toc">
+              <li><a href="#preambul">Preambul</a></li>
+              <li><a href="#articolul-0">Articolul 0 — Sensul limitelor</a></li>
+              <li><a href="#titlul-i">Titlul I — Principii</a></li>
+              <li><a href="#titlul-ii">Titlul II — Drepturi și libertăți</a></li>
+              <li><a href="#titlul-iii">Titlul III — Puterile statului</a></li>
+              <li><a href="#titlul-iv">Titlul IV — Integritate și responsabilitate</a></li>
+              <li><a href="#titlul-v">Titlul V — Urgență și excepții</a></li>
+              <li><a href="#titlul-vi">Titlul VI — Revizuire și continuitate</a></li>
+              <li><a href="#dispozitii-finale">Dispoziții finale</a></li>
+            </ul>
+            <div class="note">
+              Notă: Textul este construit pentru claritate și stabilitate. Termenii sunt intenționat sobri, pentru a limita
+              interpretările maximaliste.
+            </div>
+          </div>
+        </nav>
+
+        <article class="content" aria-label="Textul constituției">
+          <section id="preambul">
+            <h2 class="sec">Preambul</h2>
+            <p>
+              Noi, cetățenii Republicii de Limită, înțelegând că libertatea nu se păstrează prin promisiuni,
+              ci prin limite respectate, adoptăm această Constituție pentru a garanta că nici o putere,
+              nici o majoritate și nici o idee nu poate deveni totală.
+            </p>
+            <p>
+              Recunoaștem conflictul legitim ca parte a vieții comune și instituim frâne și echilibre
+              pentru ca dezacordul să rămână posibil, iar schimbarea să rămână deschisă.
+            </p>
+            <div class="quote">
+              „Această Constituție nu prescrie un ideal unic; ea apără spațiul în care mai multe idealuri pot coexista fără a se anula.”
+            </div>
+          </section>
+
+
+          <section id="articolul-0">
+            <h2 class="sec">Articolul 0 — Sensul limitelor</h2>
+
+            <div class="article">
+              <ol class="clauses">
+                <li>Republica de Limită este întemeiată pe convingerea că libertatea politică nu se naște din absența puterii, ci din <strong>limitarea ei asumată</strong>.</li>
+                <li>Prin „limită”, prezenta Constituție nu înțelege restrângerea arbitrară a drepturilor, ci stabilirea unor margini clare dincolo de care nicio autoritate, majoritate sau idee nu poate decide.</li>
+                <li>Limitele constituționale există pentru a face posibilă delegarea temporară a puterii, alternanța, contestarea legitimă și conviețuirea plurală a diferențelor.</li>
+                <li>Nicio limită instituită prin această Constituție nu are ca scop impunerea unui adevăr unic, ci prevenirea transformării oricărui adevăr în absolut.</li>
+                <li>Republica de Limită nu promite armonie permanentă, ci garantează că dezacordul rămâne posibil fără a deveni distrugător.</li>
+              </ol>
+            </div>
+
+            <div class="quote">
+              „Limita nu este slăbiciunea puterii, ci condiția legitimității ei.”
+            </div>
+          </section>
+
+
+          <section id="titlul-i">
+            <h2 class="sec">Titlul I — Principii</h2>
+
+            <div class="article">
+              <div class="article-title"><span class="art-no">Art. 1</span><span class="art-name">Statul de limită</span></div>
+              <ol class="clauses">
+                <li>Republica de Limită este un stat de drept întemeiat pe separarea puterilor, pluralism și limite constituționale.</li>
+                <li>Nicio autoritate publică nu poate exercita putere nelimitată ori nelimitabilă.</li>
+                <li>Orice putere este legitimă numai în prezența unei puteri care o poate contrabalansa.</li>
+              </ol>
+            </div>
+
+            <div class="article">
+              <div class="article-title"><span class="art-no">Art. 2</span><span class="art-name">Supremația Constituției</span></div>
+              <ol class="clauses">
+                <li>Constituția este legea fundamentală; nicio lege, act sau măsură nu poate contraveni dispozițiilor ei.</li>
+                <li>Interpretarea Constituției nu poate avea ca efect abolirea drepturilor ori concentrarea permanentă a puterii.</li>
+              </ol>
+            </div>
+
+            <div class="article">
+              <div class="article-title"><span class="art-no">Art. 3</span><span class="art-name">Neutralitatea față de un adevăr unic</span></div>
+              <ol class="clauses">
+                <li>Statul nu consacră un adevăr unic, o ideologie unică sau o identitate obligatorie.</li>
+                <li>Orice politică publică trebuie să rămână contestabilă și revocabilă prin proceduri legale.</li>
+              </ol>
+            </div>
+
+            <div class="article">
+              <div class="article-title"><span class="art-no">Art. 4</span><span class="art-name">Demnitatea și egalitatea</span></div>
+              <ol class="clauses">
+                <li>Demnitatea fiecărei persoane este inviolabilă.</li>
+                <li>Egalitatea în fața legii este garantată; nicio categorie nu poate fi plasată în afara protecției juridice.</li>
+              </ol>
+            </div>
+
+            <div class="article">
+              <div class="article-title"><span class="art-no">Art. 5</span><span class="art-name">Transparență și limitarea secretului</span></div>
+              <ol class="clauses">
+                <li>Exercitarea puterii este publică; secretul este excepția strict necesară și limitată în timp.</li>
+                <li>Orice secret instituțional este supus controlului independent și revizuirii periodice.</li>
+              </ol>
+            </div>
+          </section>
+
+          <section id="titlul-ii">
+            <h2 class="sec">Titlul II — Drepturi și libertăți</h2>
+
+            <div class="article">
+              <div class="article-title"><span class="art-no">Art. 6</span><span class="art-name">Drepturile ca zone de non-intruziune</span></div>
+              <ol class="clauses">
+                <li>Drepturile și libertățile sunt limite ale statului, nu favoruri acordate de acesta.</li>
+                <li>Restrângerea drepturilor este permisă numai în condiții strict determinate și proporționale, fără a le anula esența.</li>
+              </ol>
+            </div>
+
+            <div class="article">
+              <div class="article-title"><span class="art-no">Art. 7</span><span class="art-name">Libertatea de conștiință și expresie</span></div>
+              <ol class="clauses">
+                <li>Libertatea de conștiință, gândire și expresie este garantată.</li>
+                <li>Nicio autoritate nu poate impune o opinie oficială ori o interpretare obligatorie a realității.</li>
+                <li>Incitarea directă la violență și discriminare poate fi sancționată numai prin lege și sub control judiciar.</li>
+              </ol>
+            </div>
+
+            <div class="article">
+              <div class="article-title"><span class="art-no">Art. 8</span><span class="art-name">Dreptul la dezacord și opoziție</span></div>
+              <ol class="clauses">
+                <li>Opoziția politică și civică este parte legitimă a ordinii constituționale.</li>
+                <li>Nicio majoritate nu poate elimina procedurile prin care poate fi contestată.</li>
+              </ol>
+            </div>
+
+            <div class="article">
+              <div class="article-title"><span class="art-no">Art. 9</span><span class="art-name">Dreptul la viață privată</span></div>
+              <ol class="clauses">
+                <li>Viața privată este protejată împotriva ingerinței statului și a actorilor privați, în condițiile legii.</li>
+                <li>Supravegherea este permisă doar cu autorizare judiciară, limitată în scop, timp și proporție.</li>
+              </ol>
+            </div>
+
+            <div class="article">
+              <div class="article-title"><span class="art-no">Art. 10</span><span class="art-name">Dreptul la un proces echitabil</span></div>
+              <ol class="clauses">
+                <li>Orice persoană are dreptul la un proces echitabil, public și într-un termen rezonabil.</li>
+                <li>Nimeni nu poate fi sancționat fără lege, fără apărare și fără control judiciar independent.</li>
+              </ol>
+            </div>
+
+            <div class="article">
+              <div class="article-title"><span class="art-no">Art. 11</span><span class="art-name">Dreptul la informație</span></div>
+              <ol class="clauses">
+                <li>Accesul la informațiile de interes public este garantat.</li>
+                <li>Refuzul furnizării de informații trebuie motivat și poate fi contestat în justiție.</li>
+              </ol>
+            </div>
+
+            <div class="article">
+              <div class="article-title"><span class="art-no">Art. 12</span><span class="art-name">Dreptul de asociere și întrunire</span></div>
+              <ol class="clauses">
+                <li>Asocierea și întrunirea pașnică sunt libere.</li>
+                <li>Dizolvarea unei asociații este posibilă numai prin hotărâre judecătorească motivată.</li>
+              </ol>
+            </div>
+          </section>
+
+          <section id="titlul-iii">
+            <h2 class="sec">Titlul III — Puterile statului</h2>
+
+            <h3>Capitolul I — Legislativul</h3>
+
+            <div class="article">
+              <div class="article-title"><span class="art-no">Art. 13</span><span class="art-name">Parlamentul</span></div>
+              <ol class="clauses">
+                <li>Parlamentul reprezintă cetățenii și adoptă legi prin proceduri publice.</li>
+                <li>Mandatul parlamentar este limitat în timp; acumularea de putere este restrânsă prin incompatibilități.</li>
+                <li>Legile care afectează drepturile fundamentale necesită dezbatere extinsă și majorități calificate, stabilite prin lege organică.</li>
+              </ol>
+            </div>
+
+            <div class="article">
+              <div class="article-title"><span class="art-no">Art. 14</span><span class="art-name">Transparență legislativă</span></div>
+              <ol class="clauses">
+                <li>Proiectele de lege se publică înainte de vot; excepțiile sunt limitate și motivate.</li>
+                <li>Ședințele sunt publice; votul este nominal, cu excepții justificate.</li>
+              </ol>
+            </div>
+
+            <h3>Capitolul II — Executivul</h3>
+
+            <div class="article">
+              <div class="article-title"><span class="art-no">Art. 15</span><span class="art-name">Guvernul</span></div>
+              <ol class="clauses">
+                <li>Guvernul aplică legea și conduce administrația publică.</li>
+                <li>Guvernul nu poate legifera decât în limitele și condițiile stabilite de Parlament.</li>
+                <li>Orice putere delegată Executivului este limitată în timp și revocabilă.</li>
+              </ol>
+            </div>
+
+            <div class="article">
+              <div class="article-title"><span class="art-no">Art. 16</span><span class="art-name">Controlul asupra Executivului</span></div>
+              <ol class="clauses">
+                <li>Executivul este supus controlului parlamentar, judiciar și civic.</li>
+                <li>Refuzul de a furniza informații către controlul legitim este sancționabil.</li>
+              </ol>
+            </div>
+
+            <h3>Capitolul III — Justiția</h3>
+
+            <div class="article">
+              <div class="article-title"><span class="art-no">Art. 17</span><span class="art-name">Independența justiției</span></div>
+              <ol class="clauses">
+                <li>Justiția este independentă și se înfăptuiește în numele legii.</li>
+                <li>Numirile și promovările se fac prin proceduri transparente, cu criterii publice și căi de contestare.</li>
+              </ol>
+            </div>
+
+            <div class="article">
+              <div class="article-title"><span class="art-no">Art. 18</span><span class="art-name">Curtea Constituțională</span></div>
+              <ol class="clauses">
+                <li>Curtea Constituțională garantează supremația Constituției și echilibrul puterilor.</li>
+                <li>Componența Curții este plurală; mandatele sunt limitate și nereînnoibile pentru a preveni capturarea instituției.</li>
+                <li>Deciziile Curții sunt publice, motivate și supuse criticii publice; revizuirea lor este posibilă doar în condiții excepționale stabilite de Constituție.</li>
+              </ol>
+            </div>
+
+            <h3>Capitolul IV — Autorități de limitare</h3>
+
+            <div class="article">
+              <div class="article-title"><span class="art-no">Art. 19</span><span class="art-name">Avocatul Libertăților</span></div>
+              <ol class="clauses">
+                <li>Se instituie Avocatul Libertăților ca autoritate independentă pentru apărarea drepturilor în raport cu statul.</li>
+                <li>Avocatul Libertăților poate sesiza Curtea Constituțională și instanțele, poate iniția investigații și poate cere remedii.</li>
+              </ol>
+            </div>
+
+            <div class="article">
+              <div class="article-title"><span class="art-no">Art. 20</span><span class="art-name">Autoritatea pentru Transparență</span></div>
+              <ol class="clauses">
+                <li>Autoritatea pentru Transparență asigură accesul public la informații și monitorizează regimul secretului.</li>
+                <li>Refuzurile instituțiilor sunt auditate; rapoartele sunt publice.</li>
+              </ol>
+            </div>
+          </section>
+
+          <section id="titlul-iv">
+            <h2 class="sec">Titlul IV — Integritate și responsabilitate</h2>
+
+            <div class="article">
+              <div class="article-title"><span class="art-no">Art. 21</span><span class="art-name">Incompatibilități și conflict de interese</span></div>
+              <ol class="clauses">
+                <li>Funcțiile publice sunt incompatibile cu poziții care produc dependență sau control nedeclarat.</li>
+                <li>Conflictul de interese se declară; nedeclararea atrage sancțiuni și pierderea mandatului, în condițiile legii.</li>
+              </ol>
+            </div>
+
+            <div class="article">
+              <div class="article-title"><span class="art-no">Art. 22</span><span class="art-name">Răspunderea autorităților</span></div>
+              <ol class="clauses">
+                <li>Nicio autoritate nu este exonerată prin simpla invocare a ordinelor, urgenței sau interesului public generic.</li>
+                <li>Răspunderea politică, juridică și administrativă se aplică distinct și cumulativ, după caz.</li>
+              </ol>
+            </div>
+
+            <div class="article">
+              <div class="article-title"><span class="art-no">Art. 23</span><span class="art-name">Dreptul la contestare</span></div>
+              <ol class="clauses">
+                <li>Orice act al autorităților poate fi contestat pe cale administrativă și judiciară.</li>
+                <li>Taxele și procedurile nu pot face iluzoriu accesul la justiție.</li>
+              </ol>
+            </div>
+          </section>
+
+          <section id="titlul-v">
+            <h2 class="sec">Titlul V — Urgență și excepții</h2>
+
+            <div class="article">
+              <div class="article-title"><span class="art-no">Art. 24</span><span class="art-name">Principiul urgenței limitate</span></div>
+              <ol class="clauses">
+                <li>Starea de urgență poate fi declarată numai în condiții definite strict de lege și pentru o durată limitată.</li>
+                <li>Orice măsură excepțională este temporară, proporțională și supusă controlului parlamentar și judiciar.</li>
+                <li>Drepturile care constituie nucleul demnității, al procesului echitabil și al protecției împotriva torturii nu pot fi suspendate.</li>
+              </ol>
+            </div>
+
+            <div class="article">
+              <div class="article-title"><span class="art-no">Art. 25</span><span class="art-name">Interdicția permanenței excepției</span></div>
+              <ol class="clauses">
+                <li>Nicio urgență nu poate justifica suspendarea pe termen nelimitat a echilibrului puterilor.</li>
+                <li>Prelungirea repetată a excepției necesită majorități calificate și control constituțional automat.</li>
+              </ol>
+            </div>
+
+            <div class="article">
+              <div class="article-title"><span class="art-no">Art. 26</span><span class="art-name">Audit public post-urgență</span></div>
+              <ol class="clauses">
+                <li>La încetarea urgenței, se publică un raport complet privind măsurile luate și justificarea lor.</li>
+                <li>Încălcările drepturilor sunt reparate; abuzurile sunt investigate independent.</li>
+              </ol>
+            </div>
+          </section>
+
+          <section id="titlul-vi">
+            <h2 class="sec">Titlul VI — Revizuire și continuitate</h2>
+
+            <div class="article">
+              <div class="article-title"><span class="art-no">Art. 27</span><span class="art-name">Revizuirea Constituției</span></div>
+              <ol class="clauses">
+                <li>Constituția poate fi revizuită prin proceduri publice, deliberative și prin confirmare populară.</li>
+                <li>Revizuirea nu poate avea ca efect abolirea drepturilor fundamentale ori instituirea unei puteri totale.</li>
+              </ol>
+            </div>
+
+            <div class="article">
+              <div class="article-title"><span class="art-no">Art. 28</span><span class="art-name">Clauza anti-captură</span></div>
+              <ol class="clauses">
+                <li>Nicio instituție nu poate modifica unilateral regulile de numire, control sau funcționare care o limitează.</li>
+                <li>Orice astfel de modificare se supune automat controlului constituțional și consultării publice.</li>
+              </ol>
+            </div>
+
+            <div class="article">
+              <div class="article-title"><span class="art-no">Art. 29</span><span class="art-name">Continuitate și alternanță</span></div>
+              <ol class="clauses">
+                <li>Alternanța la putere este un bun constituțional. Mandatele sunt limitate și nu pot fi prelungite prin artificii legislative.</li>
+                <li>Regulile alegerilor nu se modifică în preajma scrutinului, decât cu majorități calificate și după consultare publică.</li>
+              </ol>
+            </div>
+          </section>
+
+          <section id="dispozitii-finale">
+            <h2 class="sec">Dispoziții finale</h2>
+
+            <div class="article">
+              <div class="article-title"><span class="art-no">Art. 30</span><span class="art-name">Interpretare</span></div>
+              <ol class="clauses">
+                <li>Interpretarea Constituției se face cu prezumția de libertate și cu prezumția împotriva concentrării permanente a puterii.</li>
+                <li>Atunci când două interpretări sunt posibile, se preferă aceea care păstrează contestabilitatea și deschiderea instituțională.</li>
+              </ol>
+            </div>
+
+            <div class="article">
+              <div class="article-title"><span class="art-no">Art. 31</span><span class="art-name">Intrarea în vigoare</span></div>
+              <ol class="clauses">
+                <li>Prezenta Constituție intră în vigoare la data adoptării sale simbolice.</li>
+                <li>Fiind un text fictiv, ea poate fi folosită ca model de reflecție asupra limitelor puterii.</li>
+              </ol>
+            </div>
+
+            <div class="quote">
+              „Constituția este frâna care nu se laudă: ea există ca să nu fie invocată zilnic.”
+            </div>
+          </section>
+        </article>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <div>
+        <strong>Constituția Republicii de Limită</strong> — document fictiv redactat ca exercițiu conceptual.
+        Poate fi tipărit sau salvat ca PDF din browser.
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Highlight current section in TOC (lightweight)
+    const links = Array.from(document.querySelectorAll('.toc a'));
+    const sections = links.map(a => document.querySelector(a.getAttribute('href'))).filter(Boolean);
+
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if(entry.isIntersecting){
+          links.forEach(l => l.style.background = "");
+          links.forEach(l => l.style.borderColor = "transparent");
+          const active = document.querySelector(`.toc a[href="#${entry.target.id}"]`);
+          if(active){
+            active.style.background = "#faf7f3";
+            active.style.borderColor = "var(--rule)";
+          }
+        }
+      });
+    }, {rootMargin: "-30% 0px -60% 0px", threshold: 0.01});
+
+    sections.forEach(s => obs.observe(s));
+  </script>
+</body>
+</html>
