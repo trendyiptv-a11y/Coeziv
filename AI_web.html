@@ -2,42 +2,49 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Acme — Simple, Reliable Service</title>
-  <meta name="description" content="A clean, modern landing page template for a general audience. Replace content with your own." />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Acme — Clear, Reliable Service</title>
+  <meta name="description" content="A clean, modern single-page landing template with accessible defaults and a mobile-first layout." />
 
   <style>
     :root{
       --bg: #0b0f19;
-      --panel: #111827;
+      --surface: rgba(17,24,39,.72);
+      --surface-2: rgba(17,24,39,.54);
       --text: #e5e7eb;
       --muted: #9ca3af;
+      --border: rgba(255,255,255,.12);
       --brand: #60a5fa;
       --brand-2: #34d399;
-      --border: rgba(255,255,255,.12);
-      --shadow: 0 12px 30px rgba(0,0,0,.35);
+      --shadow: 0 14px 36px rgba(0,0,0,.35);
       --radius: 14px;
       --max: 1100px;
+
+      --focus: rgba(96,165,250,.75);
+      --field: rgba(255,255,255,.04);
+      --field-hover: rgba(255,255,255,.06);
     }
 
     *{ box-sizing: border-box; }
     html, body{ height: 100%; }
     body{
       margin: 0;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      line-height: 1.55;
       color: var(--text);
       background:
-        radial-gradient(900px 500px at 10% 0%, rgba(96,165,250,.22), transparent 60%),
-        radial-gradient(900px 500px at 90% 10%, rgba(52,211,153,.18), transparent 55%),
+        radial-gradient(900px 520px at 12% 0%, rgba(96,165,250,.20), transparent 60%),
+        radial-gradient(900px 520px at 92% 10%, rgba(52,211,153,.16), transparent 58%),
         var(--bg);
-      line-height: 1.55;
     }
 
     a{ color: inherit; }
-    a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible{
-      outline: 3px solid rgba(96,165,250,.7);
+    a:hover{ color: var(--text); }
+
+    :focus-visible{
+      outline: 3px solid var(--focus);
       outline-offset: 2px;
-      border-radius: 8px;
+      border-radius: 10px;
     }
 
     .container{
@@ -49,9 +56,9 @@
     header{
       position: sticky;
       top: 0;
-      z-index: 20;
+      z-index: 30;
+      background: rgba(11,15,25,.72);
       backdrop-filter: blur(10px);
-      background: rgba(11,15,25,.68);
       border-bottom: 1px solid var(--border);
     }
 
@@ -60,7 +67,7 @@
       align-items: center;
       justify-content: space-between;
       gap: 1rem;
-      padding: .85rem 0;
+      padding: .9rem 0;
     }
 
     .brand{
@@ -68,7 +75,7 @@
       align-items: center;
       gap: .65rem;
       text-decoration: none;
-      font-weight: 700;
+      font-weight: 800;
       letter-spacing: .2px;
     }
 
@@ -77,21 +84,22 @@
       height: 34px;
       border-radius: 10px;
       background: linear-gradient(135deg, var(--brand), var(--brand-2));
-      box-shadow: 0 10px 25px rgba(96,165,250,.18);
+      box-shadow: 0 12px 26px rgba(96,165,250,.18);
+      flex: 0 0 auto;
     }
 
     nav ul{
-      list-style: none;
-      margin: 0;
-      padding: 0;
       display: none;
+      list-style: none;
+      padding: 0;
+      margin: 0;
       gap: 1rem;
     }
 
     nav a{
       text-decoration: none;
       color: var(--muted);
-      font-weight: 600;
+      font-weight: 650;
       font-size: .95rem;
     }
     nav a:hover{ color: var(--text); }
@@ -113,27 +121,27 @@
       background: rgba(255,255,255,.03);
       color: var(--text);
       text-decoration: none;
-      font-weight: 700;
+      font-weight: 750;
       font-size: .95rem;
       cursor: pointer;
-      transition: transform .05s ease, background .2s ease, border-color .2s ease;
+      transition: background .2s ease, border-color .2s ease, transform .05s ease;
       white-space: nowrap;
     }
     .btn:hover{ background: rgba(255,255,255,.06); }
     .btn:active{ transform: translateY(1px); }
 
     .btn-primary{
-      border: 1px solid rgba(96,165,250,.45);
       background: linear-gradient(180deg, rgba(96,165,250,.28), rgba(96,165,250,.12));
+      border-color: rgba(96,165,250,.48);
     }
     .btn-primary:hover{
       background: linear-gradient(180deg, rgba(96,165,250,.34), rgba(96,165,250,.15));
-      border-color: rgba(96,165,250,.65);
+      border-color: rgba(96,165,250,.68);
     }
 
     /* Hero */
     .hero{
-      padding: 3.2rem 0 2rem;
+      padding: 3.2rem 0 2.2rem;
     }
 
     .hero-grid{
@@ -143,31 +151,31 @@
       align-items: start;
     }
 
-    .eyebrow{
+    .pill{
       display: inline-flex;
       align-items: center;
-      gap: .5rem;
+      gap: .55rem;
       padding: .35rem .7rem;
-      border: 1px solid var(--border);
       border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.03);
       color: var(--muted);
       font-weight: 650;
       font-size: .9rem;
-      background: rgba(255,255,255,.03);
     }
 
     h1{
       margin: .9rem 0 .7rem;
-      font-size: clamp(1.9rem, 4.4vw, 3.1rem);
+      font-size: clamp(1.95rem, 4.4vw, 3.1rem);
       line-height: 1.12;
       letter-spacing: -.02em;
     }
 
     .lead{
       margin: 0;
+      max-width: 60ch;
       color: var(--muted);
       font-size: 1.05rem;
-      max-width: 52ch;
     }
 
     .hero-actions{
@@ -175,44 +183,57 @@
       display: flex;
       flex-wrap: wrap;
       gap: .65rem;
+      align-items: center;
     }
 
-    .hero-card{
-      background: rgba(17,24,39,.76);
+    .hero-note{
+      margin: .95rem 0 0;
+      color: var(--muted);
+      font-size: .95rem;
+    }
+
+    .panel{
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      padding: 1rem;
+      background: var(--surface);
       box-shadow: var(--shadow);
+      padding: 1rem;
     }
 
-    .stat-row{
+    .panel h2{
+      margin: 0;
+      font-size: 1.1rem;
+    }
+
+    .panel p{
+      margin: .35rem 0 0;
+      color: var(--muted);
+    }
+
+    .stats{
+      margin-top: .85rem;
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: .8rem;
-      margin-top: .75rem;
     }
 
     .stat{
       border: 1px solid var(--border);
       border-radius: 12px;
-      padding: .85rem;
       background: rgba(255,255,255,.02);
-    }
-    .stat strong{
-      display: block;
-      font-size: 1.1rem;
-    }
-    .stat span{
-      display: block;
-      color: var(--muted);
-      font-size: .9rem;
-      margin-top: .15rem;
+      padding: .85rem;
     }
 
-    .note{
-      margin: .9rem 0 0;
+    .stat strong{
+      display: block;
+      font-size: 1.08rem;
+    }
+
+    .stat span{
+      display: block;
+      margin-top: .15rem;
+      font-size: .9rem;
       color: var(--muted);
-      font-size: .95rem;
     }
 
     /* Sections */
@@ -225,7 +246,6 @@
 
     .section-head{
       display: grid;
-      grid-template-columns: 1fr;
       gap: .6rem;
       margin-bottom: 1.2rem;
     }
@@ -238,8 +258,8 @@
 
     .section-head p{
       margin: 0;
+      max-width: 70ch;
       color: var(--muted);
-      max-width: 68ch;
     }
 
     .cards{
@@ -251,7 +271,7 @@
     .card{
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      background: rgba(17,24,39,.62);
+      background: var(--surface-2);
       padding: 1rem;
     }
 
@@ -272,8 +292,9 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      background: rgba(96,165,250,.14);
       border: 1px solid rgba(96,165,250,.25);
+      background: rgba(96,165,250,.14);
+      margin-bottom: .5rem;
     }
     .icon svg{ width: 20px; height: 20px; }
 
@@ -285,25 +306,24 @@
     }
 
     .step{
-      display: grid;
-      grid-template-columns: 42px 1fr;
-      gap: .85rem;
-      align-items: start;
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      background: rgba(17,24,39,.52);
+      background: var(--surface-2);
       padding: 1rem;
+      display: grid;
+      grid-template-columns: 44px 1fr;
+      gap: .85rem;
+      align-items: start;
     }
 
     .badge{
-      width: 42px;
-      height: 42px;
+      width: 44px;
+      height: 44px;
       border-radius: 14px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      font-weight: 800;
-      color: var(--text);
+      font-weight: 850;
       background: linear-gradient(180deg, rgba(52,211,153,.22), rgba(52,211,153,.10));
       border: 1px solid rgba(52,211,153,.32);
     }
@@ -312,19 +332,26 @@
     .step p{ margin: 0; color: var(--muted); }
 
     /* FAQ */
+    .faq{
+      display: grid;
+      gap: .85rem;
+      max-width: 900px;
+    }
+
     details{
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      background: rgba(17,24,39,.54);
+      background: var(--surface-2);
       padding: .9rem 1rem;
     }
-    details + details{ margin-top: .8rem; }
+
     summary{
       cursor: pointer;
-      font-weight: 750;
       list-style: none;
+      font-weight: 800;
     }
     summary::-webkit-details-marker{ display: none; }
+
     details p{
       margin: .6rem 0 0;
       color: var(--muted);
@@ -334,7 +361,7 @@
     form{
       display: grid;
       gap: .85rem;
-      max-width: 720px;
+      max-width: 740px;
     }
 
     label{
@@ -348,23 +375,24 @@
       padding: .75rem .85rem;
       border-radius: 12px;
       border: 1px solid var(--border);
-      background: rgba(255,255,255,.03);
+      background: var(--field);
       color: var(--text);
       font: inherit;
     }
+    input:hover, textarea:hover{ background: var(--field-hover); }
 
     textarea{ min-height: 120px; resize: vertical; }
 
     .form-row{
       display: grid;
-      gap: .85rem;
       grid-template-columns: 1fr;
+      gap: .85rem;
     }
 
     .fineprint{
+      margin: 0;
       color: var(--muted);
       font-size: .9rem;
-      margin: 0;
     }
 
     /* Footer */
@@ -387,6 +415,7 @@
       flex-wrap: wrap;
       gap: .9rem;
     }
+
     .footer-links a{
       color: var(--muted);
       text-decoration: none;
@@ -398,7 +427,7 @@
     @media (min-width: 760px){
       nav ul{ display: flex; }
       .hero-grid{
-        grid-template-columns: 1.2fr .8fr;
+        grid-template-columns: 1.25fr .75fr;
         align-items: center;
       }
       .cards{ grid-template-columns: repeat(3, 1fr); }
@@ -410,7 +439,6 @@
       }
     }
 
-    /* Reduce motion */
     @media (prefers-reduced-motion: reduce){
       *{ scroll-behavior: auto !important; transition: none !important; }
     }
@@ -429,7 +457,7 @@
         <nav aria-label="Primary navigation">
           <ul>
             <li><a href="#features">Features</a></li>
-            <li><a href="#how-it-works">How it works</a></li>
+            <li><a href="#how">How it works</a></li>
             <li><a href="#faq">FAQ</a></li>
             <li><a href="#contact">Contact</a></li>
           </ul>
@@ -437,7 +465,7 @@
 
         <div class="header-actions">
           <a class="btn" href="#contact">Talk to us</a>
-          <a class="btn btn-primary" href="#contact" aria-label="Get started">Get started</a>
+          <a class="btn btn-primary" href="#contact">Get started</a>
         </div>
       </div>
     </div>
@@ -448,15 +476,15 @@
       <section class="hero" aria-labelledby="hero-title">
         <div class="hero-grid">
           <div>
-            <div class="eyebrow" role="note">
+            <div class="pill" role="note">
               <span aria-hidden="true">●</span>
               Simple, reliable service for busy teams
             </div>
 
             <h1 id="hero-title">Make the important work easier to start, track, and finish.</h1>
             <p class="lead">
-              Use this template for a product, service, or organization page. It prioritizes clarity, accessibility,
-              and a mobile-first layout.
+              A practical single-page layout you can use for a product, service, or organization. Clear hierarchy,
+              concise content, and accessible defaults.
             </p>
 
             <div class="hero-actions">
@@ -464,18 +492,16 @@
               <a class="btn" href="#features">See features</a>
             </div>
 
-            <p class="note">
-              No signup required to explore. Replace this copy with your value proposition and proof points.
+            <p class="hero-note">
+              Replace this copy with your value proposition and proof points. Keep one primary call to action.
             </p>
           </div>
 
-          <aside class="hero-card" aria-label="Highlights">
-            <h2 style="margin:0; font-size:1.1rem;">At a glance</h2>
-            <p style="margin:.35rem 0 0; color:var(--muted);">
-              Quick, scannable metrics help users understand outcomes.
-            </p>
+          <aside class="panel" aria-label="Highlights">
+            <h2>At a glance</h2>
+            <p>Quick metrics help users understand outcomes without reading a full brochure.</p>
 
-            <div class="stat-row" role="list" aria-label="Key metrics">
+            <div class="stats" role="list" aria-label="Key metrics">
               <div class="stat" role="listitem">
                 <strong>2–3 minutes</strong>
                 <span>typical setup</span>
@@ -507,14 +533,13 @@
           <article class="card">
             <div class="icon" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 20h9"></path>
-                <path d="M12 4h9"></path>
-                <path d="M4 9h16"></path>
-                <path d="M4 15h16"></path>
+                <path d="M4 6h16"></path>
+                <path d="M4 12h16"></path>
+                <path d="M4 18h16"></path>
               </svg>
             </div>
             <h3>Simple structure</h3>
-            <p>Clear sections, predictable layout, and readable typography from mobile to desktop.</p>
+            <p>Predictable sections and readable typography from mobile to desktop.</p>
           </article>
 
           <article class="card">
@@ -524,7 +549,7 @@
               </svg>
             </div>
             <h3>Accessible defaults</h3>
-            <p>Semantic HTML, focus states, and contrast-friendly styling for everyday usability.</p>
+            <p>Semantic HTML, focus states, and contrast-friendly styling built in.</p>
           </article>
 
           <article class="card">
@@ -536,15 +561,15 @@
               </svg>
             </div>
             <h3>Easy to customize</h3>
-            <p>Swap the copy, tweak colors, and add sections without changing the structure.</p>
+            <p>Swap copy and update colors without changing the underlying layout.</p>
           </article>
         </div>
       </section>
 
-      <section id="how-it-works" aria-labelledby="how-title">
+      <section id="how" aria-labelledby="how-title">
         <div class="section-head">
           <h2 id="how-title">How it works</h2>
-          <p>A short process section builds confidence and reduces friction for new users.</p>
+          <p>A simple process section reduces uncertainty and improves conversion.</p>
         </div>
 
         <div class="steps">
@@ -552,7 +577,7 @@
             <div class="badge" aria-hidden="true">1</div>
             <div>
               <h3>Tell us your goal</h3>
-              <p>Share what you’re trying to achieve and the constraints that matter most.</p>
+              <p>Share what you’re trying to achieve and the constraints that matter.</p>
             </div>
           </div>
 
@@ -560,15 +585,15 @@
             <div class="badge" aria-hidden="true">2</div>
             <div>
               <h3>Get a clear plan</h3>
-              <p>We propose a simple structure and content that fits your audience.</p>
+              <p>We propose a straightforward structure and content that fits your audience.</p>
             </div>
           </div>
 
           <div class="step">
             <div class="badge" aria-hidden="true">3</div>
             <div>
-              <h3>Launch with confidence</h3>
-              <p>Ship a usable page quickly, then iterate based on real user feedback.</p>
+              <h3>Launch and iterate</h3>
+              <p>Publish quickly, then improve based on real user feedback and usage data.</p>
             </div>
           </div>
         </div>
@@ -577,29 +602,31 @@
       <section id="faq" aria-labelledby="faq-title">
         <div class="section-head">
           <h2 id="faq-title">FAQ</h2>
-          <p>Use FAQs to address common objections and reduce support questions.</p>
+          <p>Address common objections directly to reduce support requests and hesitation.</p>
         </div>
 
-        <details>
-          <summary>Is this a complete page?</summary>
-          <p>Yes. It includes a header, hero, features, steps, FAQ, contact form, and footer.</p>
-        </details>
+        <div class="faq">
+          <details>
+            <summary>Is this production-ready?</summary>
+            <p>It uses semantic HTML, sensible contrast, a mobile-first layout, and minimal JavaScript.</p>
+          </details>
 
-        <details>
-          <summary>Can I use it for any business?</summary>
-          <p>Yes. Replace the brand name, copy, and calls to action to match your product or service.</p>
-        </details>
+          <details>
+            <summary>Can I adapt it for my brand?</summary>
+            <p>Yes. Replace the name, copy, and calls to action. Update CSS variables for quick theming.</p>
+          </details>
 
-        <details>
-          <summary>Does it work on mobile?</summary>
-          <p>It is mobile-first and becomes multi-column on larger screens.</p>
-        </details>
+          <details>
+            <summary>Does it work on mobile?</summary>
+            <p>Yes. Navigation links appear on larger screens, and the layout becomes multi-column responsively.</p>
+          </details>
+        </div>
       </section>
 
       <section id="contact" aria-labelledby="contact-title">
         <div class="section-head">
           <h2 id="contact-title">Contact</h2>
-          <p>Provide one clear next step. Keep fields minimal and expectations clear.</p>
+          <p>One clear next step. Keep the form short and set expectations.</p>
         </div>
 
         <form action="#" method="post" aria-label="Contact form">
@@ -608,6 +635,7 @@
               Name
               <input name="name" autocomplete="name" required />
             </label>
+
             <label>
               Email
               <input type="email" name="email" autocomplete="email" required />
@@ -616,7 +644,7 @@
 
           <label>
             Message
-            <textarea name="message" required placeholder="Tell us what you need and when you need it."></textarea>
+            <textarea name="message" required placeholder="What do you need, and when?"></textarea>
           </label>
 
           <div style="display:flex; flex-wrap:wrap; gap:.65rem; align-items:center;">
