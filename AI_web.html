@@ -1,677 +1,237 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="ro">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Acme — Clear, Reliable Service</title>
-  <meta name="description" content="A clean, modern single-page landing template with accessible defaults and a mobile-first layout." />
-
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Prompturi AI Premium pentru Vânzări și Productivitate</title>
+  <meta name="description" content="Prompturi AI profesionale pentru creșterea vânzărilor, marketing, analiză și eficiență operațională." />
   <style>
-    :root{
-      --bg: #0b0f19;
-      --surface: rgba(17,24,39,.72);
-      --surface-2: rgba(17,24,39,.54);
-      --text: #e5e7eb;
-      --muted: #9ca3af;
-      --border: rgba(255,255,255,.12);
-      --brand: #60a5fa;
-      --brand-2: #34d399;
-      --shadow: 0 14px 36px rgba(0,0,0,.35);
-      --radius: 14px;
-      --max: 1100px;
-
-      --focus: rgba(96,165,250,.75);
-      --field: rgba(255,255,255,.04);
-      --field-hover: rgba(255,255,255,.06);
+    :root {
+      --primary: #0f172a;
+      --accent: #2563eb;
+      --bg: #f8fafc;
+      --text: #0f172a;
+      --muted: #475569;
+      --card: #ffffff;
     }
 
-    *{ box-sizing: border-box; }
-    html, body{ height: 100%; }
-    body{
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
       margin: 0;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
-      line-height: 1.55;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       color: var(--text);
-      background:
-        radial-gradient(900px 520px at 12% 0%, rgba(96,165,250,.20), transparent 60%),
-        radial-gradient(900px 520px at 92% 10%, rgba(52,211,153,.16), transparent 58%),
-        var(--bg);
+      background: var(--bg);
+      line-height: 1.6;
     }
 
-    a{ color: inherit; }
-    a:hover{ color: var(--text); }
-
-    :focus-visible{
-      outline: 3px solid var(--focus);
-      outline-offset: 2px;
-      border-radius: 10px;
+    header {
+      background: linear-gradient(135deg, var(--primary), #020617);
+      color: #ffffff;
+      padding: 4rem 1.5rem;
     }
 
-    .container{
-      width: min(100% - 2rem, var(--max));
-      margin-inline: auto;
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
     }
 
-    /* Header */
-    header{
-      position: sticky;
-      top: 0;
-      z-index: 30;
-      background: rgba(11,15,25,.72);
-      backdrop-filter: blur(10px);
-      border-bottom: 1px solid var(--border);
+    h1, h2, h3 {
+      line-height: 1.2;
     }
 
-    .header-inner{
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 1rem;
-      padding: .9rem 0;
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
     }
 
-    .brand{
-      display: inline-flex;
-      align-items: center;
-      gap: .65rem;
-      text-decoration: none;
-      font-weight: 800;
-      letter-spacing: .2px;
+    h2 {
+      font-size: 2rem;
+      margin-bottom: 1rem;
     }
 
-    .logo{
-      width: 34px;
-      height: 34px;
-      border-radius: 10px;
-      background: linear-gradient(135deg, var(--brand), var(--brand-2));
-      box-shadow: 0 12px 26px rgba(96,165,250,.18);
-      flex: 0 0 auto;
-    }
-
-    nav ul{
-      display: none;
-      list-style: none;
-      padding: 0;
-      margin: 0;
-      gap: 1rem;
-    }
-
-    nav a{
-      text-decoration: none;
+    p {
       color: var(--muted);
-      font-weight: 650;
-      font-size: .95rem;
-    }
-    nav a:hover{ color: var(--text); }
-
-    .header-actions{
-      display: flex;
-      align-items: center;
-      gap: .6rem;
+      margin-bottom: 1rem;
     }
 
-    .btn{
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: .5rem;
-      padding: .7rem 1rem;
-      border-radius: 999px;
-      border: 1px solid var(--border);
-      background: rgba(255,255,255,.03);
-      color: var(--text);
-      text-decoration: none;
-      font-weight: 750;
-      font-size: .95rem;
-      cursor: pointer;
-      transition: background .2s ease, border-color .2s ease, transform .05s ease;
-      white-space: nowrap;
-    }
-    .btn:hover{ background: rgba(255,255,255,.06); }
-    .btn:active{ transform: translateY(1px); }
-
-    .btn-primary{
-      background: linear-gradient(180deg, rgba(96,165,250,.28), rgba(96,165,250,.12));
-      border-color: rgba(96,165,250,.48);
-    }
-    .btn-primary:hover{
-      background: linear-gradient(180deg, rgba(96,165,250,.34), rgba(96,165,250,.15));
-      border-color: rgba(96,165,250,.68);
-    }
-
-    /* Hero */
-    .hero{
-      padding: 3.2rem 0 2.2rem;
-    }
-
-    .hero-grid{
+    .hero-grid {
       display: grid;
       grid-template-columns: 1fr;
-      gap: 1.6rem;
-      align-items: start;
+      gap: 2rem;
     }
 
-    .pill{
-      display: inline-flex;
-      align-items: center;
-      gap: .55rem;
-      padding: .35rem .7rem;
-      border-radius: 999px;
-      border: 1px solid var(--border);
-      background: rgba(255,255,255,.03);
-      color: var(--muted);
-      font-weight: 650;
-      font-size: .9rem;
-    }
-
-    h1{
-      margin: .9rem 0 .7rem;
-      font-size: clamp(1.95rem, 4.4vw, 3.1rem);
-      line-height: 1.12;
-      letter-spacing: -.02em;
-    }
-
-    .lead{
-      margin: 0;
-      max-width: 60ch;
-      color: var(--muted);
-      font-size: 1.05rem;
-    }
-
-    .hero-actions{
-      margin-top: 1.2rem;
-      display: flex;
-      flex-wrap: wrap;
-      gap: .65rem;
-      align-items: center;
-    }
-
-    .hero-note{
-      margin: .95rem 0 0;
-      color: var(--muted);
-      font-size: .95rem;
-    }
-
-    .panel{
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      background: var(--surface);
-      box-shadow: var(--shadow);
-      padding: 1rem;
-    }
-
-    .panel h2{
-      margin: 0;
-      font-size: 1.1rem;
-    }
-
-    .panel p{
-      margin: .35rem 0 0;
-      color: var(--muted);
-    }
-
-    .stats{
-      margin-top: .85rem;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: .8rem;
-    }
-
-    .stat{
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      background: rgba(255,255,255,.02);
-      padding: .85rem;
-    }
-
-    .stat strong{
-      display: block;
-      font-size: 1.08rem;
-    }
-
-    .stat span{
-      display: block;
-      margin-top: .15rem;
-      font-size: .9rem;
-      color: var(--muted);
-    }
-
-    /* Sections */
-    main{ padding-bottom: 3rem; }
-
-    section{
-      padding: 2.6rem 0;
-      border-top: 1px solid var(--border);
-    }
-
-    .section-head{
-      display: grid;
-      gap: .6rem;
-      margin-bottom: 1.2rem;
-    }
-
-    .section-head h2{
-      margin: 0;
-      font-size: clamp(1.35rem, 3vw, 2rem);
-      letter-spacing: -.01em;
-    }
-
-    .section-head p{
-      margin: 0;
-      max-width: 70ch;
-      color: var(--muted);
-    }
-
-    .cards{
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 1rem;
-    }
-
-    .card{
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      background: var(--surface-2);
-      padding: 1rem;
-    }
-
-    .card h3{
-      margin: .15rem 0 .35rem;
-      font-size: 1.08rem;
-    }
-
-    .card p{
-      margin: 0;
-      color: var(--muted);
-    }
-
-    .icon{
-      width: 38px;
-      height: 38px;
-      border-radius: 12px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      border: 1px solid rgba(96,165,250,.25);
-      background: rgba(96,165,250,.14);
-      margin-bottom: .5rem;
-    }
-    .icon svg{ width: 20px; height: 20px; }
-
-    /* Steps */
-    .steps{
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 1rem;
-    }
-
-    .step{
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      background: var(--surface-2);
-      padding: 1rem;
-      display: grid;
-      grid-template-columns: 44px 1fr;
-      gap: .85rem;
-      align-items: start;
-    }
-
-    .badge{
-      width: 44px;
-      height: 44px;
-      border-radius: 14px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 850;
-      background: linear-gradient(180deg, rgba(52,211,153,.22), rgba(52,211,153,.10));
-      border: 1px solid rgba(52,211,153,.32);
-    }
-
-    .step h3{ margin: .1rem 0 .25rem; }
-    .step p{ margin: 0; color: var(--muted); }
-
-    /* FAQ */
-    .faq{
-      display: grid;
-      gap: .85rem;
-      max-width: 900px;
-    }
-
-    details{
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      background: var(--surface-2);
-      padding: .9rem 1rem;
-    }
-
-    summary{
-      cursor: pointer;
-      list-style: none;
-      font-weight: 800;
-    }
-    summary::-webkit-details-marker{ display: none; }
-
-    details p{
-      margin: .6rem 0 0;
-      color: var(--muted);
-    }
-
-    /* Contact */
-    form{
-      display: grid;
-      gap: .85rem;
-      max-width: 740px;
-    }
-
-    label{
-      display: grid;
-      gap: .35rem;
-      font-weight: 650;
-    }
-
-    input, textarea{
-      width: 100%;
-      padding: .75rem .85rem;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      background: var(--field);
-      color: var(--text);
-      font: inherit;
-    }
-    input:hover, textarea:hover{ background: var(--field-hover); }
-
-    textarea{ min-height: 120px; resize: vertical; }
-
-    .form-row{
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: .85rem;
-    }
-
-    .fineprint{
-      margin: 0;
-      color: var(--muted);
-      font-size: .9rem;
-    }
-
-    /* Footer */
-    footer{
-      border-top: 1px solid var(--border);
-      padding: 1.4rem 0;
-      color: var(--muted);
-      font-size: .95rem;
-    }
-
-    .footer-inner{
-      display: flex;
-      flex-direction: column;
-      gap: .75rem;
-      justify-content: space-between;
-    }
-
-    .footer-links{
-      display: flex;
-      flex-wrap: wrap;
-      gap: .9rem;
-    }
-
-    .footer-links a{
-      color: var(--muted);
-      text-decoration: none;
-      font-weight: 650;
-    }
-    .footer-links a:hover{ color: var(--text); }
-
-    /* Responsive */
-    @media (min-width: 760px){
-      nav ul{ display: flex; }
-      .hero-grid{
-        grid-template-columns: 1.25fr .75fr;
-        align-items: center;
-      }
-      .cards{ grid-template-columns: repeat(3, 1fr); }
-      .steps{ grid-template-columns: repeat(3, 1fr); }
-      .form-row{ grid-template-columns: 1fr 1fr; }
-      .footer-inner{
-        flex-direction: row;
-        align-items: center;
+    @media (min-width: 768px) {
+      .hero-grid {
+        grid-template-columns: 1.2fr 0.8fr;
       }
     }
 
-    @media (prefers-reduced-motion: reduce){
-      *{ scroll-behavior: auto !important; transition: none !important; }
+    .cta-primary {
+      display: inline-block;
+      margin-top: 1.5rem;
+      background: var(--accent);
+      color: #ffffff;
+      padding: 0.9rem 1.5rem;
+      border-radius: 0.5rem;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    section {
+      padding: 4rem 1.5rem;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+
+    @media (min-width: 768px) {
+      .cards {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    .card {
+      background: var(--card);
+      padding: 1.75rem;
+      border-radius: 0.75rem;
+      box-shadow: 0 10px 30px rgba(2, 6, 23, 0.08);
+    }
+
+    .price-box {
+      background: #020617;
+      color: #ffffff;
+      padding: 2.5rem;
+      border-radius: 1rem;
+      text-align: center;
+      max-width: 420px;
+      margin: 0 auto;
+    }
+
+    .price {
+      font-size: 3rem;
+      font-weight: 700;
+      margin: 1rem 0;
+    }
+
+    footer {
+      background: #020617;
+      color: #94a3b8;
+      padding: 2rem 1.5rem;
+      font-size: 0.9rem;
     }
   </style>
 </head>
-
 <body>
-  <header>
-    <div class="container">
-      <div class="header-inner">
-        <a class="brand" href="#top" aria-label="Acme home">
-          <span class="logo" aria-hidden="true"></span>
-          <span>Acme</span>
-        </a>
 
-        <nav aria-label="Primary navigation">
-          <ul>
-            <li><a href="#features">Features</a></li>
-            <li><a href="#how">How it works</a></li>
-            <li><a href="#faq">FAQ</a></li>
-            <li><a href="#contact">Contact</a></li>
-          </ul>
-        </nav>
+<header>
+  <div class="container hero-grid">
+    <div>
+      <h1>Prompturi AI care vând, analizează și scalează</h1>
+      <p>
+        Colecție profesională de prompturi testate pentru vânzări, marketing,
+        analiză strategică și productivitate. Construite pentru rezultate reale,
+        nu experimente.
+      </p>
+      <a href="#cumpara" class="cta-primary">Cumpără accesul complet</a>
+    </div>
+    <div>
+      <p>
+        Potrivite pentru:
+        <strong>antreprenori</strong>,
+        <strong>echipe de vânzări</strong>,
+        <strong>marketeri</strong>,
+        <strong>consultanti</strong> și
+        <strong>freelanceri</strong>.
+      </p>
+    </div>
+  </div>
+</header>
 
-        <div class="header-actions">
-          <a class="btn" href="#contact">Talk to us</a>
-          <a class="btn btn-primary" href="#contact">Get started</a>
-        </div>
+<section>
+  <div class="container">
+    <h2>Ce primești</h2>
+    <div class="cards">
+      <div class="card">
+        <h3>Prompturi de vânzări</h3>
+        <p>
+          Scripturi pentru emailuri, mesaje, apeluri și follow-up,
+          optimizate pentru conversie și claritate.
+        </p>
+      </div>
+      <div class="card">
+        <h3>Prompturi de marketing</h3>
+        <p>
+          Generare de copy, oferte, headline-uri și poziționare
+          pentru canale digitale.
+        </p>
+      </div>
+      <div class="card">
+        <h3>Prompturi strategice</h3>
+        <p>
+          Analiză de piață, avatar client, structurare de oferte
+          și decizii bazate pe date.
+        </p>
       </div>
     </div>
-  </header>
+  </div>
+</section>
 
-  <main id="top">
-    <div class="container">
-      <section class="hero" aria-labelledby="hero-title">
-        <div class="hero-grid">
-          <div>
-            <div class="pill" role="note">
-              <span aria-hidden="true">●</span>
-              Simple, reliable service for busy teams
-            </div>
-
-            <h1 id="hero-title">Make the important work easier to start, track, and finish.</h1>
-            <p class="lead">
-              A practical single-page layout you can use for a product, service, or organization. Clear hierarchy,
-              concise content, and accessible defaults.
-            </p>
-
-            <div class="hero-actions">
-              <a class="btn btn-primary" href="#contact">Request a demo</a>
-              <a class="btn" href="#features">See features</a>
-            </div>
-
-            <p class="hero-note">
-              Replace this copy with your value proposition and proof points. Keep one primary call to action.
-            </p>
-          </div>
-
-          <aside class="panel" aria-label="Highlights">
-            <h2>At a glance</h2>
-            <p>Quick metrics help users understand outcomes without reading a full brochure.</p>
-
-            <div class="stats" role="list" aria-label="Key metrics">
-              <div class="stat" role="listitem">
-                <strong>2–3 minutes</strong>
-                <span>typical setup</span>
-              </div>
-              <div class="stat" role="listitem">
-                <strong>Less overhead</strong>
-                <span>fewer manual steps</span>
-              </div>
-              <div class="stat" role="listitem">
-                <strong>Clear status</strong>
-                <span>track progress fast</span>
-              </div>
-              <div class="stat" role="listitem">
-                <strong>Mobile-ready</strong>
-                <span>works everywhere</span>
-              </div>
-            </div>
-          </aside>
-        </div>
-      </section>
-
-      <section id="features" aria-labelledby="features-title">
-        <div class="section-head">
-          <h2 id="features-title">Features built for clarity</h2>
-          <p>Short, benefit-led descriptions help non-technical users quickly understand what they get.</p>
-        </div>
-
-        <div class="cards">
-          <article class="card">
-            <div class="icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M4 6h16"></path>
-                <path d="M4 12h16"></path>
-                <path d="M4 18h16"></path>
-              </svg>
-            </div>
-            <h3>Simple structure</h3>
-            <p>Predictable sections and readable typography from mobile to desktop.</p>
-          </article>
-
-          <article class="card">
-            <div class="icon" aria-hidden="true" style="background: rgba(52,211,153,.12); border-color: rgba(52,211,153,.25);">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M20 6 9 17l-5-5"></path>
-              </svg>
-            </div>
-            <h3>Accessible defaults</h3>
-            <p>Semantic HTML, focus states, and contrast-friendly styling built in.</p>
-          </article>
-
-          <article class="card">
-            <div class="icon" aria-hidden="true" style="background: rgba(167,139,250,.12); border-color: rgba(167,139,250,.25);">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 2v20"></path>
-                <path d="M2 12h20"></path>
-                <path d="M7 7h10v10H7z"></path>
-              </svg>
-            </div>
-            <h3>Easy to customize</h3>
-            <p>Swap copy and update colors without changing the underlying layout.</p>
-          </article>
-        </div>
-      </section>
-
-      <section id="how" aria-labelledby="how-title">
-        <div class="section-head">
-          <h2 id="how-title">How it works</h2>
-          <p>A simple process section reduces uncertainty and improves conversion.</p>
-        </div>
-
-        <div class="steps">
-          <div class="step">
-            <div class="badge" aria-hidden="true">1</div>
-            <div>
-              <h3>Tell us your goal</h3>
-              <p>Share what you’re trying to achieve and the constraints that matter.</p>
-            </div>
-          </div>
-
-          <div class="step">
-            <div class="badge" aria-hidden="true">2</div>
-            <div>
-              <h3>Get a clear plan</h3>
-              <p>We propose a straightforward structure and content that fits your audience.</p>
-            </div>
-          </div>
-
-          <div class="step">
-            <div class="badge" aria-hidden="true">3</div>
-            <div>
-              <h3>Launch and iterate</h3>
-              <p>Publish quickly, then improve based on real user feedback and usage data.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section id="faq" aria-labelledby="faq-title">
-        <div class="section-head">
-          <h2 id="faq-title">FAQ</h2>
-          <p>Address common objections directly to reduce support requests and hesitation.</p>
-        </div>
-
-        <div class="faq">
-          <details>
-            <summary>Is this production-ready?</summary>
-            <p>It uses semantic HTML, sensible contrast, a mobile-first layout, and minimal JavaScript.</p>
-          </details>
-
-          <details>
-            <summary>Can I adapt it for my brand?</summary>
-            <p>Yes. Replace the name, copy, and calls to action. Update CSS variables for quick theming.</p>
-          </details>
-
-          <details>
-            <summary>Does it work on mobile?</summary>
-            <p>Yes. Navigation links appear on larger screens, and the layout becomes multi-column responsively.</p>
-          </details>
-        </div>
-      </section>
-
-      <section id="contact" aria-labelledby="contact-title">
-        <div class="section-head">
-          <h2 id="contact-title">Contact</h2>
-          <p>One clear next step. Keep the form short and set expectations.</p>
-        </div>
-
-        <form action="#" method="post" aria-label="Contact form">
-          <div class="form-row">
-            <label>
-              Name
-              <input name="name" autocomplete="name" required />
-            </label>
-
-            <label>
-              Email
-              <input type="email" name="email" autocomplete="email" required />
-            </label>
-          </div>
-
-          <label>
-            Message
-            <textarea name="message" required placeholder="What do you need, and when?"></textarea>
-          </label>
-
-          <div style="display:flex; flex-wrap:wrap; gap:.65rem; align-items:center;">
-            <button class="btn btn-primary" type="submit">Send message</button>
-            <p class="fineprint">By sending, you agree to be contacted about your request.</p>
-          </div>
-        </form>
-      </section>
-    </div>
-  </main>
-
-  <footer>
-    <div class="container">
-      <div class="footer-inner">
-        <div>© <span id="year"></span> Acme. All rights reserved.</div>
-        <div class="footer-links" aria-label="Footer links">
-          <a href="#features">Features</a>
-          <a href="#faq">FAQ</a>
-          <a href="#contact">Contact</a>
-        </div>
+<section>
+  <div class="container">
+    <h2>De ce funcționează</h2>
+    <div class="cards">
+      <div class="card">
+        <h3>Structură clară</h3>
+        <p>
+          Fiecare prompt este gândit ca un mini-sistem,
+          nu ca o întrebare generică.
+        </p>
+      </div>
+      <div class="card">
+        <h3>Testate în practică</h3>
+        <p>
+          Prompturi rafinate în contexte comerciale reale,
+          nu exemple teoretice.
+        </p>
+      </div>
+      <div class="card">
+        <h3>Ușor de adaptat</h3>
+        <p>
+          Se pot personaliza rapid pentru industrie,
+          nișă sau nivel de expertiză.
+        </p>
       </div>
     </div>
-  </footer>
+  </div>
+</section>
 
-  <script>
-    // Small enhancement: keep the footer year current.
-    document.getElementById("year").textContent = new Date().getFullYear();
-  </script>
+<section id="cumpara">
+  <div class="container">
+    <div class="price-box">
+      <h2>Acces complet</h2>
+      <p>Actualizări incluse. Utilizare comercială permisă.</p>
+      <div class="price">99 €</div>
+      <a href="#" class="cta-primary">Cumpără acum</a>
+      <p style="margin-top:1rem; font-size:0.85rem;">
+        Livrare digitală instant.
+      </p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <p>
+      © 2026 Prompturi AI Premium. Toate drepturile rezervate.
+    </p>
+  </div>
+</footer>
+
 </body>
 </html>
