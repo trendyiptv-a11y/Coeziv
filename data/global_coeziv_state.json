@@ -1,6 +1,6 @@
 {
   "as_of": "2026-01-16",
-  "risk_score": 0.3613,
+  "risk_score": 0.3614,
   "macro_signal": "risk-on",
   "series": [
     {
@@ -18046,7 +18046,7 @@
     {
       "t": 1691107200000,
       "ic_global": 49.85,
-      "icd_global": 64.82
+      "icd_global": 64.8
     },
     {
       "t": 1691366400000,
@@ -21121,14 +21121,14 @@
     {
       "t": 1768521600000,
       "ic_global": 9.08,
-      "icd_global": 64.8,
+      "icd_global": 64.82,
       "regime": "bull"
     }
   ],
   "current": {
     "t": 1768521600000,
     "ic_global": 9.08,
-    "icd_global": 64.8,
+    "icd_global": 64.82,
     "regime": "bull"
   },
   "thresholds": {

@@ -1,14 +1,16 @@
 {
   "as_of": "2026-01-18",
-  "close": 85000.0,
-  "prod_cost_usd": 71000.0,
-  "prod_margin": 1.1972,
+  "close": 95126.21,
+  "difficulty": 146472570619931.0,
+  "block_subsidy_btc": 3.125,
+  "fees_btc_per_block": 0.0,
+  "prod_cost_electric_usd": 72695.41,
+  "prod_cost_total_usd": 90869.26,
+  "prod_margin": 1.05,
+  "method": "difficulty_energy_model_v2",
   "params": {
-    "hashrate_eh_per_s": 1065.0,
-    "efficiency_j_per_th": 25.0,
-    "energy_price_usd_per_kwh": 0.05,
-    "blocks_per_day": 144.0,
-    "block_reward_btc": 3.125,
-    "all_in_factor": 1.0
+    "electricity_usd_per_kwh_base": 0.05,
+    "production_markup": 1.25,
+    "efficiency_model": "piecewise_time_dependent"
   }
 }
