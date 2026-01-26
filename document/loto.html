@@ -2,102 +2,91 @@
 <html lang="ro">
 <head>
   <meta charset="utf-8">
-  <title>Lotto 7/36 – Hardcore deterministic</title>
+  <title>Lotto 7/36 – Hardcore + index apariții</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <style>
-    body {
-      margin:0;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      background:#0b0f14;
-      color:#e8eef6;
-    }
-    main {
-      max-width:900px;
-      margin:0 auto;
-      padding:20px;
-    }
-    h1 { font-size:20px; margin-bottom:6px; }
-    p { color:#9fb0c4; line-height:1.4; }
-    .card {
-      background:#121924;
-      border-radius:14px;
-      padding:16px;
-      margin-top:14px;
-      border:1px solid rgba(255,255,255,.08);
-    }
-    button {
-      padding:10px 14px;
-      font-weight:800;
-      border-radius:10px;
-      border:1px solid rgba(255,255,255,.15);
-      background:rgba(255,255,255,.06);
-      color:#e8eef6;
-      cursor:pointer;
-    }
-    button:disabled { opacity:.5; cursor:not-allowed; }
-    progress { width:100%; height:16px; }
-    .mono {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      font-variant-numeric: tabular-nums;
-    }
-    .grid {
-      display:grid;
-      grid-template-columns: repeat(4,1fr);
-      gap:8px;
-      margin-top:10px;
-    }
-    .pill {
-      background:rgba(255,255,255,.06);
-      padding:6px 10px;
-      border-radius:999px;
-      font-size:13px;
-    }
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:#0b0f14;color:#e8eef6}
+    main{max-width:980px;margin:0 auto;padding:20px}
+    h1{font-size:20px;margin:0 0 6px}
+    p{margin:0;color:#9fb0c4;line-height:1.45}
+    .card{background:#121924;border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:16px;margin-top:14px}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    button{padding:10px 14px;font-weight:800;border-radius:10px;border:1px solid rgba(255,255,255,.15);
+      background:rgba(255,255,255,.06);color:#e8eef6;cursor:pointer}
+    button:disabled{opacity:.5;cursor:not-allowed}
+    progress{width:100%;height:16px;margin-top:10px}
+    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-variant-numeric:tabular-nums}
+    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px}
+    @media(max-width:760px){.grid{grid-template-columns:1fr}}
+    .pill{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10);padding:10px;border-radius:12px}
+    .pill strong{display:block;margin-bottom:6px}
+    .small{font-size:12px;color:#9fb0c4}
+    code{background:rgba(0,0,0,.25);padding:2px 6px;border-radius:8px}
   </style>
 </head>
 <body>
 <main>
-  <h1>Lotto 7/36 – Hardcore deterministic</h1>
+  <h1>Lotto 7/36 – Enumerare completă + „la a câta extragere”</h1>
   <p>
-    Enumerare completă a tuturor celor <strong>8.347.680</strong> combinații.
-    Fără RNG. Fără aproximații. Doar matematică.
+    Fără RNG: parcurge toate cele <strong>8.347.680</strong> combinații (C(36,7)).
+    Afișează distribuția și indexul (1-based) la care apare prima/ultima dată fiecare scor.
   </p>
 
   <div class="card">
-    <p><strong>Bilet fix:</strong> <span class="mono" id="ticket"></span></p>
-    <button id="startBtn">Pornește enumerarea</button>
+    <div class="row">
+      <div><strong>Bilet fix:</strong> <span class="mono" id="ticket"></span></div>
+      <button id="startBtn">Pornește</button>
+    </div>
     <progress id="progress" value="0" max="8347680"></progress>
     <p class="mono" id="status">În așteptare…</p>
+    <p class="small">Indicele este numărul combinației în ordinea lexicografică a generatorului.</p>
   </div>
 
   <div class="card">
-    <strong>Rezultat EXACT</strong>
-    <div class="grid mono" id="results"></div>
+    <div class="grid" id="results"></div>
+  </div>
+
+  <div class="card">
+    <strong>Detaliu 7/7</strong>
+    <p class="mono" id="sevenDetail">—</p>
   </div>
 </main>
 
 <script>
   // ===== CONFIG =====
+  const TOTAL = 8347680;      // C(36,7)
+  const BATCH = 20000;        // ajustabil: mai mic = mai responsiv, mai mare = mai rapid
   const TICKET = [3, 7, 11, 18, 22, 29, 34];
-  const TSET = new Set(TICKET);
-  const TOTAL = 8347680;
-  const BATCH = 20000;
 
+  // ===== UI =====
   document.getElementById('ticket').textContent = TICKET.join(', ');
-
-  // ===== STARE =====
-  let counts = Array(8).fill(0);
-  let processed = 0;
-  let startTime = 0;
-
+  const startBtn = document.getElementById('startBtn');
   const progress = document.getElementById('progress');
   const status = document.getElementById('status');
   const resultsDiv = document.getElementById('results');
-  const startBtn = document.getElementById('startBtn');
+  const sevenDetail = document.getElementById('sevenDetail');
 
-  // ===== CORE: GENERATOR COMBINAȚII =====
-  let a=1,b=2,c=3,d=4,e=5,f=6,g=7;
+  // ===== Precompute pentru hits (mai rapid decât Set.has de 7 ori) =====
+  // inTicket[n] = 1 dacă n e în bilet
+  const inTicket = new Uint8Array(37);
+  for (const n of TICKET) inTicket[n] = 1;
 
-  function nextCombination() {
+  // ===== Stare statistici =====
+  const counts = new Uint32Array(8);          // câte apariții pentru 0..7
+  const firstAt = new Int32Array(8);          // primul index (1-based) pentru 0..7
+  const lastAt  = new Int32Array(8);          // ultimul index (1-based) pentru 0..7
+  for (let i=0;i<8;i++) firstAt[i] = 0;
+
+  // pentru 7/7 (va fi 1 singură dată, dar îl ținem explicit)
+  let sevenIndex = 0;
+  let sevenCombo = null;
+
+  // ===== Generator combinații lexicografic =====
+  let a,b,c,d,e,f,g;
+  function resetComb(){
+    a=1; b=2; c=3; d=4; e=5; f=6; g=7;
+  }
+  function nextCombination(){
     if (g < 36) { g++; return true; }
     if (f < 35) { f++; g = f+1; return true; }
     if (e < 34) { e++; f = e+1; g = f+1; return true; }
@@ -108,44 +97,67 @@
     return false;
   }
 
-  function countHits() {
-    let hits = 0;
-    if (TSET.has(a)) hits++;
-    if (TSET.has(b)) hits++;
-    if (TSET.has(c)) hits++;
-    if (TSET.has(d)) hits++;
-    if (TSET.has(e)) hits++;
-    if (TSET.has(f)) hits++;
-    if (TSET.has(g)) hits++;
-    counts[hits]++;
+  function hitsForCurrent(){
+    // sumă rapidă (0..7)
+    return inTicket[a]+inTicket[b]+inTicket[c]+inTicket[d]+inTicket[e]+inTicket[f]+inTicket[g];
   }
 
-  function renderResults() {
+  function render(){
     resultsDiv.innerHTML = '';
-    for (let i=7;i>=0;i--) {
-      const el = document.createElement('div');
-      el.className = 'pill';
-      el.textContent = `${i}/7 → ${counts[i].toLocaleString()}`;
-      resultsDiv.appendChild(el);
+    for (let h=7; h>=0; h--){
+      const box = document.createElement('div');
+      box.className = 'pill mono';
+      const fAt = firstAt[h] ? firstAt[h].toLocaleString() : '—';
+      const lAt = lastAt[h]  ? lastAt[h].toLocaleString()  : '—';
+      box.innerHTML = `
+        <strong>${h}/7</strong>
+        Apariții: ${counts[h].toLocaleString()}<br>
+        Prima: ${fAt}<br>
+        Ultima: ${lAt}
+      `;
+      resultsDiv.appendChild(box);
+    }
+
+    if (sevenIndex){
+      sevenDetail.textContent = `7/7 apare la extragerea #${sevenIndex.toLocaleString()} pentru combinația [${sevenCombo.join(', ')}].`;
+    } else {
+      sevenDetail.textContent = '—';
     }
   }
 
-  function runBatch() {
+  // ===== Loop =====
+  let processed = 0;
+  let t0 = 0;
+
+  function runBatch(){
     const end = Math.min(processed + BATCH, TOTAL);
-    while (processed < end) {
-      countHits();
+
+    while (processed < end){
+      const idx = processed + 1; // 1-based
+      const h = hitsForCurrent();
+
+      counts[h]++;
+
+      if (firstAt[h] === 0) firstAt[h] = idx;
+      lastAt[h] = idx;
+
+      if (h === 7 && sevenIndex === 0){
+        sevenIndex = idx;
+        sevenCombo = [a,b,c,d,e,f,g];
+      }
+
       processed++;
       if (!nextCombination()) break;
     }
 
     progress.value = processed;
     status.textContent = `Procesate: ${processed.toLocaleString()} / ${TOTAL.toLocaleString()}`;
-    renderResults();
+    render();
 
-    if (processed < TOTAL) {
+    if (processed < TOTAL){
       setTimeout(runBatch, 0);
     } else {
-      const sec = ((performance.now() - startTime)/1000).toFixed(2);
+      const sec = ((performance.now() - t0)/1000).toFixed(2);
       status.textContent += ` | FINAL în ${sec}s`;
       startBtn.disabled = false;
     }
@@ -153,14 +165,26 @@
 
   startBtn.onclick = () => {
     startBtn.disabled = true;
+
+    // reset stats
     counts.fill(0);
+    firstAt.fill(0);
+    lastAt.fill(0);
     processed = 0;
+    sevenIndex = 0;
+    sevenCombo = null;
+
     progress.value = 0;
-    a=1;b=2;c=3;d=4;e=5;f=6;g=7;
-    startTime = performance.now();
-    status.textContent = 'Rulează enumerarea completă…';
+    resetComb();
+    t0 = performance.now();
+    status.textContent = 'Rulează enumerarea…';
+    render();
     runBatch();
   };
+
+  // init
+  resetComb();
+  render();
 </script>
 </body>
 </html>
