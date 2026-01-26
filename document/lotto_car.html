@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="da">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Opsparingsklub – alternativ til Lotto</title>
+
+  <style>
+    :root{
+      --bg:#F7F8FA;
+      --card:#FFFFFF;
+      --text:#1F2937;
+      --muted:#6B7280;
+      --border:rgba(17,24,39,.10);
+      --shadow:0 6px 18px rgba(0,0,0,.06);
+      --accent:#2563EB;
+      --accent-dark:#1D4ED8;
+      --ok:#047857;
+      --warn:#B45309;
+      --radius:14px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      background:var(--bg);
+      color:var(--text);
+    }
+    header{
+      position:sticky;top:0;z-index:10;
+      background:rgba(247,248,250,.9);
+      backdrop-filter:blur(8px);
+      border-bottom:1px solid var(--border);
+    }
+    .topbar{
+      max-width:1100px;margin:0 auto;
+      display:flex;align-items:center;justify-content:space-between;
+      padding:14px 18px;gap:12px;
+    }
+    .brand{display:flex;gap:10px;align-items:center;font-weight:800}
+    .logo{
+      width:34px;height:34px;border-radius:10px;
+      background:linear-gradient(135deg,rgba(37,99,235,.25),rgba(37,99,235,.05));
+      border:1px solid rgba(37,99,235,.3);
+    }
+    .nav{display:flex;gap:8px;flex-wrap:wrap}
+    .nav button{
+      border:1px solid transparent;
+      background:transparent;
+      padding:8px 10px;border-radius:10px;
+      font-weight:700;color:var(--muted);cursor:pointer;
+    }
+    .nav button.active{
+      background:#fff;border-color:var(--border);color:var(--text);
+    }
+
+    main{max-width:1100px;margin:0 auto;padding:18px}
+    .page{display:none}
+    .page.active{display:block}
+
+    .card{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:18px;
+    }
+    h1{font-size:28px;margin:0 0 10px}
+    h2{font-size:18px;margin:0}
+    p{margin:0;color:var(--muted);line-height:1.55}
+
+    .hero{
+      display:grid;gap:16px;
+      grid-template-columns:1.2fr .8fr;
+      margin-top:18px;
+    }
+    @media(max-width:900px){.hero{grid-template-columns:1fr}}
+
+    .btn{
+      border:1px solid var(--border);
+      background:#fff;
+      padding:10px 14px;border-radius:12px;
+      font-weight:800;cursor:pointer;
+    }
+    .btn.primary{
+      background:var(--accent);
+      color:#fff;border-color:rgba(37,99,235,.4);
+    }
+    .btn.primary:hover{background:var(--accent-dark)}
+    .btn.ghost{background:transparent;border-color:transparent;color:var(--accent)}
+
+    .bullets{display:grid;gap:10px;margin-top:14px}
+    .bullet{display:flex;gap:10px}
+    .check{
+      width:20px;height:20px;border-radius:6px;
+      background:rgba(4,120,87,.15);
+      border:1px solid rgba(4,120,87,.35);
+      display:flex;align-items:center;justify-content:center;
+      font-weight:900;color:var(--ok);
+    }
+
+    .grid4{
+      display:grid;gap:14px;margin-top:14px;
+      grid-template-columns:repeat(2,1fr);
+    }
+    @media(max-width:700px){.grid4{grid-template-columns:1fr}}
+
+    .mini{
+      border:1px solid var(--border);
+      border-radius:14px;padding:16px;background:#fff;
+    }
+    .k{font-size:12px;color:var(--muted);font-weight:700}
+    .v{font-size:16px;font-weight:800;margin-top:6px}
+
+    .notice{
+      background:rgba(180,83,9,.08);
+      border:1px solid rgba(180,83,9,.25);
+      border-radius:12px;padding:12px;
+      font-weight:800;color:#7c4a0b;
+    }
+
+    .choices{
+      display:grid;gap:10px;
+      grid-template-columns:repeat(3,1fr);
+    }
+    @media(max-width:520px){.choices{grid-template-columns:1fr}}
+    .choice{
+      border:1px solid var(--border);
+      border-radius:14px;padding:14px;
+      font-weight:900;cursor:pointer;
+      display:flex;justify-content:space-between;
+      background:#fff;
+    }
+    .choice.selected{
+      background:rgba(37,99,235,.07);
+      border-color:rgba(37,99,235,.4);
+    }
+
+    .checkbox{
+      display:flex;gap:10px;
+      padding:12px;border-radius:12px;
+      border:1px solid var(--border);
+      background:#fff;
+    }
+
+    .dashboard{
+      display:grid;gap:14px;
+      grid-template-columns:1.1fr .9fr;
+      margin-top:16px;
+    }
+    @media(max-width:900px){.dashboard{grid-template-columns:1fr}}
+
+    .big{
+      font-size:28px;font-weight:900;
+      font-variant-numeric:tabular-nums;
+    }
+
+    .timeline{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+    .dot{
+      width:10px;height:10px;border-radius:50%;
+      border:2px solid rgba(31,41,55,.25);
+    }
+    .dot.past{background:rgba(4,120,87,.25);border-color:rgba(4,120,87,.5)}
+    .dot.current{
+      background:rgba(37,99,235,.25);
+      border-color:rgba(37,99,235,.6);
+      box-shadow:0 0 0 4px rgba(37,99,235,.12);
+    }
+    .line{
+      width:24px;height:2px;background:rgba(31,41,55,.15);
+      margin-top:4px;
+    }
+
+    footer{
+      padding:24px 0;color:var(--muted);
+      font-size:12px;text-align:center;
+    }
+    .mono{
+      font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+      font-variant-numeric:tabular-nums;
+    }
+  </style>
+</head>
+
+<body>
+<header>
+  <div class="topbar">
+    <div class="brand">
+      <div class="logo"></div>
+      Opsparingsklub
+    </div>
+    <div class="nav">
+      <button data-go="landing" class="active">Forside</button>
+      <button data-go="onboarding">Bliv medlem</button>
+      <button data-go="dashboard">Dashboard</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- LANDING -->
+  <section id="landing" class="page active">
+    <div class="hero">
+      <div class="card">
+        <h1>Et alternativ til Lotto – du sparer penge.</h1>
+        <p>Fast beløb. Gennemsigtige regler. Mulighed for bonus.</p>
+
+        <div class="bullets">
+          <div class="bullet"><div class="check">✓</div><div><b>Opsparing først</b><p>Minimum 85% tilbage</p></div></div>
+          <div class="bullet"><div class="check">✓</div><div><b>Fast beløb</b><p>Ingen impuls-spil</p></div></div>
+          <div class="bullet"><div class="check">✓</div><div><b>Bonus er ekstra</b><p>Én gang om måneden</p></div></div>
+        </div>
+
+        <div style="margin-top:14px">
+          <button class="btn primary" data-go="onboarding">Bliv medlem</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Eksempel (12 mdr)</h2>
+        <div class="mini"><div class="k">Indbetalt</div><div class="v mono">1.200 DKK</div></div>
+        <div style="height:10px"></div>
+        <div class="mini"><div class="k">Minimum tilbage</div><div class="v mono">1.020 DKK</div></div>
+        <div style="height:10px"></div>
+        <div class="notice">Maksimalt tab: 180 DKK</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ONBOARDING -->
+  <section id="onboarding" class="page">
+    <div class="card">
+      <h2>Bliv medlem</h2>
+
+      <p style="margin-top:10px"><b>Vælg beløb pr. måned</b></p>
+      <div class="choices" id="amountChoices">
+        <div class="choice selected" data-amount="50">50 DKK</div>
+        <div class="choice" data-amount="100">100 DKK</div>
+        <div class="choice" data-amount="200">200 DKK</div>
+      </div>
+
+      <p style="margin-top:14px"><b>Vælg varighed</b></p>
+      <div class="choices" id="durationChoices">
+        <div class="choice" data-months="6">6 mdr</div>
+        <div class="choice selected" data-months="12">12 mdr</div>
+      </div>
+
+      <div style="margin-top:14px" class="checkbox">
+        <input type="checkbox" id="ack">
+        <div>
+          <b>Jeg forstår, at dette ikke er gambling.</b>
+          <p>Beløbet kan ikke øges undervejs.</p>
+        </div>
+      </div>
+
+      <div style="margin-top:14px">
+        <button class="btn primary" id="joinBtn" disabled>Bekræft</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- DASHBOARD -->
+  <section id="dashboard" class="page">
+    <div class="dashboard">
+      <div class="card">
+        <h2>Din opsparing</h2>
+        <div class="big mono">255 DKK</div>
+        <p>Indbetalt: <span class="mono">300 DKK</span></p>
+      </div>
+
+      <div class="card">
+        <h2>Dit år</h2>
+        <div class="timeline">
+          <div class="dot past"></div><div class="line"></div>
+          <div class="dot past"></div><div class="line"></div>
+          <div class="dot current"></div><div class="line"></div>
+          <div class="dot"></div><div class="line"></div>
+          <div class="dot"></div>
+        </div>
+        <p style="margin-top:10px">Udbetaling senest måned 12</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    Demo UX – ikke et casino. Designet til at forhindre overforbrug.
+  </footer>
+</main>
+
+<script>
+  const pages=[...document.querySelectorAll('.page')];
+  const nav=[...document.querySelectorAll('.nav button')];
+  function go(id){
+    pages.forEach(p=>p.classList.toggle('active',p.id===id));
+    nav.forEach(b=>b.classList.toggle('active',b.dataset.go===id));
+    window.scrollTo(0,0);
+  }
+  document.addEventListener('click',e=>{
+    const g=e.target.closest('[data-go]');
+    if(g)go(g.dataset.go);
+  });
+
+  let amount=50,months=12;
+  document.getElementById('amountChoices').onclick=e=>{
+    const c=e.target.closest('.choice');if(!c)return;
+    amount=+c.dataset.amount;
+    [...e.currentTarget.children].forEach(x=>x.classList.remove('selected'));
+    c.classList.add('selected');
+  };
+  document.getElementById('durationChoices').onclick=e=>{
+    const c=e.target.closest('.choice');if(!c)return;
+    months=+c.dataset.months;
+    [...e.currentTarget.children].forEach(x=>x.classList.remove('selected'));
+    c.classList.add('selected');
+  };
+
+  const ack=document.getElementById('ack');
+  const join=document.getElementById('joinBtn');
+  ack.onchange=()=>join.disabled=!ack.checked;
+  join.onclick=()=>go('dashboard');
+</script>
+</body>
+</html>
