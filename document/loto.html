@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="ro">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Lotto (demo educațional) – 7/36 + tillægstal</title>
+  <style>
+    :root { --bg:#0b0f14; --card:#121924; --muted:#9fb0c4; --text:#e8eef6; --accent:#7dd3fc; --danger:#fb7185; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; background: radial-gradient(1200px 600px at 20% 0%, #142033 0%, var(--bg) 55%); color: var(--text); }
+    header { padding: 24px 16px 8px; max-width: 1100px; margin: 0 auto; }
+    h1 { margin:0 0 6px; font-size: 22px; letter-spacing: .2px; }
+    p { margin:0; color: var(--muted); line-height: 1.4; }
+    main { max-width: 1100px; margin: 0 auto; padding: 16px; display: grid; gap: 16px; grid-template-columns: 1.2fr .8fr; }
+    @media (max-width: 920px){ main { grid-template-columns: 1fr; } }
+    .card { background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02)); border: 1px solid rgba(255,255,255,.08); border-radius: 16px; padding: 16px; box-shadow: 0 10px 30px rgba(0,0,0,.25); }
+    .row { display:flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .btn { cursor:pointer; border: 1px solid rgba(255,255,255,.14); background: rgba(255,255,255,.06); color: var(--text); padding: 10px 12px; border-radius: 12px; font-weight: 600; }
+    .btn:hover { border-color: rgba(255,255,255,.22); background: rgba(255,255,255,.09); }
+    .btn.primary { background: rgba(125, 211, 252, .18); border-color: rgba(125, 211, 252, .35); }
+    .btn.danger { background: rgba(251, 113, 133, .12); border-color: rgba(251, 113, 133, .30); }
+    .pill { display:inline-flex; align-items:center; gap:8px; padding: 8px 10px; border-radius: 999px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.10); color: var(--muted); }
+    .grid { display:grid; grid-template-columns: repeat(9, 1fr); gap: 8px; margin-top: 12px; }
+    @media (max-width: 520px){ .grid { grid-template-columns: repeat(6, 1fr); } }
+    .n { user-select:none; display:flex; align-items:center; justify-content:center; height: 38px; border-radius: 12px; font-weight:700;
+         background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.10); cursor:pointer; }
+    .n:hover { border-color: rgba(255,255,255,.22); }
+    .n.selected { background: rgba(125, 211, 252, .20); border-color: rgba(125, 211, 252, .50); color: var(--text); }
+    .n.disabled { opacity:.35; cursor:not-allowed; }
+    .section-title { display:flex; justify-content:space-between; align-items:center; gap:10px; }
+    .section-title h2 { margin:0; font-size: 16px; }
+    .muted { color: var(--muted); }
+    .mono { font-variant-numeric: tabular-nums; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; }
+    .list { display:grid; gap: 10px; margin-top: 12px; }
+    .ticket { padding: 12px; border-radius: 14px; border:1px solid rgba(255,255,255,.10); background: rgba(0,0,0,.15); }
+    .ticket .top { display:flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+    .ticket .nums { margin-top: 8px; display:flex; gap: 6px; flex-wrap: wrap; }
+    .ball { width: 30px; height: 30px; border-radius: 999px; display:flex; align-items:center; justify-content:center;
+            border:1px solid rgba(255,255,255,.14); background: rgba(255,255,255,.06); font-weight:800; }
+    .ball.win { border-color: rgba(125, 211, 252, .60); background: rgba(125, 211, 252, .18); }
+    .ball.bonus { border-color: rgba(251, 191, 36, .55); background: rgba(251, 191, 36, .15); }
+    dialog { border:none; border-radius: 18px; padding: 0; max-width: 720px; width: calc(100% - 24px); background: #0e1420; color: var(--text);
+             box-shadow: 0 24px 80px rgba(0,0,0,.55); }
+    dialog::backdrop { background: rgba(0,0,0,.55); }
+    .modal { padding: 18px; border:1px solid rgba(255,255,255,.10); border-radius: 18px; }
+    .modal h3 { margin:0 0 8px; font-size: 18px; }
+    .modal p { margin: 0; color: var(--muted); }
+    .modal .actions { display:flex; justify-content:flex-end; gap:10px; margin-top: 14px; }
+    .small { font-size: 12px; }
+  </style>
+</head>
+<body>
+<header>
+  <h1>Lotto (demo educațional) – 7 din 36 + 1 număr suplimentar</h1>
+  <p>Simulează un sistem tip „loteria daneză”: alegi 7 numere din 1–36; se extrag 7 numere + un <span class="mono">tillægstal</span>.</p>
+</header>
+
+<main>
+  <!-- Col stânga -->
+  <section class="card">
+    <div class="section-title">
+      <h2>Biletul curent</h2>
+      <div class="row">
+        <button class="btn" id="aboutBtn">Despre joc</button>
+        <span class="pill mono" id="pricePill">1 rând = 7 DKK</span>
+      </div>
+    </div>
+
+    <div class="row" style="margin-top:12px;">
+      <span class="pill">Selectate: <strong class="mono" id="selCount">0</strong>/7</span>
+      <span class="pill">Rânduri: <strong class="mono" id="rowCount">1</strong></span>
+      <span class="pill">Total: <strong class="mono" id="totalCost">7</strong> DKK</span>
+    </div>
+
+    <div class="row" style="margin-top:12px;">
+      <button class="btn primary" id="autofillBtn">Autoudfyld (random)</button>
+      <button class="btn" id="addRowBtn">Adaugă rând</button>
+      <button class="btn danger" id="clearBtn">Șterge selecția</button>
+    </div>
+
+    <div class="grid" id="numbersGrid" aria-label="Numere 1-36"></div>
+
+    <hr style="border:0;border-top:1px solid rgba(255,255,255,.10); margin:16px 0;">
+
+    <div class="section-title">
+      <h2>Extragere (simulare)</h2>
+      <span class="muted small">Atenție: demo educațional, fără bani reali.</span>
+    </div>
+
+    <div class="row" style="margin-top:12px;">
+      <button class="btn primary" id="drawBtn">Rulează extragerea</button>
+      <button class="btn" id="saveTicketBtn">Salvează biletul</button>
+      <button class="btn danger" id="resetHistoryBtn">Șterge istoricul</button>
+    </div>
+
+    <div class="row" style="margin-top:12px;">
+      <span class="pill">Numere extrase: <strong class="mono" id="drawNums">—</strong></span>
+      <span class="pill">Suplimentar: <strong class="mono" id="drawBonus">—</strong></span>
+    </div>
+
+    <div class="row" style="margin-top:12px;">
+      <span class="pill">Rezultat: <strong class="mono" id="resultText">—</strong></span>
+    </div>
+  </section>
+
+  <!-- Col dreapta -->
+  <aside class="card">
+    <div class="section-title">
+      <h2>Istoric bilete</h2>
+      <span class="muted small">Stocat local (localStorage)</span>
+    </div>
+    <div class="list" id="historyList"></div>
+  </aside>
+</main>
+
+<dialog id="aboutModal">
+  <div class="modal">
+    <h3>Despre Lotto (model educațional)</h3>
+    <p>
+      Alegi 7 numere din 36 pentru a obține potriviri cu cele 7 numere extrase. În plus, se extrage un număr
+      suplimentar (tillægstal), folosit în unele structuri de premii. Prețul în demo este 7 DKK / rând.
+    </p>
+    <div class="actions">
+      <button class="btn primary" id="closeAbout">Închide</button>
+    </div>
+  </div>
+</dialog>
+
+<script>
+  // ---------- Utilitare ----------
+  const range = (n) => Array.from({length:n}, (_,i) => i+1);
+  const shuffle = (arr) => {
+    const a = arr.slice();
+    for (let i=a.length-1; i>0; i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  };
+  const pickUnique = (count, max) => shuffle(range(max)).slice(0, count).sort((a,b)=>a-b);
+
+  // ---------- Stare ----------
+  let currentRow = [];        // selecția pentru rândul curent
+  let rows = 1;               // număr rânduri (simplificat: același set, ca demo)
+  const PRICE_PER_ROW = 7;
+
+  // ---------- Elemente UI ----------
+  const numbersGrid = document.getElementById('numbersGrid');
+  const selCount = document.getElementById('selCount');
+  const rowCount = document.getElementById('rowCount');
+  const totalCost = document.getElementById('totalCost');
+  const drawNums = document.getElementById('drawNums');
+  const drawBonus = document.getElementById('drawBonus');
+  const resultText = document.getElementById('resultText');
+  const historyList = document.getElementById('historyList');
+
+  // modal
+  const aboutModal = document.getElementById('aboutModal');
+  document.getElementById('aboutBtn').addEventListener('click', () => aboutModal.showModal());
+  document.getElementById('closeAbout').addEventListener('click', () => aboutModal.close());
+
+  // ---------- Render grid ----------
+  function renderGrid(){
+    numbersGrid.innerHTML = '';
+    for (const n of range(36)){
+      const el = document.createElement('div');
+      el.className = 'n' + (currentRow.includes(n) ? ' selected' : '');
+      el.textContent = n;
+      el.setAttribute('role','button');
+      el.setAttribute('tabindex','0');
+      el.addEventListener('click', () => toggleNumber(n));
+      el.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') toggleNumber(n);
+      });
+      numbersGrid.appendChild(el);
+    }
+  }
+
+  function syncMeta(){
+    selCount.textContent = String(currentRow.length);
+    rowCount.textContent = String(rows);
+    totalCost.textContent = String(rows * PRICE_PER_ROW);
+  }
+
+  function toggleNumber(n){
+    const idx = currentRow.indexOf(n);
+    if (idx >= 0){
+      currentRow.splice(idx, 1);
+    } else {
+      if (currentRow.length >= 7) return; // max 7
+      currentRow.push(n);
+      currentRow.sort((a,b)=>a-b);
+    }
+    renderGrid();
+    syncMeta();
+  }
+
+  // ---------- Butoane ----------
+  document.getElementById('clearBtn').addEventListener('click', () => {
+    currentRow = [];
+    renderGrid(); syncMeta();
+    resultText.textContent = '—';
+  });
+
+  document.getElementById('autofillBtn').addEventListener('click', () => {
+    currentRow = pickUnique(7, 36);
+    renderGrid(); syncMeta();
+    resultText.textContent = '—';
+  });
+
+  document.getElementById('addRowBtn').addEventListener('click', () => {
+    rows += 1;
+    syncMeta();
+  });
+
+  // ---------- Extragere & evaluare ----------
+  function evaluateTicket(ticketNums, winNums, bonus){
+    const winSet = new Set(winNums);
+    const hits = ticketNums.filter(x => winSet.has(x)).length;
+    const hasBonus = ticketNums.includes(bonus);
+    // În loterii reale, grilele sunt specifice. Aici raportăm simplu.
+    return { hits, hasBonus };
+  }
+
+  document.getElementById('drawBtn').addEventListener('click', () => {
+    if (currentRow.length !== 7){
+      resultText.textContent = 'Selectează exact 7 numere.';
+      return;
+    }
+
+    const winNums = pickUnique(7, 36);
+    let bonus = pickUnique(1, 36)[0];
+    // Bonusul de obicei trebuie diferit de cele 7; forțăm asta în demo:
+    while (winNums.includes(bonus)) bonus = pickUnique(1, 36)[0];
+
+    drawNums.textContent = winNums.join(', ');
+    drawBonus.textContent = String(bonus);
+
+    const { hits, hasBonus } = evaluateTicket(currentRow, winNums, bonus);
+    resultText.textContent = `${hits} potriviri` + (hasBonus ? ' + suplimentar' : '');
+  });
+
+  // ---------- Istoric (localStorage) ----------
+  const LS_KEY = 'dk_lotto_demo_history_v1';
+
+  function loadHistory(){
+    try { return JSON.parse(localStorage.getItem(LS_KEY) || '[]'); }
+    catch { return []; }
+  }
+  function saveHistory(items){
+    localStorage.setItem(LS_KEY, JSON.stringify(items));
+  }
+
+  function renderHistory(){
+    const items = loadHistory();
+    if (!items.length){
+      historyList.innerHTML = `<div class="muted">Nu există bilete salvate.</div>`;
+      return;
+    }
+    historyList.innerHTML = '';
+    for (const item of items){
+      const el = document.createElement('div');
+      el.className = 'ticket';
+
+      const top = document.createElement('div');
+      top.className = 'top';
+      top.innerHTML = `<strong class="mono">Bilet</strong><span class="muted small mono">${new Date(item.ts).toLocaleString()}</span>`;
+      el.appendChild(top);
+
+      const nums = document.createElement('div');
+      nums.className = 'nums';
+      for (const n of item.nums){
+        const b = document.createElement('div');
+        b.className = 'ball';
+        b.textContent = n;
+        nums.appendChild(b);
+      }
+      el.appendChild(nums);
+
+      const meta = document.createElement('div');
+      meta.className = 'muted small';
+      meta.style.marginTop = '10px';
+      meta.textContent = `Rânduri: ${item.rows} | Total: ${item.rows * PRICE_PER_ROW} DKK`;
+      el.appendChild(meta);
+
+      historyList.appendChild(el);
+    }
+  }
+
+  document.getElementById('saveTicketBtn').addEventListener('click', () => {
+    if (currentRow.length !== 7){
+      resultText.textContent = 'Selectează exact 7 numere înainte să salvezi.';
+      return;
+    }
+    const items = loadHistory();
+    items.unshift({ ts: Date.now(), nums: currentRow.slice(), rows });
+    saveHistory(items.slice(0, 30)); // păstrează max 30
+    renderHistory();
+    resultText.textContent = 'Bilet salvat în istoric.';
+  });
+
+  document.getElementById('resetHistoryBtn').addEventListener('click', () => {
+    localStorage.removeItem(LS_KEY);
+    renderHistory();
+    resultText.textContent = 'Istoric șters.';
+  });
+
+  // init
+  renderGrid();
+  syncMeta();
+  renderHistory();
+</script>
+</body>
+</html>
