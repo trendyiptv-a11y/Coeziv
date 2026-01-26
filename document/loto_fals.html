@@ -3,80 +3,132 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Lotto (demo) – iese mereu biletul</title>
+  <title>Lotto (demo emoțional) – distractiv, nu real</title>
   <style>
-    :root { --bg:#0b0f14; --card:#121924; --muted:#9fb0c4; --text:#e8eef6; --accent:#7dd3fc; }
-    * { box-sizing: border-box; }
-    body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-           background: radial-gradient(1200px 600px at 20% 0%, #142033 0%, var(--bg) 55%); color: var(--text); }
-    header { padding: 24px 16px 8px; max-width: 980px; margin: 0 auto; }
-    h1 { margin:0 0 6px; font-size: 20px; }
-    p { margin:0; color: var(--muted); line-height: 1.4; }
-    main { max-width: 980px; margin: 0 auto; padding: 16px; display: grid; gap: 16px; }
-    .card { background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
-            border: 1px solid rgba(255,255,255,.08); border-radius: 16px; padding: 16px;
-            box-shadow: 0 10px 30px rgba(0,0,0,.25); }
-    .row { display:flex; gap: 10px; flex-wrap: wrap; align-items: center; }
-    .btn { cursor:pointer; border: 1px solid rgba(255,255,255,.14); background: rgba(255,255,255,.06);
-           color: var(--text); padding: 10px 12px; border-radius: 12px; font-weight: 700; }
-    .btn.primary { background: rgba(125, 211, 252, .18); border-color: rgba(125, 211, 252, .35); }
-    .pill { display:inline-flex; align-items:center; gap:8px; padding: 8px 10px; border-radius: 999px;
-            background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.10); color: var(--muted); }
-    .mono { font-variant-numeric: tabular-nums; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; }
-    .grid { display:grid; grid-template-columns: repeat(9, 1fr); gap: 8px; margin-top: 12px; }
-    @media (max-width: 520px){ .grid { grid-template-columns: repeat(6, 1fr); } }
-    .n { user-select:none; display:flex; align-items:center; justify-content:center; height: 38px;
-         border-radius: 12px; font-weight:800; background: rgba(255,255,255,.05);
-         border: 1px solid rgba(255,255,255,.10); cursor:pointer; }
-    .n.selected { background: rgba(125, 211, 252, .20); border-color: rgba(125, 211, 252, .50); }
-    .balls { display:flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
-    .ball { width: 34px; height: 34px; border-radius: 999px; display:flex; align-items:center; justify-content:center;
-            border:1px solid rgba(255,255,255,.14); background: rgba(255,255,255,.06); font-weight:900; }
-    .ball.win { border-color: rgba(125, 211, 252, .60); background: rgba(125, 211, 252, .18); }
-    .ball.bonus { border-color: rgba(251, 191, 36, .55); background: rgba(251, 191, 36, .15); }
-    .note { margin-top: 10px; color: var(--muted); font-size: 12px; }
-    hr { border:0; border-top:1px solid rgba(255,255,255,.10); margin: 14px 0; }
+    :root { --bg:#070b10; --card:#111827; --muted:#9fb0c4; --text:#e8eef6; --accent:#7dd3fc; --gold:#fbbf24; --danger:#fb7185; }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      background: radial-gradient(1100px 700px at 20% 0%, #16243a 0%, var(--bg) 55%); color:var(--text)}
+    header{max-width:1100px;margin:0 auto;padding:22px 16px 8px}
+    h1{margin:0 0 6px;font-size:20px}
+    p{margin:0;color:var(--muted);line-height:1.4}
+    main{max-width:1100px;margin:0 auto;padding:16px;display:grid;gap:16px;grid-template-columns:1.2fr .8fr}
+    @media(max-width:920px){main{grid-template-columns:1fr}}
+    .card{background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+      border:1px solid rgba(255,255,255,.10);border-radius:18px;padding:16px;box-shadow:0 10px 30px rgba(0,0,0,.28)}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    .btn{cursor:pointer;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.06);
+      color:var(--text);padding:10px 12px;border-radius:12px;font-weight:800}
+    .btn:hover{border-color:rgba(255,255,255,.24);background:rgba(255,255,255,.09)}
+    .btn.primary{background:rgba(125,211,252,.18);border-color:rgba(125,211,252,.40)}
+    .btn.gold{background:rgba(251,191,36,.16);border-color:rgba(251,191,36,.42)}
+    .btn.danger{background:rgba(251,113,133,.12);border-color:rgba(251,113,133,.35)}
+    .pill{display:inline-flex;gap:8px;align-items:center;padding:8px 10px;border-radius:999px;
+      background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10);color:var(--muted)}
+    .mono{font-variant-numeric:tabular-nums;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono",monospace}
+    .grid{display:grid;grid-template-columns:repeat(9,1fr);gap:8px;margin-top:12px}
+    @media(max-width:520px){.grid{grid-template-columns:repeat(6,1fr)}}
+    .n{user-select:none;display:flex;align-items:center;justify-content:center;height:38px;border-radius:12px;font-weight:900;
+      background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);cursor:pointer}
+    .n:hover{border-color:rgba(255,255,255,.24)}
+    .n.selected{background:rgba(125,211,252,.20);border-color:rgba(125,211,252,.55)}
+    .section-title{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+    .section-title h2{margin:0;font-size:16px}
+    .muted{color:var(--muted)}
+    .small{font-size:12px}
+    hr{border:0;border-top:1px solid rgba(255,255,255,.10);margin:14px 0}
+    .balls{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+    .ball{width:44px;height:44px;border-radius:999px;display:flex;align-items:center;justify-content:center;
+      border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.06);font-weight:1000;font-size:15px;
+      box-shadow: inset 0 0 0 2px rgba(0,0,0,.18)}
+    .ball.reveal{animation: pop .25s ease-out}
+    @keyframes pop { from{transform:scale(.8);opacity:.4} to{transform:scale(1);opacity:1} }
+    .ball.win{border-color:rgba(125,211,252,.70);background:rgba(125,211,252,.18)}
+    .ball.bonus{border-color:rgba(251,191,36,.65);background:rgba(251,191,36,.16)}
+    .ball.miss{opacity:.55}
+    .log{margin-top:10px;padding:12px;border-radius:14px;border:1px solid rgba(255,255,255,.10);background:rgba(0,0,0,.18)}
+    .log strong{display:block;margin-bottom:4px}
+    select{background:rgba(0,0,0,.18);color:var(--text);border:1px solid rgba(255,255,255,.14);
+      border-radius:12px;padding:10px 12px;font-weight:800}
+    canvas#confetti{position:fixed;inset:0;pointer-events:none;z-index:50}
   </style>
 </head>
 <body>
+<canvas id="confetti"></canvas>
+
 <header>
-  <h1>Lotto (demo educațional) – „iese mereu biletul”</h1>
-  <p>Acesta este un mod demonstrativ: extragerea este setată să includă întotdeauna cele 7 numere selectate.</p>
+  <h1>Lotto (demo emoțional) – teatru, confetti, near-miss</h1>
+  <p>Nu este loterie reală. E un simulator de emoții: tensiune, aproape-câștig, victorie garantată sau haos.</p>
 </header>
 
 <main>
   <section class="card">
-    <div class="row">
+    <div class="section-title">
+      <h2>Biletul</h2>
       <span class="pill">Selectate: <strong class="mono" id="selCount">0</strong>/7</span>
-      <span class="pill">Mod: <strong class="mono">RIGGED</strong> (mereu câștigător)</span>
     </div>
 
     <div class="row" style="margin-top:12px;">
-      <button class="btn primary" id="autofillBtn">Autoudfyld (alege 7)</button>
-      <button class="btn" id="clearBtn">Șterge selecția</button>
-      <button class="btn primary" id="drawBtn">Rulează extragerea</button>
+      <button class="btn primary" id="autofillBtn">Autoudfyld</button>
+      <button class="btn danger" id="clearBtn">Șterge</button>
+
+      <span class="pill">Mod emoțional:</span>
+      <select id="mode">
+        <option value="win">Mereu 7/7 (victorie)</option>
+        <option value="near" selected>Aproape (dramă)</option>
+        <option value="chaos">Haotic (random real)</option>
+      </select>
+
+      <label class="pill" title="Sunete simple generate în browser">
+        <input type="checkbox" id="sound" checked style="margin:0 6px 0 0;"> Sunet
+      </label>
     </div>
 
     <div class="grid" id="numbersGrid"></div>
 
     <hr>
 
-    <div class="row">
+    <div class="section-title">
+      <h2>Extragere</h2>
+      <span class="muted small">Animația creează suspans (nu influențează logica).</span>
+    </div>
+
+    <div class="row" style="margin-top:12px;">
+      <button class="btn gold" id="drawBtn">Rulează extragerea</button>
+      <button class="btn" id="fastBtn">Fără animație</button>
+    </div>
+
+    <div class="row" style="margin-top:12px;">
       <span class="pill">Numere extrase: <strong class="mono" id="drawNums">—</strong></span>
       <span class="pill">Suplimentar: <strong class="mono" id="drawBonus">—</strong></span>
     </div>
 
-    <div class="note">
-      Observație: Într-o loterie reală, această logică ar fi frauduloasă. Aici este doar pentru demonstrație/UX.
-    </div>
+    <div class="balls" id="ballsView"></div>
 
-    <div class="balls" id="ballsView" aria-label="Bile afișate"></div>
+    <div class="log" id="log">
+      <strong class="mono">Jurnal</strong>
+      <div class="muted" id="msg">Alege 7 numere și apasă „Rulează extragerea”.</div>
+    </div>
   </section>
+
+  <aside class="card">
+    <div class="section-title">
+      <h2>Ce face „emoțional”</h2>
+    </div>
+    <div class="muted" style="line-height:1.5;margin-top:10px;">
+      <ul>
+        <li><span class="mono">Mereu 7/7</span>: extragerea copiază biletul tău.</li>
+        <li><span class="mono">Aproape</span>: de obicei 6/7 sau 5/7, iar bonusul e „la un pas”.</li>
+        <li><span class="mono">Haotic</span>: random real, dar cu prezentare dramatică.</li>
+      </ul>
+      <p class="small">Notă: „Near-miss” este o tehnică de game design. Folosește-o doar în proiecte educaționale.</p>
+    </div>
+  </aside>
 </main>
 
 <script>
-  // Utilitare
-  const range = (n) => Array.from({length:n}, (_,i) => i+1);
+  // ---------- Utilitare ----------
+  const range = (n) => Array.from({length:n}, (_,i)=>i+1);
   const shuffle = (arr) => {
     const a = arr.slice();
     for (let i=a.length-1; i>0; i--){
@@ -85,13 +137,76 @@
     }
     return a;
   };
-  const pickUnique = (count, max, excludeSet = new Set()) => {
-    const pool = range(max).filter(n => !excludeSet.has(n));
-    return shuffle(pool).slice(0, count).sort((a,b)=>a-b);
-  };
+  const pickFromPool = (pool, k) => shuffle(pool).slice(0,k).sort((a,b)=>a-b);
+  const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
-  // Stare
+  // ---------- Sunet (WebAudio) ----------
+  let audioCtx = null;
+  function beep(freq=440, duration=0.08, type='sine', gain=0.03){
+    if (!document.getElementById('sound').checked) return;
+    audioCtx ??= new (window.AudioContext || window.webkitAudioContext)();
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.type = type;
+    o.frequency.value = freq;
+    g.gain.value = gain;
+    o.connect(g); g.connect(audioCtx.destination);
+    o.start();
+    o.stop(audioCtx.currentTime + duration);
+  }
+  function fanfare(){
+    beep(523,0.09,'triangle',0.04);
+    setTimeout(()=>beep(659,0.09,'triangle',0.04), 110);
+    setTimeout(()=>beep(784,0.12,'triangle',0.05), 230);
+  }
+  function sad(){
+    beep(220,0.12,'sine',0.035);
+    setTimeout(()=>beep(196,0.12,'sine',0.035), 140);
+  }
+
+  // ---------- Confetti ----------
+  const conf = document.getElementById('confetti');
+  const cctx = conf.getContext('2d');
+  function resizeConf(){ conf.width = innerWidth; conf.height = innerHeight; }
+  addEventListener('resize', resizeConf); resizeConf();
+  let particles = [];
+  function launchConfetti(){
+    const n = 160;
+    particles = [];
+    for (let i=0;i<n;i++){
+      particles.push({
+        x: Math.random()*conf.width,
+        y: -20 - Math.random()*conf.height*0.2,
+        vx: (Math.random()-0.5)*3,
+        vy: 2 + Math.random()*4,
+        s: 2 + Math.random()*4,
+        r: Math.random()*Math.PI*2,
+        vr: (Math.random()-0.5)*0.2,
+        life: 220 + Math.random()*120
+      });
+    }
+    requestAnimationFrame(tickConfetti);
+  }
+  function tickConfetti(){
+    cctx.clearRect(0,0,conf.width,conf.height);
+    particles = particles.filter(p => p.life-- > 0 && p.y < conf.height + 30);
+    for (const p of particles){
+      p.x += p.vx; p.y += p.vy; p.r += p.vr;
+      cctx.save();
+      cctx.translate(p.x,p.y);
+      cctx.rotate(p.r);
+      // Nu setăm culori specifice (lași browserul implicit): folosim transparențe pe alb/gri.
+      cctx.globalAlpha = 0.9;
+      cctx.fillRect(-p.s/2, -p.s/2, p.s, p.s);
+      cctx.restore();
+    }
+    if (particles.length) requestAnimationFrame(tickConfetti);
+    else cctx.clearRect(0,0,conf.width,conf.height);
+  }
+
+  // ---------- Stare ----------
   let selected = [];
+  let busy = false;
 
   // UI
   const numbersGrid = document.getElementById('numbersGrid');
@@ -99,6 +214,7 @@
   const drawNums = document.getElementById('drawNums');
   const drawBonus = document.getElementById('drawBonus');
   const ballsView = document.getElementById('ballsView');
+  const msg = document.getElementById('msg');
 
   function renderGrid(){
     numbersGrid.innerHTML = '';
@@ -106,79 +222,182 @@
       const el = document.createElement('div');
       el.className = 'n' + (selected.includes(n) ? ' selected' : '');
       el.textContent = n;
-      el.addEventListener('click', () => toggle(n));
+      el.addEventListener('click', () => {
+        if (busy) return;
+        toggle(n);
+      });
       numbersGrid.appendChild(el);
     }
   }
-
-  function sync(){
-    selCount.textContent = String(selected.length);
-  }
-
+  function sync(){ selCount.textContent = String(selected.length); }
   function toggle(n){
-    const idx = selected.indexOf(n);
-    if (idx >= 0) selected.splice(idx, 1);
+    const i = selected.indexOf(n);
+    if (i >= 0) selected.splice(i,1);
     else {
       if (selected.length >= 7) return;
       selected.push(n);
       selected.sort((a,b)=>a-b);
     }
-    renderGrid();
-    sync();
+    renderGrid(); sync();
   }
 
-  // „Extragere” rigged: numerele extrase = numerele selectate + (opțional) rest (nu e necesar)
-  // Pentru conformitate vizuală cu Lotto: afișăm exact 7 numere extrase (cele selectate)
-  // și 1 suplimentar ales din numerele rămase.
-  function riggedDraw(){
-    if (selected.length !== 7) {
-      alert('Selectează exact 7 numere.');
+  function setMessage(text){ msg.textContent = text; }
+
+  // ---------- Logică: generează extragerea în funcție de mod ----------
+  function generateDraw(){
+    const all = range(36);
+    const selSet = new Set(selected);
+    const remaining = all.filter(x => !selSet.has(x));
+
+    const mode = document.getElementById('mode').value;
+
+    let winNums = [];
+    let bonus = null;
+
+    if (mode === 'win'){
+      winNums = selected.slice(); // mereu 7/7
+      bonus = pickFromPool(remaining, 1)[0];
+    }
+
+    if (mode === 'chaos'){
+      winNums = pickFromPool(all, 7);
+      const winSet = new Set(winNums);
+      const rem2 = all.filter(x => !winSet.has(x));
+      bonus = pickFromPool(rem2, 1)[0];
+    }
+
+    if (mode === 'near'){
+      // "Near miss": de regulă 6/7 sau 5/7, iar bonusul adesea este unul din numerele tale ratate.
+      const targetHits = Math.random() < 0.65 ? 6 : 5;
+      const hits = pickFromPool(selected, targetHits);
+      const misses = selected.filter(x => !hits.includes(x));
+
+      // completăm restul până la 7 cu numere care NU sunt în bilet (să doar "aproape" să câștigi)
+      const fillCount = 7 - hits.length;
+      const fill = pickFromPool(remaining, fillCount);
+
+      winNums = hits.concat(fill).sort((a,b)=>a-b);
+
+      // Bonus: de cele mai multe ori, bonusul este unul dintre numerele tale ratate (ca să doară).
+      const winSet = new Set(winNums);
+      const bonusPool = (Math.random() < 0.8 && misses.length)
+        ? misses
+        : all.filter(x => !winSet.has(x));
+      // asigurăm bonus diferit de winNums:
+      const pool2 = bonusPool.filter(x => !winSet.has(x));
+      bonus = pickFromPool(pool2.length ? pool2 : all.filter(x => !winSet.has(x)), 1)[0];
+    }
+
+    return { winNums, bonus };
+  }
+
+  function evaluate(winNums, bonus){
+    const winSet = new Set(winNums);
+    const hits = selected.filter(x => winSet.has(x)).length;
+    const hasBonus = selected.includes(bonus);
+    return { hits, hasBonus };
+  }
+
+  // ---------- UI: animație de extragere ----------
+  async function revealDraw(animated=true){
+    if (busy) return;
+    if (selected.length !== 7){
+      setMessage('Selectează exact 7 numere ca să înceapă spectacolul.');
+      sad();
       return;
     }
 
-    const winNums = selected.slice(); // mereu câștigător
-    const exclude = new Set(winNums);
-    const bonus = pickUnique(1, 36, exclude)[0]; // din cele rămase
+    busy = true;
+    ballsView.innerHTML = '';
+    drawNums.textContent = '—';
+    drawBonus.textContent = '—';
+
+    setMessage('Amestecăm bilele... ține-ți respirația.');
+    beep(330,0.08,'sine',0.03);
+
+    const { winNums, bonus } = generateDraw();
+
+    const winSet = new Set(winNums);
+
+    // pre-afișăm 8 bile goale
+    const placeholders = [];
+    for (let i=0;i<8;i++){
+      const b = document.createElement('div');
+      b.className = 'ball';
+      b.textContent = '…';
+      ballsView.appendChild(b);
+      placeholders.push(b);
+    }
+
+    const order = winNums.slice(); // 7 bile
+    const stepDelay = animated ? 420 : 0;
+
+    for (let i=0;i<order.length;i++){
+      const b = placeholders[i];
+      b.textContent = String(order[i]);
+      b.classList.add('reveal');
+      // marchează dacă e pe bilet (emoție)
+      if (selected.includes(order[i])) b.classList.add('win');
+      else b.classList.add('miss');
+      beep(440 + i*35, 0.06, 'square', 0.02);
+      if (stepDelay) await sleep(stepDelay);
+    }
+
+    // bonus
+    const bb = placeholders[7];
+    bb.textContent = String(bonus);
+    bb.classList.add('reveal','bonus');
+    if (selected.includes(bonus)) bb.classList.add('win');
 
     drawNums.textContent = winNums.join(', ');
     drawBonus.textContent = String(bonus);
 
-    // bile vizuale
-    ballsView.innerHTML = '';
-    for (const n of winNums){
-      const b = document.createElement('div');
-      b.className = 'ball win';
-      b.textContent = n;
-      ballsView.appendChild(b);
+    const { hits, hasBonus } = evaluate(winNums, bonus);
+
+    if (hits === 7){
+      setMessage('7/7. Ești LEGENDĂ. (În demo, evident.)');
+      fanfare();
+      launchConfetti();
+    } else if (hits === 6 && hasBonus){
+      setMessage('6/7 + bonus. Atât de aproape încât doare frumos.');
+      beep(660,0.09,'triangle',0.04);
+      launchConfetti();
+    } else if (hits === 6){
+      setMessage('6/7. Un singur număr… Universul a clipit.');
+      beep(587,0.10,'triangle',0.04);
+    } else if (hits >= 4){
+      setMessage(`${hits}/7. Bun. Mai ai „narativ” de campion.`); 
+      beep(523,0.08,'sine',0.03);
+    } else {
+      setMessage(`${hits}/7. Astăzi nu. Dar suspansul a fost premium.`);
+      sad();
     }
-    const bb = document.createElement('div');
-    bb.className = 'ball bonus';
-    bb.textContent = bonus;
-    ballsView.appendChild(bb);
+
+    busy = false;
   }
 
-  // Butoane
-  document.getElementById('clearBtn').addEventListener('click', () => {
-    selected = [];
-    drawNums.textContent = '—';
-    drawBonus.textContent = '—';
-    ballsView.innerHTML = '';
-    renderGrid(); sync();
-  });
-
+  // ---------- Butoane ----------
   document.getElementById('autofillBtn').addEventListener('click', () => {
-    selected = pickUnique(7, 36);
+    if (busy) return;
+    selected = pickFromPool(range(36), 7);
+    renderGrid(); sync();
+    setMessage('Bilet completat automat. Acum apasă „Rulează extragerea”.');
+  });
+  document.getElementById('clearBtn').addEventListener('click', () => {
+    if (busy) return;
+    selected = [];
+    renderGrid(); sync();
+    ballsView.innerHTML = '';
     drawNums.textContent = '—';
     drawBonus.textContent = '—';
-    ballsView.innerHTML = '';
-    renderGrid(); sync();
+    setMessage('Reset. Alege 7 numere.');
   });
 
-  document.getElementById('drawBtn').addEventListener('click', riggedDraw);
+  document.getElementById('drawBtn').addEventListener('click', () => revealDraw(true));
+  document.getElementById('fastBtn').addEventListener('click', () => revealDraw(false));
 
   // init
-  renderGrid();
-  sync();
+  renderGrid(); sync();
 </script>
 </body>
 </html>
