@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="ro">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Lotto (demo) – iese mereu biletul</title>
+  <style>
+    :root { --bg:#0b0f14; --card:#121924; --muted:#9fb0c4; --text:#e8eef6; --accent:#7dd3fc; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+           background: radial-gradient(1200px 600px at 20% 0%, #142033 0%, var(--bg) 55%); color: var(--text); }
+    header { padding: 24px 16px 8px; max-width: 980px; margin: 0 auto; }
+    h1 { margin:0 0 6px; font-size: 20px; }
+    p { margin:0; color: var(--muted); line-height: 1.4; }
+    main { max-width: 980px; margin: 0 auto; padding: 16px; display: grid; gap: 16px; }
+    .card { background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+            border: 1px solid rgba(255,255,255,.08); border-radius: 16px; padding: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,.25); }
+    .row { display:flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .btn { cursor:pointer; border: 1px solid rgba(255,255,255,.14); background: rgba(255,255,255,.06);
+           color: var(--text); padding: 10px 12px; border-radius: 12px; font-weight: 700; }
+    .btn.primary { background: rgba(125, 211, 252, .18); border-color: rgba(125, 211, 252, .35); }
+    .pill { display:inline-flex; align-items:center; gap:8px; padding: 8px 10px; border-radius: 999px;
+            background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.10); color: var(--muted); }
+    .mono { font-variant-numeric: tabular-nums; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; }
+    .grid { display:grid; grid-template-columns: repeat(9, 1fr); gap: 8px; margin-top: 12px; }
+    @media (max-width: 520px){ .grid { grid-template-columns: repeat(6, 1fr); } }
+    .n { user-select:none; display:flex; align-items:center; justify-content:center; height: 38px;
+         border-radius: 12px; font-weight:800; background: rgba(255,255,255,.05);
+         border: 1px solid rgba(255,255,255,.10); cursor:pointer; }
+    .n.selected { background: rgba(125, 211, 252, .20); border-color: rgba(125, 211, 252, .50); }
+    .balls { display:flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+    .ball { width: 34px; height: 34px; border-radius: 999px; display:flex; align-items:center; justify-content:center;
+            border:1px solid rgba(255,255,255,.14); background: rgba(255,255,255,.06); font-weight:900; }
+    .ball.win { border-color: rgba(125, 211, 252, .60); background: rgba(125, 211, 252, .18); }
+    .ball.bonus { border-color: rgba(251, 191, 36, .55); background: rgba(251, 191, 36, .15); }
+    .note { margin-top: 10px; color: var(--muted); font-size: 12px; }
+    hr { border:0; border-top:1px solid rgba(255,255,255,.10); margin: 14px 0; }
+  </style>
+</head>
+<body>
+<header>
+  <h1>Lotto (demo educațional) – „iese mereu biletul”</h1>
+  <p>Acesta este un mod demonstrativ: extragerea este setată să includă întotdeauna cele 7 numere selectate.</p>
+</header>
+
+<main>
+  <section class="card">
+    <div class="row">
+      <span class="pill">Selectate: <strong class="mono" id="selCount">0</strong>/7</span>
+      <span class="pill">Mod: <strong class="mono">RIGGED</strong> (mereu câștigător)</span>
+    </div>
+
+    <div class="row" style="margin-top:12px;">
+      <button class="btn primary" id="autofillBtn">Autoudfyld (alege 7)</button>
+      <button class="btn" id="clearBtn">Șterge selecția</button>
+      <button class="btn primary" id="drawBtn">Rulează extragerea</button>
+    </div>
+
+    <div class="grid" id="numbersGrid"></div>
+
+    <hr>
+
+    <div class="row">
+      <span class="pill">Numere extrase: <strong class="mono" id="drawNums">—</strong></span>
+      <span class="pill">Suplimentar: <strong class="mono" id="drawBonus">—</strong></span>
+    </div>
+
+    <div class="note">
+      Observație: Într-o loterie reală, această logică ar fi frauduloasă. Aici este doar pentru demonstrație/UX.
+    </div>
+
+    <div class="balls" id="ballsView" aria-label="Bile afișate"></div>
+  </section>
+</main>
+
+<script>
+  // Utilitare
+  const range = (n) => Array.from({length:n}, (_,i) => i+1);
+  const shuffle = (arr) => {
+    const a = arr.slice();
+    for (let i=a.length-1; i>0; i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  };
+  const pickUnique = (count, max, excludeSet = new Set()) => {
+    const pool = range(max).filter(n => !excludeSet.has(n));
+    return shuffle(pool).slice(0, count).sort((a,b)=>a-b);
+  };
+
+  // Stare
+  let selected = [];
+
+  // UI
+  const numbersGrid = document.getElementById('numbersGrid');
+  const selCount = document.getElementById('selCount');
+  const drawNums = document.getElementById('drawNums');
+  const drawBonus = document.getElementById('drawBonus');
+  const ballsView = document.getElementById('ballsView');
+
+  function renderGrid(){
+    numbersGrid.innerHTML = '';
+    for (const n of range(36)){
+      const el = document.createElement('div');
+      el.className = 'n' + (selected.includes(n) ? ' selected' : '');
+      el.textContent = n;
+      el.addEventListener('click', () => toggle(n));
+      numbersGrid.appendChild(el);
+    }
+  }
+
+  function sync(){
+    selCount.textContent = String(selected.length);
+  }
+
+  function toggle(n){
+    const idx = selected.indexOf(n);
+    if (idx >= 0) selected.splice(idx, 1);
+    else {
+      if (selected.length >= 7) return;
+      selected.push(n);
+      selected.sort((a,b)=>a-b);
+    }
+    renderGrid();
+    sync();
+  }
+
+  // „Extragere” rigged: numerele extrase = numerele selectate + (opțional) rest (nu e necesar)
+  // Pentru conformitate vizuală cu Lotto: afișăm exact 7 numere extrase (cele selectate)
+  // și 1 suplimentar ales din numerele rămase.
+  function riggedDraw(){
+    if (selected.length !== 7) {
+      alert('Selectează exact 7 numere.');
+      return;
+    }
+
+    const winNums = selected.slice(); // mereu câștigător
+    const exclude = new Set(winNums);
+    const bonus = pickUnique(1, 36, exclude)[0]; // din cele rămase
+
+    drawNums.textContent = winNums.join(', ');
+    drawBonus.textContent = String(bonus);
+
+    // bile vizuale
+    ballsView.innerHTML = '';
+    for (const n of winNums){
+      const b = document.createElement('div');
+      b.className = 'ball win';
+      b.textContent = n;
+      ballsView.appendChild(b);
+    }
+    const bb = document.createElement('div');
+    bb.className = 'ball bonus';
+    bb.textContent = bonus;
+    ballsView.appendChild(bb);
+  }
+
+  // Butoane
+  document.getElementById('clearBtn').addEventListener('click', () => {
+    selected = [];
+    drawNums.textContent = '—';
+    drawBonus.textContent = '—';
+    ballsView.innerHTML = '';
+    renderGrid(); sync();
+  });
+
+  document.getElementById('autofillBtn').addEventListener('click', () => {
+    selected = pickUnique(7, 36);
+    drawNums.textContent = '—';
+    drawBonus.textContent = '—';
+    ballsView.innerHTML = '';
+    renderGrid(); sync();
+  });
+
+  document.getElementById('drawBtn').addEventListener('click', riggedDraw);
+
+  // init
+  renderGrid();
+  sync();
+</script>
+</body>
+</html>
