@@ -1,0 +1,245 @@
+<!doctype html>
+
+<html lang="ro">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Modelul Coeziv — cristalizarea cadrului</title>
+  <meta name="description" content="Cristalizarea cadrului conceptual al Modelului Coeziv: teze, definiții operaționale, predicții și criterii de falsificare." />
+  <style>
+    :root{
+      --bg:#0b0d10;
+      --card:#11151b;
+      --muted:#9aa4b2;
+      --text:#e6edf3;
+      --line:#1f2630;
+      --accent:#7dd3fc;
+      --accent2:#a7f3d0;
+      --shadow: 0 18px 60px rgba(0,0,0,.45);
+      --radius: 16px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:var(--sans);
+      background: radial-gradient(1000px 600px at 20% 0%, rgba(125,211,252,.12), transparent 60%),
+                  radial-gradient(1000px 700px at 90% 10%, rgba(167,243,208,.10), transparent 55%),
+                  var(--bg);
+      color:var(--text);
+      line-height:1.55;
+    }
+    a{color:var(--accent);text-decoration:none}
+    a:hover{text-decoration:underline}
+    .wrap{max-width:980px;margin:0 auto;padding:44px 18px 72px}
+    header{
+      border:1px solid var(--line);
+      background: linear-gradient(180deg, rgba(17,21,27,.95), rgba(17,21,27,.65));
+      box-shadow:var(--shadow);
+      border-radius:calc(var(--radius) + 6px);
+      padding:28px 22px;
+    }
+    .kicker{color:var(--muted);font-size:13px;letter-spacing:.08em;text-transform:uppercase}
+    h1{margin:8px 0 10px;font-size:28px;letter-spacing:-.02em}
+    .sub{margin:0;color:var(--muted);max-width:70ch}
+    .grid{display:grid;gap:14px;margin-top:18px}
+    @media(min-width:860px){.grid{grid-template-columns:1.15fr .85fr}}
+    .card{
+      border:1px solid var(--line);
+      background: rgba(17,21,27,.65);
+      border-radius:var(--radius);
+      padding:18px 18px;
+    }
+    .card h2{margin:0 0 10px;font-size:16px}
+    .pill{
+      display:inline-flex;gap:8px;align-items:center;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.03);
+      border-radius:999px;
+      padding:6px 10px;
+      color:var(--muted);
+      font-size:12px;
+      margin:10px 8px 0 0;
+    }
+    .dot{width:8px;height:8px;border-radius:99px;background:var(--accent)}
+    .dot.g{background:var(--accent2)}
+    main{margin-top:16px}
+    section{margin-top:14px}
+    h3{margin:0 0 10px;font-size:15px}
+    p{margin:10px 0}
+    ul{margin:10px 0 0 18px}
+    li{margin:6px 0}
+    .hr{height:1px;background:var(--line);margin:14px 0}
+    .callout{
+      border:1px solid rgba(125,211,252,.28);
+      background: rgba(125,211,252,.06);
+      border-radius:var(--radius);
+      padding:14px 14px;
+    }
+    .callout strong{color:var(--text)}
+    .two{
+      display:grid;gap:14px;
+    }
+    @media(min-width:860px){.two{grid-template-columns:1fr 1fr}}
+    code, pre{font-family:var(--mono)}
+    pre{
+      margin:10px 0 0;
+      padding:12px 12px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.22);
+      border-radius:14px;
+      overflow:auto;
+    }
+    .small{color:var(--muted);font-size:13px}
+    footer{margin-top:18px;color:var(--muted);font-size:12px}
+    .tag{display:inline-block;font-family:var(--mono);font-size:12px;color:var(--muted);padding:2px 8px;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.03)}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="kicker">Document de lucru • v1.0</div>
+      <h1>Modelul Coeziv — cristalizarea cadrului</h1>
+      <p class="sub">
+        Un cadru fenomenologic care mută apa din rolul de solvent pasiv în rolul de <em>sistem structural activ</em>,
+        cu regimuri de coeziune care condiționează stabilitatea proceselor organice. Acest document delimitează
+        tezele, definițiile operaționale, predicțiile și criteriile de falsificare.
+      </p>
+      <div>
+        <span class="pill"><span class="dot"></span>nucleu testabil</span>
+        <span class="pill"><span class="dot g"></span>extensie conceptuală</span>
+        <span class="pill"><span class="tag">~315 K</span> prag de regim</span>
+      </div>
+    </header><div class="grid">
+  <div class="card">
+    <h2>1) Tezele cadrului (3–5 propoziții tari)</h2>
+    <ol>
+      <li><strong>Apa funcționează ca sistem structural global</strong>: coeziunea ei nu este doar suma interacțiunilor locale, ci o proprietate emergentă a rețelei de legături H și a corelărilor spațio-temporale.</li>
+      <li><strong>Există regimuri de coeziune</strong> ("high-cohesion" vs "low-cohesion") separate printr-o zonă de crossover în jur de <strong>~315 K (≈42–43 °C)</strong>, unde indicatori structurali/dinamici își schimbă tendința.</li>
+      <li><strong>Viața organică este un proces "antrenat" pe regimul coeziv</strong>: stabilitatea biomoleculară și funcționarea biologică depind de menținerea apei în regimul structural compatibil.</li>
+      <li><strong>Limita biologică superioară reflectă limita de regim a apei</strong>: destabilizarea organismelor la temperaturi înalte este interpretată ca pierderea compatibilității mediului (apă) înainte de a fi doar eșec al componentelor organice.</li>
+      <li><strong>Un indice de coeziune</strong> (definit din parametri măsurabili) poate aproxima această tranziție și permite comparații între stări termice relevante.</li>
+    </ol>
+    <div class="hr"></div>
+    <p class="small">
+      Notă: Tezele sunt formulate intenționat ca ipoteze verificabile (nu ca legi).
+      Într-un text academic, fiecare teză trebuie legată de observabile.
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>2) Delimitări (ce este / ce nu este)</h2>
+    <div class="callout">
+      <p><strong>Nucleu testabil</strong> (obligatoriu): definește un <em>indicator global</em> al coeziunii apei, urmărește dependența de temperatură și caută semnături de crossover în jur de ~315 K.</p>
+      <p><strong>Extensie conceptuală</strong> (opțională): folosește "coeziunea" ca lentilă pentru sisteme coerente (texte, echipe, rețele). Aceasta rămâne analogică până când produce predicții testabile în acele domenii.</p>
+    </div>
+    <ul>
+      <li><strong>Nu este</strong> o tranziție de fază (nu se pretinde discontinuitate).</li>
+      <li><strong>Nu este</strong> o constantă universală garantată; orice "valoare specială" trebuie să fie robustă la incertitudini.</li>
+      <li><strong>Este</strong> un cadru care reorganizează cauzalitatea: mediul (apa) devine actor, nu fundal.</li>
+    </ul>
+  </div>
+</div>
+
+<main>
+  <section class="card">
+    <h2>3) Definiții operaționale (ca să nu rămână metaforă)</h2>
+    <div class="two">
+      <div>
+        <h3>3.1 Coeziune (definiție minimă)</h3>
+        <p>
+          <strong>Coeziunea apei</strong> = gradul în care rețeaua de legături H menține corelații structurale și dinamice
+          care susțin proprietăți macroscopice (transport, stabilizare, solvatare) într-un anumit interval de temperatură.
+        </p>
+        <ul>
+          <li><strong>Local</strong>: distribuții de geometrii H-bond, timp de viață al legăturilor.</li>
+          <li><strong>Global</strong>: corelații pe rază medie, coerență orientațională, semnături în funcții de răspuns.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>3.2 Crossover (definiție de lucru)</h3>
+        <p>
+          <strong>Crossover</strong> = schimbare de regim observabilă ca schimbare de pantă/curbură sau ca maxim/minim
+          într-o mărime structurală/dinamică, fără discontinuitate.
+        </p>
+        <ul>
+          <li>Se caută <strong>interval</strong>, nu doar două puncte.</li>
+          <li>Se raportează cu <strong>incertitudine</strong> (interval de temperatură, nu un număr singular).</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>4) Predicții verificabile (ce ar trebui să se vadă în date)</h2>
+    <ol>
+      <li><strong>Semnătură de regim în jur de ~315 K</strong>: cel puțin una dintre mărimile standard (de ex. compresibilitate, expansivitate, difuzie, vâscozitate, indicatori structurali) prezintă schimbare de tendință în intervalul 310–320 K.</li>
+      <li><strong>Corelare între indicatorul coeziv și observabile</strong>: indicele propus trebuie să co-varieze cu mărimi independente (de ex. timp de viață al H-bond, fracția tetraedrică, difuzie).</li>
+      <li><strong>Robustețe</strong>: rezultatele persistă la schimbări rezonabile ale parametrilor experimentali (seturi de date diferite, erori de măsurare, metode diferite).</li>
+      <li><strong>Generalizare controlată</strong>: în apă interfațială (hydration layer), pragul poate să se deplaseze predictibil (nu arbitrar) în funcție de suprafață/solut.</li>
+    </ol>
+    <div class="hr"></div>
+    <p class="small">
+      Dacă o predicție nu poate fi măsurată, ea rămâne interpretare. Scopul este să împingi cât mai mult din cadru în zona testabilă.
+    </p>
+  </section>
+
+  <section class="card">
+    <h2>5) Criterii de falsificare (condiții clare de eșec)</h2>
+    <ul>
+      <li><strong>F1 — Lipsa semnăturii de regim</strong>: dacă pe intervalul 300–330 K nu apare nicio schimbare de tendință în observabilele relevante, "crossover-ul" propus la ~315 K devine improbabil.</li>
+      <li><strong>F2 — Lipsa corelării</strong>: dacă indicele coeziv nu corelează consistent cu măsuri independente ale structurii/dinamicii, el nu măsoară "coeziunea" în sensul propus.</li>
+      <li><strong>F3 — Fragilitate numerică</strong>: dacă rezultatele depind critic de alegerea a două puncte sau de o selecție îngustă a parametrilor, modelul rămâne coincidență locală.</li>
+      <li><strong>F4 — Inversarea cauzalității e ne-susținută</strong>: dacă biomoleculele se destabilizează independent de orice semnătură în apă (în condiții controlate), ipoteza „apa ca limitator primar” slăbește.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>6) Protocol minim de lucru (ca să produci rezultate, nu doar discurs)</h2>
+    <div class="two">
+      <div>
+        <h3>6.1 Date</h3>
+        <ul>
+          <li>Strânge tabele/curbe pentru 300–330 K (ideal din surse multiple) pentru: densitate, vâscozitate, difuzie, compresibilitate, Cp, expansivitate.</li>
+          <li>Separă <strong>bulk</strong> de <strong>confinată</strong> și de <strong>interfațială</strong>.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>6.2 Analiză</h3>
+        <ul>
+          <li>Calculează indicele coeziv pe întreg intervalul (nu doar în două puncte).</li>
+          <li>Testează sensibilitatea: perturbații ale parametrilor (±1–3%) și vezi stabilitatea concluziilor.</li>
+          <li>Raportează: temperatură de crossover ca <strong>interval</strong> + criteriu (schimbare de curbură, maxim, etc.).</li>
+        </ul>
+      </div>
+    </div>
+    <pre><code>// Definiție disciplină (pseudo-regulă):
+
+// 1) întâi curbele pe interval; 2) abia apoi rapoarte între puncte. // 3) orice „număr special” trebuie să fie robust la incertitudine.</code></pre> </section>
+
+<section class="card">
+    <h2>7) Extensie conceptuală (opțională, dar curată)</h2>
+    <p>
+      Dacă folosești „coeziune” ca lentilă pentru alte sisteme, păstrează o regulă simplă:
+      <strong>analogia nu este dovadă</strong>. Devine știință doar dacă produce predicții verificabile.
+    </p>
+    <ul>
+      <li>Definește „coeziune” în acel domeniu printr-un <strong>indicator măsurabil</strong> (ex.: redundanță, entropie, robustețe la perturbări).</li>
+      <li>Arată un <strong>crossover</strong> (schimbare de regim) în date reale.</li>
+    </ul>
+  </section>
+
+  <footer>
+    <div class="hr"></div>
+    <p>
+      <strong>Rezumat:</strong> cadrul este despre <em>regimuri de coeziune</em> ale apei și rolul lor în stabilitatea vieții,
+      cu un prag de interes în jur de ~315 K. Valoarea cadrului stă în: definiții clare, predicții, și falsificare.
+    </p>
+    <p class="small">Acest document este intenționat „curat”: fără retorică, fără promisiuni, doar structură epistemică.</p>
+  </footer>
+</main>
+
+  </div>
+</body>
+</html>
