@@ -312,20 +312,35 @@
             results.style.display = 'none';
 
             const pings = [];
-            const testUrl = 'https://www.google.com/favicon.ico';
+            // Folosim un API care acceptă CORS
+            const testUrls = [
+                'https://cloudflare.com/cdn-cgi/trace',
+                'https://1.1.1.1/cdn-cgi/trace',
+                'https://httpbin.org/get'
+            ];
             const attempts = 10;
 
             for (let i = 0; i < attempts; i++) {
                 try {
+                    const testUrl = testUrls[i % testUrls.length];
                     const start = performance.now();
-                    await fetch(testUrl + '?t=' + Date.now(), { method: 'HEAD', cache: 'no-cache' });
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 5000);
+                    
+                    await fetch(testUrl + '?t=' + Date.now(), { 
+                        method: 'GET',
+                        cache: 'no-cache',
+                        signal: controller.signal
+                    });
+                    
+                    clearTimeout(timeoutId);
                     const end = performance.now();
                     pings.push(end - start);
                     status.innerHTML = `<div class="status testing testing-animation">Se testează latența... ${i + 1}/${attempts}</div>`;
                 } catch (error) {
-                    // Packet loss
+                    // Packet loss or timeout
                 }
-                await new Promise(resolve => setTimeout(resolve, 100));
+                await new Promise(resolve => setTimeout(resolve, 200));
             }
 
             if (pings.length > 0) {
@@ -340,7 +355,7 @@
                 results.style.display = 'flex';
                 status.innerHTML = '<div class="status complete">✓ Test complet!</div>';
             } else {
-                status.innerHTML = '<div class="status error">✗ Test eșuat</div>';
+                status.innerHTML = '<div class="status error">✗ Test eșuat - verifică conexiunea</div>';
             }
 
             btn.disabled = false;
@@ -369,37 +384,81 @@
             results.style.display = 'none';
             fill.style.width = '0%';
 
-            // URL pentru test (imagine mare de pe un CDN rapid)
-            const testFile = 'https://via.placeholder.com/5000x5000.jpg';
-            const testDuration = 5000; // 5 secunde
+            // Folosim fișiere de diferite dimensiuni pentru test mai precis
+            const testFiles = [
+                'https://speed.cloudflare.com/__down?bytes=1000000',  // 1MB
+                'https://speed.cloudflare.com/__down?bytes=2000000',  // 2MB
+                'https://speed.cloudflare.com/__down?bytes=5000000',  // 5MB
+            ];
+            
             let totalBytes = 0;
-            let testCount = 0;
-            const maxTests = 3;
-
             const startTime = Date.now();
+            const testDuration = 8000; // 8 secunde
+            let completedTests = 0;
 
-            while (Date.now() - startTime < testDuration && testCount < maxTests) {
-                try {
-                    const response = await fetch(testFile + '?t=' + Date.now(), { cache: 'no-cache' });
-                    const blob = await response.blob();
-                    totalBytes += blob.size;
-                    testCount++;
+            try {
+                for (let i = 0; i < testFiles.length; i++) {
+                    if (Date.now() - startTime >= testDuration) break;
                     
-                    const elapsed = Date.now() - startTime;
-                    fill.style.width = (elapsed / testDuration * 100) + '%';
-                } catch (error) {
-                    console.error('Download test error:', error);
+                    const testUrl = testFiles[i];
+                    const testStart = Date.now();
+                    
+                    const response = await fetch(testUrl, { 
+                        cache: 'no-cache',
+                        headers: { 'Cache-Control': 'no-cache' }
+                    });
+                    
+                    if (!response.ok) continue;
+                    
+                    const reader = response.body.getReader();
+                    let receivedBytes = 0;
+                    
+                    while (true) {
+                        const {done, value} = await reader.read();
+                        if (done) break;
+                        
+                        receivedBytes += value.length;
+                        totalBytes += value.length;
+                        
+                        // Update progress
+                        const elapsed = Date.now() - startTime;
+                        fill.style.width = Math.min((elapsed / testDuration * 100), 100) + '%';
+                        
+                        // Calculate current speed
+                        const duration = (Date.now() - testStart) / 1000;
+                        if (duration > 0) {
+                            const currentSpeed = ((receivedBytes * 8) / 1000000 / duration).toFixed(2);
+                            status.innerHTML = `<div class="status testing testing-animation">Download: ${currentSpeed} Mbps...</div>`;
+                        }
+                        
+                        if (Date.now() - startTime >= testDuration) break;
+                    }
+                    
+                    completedTests++;
+                }
+
+                const totalDuration = (Date.now() - startTime) / 1000;
+                const megabits = (totalBytes * 8) / 1000000;
+                const speed = (megabits / totalDuration).toFixed(2);
+
+                document.getElementById('downloadSpeed').textContent = speed;
+                results.style.display = 'flex';
+                fill.style.width = '100%';
+                status.innerHTML = '<div class="status complete">✓ Test complet!</div>';
+
+            } catch (error) {
+                console.error('Download test error:', error);
+                status.innerHTML = '<div class="status error">✗ Eroare la test - încearcă din nou</div>';
+                
+                // If we got some data, show it anyway
+                if (totalBytes > 0) {
+                    const totalDuration = (Date.now() - startTime) / 1000;
+                    const megabits = (totalBytes * 8) / 1000000;
+                    const speed = (megabits / totalDuration).toFixed(2);
+                    document.getElementById('downloadSpeed').textContent = speed;
+                    results.style.display = 'flex';
                 }
             }
-
-            const duration = (Date.now() - startTime) / 1000; // în secunde
-            const megabits = (totalBytes * 8) / 1000000; // conversie la megabiți
-            const speed = (megabits / duration).toFixed(2);
-
-            document.getElementById('downloadSpeed').textContent = speed;
-            results.style.display = 'flex';
-            fill.style.width = '100%';
-            status.innerHTML = '<div class="status complete">✓ Test complet!</div>';
 
             btn.disabled = false;
         }
@@ -418,46 +477,81 @@
             results.style.display = 'none';
             fill.style.width = '0%';
 
-            // Generare date pentru upload (1MB)
-            const dataSize = 1024 * 1024; // 1MB
-            const uploadData = new Blob([new ArrayBuffer(dataSize)]);
-            const testDuration = 5000; // 5 secunde
+            // Generare date pentru upload (500KB per test)
+            const dataSize = 512 * 1024; // 512KB
+            const testDuration = 8000; // 8 secunde
+            let totalBytes = 0;
             let testCount = 0;
-            const maxTests = 5;
 
             const startTime = Date.now();
 
-            // Folosim httpbin.org pentru test upload
-            const uploadUrl = 'https://httpbin.org/post';
+            // Folosim Cloudflare speed test endpoint
+            const uploadUrl = 'https://speed.cloudflare.com/__up';
 
-            while (Date.now() - startTime < testDuration && testCount < maxTests) {
-                try {
-                    const formData = new FormData();
-                    formData.append('file', uploadData);
+            try {
+                while (Date.now() - startTime < testDuration) {
+                    const uploadData = new Uint8Array(dataSize);
+                    // Fill with random data
+                    for (let i = 0; i < dataSize; i++) {
+                        uploadData[i] = Math.floor(Math.random() * 256);
+                    }
                     
-                    await fetch(uploadUrl, {
-                        method: 'POST',
-                        body: formData
-                    });
+                    const testStart = Date.now();
                     
-                    testCount++;
-                    const elapsed = Date.now() - startTime;
-                    fill.style.width = (elapsed / testDuration * 100) + '%';
-                } catch (error) {
-                    console.error('Upload test error:', error);
-                    break;
+                    try {
+                        const response = await fetch(uploadUrl, {
+                            method: 'POST',
+                            body: uploadData,
+                            headers: {
+                                'Content-Type': 'application/octet-stream',
+                            }
+                        });
+                        
+                        if (response.ok) {
+                            totalBytes += dataSize;
+                            testCount++;
+                            
+                            const elapsed = Date.now() - startTime;
+                            fill.style.width = Math.min((elapsed / testDuration * 100), 100) + '%';
+                            
+                            // Calculate current speed
+                            const duration = (elapsed) / 1000;
+                            if (duration > 0) {
+                                const currentSpeed = ((totalBytes * 8) / 1000000 / duration).toFixed(2);
+                                status.innerHTML = `<div class="status testing testing-animation">Upload: ${currentSpeed} Mbps...</div>`;
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Upload error:', error);
+                        // Continue with next attempt
+                    }
+                    
+                    // Small delay between uploads
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                }
+
+                const totalDuration = (Date.now() - startTime) / 1000;
+                const megabits = (totalBytes * 8) / 1000000;
+                const speed = (megabits / totalDuration).toFixed(2);
+
+                document.getElementById('uploadSpeed').textContent = speed;
+                results.style.display = 'flex';
+                fill.style.width = '100%';
+                status.innerHTML = '<div class="status complete">✓ Test complet!</div>';
+
+            } catch (error) {
+                console.error('Upload test error:', error);
+                status.innerHTML = '<div class="status error">✗ Eroare la test - încearcă din nou</div>';
+                
+                // Show partial results if any
+                if (totalBytes > 0) {
+                    const totalDuration = (Date.now() - startTime) / 1000;
+                    const megabits = (totalBytes * 8) / 1000000;
+                    const speed = (megabits / totalDuration).toFixed(2);
+                    document.getElementById('uploadSpeed').textContent = speed;
+                    results.style.display = 'flex';
                 }
             }
-
-            const duration = (Date.now() - startTime) / 1000;
-            const totalBytes = dataSize * testCount;
-            const megabits = (totalBytes * 8) / 1000000;
-            const speed = (megabits / duration).toFixed(2);
-
-            document.getElementById('uploadSpeed').textContent = speed;
-            results.style.display = 'flex';
-            fill.style.width = '100%';
-            status.innerHTML = '<div class="status complete">✓ Test complet!</div>';
 
             btn.disabled = false;
         }
