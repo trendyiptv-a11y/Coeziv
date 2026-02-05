@@ -1,560 +1,413 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ro">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Test Parametri Internet</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .container {
-            background: white;
-            border-radius: 20px;
-            padding: 40px;
-            max-width: 800px;
-            width: 100%;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-        }
-
-        h1 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 30px;
-            font-size: 2em;
-        }
-
-        .test-section {
-            margin: 20px 0;
-            padding: 20px;
-            background: #f8f9fa;
-            border-radius: 10px;
-            border-left: 4px solid #667eea;
-        }
-
-        .test-section h2 {
-            color: #667eea;
-            margin-bottom: 15px;
-            font-size: 1.3em;
-        }
-
-        .result-box {
-            display: flex;
-            justify-content: space-around;
-            flex-wrap: wrap;
-            gap: 15px;
-            margin: 15px 0;
-        }
-
-        .metric {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            text-align: center;
-            flex: 1;
-            min-width: 150px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-
-        .metric-value {
-            font-size: 2em;
-            font-weight: bold;
-            color: #667eea;
-            margin: 10px 0;
-        }
-
-        .metric-label {
-            color: #666;
-            font-size: 0.9em;
-        }
-
-        button {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 15px 40px;
-            font-size: 1.1em;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-            width: 100%;
-            margin: 10px 0;
-        }
-
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
-        }
-
-        button:active {
-            transform: translateY(0);
-        }
-
-        button:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 8px;
-            background: #e0e0e0;
-            border-radius: 10px;
-            overflow: hidden;
-            margin: 15px 0;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
-            width: 0%;
-            transition: width 0.3s;
-        }
-
-        .info-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px;
-            border-bottom: 1px solid #e0e0e0;
-        }
-
-        .info-item:last-child {
-            border-bottom: none;
-        }
-
-        .info-label {
-            font-weight: 600;
-            color: #555;
-        }
-
-        .info-value {
-            color: #667eea;
-        }
-
-        .status {
-            text-align: center;
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 5px;
-            font-weight: 500;
-        }
-
-        .status.testing {
-            background: #fff3cd;
-            color: #856404;
-        }
-
-        .status.complete {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .status.error {
-            background: #f8d7da;
-            color: #721c24;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-
-        .testing-animation {
-            animation: pulse 1.5s infinite;
-        }
-    </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Test parametri Internet (HTML)</title>
+  <style>
+    :root { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+    body { margin: 0; background:#0b1020; color:#e9ecf1; }
+    .wrap { max-width: 980px; margin: 0 auto; padding: 24px; }
+    h1 { margin: 0 0 12px; font-size: 22px; }
+    .card { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); border-radius: 16px; padding: 16px; }
+    .grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 12px; margin-top: 12px; }
+    .col6 { grid-column: span 6; }
+    .col12 { grid-column: span 12; }
+    @media (max-width: 860px){ .col6 { grid-column: span 12; } }
+    button {
+      appearance: none; border: 0; cursor: pointer;
+      background:#4c7dff; color:white; font-weight: 600;
+      padding: 10px 14px; border-radius: 12px;
+    }
+    button:disabled{ opacity: .55; cursor: not-allowed; }
+    .row { display:flex; gap: 10px; flex-wrap: wrap; align-items:center; }
+    .kpi { display:flex; gap: 10px; align-items: baseline; }
+    .kpi .label { opacity:.8; font-size: 13px; }
+    .kpi .value { font-size: 22px; font-weight: 700; }
+    .muted { opacity:.75; }
+    .log { background: rgba(0,0,0,0.25); border:1px solid rgba(255,255,255,0.10); border-radius: 12px; padding: 12px; height: 220px; overflow:auto; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; }
+    .bar { height: 10px; border-radius: 999px; background: rgba(255,255,255,0.10); overflow:hidden; }
+    .bar > div { height:100%; width: 0%; background: #7ee787; transition: width .2s; }
+    .pill { padding: 4px 10px; border-radius: 999px; background: rgba(255,255,255,0.10); border: 1px solid rgba(255,255,255,0.12); font-size: 12px;}
+    input, select {
+      background: rgba(255,255,255,0.08); color:#e9ecf1;
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 10px; padding: 8px 10px;
+    }
+    a { color:#9bb6ff; }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>🌐 Test Parametri Internet</h1>
+  <div class="wrap">
+    <h1>Test parametri Internet (HTML + JS)</h1>
+    <div class="card">
+      <div class="row">
+        <button id="btnStart">Pornește testul</button>
+        <button id="btnStop" disabled>Oprește</button>
+        <span class="pill" id="status">Idle</span>
+        <span class="muted">Rulează direct în browser. Pentru rezultate bune, închide download-uri / streaming.</span>
+      </div>
 
-        <!-- Informații Conexiune -->
-        <div class="test-section">
-            <h2>📊 Informații Conexiune</h2>
-            <div id="connectionInfo">
-                <div class="info-item">
-                    <span class="info-label">Tip conexiune:</span>
-                    <span class="info-value" id="connectionType">-</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Viteza efectivă:</span>
-                    <span class="info-value" id="effectiveType">-</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">RTT estimat:</span>
-                    <span class="info-value" id="rtt">-</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">IP public:</span>
-                    <span class="info-value" id="publicIP">Se încarcă...</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">User Agent:</span>
-                    <span class="info-value" id="userAgent" style="font-size: 0.85em;">-</span>
-                </div>
-            </div>
+      <div class="grid">
+        <div class="card col6">
+          <div class="kpi"><span class="label">Ping (ms)</span><span class="value" id="ping">—</span></div>
+          <div class="kpi"><span class="label">Jitter (ms)</span><span class="value" id="jitter">—</span></div>
+          <div class="kpi"><span class="label">Pierderi (%)</span><span class="value" id="loss">—</span></div>
+          <div class="muted">Ping-ul este aproximat prin request-uri HTTPS (nu ICMP).</div>
         </div>
 
-        <!-- Test Ping/Latență -->
-        <div class="test-section">
-            <h2>⚡ Test Latență (Ping)</h2>
-            <button id="pingBtn" onclick="testPing()">Pornește Test Ping</button>
-            <div id="pingStatus"></div>
-            <div class="result-box" id="pingResults" style="display: none;">
-                <div class="metric">
-                    <div class="metric-label">Latență Medie</div>
-                    <div class="metric-value" id="avgPing">-</div>
-                    <div class="metric-label">ms</div>
-                </div>
-                <div class="metric">
-                    <div class="metric-label">Jitter</div>
-                    <div class="metric-value" id="jitter">-</div>
-                    <div class="metric-label">ms</div>
-                </div>
-                <div class="metric">
-                    <div class="metric-label">Pachete Pierdute</div>
-                    <div class="metric-value" id="packetLoss">-</div>
-                    <div class="metric-label">%</div>
-                </div>
-            </div>
+        <div class="card col6">
+          <div class="kpi"><span class="label">Download (Mbps)</span><span class="value" id="down">—</span></div>
+          <div class="bar" title="Progres download"><div id="downBar"></div></div>
+          <div style="height:10px"></div>
+          <div class="kpi"><span class="label">Upload (Mbps)</span><span class="value" id="up">—</span></div>
+          <div class="bar" title="Progres upload"><div id="upBar"></div></div>
+          <div class="muted">Vitezele depind de serverele de test și de cache; folosim anti-cache.</div>
         </div>
 
-        <!-- Test Viteză Download -->
-        <div class="test-section">
-            <h2>⬇️ Test Viteză Download</h2>
-            <button id="downloadBtn" onclick="testDownload()">Pornește Test Download</button>
-            <div class="progress-bar" id="downloadProgress" style="display: none;">
-                <div class="progress-fill" id="downloadFill"></div>
+        <div class="card col12">
+          <div class="row" style="justify-content: space-between;">
+            <div class="row">
+              <label class="muted">Nr. probe ping:</label>
+              <input id="pingSamples" type="number" min="5" max="50" value="12" style="width:90px">
+              <label class="muted">Timeout (ms):</label>
+              <input id="timeoutMs" type="number" min="800" max="10000" value="2500" style="width:110px">
+              <label class="muted">Dimensiune upload (MB):</label>
+              <select id="uploadMB">
+                <option value="2">2</option>
+                <option value="5" selected>5</option>
+                <option value="10">10</option>
+              </select>
+              <label class="muted">Fișier download (MB):</label>
+              <select id="downloadMB">
+                <option value="10">10</option>
+                <option value="25" selected>25</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+              </select>
             </div>
-            <div id="downloadStatus"></div>
-            <div class="result-box" id="downloadResults" style="display: none;">
-                <div class="metric">
-                    <div class="metric-label">Viteză Download</div>
-                    <div class="metric-value" id="downloadSpeed">-</div>
-                    <div class="metric-label">Mbps</div>
-                </div>
+            <div class="row">
+              <button id="btnIp">Afișează IP public</button>
+              <span class="muted" id="ipInfo"></span>
             </div>
+          </div>
+          <div style="height:10px"></div>
+          <div class="log" id="log"></div>
+          <div class="muted" style="margin-top:10px">
+            Dacă upload-ul e blocat de CORS în unele rețele, îl poți dezactiva ușor (comentând funcția <code>testUpload</code>).
+          </div>
         </div>
-
-        <!-- Test Viteză Upload -->
-        <div class="test-section">
-            <h2>⬆️ Test Viteză Upload</h2>
-            <button id="uploadBtn" onclick="testUpload()">Pornește Test Upload</button>
-            <div class="progress-bar" id="uploadProgress" style="display: none;">
-                <div class="progress-fill" id="uploadFill"></div>
-            </div>
-            <div id="uploadStatus"></div>
-            <div class="result-box" id="uploadResults" style="display: none;">
-                <div class="metric">
-                    <div class="metric-label">Viteză Upload</div>
-                    <div class="metric-value" id="uploadSpeed">-</div>
-                    <div class="metric-label">Mbps</div>
-                </div>
-            </div>
-        </div>
+      </div>
     </div>
+  </div>
 
-    <script>
-        // Încarcă informațiile despre conexiune
-        window.addEventListener('load', () => {
-            loadConnectionInfo();
-            getPublicIP();
-        });
+<script>
+(() => {
+  const el = (id) => document.getElementById(id);
+  const logEl = el("log");
 
-        function loadConnectionInfo() {
-            const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-            
-            if (connection) {
-                document.getElementById('connectionType').textContent = connection.type || 'Unknown';
-                document.getElementById('effectiveType').textContent = connection.effectiveType || 'Unknown';
-                document.getElementById('rtt').textContent = connection.rtt ? connection.rtt + ' ms' : 'N/A';
-            } else {
-                document.getElementById('connectionType').textContent = 'API indisponibil';
-                document.getElementById('effectiveType').textContent = 'N/A';
-                document.getElementById('rtt').textContent = 'N/A';
-            }
+  const ui = {
+    btnStart: el("btnStart"),
+    btnStop: el("btnStop"),
+    btnIp: el("btnIp"),
+    status: el("status"),
+    ping: el("ping"),
+    jitter: el("jitter"),
+    loss: el("loss"),
+    down: el("down"),
+    up: el("up"),
+    downBar: el("downBar"),
+    upBar: el("upBar"),
+    pingSamples: el("pingSamples"),
+    timeoutMs: el("timeoutMs"),
+    uploadMB: el("uploadMB"),
+    downloadMB: el("downloadMB"),
+    ipInfo: el("ipInfo"),
+  };
 
-            document.getElementById('userAgent').textContent = navigator.userAgent;
+  let aborter = null;
+
+  function log(msg) {
+    const t = new Date().toLocaleTimeString();
+    logEl.textContent += `[${t}] ${msg}\n`;
+    logEl.scrollTop = logEl.scrollHeight;
+  }
+
+  function setStatus(s) { ui.status.textContent = s; }
+
+  function ms(n) { return Math.round(n); }
+  function mbps(bytes, seconds) {
+    const bits = bytes * 8;
+    return (bits / seconds) / 1e6;
+  }
+
+  async function fetchWithTimeout(url, opts = {}, timeoutMs = 2500, signal) {
+    const controller = new AbortController();
+    const t = setTimeout(() => controller.abort(), timeoutMs);
+
+    // combină semnalul extern cu cel intern
+    const signals = [controller.signal];
+    if (signal) signals.push(signal);
+
+    // Dacă există semnal extern, abortăm intern când externul se oprește.
+    let off = null;
+    if (signal) {
+      const onAbort = () => controller.abort();
+      signal.addEventListener("abort", onAbort, { once: true });
+      off = () => signal.removeEventListener("abort", onAbort);
+    }
+
+    try {
+      const res = await fetch(url, { ...opts, cache: "no-store", signal: controller.signal });
+      return res;
+    } finally {
+      clearTimeout(t);
+      if (off) off();
+    }
+  }
+
+  // Ping aproximat: request HTTPS către endpoint-uri rapide.
+  // Folosim HEAD/GET către resurse mici. (Unele servere nu acceptă HEAD -> folosim GET.)
+  const pingTargets = [
+    "https://www.google.com/generate_204",
+    "https://www.cloudflare.com/cdn-cgi/trace",
+    "https://www.apple.com/library/test/success.html",
+  ];
+
+  async function testPing(samples, timeout, signal) {
+    log(`Ping test: ${samples} probe, timeout ${timeout}ms ...`);
+    const rtts = [];
+    let failed = 0;
+
+    for (let i = 0; i < samples; i++) {
+      if (signal?.aborted) throw new DOMException("Aborted", "AbortError");
+
+      const target = pingTargets[i % pingTargets.length] + `?t=${Date.now()}_${i}`;
+      const t0 = performance.now();
+
+      try {
+        // no-cors -> nu putem citi body, dar request-ul se execută și măsurăm durata
+        await fetchWithTimeout(target, { method: "GET", mode: "no-cors" }, timeout, signal);
+        const t1 = performance.now();
+        rtts.push(t1 - t0);
+        log(`Ping #${i+1}: ${ms(t1 - t0)} ms`);
+      } catch (e) {
+        failed++;
+        log(`Ping #${i+1}: FAIL (${e.name})`);
+      }
+
+      // mică pauză între probe
+      await new Promise(r => setTimeout(r, 120));
+    }
+
+    const lossPct = (failed / samples) * 100;
+
+    // calc mediană pentru stabilitate
+    const sorted = [...rtts].sort((a,b)=>a-b);
+    const median = sorted.length ? sorted[Math.floor(sorted.length/2)] : NaN;
+
+    // jitter: deviație medie absolută față de mediană
+    let jitter = NaN;
+    if (sorted.length) {
+      const abs = sorted.map(x => Math.abs(x - median));
+      jitter = abs.reduce((a,b)=>a+b,0) / abs.length;
+    }
+
+    return {
+      medianMs: median,
+      jitterMs: jitter,
+      lossPct,
+      samplesOk: rtts.length,
+      samplesTotal: samples,
+    };
+  }
+
+  // Download test: descarcă un fișier (cu anti-cache) și măsoară timpul total
+  // Notă: progres real pe fetch stream e mai complex; aici facem progres aproximativ pe chunks dacă e suportat.
+  async function testDownload(mb, signal) {
+    // fișiere publice de test (cache-busting). Unele rețele pot bloca anumite domenii.
+    // Folosim thinkbroadband (fișiere mari), apoi fallback.
+    const urls = [
+      `https://speed.hetzner.de/${mb}MB.bin`,
+      `https://ipv4.download.thinkbroadband.com/${mb}MB.zip`,
+    ];
+
+    for (const base of urls) {
+      if (signal?.aborted) throw new DOMException("Aborted", "AbortError");
+
+      const url = base + `?t=${Date.now()}`;
+      log(`Download test: ${mb}MB de la ${new URL(base).hostname} ...`);
+
+      try {
+        ui.downBar.style.width = "0%";
+        const t0 = performance.now();
+        const res = await fetchWithTimeout(url, { method: "GET" }, 20000, signal);
+        if (!res.ok && res.type !== "opaque") throw new Error(`HTTP ${res.status}`);
+
+        // încearcă streaming pentru progres
+        let bytes = 0;
+        if (res.body && res.body.getReader) {
+          const reader = res.body.getReader();
+          const total = Number(res.headers.get("content-length")) || (mb * 1024 * 1024);
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            bytes += value.byteLength;
+            const pct = Math.min(100, (bytes / total) * 100);
+            ui.downBar.style.width = pct.toFixed(1) + "%";
+            if (signal?.aborted) throw new DOMException("Aborted", "AbortError");
+          }
+        } else {
+          // fallback: citește tot
+          const blob = await res.blob();
+          bytes = blob.size;
+          ui.downBar.style.width = "100%";
         }
 
-        async function getPublicIP() {
-            try {
-                const response = await fetch('https://api.ipify.org?format=json');
-                const data = await response.json();
-                document.getElementById('publicIP').textContent = data.ip;
-            } catch (error) {
-                document.getElementById('publicIP').textContent = 'Eroare la încărcare';
-            }
-        }
+        const t1 = performance.now();
+        const seconds = (t1 - t0) / 1000;
+        const speed = mbps(bytes, seconds);
 
-        // Test Ping/Latență
-        async function testPing() {
-            const btn = document.getElementById('pingBtn');
-            const status = document.getElementById('pingStatus');
-            const results = document.getElementById('pingResults');
-            
-            btn.disabled = true;
-            status.innerHTML = '<div class="status testing testing-animation">Se testează latența...</div>';
-            results.style.display = 'none';
+        log(`Download OK: ${ (bytes/1024/1024).toFixed(2) } MB în ${seconds.toFixed(2)} s => ${speed.toFixed(2)} Mbps`);
+        return { mbps: speed };
+      } catch (e) {
+        log(`Download FAIL pe ${new URL(base).hostname}: ${e.message || e.name}`);
+      }
+    }
 
-            const pings = [];
-            // Folosim un API care acceptă CORS
-            const testUrls = [
-                'https://cloudflare.com/cdn-cgi/trace',
-                'https://1.1.1.1/cdn-cgi/trace',
-                'https://httpbin.org/get'
-            ];
-            const attempts = 10;
+    throw new Error("Download test: toate sursele au eșuat (posibil CORS / blocare domeniu).");
+  }
 
-            for (let i = 0; i < attempts; i++) {
-                try {
-                    const testUrl = testUrls[i % testUrls.length];
-                    const start = performance.now();
-                    const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 5000);
-                    
-                    await fetch(testUrl + '?t=' + Date.now(), { 
-                        method: 'GET',
-                        cache: 'no-cache',
-                        signal: controller.signal
-                    });
-                    
-                    clearTimeout(timeoutId);
-                    const end = performance.now();
-                    pings.push(end - start);
-                    status.innerHTML = `<div class="status testing testing-animation">Se testează latența... ${i + 1}/${attempts}</div>`;
-                } catch (error) {
-                    // Packet loss or timeout
-                }
-                await new Promise(resolve => setTimeout(resolve, 200));
-            }
+  // Upload test: trimite un payload către un endpoint care acceptă POST cu CORS.
+  // Folosim https://httpbin.org/post (de obicei are CORS). Dacă e blocat, testul poate eșua.
+  async function testUpload(mb, signal) {
+    const url = `https://httpbin.org/post?t=${Date.now()}`;
+    const bytes = mb * 1024 * 1024;
 
-            if (pings.length > 0) {
-                const avgPing = (pings.reduce((a, b) => a + b, 0) / pings.length).toFixed(2);
-                const jitter = calculateJitter(pings);
-                const packetLoss = ((attempts - pings.length) / attempts * 100).toFixed(1);
+    log(`Upload test: ${mb}MB către httpbin.org ...`);
+    ui.upBar.style.width = "0%";
 
-                document.getElementById('avgPing').textContent = avgPing;
-                document.getElementById('jitter').textContent = jitter;
-                document.getElementById('packetLoss').textContent = packetLoss;
+    // Generează un buffer pseudo-aleator (rapid) - suficient pentru test
+    const chunk = new Uint8Array(1024 * 1024); // 1MB
+    crypto.getRandomValues(chunk);
 
-                results.style.display = 'flex';
-                status.innerHTML = '<div class="status complete">✓ Test complet!</div>';
-            } else {
-                status.innerHTML = '<div class="status error">✗ Test eșuat - verifică conexiunea</div>';
-            }
+    // Construim un Blob din N bucăți de 1MB (evită alocări uriașe deodată)
+    const parts = [];
+    for (let i = 0; i < mb; i++) parts.push(chunk);
+    const blob = new Blob(parts, { type: "application/octet-stream" });
 
-            btn.disabled = false;
-        }
+    const t0 = performance.now();
+    // Nu avem progres nativ fără XHR; folosim timp scurs ca progres aproximativ.
+    // (dacă vrei progres real, pot rescrie pe XMLHttpRequest)
+    const progTimer = setInterval(() => {
+      // progres fake: până la 95% înainte de finalizare
+      const w = parseFloat(ui.upBar.style.width) || 0;
+      ui.upBar.style.width = Math.min(95, w + 2).toFixed(1) + "%";
+    }, 120);
 
-        function calculateJitter(pings) {
-            if (pings.length < 2) return 0;
-            let sum = 0;
-            for (let i = 1; i < pings.length; i++) {
-                sum += Math.abs(pings[i] - pings[i - 1]);
-            }
-            return (sum / (pings.length - 1)).toFixed(2);
-        }
+    try {
+      const res = await fetchWithTimeout(url, { method: "POST", body: blob }, 30000, signal);
+      clearInterval(progTimer);
+      ui.upBar.style.width = "100%";
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
-        // Test Download Speed
-        async function testDownload() {
-            const btn = document.getElementById('downloadBtn');
-            const status = document.getElementById('downloadStatus');
-            const progress = document.getElementById('downloadProgress');
-            const fill = document.getElementById('downloadFill');
-            const results = document.getElementById('downloadResults');
+      const t1 = performance.now();
+      const seconds = (t1 - t0) / 1000;
+      const speed = mbps(bytes, seconds);
 
-            btn.disabled = true;
-            status.innerHTML = '<div class="status testing testing-animation">Se testează viteza de download...</div>';
-            progress.style.display = 'block';
-            results.style.display = 'none';
-            fill.style.width = '0%';
+      log(`Upload OK: ${mb} MB în ${seconds.toFixed(2)} s => ${speed.toFixed(2)} Mbps`);
+      return { mbps: speed };
+    } catch (e) {
+      clearInterval(progTimer);
+      log(`Upload FAIL: ${e.message || e.name}`);
+      throw e;
+    }
+  }
 
-            // Folosim fișiere de diferite dimensiuni pentru test mai precis
-            const testFiles = [
-                'https://speed.cloudflare.com/__down?bytes=1000000',  // 1MB
-                'https://speed.cloudflare.com/__down?bytes=2000000',  // 2MB
-                'https://speed.cloudflare.com/__down?bytes=5000000',  // 5MB
-            ];
-            
-            let totalBytes = 0;
-            const startTime = Date.now();
-            const testDuration = 8000; // 8 secunde
-            let completedTests = 0;
+  async function getPublicIp() {
+    // ipapi.co de obicei permite CORS și întoarce ISP/ASN etc.
+    const res = await fetch("https://ipapi.co/json/", { cache: "no-store" });
+    if (!res.ok) throw new Error("Nu pot obține IP.");
+    return res.json();
+  }
 
-            try {
-                for (let i = 0; i < testFiles.length; i++) {
-                    if (Date.now() - startTime >= testDuration) break;
-                    
-                    const testUrl = testFiles[i];
-                    const testStart = Date.now();
-                    
-                    const response = await fetch(testUrl, { 
-                        cache: 'no-cache',
-                        headers: { 'Cache-Control': 'no-cache' }
-                    });
-                    
-                    if (!response.ok) continue;
-                    
-                    const reader = response.body.getReader();
-                    let receivedBytes = 0;
-                    
-                    while (true) {
-                        const {done, value} = await reader.read();
-                        if (done) break;
-                        
-                        receivedBytes += value.length;
-                        totalBytes += value.length;
-                        
-                        // Update progress
-                        const elapsed = Date.now() - startTime;
-                        fill.style.width = Math.min((elapsed / testDuration * 100), 100) + '%';
-                        
-                        // Calculate current speed
-                        const duration = (Date.now() - testStart) / 1000;
-                        if (duration > 0) {
-                            const currentSpeed = ((receivedBytes * 8) / 1000000 / duration).toFixed(2);
-                            status.innerHTML = `<div class="status testing testing-animation">Download: ${currentSpeed} Mbps...</div>`;
-                        }
-                        
-                        if (Date.now() - startTime >= testDuration) break;
-                    }
-                    
-                    completedTests++;
-                }
+  function formatMaybe(n) {
+    if (!Number.isFinite(n)) return "—";
+    return n.toFixed(0);
+  }
 
-                const totalDuration = (Date.now() - startTime) / 1000;
-                const megabits = (totalBytes * 8) / 1000000;
-                const speed = (megabits / totalDuration).toFixed(2);
+  function setRunning(isRunning) {
+    ui.btnStart.disabled = isRunning;
+    ui.btnStop.disabled = !isRunning;
+  }
 
-                document.getElementById('downloadSpeed').textContent = speed;
-                results.style.display = 'flex';
-                fill.style.width = '100%';
-                status.innerHTML = '<div class="status complete">✓ Test complet!</div>';
+  ui.btnStop.addEventListener("click", () => {
+    if (aborter) aborter.abort();
+  });
 
-            } catch (error) {
-                console.error('Download test error:', error);
-                status.innerHTML = '<div class="status error">✗ Eroare la test - încearcă din nou</div>';
-                
-                // If we got some data, show it anyway
-                if (totalBytes > 0) {
-                    const totalDuration = (Date.now() - startTime) / 1000;
-                    const megabits = (totalBytes * 8) / 1000000;
-                    const speed = (megabits / totalDuration).toFixed(2);
-                    document.getElementById('downloadSpeed').textContent = speed;
-                    results.style.display = 'flex';
-                }
-            }
+  ui.btnIp.addEventListener("click", async () => {
+    ui.ipInfo.textContent = "Se obține IP...";
+    try {
+      const data = await getPublicIp();
+      ui.ipInfo.textContent = `${data.ip} • ${data.org || data.asn || "ISP necunoscut"} • ${data.city || ""} ${data.country_name || ""}`.trim();
+    } catch (e) {
+      ui.ipInfo.textContent = "Eșec la IP (posibil blocat).";
+    }
+  });
 
-            btn.disabled = false;
-        }
+  ui.btnStart.addEventListener("click", async () => {
+    aborter = new AbortController();
+    const signal = aborter.signal;
 
-        // Test Upload Speed
-        async function testUpload() {
-            const btn = document.getElementById('uploadBtn');
-            const status = document.getElementById('uploadStatus');
-            const progress = document.getElementById('uploadProgress');
-            const fill = document.getElementById('uploadFill');
-            const results = document.getElementById('uploadResults');
+    logEl.textContent = "";
+    ui.ping.textContent = "—";
+    ui.jitter.textContent = "—";
+    ui.loss.textContent = "—";
+    ui.down.textContent = "—";
+    ui.up.textContent = "—";
+    ui.downBar.style.width = "0%";
+    ui.upBar.style.width = "0%";
 
-            btn.disabled = true;
-            status.innerHTML = '<div class="status testing testing-animation">Se testează viteza de upload...</div>';
-            progress.style.display = 'block';
-            results.style.display = 'none';
-            fill.style.width = '0%';
+    const samples = Math.max(5, Math.min(50, Number(ui.pingSamples.value) || 12));
+    const timeout = Math.max(800, Math.min(10000, Number(ui.timeoutMs.value) || 2500));
+    const upMB = Number(ui.uploadMB.value) || 5;
+    const downMB = Number(ui.downloadMB.value) || 25;
 
-            // Generare date pentru upload (500KB per test)
-            const dataSize = 512 * 1024; // 512KB
-            const testDuration = 8000; // 8 secunde
-            let totalBytes = 0;
-            let testCount = 0;
+    setRunning(true);
+    setStatus("Rulează...");
 
-            const startTime = Date.now();
+    try {
+      // 1) Ping
+      const p = await testPing(samples, timeout, signal);
+      ui.ping.textContent = formatMaybe(p.medianMs);
+      ui.jitter.textContent = formatMaybe(p.jitterMs);
+      ui.loss.textContent = Number.isFinite(p.lossPct) ? p.lossPct.toFixed(0) : "—";
+      log(`Rezumat ping: mediană ${ms(p.medianMs)} ms, jitter ${ms(p.jitterMs)} ms, pierderi ${p.lossPct.toFixed(0)}%`);
 
-            // Folosim Cloudflare speed test endpoint
-            const uploadUrl = 'https://speed.cloudflare.com/__up';
+      // 2) Download
+      const d = await testDownload(downMB, signal);
+      ui.down.textContent = Number.isFinite(d.mbps) ? d.mbps.toFixed(2) : "—";
 
-            try {
-                while (Date.now() - startTime < testDuration) {
-                    const uploadData = new Uint8Array(dataSize);
-                    // Fill with random data
-                    for (let i = 0; i < dataSize; i++) {
-                        uploadData[i] = Math.floor(Math.random() * 256);
-                    }
-                    
-                    const testStart = Date.now();
-                    
-                    try {
-                        const response = await fetch(uploadUrl, {
-                            method: 'POST',
-                            body: uploadData,
-                            headers: {
-                                'Content-Type': 'application/octet-stream',
-                            }
-                        });
-                        
-                        if (response.ok) {
-                            totalBytes += dataSize;
-                            testCount++;
-                            
-                            const elapsed = Date.now() - startTime;
-                            fill.style.width = Math.min((elapsed / testDuration * 100), 100) + '%';
-                            
-                            // Calculate current speed
-                            const duration = (elapsed) / 1000;
-                            if (duration > 0) {
-                                const currentSpeed = ((totalBytes * 8) / 1000000 / duration).toFixed(2);
-                                status.innerHTML = `<div class="status testing testing-animation">Upload: ${currentSpeed} Mbps...</div>`;
-                            }
-                        }
-                    } catch (error) {
-                        console.error('Upload error:', error);
-                        // Continue with next attempt
-                    }
-                    
-                    // Small delay between uploads
-                    await new Promise(resolve => setTimeout(resolve, 100));
-                }
+      // 3) Upload
+      const u = await testUpload(upMB, signal);
+      ui.up.textContent = Number.isFinite(u.mbps) ? u.mbps.toFixed(2) : "—";
 
-                const totalDuration = (Date.now() - startTime) / 1000;
-                const megabits = (totalBytes * 8) / 1000000;
-                const speed = (megabits / totalDuration).toFixed(2);
-
-                document.getElementById('uploadSpeed').textContent = speed;
-                results.style.display = 'flex';
-                fill.style.width = '100%';
-                status.innerHTML = '<div class="status complete">✓ Test complet!</div>';
-
-            } catch (error) {
-                console.error('Upload test error:', error);
-                status.innerHTML = '<div class="status error">✗ Eroare la test - încearcă din nou</div>';
-                
-                // Show partial results if any
-                if (totalBytes > 0) {
-                    const totalDuration = (Date.now() - startTime) / 1000;
-                    const megabits = (totalBytes * 8) / 1000000;
-                    const speed = (megabits / totalDuration).toFixed(2);
-                    document.getElementById('uploadSpeed').textContent = speed;
-                    results.style.display = 'flex';
-                }
-            }
-
-            btn.disabled = false;
-        }
-    </script>
+      setStatus("Gata");
+      log("Test complet.");
+    } catch (e) {
+      if (e.name === "AbortError") {
+        setStatus("Oprit");
+        log("Test oprit de utilizator.");
+      } else {
+        setStatus("Eroare");
+        log(`Eroare: ${e.message || e}`);
+      }
+    } finally {
+      setRunning(false);
+      aborter = null;
+    }
+  });
+})();
+</script>
 </body>
 </html>
