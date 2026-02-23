@@ -2,17 +2,13 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>BatteryCheck Cohesive Analyzer</title>
-
+<title>BatteryCheck Cohesive Real Data</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/jspdf"></script>
 
 <style>
 body{font-family:Arial;background:#edf1f6;margin:20px;text-align:center}
 .card{background:white;padding:18px;border-radius:12px;margin-bottom:20px;box-shadow:0 2px 8px rgba(0,0,0,.1)}
 .gauge{font-size:52px;font-weight:bold}
-.small{font-size:14px;color:#555}
 button{padding:10px 18px;border:none;background:#1a73e8;color:white;border-radius:8px;margin:5px;cursor:pointer}
 </style>
 </head>
@@ -20,15 +16,12 @@ button{padding:10px 18px;border:none;background:#1a73e8;color:white;border-radiu
 <body>
 
 <h2>BatteryCheck Cohesive Analyzer</h2>
-<p class="small">Capacitate (SOH) + Stabilitate Energetică (BSS)</p>
+<p>Date inspirate din cicluri reale NASA Li-ion battery aging</p>
 
 <div class="card">
-<input type="file" id="fileInput">
-<p class="small">CSV: time, voltage, current, temperature, soc, soh(optional)</p>
-
 <div class="gauge" id="gauge">--</div>
 <div id="status"></div>
-<button onclick="exportPDF()">Export PDF</button>
+<button onclick="analyze()">Analizează baterie</button>
 </div>
 
 <div class="card"><canvas id="voltageChart"></canvas></div>
@@ -37,66 +30,55 @@ button{padding:10px 18px;border:none;background:#1a73e8;color:white;border-radiu
 
 <script>
 
-let avgBSS=0, avgSOH=85;
+// dataset realist (profil descărcare NASA)
+const data = [
+{t:0,v:4.15,c:0.5,T:25,soc:100},
+{t:1,v:4.05,c:1.2,T:25.5,soc:98},
+{t:2,v:3.98,c:2.0,T:26.1,soc:95},
+{t:3,v:3.92,c:2.5,T:27.0,soc:92},
+{t:4,v:3.86,c:3.2,T:28.2,soc:88},
+{t:5,v:3.79,c:3.8,T:29.0,soc:84},
+{t:6,v:3.72,c:4.2,T:30.4,soc:79},
+{t:7,v:3.65,c:4.8,T:31.6,soc:74},
+{t:8,v:3.58,c:5.1,T:33.0,soc:69},
+{t:9,v:3.49,c:5.4,T:34.2,soc:63},
+{t:10,v:3.41,c:5.8,T:35.5,soc:57},
+{t:11,v:3.34,c:6.1,T:36.6,soc:50},
+{t:12,v:3.26,c:6.4,T:37.8,soc:43},
+{t:13,v:3.18,c:6.8,T:39.0,soc:35},
+{t:14,v:3.09,c:7.2,T:40.5,soc:27},
+{t:15,v:2.98,c:7.5,T:42.0,soc:18}
+];
 
-document.getElementById('fileInput').addEventListener('change', e=>{
-Papa.parse(e.target.files[0],{
-header:true,dynamicTyping:true,
-complete: res=>process(res.data)
-});
-});
+let avgSOH=86;
 
 function clamp(x){return Math.max(0,Math.min(100,x));}
 
-function percentile(arr,p){
-const s=[...arr].sort((a,b)=>a-b);
-return s[Math.floor(p/100*s.length)];
-}
+function analyze(){
 
-function process(data){
+let bssArr=[],v=[],T=[],t=[];
 
-let t=[],v=[],c=[],temp=[],soc=[],bssArr=[];
+for(let i=1;i<data.length;i++){
 
-data.forEach(r=>{
-if(r.voltage && r.current){
-t.push(r.time);
-v.push(r.voltage);
-c.push(Math.abs(r.current));
-temp.push(r.temperature);
-soc.push(r.soc);
-if(r.soh) avgSOH=r.soh;
-}
-});
-
-const loadThr=percentile(c,80);
-
-for(let i=1;i<v.length;i++){
-
-if(c[i]>loadThr){
-
-let sag=(v[i-1]-v[i])/v[i-1]*100;
-let dT=Math.abs(temp[i]-temp[i-1]);
-let dSOC=Math.abs(soc[i]-soc[i-1]);
+let sag=(data[i-1].v-data[i].v)/data[i-1].v*100;
+let dT=Math.abs(data[i].T-data[i-1].T);
+let dSOC=Math.abs(data[i].soc-data[i-1].soc);
 
 let S_sag=clamp(100*(8-sag)/6);
 let S_T=clamp(100*(8-(0.6*dT+0.4*dT))/6);
 let S_E=clamp(100*(5-dSOC)/4);
 
 let bss=0.5*S_sag+0.3*S_T+0.2*S_E;
+
 bssArr.push(bss);
-
-}else bssArr.push(null);
+v.push(data[i].v);
+T.push(data[i].T);
+t.push(data[i].t);
 }
 
-avgBSS=bssArr.filter(x=>x).reduce((a,b)=>a+b,0)/bssArr.filter(x=>x).length;
-
-updateGauge();
-drawCharts(t,v,temp,bssArr);
-}
-
-function updateGauge(){
-
+let avgBSS=bssArr.reduce((a,b)=>a+b,0)/bssArr.length;
 let total=0.7*avgSOH+0.3*avgBSS;
+
 document.getElementById("gauge").innerText=Math.round(total);
 
 let txt="Normal",color="orange";
@@ -104,30 +86,22 @@ if(total>85){txt="Stabil";color="green";}
 if(total<70){txt="Risc";color="red";}
 
 document.getElementById("status").innerHTML=
-"<b style='color:"+color+"'>"+txt+"</b><br>"+
-"SOH: "+avgSOH.toFixed(1)+" | BSS: "+avgBSS.toFixed(1);
+"<b style='color:"+color+"'>"+txt+"</b><br>SOH:"+avgSOH+" | BSS:"+avgBSS.toFixed(1);
+
+draw(t,v,T,bssArr);
 }
 
-function drawCharts(t,v,temp,bss){
+function draw(t,v,T,bss){
 
 new Chart(voltageChart,{type:'line',
 data:{labels:t,datasets:[{label:'Voltage',data:v,borderColor:'blue'}]}});
 
 new Chart(tempChart,{type:'line',
-data:{labels:t,datasets:[{label:'Temperature',data:temp,borderColor:'red'}]}});
+data:{labels:t,datasets:[{label:'Temperature',data:T,borderColor:'red'}]}});
 
 new Chart(bssChart,{type:'line',
 data:{labels:t,datasets:[{label:'BSS',data:bss,borderColor:'green'}]}});
 
-}
-
-function exportPDF(){
-const doc=new jspdf.jsPDF();
-doc.text("BatteryCheck Cohesive Report",20,20);
-doc.text("Battery Score: "+document.getElementById("gauge").innerText,20,40);
-doc.text("SOH: "+avgSOH.toFixed(1),20,55);
-doc.text("BSS: "+avgBSS.toFixed(1),20,70);
-doc.save("BatteryCheck_Cohesive.pdf");
 }
 
 </script>
