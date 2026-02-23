@@ -2,412 +2,523 @@
 <html lang="ro">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>BatteryCheck – Cohesive ITP (EV Report → BSS)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Battery ITP – Coeziv BSS Comparator (Tesla vs Non-Tesla)</title>
   <style>
     :root{
-      --bg:#0b1220; --card:#101a33; --card2:#0e1730; --text:#eaf0ff; --muted:#a9b6d6;
-      --ok:#44d19d; --warn:#ffcc66; --bad:#ff6b6b; --accent:#5aa3ff; --line:#22305a;
-      --shadow: 0 10px 30px rgba(0,0,0,.35);
-      --radius:18px;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      --bg:#0b1220; --card:#0f1a2e; --card2:#0d1628;
+      --txt:#e8eefc; --muted:#a8b4d6; --line:#1f2a44;
+      --good:#2dd4bf; --warn:#fbbf24; --bad:#fb7185; --blue:#60a5fa;
+      --chip:#111c33; --shadow:0 18px 40px rgba(0,0,0,.35);
     }
-    body{ margin:0; background: radial-gradient(1200px 700px at 20% 0%, #182b66 0%, var(--bg) 55%); color:var(--text); }
-    .wrap{ max-width:1100px; margin:0 auto; padding:22px; }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      background: radial-gradient(1200px 700px at 15% 0%, rgba(96,165,250,.18), transparent 55%),
+                  radial-gradient(900px 600px at 90% 20%, rgba(45,212,191,.14), transparent 55%),
+                  var(--bg);
+      color:var(--txt);
+    }
+    .wrap{max-width:1180px; margin:0 auto; padding:20px 16px 48px}
     .top{
-      display:flex; gap:14px; align-items:flex-start; justify-content:space-between; flex-wrap:wrap;
+      display:flex; gap:14px; align-items:flex-end; justify-content:space-between; flex-wrap:wrap;
       margin-bottom:14px;
     }
-    .brand{
-      display:flex; flex-direction:column; gap:6px;
-    }
-    h1{ margin:0; font-size:20px; letter-spacing:.2px; }
-    .subtitle{ color:var(--muted); font-size:13px; line-height:1.4; max-width:720px; }
-    .pill{
-      display:inline-flex; gap:8px; align-items:center; background:rgba(90,163,255,.14);
-      color:#d9e8ff; border:1px solid rgba(90,163,255,.35);
-      padding:8px 10px; border-radius:999px; font-size:12px;
-    }
-    .grid{ display:grid; grid-template-columns: 1.05fr .95fr; gap:14px; }
-    @media (max-width: 980px){ .grid{ grid-template-columns:1fr; } }
+    h1{font-size:20px; margin:0; letter-spacing:.2px}
+    .sub{color:var(--muted); font-size:13px; margin-top:6px; line-height:1.3}
+    .row{display:grid; grid-template-columns: 1.15fr .85fr; gap:14px}
+    @media (max-width: 980px){ .row{grid-template-columns:1fr} }
     .card{
-      background: linear-gradient(180deg, rgba(255,255,255,.04) 0%, rgba(255,255,255,.02) 100%);
-      border:1px solid rgba(255,255,255,.08);
-      box-shadow: var(--shadow);
-      border-radius: var(--radius);
-      padding:16px;
+      background: linear-gradient(180deg, rgba(255,255,255,.03), transparent 28%), var(--card);
+      border:1px solid var(--line);
+      border-radius:16px; padding:14px; box-shadow: var(--shadow);
     }
-    .card h2{ margin:0 0 10px 0; font-size:15px; color:#dfe8ff; }
-    .row{ display:flex; gap:10px; flex-wrap:wrap; }
-    .kv{
-      flex:1 1 180px;
-      background: rgba(0,0,0,.18);
-      border:1px solid rgba(255,255,255,.08);
-      padding:10px 12px; border-radius:14px;
+    .card h2{margin:0 0 10px 0; font-size:14px; color:#dbe7ff; letter-spacing:.2px}
+    .grid4{display:grid; grid-template-columns: repeat(4, 1fr); gap:10px}
+    @media (max-width: 980px){ .grid4{grid-template-columns: repeat(2,1fr)} }
+    .kpi{
+      background: var(--card2);
+      border:1px solid var(--line);
+      border-radius:14px; padding:12px;
+      min-height:78px;
     }
-    .k{ font-size:11px; color:var(--muted); letter-spacing:.3px; text-transform:uppercase; }
-    .v{ font-size:14px; margin-top:4px; }
-    .muted{ color:var(--muted); }
-    .split{ display:grid; grid-template-columns: 1fr 1fr; gap:12px; }
-    @media (max-width: 680px){ .split{ grid-template-columns:1fr; } }
-    .gauge{
-      display:flex; gap:14px; align-items:center;
-    }
-    .big{
-      width:104px; height:104px; border-radius:24px;
-      display:flex; flex-direction:column; align-items:center; justify-content:center;
-      background: rgba(0,0,0,.20);
-      border:1px solid rgba(255,255,255,.10);
-    }
-    .score{ font-size:34px; font-weight:800; line-height:1; }
-    .label{ margin-top:6px; font-size:12px; color:var(--muted); }
-    .barWrap{ flex:1; }
-    .bar{
-      height:12px; background: rgba(255,255,255,.08); border-radius:999px; overflow:hidden;
-      border:1px solid rgba(255,255,255,.10);
-    }
-    .fill{ height:100%; width:0%; border-radius:999px; }
-    .legend{ display:flex; justify-content:space-between; margin-top:8px; font-size:12px; color:var(--muted); }
-    .tag{
-      display:inline-flex; padding:6px 10px; border-radius:999px; font-size:12px; border:1px solid transparent;
-      background: rgba(255,255,255,.06); color:#e8eeff;
-    }
-    .tag.ok{ background: rgba(68,209,157,.14); border-color: rgba(68,209,157,.35); }
-    .tag.warn{ background: rgba(255,204,102,.14); border-color: rgba(255,204,102,.35); }
-    .tag.bad{ background: rgba(255,107,107,.14); border-color: rgba(255,107,107,.35); }
-    .btns{ display:flex; gap:10px; flex-wrap:wrap; margin-top:10px; }
-    button{
-      cursor:pointer;
-      border-radius:14px;
-      border:1px solid rgba(255,255,255,.14);
-      background: rgba(0,0,0,.18);
-      color:var(--text);
+    .kpi .t{color:var(--muted); font-size:12px}
+    .kpi .v{font-size:18px; margin-top:6px}
+    .kpi .s{color:var(--muted); font-size:12px; margin-top:4px}
+    .controls{display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-top:10px}
+    select,input,button{
+      background: var(--card2);
+      color: var(--txt);
+      border:1px solid var(--line);
+      border-radius:12px;
       padding:10px 12px;
       font-size:13px;
+      outline:none;
     }
-    button.primary{
-      background: rgba(90,163,255,.18);
-      border-color: rgba(90,163,255,.45);
+    input{min-width:170px}
+    button{
+      cursor:pointer; border:1px solid rgba(96,165,250,.35);
+      background: linear-gradient(180deg, rgba(96,165,250,.25), rgba(96,165,250,.07));
     }
-    textarea{
-      width:100%; min-height:160px; resize:vertical;
-      border-radius:14px; padding:12px; box-sizing:border-box;
-      background: rgba(0,0,0,.18); color:var(--text);
-      border:1px solid rgba(255,255,255,.12);
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    button.secondary{
+      border:1px solid rgba(45,212,191,.35);
+      background: linear-gradient(180deg, rgba(45,212,191,.22), rgba(45,212,191,.06));
+    }
+    button.ghost{
+      border:1px solid var(--line);
+      background: transparent;
+      color: var(--muted);
+    }
+    .table{
+      width:100%;
+      border-collapse: collapse;
+      overflow:hidden;
+      border-radius:14px;
+      border:1px solid var(--line);
+    }
+    .table th, .table td{
+      padding:10px 10px;
+      border-bottom:1px solid var(--line);
+      font-size:13px;
+      vertical-align:middle;
+    }
+    .table th{
+      text-align:left;
+      color:#dbe7ff;
+      background: rgba(255,255,255,.03);
+      position:sticky; top:0;
+    }
+    .muted{color:var(--muted)}
+    .pill{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:6px 10px; border-radius:999px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.03);
       font-size:12px;
-      line-height:1.45;
     }
-    .note{
-      margin-top:10px; font-size:12px; color:var(--muted); line-height:1.5;
-      border-top:1px solid rgba(255,255,255,.08); padding-top:10px;
+    .dot{width:8px; height:8px; border-radius:999px; background: var(--muted)}
+    .dot.good{background: var(--good)}
+    .dot.warn{background: var(--warn)}
+    .dot.bad{background: var(--bad)}
+    .small{font-size:12px; color:var(--muted); line-height:1.35}
+    .split{display:grid; grid-template-columns: 1fr 1fr; gap:10px}
+    @media (max-width: 620px){ .split{grid-template-columns:1fr} }
+    .hr{height:1px; background:var(--line); margin:12px 0}
+    .tag{
+      display:inline-block; padding:6px 10px; border-radius:999px;
+      background: rgba(45,212,191,.08);
+      border:1px solid rgba(45,212,191,.25);
+      color:#bff7ed;
+      font-size:12px;
     }
-    a{ color:#bcd6ff; }
-    .small{ font-size:12px; color:var(--muted); }
+    canvas{width:100%; height:320px; background:var(--card2); border:1px solid var(--line); border-radius:14px}
+    .rightStack{display:flex; flex-direction:column; gap:14px}
   </style>
 </head>
 <body>
   <div class="wrap">
     <div class="top">
-      <div class="brand">
-        <h1>BatteryCheck – Cohesive ITP (Raport EV → BSS)</h1>
-        <div class="subtitle">
-          Concept de „ITP baterie” pentru mașini electrice: folosim date din rapoarte reale (ex. AVILOO FLASH) și calculăm un
-          <b>BSS</b> (Battery Stability Score) – stabilitatea energetică, independentă de simpla capacitate (SOH).
+      <div>
+        <h1>Battery ITP – Coeziv (BSS) • Tesla vs Non-Tesla</h1>
+        <div class="sub">
+          Date reale din rapoarte AVILOO FLASH. BSS este calculat din ΔV (balans), ΔT (uniformitate termică), Ipeak (stres electric).
+          Scor Coeziv = 0.60×SOH + 0.40×BSS.
         </div>
       </div>
-      <div class="pill">Dataset: raport real (PDF) • calcul în browser • fără server</div>
+      <div class="pill" id="datasetBadge"><span class="dot good"></span> 10 cazuri încărcate</div>
     </div>
 
-    <div class="grid">
+    <div class="row">
       <div class="card">
-        <h2>1) Raport EV (valori extrase)</h2>
+        <h2>Panou comparativ</h2>
 
-        <div class="row" id="kvRow"></div>
+        <div class="grid4" id="kpis"></div>
 
-        <div class="btns">
-          <button class="primary" id="btnCalc">Calculează BSS</button>
-          <button id="btnReset">Reset la exemplul real</button>
-          <button id="btnRandom">Simulează alt raport (demo)</button>
+        <div class="controls">
+          <select id="filterBrand">
+            <option value="all">Toate (Tesla + Non-Tesla)</option>
+            <option value="tesla">Doar Tesla</option>
+            <option value="non">Doar Non-Tesla</option>
+          </select>
+
+          <select id="sortBy">
+            <option value="cohesive_desc">Sort: Scor Coeziv ↓</option>
+            <option value="cohesive_asc">Sort: Scor Coeziv ↑</option>
+            <option value="bss_desc">Sort: BSS ↓</option>
+            <option value="bss_asc">Sort: BSS ↑</option>
+            <option value="soh_desc">Sort: SOH ↓</option>
+            <option value="soh_asc">Sort: SOH ↑</option>
+            <option value="dv_desc">Sort: ΔV ↓</option>
+            <option value="dv_asc">Sort: ΔV ↑</option>
+          </select>
+
+          <input id="search" placeholder="Caută: model / brand" />
+          <button class="ghost" id="resetBtn">Reset</button>
         </div>
 
-        <div class="note">
-          <b>Sursă raport:</b> AVILOO FLASH Test, Citroën C-Zero 16 kWh. Câmpurile folosite sunt cele vizibile în PDF:
-          SoH, ΔT max celule, ΔV max celule, V pack, I peak, scorurile AVILOO. <span class="small">(Vezi PDF original)</span>
-          <div style="margin-top:6px;">
-            <a href="https://certs.aviloo.com/pdf/19b6qiMkOu777pjNcR2LZ9?content-disposition=inline" target="_blank" rel="noreferrer">
-              Deschide raportul PDF (exemplu cu SoH 80,82%)
-            </a>
-          </div>
+        <div class="hr"></div>
+
+        <div style="overflow:auto; max-height:420px; border-radius:14px">
+          <table class="table" id="tbl">
+            <thead>
+              <tr>
+                <th>Brand</th>
+                <th>Model</th>
+                <th>SOH %</th>
+                <th>ΔV mV</th>
+                <th>ΔT °C</th>
+                <th>|Ipeak| A</th>
+                <th>BSS</th>
+                <th>Scor Coeziv</th>
+                <th class="muted">Link</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+        <div class="hr"></div>
+        <div class="small">
+          <span class="tag">Formula BSS</span><br/>
+          ΔV-score = 100 − (ΔV/120mV)×100 (tăiat la 0..100).<br/>
+          ΔT-score = 100 − (ΔT/10°C)×100 (0..100).<br/>
+          I-score = 100 − (|Ipeak|/50A)×100 (0..100).<br/>
+          <b>BSS = 0.50×ΔV-score + 0.30×ΔT-score + 0.20×I-score</b>.
         </div>
       </div>
 
-      <div class="card">
-        <h2>2) Rezultat Cohesiv</h2>
-
-        <div class="split">
-          <div class="gauge">
-            <div class="big">
-              <div class="score" id="bssScore">--</div>
-              <div class="label">BSS (0–100)</div>
-            </div>
-            <div class="barWrap">
-              <div class="bar"><div class="fill" id="bssFill"></div></div>
-              <div class="legend"><span>instabil</span><span>stabil</span></div>
-              <div style="margin-top:10px;">
-                <span class="tag" id="bssTag">—</span>
-                <span class="tag" id="sohTag" style="margin-left:6px;">SOH —</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="gauge">
-            <div class="big">
-              <div class="score" id="cohScore">--</div>
-              <div class="label">Scor Coeziv</div>
-            </div>
-            <div class="barWrap">
-              <div class="bar"><div class="fill" id="cohFill"></div></div>
-              <div class="legend"><span>risc</span><span>excelent</span></div>
-              <div class="small" style="margin-top:10px;" id="explainLine">—</div>
-            </div>
+      <div class="rightStack">
+        <div class="card">
+          <h2>Chart – Scor Coeziv (bar)</h2>
+          <canvas id="chart" width="900" height="320"></canvas>
+          <div class="small" style="margin-top:10px">
+            În grafic se vede imediat cazul “capcană”: SOH decent dar ΔV mare (celulă dezechilibrată) ⇒ BSS mic ⇒ Scor Coeziv scade.
           </div>
         </div>
 
-        <div style="margin-top:14px;">
-          <h2 style="margin:0 0 10px 0;">3) Breakdown (de ce iese BSS)</h2>
-          <div class="row">
-            <div class="kv"><div class="k">Balansare celule (ΔV)</div><div class="v" id="balScore">—</div></div>
-            <div class="kv"><div class="k">Uniformitate termică (ΔT)</div><div class="v" id="thScore">—</div></div>
-            <div class="kv"><div class="k">Stres electric (I peak)</div><div class="v" id="stScore">—</div></div>
-            <div class="kv"><div class="k">Performanță HV (scor raport)</div><div class="v" id="pfScore">—</div></div>
-          </div>
-          <div class="note">
-            <b>BSS-proxy</b> (din raport FLASH): nu avem time-series complet (V(t), I(t), T(t)), deci folosim indicatori de stabilitate disponibili:
-            ΔV max celule, ΔT max, I peak și scoruri de performanță. Când avem CSV/OBD log, BSS devine „full”.
-          </div>
-        </div>
-      </div>
+        <div class="card">
+          <h2>Adaugă un raport nou (manual)</h2>
+          <div class="small">Copiază valorile dintr-un PDF (SoH, ΔV, ΔT, Ipeak). Link-ul poate fi URL către PDF.</div>
 
-      <div class="card" style="grid-column:1 / -1;">
-        <h2>4) JSON (editezi valorile / lipim alt raport)</h2>
-        <div class="small muted" style="margin-bottom:8px;">
-          Schimbi câmpurile și apeși „Calculează BSS”. (Pentru alt PDF, completezi valorile pe care le vezi în raport.)
+          <div class="split" style="margin-top:10px">
+            <input id="inBrand" placeholder="Brand (ex: Tesla)" />
+            <input id="inModel" placeholder="Model (ex: Model 3)" />
+            <input id="inSOH" type="number" step="0.01" placeholder="SOH (%)" />
+            <input id="inDV" type="number" step="0.01" placeholder="ΔV max (mV)" />
+            <input id="inDT" type="number" step="0.01" placeholder="ΔT max (°C)" />
+            <input id="inI" type="number" step="0.01" placeholder="Ipeak (A, semn nu contează)" />
+            <input id="inUrl" placeholder="Link PDF (opțional)" style="grid-column:1 / -1" />
+          </div>
+
+          <div class="controls" style="margin-top:10px">
+            <button class="secondary" id="addBtn">Adaugă în set</button>
+            <button class="ghost" id="clearBtn">Golește câmpurile</button>
+          </div>
         </div>
-        <textarea id="jsonBox"></textarea>
       </div>
     </div>
   </div>
 
 <script>
-  // ====== Exemplu REAL (din raportul AVILOO FLASH cu SoH 80,82%) ======
-  // Sursa: https://certs.aviloo.com/pdf/19b6qiMkOu777pjNcR2LZ9?content-disposition=inline
-  const REAL_REPORT = {
-    source: "AVILOO FLASH Test (PDF)",
-    vehicle: { brand: "Citroën", model: "C-Zero - 16 kWh", vin: "VF71NZKYZJU901053", mileage_km: 41977 },
-    execution: { date: "13/08/2025 06:13:49", soc_pct: 50 },
+  // ---- Dataset (10 cazuri reale) ----
+  // NOTE: link-urile sunt către rapoarte reale AVILOO FLASH.
+  const DATA = [
+    // Tesla (5)
+    {brand:"Tesla", model:"Model X - 100", soh:95.51, dv:12.81, dt:1.48, ipeak:-3.12, url:"https://certs.aviloo.com/pdf/MgFMhWlWP4GRmgPIi32p5"},
+    {brand:"Tesla", model:"Model Y - 78.8 kWh", soh:97.87, dv:2.00, dt:0.50, ipeak:-3.86, url:"https://assets.ctfassets.net/jyl3c0cp0pqs/DKra7x7qJ9b4WkLNuZwbR/3010f16b96c1180e04ca611b3cb87537/AVILOO-Flash-Test-Tesla-Model_Y_-_78_8_kWh-LRWYGCEK9NC221965-2023-05-08.pdf"},
+    {brand:"Tesla", model:"Model 3 - 77.8 kWh", soh:89.49, dv:4.00, dt:0.50, ipeak:-24.48, url:"https://assets.ctfassets.net/jyl3c0cp0pqs/7olmQ55rwJUNZM5F9ge9oR/940a9435c74ed1a3ccb57c7758650114/AVILOO-Flash-Test-Tesla-Model_3_-_77_8_kWh-5YJ3E7EB5KF224550-2023-05-17.pdf"},
+    {brand:"Tesla", model:"Model 3 - 74.5 kWh", soh:96.64, dv:2.00, dt:1.00, ipeak:-7.35, url:"https://assets.ctfassets.net/jyl3c0cp0pqs/4CLGTJdmTcnVejzY55NtH7/c4d74a8ee5afbd75d57664c767766d76/AVILOO-Flash-Test-Tesla-Model_3_-_74_5_kWh-5YJ3E7EB1MF897290-2023-05-26.pdf"},
+    {brand:"Tesla", model:"Model 3 - 60.5 kWh (high cell spread)", soh:89.42, dv:180.00, dt:1.50, ipeak:-26.14, url:"https://www.elgersma.nl/uploads/images/_site/files/Voorbeeld%20AVILOO%20testrapporten.pdf"},
 
-    // Measurements (High Voltage System)
-    hv: {
-      pack_voltage_v: 311.99,
-      peak_current_a: -3.0,
-      max_cell_temp_delta_c: 1.0,
-      max_cell_voltage_delta_mv: 0
-    },
+    // Non-Tesla (5)
+    {brand:"Nissan", model:"Leaf ZE1", soh:92.96, dv:12.09, dt:1.00, ipeak:-4.99, url:"https://kinghornelectricvehicles.com/wp-content/uploads/DN21FDM-Battery-Report.pdf"},
+    {brand:"Hyundai", model:"Ioniq - 28 kWh", soh:100.00, dv:0.00, dt:1.00, ipeak:-0.60, url:"https://www.elgersma.nl/uploads/images/_site/files/Voorbeeld%20AVILOO%20testrapporten.pdf"},
+    {brand:"Volkswagen", model:"ID.4 - 77 kWh", soh:97.14, dv:6.10, dt:0.38, ipeak:-3.33, url:"https://www.elgersma.nl/uploads/images/_site/files/Voorbeeld%20AVILOO%20testrapporten.pdf"},
+    {brand:"Kia", model:"EV6 - 77.4 kWh", soh:100.00, dv:0.00, dt:2.00, ipeak:-0.70, url:"https://img.autox.cz/aviloo/300141502.pdf"},
+    {brand:"Renault", model:"Zoe - 52 kWh", soh:95.46, dv:7.98, dt:0.00, ipeak:-3.51, url:"https://carsonnet.com/media/vehicledocuments/VF1AG000969623703/a7f0c55d65a7fe84c510c01e19febb53.pdf"},
+  ];
 
-    // SoH read from manufacturer/BMS (as shown in report)
-    soh_pct: 80.82,
+  // ---- Scoring (Coeziv BSS) ----
+  const clamp = (x, a=0, b=100) => Math.max(a, Math.min(b, x));
 
-    // Report scoring
-    aviloo: {
-      score_total: 86,
-      usage_history_points: 61, usage_history_max: 70,
-      hv_performance_points: 25, hv_performance_max: 30
+  // Thresholds reflect practical “tolerance envelopes”
+  const DV_LIMIT_MV = 120;  // from AVILOO warning context (cell spread threshold)
+  const DT_LIMIT_C  = 10;   // thermal non-uniformity envelope
+  const I_LIMIT_A   = 50;   // transient current stress envelope
+
+  function scoreDV(dv){ return clamp(100 - (dv / DV_LIMIT_MV) * 100); }
+  function scoreDT(dt){ return clamp(100 - (dt / DT_LIMIT_C) * 100); }
+  function scoreI(i){ return clamp(100 - (Math.abs(i) / I_LIMIT_A) * 100); }
+
+  function calcBSS(row){
+    const sDV = scoreDV(row.dv);
+    const sDT = scoreDT(row.dt);
+    const sI  = scoreI(row.ipeak);
+    // 50/30/20 as discussed
+    return (0.50*sDV + 0.30*sDT + 0.20*sI);
+  }
+  function calcCohesive(row){
+    const bss = calcBSS(row);
+    return (0.60*row.soh + 0.40*bss);
+  }
+
+  // ---- UI helpers ----
+  const elKpis = document.getElementById("kpis");
+  const elTbody = document.querySelector("#tbl tbody");
+  const elFilter = document.getElementById("filterBrand");
+  const elSort = document.getElementById("sortBy");
+  const elSearch = document.getElementById("search");
+  const elBadge = document.getElementById("datasetBadge");
+
+  function qualityDot(score){
+    if(score >= 90) return "good";
+    if(score >= 75) return "warn";
+    return "bad";
+  }
+
+  function fmt(n, d=2){ return (Math.round(n * (10**d)) / (10**d)).toFixed(d); }
+
+  function getFiltered(){
+    const f = elFilter.value;
+    const q = (elSearch.value || "").trim().toLowerCase();
+
+    let arr = DATA.slice();
+
+    if(f === "tesla") arr = arr.filter(x => x.brand.toLowerCase() === "tesla");
+    if(f === "non") arr = arr.filter(x => x.brand.toLowerCase() !== "tesla");
+
+    if(q){
+      arr = arr.filter(x =>
+        (x.brand + " " + x.model).toLowerCase().includes(q)
+      );
     }
-  };
 
-  // ====== Model BSS (FLASH proxy) ======
-  // Filosofie:
-  // - Stabilitatea energetică este penalizată de:
-  //   ΔV (balansare), ΔT (uniformitate termică), stres curent, și scorul de performanță.
-  // - Pentru FLASH avem delte și scoruri, nu curbe. Asta e o versiune "ITP rapid".
-  function clamp(x, a, b){ return Math.max(a, Math.min(b, x)); }
-
-  function scoreBalance(delta_mV){
-    // 0 mV => 100, 50 mV => 0 (foarte simplu și agresiv, ajustabil)
-    return clamp(100 - (delta_mV / 50) * 100, 0, 100);
-  }
-
-  function scoreThermal(delta_C){
-    // 0°C => 100, 10°C => 0
-    return clamp(100 - (delta_C / 10) * 100, 0, 100);
-  }
-
-  function scoreStress(peak_A){
-    // Curent absolut mic => stress mic => scor mare.
-    // 0A => 100, 10A => 70, 50A => 20 (non-liniar simplificat).
-    const a = Math.abs(peak_A);
-    const s = 100 - (a * 3); // 10A => 70, 20A=>40
-    return clamp(s, 10, 100);
-  }
-
-  function scorePerformance(points, max){
-    if(!max) return 50;
-    return clamp((points / max) * 100, 0, 100);
-  }
-
-  function computeBSS(r){
-    const bal = scoreBalance(r.hv.max_cell_voltage_delta_mv);
-    const th  = scoreThermal(r.hv.max_cell_temp_delta_c);
-    const st  = scoreStress(r.hv.peak_current_a);
-
-    const perf = scorePerformance(r.aviloo.hv_performance_points, r.aviloo.hv_performance_max);
-    const usage = scorePerformance(r.aviloo.usage_history_points, r.aviloo.usage_history_max);
-
-    // BSS = 0.40*(balansare+termic)/2 + 0.30*performanță HV + 0.20*usage + 0.10*stres
-    const uniformity = (bal + th) / 2;
-
-    const bss = 0.40*uniformity + 0.30*perf + 0.20*usage + 0.10*st;
-    return {
-      bss: Math.round(bss),
-      bal: Math.round(bal),
-      th: Math.round(th),
-      st: Math.round(st),
-      perf: Math.round(perf),
-      usage: Math.round(usage),
-      uniformity: Math.round(uniformity)
+    const key = elSort.value;
+    const get = (x) => {
+      const bss = calcBSS(x), coh = calcCohesive(x);
+      switch(key){
+        case "cohesive_desc": return -coh;
+        case "cohesive_asc": return coh;
+        case "bss_desc": return -bss;
+        case "bss_asc": return bss;
+        case "soh_desc": return -x.soh;
+        case "soh_asc": return x.soh;
+        case "dv_desc": return -x.dv;
+        case "dv_asc": return x.dv;
+        default: return -coh;
+      }
     };
+
+    arr.sort((a,b)=> get(a) - get(b));
+    return arr;
   }
 
-  function classify(score){
-    if(score >= 85) return {label:"Stabil / Premium", cls:"ok"};
-    if(score >= 70) return {label:"Normal / Acceptabil", cls:"warn"};
-    return {label:"Instabil / Risc", cls:"bad"};
+  function summarize(arr){
+    if(arr.length === 0) return null;
+
+    const mean = (vals) => vals.reduce((s,v)=>s+v,0)/vals.length;
+    const tesla = arr.filter(x => x.brand.toLowerCase() === "tesla");
+    const non   = arr.filter(x => x.brand.toLowerCase() !== "tesla");
+
+    const mk = (subset) => {
+      if(subset.length === 0) return null;
+      const bssVals = subset.map(calcBSS);
+      const cohVals = subset.map(calcCohesive);
+      return {
+        n: subset.length,
+        soh: mean(subset.map(x=>x.soh)),
+        bss: mean(bssVals),
+        coh: mean(cohVals),
+        dv: mean(subset.map(x=>x.dv)),
+        dt: mean(subset.map(x=>x.dt)),
+        i:  mean(subset.map(x=>Math.abs(x.ipeak))),
+      };
+    };
+
+    return { all: mk(arr), tesla: mk(tesla), non: mk(non) };
   }
 
-  function colorBy(score){
-    if(score >= 85) return "linear-gradient(90deg, rgba(68,209,157,.95), rgba(90,163,255,.95))";
-    if(score >= 70) return "linear-gradient(90deg, rgba(255,204,102,.95), rgba(90,163,255,.95))";
-    return "linear-gradient(90deg, rgba(255,107,107,.95), rgba(255,204,102,.95))";
-  }
-
-  function cohesiveScore(soh, bss){
-    // simplu: 60% SOH, 40% BSS (poți ajusta după cum vrei în modelul coeziv)
-    return Math.round(0.60*soh + 0.40*bss);
-  }
-
-  // ====== UI wiring ======
-  const jsonBox = document.getElementById("jsonBox");
-  const kvRow = document.getElementById("kvRow");
-
-  function renderKV(r){
-    const items = [
-      ["Vehicul", `${r.vehicle.brand} ${r.vehicle.model}`],
-      ["VIN", r.vehicle.vin],
-      ["Km", `${r.vehicle.mileage_km.toLocaleString("ro-RO")} km`],
-      ["SOH (BMS)", `${r.soh_pct}%`],
-      ["SOC (test)", `${r.execution.soc_pct}%`],
-      ["V pack", `${r.hv.pack_voltage_v} V`],
-      ["I peak", `${r.hv.peak_current_a} A`],
-      ["ΔT max celule", `${r.hv.max_cell_temp_delta_c} °C`],
-      ["ΔV max celule", `${r.hv.max_cell_voltage_delta_mv} mV`],
-      ["AVILOO score", `${r.aviloo.score_total}/100`],
-      ["Usage", `${r.aviloo.usage_history_points}/${r.aviloo.usage_history_max}`],
-      ["HV perf", `${r.aviloo.hv_performance_points}/${r.aviloo.hv_performance_max}`],
-    ];
-    kvRow.innerHTML = items.map(([k,v]) => `
-      <div class="kv"><div class="k">${k}</div><div class="v">${v}</div></div>
-    `).join("");
-  }
-
-  function setTag(el, obj){
-    el.className = `tag ${obj.cls}`;
-    el.textContent = obj.label;
-  }
-
-  function run(){
-    let r;
-    try{
-      r = JSON.parse(jsonBox.value);
-    }catch(e){
-      alert("JSON invalid. Verifică virgule/ghilimele.");
+  function renderKpis(arr){
+    const s = summarize(arr);
+    elKpis.innerHTML = "";
+    if(!s){
+      elKpis.innerHTML = `<div class="kpi"><div class="t">Niciun rezultat</div><div class="v">—</div></div>`;
       return;
     }
 
-    renderKV(r);
+    const blocks = [
+      {title:"Media Scor Coeziv", val: fmt(s.all.coh,1), sub:`N=${s.all.n}`},
+      {title:"Media BSS", val: fmt(s.all.bss,1), sub:`ΔV/ΔT/I din rapoarte`},
+      {title:"Tesla – Coeziv mediu", val: s.tesla ? fmt(s.tesla.coh,1) : "—", sub: s.tesla ? `N=${s.tesla.n}` : "—"},
+      {title:"Non-Tesla – Coeziv mediu", val: s.non ? fmt(s.non.coh,1) : "—", sub: s.non ? `N=${s.non.n}` : "—"},
+    ];
 
-    const calc = computeBSS(r);
-    const bss = calc.bss;
-    const soh = Number(r.soh_pct);
-
-    const coh = cohesiveScore(soh, bss);
-
-    // UI: BSS
-    document.getElementById("bssScore").textContent = bss;
-    const bssFill = document.getElementById("bssFill");
-    bssFill.style.width = `${bss}%`;
-    bssFill.style.background = colorBy(bss);
-
-    const bssTag = document.getElementById("bssTag");
-    setTag(bssTag, classify(bss));
-
-    const sohTag = document.getElementById("sohTag");
-    const sohCls = classify(soh);
-    setTag(sohTag, {label:`SOH ${soh}%`, cls: sohCls.cls});
-
-    // UI: Cohesive score
-    document.getElementById("cohScore").textContent = coh;
-    const cohFill = document.getElementById("cohFill");
-    cohFill.style.width = `${coh}%`;
-    cohFill.style.background = colorBy(coh);
-
-    // breakdown
-    document.getElementById("balScore").textContent = `${calc.bal}/100 (ΔV=${r.hv.max_cell_voltage_delta_mv} mV)`;
-    document.getElementById("thScore").textContent  = `${calc.th}/100 (ΔT=${r.hv.max_cell_temp_delta_c} °C)`;
-    document.getElementById("stScore").textContent  = `${calc.st}/100 (|I|=${Math.abs(r.hv.peak_current_a)} A)`;
-    document.getElementById("pfScore").textContent  = `${calc.perf}/100 (HV perf) • ${calc.usage}/100 (usage)`;
-
-    document.getElementById("explainLine").textContent =
-      `Scor Coeziv = 0.60×SOH + 0.40×BSS → ${coh} (SOH=${soh}, BSS=${bss}).`;
+    blocks.forEach(b=>{
+      const cls = qualityDot(parseFloat(b.val));
+      const html = `
+        <div class="kpi">
+          <div class="t">${b.title}</div>
+          <div class="v"><span class="pill"><span class="dot ${cls}"></span>${b.val}</span></div>
+          <div class="s">${b.sub}</div>
+        </div>`;
+      elKpis.insertAdjacentHTML("beforeend", html);
+    });
   }
 
-  function reset(){
-    jsonBox.value = JSON.stringify(REAL_REPORT, null, 2);
-    renderKV(REAL_REPORT);
-    document.getElementById("bssScore").textContent = "--";
-    document.getElementById("cohScore").textContent = "--";
-    document.getElementById("bssFill").style.width = "0%";
-    document.getElementById("cohFill").style.width = "0%";
-    document.getElementById("bssTag").className = "tag"; document.getElementById("bssTag").textContent="—";
-    document.getElementById("sohTag").className = "tag"; document.getElementById("sohTag").textContent="SOH —";
-    document.getElementById("balScore").textContent = "—";
-    document.getElementById("thScore").textContent  = "—";
-    document.getElementById("stScore").textContent  = "—";
-    document.getElementById("pfScore").textContent  = "—";
-    document.getElementById("explainLine").textContent = "—";
+  function renderTable(arr){
+    elTbody.innerHTML = "";
+    arr.forEach(x=>{
+      const bss = calcBSS(x);
+      const coh = calcCohesive(x);
+      const cls = qualityDot(coh);
+      const safeUrl = x.url ? x.url.replace(/"/g,'') : "";
+      const link = safeUrl ? `<a href="${safeUrl}" target="_blank" style="color:var(--blue); text-decoration:none">PDF</a>` : `<span class="muted">—</span>`;
+      const rowHtml = `
+        <tr>
+          <td><span class="pill"><span class="dot ${x.brand.toLowerCase()==="tesla" ? "good" : "warn"}"></span>${x.brand}</span></td>
+          <td>${x.model}</td>
+          <td>${fmt(x.soh,2)}</td>
+          <td>${fmt(x.dv,2)}</td>
+          <td>${fmt(x.dt,2)}</td>
+          <td>${fmt(Math.abs(x.ipeak),2)}</td>
+          <td><span class="pill"><span class="dot ${qualityDot(bss)}"></span>${fmt(bss,1)}</span></td>
+          <td><span class="pill"><span class="dot ${cls}"></span>${fmt(coh,1)}</span></td>
+          <td>${link}</td>
+        </tr>`;
+      elTbody.insertAdjacentHTML("beforeend", rowHtml);
+    });
+
+    elBadge.innerHTML = `<span class="dot good"></span> ${arr.length} rezultate afișate`;
   }
 
-  function randomDemo(){
-    const r = JSON.parse(JSON.stringify(REAL_REPORT));
-    // păstrăm SOH ~80, dar schimbăm stabilitatea (ΔV, ΔT, curent, scoruri) ca să vezi efectul BSS
-    r.soh_pct = clamp(78 + Math.random()*6, 70, 88).toFixed(2);
-    r.hv.max_cell_voltage_delta_mv = Math.round(Math.random()*35); // 0..35 mV
-    r.hv.max_cell_temp_delta_c = Number((Math.random()*6).toFixed(1)); // 0..6C
-    r.hv.peak_current_a = Number((-(2 + Math.random()*35)).toFixed(1)); // -2..-37A
-    r.aviloo.usage_history_points = Math.round(45 + Math.random()*25); r.aviloo.usage_history_max = 70;
-    r.aviloo.hv_performance_points = Math.round(18 + Math.random()*12); r.aviloo.hv_performance_max = 30;
-    r.aviloo.score_total = Math.round(70 + Math.random()*25);
-    jsonBox.value = JSON.stringify(r, null, 2);
-    run();
+  function drawChart(arr){
+    const canvas = document.getElementById("chart");
+    const ctx = canvas.getContext("2d");
+
+    // HiDPI
+    const dpr = window.devicePixelRatio || 1;
+    const cssW = canvas.clientWidth;
+    const cssH = canvas.clientHeight;
+    canvas.width = Math.floor(cssW * dpr);
+    canvas.height = Math.floor(cssH * dpr);
+    ctx.scale(dpr, dpr);
+
+    ctx.clearRect(0,0,cssW,cssH);
+
+    // margins
+    const M = {l:40, r:16, t:16, b:36};
+    const W = cssW - M.l - M.r;
+    const H = cssH - M.t - M.b;
+
+    // axis
+    ctx.strokeStyle = "rgba(255,255,255,.10)";
+    ctx.lineWidth = 1;
+    for(let g=0; g<=5; g++){
+      const y = M.t + (H*g/5);
+      ctx.beginPath(); ctx.moveTo(M.l, y); ctx.lineTo(M.l+W, y); ctx.stroke();
+    }
+
+    // bars
+    const n = Math.min(arr.length, 14); // keep readable
+    const top = arr.slice(0,n);
+    const barW = W / n;
+
+    top.forEach((x, idx)=>{
+      const coh = calcCohesive(x);
+      const h = (coh/100) * H;
+      const x0 = M.l + idx*barW + barW*0.12;
+      const y0 = M.t + (H - h);
+
+      // color by group (Tesla vs non)
+      const isTesla = x.brand.toLowerCase() === "tesla";
+      ctx.fillStyle = isTesla ? "rgba(96,165,250,.70)" : "rgba(45,212,191,.70)";
+      ctx.strokeStyle = "rgba(255,255,255,.15)";
+      ctx.lineWidth = 1;
+
+      const bw = barW*0.76;
+      const radius = 10;
+
+      roundRect(ctx, x0, y0, bw, h, radius, true, true);
+
+      // label value
+      ctx.fillStyle = "rgba(255,255,255,.85)";
+      ctx.font = "12px ui-sans-serif, system-ui, -apple-system";
+      ctx.fillText(String(Math.round(coh)), x0 + 6, y0 + 16);
+
+      // x label (short)
+      ctx.fillStyle = "rgba(255,255,255,.55)";
+      const label = (x.brand==="Tesla" ? "T" : x.brand[0]) + ":" + x.model.replace(/\s+/g,' ').slice(0,10);
+      ctx.font = "10px ui-sans-serif, system-ui, -apple-system";
+      ctx.fillText(label, x0, M.t + H + 22);
+    });
+
+    // y labels
+    ctx.fillStyle = "rgba(255,255,255,.55)";
+    ctx.font = "10px ui-sans-serif, system-ui, -apple-system";
+    ctx.fillText("100", 8, M.t + 4);
+    ctx.fillText("0", 16, M.t + H + 4);
+
+    function roundRect(ctx, x, y, w, h, r, fill, stroke){
+      const rr = Math.min(r, w/2, h/2);
+      ctx.beginPath();
+      ctx.moveTo(x+rr, y);
+      ctx.arcTo(x+w, y, x+w, y+h, rr);
+      ctx.arcTo(x+w, y+h, x, y+h, rr);
+      ctx.arcTo(x, y+h, x, y, rr);
+      ctx.arcTo(x, y, x+w, y, rr);
+      ctx.closePath();
+      if(fill) ctx.fill();
+      if(stroke) ctx.stroke();
+    }
   }
 
-  document.getElementById("btnCalc").addEventListener("click", run);
-  document.getElementById("btnReset").addEventListener("click", () => { reset(); run(); });
-  document.getElementById("btnRandom").addEventListener("click", randomDemo);
+  function render(){
+    const arr = getFiltered();
+    renderKpis(arr);
+    renderTable(arr);
+    drawChart(arr);
+  }
+
+  // ---- Events ----
+  ["change","input"].forEach(ev=>{
+    elFilter.addEventListener(ev, render);
+    elSort.addEventListener(ev, render);
+    elSearch.addEventListener(ev, render);
+  });
+
+  document.getElementById("resetBtn").addEventListener("click", ()=>{
+    elFilter.value = "all";
+    elSort.value = "cohesive_desc";
+    elSearch.value = "";
+    render();
+  });
+
+  document.getElementById("clearBtn").addEventListener("click", ()=>{
+    ["inBrand","inModel","inSOH","inDV","inDT","inI","inUrl"].forEach(id=>document.getElementById(id).value="");
+  });
+
+  document.getElementById("addBtn").addEventListener("click", ()=>{
+    const brand = document.getElementById("inBrand").value.trim();
+    const model = document.getElementById("inModel").value.trim();
+    const soh = parseFloat(document.getElementById("inSOH").value);
+    const dv = parseFloat(document.getElementById("inDV").value);
+    const dt = parseFloat(document.getElementById("inDT").value);
+    const ipeak = parseFloat(document.getElementById("inI").value);
+    const url = document.getElementById("inUrl").value.trim();
+
+    if(!brand || !model || !Number.isFinite(soh) || !Number.isFinite(dv) || !Number.isFinite(dt) || !Number.isFinite(ipeak)){
+      alert("Completează: brand, model, SOH, ΔV, ΔT, Ipeak.");
+      return;
+    }
+    DATA.unshift({brand, model, soh, dv, dt, ipeak, url});
+    render();
+    alert("Adăugat. Acum apare în tabel și în grafic.");
+  });
+
+  window.addEventListener("resize", ()=> drawChart(getFiltered()));
 
   // init
-  reset();
-  renderKV(REAL_REPORT);
+  render();
 </script>
 </body>
 </html>
