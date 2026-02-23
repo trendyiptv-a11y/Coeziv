@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Battery ITP Checklist — BSS estimator</title>
+
+<style>
+body{
+  margin:0;
+  font-family:system-ui,Segoe UI,Roboto;
+  background:#0b1220;
+  color:#e8eefc;
+}
+
+.wrap{
+  max-width:900px;
+  margin:auto;
+  padding:20px;
+}
+
+.card{
+  background:#111a30;
+  border:1px solid #22304f;
+  border-radius:14px;
+  padding:16px;
+  margin-bottom:14px;
+}
+
+h1{margin:0 0 6px}
+.sub{color:#9fb0d9;font-size:13px;margin-bottom:12px}
+
+.item{
+  display:flex;
+  gap:10px;
+  align-items:flex-start;
+  margin-bottom:10px;
+  padding:8px;
+  border-radius:8px;
+}
+
+.item:hover{background:#0f1a33}
+
+.result{
+  font-size:28px;
+  font-weight:700;
+}
+
+.good{color:#36d399}
+.mid{color:#fbbf24}
+.bad{color:#fb7185}
+
+.bar{
+  height:12px;
+  background:#0b152b;
+  border:1px solid #233259;
+  border-radius:999px;
+  overflow:hidden;
+  margin-top:8px;
+}
+
+.fill{
+  height:100%;
+  width:0%;
+  background:linear-gradient(90deg,#36d399,#60a5fa);
+}
+
+.small{font-size:13px;color:#9fb0d9;margin-top:6px}
+</style>
+</head>
+
+<body>
+<div class="wrap">
+
+<h1>Battery ITP — Checklist stabilitate</h1>
+<div class="sub">
+Bifează simptome observate. Sistemul estimează probabilitatea unui BSS scăzut.
+</div>
+
+<div class="card" id="list"></div>
+
+<div class="card">
+<div class="result" id="score">BSS estimat: —</div>
+<div class="bar"><div class="fill" id="bar"></div></div>
+<div class="small" id="verdict"></div>
+</div>
+
+</div>
+
+<script>
+
+const symptoms = [
+ {txt:"Limitare de putere la accelerație", weight:15},
+ {txt:"Regenerare inconsistentă", weight:10},
+ {txt:"Range instabil / SOC sare", weight:15},
+ {txt:"Fast-charge mai lent decât normal", weight:20},
+ {txt:"Încălzire rapidă baterie", weight:10},
+ {txt:"Încărcare AC instabilă / balancing lung", weight:10},
+ {txt:"Comportament diferit la SOC mare vs mic", weight:10},
+ {txt:"Ventilatoare baterie frecvente", weight:5},
+ {txt:"Mesaje warning HV / battery", weight:15}
+];
+
+const list = document.getElementById("list");
+
+symptoms.forEach((s,i)=>{
+ const div=document.createElement("div");
+ div.className="item";
+ div.innerHTML=`<input type="checkbox" data-w="${s.weight}">
+                <div>${s.txt}</div>`;
+ list.appendChild(div);
+});
+
+function calc(){
+
+ let risk=0;
+
+ document.querySelectorAll("input[type=checkbox]").forEach(cb=>{
+   if(cb.checked) risk+=Number(cb.dataset.w);
+ });
+
+ risk=Math.min(100,risk);
+
+ const bss=100-risk;
+
+ const score=document.getElementById("score");
+ const verdict=document.getElementById("verdict");
+ const bar=document.getElementById("bar");
+
+ score.innerText="BSS estimat: "+bss.toFixed(0);
+
+ bar.style.width=bss+"%";
+
+ score.className="result "+(bss>85?"good":bss>70?"mid":"bad");
+
+ if(bss>85)
+   verdict.innerText="Baterie stabilă. SOH și comportament coerent.";
+ else if(bss>70)
+   verdict.innerText="Stabilitate medie. Monitorizare recomandată.";
+ else
+   verdict.innerText="Probabil instabilitate. Posibil SOH bun dar coeziune slabă.";
+
+}
+
+document.querySelectorAll("input").forEach(i=>i.addEventListener("change",calc));
+
+</script>
+</body>
+</html>
