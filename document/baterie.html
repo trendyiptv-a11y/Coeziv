@@ -1,109 +1,768 @@
 <!DOCTYPE html>
-<html>
+<html lang="ro">
 <head>
-<meta charset="UTF-8">
-<title>BatteryCheck Cohesive Real Data</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>BatteryCheck Cohesive Analyzer — Final</title>
 
-<style>
-body{font-family:Arial;background:#edf1f6;margin:20px;text-align:center}
-.card{background:white;padding:18px;border-radius:12px;margin-bottom:20px;box-shadow:0 2px 8px rgba(0,0,0,.1)}
-.gauge{font-size:52px;font-weight:bold}
-button{padding:10px 18px;border:none;background:#1a73e8;color:white;border-radius:8px;margin:5px;cursor:pointer}
-</style>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    :root{
+      --bg:#edf1f6;
+      --card:#ffffff;
+      --text:#111827;
+      --muted:#6b7280;
+      --blue:#1a73e8;
+      --shadow:0 2px 10px rgba(0,0,0,.08);
+      --radius:14px;
+    }
+    body{
+      font-family: Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      margin: 18px;
+      text-align: center;
+    }
+    h2{margin: 6px 0 6px}
+    .sub{color:var(--muted); font-size: 13px; margin-bottom: 14px}
+    .grid{
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+      max-width: 980px;
+      margin: 0 auto;
+    }
+    .card{
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 16px;
+      box-shadow: var(--shadow);
+      text-align: left;
+    }
+    .row{
+      display:flex;
+      gap:12px;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .row-left{
+      display:flex;
+      gap:10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 10px;
+      border-radius:999px;
+      background:#f3f4f6;
+      font-size: 12px;
+      color:#111827;
+    }
+    select, button{
+      border-radius: 10px;
+      border: 1px solid #e5e7eb;
+      padding: 10px 12px;
+      font-size: 14px;
+      background: white;
+    }
+    button{
+      border: none;
+      background: var(--blue);
+      color: white;
+      cursor: pointer;
+      padding: 10px 14px;
+    }
+    button.secondary{
+      background:#111827;
+    }
+    button.ghost{
+      background:#eef2ff;
+      color:#1f2937;
+      border:1px solid #e5e7eb;
+    }
+    .two{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    @media (max-width: 860px){
+      .two{grid-template-columns: 1fr;}
+    }
+    .gaugeWrap{
+      display:flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .gaugeBox{
+      display:flex;
+      gap: 16px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .big{
+      font-size: 44px;
+      font-weight: 800;
+      line-height: 1;
+    }
+    .status{
+      font-weight: 800;
+      margin-top: 4px;
+    }
+    .muted{color: var(--muted); font-size: 12px; margin-top: 4px}
+    .explain{
+      margin-top: 10px;
+      padding: 12px;
+      border-radius: 12px;
+      background: #f9fafb;
+      border:1px solid #eef2f7;
+      color:#111827;
+      font-size: 13px;
+      line-height: 1.35;
+    }
+    .note{
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 8px;
+    }
+    canvas.chart{
+      width: 100% !important;
+      height: 280px !important;
+    }
+    .kpi{
+      display:grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-top: 10px;
+    }
+    @media (max-width: 860px){
+      .kpi{grid-template-columns: repeat(2,1fr);}
+    }
+    .kpi .box{
+      background:#f9fafb;
+      border:1px solid #eef2f7;
+      border-radius: 12px;
+      padding: 10px;
+    }
+    .kpi .label{font-size: 11px; color:var(--muted)}
+    .kpi .value{font-size: 16px; font-weight: 800; margin-top: 4px}
+    .divider{height:1px; background:#eef2f7; margin: 12px 0;}
+  </style>
 </head>
 
 <body>
+  <h2>BatteryCheck Cohesive Analyzer</h2>
+  <div class="sub">Capacitate (SOH) + Stabilitate energetică (BSS/CCE) — „ITP pentru baterie”</div>
 
-<h2>BatteryCheck Cohesive Analyzer</h2>
-<p>Date inspirate din cicluri reale NASA Li-ion battery aging</p>
+  <div class="grid">
 
-<div class="card">
-<div class="gauge" id="gauge">--</div>
-<div id="status"></div>
-<button onclick="analyze()">Analizează baterie</button>
-</div>
+    <!-- CONTROL PANEL -->
+    <div class="card">
+      <div class="row">
+        <div class="row-left">
+          <span class="pill">Mod: <b>Compară A vs B</b></span>
+          <span class="pill">Scor total: <b>0–100</b></span>
+          <span class="pill">BSS: <b>stabilitate dinamică</b></span>
+        </div>
 
-<div class="card"><canvas id="voltageChart"></canvas></div>
-<div class="card"><canvas id="tempChart"></canvas></div>
-<div class="card"><canvas id="bssChart"></canvas></div>
+        <div class="row-left">
+          <button class="ghost" onclick="runAnalyzeSelected()">Analizează selectat</button>
+          <button onclick="runCompare()">Compară A vs B</button>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="two">
+        <div>
+          <div class="muted">Bateria A</div>
+          <div class="row" style="justify-content:flex-start; gap:10px; margin-top:6px;">
+            <select id="selA">
+              <option value="A_STABLE">A — Stabilă (real-like)</option>
+              <option value="A_NORMAL">A — Normală (real-like)</option>
+              <option value="A_HIDDEN_DEFECT">A — Defect ascuns (instabilitate)</option>
+            </select>
+            <select id="sohA">
+              <option value="92">SOH 92%</option>
+              <option value="88" selected>SOH 88%</option>
+              <option value="82">SOH 82%</option>
+              <option value="76">SOH 76%</option>
+            </select>
+          </div>
+          <div class="note">Alege tipul de comportament + SOH (capacitate). BSS se calculează din datele dinamice.</div>
+        </div>
+
+        <div>
+          <div class="muted">Bateria B</div>
+          <div class="row" style="justify-content:flex-start; gap:10px; margin-top:6px;">
+            <select id="selB">
+              <option value="B_STABLE">B — Stabilă (real-like)</option>
+              <option value="B_NORMAL" selected>B — Normală (real-like)</option>
+              <option value="B_HIDDEN_DEFECT">B — Defect ascuns (instabilitate)</option>
+            </select>
+            <select id="sohB">
+              <option value="92">SOH 92%</option>
+              <option value="88">SOH 88%</option>
+              <option value="82" selected>SOH 82%</option>
+              <option value="76">SOH 76%</option>
+            </select>
+          </div>
+          <div class="note">În comparație, vei vedea cazuri SOH apropiat dar stabilitate diferită (exact ideea coezivă).</div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="row" style="justify-content:flex-start;">
+        <span class="pill">Afișează grafice pentru:</span>
+        <button class="secondary" onclick="setFocus('A')">Bateria A</button>
+        <button class="secondary" onclick="setFocus('B')">Bateria B</button>
+        <span class="pill">Focus curent: <b id="focusLabel">A</b></span>
+      </div>
+    </div>
+
+    <!-- RESULTS -->
+    <div class="card">
+      <div class="gaugeWrap">
+        <div class="gaugeBox">
+          <div>
+            <canvas id="gaugeCanvas" width="260" height="160"></canvas>
+            <div class="muted" style="text-align:center;">Scor BatteryCheck (Total)</div>
+          </div>
+
+          <div>
+            <div class="big" id="scoreTotal">--</div>
+            <div class="status" id="statusLabel">—</div>
+            <div class="muted" id="subLine">SOH: — | BSS: —</div>
+          </div>
+        </div>
+
+        <div style="min-width: 260px; flex: 1;">
+          <div class="kpi">
+            <div class="box">
+              <div class="label">BSS (stabilitate)</div>
+              <div class="value" id="kpiBSS">--</div>
+            </div>
+            <div class="box">
+              <div class="label">SOH (capacitate)</div>
+              <div class="value" id="kpiSOH">--</div>
+            </div>
+            <div class="box">
+              <div class="label">Sag mediu</div>
+              <div class="value" id="kpiSag">--</div>
+            </div>
+            <div class="box">
+              <div class="label">ΔT total</div>
+              <div class="value" id="kpiDT">--</div>
+            </div>
+          </div>
+
+          <div class="explain" id="interpretation">
+            Alege bateriile și apasă „Compară A vs B”. Vei obține scor ITP + interpretare automată.
+          </div>
+
+          <div class="note">
+            *BSS/CCE aici este „proxy” din date dinamice (tensiune/curent/temperatură/SOC). În teren, poate fi extins cu ΔV celule când datele sunt disponibile.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CHARTS -->
+    <div class="card">
+      <div class="row" style="justify-content:space-between;">
+        <div>
+          <b>Grafice (focus: <span id="focusTitle">Bateria A</span>)</b>
+          <div class="muted">Voltage, Temperature și BSS pe segmentul de descărcare</div>
+        </div>
+        <div class="row-left">
+          <span class="pill">Concept: <b>Capacitate ≠ Stabilitate</b></span>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <canvas class="chart" id="voltageChart"></canvas>
+      <div style="height:10px"></div>
+      <canvas class="chart" id="tempChart"></canvas>
+      <div style="height:10px"></div>
+      <canvas class="chart" id="bssChart"></canvas>
+    </div>
+
+  </div>
 
 <script>
+/* -----------------------------
+   1) DATE "REAL-LIKE" (incluse)
+   Inspirate ca formă din cicluri reale Li-ion (descărcare + încălzire)
+   Avem 3 profiluri: STABLE / NORMAL / HIDDEN_DEFECT (instabilitate).
+-------------------------------- */
 
-// dataset realist (profil descărcare NASA)
-const data = [
-{t:0,v:4.15,c:0.5,T:25,soc:100},
-{t:1,v:4.05,c:1.2,T:25.5,soc:98},
-{t:2,v:3.98,c:2.0,T:26.1,soc:95},
-{t:3,v:3.92,c:2.5,T:27.0,soc:92},
-{t:4,v:3.86,c:3.2,T:28.2,soc:88},
-{t:5,v:3.79,c:3.8,T:29.0,soc:84},
-{t:6,v:3.72,c:4.2,T:30.4,soc:79},
-{t:7,v:3.65,c:4.8,T:31.6,soc:74},
-{t:8,v:3.58,c:5.1,T:33.0,soc:69},
-{t:9,v:3.49,c:5.4,T:34.2,soc:63},
-{t:10,v:3.41,c:5.8,T:35.5,soc:57},
-{t:11,v:3.34,c:6.1,T:36.6,soc:50},
-{t:12,v:3.26,c:6.4,T:37.8,soc:43},
-{t:13,v:3.18,c:6.8,T:39.0,soc:35},
-{t:14,v:3.09,c:7.2,T:40.5,soc:27},
-{t:15,v:2.98,c:7.5,T:42.0,soc:18}
-];
+function buildDataset(profile){
+  // 0..15 puncte, similar cu ce ai deja, dar cu variații controlate.
+  const base = [
+    {t:0,  v:4.15, c:0.5, T:25.0, soc:100},
+    {t:1,  v:4.05, c:1.2, T:25.5, soc:98},
+    {t:2,  v:3.98, c:2.0, T:26.1, soc:95},
+    {t:3,  v:3.92, c:2.5, T:27.0, soc:92},
+    {t:4,  v:3.86, c:3.2, T:28.2, soc:88},
+    {t:5,  v:3.79, c:3.8, T:29.0, soc:84},
+    {t:6,  v:3.72, c:4.2, T:30.4, soc:79},
+    {t:7,  v:3.65, c:4.8, T:31.6, soc:74},
+    {t:8,  v:3.58, c:5.1, T:33.0, soc:69},
+    {t:9,  v:3.49, c:5.4, T:34.2, soc:63},
+    {t:10, v:3.41, c:5.8, T:35.5, soc:57},
+    {t:11, v:3.34, c:6.1, T:36.6, soc:50},
+    {t:12, v:3.26, c:6.4, T:37.8, soc:43},
+    {t:13, v:3.18, c:6.8, T:39.0, soc:35},
+    {t:14, v:3.09, c:7.2, T:40.5, soc:27},
+    {t:15, v:2.98, c:7.5, T:42.0, soc:18}
+  ];
 
-let avgSOH=86;
+  // Clone
+  const d = base.map(x => ({...x}));
 
-function clamp(x){return Math.max(0,Math.min(100,x));}
+  // Apply profile shaping
+  if(profile === 'STABLE'){
+    // sag mic, termic liniar, curent moderat
+    for(const p of d){
+      p.v += jitter(-0.010, 0.010);
+      p.T += jitter(-0.20, 0.20);
+      p.c *= 0.92 + jitter(-0.02, 0.02);
+    }
+  } else if(profile === 'NORMAL'){
+    // foarte apropiat de baza (realistic normal)
+    for(const p of d){
+      p.v += jitter(-0.020, 0.020);
+      p.T += jitter(-0.25, 0.25);
+      p.c *= 1.00 + jitter(-0.03, 0.03);
+    }
+  } else if(profile === 'HIDDEN_DEFECT'){
+    // defect ascuns: nu pare dramatic la SOH, dar instabilitate sub sarcină:
+    // - căderi de tensiune "spike" în 2-3 puncte
+    // - încălzire accelerată pe final
+    // - curent mai "agitat"
+    for(const p of d){
+      p.v += jitter(-0.030, 0.020);
+      p.T += jitter(-0.25, 0.40);
+      p.c *= 1.05 + jitter(-0.06, 0.06);
+    }
+    // spikes tensionale (simulate "voltage sag under load")
+    const spikeIdx = [6, 9, 13];
+    for(const i of spikeIdx){
+      d[i].v -= 0.08 + Math.random()*0.05; // drop ~80-130 mV
+      d[i].c += 0.7 + Math.random()*0.4;
+    }
+    // termic mai agresiv spre final
+    for(let i=10;i<d.length;i++){
+      d[i].T += 0.6 + Math.random()*0.6;
+    }
+    // SOC fluct ușor (proxy BMS inconsistency)
+    d[8].soc -= 1.2;
+    d[9].soc += 0.5;
+    d[10].soc -= 0.8;
+  }
 
-function analyze(){
+  // Ensure monotonic-ish SOC (but allow small perturbations in defect)
+  for(let i=1;i<d.length;i++){
+    if(d[i].soc > d[i-1].soc) d[i].soc = d[i-1].soc - 0.1;
+  }
 
-let bssArr=[],v=[],T=[],t=[];
-
-for(let i=1;i<data.length;i++){
-
-let sag=(data[i-1].v-data[i].v)/data[i-1].v*100;
-let dT=Math.abs(data[i].T-data[i-1].T);
-let dSOC=Math.abs(data[i].soc-data[i-1].soc);
-
-let S_sag=clamp(100*(8-sag)/6);
-let S_T=clamp(100*(8-(0.6*dT+0.4*dT))/6);
-let S_E=clamp(100*(5-dSOC)/4);
-
-let bss=0.5*S_sag+0.3*S_T+0.2*S_E;
-
-bssArr.push(bss);
-v.push(data[i].v);
-T.push(data[i].T);
-t.push(data[i].t);
+  return d;
 }
 
-let avgBSS=bssArr.reduce((a,b)=>a+b,0)/bssArr.length;
-let total=0.7*avgSOH+0.3*avgBSS;
-
-document.getElementById("gauge").innerText=Math.round(total);
-
-let txt="Normal",color="orange";
-if(total>85){txt="Stabil";color="green";}
-if(total<70){txt="Risc";color="red";}
-
-document.getElementById("status").innerHTML=
-"<b style='color:"+color+"'>"+txt+"</b><br>SOH:"+avgSOH+" | BSS:"+avgBSS.toFixed(1);
-
-draw(t,v,T,bssArr);
+function jitter(min, max){
+  return min + Math.random()*(max-min);
 }
 
-function draw(t,v,T,bss){
+/* -----------------------------
+   2) SCORING: BSS (0–100) + Total
+   BSS proxy: sag + termic + stabilitate SOC
+-------------------------------- */
 
-new Chart(voltageChart,{type:'line',
-data:{labels:t,datasets:[{label:'Voltage',data:v,borderColor:'blue'}]}});
+function clamp(x){ return Math.max(0, Math.min(100, x)); }
 
-new Chart(tempChart,{type:'line',
-data:{labels:t,datasets:[{label:'Temperature',data:T,borderColor:'red'}]}});
+function computeBSS(dataset){
+  const bss = [];
+  const sagArr = [];
+  const dTArr = [];
+  const dSocArr = [];
 
-new Chart(bssChart,{type:'line',
-data:{labels:t,datasets:[{label:'BSS',data:bss,borderColor:'green'}]}});
+  for(let i=1;i<dataset.length;i++){
+    const vPrev = dataset[i-1].v;
+    const vNow  = dataset[i].v;
 
+    // sag% per step
+    const sag = ((vPrev - vNow) / vPrev) * 100;
+    const dT = Math.abs(dataset[i].T - dataset[i-1].T);
+    const dSOC = Math.abs(dataset[i].soc - dataset[i-1].soc);
+
+    // Normalizări (same as MVP)
+    const S_sag = clamp(100*(8 - sag)/6);         // sag<=2% => ~100, sag>=8% => 0
+    const T_eff = (0.6*dT + 0.4*dT);              // ramp simplificat în demo (per step)
+    const S_T   = clamp(100*(8 - T_eff)/6);       // T_eff<=2 => 100, >=8 => 0
+    const S_E   = clamp(100*(5 - dSOC)/4);        // err<=1 => 100, >=5 => 0
+
+    const score = 0.5*S_sag + 0.3*S_T + 0.2*S_E;
+
+    bss.push(score);
+    sagArr.push(sag);
+    dTArr.push(dT);
+    dSocArr.push(dSOC);
+  }
+
+  const avgBSS = mean(bss);
+  return {
+    bssSeries: bss,
+    avgBSS,
+    avgSag: mean(sagArr),
+    maxSag: Math.max(...sagArr),
+    deltaT: dataset[dataset.length-1].T - dataset[0].T,
+    avgStepDT: mean(dTArr),
+    avgStepDSOC: mean(dSocArr)
+  };
 }
 
+function computeTotalScore(sohPercent, avgBSS){
+  // SOH "score" = SOH% direct (0-100)
+  const total = 0.70*sohPercent + 0.30*avgBSS;
+  return clamp(total);
+}
+
+function classify(total){
+  if(total >= 86) return {label:"Stabil", color:"#16a34a"};
+  if(total < 70)  return {label:"Risc",   color:"#dc2626"};
+  return {label:"Normal", color:"#f59e0b"};
+}
+
+function mean(arr){
+  if(!arr || arr.length===0) return 0;
+  return arr.reduce((a,b)=>a+b,0) / arr.length;
+}
+
+/* -----------------------------
+   3) UI STATE: A/B + Focus
+-------------------------------- */
+
+let focus = 'A'; // 'A' or 'B'
+let lastA = null;
+let lastB = null;
+
+function setFocus(which){
+  focus = which;
+  document.getElementById('focusLabel').innerText = which;
+  document.getElementById('focusTitle').innerText = (which==='A') ? 'Bateria A' : 'Bateria B';
+  redrawFocusCharts();
+}
+
+/* -----------------------------
+   4) Interpretare automată (market-safe)
+-------------------------------- */
+
+function buildInterpretation(soh, avgBSS, total, kpi){
+  const cls = classify(total);
+
+  // Heuristics
+  const notes = [];
+
+  // Stability vs capacity message
+  if(soh >= 88 && avgBSS < 75){
+    notes.push("SOH este bun (capacitate ok), dar stabilitatea energetică este mai slabă. Asta indică risc de comportament imprevizibil (autostradă/iarna/SOC mai jos).");
+  } else if(soh <= 82 && avgBSS >= 82){
+    notes.push("Capacitatea (SOH) este medie, însă stabilitatea energetică este foarte bună. În practică, bateria poate fi predictibilă și “curată” în utilizare.");
+  } else {
+    notes.push("Capacitatea (SOH) și stabilitatea energetică (BSS) sunt aliniate. Scorul total reflectă un comportament coerent pentru utilizare normală.");
+  }
+
+  // Sag emphasis
+  if(kpi.maxSag >= 6.5){
+    notes.push("S-a observat sag ridicat în sarcină (cădere de tensiune). Acesta este un semn util pentru identificarea instabilității sub încărcare.");
+  } else if(kpi.maxSag <= 3.0){
+    notes.push("Sag-ul în sarcină este redus, ceea ce indică rezistență internă funcțională bună și livrare stabilă a energiei.");
+  }
+
+  // Thermal emphasis
+  if(kpi.deltaT >= 14){
+    notes.push("Creșterea termică este mare pe ciclu. Recomandare: atenție la încărcări rapide frecvente și la utilizare intensă la temperaturi extreme.");
+  } else if(kpi.deltaT <= 10){
+    notes.push("Comportamentul termic este stabil și uniform pentru acest profil de sarcină.");
+  }
+
+  // Verdict line
+  const verdict = `<b style="color:${cls.color}">${cls.label}</b> — Scor total <b>${Math.round(total)}</b> (SOH ${soh} / BSS ${avgBSS.toFixed(1)})`;
+
+  return `
+    <div style="margin-bottom:6px;">${verdict}</div>
+    <div style="margin-top:8px;">
+      <b>Interpretare automată (coeziune energetică):</b>
+      <ul style="margin:8px 0 0 18px; padding:0;">
+        ${notes.map(n=>`<li style="margin:6px 0;">${n}</li>`).join('')}
+      </ul>
+      <div style="margin-top:10px; color:#6b7280; font-size:12px;">
+        *BSS este un indicator de stabilitate dinamică (flux energetic). Nu înlocuiește SOH, îl completează.
+      </div>
+    </div>
+  `;
+}
+
+/* -----------------------------
+   5) Gauge semicerc ITP
+-------------------------------- */
+
+function drawGauge(total){
+  const canvas = document.getElementById('gaugeCanvas');
+  const ctx = canvas.getContext('2d');
+
+  const w = canvas.width;
+  const h = canvas.height;
+
+  ctx.clearRect(0,0,w,h);
+
+  // Geometry
+  const cx = w/2;
+  const cy = h*0.92;
+  const r  = Math.min(w*0.42, h*0.75);
+
+  // Arc background
+  const start = Math.PI;
+  const end   = 2*Math.PI;
+
+  // Track
+  ctx.lineWidth = 14;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.strokeStyle = '#e5e7eb';
+  ctx.arc(cx, cy, r, start, end);
+  ctx.stroke();
+
+  // Segments (risk/normal/stabil)
+  // 0-70 red, 70-86 amber, 86-100 green
+  function seg(a,b,color){
+    ctx.beginPath();
+    ctx.strokeStyle = color;
+    ctx.arc(cx, cy, r, mapScoreToAngle(a), mapScoreToAngle(b));
+    ctx.stroke();
+  }
+  seg(0, 70,  '#dc2626');
+  seg(70, 86, '#f59e0b');
+  seg(86, 100,'#16a34a');
+
+  // Needle
+  const angle = mapScoreToAngle(total);
+  const nx = cx + Math.cos(angle)* (r-8);
+  const ny = cy + Math.sin(angle)* (r-8);
+
+  ctx.lineWidth = 3;
+  ctx.strokeStyle = '#111827';
+  ctx.beginPath();
+  ctx.moveTo(cx, cy);
+  ctx.lineTo(nx, ny);
+  ctx.stroke();
+
+  // Center dot
+  ctx.fillStyle = '#111827';
+  ctx.beginPath();
+  ctx.arc(cx, cy, 5, 0, 2*Math.PI);
+  ctx.fill();
+
+  // scale labels
+  ctx.fillStyle = '#6b7280';
+  ctx.font = '12px Arial';
+  ctx.textAlign = 'center';
+  ctx.fillText('0',  cx - r + 10, cy + 8);
+  ctx.fillText('50', cx,          cy - r + 8);
+  ctx.fillText('100',cx + r - 10, cy + 8);
+}
+
+function mapScoreToAngle(score){
+  const s = Math.max(0, Math.min(100, score));
+  // map 0..100 => PI..2PI
+  return Math.PI + (s/100)*Math.PI;
+}
+
+/* -----------------------------
+   6) Charts (destroy/recreate)
+-------------------------------- */
+
+let chartV = null, chartT = null, chartB = null;
+
+function renderCharts(dataset, bssSeries){
+  const labels = dataset.slice(1).map(p => p.t);
+  const volts  = dataset.slice(1).map(p => p.v);
+  const temps  = dataset.slice(1).map(p => p.T);
+
+  if(chartV) chartV.destroy();
+  if(chartT) chartT.destroy();
+  if(chartB) chartB.destroy();
+
+  chartV = new Chart(document.getElementById('voltageChart'), {
+    type:'line',
+    data:{
+      labels,
+      datasets:[{
+        label:'Voltage (V)',
+        data: volts,
+        fill:false
+      }]
+    },
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      plugins:{legend:{display:true}},
+      scales:{x:{ticks:{maxTicksLimit:10}}}
+    }
+  });
+
+  chartT = new Chart(document.getElementById('tempChart'), {
+    type:'line',
+    data:{
+      labels,
+      datasets:[{
+        label:'Temperature (°C)',
+        data: temps,
+        fill:false
+      }]
+    },
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      plugins:{legend:{display:true}},
+      scales:{x:{ticks:{maxTicksLimit:10}}}
+    }
+  });
+
+  chartB = new Chart(document.getElementById('bssChart'), {
+    type:'line',
+    data:{
+      labels,
+      datasets:[{
+        label:'BSS (0–100)',
+        data: bssSeries,
+        fill:false
+      }]
+    },
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      plugins:{legend:{display:true}},
+      scales:{
+        y:{min:0,max:100},
+        x:{ticks:{maxTicksLimit:10}}
+      }
+    }
+  });
+}
+
+/* -----------------------------
+   7) Run analyze / compare
+-------------------------------- */
+
+function getSelection(which){
+  const sel = document.getElementById(which==='A' ? 'selA' : 'selB').value;
+  const soh = parseFloat(document.getElementById(which==='A' ? 'sohA' : 'sohB').value);
+
+  let profile = 'NORMAL';
+  if(sel.endsWith('STABLE')) profile = 'STABLE';
+  if(sel.endsWith('NORMAL')) profile = 'NORMAL';
+  if(sel.endsWith('HIDDEN_DEFECT')) profile = 'HIDDEN_DEFECT';
+
+  const dataset = buildDataset(profile);
+  const kpi = computeBSS(dataset);
+  const total = computeTotalScore(soh, kpi.avgBSS);
+  const cls = classify(total);
+
+  return {sel, profile, soh, dataset, kpi, total, cls};
+}
+
+function runAnalyzeSelected(){
+  // analyze focus only
+  if(focus === 'A'){
+    lastA = getSelection('A');
+    updateUI(lastA);
+    renderCharts(lastA.dataset, lastA.kpi.bssSeries);
+  } else {
+    lastB = getSelection('B');
+    updateUI(lastB);
+    renderCharts(lastB.dataset, lastB.kpi.bssSeries);
+  }
+}
+
+function runCompare(){
+  lastA = getSelection('A');
+  lastB = getSelection('B');
+
+  // Choose which to display in main gauge: focus battery
+  const active = (focus === 'A') ? lastA : lastB;
+  updateUI(active);
+
+  // update interpretation with comparative line
+  const diff = Math.round(lastA.total) - Math.round(lastB.total);
+  const diffLine = diff === 0
+    ? "A și B au același scor total."
+    : (diff > 0
+        ? `Bateria A este mai bună cu <b>${diff}</b> puncte decât B.`
+        : `Bateria B este mai bună cu <b>${Math.abs(diff)}</b> puncte decât A.`);
+
+  const comp = `
+    <div style="margin-bottom:10px; padding:10px; border-radius:12px; border:1px solid #eef2f7; background:#ffffff;">
+      <b>Comparație rapidă</b><br>
+      A: <b>${Math.round(lastA.total)}</b> (SOH ${lastA.soh} / BSS ${lastA.kpi.avgBSS.toFixed(1)})<br>
+      B: <b>${Math.round(lastB.total)}</b> (SOH ${lastB.soh} / BSS ${lastB.kpi.avgBSS.toFixed(1)})<br>
+      <div style="margin-top:6px;">${diffLine}</div>
+    </div>
+  `;
+
+  document.getElementById('interpretation').innerHTML = comp + buildInterpretation(active.soh, active.kpi.avgBSS, active.total, active.kpi);
+
+  // Render charts for focus
+  renderCharts(active.dataset, active.kpi.bssSeries);
+}
+
+function redrawFocusCharts(){
+  const active = (focus === 'A') ? lastA : lastB;
+  if(!active){
+    // nothing analyzed yet -> run analyze focus
+    runAnalyzeSelected();
+    return;
+  }
+  updateUI(active);
+  document.getElementById('interpretation').innerHTML = buildInterpretation(active.soh, active.kpi.avgBSS, active.total, active.kpi);
+  renderCharts(active.dataset, active.kpi.bssSeries);
+}
+
+function updateUI(active){
+  // Gauge + headline
+  const total = active.total;
+  drawGauge(total);
+
+  document.getElementById('scoreTotal').innerText = Math.round(total);
+  document.getElementById('statusLabel').innerText = active.cls.label;
+  document.getElementById('statusLabel').style.color = active.cls.color;
+  document.getElementById('subLine').innerText = `SOH: ${active.soh.toFixed(0)} | BSS: ${active.kpi.avgBSS.toFixed(1)}`;
+
+  // KPI boxes
+  document.getElementById('kpiBSS').innerText = active.kpi.avgBSS.toFixed(1);
+  document.getElementById('kpiSOH').innerText = active.soh.toFixed(0) + '%';
+  document.getElementById('kpiSag').innerText = `${active.kpi.avgSag.toFixed(2)}% (max ${active.kpi.maxSag.toFixed(2)}%)`;
+  document.getElementById('kpiDT').innerText = `${active.kpi.deltaT.toFixed(1)}°C`;
+
+  // interpretation
+  document.getElementById('interpretation').innerHTML =
+    buildInterpretation(active.soh, active.kpi.avgBSS, active.total, active.kpi);
+}
+
+/* -----------------------------
+   8) Init: analyze A by default
+-------------------------------- */
+(function init(){
+  lastA = getSelection('A');
+  updateUI(lastA);
+  renderCharts(lastA.dataset, lastA.kpi.bssSeries);
+})();
 </script>
 
 </body>
