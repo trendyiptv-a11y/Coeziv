@@ -1,0 +1,377 @@
+<!doctype html>
+<html lang="ro">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Coeziv Battery ITP – BSS (Battery Stability Score)</title>
+  <style>
+    :root{
+      --bg:#0b0f14; --card:#111826; --muted:#8aa0b6; --text:#e8f0fb;
+      --line:#223246; --good:#3ddc97; --mid:#f6c177; --bad:#ff6b6b;
+      --accent:#7aa2ff;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family: ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial;
+      background: radial-gradient(1200px 800px at 20% -10%, rgba(122,162,255,.18), transparent 55%),
+                  radial-gradient(900px 700px at 90% 0%, rgba(61,220,151,.12), transparent 55%),
+                  var(--bg);
+      color:var(--text);
+    }
+    header{padding:28px 16px 10px; max-width:1200px; margin:0 auto;}
+    h1{margin:0 0 6px; font-size:22px; letter-spacing:.2px}
+    .sub{color:var(--muted); line-height:1.4; font-size:13px}
+    .wrap{max-width:1200px; margin:0 auto; padding:12px 16px 28px;}
+    .grid{display:grid; gap:12px; grid-template-columns: 1.2fr .8fr;}
+    @media (max-width: 980px){ .grid{grid-template-columns: 1fr;} }
+
+    .card{
+      background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01));
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:14px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.25);
+    }
+    .row{display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end}
+    .field{display:flex; flex-direction:column; gap:6px; min-width:170px; flex: 1}
+    label{font-size:12px; color:var(--muted)}
+    input[type="number"], select{
+      width:100%;
+      padding:10px 10px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background:#0e1522;
+      color:var(--text);
+      outline:none;
+    }
+    input[type="range"]{width:100%}
+    .btn{
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background:#0e1522;
+      color:var(--text);
+      cursor:pointer;
+      transition:.15s transform ease;
+      white-space:nowrap;
+    }
+    .btn:hover{transform: translateY(-1px)}
+    .pill{
+      display:inline-flex; gap:8px; align-items:center;
+      padding:8px 10px; border-radius:999px;
+      border:1px solid var(--line); background:#0e1522;
+      font-size:12px; color:var(--muted);
+    }
+    .dot{width:10px; height:10px; border-radius:50%;}
+    .dot.good{background:var(--good)}
+    .dot.mid{background:var(--mid)}
+    .dot.bad{background:var(--bad)}
+
+    table{width:100%; border-collapse:collapse; margin-top:10px; font-size:13px}
+    th,td{padding:10px 10px; border-bottom:1px solid rgba(34,50,70,.7); vertical-align:top}
+    th{color:#b7c9dd; font-weight:600; text-align:left; position:sticky; top:0; background:rgba(17,24,38,.95); backdrop-filter: blur(10px)}
+    .kpi{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:10px}
+    .kpi .box{
+      border:1px solid var(--line); border-radius:14px;
+      background:#0e1522; padding:10px 12px;
+    }
+    .kpi .v{font-size:20px; font-weight:700}
+    .kpi .t{font-size:12px; color:var(--muted)}
+    .small{font-size:12px; color:var(--muted); line-height:1.4}
+    a{color:var(--accent); text-decoration:none}
+    a:hover{text-decoration:underline}
+    .bar{
+      height:10px; border-radius:999px; background:#0a1220; border:1px solid var(--line); overflow:hidden;
+    }
+    .bar > i{display:block; height:100%; width:0%;}
+    .muted{color:var(--muted)}
+    .right{display:flex; gap:10px; align-items:center; justify-content:flex-end}
+  </style>
+</head>
+<body>
+<header>
+  <h1>Coeziv Battery ITP – BSS (Battery Stability Score)</h1>
+  <div class="sub">
+    Concept: evaluare „tip ITP” pentru baterii EV, combinând SoH (capacitate) cu stabilitatea celulelor (ΔV) și stabilitatea termică (ΔT).
+    Datele de mai jos sunt extrase din rapoarte/certificate AVILOO publice (PDF).
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="grid">
+    <section class="card">
+      <div class="row">
+        <div class="field">
+          <label>Filtru marcă</label>
+          <select id="brandFilter">
+            <option value="all">Toate</option>
+            <option value="Tesla">Tesla</option>
+            <option value="Other">Altele</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Prag ΔV „rău” (mV) – normalizare</label>
+          <input id="dvBad" type="number" min="5" max="200" step="1" value="30" />
+        </div>
+
+        <div class="field">
+          <label>Prag ΔT „rău” (°C) – normalizare</label>
+          <input id="dtBad" type="number" min="1" max="30" step="0.1" value="10" />
+        </div>
+
+        <div class="field">
+          <label>Ponderi (SoH / ΔV / ΔT) – trebuie să însumeze 1.0</label>
+          <div class="row" style="gap:8px">
+            <input id="wSoh" type="number" min="0" max="1" step="0.05" value="0.50" />
+            <input id="wDv"  type="number" min="0" max="1" step="0.05" value="0.30" />
+            <input id="wDt"  type="number" min="0" max="1" step="0.05" value="0.20" />
+          </div>
+          <div class="small">Implicit: 50% capacitate, 30% echilibrare tensiuni, 20% termic.</div>
+        </div>
+
+        <div class="right" style="flex:1; min-width:240px">
+          <span class="pill"><span class="dot good"></span>BSS ≥ 85 (foarte stabil)</span>
+          <span class="pill"><span class="dot mid"></span>70–84 (ok / verifică)</span>
+          <span class="pill"><span class="dot bad"></span>&lt; 70 (risc / investigație)</span>
+        </div>
+
+        <button class="btn" id="recalcBtn">Recalculează</button>
+      </div>
+
+      <div class="kpi">
+        <div class="box">
+          <div class="v" id="kpiCount">—</div>
+          <div class="t">Cazuri în listă</div>
+        </div>
+        <div class="box">
+          <div class="v" id="kpiAvg">—</div>
+          <div class="t">BSS mediu</div>
+        </div>
+        <div class="box">
+          <div class="v" id="kpiBest">—</div>
+          <div class="t">Cel mai bun BSS</div>
+        </div>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:24%">Vehicul</th>
+            <th style="width:10%">SoH</th>
+            <th style="width:12%">ΔV (mV)</th>
+            <th style="width:12%">ΔT (°C)</th>
+            <th style="width:12%">BSS</th>
+            <th>Interpretare</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+
+      <div class="small" style="margin-top:10px">
+        Notă: BSS este un **indice coeziv** (heuristic). Avantajul lui e că evidențiază cazurile „SoH mare, dar celule neuniforme” vs „SoH mediu, dar foarte echilibrat”.
+      </div>
+    </section>
+
+    <aside class="card">
+      <h3 style="margin:0 0 8px">Explicație rapidă (ITP logic)</h3>
+      <div class="small">
+        <b>SoH</b> spune „câtă energie mai poate ține bateria” (capacitate). Pragul de <b>80%</b> e frecvent folosit ca „end-of-life” în sens de <i>degradare 20%</i>, nu „defecțiune imediată”.<br/><br/>
+        <b>ΔV (mV)</b> arată cât de „aliniate” sunt celulele. Un ΔV mare poate însemna:
+        limitare la putere, încărcare, range, sau necesitatea de balansare / diagnostic.<br/><br/>
+        <b>ΔT (°C)</b> arată uniformitatea termică – important pentru stresul pe termen lung și detectarea anomaliilor locale.
+      </div>
+
+      <hr style="border:none; border-top:1px solid var(--line); margin:12px 0"/>
+
+      <h3 style="margin:0 0 8px">Contrazicere (test de valoare pentru BSS)</h3>
+      <div class="small">
+        Dacă găsești un caz cu <b>SoH ≈ 100%</b>, dar <b>ΔV mare</b>, BSS trebuie să scadă.
+        În lista de aici există un exemplu (non-Tesla) care face exact asta. 🙂
+      </div>
+
+      <hr style="border:none; border-top:1px solid var(--line); margin:12px 0"/>
+
+      <h3 style="margin:0 0 8px">Cum pui date reale “de pe internet”</h3>
+      <div class="small">
+        Când găsești un PDF AVILOO (Flash Test / Battery Certificate), extragi 3 câmpuri:
+        <ul class="small">
+          <li>SoH (%)</li>
+          <li>Maximum cell voltage deviation (mV) sau “Delta” la “Cell Voltage”</li>
+          <li>Maximum cell temperature deviation (°C) sau “Delta” la “Battery Temperature”</li>
+        </ul>
+        Apoi adaugi un obiect în lista <code>DATA</code> (vezi în cod).
+      </div>
+    </aside>
+  </div>
+</div>
+
+<script>
+  // === 10 cazuri reale (link direct la PDF sursă) ===
+  const DATA = [
+    // Tesla
+    {
+      brandGroup: "Tesla",
+      vehicle: "Tesla Model 3 – 77.8 kWh (2023-06-30)",
+      soh: 96.14, dv_mV: 4.0, dt_C: 1.0,
+      src: "https://assets.ctfassets.net/jyl3c0cp0pqs/9s4XCXahvVAvNl2pNVUU0/a55229d2c5e12d56fd297bf4eae8fce2/AVILOO-Flash-Test-Tesla-Model_3_-_77_8_kWh-5YJ3E7EB7MF903322-2023-06-30.pdf"
+    },
+    {
+      brandGroup: "Tesla",
+      vehicle: "Tesla Model Y – 78.8 kWh (2025-05-13)",
+      soh: 91.04, dv_mV: 2.03, dt_C: 1.0,
+      src: "https://certs.aviloo.com/pdf/4jnRu6izH03nxUUbAURDl8?content-disposition=inline"
+    },
+    {
+      brandGroup: "Tesla",
+      vehicle: "Tesla Model 3 LR – 78 kWh (2023-06-28)",
+      soh: 91.41, dv_mV: 4.0, dt_C: 1.0,
+      src: "https://assets.ctfassets.net/jyl3c0cp0pqs/3zLOQodYBUFL7wIkv2wtvp/0ead9f129263d3f006752322c313bfef/AVILOO-Flash-Test-Tesla-Model_3_-_77_8_kWh-Model_3_Long_Range_AWD_-_78_kWh-5YJ3E7EB5LF674944-2023-06-28.pdf"
+    },
+    {
+      brandGroup: "Tesla",
+      vehicle: "Tesla Model Y – 78.8 kWh (2023-07-26)",
+      soh: 98.68, dv_mV: 4.0, dt_C: 1.0,
+      src: "https://assets.ctfassets.net/jyl3c0cp0pqs/39Vj5qMkZnmYrrbDv5omOF/76d82527615dba8a6a89630c13e7f1ab/AVILOO-Flash-Test-Tesla-Model_Y_-_78_8_kWh-XP7YGCEL7NB000975-2023-07-26.pdf"
+    },
+    {
+      brandGroup: "Tesla",
+      vehicle: "Tesla Model 3 – 77.8 kWh (2025-06-12)",
+      soh: 87.02, dv_mV: 14.0, dt_C: 1.0,
+      src: "https://www.carsonnet.com/media/vehicledocuments/5YJ3E7EB4LF570767/c4a965e19d7e1cb24fea9b979bda0fb9.pdf"
+    },
+
+    // Non-Tesla
+    {
+      brandGroup: "Other",
+      vehicle: "VW e-Golf – 35.8 kWh (2023-03-08)",
+      soh: 94.05, dv_mV: 6.84, dt_C: 2.0,
+      src: "https://assets.ctfassets.net/jyl3c0cp0pqs/7hiJv4WYTDgr8ZOQDGYqLH/b86d951463b6a63934cf8827974b6fd9/AVILOO-Flash-Test-Volkswagen-e-Golf_-_35_8_kWh-WVWZZZAUZK8913357-2023-03-08.pdf"
+    },
+    {
+      brandGroup: "Other",
+      vehicle: "BMW i3 – 120 Ah (2023-03-23)",
+      soh: 96.0, dv_mV: 3.0, dt_C: 0.0,
+      src: "https://assets.ctfassets.net/jyl3c0cp0pqs/5WOZLAtPTijKC1FeyROmzF/9bf56b08be818edd85f3885316716708/AVILOO-Flash-Test-BMW-i3_-_120_Ah-WBY8P6103L7F40651-2023-03-23.pdf"
+    },
+    {
+      brandGroup: "Other",
+      vehicle: "Kia EV6 – 77.4 kWh (2024-07-26)",
+      soh: 100.0, dv_mV: 20.0, dt_C: 0.0,
+      src: "https://firebasestorage.googleapis.com/v0/b/carla-319510.appspot.com/o/gyREcCxofLSLfs-D7D0EM%2FAVILOO-Flash-Test-Kia-EV6%20-%2077%2C4%20kWh-KNAC381AFN5046277-2024-07-26.pdf?alt=media&token=e127cc33-ae83-47c7-bea8-afb9c1b84e80"
+    },
+    {
+      brandGroup: "Other",
+      vehicle: "Citroën C-Zero – 16 kWh (2025-08-13)",
+      soh: 82.0, dv_mV: 10.0, dt_C: 1.0,
+      src: "https://certs.aviloo.com/pdf/4tS1nAiSZc6qOrPW2VjwwG?content-disposition=inline"
+    },
+    {
+      brandGroup: "Other",
+      vehicle: "AVILOO Certificate – SoH 72% (2025-08-11)",
+      soh: 72.0, dv_mV: 2.0, dt_C: 0.3,
+      src: "https://certs.aviloo.com/pdf/FbJJCLRTOjbUSvbuXz41Q?content-disposition=inline"
+    },
+  ];
+
+  const clamp = (x,min,max)=>Math.max(min,Math.min(max,x));
+
+  function voltageScore(dv, dvBad){
+    return clamp(100*(1 - (dv/dvBad)), 0, 100);
+  }
+  function tempScore(dt, dtBad){
+    return clamp(100*(1 - (dt/dtBad)), 0, 100);
+  }
+  function bss(soh, dv, dt, wSoh, wDv, wDt, dvBad, dtBad){
+    const vs = voltageScore(dv, dvBad);
+    const ts = tempScore(dt, dtBad);
+    return (wSoh*soh + wDv*vs + wDt*ts);
+  }
+
+  function labelFor(score){
+    if(score >= 85) return {txt:"Foarte stabil (OK)", cls:"good"};
+    if(score >= 70) return {txt:"OK / de verificat", cls:"mid"};
+    return {txt:"Risc / investigație", cls:"bad"};
+  }
+
+  function barColorClass(score){
+    if(score >= 85) return "good";
+    if(score >= 70) return "mid";
+    return "bad";
+  }
+
+  function render(){
+    const brandFilter = document.getElementById("brandFilter").value;
+    const dvBad = parseFloat(document.getElementById("dvBad").value || "30");
+    const dtBad = parseFloat(document.getElementById("dtBad").value || "10");
+    const wSoh = parseFloat(document.getElementById("wSoh").value || "0.5");
+    const wDv  = parseFloat(document.getElementById("wDv").value  || "0.3");
+    const wDt  = parseFloat(document.getElementById("wDt").value  || "0.2");
+
+    const wSum = wSoh + wDv + wDt;
+    const warn = (Math.abs(wSum - 1.0) > 0.001);
+
+    let rows = DATA.slice();
+    if(brandFilter !== "all"){
+      rows = rows.filter(r => r.brandGroup === brandFilter);
+    }
+
+    rows = rows.map(r=>{
+      const score = bss(r.soh, r.dv_mV, r.dt_C, wSoh, wDv, wDt, dvBad, dtBad);
+      return {...r, bss: score};
+    }).sort((a,b)=>b.bss - a.bss);
+
+    const tbody = document.getElementById("tbody");
+    tbody.innerHTML = "";
+
+    let sum=0;
+    rows.forEach(r=>{
+      sum += r.bss;
+
+      const tag = labelFor(r.bss);
+      const tr = document.createElement("tr");
+
+      tr.innerHTML = `
+        <td>
+          <div style="font-weight:650">${r.vehicle}</div>
+          <div class="small muted">${r.brandGroup === "Tesla" ? "Tesla" : "Altă marcă"} · <a href="${r.src}" target="_blank" rel="noopener">PDF sursă</a></div>
+        </td>
+        <td>${r.soh.toFixed(2)}%</td>
+        <td>${r.dv_mV.toFixed(2)}</td>
+        <td>${r.dt_C.toFixed(2)}</td>
+        <td>
+          <div style="display:flex; gap:10px; align-items:center">
+            <div style="min-width:54px; font-weight:700">${r.bss.toFixed(2)}</div>
+            <div class="bar" style="flex:1">
+              <i style="width:${clamp(r.bss,0,100).toFixed(0)}%;
+                        background:${r.bss>=85?'var(--good)':(r.bss>=70?'var(--mid)':'var(--bad)')}"></i>
+            </div>
+          </div>
+        </td>
+        <td>
+          <span class="pill"><span class="dot ${tag.cls}"></span>${tag.txt}</span>
+          ${warn ? `<div class="small" style="margin-top:6px;color:var(--mid)">Atenție: ponderile însumează ${wSum.toFixed(2)}, nu 1.00</div>` : ``}
+          <div class="small" style="margin-top:6px">
+            VoltageScore=${voltageScore(r.dv_mV,dvBad).toFixed(1)},
+            TempScore=${tempScore(r.dt_C,dtBad).toFixed(1)}
+          </div>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    document.getElementById("kpiCount").textContent = rows.length;
+    document.getElementById("kpiAvg").textContent = rows.length ? (sum/rows.length).toFixed(2) : "—";
+    document.getElementById("kpiBest").textContent = rows.length ? rows[0].bss.toFixed(2) : "—";
+  }
+
+  document.getElementById("recalcBtn").addEventListener("click", render);
+  ["brandFilter","dvBad","dtBad","wSoh","wDv","wDt"].forEach(id=>{
+    document.getElementById(id).addEventListener("change", render);
+    document.getElementById(id).addEventListener("input", render);
+  });
+
+  render();
+</script>
+</body>
+</html>
