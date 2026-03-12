@@ -1,230 +1,930 @@
 <!DOCTYPE html>
 <html lang="ro">
 <head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Coeziv TV</title>
+  <style>
+    :root{
+      --bg:#050b16;
+      --bg-soft:#0a1222;
+      --panel:#0d1526;
+      --panel-2:#111c31;
+      --card:#10192b;
+      --text:#e5e7eb;
+      --muted:#94a3b8;
+      --accent:#2563eb;
+      --accent-2:#1d4ed8;
+      --border:#243146;
+      --shadow:0 18px 40px rgba(0,0,0,.32);
+      --gold:#facc15;
+    }
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    *{box-sizing:border-box}
+    html,body{
+      margin:0;
+      padding:0;
+      background:linear-gradient(180deg,#050b16,#081121 40%,#0b1527);
+      color:var(--text);
+      font-family:Arial,Helvetica,sans-serif;
+    }
+    body{min-height:100vh}
+    button,input{font:inherit}
 
-<title>Coeziv TV</title>
+    .topbar{
+      position:sticky;
+      top:0;
+      z-index:20;
+      backdrop-filter:blur(10px);
+      background:rgba(5,11,22,.9);
+      border-bottom:1px solid var(--border);
+    }
+    .topbar-inner{
+      max-width:1440px;
+      margin:0 auto;
+      padding:14px 18px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+    }
+    .brand-title{
+      font-size:28px;
+      font-weight:700;
+      letter-spacing:.2px;
+    }
+    .brand-sub{
+      font-size:13px;
+      color:var(--muted);
+      margin-top:4px;
+    }
 
-<style>
+    .top-actions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .btn{
+      border:1px solid var(--border);
+      background:var(--panel);
+      color:var(--text);
+      border-radius:16px;
+      padding:10px 14px;
+      cursor:pointer;
+      transition:.18s ease;
+    }
+    .btn:hover{background:var(--panel-2)}
+    .btn.primary{
+      background:linear-gradient(135deg,#0ea5e9,#2563eb);
+      border-color:transparent;
+    }
+    .btn.primary:hover{filter:brightness(1.08)}
+    .btn.ghost.active{
+      background:var(--panel-2);
+      border-color:#3b82f6;
+    }
 
-body{
-background:#050b16;
-color:white;
-font-family:Arial;
-margin:0;
-}
+    .app{
+      max-width:1440px;
+      margin:0 auto;
+      padding:18px;
+      display:grid;
+      grid-template-columns:340px minmax(0,1fr) 320px;
+      gap:16px;
+    }
 
-header{
-padding:15px;
-background:#0d1526;
-}
+    .panel{
+      background:rgba(13,21,38,.92);
+      border:1px solid var(--border);
+      border-radius:24px;
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
 
-.container{
-display:flex;
-height:100vh;
-}
+    .panel-body{padding:14px}
 
-.channels{
-width:320px;
-overflow:auto;
-background:#0b1322;
-}
+    .tabs{
+      display:flex;
+      gap:10px;
+      margin-bottom:10px;
+    }
+    .tabs .btn{flex:1}
 
-.channel{
-padding:10px;
-border-bottom:1px solid #222;
-cursor:pointer;
-}
+    .search-wrap{
+      position:relative;
+      margin-bottom:10px;
+    }
+    .search-wrap input{
+      width:100%;
+      padding:14px 14px 14px 42px;
+      border-radius:18px;
+      border:1px solid var(--border);
+      background:#0a1222;
+      color:var(--text);
+      outline:none;
+    }
+    .search-icon{
+      position:absolute;
+      left:14px;
+      top:50%;
+      transform:translateY(-50%);
+      opacity:.65;
+    }
 
-.channel:hover{
-background:#111c31;
-}
+    .quick-cats{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:8px;
+      margin-bottom:12px;
+    }
+    .chip{
+      border:1px solid var(--border);
+      background:#0a1222;
+      color:var(--text);
+      border-radius:16px;
+      padding:10px 12px;
+      text-align:left;
+      cursor:pointer;
+      transition:.18s ease;
+    }
+    .chip:hover,.chip.active{
+      background:var(--panel-2);
+      border-color:#3b82f6;
+    }
+    .chip small{
+      display:block;
+      color:var(--muted);
+      margin-top:3px;
+    }
 
-.player{
-flex:1;
-padding:20px;
-}
+    .list-meta{
+      font-size:12px;
+      color:var(--muted);
+      margin:0 0 10px;
+    }
 
-video{
-width:100%;
-background:black;
-}
+    .channel-list{
+      max-height:68vh;
+      overflow:auto;
+      padding-right:4px;
+    }
+    .channel-list::-webkit-scrollbar,
+    .side-scroll::-webkit-scrollbar{
+      width:10px;
+    }
+    .channel-list::-webkit-scrollbar-thumb,
+    .side-scroll::-webkit-scrollbar-thumb{
+      background:#1f2a44;
+      border-radius:20px;
+    }
 
-button{
-padding:10px;
-margin-top:10px;
-cursor:pointer;
-}
+    .channel-item{
+      width:100%;
+      text-align:left;
+      cursor:pointer;
+      border:1px solid var(--border);
+      background:#091120;
+      color:var(--text);
+      border-radius:18px;
+      padding:12px;
+      margin-bottom:10px;
+      transition:.18s ease;
+    }
+    .channel-item:hover{background:#0f182d}
+    .channel-item.active{
+      background:#101c34;
+      border-color:#3b82f6;
+    }
 
-.overlay{
-position:absolute;
-top:0;
-left:0;
-right:0;
-bottom:0;
-display:flex;
-align-items:center;
-justify-content:center;
-background:rgba(0,0,0,0.5);
-}
+    .channel-top{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .channel-left{
+      display:flex;
+      gap:10px;
+      min-width:0;
+      align-items:flex-start;
+    }
+    .channel-logo{
+      width:44px;
+      height:44px;
+      border-radius:12px;
+      flex:0 0 44px;
+      background:#111827;
+      border:1px solid var(--border);
+      object-fit:cover;
+    }
+    .logo-fallback{
+      width:44px;
+      height:44px;
+      border-radius:12px;
+      flex:0 0 44px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:#111827;
+      border:1px solid var(--border);
+      font-weight:700;
+      color:#7dd3fc;
+    }
+    .channel-name{
+      font-size:14px;
+      font-weight:700;
+      line-height:1.35;
+      word-break:break-word;
+    }
+    .channel-group{
+      font-size:12px;
+      color:var(--muted);
+      margin-top:4px;
+    }
+    .fav-btn{
+      border:none;
+      background:transparent;
+      color:#64748b;
+      cursor:pointer;
+      font-size:18px;
+      padding:2px 4px;
+      border-radius:8px;
+    }
+    .fav-btn.active{color:var(--gold)}
 
-</style>
+    .hero{
+      min-height:430px;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      background:
+        radial-gradient(circle at top right, rgba(37,99,235,.25), transparent 35%),
+        linear-gradient(180deg,#0d1526,#0a1222);
+      padding:22px;
+    }
+    .eyebrow{
+      font-size:11px;
+      letter-spacing:.18em;
+      text-transform:uppercase;
+      color:#64748b;
+      margin-bottom:8px;
+    }
+    .hero-title{
+      font-size:34px;
+      font-weight:700;
+      line-height:1.15;
+      margin:0;
+    }
+    .hero-sub{
+      margin-top:10px;
+      color:var(--muted);
+      line-height:1.6;
+      max-width:700px;
+      font-size:15px;
+    }
 
+    .hero-meta{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-top:16px;
+    }
+    .badge{
+      border:1px solid var(--border);
+      background:#0a1222;
+      color:var(--muted);
+      padding:8px 10px;
+      border-radius:999px;
+      font-size:12px;
+    }
+
+    .hero-actions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:20px;
+    }
+    .open-main{
+      border:none;
+      border-radius:18px;
+      padding:14px 18px;
+      background:linear-gradient(135deg,#2563eb,#1d4ed8);
+      color:white;
+      font-weight:700;
+      cursor:pointer;
+      font-size:16px;
+    }
+    .open-main:hover{filter:brightness(1.08)}
+
+    .status-box{
+      margin-top:18px;
+      border:1px solid var(--border);
+      background:#091120;
+      border-radius:18px;
+      padding:14px;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.5;
+      white-space:pre-line;
+    }
+
+    .preview-grid{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:10px;
+      margin-top:18px;
+    }
+    .preview-card{
+      border:1px solid var(--border);
+      background:#091120;
+      border-radius:18px;
+      padding:14px;
+      min-height:96px;
+    }
+    .preview-label{
+      font-size:12px;
+      color:var(--muted);
+    }
+    .preview-value{
+      font-size:18px;
+      font-weight:700;
+      margin-top:8px;
+      line-height:1.3;
+      word-break:break-word;
+    }
+
+    .stat-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+    }
+    .stat-card{
+      border:1px solid var(--border);
+      background:#091120;
+      border-radius:18px;
+      padding:14px;
+    }
+    .stat-label{
+      font-size:12px;
+      color:var(--muted);
+    }
+    .stat-value{
+      font-size:28px;
+      font-weight:700;
+      margin-top:6px;
+    }
+
+    .section-title{
+      font-size:15px;
+      font-weight:700;
+      margin:0 0 12px;
+    }
+    .top-cats{
+      display:grid;
+      gap:8px;
+    }
+    .cat-row{
+      width:100%;
+      cursor:pointer;
+      text-align:left;
+      border:1px solid var(--border);
+      background:#091120;
+      color:var(--text);
+      border-radius:18px;
+      padding:12px;
+    }
+    .cat-row:hover{background:#0f182d}
+    .cat-row-inner{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:center;
+    }
+    .cat-count{
+      min-width:40px;
+      text-align:center;
+      border-radius:999px;
+      background:#111b31;
+      border:1px solid var(--border);
+      color:#cbd5e1;
+      padding:5px 8px;
+      font-size:12px;
+    }
+
+    .helper{
+      font-size:13px;
+      color:var(--muted);
+      line-height:1.6;
+      border:1px solid var(--border);
+      background:#091120;
+      border-radius:18px;
+      padding:14px;
+    }
+
+    .empty{
+      border:1px dashed var(--border);
+      background:#091120;
+      border-radius:18px;
+      padding:16px;
+      color:var(--muted);
+      font-size:14px;
+    }
+
+    @media (max-width: 1180px){
+      .app{grid-template-columns:320px minmax(0,1fr)}
+      .right-col{grid-column:1 / -1}
+    }
+    @media (max-width: 860px){
+      .app{grid-template-columns:1fr}
+      .channel-list{max-height:38vh}
+      .topbar-inner{align-items:flex-start;flex-direction:column}
+      .brand-title{font-size:24px}
+      .hero-title{font-size:26px}
+      .preview-grid{grid-template-columns:1fr}
+      .quick-cats{grid-template-columns:1fr 1fr}
+    }
+  </style>
 </head>
-
 <body>
-
-<header>
-<h2>Coeziv TV</h2>
-</header>
-
-<div class="container">
-
-<div id="channels" class="channels"></div>
-
-<div class="player">
-
-<div style="position:relative">
-
-<video id="video" controls playsinline muted></video>
-
-<div id="overlay" class="overlay" style="display:none">
-<button onclick="manualPlay()">Pornește canalul</button>
-</div>
-
-</div>
-
-<button onclick="openDirect()">Deschide direct</button>
-
-</div>
-
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-
-<script>
-
-const PLAYLIST =
-"https://raw.githubusercontent.com/trendyiptv-a11y/Coeziv/main/iptv.m3u"
-
-const video = document.getElementById("video")
-const list = document.getElementById("channels")
-const overlay = document.getElementById("overlay")
-
-let hls=null
-let currentUrl=null
-
-fetch(PLAYLIST)
-.then(r=>r.text())
-.then(text=>{
-
-let lines=text.split("\n")
-
-for(let i=0;i<lines.length;i++){
-
-if(lines[i].includes("#EXTINF")){
-
-let title = lines[i].split(",")[1]
-let url = lines[i+1]
-
-let div=document.createElement("div")
-div.className="channel"
-div.innerText=title
-
-div.onclick=()=>playChannel(url)
-
-list.appendChild(div)
-
-}
-
-}
-
-})
-
-function playChannel(url){
-
-currentUrl=url
-
-overlay.style.display="none"
-
-if(hls){
-hls.destroy()
-hls=null
-}
-
-video.pause()
-video.removeAttribute("src")
-video.load()
-
-// 1. incearca playerul nativ
-
-video.src=url
-
-video.play().then(()=>{
-console.log("player nativ")
-}).catch(()=>{
-
-// 2. daca nu merge → foloseste HLS.js
-
-if(Hls.isSupported()){
-
-hls=new Hls()
-
-hls.loadSource(url)
-
-hls.attachMedia(video)
-
-hls.on(Hls.Events.MANIFEST_PARSED,function(){
-
-video.muted=true
-
-video.play().catch(()=>{
-overlay.style.display="flex"
-})
-
-})
-
-hls.on(Hls.Events.ERROR,function(){
-
-overlay.style.display="flex"
-
-})
-
-}else{
-
-overlay.style.display="flex"
-
-}
-
-})
-
-}
-
-function manualPlay(){
-
-video.play().catch(()=>{
-
-openDirect()
-
-})
-
-overlay.style.display="none"
-
-}
-
-function openDirect(){
-
-if(currentUrl){
-
-window.open(currentUrl,"_blank")
-
-}
-
-}
-
-</script>
-
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div>
+        <div class="brand-title">Coeziv TV</div>
+        <div class="brand-sub">Interfață profesională • deschidere directă în tab nou • pagina principală rămâne deschisă</div>
+      </div>
+      <div class="top-actions">
+        <button id="refreshBtn" class="btn primary">Reîmprospătează</button>
+        <button id="openCurrentTopBtn" class="btn">Deschide selecția</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="app">
+    <section class="panel">
+      <div class="panel-body">
+        <div class="tabs">
+          <button id="tabAll" class="btn ghost active">Toate</button>
+          <button id="tabFav" class="btn ghost">Favorite</button>
+        </div>
+
+        <div class="search-wrap">
+          <span class="search-icon">🔎</span>
+          <input id="searchInput" type="text" placeholder="Caută canal, categorie, tvg-id..." />
+        </div>
+
+        <div id="quickCats" class="quick-cats"></div>
+
+        <div id="listMeta" class="list-meta">Se încarcă...</div>
+        <div id="channelList" class="channel-list"></div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="hero">
+        <div>
+          <div class="eyebrow">Canal selectat</div>
+          <h1 id="heroTitle" class="hero-title">Alege un canal</h1>
+          <div id="heroSub" class="hero-sub">
+            Selectează un canal din listă și deschide-l direct într-un tab nou. Pagina Coeziv TV rămâne deschisă pentru navigare rapidă.
+          </div>
+
+          <div class="hero-meta">
+            <span id="heroGroup" class="badge">Categorie</span>
+            <span id="heroTvg" class="badge">tvg-id</span>
+            <span id="heroMode" class="badge">Open in new tab</span>
+          </div>
+
+          <div class="hero-actions">
+            <button id="openMainBtn" class="open-main">Deschide canalul</button>
+            <button id="copyUrlBtn" class="btn">Copiază URL</button>
+            <button id="favoriteCurrentBtn" class="btn">☆ Favorit</button>
+          </div>
+
+          <div id="statusBox" class="status-box">
+            Playlistul se încarcă...
+          </div>
+        </div>
+
+        <div class="preview-grid">
+          <div class="preview-card">
+            <div class="preview-label">Titlu</div>
+            <div id="previewName" class="preview-value">-</div>
+          </div>
+          <div class="preview-card">
+            <div class="preview-label">Categorie</div>
+            <div id="previewGroup" class="preview-value">-</div>
+          </div>
+          <div class="preview-card">
+            <div class="preview-label">Acțiune</div>
+            <div class="preview-value">Tab nou</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <aside class="right-col side-scroll" style="display:grid;gap:16px;align-content:start;max-height:calc(100vh - 110px);overflow:auto;">
+      <section class="panel">
+        <div class="panel-body">
+          <div class="section-title">Rezumat playlist</div>
+          <div class="stat-grid">
+            <div class="stat-card">
+              <div class="stat-label">Total canale</div>
+              <div id="statChannels" class="stat-value">0</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Favorite</div>
+              <div id="statFavorites" class="stat-value">0</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-body">
+          <div class="section-title">Top categorii</div>
+          <div id="topCategories" class="top-cats"></div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-body">
+          <div class="section-title">Cum funcționează</div>
+          <div class="helper">
+            Această versiune nu mai încearcă redare embedded. Fiecare canal se deschide direct într-un tab nou, iar aplicația rămâne pe pagina inițială pentru selecție rapidă.
+          </div>
+        </div>
+      </section>
+    </aside>
+  </main>
+
+  <script>
+    const PLAYLIST_URL = "https://raw.githubusercontent.com/trendyiptv-a11y/Coeziv/main/iptv.m3u";
+    const FAVORITES_KEY = "coeziv_tv_favorites";
+
+    const searchInput = document.getElementById("searchInput");
+    const channelList = document.getElementById("channelList");
+    const quickCats = document.getElementById("quickCats");
+    const topCategories = document.getElementById("topCategories");
+    const listMeta = document.getElementById("listMeta");
+    const statusBox = document.getElementById("statusBox");
+
+    const heroTitle = document.getElementById("heroTitle");
+    const heroSub = document.getElementById("heroSub");
+    const heroGroup = document.getElementById("heroGroup");
+    const heroTvg = document.getElementById("heroTvg");
+    const previewName = document.getElementById("previewName");
+    const previewGroup = document.getElementById("previewGroup");
+
+    const statChannels = document.getElementById("statChannels");
+    const statFavorites = document.getElementById("statFavorites");
+
+    const tabAll = document.getElementById("tabAll");
+    const tabFav = document.getElementById("tabFav");
+    const refreshBtn = document.getElementById("refreshBtn");
+    const openCurrentTopBtn = document.getElementById("openCurrentTopBtn");
+    const openMainBtn = document.getElementById("openMainBtn");
+    const copyUrlBtn = document.getElementById("copyUrlBtn");
+    const favoriteCurrentBtn = document.getElementById("favoriteCurrentBtn");
+
+    let channels = [];
+    let current = null;
+    let currentCategory = "Toate";
+    let currentTab = "all";
+    let favorites = loadFavorites();
+
+    function loadFavorites(){
+      try {
+        const raw = localStorage.getItem(FAVORITES_KEY);
+        const parsed = JSON.parse(raw || "[]");
+        return Array.isArray(parsed) ? parsed : [];
+      } catch {
+        return [];
+      }
+    }
+
+    function saveFavorites(){
+      localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites));
+      statFavorites.textContent = favorites.length;
+    }
+
+    function safe(value){
+      return (value || "").toLowerCase().trim();
+    }
+
+    function escapeHtml(str){
+      return (str || "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function setStatus(text){
+      statusBox.textContent = text;
+    }
+
+    function parseM3U(text){
+      const lines = text.split(/\r?\n/);
+      const result = [];
+      let currentItem = null;
+
+      for(const rawLine of lines){
+        const line = rawLine.trim();
+        if(!line) continue;
+
+        if(line.startsWith("#EXTINF")){
+          const parts = line.split(",", 2);
+          const meta = parts[0] || "";
+          const title = (parts[1] || "Canal necunoscut").trim();
+          const groupMatch = meta.match(/group-title="([^"]+)"/i);
+          const logoMatch = meta.match(/tvg-logo="([^"]+)"/i);
+          const idMatch = meta.match(/tvg-id="([^"]+)"/i);
+
+          currentItem = {
+            title,
+            group: groupMatch ? groupMatch[1] : "General",
+            logo: logoMatch ? logoMatch[1] : "",
+            tvgId: idMatch ? idMatch[1] : "",
+            url: ""
+          };
+        } else if(/^https?:\/\//i.test(line) && currentItem){
+          currentItem.url = line;
+          result.push(currentItem);
+          currentItem = null;
+        }
+      }
+
+      return result;
+    }
+
+    async function loadPlaylist(){
+      setStatus("Se descarcă playlistul de pe GitHub...");
+
+      try {
+        const res = await fetch(PLAYLIST_URL, { cache: "no-store" });
+        if(!res.ok) throw new Error("Nu am putut descărca playlistul.");
+
+        const text = await res.text();
+        channels = parseM3U(text);
+
+        if(!channels.length){
+          throw new Error("Playlistul nu conține canale valide.");
+        }
+
+        statChannels.textContent = channels.length;
+        statFavorites.textContent = favorites.length;
+
+        renderQuickCategories();
+        renderTopCategories();
+        renderChannels();
+
+        if(!current && channels[0]){
+          selectChannel(channels[0]);
+        } else {
+          setStatus(`Playlist încărcat cu succes.\nCanale găsite: ${channels.length}`);
+        }
+      } catch(err){
+        setStatus(
+          "Eroare la încărcarea playlistului.\n\n" +
+          (err?.message || "Necunoscut") +
+          "\n\nVerifică linkul raw GitHub și dacă repo-ul este public."
+        );
+        channelList.innerHTML = '<div class="empty">Nu am putut încărca lista de canale.</div>';
+      }
+    }
+
+    function groupedCounts(){
+      const map = new Map();
+      for(const c of channels){
+        map.set(c.group, (map.get(c.group) || 0) + 1);
+      }
+      return Array.from(map.entries()).sort((a,b) => b[1] - a[1]);
+    }
+
+    function renderQuickCategories(){
+      const top = groupedCounts().slice(0, 10);
+      quickCats.innerHTML = "";
+
+      const allChip = document.createElement("button");
+      allChip.className = "chip" + (currentCategory === "Toate" ? " active" : "");
+      allChip.innerHTML = `Toate<small>${channels.length} canale</small>`;
+      allChip.onclick = () => {
+        currentCategory = "Toate";
+        renderQuickCategories();
+        renderChannels();
+      };
+      quickCats.appendChild(allChip);
+
+      top.forEach(([name, count]) => {
+        const chip = document.createElement("button");
+        chip.className = "chip" + (currentCategory === name ? " active" : "");
+        chip.innerHTML = `${escapeHtml(name)}<small>${count} canale</small>`;
+        chip.onclick = () => {
+          currentCategory = name;
+          renderQuickCategories();
+          renderChannels();
+        };
+        quickCats.appendChild(chip);
+      });
+    }
+
+    function renderTopCategories(){
+      topCategories.innerHTML = "";
+      groupedCounts().slice(0, 12).forEach(([name,count]) => {
+        const row = document.createElement("button");
+        row.className = "cat-row";
+        row.innerHTML = `
+          <div class="cat-row-inner">
+            <div>${escapeHtml(name)}</div>
+            <div class="cat-count">${count}</div>
+          </div>
+        `;
+        row.onclick = () => {
+          currentTab = "all";
+          updateTabs();
+          currentCategory = name;
+          renderQuickCategories();
+          renderChannels();
+        };
+        topCategories.appendChild(row);
+      });
+    }
+
+    function getFiltered(){
+      const q = safe(searchInput.value);
+      let list = [...channels];
+
+      if(currentTab === "favorites"){
+        list = list.filter(ch => favorites.includes(ch.url));
+      }
+
+      if(currentCategory !== "Toate"){
+        list = list.filter(ch => ch.group === currentCategory);
+      }
+
+      if(q){
+        list = list.filter(ch =>
+          safe(ch.title).includes(q) ||
+          safe(ch.group).includes(q) ||
+          safe(ch.tvgId).includes(q)
+        );
+      }
+
+      list.sort((a,b) => a.title.localeCompare(b.title, "ro"));
+      return list;
+    }
+
+    function renderChannels(){
+      const filtered = getFiltered();
+      listMeta.textContent = `${filtered.length} canale afișate`;
+      channelList.innerHTML = "";
+
+      if(!filtered.length){
+        channelList.innerHTML = '<div class="empty">Niciun canal găsit pentru filtrul curent.</div>';
+        return;
+      }
+
+      filtered.forEach(ch => {
+        const active = current && current.url === ch.url;
+        const isFav = favorites.includes(ch.url);
+
+        const item = document.createElement("button");
+        item.className = "channel-item" + (active ? " active" : "");
+
+        const logoHtml = ch.logo
+          ? `<img class="channel-logo" src="${escapeHtml(ch.logo)}" alt="logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" /><div class="logo-fallback" style="display:none">TV</div>`
+          : `<div class="logo-fallback">TV</div>`;
+
+        item.innerHTML = `
+          <div class="channel-top">
+            <div class="channel-left">
+              ${logoHtml}
+              <div style="min-width:0">
+                <div class="channel-name">${escapeHtml(ch.title)}</div>
+                <div class="channel-group">${escapeHtml(ch.group)}</div>
+              </div>
+            </div>
+            <button class="fav-btn ${isFav ? "active" : ""}" title="Favorit">${isFav ? "★" : "☆"}</button>
+          </div>
+        `;
+
+        item.onclick = () => selectChannel(ch);
+
+        item.querySelector(".fav-btn").onclick = (e) => {
+          e.stopPropagation();
+          toggleFavorite(ch.url);
+        };
+
+        channelList.appendChild(item);
+      });
+    }
+
+    function toggleFavorite(url){
+      if(favorites.includes(url)){
+        favorites = favorites.filter(x => x !== url);
+      } else {
+        favorites.push(url);
+      }
+      saveFavorites();
+      updateFavoriteCurrentButton();
+      renderChannels();
+    }
+
+    function updateTabs(){
+      tabAll.classList.toggle("active", currentTab === "all");
+      tabFav.classList.toggle("active", currentTab === "favorites");
+    }
+
+    function updateFavoriteCurrentButton(){
+      if(!current){
+        favoriteCurrentBtn.textContent = "☆ Favorit";
+        return;
+      }
+      favoriteCurrentBtn.textContent = favorites.includes(current.url) ? "★ Salvat" : "☆ Favorit";
+    }
+
+    function selectChannel(channel){
+      current = channel;
+
+      heroTitle.textContent = channel.title || "Canal";
+      heroSub.textContent = "Acest canal se va deschide direct într-un tab nou. Pagina principală Coeziv TV rămâne deschisă pentru selecția următoare.";
+      heroGroup.textContent = channel.group || "Categorie";
+      heroTvg.textContent = channel.tvgId || "fără tvg-id";
+
+      previewName.textContent = channel.title || "-";
+      previewGroup.textContent = channel.group || "-";
+
+      updateFavoriteCurrentButton();
+      renderChannels();
+
+      setStatus(
+        `Canal selectat:\n${channel.title}\n\n` +
+        `Apasă «Deschide canalul» pentru a-l lansa într-un tab nou.`
+      );
+    }
+
+    function openCurrent(){
+      if(!current){
+        setStatus("Selectează mai întâi un canal.");
+        return;
+      }
+
+      const win = window.open(current.url, "_blank");
+
+      if(!win){
+        setStatus(
+          "Browserul a blocat deschiderea tabului nou.\n\n" +
+          "Permite pop-up-urile pentru această pagină și încearcă din nou."
+        );
+        return;
+      }
+
+      setStatus(
+        `Canal deschis în tab nou:\n${current.title}\n\n` +
+        "Pagina Coeziv TV a rămas deschisă."
+      );
+    }
+
+    tabAll.onclick = () => {
+      currentTab = "all";
+      updateTabs();
+      renderChannels();
+    };
+
+    tabFav.onclick = () => {
+      currentTab = "favorites";
+      updateTabs();
+      renderChannels();
+    };
+
+    searchInput.addEventListener("input", renderChannels);
+
+    refreshBtn.onclick = loadPlaylist;
+    openCurrentTopBtn.onclick = openCurrent;
+    openMainBtn.onclick = openCurrent;
+
+    copyUrlBtn.onclick = async () => {
+      if(!current?.url){
+        setStatus("Selectează mai întâi un canal.");
+        return;
+      }
+
+      try {
+        await navigator.clipboard.writeText(current.url);
+        setStatus("URL-ul canalului a fost copiat.");
+      } catch {
+        setStatus("Nu am putut copia URL-ul automat.");
+      }
+    };
+
+    favoriteCurrentBtn.onclick = () => {
+      if(current) toggleFavorite(current.url);
+    };
+
+    saveFavorites();
+    updateTabs();
+    loadPlaylist();
+  </script>
 </body>
 </html>
