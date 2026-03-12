@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="ro">
+<!DOCTYPE html>
+<html lang="ro">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -15,204 +16,381 @@
       --accent:#38bdf8;
       --accent-2:#22c55e;
       --border:#243146;
-      --danger:#ef4444;
       --shadow:0 18px 40px rgba(0,0,0,.32);
-    }*{box-sizing:border-box}
-html,body{margin:0;padding:0;background:linear-gradient(180deg,#050b16,#081121 40%,#0b1527);color:var(--text);font-family:Arial,Helvetica,sans-serif}
-body{min-height:100vh}
-button,input,select{font:inherit}
+    }
 
-.topbar{
-  position:sticky;top:0;z-index:20;
-  backdrop-filter:blur(10px);
-  background:rgba(5,11,22,.88);
-  border-bottom:1px solid var(--border);
-}
-.topbar-inner{
-  max-width:1440px;margin:0 auto;padding:14px 18px;
-  display:flex;align-items:center;justify-content:space-between;gap:14px;
-}
-.brand-title{font-size:28px;font-weight:700;letter-spacing:.2px}
-.brand-sub{font-size:13px;color:var(--muted);margin-top:4px}
+    *{box-sizing:border-box}
+    html,body{
+      margin:0;
+      padding:0;
+      background:linear-gradient(180deg,#050b16,#081121 40%,#0b1527);
+      color:var(--text);
+      font-family:Arial,Helvetica,sans-serif
+    }
+    body{min-height:100vh}
+    button,input,select{font:inherit}
 
-.top-actions{display:flex;gap:10px;flex-wrap:wrap}
-.btn{
-  border:1px solid var(--border);
-  background:var(--panel);
-  color:var(--text);
-  border-radius:16px;
-  padding:10px 14px;
-  cursor:pointer;
-  transition:.18s ease;
-}
-.btn:hover{background:var(--panel-2)}
-.btn.primary{background:linear-gradient(135deg,#0ea5e9,#2563eb);border-color:transparent}
-.btn.primary:hover{filter:brightness(1.08)}
-.btn.ghost.active{background:var(--panel-2);border-color:#3b82f6}
+    .topbar{
+      position:sticky;
+      top:0;
+      z-index:20;
+      backdrop-filter:blur(10px);
+      background:rgba(5,11,22,.88);
+      border-bottom:1px solid var(--border);
+    }
+    .topbar-inner{
+      max-width:1440px;
+      margin:0 auto;
+      padding:14px 18px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+    }
+    .brand-title{font-size:28px;font-weight:700}
+    .brand-sub{font-size:13px;color:var(--muted);margin-top:4px}
 
-.app{
-  max-width:1440px;
-  margin:0 auto;
-  padding:18px;
-  display:grid;
-  grid-template-columns:330px minmax(0,1fr) 310px;
-  gap:16px;
-}
+    .top-actions{display:flex;gap:10px;flex-wrap:wrap}
+    .btn{
+      border:1px solid var(--border);
+      background:var(--panel);
+      color:var(--text);
+      border-radius:16px;
+      padding:10px 14px;
+      cursor:pointer;
+      transition:.18s ease;
+    }
+    .btn:hover{background:var(--panel-2)}
+    .btn.primary{
+      background:linear-gradient(135deg,#0ea5e9,#2563eb);
+      border-color:transparent;
+    }
+    .btn.primary:hover{filter:brightness(1.08)}
+    .btn.ghost.active{
+      background:var(--panel-2);
+      border-color:#3b82f6;
+    }
 
-.panel{
-  background:rgba(13,21,38,.92);
-  border:1px solid var(--border);
-  border-radius:24px;
-  box-shadow:var(--shadow);
-  overflow:hidden;
-}
+    .app{
+      max-width:1440px;
+      margin:0 auto;
+      padding:18px;
+      display:grid;
+      grid-template-columns:330px minmax(0,1fr) 310px;
+      gap:16px;
+    }
 
-.panel-head{padding:14px 14px 0}
-.panel-body{padding:14px}
+    .panel{
+      background:rgba(13,21,38,.92);
+      border:1px solid var(--border);
+      border-radius:24px;
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
 
-.search-wrap{position:relative;margin-bottom:10px}
-.search-wrap input{
-  width:100%;padding:14px 14px 14px 42px;
-  border-radius:18px;border:1px solid var(--border);
-  background:#0a1222;color:var(--text);outline:none;
-}
-.search-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);opacity:.65}
+    .panel-body{padding:14px}
 
-.tabs{display:flex;gap:10px;margin-bottom:10px}
-.tabs .btn{flex:1}
+    .search-wrap{position:relative;margin-bottom:10px}
+    .search-wrap input{
+      width:100%;
+      padding:14px 14px 14px 42px;
+      border-radius:18px;
+      border:1px solid var(--border);
+      background:#0a1222;
+      color:var(--text);
+      outline:none;
+    }
+    .search-icon{
+      position:absolute;
+      left:14px;
+      top:50%;
+      transform:translateY(-50%);
+      opacity:.65
+    }
 
-.quick-cats{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:8px;
-  margin-bottom:12px;
-}
-.chip{
-  border:1px solid var(--border);
-  background:#0a1222;
-  color:var(--text);
-  border-radius:16px;
-  padding:10px 12px;
-  text-align:left;
-  cursor:pointer;
-  transition:.18s ease;
-}
-.chip:hover,.chip.active{background:var(--panel-2);border-color:#3b82f6}
-.chip small{display:block;color:var(--muted);margin-top:3px}
+    .tabs{display:flex;gap:10px;margin-bottom:10px}
+    .tabs .btn{flex:1}
 
-.list-meta{font-size:12px;color:var(--muted);margin:0 0 10px}
-.channel-list{max-height:66vh;overflow:auto;padding-right:4px}
-.channel-list::-webkit-scrollbar,.side-scroll::-webkit-scrollbar{width:10px}
-.channel-list::-webkit-scrollbar-thumb,.side-scroll::-webkit-scrollbar-thumb{background:#1f2a44;border-radius:20px}
+    .quick-cats{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:8px;
+      margin-bottom:12px;
+    }
+    .chip{
+      border:1px solid var(--border);
+      background:#0a1222;
+      color:var(--text);
+      border-radius:16px;
+      padding:10px 12px;
+      text-align:left;
+      cursor:pointer;
+      transition:.18s ease;
+    }
+    .chip:hover,.chip.active{
+      background:var(--panel-2);
+      border-color:#3b82f6;
+    }
+    .chip small{
+      display:block;
+      color:var(--muted);
+      margin-top:3px
+    }
 
-.channel-item{
-  width:100%;text-align:left;cursor:pointer;
-  border:1px solid var(--border);
-  background:#091120;
-  color:var(--text);
-  border-radius:18px;
-  padding:12px;
-  margin-bottom:10px;
-  transition:.18s ease;
-}
-.channel-item:hover{background:#0f182d}
-.channel-item.active{background:#101c34;border-color:#3b82f6}
-.channel-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
-.channel-left{display:flex;gap:10px;min-width:0;align-items:flex-start}
-.channel-logo{
-  width:44px;height:44px;border-radius:12px;flex:0 0 44px;
-  background:#111827;border:1px solid var(--border);object-fit:cover;
-}
-.logo-fallback{
-  width:44px;height:44px;border-radius:12px;flex:0 0 44px;
-  display:flex;align-items:center;justify-content:center;
-  background:#111827;border:1px solid var(--border);font-weight:700;color:#7dd3fc;
-}
-.channel-name{font-size:14px;font-weight:700;line-height:1.35;word-break:break-word}
-.channel-group{font-size:12px;color:var(--muted);margin-top:4px}
-.fav-btn{
-  border:none;background:transparent;color:#64748b;cursor:pointer;
-  font-size:18px;padding:2px 4px;border-radius:8px;
-}
-.fav-btn.active{color:#facc15}
+    .list-meta{
+      font-size:12px;
+      color:var(--muted);
+      margin:0 0 10px
+    }
 
-.player-wrap{padding:0}
-.video-box{background:#000;aspect-ratio:16/9;display:flex;align-items:center;justify-content:center}
-video{width:100%;height:100%;background:#000;display:block}
-.player-info{padding:18px}
-.eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#64748b;margin-bottom:8px}
-.player-title{font-size:28px;font-weight:700;line-height:1.2;margin:0}
-.badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
-.badge{
-  border:1px solid var(--border);
-  background:#0a1222;
-  color:var(--muted);
-  padding:8px 10px;
-  border-radius:999px;
-  font-size:12px;
-}
-.status-box{
-  margin-top:16px;
-  border:1px solid var(--border);
-  background:#091120;
-  border-radius:18px;
-  padding:14px;
-  color:var(--muted);
-  font-size:14px;
-  line-height:1.5;
-  white-space:pre-line;
-}
-.player-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+    .channel-list{
+      max-height:66vh;
+      overflow:auto;
+      padding-right:4px;
+    }
+    .channel-list::-webkit-scrollbar,
+    .side-scroll::-webkit-scrollbar{width:10px}
+    .channel-list::-webkit-scrollbar-thumb,
+    .side-scroll::-webkit-scrollbar-thumb{
+      background:#1f2a44;
+      border-radius:20px
+    }
 
-.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.stat-card{
-  border:1px solid var(--border);
-  background:#091120;
-  border-radius:18px;
-  padding:14px;
-}
-.stat-label{font-size:12px;color:var(--muted)}
-.stat-value{font-size:28px;font-weight:700;margin-top:6px}
+    .channel-item{
+      width:100%;
+      text-align:left;
+      cursor:pointer;
+      border:1px solid var(--border);
+      background:#091120;
+      color:var(--text);
+      border-radius:18px;
+      padding:12px;
+      margin-bottom:10px;
+      transition:.18s ease;
+    }
+    .channel-item:hover{background:#0f182d}
+    .channel-item.active{
+      background:#101c34;
+      border-color:#3b82f6;
+    }
 
-.section-title{font-size:15px;font-weight:700;margin:0 0 12px}
-.top-cats{display:grid;gap:8px}
-.cat-row{
-  width:100%;cursor:pointer;text-align:left;
-  border:1px solid var(--border);
-  background:#091120;color:var(--text);
-  border-radius:18px;padding:12px;
-}
-.cat-row:hover{background:#0f182d}
-.cat-row-inner{display:flex;justify-content:space-between;gap:10px;align-items:center}
-.cat-count{
-  min-width:40px;text-align:center;
-  border-radius:999px;background:#111b31;border:1px solid var(--border);
-  color:#cbd5e1;padding:5px 8px;font-size:12px;
-}
+    .channel-top{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .channel-left{
+      display:flex;
+      gap:10px;
+      min-width:0;
+      align-items:flex-start;
+    }
+    .channel-logo{
+      width:44px;
+      height:44px;
+      border-radius:12px;
+      flex:0 0 44px;
+      background:#111827;
+      border:1px solid var(--border);
+      object-fit:cover;
+    }
+    .logo-fallback{
+      width:44px;
+      height:44px;
+      border-radius:12px;
+      flex:0 0 44px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:#111827;
+      border:1px solid var(--border);
+      font-weight:700;
+      color:#7dd3fc;
+    }
+    .channel-name{
+      font-size:14px;
+      font-weight:700;
+      line-height:1.35;
+      word-break:break-word;
+    }
+    .channel-group{
+      font-size:12px;
+      color:var(--muted);
+      margin-top:4px;
+    }
+    .fav-btn{
+      border:none;
+      background:transparent;
+      color:#64748b;
+      cursor:pointer;
+      font-size:18px;
+      padding:2px 4px;
+      border-radius:8px;
+    }
+    .fav-btn.active{color:#facc15}
 
-.helper{
-  font-size:13px;color:var(--muted);line-height:1.6;
-  border:1px solid var(--border);background:#091120;border-radius:18px;padding:14px;
-}
+    .player-wrap{padding:0}
+    .video-box{
+      background:#000;
+      aspect-ratio:16/9;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      position:relative;
+    }
+    video{
+      width:100%;
+      height:100%;
+      background:#000;
+      display:block;
+    }
 
-.empty{
-  border:1px dashed var(--border);
-  background:#091120;border-radius:18px;padding:16px;color:var(--muted);font-size:14px;
-}
+    .tap-overlay{
+      position:absolute;
+      inset:0;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      background:rgba(0,0,0,.35);
+      z-index:5;
+    }
+    .tap-overlay.show{display:flex}
+    .tap-overlay button{
+      border:none;
+      border-radius:999px;
+      padding:14px 22px;
+      font-weight:700;
+      background:rgba(255,255,255,.92);
+      color:#0f172a;
+      cursor:pointer;
+    }
 
-@media (max-width: 1180px){
-  .app{grid-template-columns:320px minmax(0,1fr)}
-  .right-col{grid-column:1 / -1}
-}
-@media (max-width: 860px){
-  .app{grid-template-columns:1fr}
-  .channel-list{max-height:38vh}
-  .topbar-inner{align-items:flex-start;flex-direction:column}
-  .brand-title{font-size:24px}
-  .player-title{font-size:22px}
-  .quick-cats{grid-template-columns:1fr 1fr}
-}
+    .player-info{padding:18px}
+    .eyebrow{
+      font-size:11px;
+      letter-spacing:.18em;
+      text-transform:uppercase;
+      color:#64748b;
+      margin-bottom:8px;
+    }
+    .player-title{
+      font-size:28px;
+      font-weight:700;
+      line-height:1.2;
+      margin:0;
+    }
+    .badges{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-top:14px;
+    }
+    .badge{
+      border:1px solid var(--border);
+      background:#0a1222;
+      color:var(--muted);
+      padding:8px 10px;
+      border-radius:999px;
+      font-size:12px;
+    }
+    .status-box{
+      margin-top:16px;
+      border:1px solid var(--border);
+      background:#091120;
+      border-radius:18px;
+      padding:14px;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.5;
+      white-space:pre-line;
+    }
+    .player-actions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:16px;
+    }
 
+    .stat-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px
+    }
+    .stat-card{
+      border:1px solid var(--border);
+      background:#091120;
+      border-radius:18px;
+      padding:14px;
+    }
+    .stat-label{font-size:12px;color:var(--muted)}
+    .stat-value{font-size:28px;font-weight:700;margin-top:6px}
+
+    .section-title{
+      font-size:15px;
+      font-weight:700;
+      margin:0 0 12px
+    }
+    .top-cats{display:grid;gap:8px}
+    .cat-row{
+      width:100%;
+      cursor:pointer;
+      text-align:left;
+      border:1px solid var(--border);
+      background:#091120;
+      color:var(--text);
+      border-radius:18px;
+      padding:12px;
+    }
+    .cat-row:hover{background:#0f182d}
+    .cat-row-inner{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:center;
+    }
+    .cat-count{
+      min-width:40px;
+      text-align:center;
+      border-radius:999px;
+      background:#111b31;
+      border:1px solid var(--border);
+      color:#cbd5e1;
+      padding:5px 8px;
+      font-size:12px;
+    }
+
+    .helper{
+      font-size:13px;
+      color:var(--muted);
+      line-height:1.6;
+      border:1px solid var(--border);
+      background:#091120;
+      border-radius:18px;
+      padding:14px;
+    }
+
+    .empty{
+      border:1px dashed var(--border);
+      background:#091120;
+      border-radius:18px;
+      padding:16px;
+      color:var(--muted);
+      font-size:14px;
+    }
+
+    @media (max-width: 1180px){
+      .app{grid-template-columns:320px minmax(0,1fr)}
+      .right-col{grid-column:1 / -1}
+    }
+    @media (max-width: 860px){
+      .app{grid-template-columns:1fr}
+      .channel-list{max-height:38vh}
+      .topbar-inner{align-items:flex-start;flex-direction:column}
+      .brand-title{font-size:24px}
+      .player-title{font-size:22px}
+      .quick-cats{grid-template-columns:1fr 1fr}
+    }
   </style>
 </head>
 <body>
@@ -227,79 +405,94 @@ video{width:100%;height:100%;background:#000;display:block}
         <button id="reloadCurrentBtn" class="btn">Reîncarcă canalul</button>
       </div>
     </div>
-  </header>  <main class="app">
+  </header>
+
+  <main class="app">
     <section class="panel">
       <div class="panel-body">
         <div class="tabs">
           <button id="tabAll" class="btn ghost active">Toate</button>
           <button id="tabFav" class="btn ghost">Favorite</button>
-        </div><div class="search-wrap">
-      <span class="search-icon">🔎</span>
-      <input id="searchInput" type="text" placeholder="Caută canal, categorie, tvg-id..." />
-    </div>
-
-    <div id="quickCats" class="quick-cats"></div>
-
-    <div id="listMeta" class="list-meta">Se încarcă...</div>
-    <div id="channelList" class="channel-list"></div>
-  </div>
-</section>
-
-<section class="panel player-wrap">
-  <div class="video-box">
-    <video id="video" controls playsinline></video>
-  </div>
-  <div class="player-info">
-    <div class="eyebrow">Now Playing</div>
-    <h1 id="playerTitle" class="player-title">Alege un canal</h1>
-    <div class="badges">
-      <span id="playerGroup" class="badge">Categorie</span>
-      <span id="playerTvg" class="badge">tvg-id</span>
-      <span id="playerState" class="badge">Idle</span>
-    </div>
-    <div id="statusBox" class="status-box">Se încarcă playlistul...</div>
-    <div class="player-actions">
-      <button id="favoriteCurrentBtn" class="btn">☆ Favorit</button>
-      <button id="copyUrlBtn" class="btn">Copiază URL stream</button>
-    </div>
-  </div>
-</section>
-
-<aside class="right-col side-scroll" style="display:grid;gap:16px;align-content:start;max-height:calc(100vh - 110px);overflow:auto;">
-  <section class="panel">
-    <div class="panel-body">
-      <div class="section-title">Rezumat playlist</div>
-      <div class="stat-grid">
-        <div class="stat-card">
-          <div class="stat-label">Total canale</div>
-          <div id="statChannels" class="stat-value">0</div>
         </div>
-        <div class="stat-card">
-          <div class="stat-label">Favorite</div>
-          <div id="statFavorites" class="stat-value">0</div>
+
+        <div class="search-wrap">
+          <span class="search-icon">🔎</span>
+          <input id="searchInput" type="text" placeholder="Caută canal, categorie, tvg-id..." />
+        </div>
+
+        <div id="quickCats" class="quick-cats"></div>
+
+        <div id="listMeta" class="list-meta">Se încarcă...</div>
+        <div id="channelList" class="channel-list"></div>
+      </div>
+    </section>
+
+    <section class="panel player-wrap">
+      <div class="video-box">
+        <video id="video" controls playsinline muted></video>
+        <div id="tapOverlay" class="tap-overlay">
+          <button id="tapPlayBtn">Pornește canalul</button>
         </div>
       </div>
-    </div>
-  </section>
 
-  <section class="panel">
-    <div class="panel-body">
-      <div class="section-title">Top categorii</div>
-      <div id="topCategories" class="top-cats"></div>
-    </div>
-  </section>
+      <div class="player-info">
+        <div class="eyebrow">Now Playing</div>
+        <h1 id="playerTitle" class="player-title">Alege un canal</h1>
 
-  <section class="panel">
-    <div class="panel-body">
-      <div class="section-title">Notă</div>
-      <div class="helper">
-        Unele streamuri IPTV nu pot fi redate în browser din cauza CORS, anti-hotlink sau fiindcă au expirat. Interfața este corectă pentru Vercel și citește direct playlistul tău M3U de pe GitHub.
+        <div class="badges">
+          <span id="playerGroup" class="badge">Categorie</span>
+          <span id="playerTvg" class="badge">tvg-id</span>
+          <span id="playerState" class="badge">Idle</span>
+        </div>
+
+        <div id="statusBox" class="status-box">Se încarcă playlistul...</div>
+
+        <div class="player-actions">
+          <button id="favoriteCurrentBtn" class="btn">☆ Favorit</button>
+          <button id="copyUrlBtn" class="btn">Copiază URL stream</button>
+          <button id="openDirectBtn" class="btn">Deschide direct</button>
+          <button id="unmuteBtn" class="btn">Activează sunetul</button>
+        </div>
       </div>
-    </div>
-  </section>
-</aside>
+    </section>
 
-  </main>  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>  <script>
+    <aside class="right-col side-scroll" style="display:grid;gap:16px;align-content:start;max-height:calc(100vh - 110px);overflow:auto;">
+      <section class="panel">
+        <div class="panel-body">
+          <div class="section-title">Rezumat playlist</div>
+          <div class="stat-grid">
+            <div class="stat-card">
+              <div class="stat-label">Total canale</div>
+              <div id="statChannels" class="stat-value">0</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Favorite</div>
+              <div id="statFavorites" class="stat-value">0</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-body">
+          <div class="section-title">Top categorii</div>
+          <div id="topCategories" class="top-cats"></div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-body">
+          <div class="section-title">Notă</div>
+          <div class="helper">
+            Unele canale pornesc numai după interacțiune directă cu playerul. De aceea există și butonul „Pornește canalul”, plus „Deschide direct”.
+          </div>
+        </div>
+      </section>
+    </aside>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  <script>
     const PLAYLIST_URL = "https://raw.githubusercontent.com/trendyiptv-a11y/Coeziv/main/iptv.m3u";
     const FAVORITES_KEY = "coeziv_tv_favorites";
 
@@ -322,6 +515,10 @@ video{width:100%;height:100%;background:#000;display:block}
     const refreshBtn = document.getElementById("refreshBtn");
     const reloadCurrentBtn = document.getElementById("reloadCurrentBtn");
     const copyUrlBtn = document.getElementById("copyUrlBtn");
+    const openDirectBtn = document.getElementById("openDirectBtn");
+    const unmuteBtn = document.getElementById("unmuteBtn");
+    const tapOverlay = document.getElementById("tapOverlay");
+    const tapPlayBtn = document.getElementById("tapPlayBtn");
 
     let channels = [];
     let current = null;
@@ -398,18 +595,23 @@ video{width:100%;height:100%;background:#000;display:block}
       try {
         const res = await fetch(PLAYLIST_URL, { cache: "no-store" });
         if(!res.ok) throw new Error("Nu am putut descărca playlistul.");
+
         const text = await res.text();
         channels = parseM3U(text);
-        if(!channels.length) throw new Error("Playlistul nu conține canale valide.");
+
+        if(!channels.length){
+          throw new Error("Playlistul nu conține canale valide.");
+        }
 
         statChannels.textContent = channels.length;
         statFavorites.textContent = favorites.length;
+
         renderQuickCategories();
         renderTopCategories();
         renderChannels();
 
         if(!current && channels[0]){
-          selectChannel(channels[0]);
+          selectChannel(channels[0], false);
         } else {
           setStatus(`Playlist încărcat cu succes.\nCanale găsite: ${channels.length}`);
           playerState.textContent = "Ready";
@@ -440,7 +642,11 @@ video{width:100%;height:100%;background:#000;display:block}
       const allChip = document.createElement("button");
       allChip.className = "chip" + (currentCategory === "Toate" ? " active" : "");
       allChip.innerHTML = `Toate<small>${channels.length} canale</small>`;
-      allChip.onclick = () => { currentCategory = "Toate"; renderQuickCategories(); renderChannels(); };
+      allChip.onclick = () => {
+        currentCategory = "Toate";
+        renderQuickCategories();
+        renderChannels();
+      };
       quickCats.appendChild(allChip);
 
       top.forEach(([name, count]) => {
@@ -485,9 +691,11 @@ video{width:100%;height:100%;background:#000;display:block}
       if(currentTab === "favorites"){
         list = list.filter(ch => favorites.includes(ch.url));
       }
+
       if(currentCategory !== "Toate"){
         list = list.filter(ch => ch.group === currentCategory);
       }
+
       if(q){
         list = list.filter(ch =>
           safe(ch.title).includes(q) ||
@@ -533,7 +741,7 @@ video{width:100%;height:100%;background:#000;display:block}
           </div>
         `;
 
-        item.onclick = () => selectChannel(ch);
+        item.onclick = () => selectChannel(ch, true);
         item.querySelector(".fav-btn").onclick = (e) => {
           e.stopPropagation();
           toggleFavorite(ch.url);
@@ -570,16 +778,6 @@ video{width:100%;height:100%;background:#000;display:block}
       statusBox.textContent = text;
     }
 
-    function selectChannel(channel){
-      current = channel;
-      playerTitle.textContent = channel.title || "Canal";
-      playerGroup.textContent = channel.group || "Categorie";
-      playerTvg.textContent = channel.tvgId || "fără tvg-id";
-      updateFavoriteCurrentButton();
-      renderChannels();
-      playChannel(channel);
-    }
-
     function cleanupHls(){
       if(hls){
         hls.destroy();
@@ -587,8 +785,35 @@ video{width:100%;height:100%;background:#000;display:block}
       }
     }
 
-    function playChannel(channel){
+    function showTapOverlay(show){
+      tapOverlay.classList.toggle("show", !!show);
+    }
+
+    function selectChannel(channel, attemptAutoplay = true){
+      current = channel;
+      playerTitle.textContent = channel.title || "Canal";
+      playerGroup.textContent = channel.group || "Categorie";
+      playerTvg.textContent = channel.tvgId || "fără tvg-id";
+      updateFavoriteCurrentButton();
+      renderChannels();
+      playChannel(channel, attemptAutoplay);
+    }
+
+    function tryPlayMuted(){
+      video.muted = true;
+      return video.play();
+    }
+
+    function setReadyState(message){
+      playerState.textContent = "Ready";
+      setStatus(message);
+      showTapOverlay(true);
+    }
+
+    function playChannel(channel, attemptAutoplay = true){
       cleanupHls();
+      showTapOverlay(false);
+
       playerState.textContent = "Buffering";
       setStatus(`Se încearcă redarea: ${channel.title}`);
 
@@ -596,56 +821,128 @@ video{width:100%;height:100%;background:#000;display:block}
       video.removeAttribute("src");
       video.load();
 
-      if(video.canPlayType("application/vnd.apple.mpegurl")){
-        video.src = channel.url;
-        video.play().catch(() => {
-          setStatus("Canal încărcat. Apasă Play pentru pornire.");
+      video.onloadeddata = () => {
+        playerState.textContent = "Playing";
+        setStatus(`Canal încărcat: ${channel.title}`);
+      };
+
+      video.onerror = () => {
+        playerState.textContent = "Error";
+        setStatus("Eroare la redare. Încearcă butonul «Pornește canalul» sau «Deschide direct».");
+        showTapOverlay(true);
+      };
+
+      if(window.Hls && Hls.isSupported()){
+        hls = new Hls({
+          enableWorker: true,
+          lowLatencyMode: true,
+          autoStartLoad: true
         });
-      } else if(window.Hls && Hls.isSupported()){
-        hls = new Hls({ enableWorker:true, lowLatencyMode:true });
+
         hls.loadSource(channel.url);
         hls.attachMedia(video);
 
+        hls.on(Hls.Events.MEDIA_ATTACHED, () => {
+          setStatus(`Media attached.\nSe încarcă streamul: ${channel.title}`);
+        });
+
         hls.on(Hls.Events.MANIFEST_PARSED, () => {
-          playerState.textContent = "Ready";
-          setStatus(`Canal pregătit: ${channel.title}`);
-          video.play().catch(() => {
-            setStatus("Canal încărcat. Browserul a blocat autoplay. Apasă Play.");
-          });
+          if(attemptAutoplay){
+            tryPlayMuted()
+              .then(() => {
+                playerState.textContent = "Playing";
+                setStatus(`Canal pornit: ${channel.title}`);
+                showTapOverlay(false);
+              })
+              .catch(() => {
+                setReadyState(`Canal pregătit: ${channel.title}\nApasă «Pornește canalul» sau butonul Play din player.`);
+              });
+          } else {
+            setReadyState(`Canal pregătit: ${channel.title}\nApasă «Pornește canalul» sau butonul Play din player.`);
+          }
+        });
+
+        hls.on(Hls.Events.LEVEL_LOADED, () => {
+          if(playerState.textContent !== "Playing"){
+            setStatus(`Stream încărcat: ${channel.title}`);
+          }
         });
 
         hls.on(Hls.Events.ERROR, (_, data) => {
           console.error("HLS error", data);
           playerState.textContent = "Error";
           setStatus(
-            `Canalul nu poate fi redat în browser.\n\n` +
-            `Motive posibile:\n` +
-            `- stream blocat de server\n` +
-            `- stream expirat\n` +
-            `- CORS / anti-hotlink\n` +
-            `- link nefuncțional`
+            "Canalul nu poate fi redat direct în player.\n\n" +
+            "Încearcă:\n" +
+            "1. Pornește canalul\n" +
+            "2. Reîncarcă canalul\n" +
+            "3. Deschide direct"
           );
+          showTapOverlay(true);
         });
+
+      } else if(video.canPlayType("application/vnd.apple.mpegurl")) {
+        video.src = channel.url;
+
+        if(attemptAutoplay){
+          tryPlayMuted()
+            .then(() => {
+              playerState.textContent = "Playing";
+              setStatus(`Canal pornit: ${channel.title}`);
+              showTapOverlay(false);
+            })
+            .catch(() => {
+              setReadyState(`Canal pregătit: ${channel.title}\nApasă «Pornește canalul» sau butonul Play.`);
+            });
+        } else {
+          setReadyState(`Canal pregătit: ${channel.title}\nApasă «Pornește canalul» sau butonul Play.`);
+        }
+
       } else {
         video.src = channel.url;
+        setReadyState("Formatul a fost încărcat. Apasă «Pornește canalul».");
       }
-
-      video.onloadeddata = () => {
-        playerState.textContent = "Playing";
-        setStatus(`Canal redat: ${channel.title}`);
-      };
-      video.onerror = () => {
-        playerState.textContent = "Error";
-        setStatus("Eroare la redare. Acest stream probabil nu este permis în browser.");
-      };
     }
 
-    tabAll.onclick = () => { currentTab = "all"; updateTabs(); renderChannels(); };
-    tabFav.onclick = () => { currentTab = "favorites"; updateTabs(); renderChannels(); };
+    function manualPlayCurrent(){
+      if(!current) return;
+
+      video.muted = true;
+      video.play()
+        .then(() => {
+          playerState.textContent = "Playing";
+          setStatus(`Canal pornit manual: ${current.title}`);
+          showTapOverlay(false);
+        })
+        .catch(() => {
+          setStatus("Browserul încă blochează redarea. Încearcă «Deschide direct».");
+        });
+    }
+
+    tabAll.onclick = () => {
+      currentTab = "all";
+      updateTabs();
+      renderChannels();
+    };
+
+    tabFav.onclick = () => {
+      currentTab = "favorites";
+      updateTabs();
+      renderChannels();
+    };
+
     searchInput.addEventListener("input", renderChannels);
+
     refreshBtn.onclick = loadPlaylist;
-    reloadCurrentBtn.onclick = () => { if(current) playChannel(current); };
-    favoriteCurrentBtn.onclick = () => { if(current) toggleFavorite(current.url); };
+
+    reloadCurrentBtn.onclick = () => {
+      if(current) playChannel(current, true);
+    };
+
+    favoriteCurrentBtn.onclick = () => {
+      if(current) toggleFavorite(current.url);
+    };
+
     copyUrlBtn.onclick = async () => {
       if(!current?.url) return;
       try {
@@ -656,8 +953,33 @@ video{width:100%;height:100%;background:#000;display:block}
       }
     };
 
+    openDirectBtn.onclick = () => {
+      if(current?.url){
+        window.open(current.url, "_blank");
+      }
+    };
+
+    unmuteBtn.onclick = () => {
+      video.muted = false;
+      setStatus("Sunet activat.");
+    };
+
+    tapPlayBtn.onclick = () => {
+      manualPlayCurrent();
+    };
+
+    video.addEventListener("click", () => {
+      if(video.paused){
+        manualPlayCurrent();
+      } else if(video.muted){
+        video.muted = false;
+        setStatus("Sunet activat.");
+      }
+    });
+
     saveFavorites();
     updateTabs();
     loadPlaylist();
-  </script></body>
+  </script>
+</body>
 </html>
