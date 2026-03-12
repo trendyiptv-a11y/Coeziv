@@ -1,328 +1,663 @@
-import React, { useEffect, useMemo, useRef, useState } from "react"; import Hls from "hls.js"; import { Search, Heart, Tv, Play, Star, RefreshCw, Folder, Globe, LayoutGrid } from "lucide-react"; import { Card, CardContent } from "@/components/ui/card"; import { Input } from "@/components/ui/input"; import { Button } from "@/components/ui/button"; import { Badge } from "@/components/ui/badge"; import { ScrollArea } from "@/components/ui/scroll-area";
+<!DOCTYPE html><html lang="ro">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Coeziv TV</title>
+  <style>
+    :root{
+      --bg:#050b16;
+      --bg-soft:#0a1222;
+      --panel:#0d1526;
+      --panel-2:#111c31;
+      --card:#10192b;
+      --text:#e5e7eb;
+      --muted:#94a3b8;
+      --accent:#38bdf8;
+      --accent-2:#22c55e;
+      --border:#243146;
+      --danger:#ef4444;
+      --shadow:0 18px 40px rgba(0,0,0,.32);
+    }*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:linear-gradient(180deg,#050b16,#081121 40%,#0b1527);color:var(--text);font-family:Arial,Helvetica,sans-serif}
+body{min-height:100vh}
+button,input,select{font:inherit}
 
-const PLAYLIST_URL = "https://raw.githubusercontent.com/trendyiptv-a11y/Coeziv/main/iptv.m3u"; const STORAGE_KEY = "coeziv_iptv_favorites";
+.topbar{
+  position:sticky;top:0;z-index:20;
+  backdrop-filter:blur(10px);
+  background:rgba(5,11,22,.88);
+  border-bottom:1px solid var(--border);
+}
+.topbar-inner{
+  max-width:1440px;margin:0 auto;padding:14px 18px;
+  display:flex;align-items:center;justify-content:space-between;gap:14px;
+}
+.brand-title{font-size:28px;font-weight:700;letter-spacing:.2px}
+.brand-sub{font-size:13px;color:var(--muted);margin-top:4px}
 
-function parseM3U(text) { const lines = text.split(/\r?\n/); const result = []; let current = null;
+.top-actions{display:flex;gap:10px;flex-wrap:wrap}
+.btn{
+  border:1px solid var(--border);
+  background:var(--panel);
+  color:var(--text);
+  border-radius:16px;
+  padding:10px 14px;
+  cursor:pointer;
+  transition:.18s ease;
+}
+.btn:hover{background:var(--panel-2)}
+.btn.primary{background:linear-gradient(135deg,#0ea5e9,#2563eb);border-color:transparent}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.ghost.active{background:var(--panel-2);border-color:#3b82f6}
 
-for (const raw of lines) { const line = raw.trim(); if (!line) continue;
-
-if (line.startsWith("#EXTINF")) {
-  const [meta, rawTitle = "Canal necunoscut"] = line.split(",", 2);
-  const groupMatch = meta.match(/group-title="([^"]+)"/i);
-  const logoMatch = meta.match(/tvg-logo="([^"]+)"/i);
-  const idMatch = meta.match(/tvg-id="([^"]+)"/i);
-
-  current = {
-    id: `${rawTitle}-${Math.random().toString(36).slice(2, 9)}`,
-    title: rawTitle.trim(),
-    group: groupMatch ? groupMatch[1] : "General",
-    logo: logoMatch ? logoMatch[1] : "",
-    tvgId: idMatch ? idMatch[1] : "",
-    url: "",
-  };
-} else if (/^https?:\/\//i.test(line) && current) {
-  current.url = line;
-  result.push(current);
-  current = null;
+.app{
+  max-width:1440px;
+  margin:0 auto;
+  padding:18px;
+  display:grid;
+  grid-template-columns:330px minmax(0,1fr) 310px;
+  gap:16px;
 }
 
+.panel{
+  background:rgba(13,21,38,.92);
+  border:1px solid var(--border);
+  border-radius:24px;
+  box-shadow:var(--shadow);
+  overflow:hidden;
 }
 
-return result; }
+.panel-head{padding:14px 14px 0}
+.panel-body{padding:14px}
 
-function safe(text) { return (text || "").toLowerCase().trim(); }
+.search-wrap{position:relative;margin-bottom:10px}
+.search-wrap input{
+  width:100%;padding:14px 14px 14px 42px;
+  border-radius:18px;border:1px solid var(--border);
+  background:#0a1222;color:var(--text);outline:none;
+}
+.search-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);opacity:.65}
 
-export default function CoezivIptvApp() { const videoRef = useRef(null); const hlsRef = useRef(null);
+.tabs{display:flex;gap:10px;margin-bottom:10px}
+.tabs .btn{flex:1}
 
-const [channels, setChannels] = useState([]); const [loading, setLoading] = useState(true); const [status, setStatus] = useState("Se încarcă playlistul..."); const [error, setError] = useState(""); const [query, setQuery] = useState(""); const [category, setCategory] = useState("Toate"); const [tab, setTab] = useState("all"); const [current, setCurrent] = useState(null); const [favorites, setFavorites] = useState([]);
+.quick-cats{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin-bottom:12px;
+}
+.chip{
+  border:1px solid var(--border);
+  background:#0a1222;
+  color:var(--text);
+  border-radius:16px;
+  padding:10px 12px;
+  text-align:left;
+  cursor:pointer;
+  transition:.18s ease;
+}
+.chip:hover,.chip.active{background:var(--panel-2);border-color:#3b82f6}
+.chip small{display:block;color:var(--muted);margin-top:3px}
 
-useEffect(() => { try { const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"); setFavorites(Array.isArray(saved) ? saved : []); } catch { setFavorites([]); } }, []);
+.list-meta{font-size:12px;color:var(--muted);margin:0 0 10px}
+.channel-list{max-height:66vh;overflow:auto;padding-right:4px}
+.channel-list::-webkit-scrollbar,.side-scroll::-webkit-scrollbar{width:10px}
+.channel-list::-webkit-scrollbar-thumb,.side-scroll::-webkit-scrollbar-thumb{background:#1f2a44;border-radius:20px}
 
-useEffect(() => { localStorage.setItem(STORAGE_KEY, JSON.stringify(favorites)); }, [favorites]);
+.channel-item{
+  width:100%;text-align:left;cursor:pointer;
+  border:1px solid var(--border);
+  background:#091120;
+  color:var(--text);
+  border-radius:18px;
+  padding:12px;
+  margin-bottom:10px;
+  transition:.18s ease;
+}
+.channel-item:hover{background:#0f182d}
+.channel-item.active{background:#101c34;border-color:#3b82f6}
+.channel-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.channel-left{display:flex;gap:10px;min-width:0;align-items:flex-start}
+.channel-logo{
+  width:44px;height:44px;border-radius:12px;flex:0 0 44px;
+  background:#111827;border:1px solid var(--border);object-fit:cover;
+}
+.logo-fallback{
+  width:44px;height:44px;border-radius:12px;flex:0 0 44px;
+  display:flex;align-items:center;justify-content:center;
+  background:#111827;border:1px solid var(--border);font-weight:700;color:#7dd3fc;
+}
+.channel-name{font-size:14px;font-weight:700;line-height:1.35;word-break:break-word}
+.channel-group{font-size:12px;color:var(--muted);margin-top:4px}
+.fav-btn{
+  border:none;background:transparent;color:#64748b;cursor:pointer;
+  font-size:18px;padding:2px 4px;border-radius:8px;
+}
+.fav-btn.active{color:#facc15}
 
-async function loadPlaylist() { setLoading(true); setError(""); setStatus("Se descarcă playlistul de pe GitHub...");
+.player-wrap{padding:0}
+.video-box{background:#000;aspect-ratio:16/9;display:flex;align-items:center;justify-content:center}
+video{width:100%;height:100%;background:#000;display:block}
+.player-info{padding:18px}
+.eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#64748b;margin-bottom:8px}
+.player-title{font-size:28px;font-weight:700;line-height:1.2;margin:0}
+.badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.badge{
+  border:1px solid var(--border);
+  background:#0a1222;
+  color:var(--muted);
+  padding:8px 10px;
+  border-radius:999px;
+  font-size:12px;
+}
+.status-box{
+  margin-top:16px;
+  border:1px solid var(--border);
+  background:#091120;
+  border-radius:18px;
+  padding:14px;
+  color:var(--muted);
+  font-size:14px;
+  line-height:1.5;
+  white-space:pre-line;
+}
+.player-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
 
-try {
-  const res = await fetch(PLAYLIST_URL, { cache: "no-store" });
-  if (!res.ok) throw new Error("Nu am putut descărca fișierul M3U.");
-  const text = await res.text();
-  const parsed = parseM3U(text);
-  if (!parsed.length) throw new Error("Playlistul nu conține canale valide.");
-  setChannels(parsed);
-  setStatus(`Playlist încărcat cu succes: ${parsed.length} canale.`);
-  if (!current && parsed[0]) setCurrent(parsed[0]);
-} catch (e) {
-  setError(e.message || "Eroare la încărcare.");
-  setStatus("Încărcarea a eșuat.");
-} finally {
-  setLoading(false);
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat-card{
+  border:1px solid var(--border);
+  background:#091120;
+  border-radius:18px;
+  padding:14px;
+}
+.stat-label{font-size:12px;color:var(--muted)}
+.stat-value{font-size:28px;font-weight:700;margin-top:6px}
+
+.section-title{font-size:15px;font-weight:700;margin:0 0 12px}
+.top-cats{display:grid;gap:8px}
+.cat-row{
+  width:100%;cursor:pointer;text-align:left;
+  border:1px solid var(--border);
+  background:#091120;color:var(--text);
+  border-radius:18px;padding:12px;
+}
+.cat-row:hover{background:#0f182d}
+.cat-row-inner{display:flex;justify-content:space-between;gap:10px;align-items:center}
+.cat-count{
+  min-width:40px;text-align:center;
+  border-radius:999px;background:#111b31;border:1px solid var(--border);
+  color:#cbd5e1;padding:5px 8px;font-size:12px;
 }
 
+.helper{
+  font-size:13px;color:var(--muted);line-height:1.6;
+  border:1px solid var(--border);background:#091120;border-radius:18px;padding:14px;
 }
 
-useEffect(() => { loadPlaylist(); }, []);
-
-useEffect(() => { const video = videoRef.current; if (!video || !current?.url) return;
-
-if (hlsRef.current) {
-  hlsRef.current.destroy();
-  hlsRef.current = null;
+.empty{
+  border:1px dashed var(--border);
+  background:#091120;border-radius:18px;padding:16px;color:var(--muted);font-size:14px;
 }
 
-video.pause();
-video.removeAttribute("src");
-video.load();
-setStatus(`Se încearcă redarea: ${current.title}`);
-
-if (video.canPlayType("application/vnd.apple.mpegurl")) {
-  video.src = current.url;
-  video.play().catch(() => {
-    setStatus("Canal încărcat. Apasă Play pentru pornire.");
-  });
-} else if (Hls.isSupported()) {
-  const hls = new Hls({ enableWorker: true, lowLatencyMode: true });
-  hlsRef.current = hls;
-  hls.loadSource(current.url);
-  hls.attachMedia(video);
-
-  hls.on(Hls.Events.MANIFEST_PARSED, () => {
-    setStatus(`Canal pregătit: ${current.title}`);
-    video.play().catch(() => {
-      setStatus("Canal încărcat. Browserul a blocat autoplay.");
-    });
-  });
-
-  hls.on(Hls.Events.ERROR, (_, data) => {
-    setStatus("Canalul nu poate fi redat în browser. Încearcă altul.");
-    console.error("HLS error", data);
-  });
-} else {
-  video.src = current.url;
+@media (max-width: 1180px){
+  .app{grid-template-columns:320px minmax(0,1fr)}
+  .right-col{grid-column:1 / -1}
+}
+@media (max-width: 860px){
+  .app{grid-template-columns:1fr}
+  .channel-list{max-height:38vh}
+  .topbar-inner{align-items:flex-start;flex-direction:column}
+  .brand-title{font-size:24px}
+  .player-title{font-size:22px}
+  .quick-cats{grid-template-columns:1fr 1fr}
 }
 
-video.onerror = () => {
-  setStatus("Eroare la redare. Streamul poate fi blocat sau inactiv.");
-};
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div>
+        <div class="brand-title">Coeziv TV</div>
+        <div class="brand-sub">Interfață tip aplicație reală • playlist GitHub • favorite • categorii • player HLS</div>
+      </div>
+      <div class="top-actions">
+        <button id="refreshBtn" class="btn primary">Reîmprospătează</button>
+        <button id="reloadCurrentBtn" class="btn">Reîncarcă canalul</button>
+      </div>
+    </div>
+  </header>  <main class="app">
+    <section class="panel">
+      <div class="panel-body">
+        <div class="tabs">
+          <button id="tabAll" class="btn ghost active">Toate</button>
+          <button id="tabFav" class="btn ghost">Favorite</button>
+        </div><div class="search-wrap">
+      <span class="search-icon">🔎</span>
+      <input id="searchInput" type="text" placeholder="Caută canal, categorie, tvg-id..." />
+    </div>
 
-return () => {
-  if (hlsRef.current) {
-    hlsRef.current.destroy();
-    hlsRef.current = null;
-  }
-};
+    <div id="quickCats" class="quick-cats"></div>
 
-}, [current]);
+    <div id="listMeta" class="list-meta">Se încarcă...</div>
+    <div id="channelList" class="channel-list"></div>
+  </div>
+</section>
 
-const categories = useMemo(() => { const set = new Set(channels.map((c) => c.group || "General")); return ["Toate", ...Array.from(set).sort((a, b) => a.localeCompare(b, "ro"))]; }, [channels]);
-
-const favoriteSet = useMemo(() => new Set(favorites), [favorites]);
-
-const filtered = useMemo(() => { let list = [...channels];
-
-if (tab === "favorites") {
-  list = list.filter((c) => favoriteSet.has(c.url));
-}
-
-if (category !== "Toate") {
-  list = list.filter((c) => c.group === category);
-}
-
-const q = safe(query);
-if (q) {
-  list = list.filter(
-    (c) => safe(c.title).includes(q) || safe(c.group).includes(q) || safe(c.tvgId).includes(q)
-  );
-}
-
-return list.sort((a, b) => a.title.localeCompare(b.title, "ro"));
-
-}, [channels, tab, category, query, favoriteSet]);
-
-function toggleFavorite(channel) { setFavorites((prev) => prev.includes(channel.url) ? prev.filter((x) => x !== channel.url) : [...prev, channel.url] ); }
-
-const groupedPreview = useMemo(() => { const map = new Map(); for (const c of channels) { map.set(c.group, (map.get(c.group) || 0) + 1); } return Array.from(map.entries()) .sort((a, b) => b[1] - a[1]) .slice(0, 8); }, [channels]);
-
-return ( <div className="min-h-screen bg-slate-950 text-slate-100"> <div className="border-b border-slate-800 bg-slate-950/90 backdrop-blur sticky top-0 z-20"> <div className="mx-auto max-w-7xl px-4 py-4 md:px-6"> <div className="flex items-center justify-between gap-4"> <div> <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Coeziv IPTV</h1> <p className="text-sm text-slate-400 mt-1">Interfață tip aplicație reală • playlist GitHub • favorite • categorii • player HLS</p> </div> <Button onClick={loadPlaylist} className="rounded-2xl"> <RefreshCw className="w-4 h-4 mr-2" /> Reîmprospătează </Button> </div> </div> </div>
-
-<div className="mx-auto max-w-7xl px-4 py-4 md:px-6 grid grid-cols-1 xl:grid-cols-[320px_minmax(0,1fr)_320px] gap-4">
-    <Card className="rounded-3xl border-slate-800 bg-slate-900/90">
-      <CardContent className="p-4">
-        <div className="flex gap-2 mb-3">
-          <Button
-            variant={tab === "all" ? "default" : "outline"}
-            className="rounded-2xl flex-1"
-            onClick={() => setTab("all")}
-          >
-            <LayoutGrid className="w-4 h-4 mr-2" /> Toate
-          </Button>
-          <Button
-            variant={tab === "favorites" ? "default" : "outline"}
-            className="rounded-2xl flex-1"
-            onClick={() => setTab("favorites")}
-          >
-            <Heart className="w-4 h-4 mr-2" /> Favorite
-          </Button>
-        </div>
-
-        <div className="relative mb-3">
-          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-          <Input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Caută canal, categorie, tvg-id..."
-            className="pl-9 rounded-2xl bg-slate-950 border-slate-800"
-          />
-        </div>
-
-        <div className="grid grid-cols-2 gap-2 mb-4">
-          {categories.slice(0, 10).map((c) => (
-            <Button
-              key={c}
-              variant={category === c ? "default" : "outline"}
-              className="rounded-2xl justify-start text-left"
-              onClick={() => setCategory(c)}
-            >
-              <Folder className="w-4 h-4 mr-2" /> {c}
-            </Button>
-          ))}
-        </div>
-
-        <div className="text-xs text-slate-400 mb-2">
-          {loading ? "Încărcare..." : `${filtered.length} canale afișate`}
-        </div>
-
-        <ScrollArea className="h-[58vh] pr-2">
-          <div className="space-y-2">
-            {filtered.map((channel) => {
-              const active = current?.url === channel.url;
-              const isFav = favoriteSet.has(channel.url);
-              return (
-                <button
-                  key={channel.url}
-                  onClick={() => setCurrent(channel)}
-                  className={`w-full text-left rounded-2xl border p-3 transition ${
-                    active
-                      ? "border-sky-500 bg-slate-800"
-                      : "border-slate-800 bg-slate-950 hover:bg-slate-900"
-                  }`}
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <div className="font-semibold text-sm leading-5 truncate">{channel.title}</div>
-                      <div className="text-xs text-slate-400 mt-1 truncate">{channel.group}</div>
-                    </div>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        toggleFavorite(channel);
-                      }}
-                      className="shrink-0"
-                    >
-                      <Star className={`w-4 h-4 ${isFav ? "fill-yellow-400 text-yellow-400" : "text-slate-500"}`} />
-                    </button>
-                  </div>
-                </button>
-              );
-            })}
-
-            {!loading && filtered.length === 0 && (
-              <div className="rounded-2xl border border-slate-800 bg-slate-950 p-4 text-sm text-slate-400">
-                Niciun canal găsit pentru filtrul curent.
-              </div>
-            )}
-          </div>
-        </ScrollArea>
-      </CardContent>
-    </Card>
-
-    <Card className="rounded-3xl border-slate-800 bg-slate-900/90 overflow-hidden">
-      <CardContent className="p-0">
-        <div className="aspect-video bg-black">
-          <video ref={videoRef} controls playsInline className="w-full h-full bg-black" />
-        </div>
-        <div className="p-5">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <div className="text-xs uppercase tracking-[0.2em] text-slate-500 mb-2">Now Playing</div>
-              <h2 className="text-2xl font-bold leading-tight">
-                {current?.title || "Alege un canal"}
-              </h2>
-              <div className="flex flex-wrap gap-2 mt-3">
-                <Badge className="rounded-full bg-slate-800 text-slate-200 hover:bg-slate-800">
-                  <Tv className="w-3.5 h-3.5 mr-1" /> {current?.group || "Categorie"}
-                </Badge>
-                {current?.tvgId && (
-                  <Badge className="rounded-full bg-slate-800 text-slate-200 hover:bg-slate-800">
-                    <Globe className="w-3.5 h-3.5 mr-1" /> {current.tvgId}
-                  </Badge>
-                )}
-              </div>
-            </div>
-            {current && (
-              <Button onClick={() => toggleFavorite(current)} variant="outline" className="rounded-2xl">
-                <Heart className={`w-4 h-4 mr-2 ${favoriteSet.has(current.url) ? "fill-red-500 text-red-500" : ""}`} />
-                {favoriteSet.has(current.url) ? "Salvat" : "Favorit"}
-              </Button>
-            )}
-          </div>
-
-          <div className="mt-4 rounded-2xl border border-slate-800 bg-slate-950 p-4 text-sm text-slate-300 leading-6">
-            <div className="flex items-center gap-2 font-medium mb-2">
-              <Play className="w-4 h-4" /> Stare player
-            </div>
-            <div className="text-slate-400 whitespace-pre-line">{error || status}</div>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-
-    <div className="space-y-4">
-      <Card className="rounded-3xl border-slate-800 bg-slate-900/90">
-        <CardContent className="p-4">
-          <div className="text-sm font-semibold mb-3">Rezumat playlist</div>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="rounded-2xl border border-slate-800 bg-slate-950 p-4">
-              <div className="text-xs text-slate-500">Total canale</div>
-              <div className="text-2xl font-bold mt-1">{channels.length}</div>
-            </div>
-            <div className="rounded-2xl border border-slate-800 bg-slate-950 p-4">
-              <div className="text-xs text-slate-500">Favorite</div>
-              <div className="text-2xl font-bold mt-1">{favorites.length}</div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card className="rounded-3xl border-slate-800 bg-slate-900/90">
-        <CardContent className="p-4">
-          <div className="text-sm font-semibold mb-3">Top categorii</div>
-          <div className="space-y-2">
-            {groupedPreview.map(([name, count]) => (
-              <button
-                key={name}
-                onClick={() => {
-                  setCategory(name);
-                  setTab("all");
-                }}
-                className="w-full rounded-2xl border border-slate-800 bg-slate-950 p-3 text-left hover:bg-slate-900"
-              >
-                <div className="flex items-center justify-between gap-3">
-                  <div className="font-medium text-sm truncate">{name}</div>
-                  <Badge className="rounded-full bg-slate-800 text-slate-200 hover:bg-slate-800">{count}</Badge>
-                </div>
-              </button>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card className="rounded-3xl border-slate-800 bg-slate-900/90">
-        <CardContent className="p-4 text-sm text-slate-400 leading-6">
-          Interfața este gândită ca o aplicație reală: panou lateral, favorite persistente, categorii rapide și player central. Următorul upgrade bun este logo pe canal, EPG și pagină dedicată pentru fiecare categorie.
-        </CardContent>
-      </Card>
+<section class="panel player-wrap">
+  <div class="video-box">
+    <video id="video" controls playsinline></video>
+  </div>
+  <div class="player-info">
+    <div class="eyebrow">Now Playing</div>
+    <h1 id="playerTitle" class="player-title">Alege un canal</h1>
+    <div class="badges">
+      <span id="playerGroup" class="badge">Categorie</span>
+      <span id="playerTvg" class="badge">tvg-id</span>
+      <span id="playerState" class="badge">Idle</span>
+    </div>
+    <div id="statusBox" class="status-box">Se încarcă playlistul...</div>
+    <div class="player-actions">
+      <button id="favoriteCurrentBtn" class="btn">☆ Favorit</button>
+      <button id="copyUrlBtn" class="btn">Copiază URL stream</button>
     </div>
   </div>
-</div>
+</section>
 
-); }
+<aside class="right-col side-scroll" style="display:grid;gap:16px;align-content:start;max-height:calc(100vh - 110px);overflow:auto;">
+  <section class="panel">
+    <div class="panel-body">
+      <div class="section-title">Rezumat playlist</div>
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-label">Total canale</div>
+          <div id="statChannels" class="stat-value">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Favorite</div>
+          <div id="statFavorites" class="stat-value">0</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-body">
+      <div class="section-title">Top categorii</div>
+      <div id="topCategories" class="top-cats"></div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-body">
+      <div class="section-title">Notă</div>
+      <div class="helper">
+        Unele streamuri IPTV nu pot fi redate în browser din cauza CORS, anti-hotlink sau fiindcă au expirat. Interfața este corectă pentru Vercel și citește direct playlistul tău M3U de pe GitHub.
+      </div>
+    </div>
+  </section>
+</aside>
+
+  </main>  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>  <script>
+    const PLAYLIST_URL = "https://raw.githubusercontent.com/trendyiptv-a11y/Coeziv/main/iptv.m3u";
+    const FAVORITES_KEY = "coeziv_tv_favorites";
+
+    const video = document.getElementById("video");
+    const searchInput = document.getElementById("searchInput");
+    const channelList = document.getElementById("channelList");
+    const quickCats = document.getElementById("quickCats");
+    const topCategories = document.getElementById("topCategories");
+    const listMeta = document.getElementById("listMeta");
+    const statusBox = document.getElementById("statusBox");
+    const playerTitle = document.getElementById("playerTitle");
+    const playerGroup = document.getElementById("playerGroup");
+    const playerTvg = document.getElementById("playerTvg");
+    const playerState = document.getElementById("playerState");
+    const statChannels = document.getElementById("statChannels");
+    const statFavorites = document.getElementById("statFavorites");
+    const tabAll = document.getElementById("tabAll");
+    const tabFav = document.getElementById("tabFav");
+    const favoriteCurrentBtn = document.getElementById("favoriteCurrentBtn");
+    const refreshBtn = document.getElementById("refreshBtn");
+    const reloadCurrentBtn = document.getElementById("reloadCurrentBtn");
+    const copyUrlBtn = document.getElementById("copyUrlBtn");
+
+    let channels = [];
+    let current = null;
+    let currentCategory = "Toate";
+    let currentTab = "all";
+    let hls = null;
+    let favorites = loadFavorites();
+
+    function loadFavorites(){
+      try {
+        const raw = localStorage.getItem(FAVORITES_KEY);
+        const parsed = JSON.parse(raw || "[]");
+        return Array.isArray(parsed) ? parsed : [];
+      } catch {
+        return [];
+      }
+    }
+
+    function saveFavorites(){
+      localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites));
+      statFavorites.textContent = favorites.length;
+    }
+
+    function safe(value){
+      return (value || "").toLowerCase().trim();
+    }
+
+    function escapeHtml(str){
+      return (str || "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function parseM3U(text){
+      const lines = text.split(/\r?\n/);
+      const result = [];
+      let currentItem = null;
+
+      for(const rawLine of lines){
+        const line = rawLine.trim();
+        if(!line) continue;
+
+        if(line.startsWith("#EXTINF")){
+          const parts = line.split(",", 2);
+          const meta = parts[0] || "";
+          const title = (parts[1] || "Canal necunoscut").trim();
+          const groupMatch = meta.match(/group-title="([^"]+)"/i);
+          const logoMatch = meta.match(/tvg-logo="([^"]+)"/i);
+          const idMatch = meta.match(/tvg-id="([^"]+)"/i);
+
+          currentItem = {
+            title,
+            group: groupMatch ? groupMatch[1] : "General",
+            logo: logoMatch ? logoMatch[1] : "",
+            tvgId: idMatch ? idMatch[1] : "",
+            url: ""
+          };
+        } else if(/^https?:\/\//i.test(line) && currentItem){
+          currentItem.url = line;
+          result.push(currentItem);
+          currentItem = null;
+        }
+      }
+      return result;
+    }
+
+    async function loadPlaylist(){
+      setStatus("Se descarcă playlistul de pe GitHub...");
+      playerState.textContent = "Loading";
+
+      try {
+        const res = await fetch(PLAYLIST_URL, { cache: "no-store" });
+        if(!res.ok) throw new Error("Nu am putut descărca playlistul.");
+        const text = await res.text();
+        channels = parseM3U(text);
+        if(!channels.length) throw new Error("Playlistul nu conține canale valide.");
+
+        statChannels.textContent = channels.length;
+        statFavorites.textContent = favorites.length;
+        renderQuickCategories();
+        renderTopCategories();
+        renderChannels();
+
+        if(!current && channels[0]){
+          selectChannel(channels[0]);
+        } else {
+          setStatus(`Playlist încărcat cu succes.\nCanale găsite: ${channels.length}`);
+          playerState.textContent = "Ready";
+        }
+      } catch(err){
+        setStatus(
+          "Eroare la încărcarea playlistului.\n\n" +
+          (err?.message || "Necunoscut") +
+          "\n\nVerifică linkul raw GitHub și dacă repo-ul este public."
+        );
+        playerState.textContent = "Error";
+        channelList.innerHTML = '<div class="empty">Nu am putut încărca lista de canale.</div>';
+      }
+    }
+
+    function groupedCounts(){
+      const map = new Map();
+      for(const c of channels){
+        map.set(c.group, (map.get(c.group) || 0) + 1);
+      }
+      return Array.from(map.entries()).sort((a,b) => b[1] - a[1]);
+    }
+
+    function renderQuickCategories(){
+      const top = groupedCounts().slice(0, 10);
+      quickCats.innerHTML = "";
+
+      const allChip = document.createElement("button");
+      allChip.className = "chip" + (currentCategory === "Toate" ? " active" : "");
+      allChip.innerHTML = `Toate<small>${channels.length} canale</small>`;
+      allChip.onclick = () => { currentCategory = "Toate"; renderQuickCategories(); renderChannels(); };
+      quickCats.appendChild(allChip);
+
+      top.forEach(([name, count]) => {
+        const chip = document.createElement("button");
+        chip.className = "chip" + (currentCategory === name ? " active" : "");
+        chip.innerHTML = `${escapeHtml(name)}<small>${count} canale</small>`;
+        chip.onclick = () => {
+          currentCategory = name;
+          renderQuickCategories();
+          renderChannels();
+        };
+        quickCats.appendChild(chip);
+      });
+    }
+
+    function renderTopCategories(){
+      topCategories.innerHTML = "";
+      groupedCounts().slice(0, 12).forEach(([name,count]) => {
+        const row = document.createElement("button");
+        row.className = "cat-row";
+        row.innerHTML = `
+          <div class="cat-row-inner">
+            <div>${escapeHtml(name)}</div>
+            <div class="cat-count">${count}</div>
+          </div>
+        `;
+        row.onclick = () => {
+          currentTab = "all";
+          updateTabs();
+          currentCategory = name;
+          renderQuickCategories();
+          renderChannels();
+        };
+        topCategories.appendChild(row);
+      });
+    }
+
+    function getFiltered(){
+      const q = safe(searchInput.value);
+      let list = [...channels];
+
+      if(currentTab === "favorites"){
+        list = list.filter(ch => favorites.includes(ch.url));
+      }
+      if(currentCategory !== "Toate"){
+        list = list.filter(ch => ch.group === currentCategory);
+      }
+      if(q){
+        list = list.filter(ch =>
+          safe(ch.title).includes(q) ||
+          safe(ch.group).includes(q) ||
+          safe(ch.tvgId).includes(q)
+        );
+      }
+
+      list.sort((a,b) => a.title.localeCompare(b.title, "ro"));
+      return list;
+    }
+
+    function renderChannels(){
+      const filtered = getFiltered();
+      listMeta.textContent = `${filtered.length} canale afișate`;
+      channelList.innerHTML = "";
+
+      if(!filtered.length){
+        channelList.innerHTML = '<div class="empty">Niciun canal găsit pentru filtrul curent.</div>';
+        return;
+      }
+
+      filtered.forEach(ch => {
+        const active = current && current.url === ch.url;
+        const isFav = favorites.includes(ch.url);
+        const item = document.createElement("button");
+        item.className = "channel-item" + (active ? " active" : "");
+
+        const logoHtml = ch.logo
+          ? `<img class="channel-logo" src="${escapeHtml(ch.logo)}" alt="logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" /><div class="logo-fallback" style="display:none">TV</div>`
+          : `<div class="logo-fallback">TV</div>`;
+
+        item.innerHTML = `
+          <div class="channel-top">
+            <div class="channel-left">
+              ${logoHtml}
+              <div style="min-width:0">
+                <div class="channel-name">${escapeHtml(ch.title)}</div>
+                <div class="channel-group">${escapeHtml(ch.group)}</div>
+              </div>
+            </div>
+            <button class="fav-btn ${isFav ? "active" : ""}" title="Favorit">${isFav ? "★" : "☆"}</button>
+          </div>
+        `;
+
+        item.onclick = () => selectChannel(ch);
+        item.querySelector(".fav-btn").onclick = (e) => {
+          e.stopPropagation();
+          toggleFavorite(ch.url);
+        };
+        channelList.appendChild(item);
+      });
+    }
+
+    function toggleFavorite(url){
+      if(favorites.includes(url)){
+        favorites = favorites.filter(x => x !== url);
+      } else {
+        favorites.push(url);
+      }
+      saveFavorites();
+      updateFavoriteCurrentButton();
+      renderChannels();
+    }
+
+    function updateTabs(){
+      tabAll.classList.toggle("active", currentTab === "all");
+      tabFav.classList.toggle("active", currentTab === "favorites");
+    }
+
+    function updateFavoriteCurrentButton(){
+      if(!current){
+        favoriteCurrentBtn.textContent = "☆ Favorit";
+        return;
+      }
+      favoriteCurrentBtn.textContent = favorites.includes(current.url) ? "★ Salvat" : "☆ Favorit";
+    }
+
+    function setStatus(text){
+      statusBox.textContent = text;
+    }
+
+    function selectChannel(channel){
+      current = channel;
+      playerTitle.textContent = channel.title || "Canal";
+      playerGroup.textContent = channel.group || "Categorie";
+      playerTvg.textContent = channel.tvgId || "fără tvg-id";
+      updateFavoriteCurrentButton();
+      renderChannels();
+      playChannel(channel);
+    }
+
+    function cleanupHls(){
+      if(hls){
+        hls.destroy();
+        hls = null;
+      }
+    }
+
+    function playChannel(channel){
+      cleanupHls();
+      playerState.textContent = "Buffering";
+      setStatus(`Se încearcă redarea: ${channel.title}`);
+
+      video.pause();
+      video.removeAttribute("src");
+      video.load();
+
+      if(video.canPlayType("application/vnd.apple.mpegurl")){
+        video.src = channel.url;
+        video.play().catch(() => {
+          setStatus("Canal încărcat. Apasă Play pentru pornire.");
+        });
+      } else if(window.Hls && Hls.isSupported()){
+        hls = new Hls({ enableWorker:true, lowLatencyMode:true });
+        hls.loadSource(channel.url);
+        hls.attachMedia(video);
+
+        hls.on(Hls.Events.MANIFEST_PARSED, () => {
+          playerState.textContent = "Ready";
+          setStatus(`Canal pregătit: ${channel.title}`);
+          video.play().catch(() => {
+            setStatus("Canal încărcat. Browserul a blocat autoplay. Apasă Play.");
+          });
+        });
+
+        hls.on(Hls.Events.ERROR, (_, data) => {
+          console.error("HLS error", data);
+          playerState.textContent = "Error";
+          setStatus(
+            `Canalul nu poate fi redat în browser.\n\n` +
+            `Motive posibile:\n` +
+            `- stream blocat de server\n` +
+            `- stream expirat\n` +
+            `- CORS / anti-hotlink\n` +
+            `- link nefuncțional`
+          );
+        });
+      } else {
+        video.src = channel.url;
+      }
+
+      video.onloadeddata = () => {
+        playerState.textContent = "Playing";
+        setStatus(`Canal redat: ${channel.title}`);
+      };
+      video.onerror = () => {
+        playerState.textContent = "Error";
+        setStatus("Eroare la redare. Acest stream probabil nu este permis în browser.");
+      };
+    }
+
+    tabAll.onclick = () => { currentTab = "all"; updateTabs(); renderChannels(); };
+    tabFav.onclick = () => { currentTab = "favorites"; updateTabs(); renderChannels(); };
+    searchInput.addEventListener("input", renderChannels);
+    refreshBtn.onclick = loadPlaylist;
+    reloadCurrentBtn.onclick = () => { if(current) playChannel(current); };
+    favoriteCurrentBtn.onclick = () => { if(current) toggleFavorite(current.url); };
+    copyUrlBtn.onclick = async () => {
+      if(!current?.url) return;
+      try {
+        await navigator.clipboard.writeText(current.url);
+        setStatus("URL-ul streamului a fost copiat.");
+      } catch {
+        setStatus("Nu am putut copia URL-ul automat.");
+      }
+    };
+
+    saveFavorites();
+    updateTabs();
+    loadPlaylist();
+  </script></body>
+</html>
