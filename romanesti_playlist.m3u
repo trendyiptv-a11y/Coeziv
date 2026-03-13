@@ -1,0 +1,143 @@
+#EXTM3U
+#EXTINF:0 group-title="Altele",Antena 3 HD ES
+http://e6afa88a.megatv.fun/iptv/L3EE4QS422SQD5/31825/index.m3u8
+#EXTINF:0 group-title="Altele",Heimatkanal DE
+http://e6afa88a.megatv.fun/iptv/L3EE4QS422SQD5/31322/index.m3u8
+#EXTINF:0 group-title="Altele",Kanal 11 HD SE
+http://e6afa88a.megatv.fun/iptv/L3EE4QS422SQD5/7357/index.m3u8
+#EXTINF:0 group-title="Altele" tvg-rec="3" timeshift="3",Kanal 2 EE
+http://e6afa88a.megatv.fun/iptv/L3EE4QS422SQD5/6404/index.m3u8
+#EXTINF:0 group-title="Altele",Kanal 2 HD EE
+http://e6afa88a.megatv.fun/iptv/L3EE4QS422SQD5/18002/index.m3u8
+#EXTINF:0 group-title="Altele",Kanal 4 HD DK
+http://e6afa88a.megatv.fun/iptv/L3EE4QS422SQD5/7358/index.m3u8
+#EXTINF:0 group-title="Altele",Kanal 5 HD SE
+http://e6afa88a.megatv.fun/iptv/L3EE4QS422SQD5/12052/index.m3u8
+#EXTINF:0 group-title="Altele",Kanal 7 HD EE
+http://e6afa88a.megatv.fun/iptv/L3EE4QS422SQD5/20079/index.m3u8
+#EXTINF:0 group-title="Altele",Kanal 9 HD SE
+http://e6afa88a.megatv.fun/iptv/L3EE4QS422SQD5/12053/index.m3u8
+#EXTINF:0 group-title="Altele",Kunskapskanalen HD SE
+http://e6afa88a.megatv.fun/iptv/L3EE4QS422SQD5/12054/index.m3u8
+#EXTINF:0 group-title="Altele",Sportdigital Fussball DE
+http://e6afa88a.megatv.fun/iptv/L3EE4QS422SQD5/31411/index.m3u8
+#EXTINF:0 group-title="Românești" tvg-rec="3" timeshift="3",Antena 1 HD RO
+http://e6afa88a.megatv.fun/iptv/L3EE4QS422SQD5/7002/index.m3u8
+#EXTINF:0 group-title="Românești" tvg-rec="3" timeshift="3",Antena 3 CNN HD RO
+http://e6afa88a.megatv.fun/iptv/L3EE4QS422SQD5/7003/index.m3u8
+#EXTINF:0 group-title="Românești" tvg-rec="3" timeshift="3",Antena Stars HD RO
+http://e6afa88a.megatv.fun/iptv/L3EE4QS422SQD5/7004/index.m3u8
+#EXTINF:0 group-title="Românești" tvg-rec="3" timeshift="3",DIGI 24 HD RO
+http://e6afa88a.megatv.fun/iptv/L3EE4QS422SQD5/7009/index.m3u8
+#EXTINF:0 group-title="Românești" tvg-rec="3" timeshift="3",DIGI Animal World HD RO
+http://e6afa88a.megatv.fun/iptv/L3EE4QS422SQD5/7038/index.m3u8
+#EXTINF:0 group-title="Românești" tvg-rec="3" timeshift="3",DIGI Life HD RO
+http://e6afa88a.megatv.fun/iptv/L3EE4QS422SQD5/7039/index.m3u8
+#EXTINF:0 group-title="Românești" tvg-rec="3" timeshift="3",DIGI World HD RO
+http://e6afa88a.megatv.fun/iptv/L3EE4QS422SQD5/7040/index.m3u8
+#EXTINF:0 group-title="Românești" tvg-rec="3" timeshift="3",Etno RO
+http://e6afa88a.megatv.fun/iptv/L3EE4QS422SQD5/7027/index.m3u8
+#EXTINF:0 group-title="Românești" tvg-rec="3" timeshift="3",Euronews Romania MD
+http://e6afa88a.megatv.fun/iptv/L3EE4QS422SQD5/2462/index.m3u8
+#EXTINF:0 group-title="Românești" tvg-rec="3" timeshift="3",Favorit TV RO
+http://e6afa88a.megatv.fun/iptv/L3EE4QS422SQD5/6979/index.m3u8
+#EXTINF:0 group-title="Românești" tvg-rec="3" timeshift="3",Kanal D HD RO
+http://e6afa88a.megatv.fun/iptv/L3EE4QS422SQD5/6984/index.m3u8
+#EXTINF:0 group-title="Românești" tvg-rec="3" timeshift="3",Kiss TV RO
+http://e6afa88a.megatv.fun/iptv/L3EE4QS422SQD5/6962/index.m3u8
+#EXTINF:0 group-title="Românești" tvg-rec="3" timeshift="3",National TV RO
+http://e6afa88a.megatv.fun/iptv/L3EE4QS422SQD5/6983/index.m3u8
+#EXTINF:0 group-title="Românești" tvg-rec="3" timeshift="3",Prima Sport 1 HD RO
+http://e6afa88a.megatv.fun/iptv/L3EE4QS422SQD5/7059/index.m3u8
+#EXTINF:0 group-title="Românești" tvg-rec="3" timeshift="3",Prima Sport 2 HD RO
+http://e6afa88a.megatv.fun/iptv/L3EE4QS422SQD5/7060/index.m3u8
+#EXTINF:0 group-title="Românești" tvg-rec="3" timeshift="3",Prima TV RO
+http://e6afa88a.megatv.fun/iptv/L3EE4QS422SQD5/6995/index.m3u8
+#EXTINF:0 group-title="Românești",Pro TV Chisinau HD MD
+http://e6afa88a.megatv.fun/iptv/L3EE4QS422SQD5/19452/index.m3u8
+#EXTINF:0 group-title="Românești" tvg-rec="3" timeshift="3",Pro TV Chisinau MD
+http://e6afa88a.megatv.fun/iptv/L3EE4QS422SQD5/2456/index.m3u8
+#EXTINF:0 group-title="Românești" tvg-rec="3" timeshift="3",Pro TV International RO
+http://e6afa88a.megatv.fun/iptv/L3EE4QS422SQD5/7055/index.m3u8
+#EXTINF:0 group-title="Românești" tvg-rec="3" timeshift="3",Pro TV RO
+http://e6afa88a.megatv.fun/iptv/L3EE4QS422SQD5/6997/index.m3u8
+#EXTINF:0 group-title="Românești",Realitatea Live HD MD
+http://e6afa88a.megatv.fun/iptv/L3EE4QS422SQD5/31894/index.m3u8
+#EXTINF:0 group-title="Românești" tvg-rec="3" timeshift="3",Realitatea Live MD
+http://e6afa88a.megatv.fun/iptv/L3EE4QS422SQD5/2467/index.m3u8
+#EXTINF:0 group-title="Românești" tvg-rec="3" timeshift="3",Realitatea Plus RO
+http://e6afa88a.megatv.fun/iptv/L3EE4QS422SQD5/6958/index.m3u8
+#EXTINF:0 group-title="Românești" tvg-rec="3" timeshift="3",Romania TV RO
+http://e6afa88a.megatv.fun/iptv/L3EE4QS422SQD5/6959/index.m3u8
+#EXTINF:0 group-title="Românești" tvg-rec="3" timeshift="3",Taraf TV RO
+http://e6afa88a.megatv.fun/iptv/L3EE4QS422SQD5/7022/index.m3u8
+#EXTINF:0 group-title="Românești" tvg-rec="3" timeshift="3",Trinitas TV RO
+http://e6afa88a.megatv.fun/iptv/L3EE4QS422SQD5/7047/index.m3u8
+#EXTINF:0 group-title="Românești" tvg-rec="3" timeshift="3",TVR 1 HD RO
+http://e6afa88a.megatv.fun/iptv/L3EE4QS422SQD5/6998/index.m3u8
+#EXTINF:0 group-title="Românești" tvg-rec="3" timeshift="3",TVR 1 MD
+http://e6afa88a.megatv.fun/iptv/L3EE4QS422SQD5/5026/index.m3u8
+#EXTINF:0 group-title="Românești" tvg-rec="3" timeshift="3",TVR 1 RO
+http://e6afa88a.megatv.fun/iptv/L3EE4QS422SQD5/6941/index.m3u8
+#EXTINF:0 group-title="Românești" tvg-rec="3" timeshift="3",TVR 2 RO
+http://e6afa88a.megatv.fun/iptv/L3EE4QS422SQD5/6942/index.m3u8
+#EXTINF:0 group-title="Românești" tvg-rec="3" timeshift="3",TVR 3 RO
+http://e6afa88a.megatv.fun/iptv/L3EE4QS422SQD5/6943/index.m3u8
+#EXTINF:0 group-title="Românești" tvg-rec="3" timeshift="3",TVR International HD RO
+http://e6afa88a.megatv.fun/iptv/L3EE4QS422SQD5/7000/index.m3u8
+#EXTINF:0 group-title="Românești" tvg-rec="3" timeshift="3",TVR Moldova MD
+http://e6afa88a.megatv.fun/iptv/L3EE4QS422SQD5/2464/index.m3u8
+#EXTINF:0 group-title="Românești" tvg-rec="3" timeshift="3",UTV HD RO
+http://e6afa88a.megatv.fun/iptv/L3EE4QS422SQD5/7036/index.m3u8
+#EXTINF:0 group-title="Românești" tvg-rec="3" timeshift="3",UTV RO
+http://e6afa88a.megatv.fun/iptv/L3EE4QS422SQD5/7017/index.m3u8
+#EXTINF:0 group-title="Sport" tvg-rec="3" timeshift="3",DIGI Sport 1 HD RO
+http://e6afa88a.megatv.fun/iptv/L3EE4QS422SQD5/2523/index.m3u8
+#EXTINF:0 group-title="Sport" tvg-rec="3" timeshift="3",DIGI Sport 2 HD RO
+http://e6afa88a.megatv.fun/iptv/L3EE4QS422SQD5/2522/index.m3u8
+#EXTINF:0 group-title="Sport" tvg-rec="3" timeshift="3",DIGI Sport 3 HD RO
+http://e6afa88a.megatv.fun/iptv/L3EE4QS422SQD5/2524/index.m3u8
+#EXTINF:0 group-title="Sport" tvg-rec="3" timeshift="3",DIGI Sport 4 HD RO
+http://e6afa88a.megatv.fun/iptv/L3EE4QS422SQD5/2538/index.m3u8
+#EXTINF:0 group-title="Sport",Sky Primafila 1 HD IT
+http://e6afa88a.megatv.fun/iptv/L3EE4QS422SQD5/19118/index.m3u8
+#EXTINF:0 group-title="Sport",Sky Primafila 2 HD IT
+http://e6afa88a.megatv.fun/iptv/L3EE4QS422SQD5/19119/index.m3u8
+#EXTINF:0 group-title="Sport",Sky Primafila 3 HD IT
+http://e6afa88a.megatv.fun/iptv/L3EE4QS422SQD5/19120/index.m3u8
+#EXTINF:0 group-title="Sport",Sky Primafila 4 HD IT
+http://e6afa88a.megatv.fun/iptv/L3EE4QS422SQD5/19121/index.m3u8
+#EXTINF:0 group-title="Sport",Sky Primafila 5 HD IT
+http://e6afa88a.megatv.fun/iptv/L3EE4QS422SQD5/19122/index.m3u8
+#EXTINF:0 group-title="Sport",Sky Primafila 6 HD IT
+http://e6afa88a.megatv.fun/iptv/L3EE4QS422SQD5/19123/index.m3u8
+#EXTINF:0 group-title="Sport",Sky Primafila 7 HD IT
+http://e6afa88a.megatv.fun/iptv/L3EE4QS422SQD5/19124/index.m3u8
+#EXTINF:0 group-title="Sport",Sky Primafila 8 HD IT
+http://e6afa88a.megatv.fun/iptv/L3EE4QS422SQD5/19125/index.m3u8
+#EXTINF:0 group-title="Sport",Sky Primafila 9 HD IT
+http://e6afa88a.megatv.fun/iptv/L3EE4QS422SQD5/19126/index.m3u8
+#EXTINF:0 group-title="Sport",Sportdigital Fussball HD DE
+http://e6afa88a.megatv.fun/iptv/L3EE4QS422SQD5/19023/index.m3u8
+#EXTINF:0 group-title="Sport",TV4 Sportkanalen HD SE
+http://e6afa88a.megatv.fun/iptv/L3EE4QS422SQD5/12035/index.m3u8
+#EXTINF:0 group-title="SUA" tvg-rec="3" timeshift="3",truTV HD US
+http://e6afa88a.megatv.fun/iptv/L3EE4QS422SQD5/1085/index.m3u8
+#EXTINF:0 group-title="Turcești" tvg-rec="3" timeshift="3",Kanal 7 Avrupa HD TR
+http://e6afa88a.megatv.fun/iptv/L3EE4QS422SQD5/6905/index.m3u8
+#EXTINF:0 group-title="Turcești" tvg-rec="3" timeshift="3",Kanal 7 HD TR
+http://e6afa88a.megatv.fun/iptv/L3EE4QS422SQD5/6903/index.m3u8
+#EXTINF:0 group-title="Turcești" tvg-rec="3" timeshift="3",Kanal 7 HD TR
+http://e6afa88a.megatv.fun/iptv/L3EE4QS422SQD5/6904/index.m3u8
+#EXTINF:0 group-title="Turcești" tvg-rec="3" timeshift="3",Kanal Avrupa TR
+http://e6afa88a.megatv.fun/iptv/L3EE4QS422SQD5/6766/index.m3u8
+#EXTINF:0 group-title="Turcești" tvg-rec="3" timeshift="3",Kanal D HD TR
+http://e6afa88a.megatv.fun/iptv/L3EE4QS422SQD5/2326/index.m3u8
+#EXTINF:0 group-title="Turcești" tvg-rec="3" timeshift="3",Kanal D TR
+http://e6afa88a.megatv.fun/iptv/L3EE4QS422SQD5/2304/index.m3u8
+#EXTINF:0 group-title="Turcești",Kanal V TR
+http://e6afa88a.megatv.fun/iptv/L3EE4QS422SQD5/15252/index.m3u8
+#EXTINF:0 group-title="Turcești" tvg-rec="3" timeshift="3",Ulusal Kanal TR
+http://e6afa88a.megatv.fun/iptv/L3EE4QS422SQD5/6931/index.m3u8
+#EXTINF:0 group-title="Filme",TVR
+http://e6afa88a.megatv.fun/iptv/L3EE4QS422SQD5/14022/index.m3u8
