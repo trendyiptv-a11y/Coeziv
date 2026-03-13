@@ -5,41 +5,55 @@
 <title>Coeziv TV România</title>
 <style>
 :root{
-  --bg:#141414;
-  --card:#1f1f1f;
-  --card-hover:#2a2a2a;
+  --bg:#0f1115;
+  --card:#1b2028;
+  --card-hover:#242b35;
   --text:#ffffff;
-  --muted:#b3b3b3;
-  --line:#333333;
+  --muted:#a9b1bc;
+  --line:#2f3742;
   --brand:#e50914;
+  --brand-2:#ff3341;
   --focus:#ffffff;
+  --shadow:0 18px 40px rgba(0,0,0,.38);
 }
 *{box-sizing:border-box}
-html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif}
+html,body{margin:0;padding:0;background:radial-gradient(circle at top,#1b1f27 0,#0f1115 42%,#0b0d11 100%);color:var(--text);font-family:Inter,Arial,Helvetica,sans-serif}
 body{min-height:100vh}
-button,input{font:inherit}header{ padding:22px 20px 14px; font-size:34px; font-weight:900; color:var(--brand); letter-spacing:.5px; }
+button,input{font:inherit}header{ padding:26px 20px 12px; font-size:36px; font-weight:900; color:var(--brand); letter-spacing:.08em; text-transform:uppercase; }
 
 .sub{ padding:0 20px 6px; color:var(--muted); font-size:14px; }
 
-.search{ padding:16px 20px 20px; } .search input{ width:100%; max-width:460px; padding:14px 16px; background:#1a1a1a; border:1px solid var(--line); color:var(--text); border-radius:10px; outline:none; } .search input:focus, .search input:focus-visible{ border-color:#777; box-shadow:0 0 0 3px rgba(255,255,255,.18); }
+.hero{ margin:0 20px 14px; min-height:220px; border-radius:24px; overflow:hidden; position:relative; border:1px solid rgba(255,255,255,.06); background: linear-gradient(90deg,rgba(8,10,14,.88) 0%,rgba(8,10,14,.55) 42%,rgba(8,10,14,.1) 100%), radial-gradient(circle at 80% 20%, rgba(229,9,20,.28), transparent 20%), url('https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=1600&q=80') center/cover; box-shadow:var(--shadow); } .hero-inner{position:absolute;left:0;right:0;bottom:0;padding:28px} .hero-title{ margin:0; font-size:40px; font-weight:800; letter-spacing:-.03em; } .hero-sub{ margin-top:10px; color:#d6dbe2; max-width:620px; line-height:1.6; font-size:15px; } .hero-pills{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px} .hero-pill{ padding:8px 12px; border-radius:999px; background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.1); color:#eef2f7; font-size:12px; }
+
+.search{ padding:16px 20px 20px; } .search input{ width:100%; max-width:520px; padding:15px 18px; background:#14181f; border:1px solid var(--line); color:var(--text); border-radius:14px; outline:none; box-shadow:0 8px 20px rgba(0,0,0,.18); } .search input:focus, .search input:focus-visible{ border-color:#737d8a; box-shadow:0 0 0 3px rgba(255,255,255,.16), 0 8px 20px rgba(0,0,0,.18); }
 
 .info{ padding:0 20px 10px; color:var(--muted); font-size:13px; }
 
-.grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:16px; padding:20px; }
+.grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:18px; padding:20px; }
 
-.card{ background:var(--card); border:1px solid rgba(255,255,255,.05); border-radius:14px; overflow:hidden; cursor:pointer; transition:transform .18s ease, background .18s ease, border-color .18s ease; } .card:hover{ transform:scale(1.03); background:var(--card-hover); border-color:rgba(255,255,255,.18); } .card:focus, .card:focus-visible, .card.focused{ outline:none; transform:scale(1.04); border-color:var(--focus); box-shadow:0 0 0 3px rgba(255,255,255,.22); }
+.card{ background:linear-gradient(180deg,#1d232c,#171b22); border:1px solid rgba(255,255,255,.05); border-radius:18px; overflow:hidden; cursor:pointer; transition:transform .18s ease, background .18s ease, border-color .18s ease, box-shadow .18s ease; box-shadow:0 12px 26px rgba(0,0,0,.18); } .card:hover{ transform:translateY(-3px) scale(1.02); background:linear-gradient(180deg,#242b35,#1c2129); border-color:rgba(255,255,255,.16); box-shadow:var(--shadow); } .card:focus, .card:focus-visible, .card.focused{ outline:none; transform:translateY(-2px) scale(1.025); border-color:var(--focus); box-shadow:0 0 0 3px rgba(255,255,255,.2), var(--shadow); }
 
-.thumb{ aspect-ratio:16/9; background:linear-gradient(135deg,#1e1e1e,#343434); display:flex; align-items:center; justify-content:center; font-size:34px; font-weight:800; }
+.poster{ position:relative; aspect-ratio:16/10; overflow:hidden; background:linear-gradient(135deg,#222832,#394355); } .poster::before{ content:""; position:absolute; inset:0; background: linear-gradient(180deg,rgba(255,255,255,.04),transparent 30%), linear-gradient(0deg,rgba(9,11,15,.78),transparent 40%); } .poster-bg{ position:absolute; inset:0; background-size:cover; background-position:center; filter:saturate(1.05) contrast(1.05); transform:scale(1.02); } .logo-badge{ position:absolute; left:14px; top:14px; min-width:56px; height:56px; border-radius:16px; background:rgba(8,10,14,.66); border:1px solid rgba(255,255,255,.12); backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:6px 10px; box-shadow:0 10px 20px rgba(0,0,0,.25); } .logo-text{ font-size:16px; font-weight:800; color:#fff; letter-spacing:.03em; } .poster-labels{ position:absolute; left:14px; right:14px; bottom:12px; display:flex; align-items:center; justify-content:space-between; gap:10px; } .live-chip{ display:inline-flex; align-items:center; gap:6px; padding:7px 10px; border-radius:999px; background:rgba(229,9,20,.9); color:#fff; font-size:11px; font-weight:700; letter-spacing:.04em; } .dot{width:7px;height:7px;border-radius:50%;background:#fff} .country-chip{ padding:7px 10px; border-radius:999px; background:rgba(8,10,14,.55); border:1px solid rgba(255,255,255,.1); color:#e8edf5; font-size:11px; font-weight:700; }
 
-.card-body{ padding:14px; } .card-title{ font-size:15px; font-weight:700; line-height:1.35; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; } .card-meta{ margin-top:6px; font-size:12px; color:var(--muted); } .card-btn{ margin-top:12px; width:100%; padding:10px 12px; border:none; border-radius:999px; background:var(--brand); color:#fff; font-weight:700; } .card-btn:hover{filter:brightness(1.06)}
+.card-body{padding:14px} .card-title{ font-size:16px; font-weight:800; line-height:1.35; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; } .card-meta{ margin-top:7px; font-size:12px; color:var(--muted); display:flex; justify-content:space-between; gap:12px; } .card-btn{ margin-top:14px; width:100%; padding:11px 12px; border:none; border-radius:999px; background:linear-gradient(135deg,var(--brand),var(--brand-2)); color:#fff; font-weight:800; letter-spacing:.02em; box-shadow:0 10px 20px rgba(229,9,20,.25); } .card-btn:hover{filter:brightness(1.06)}
 
 .status{ padding:0 20px 10px; color:var(--muted); font-size:13px; white-space:pre-line; }
 
-@media (max-width:720px){ header{font-size:28px} .grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;padding:16px} .search{padding:14px 16px 16px} .sub,.info,.status{padding-left:16px;padding-right:16px} } </style>
+@media (max-width:720px){ header{font-size:28px;padding-bottom:8px} .hero{margin:0 16px 10px;min-height:190px} .hero-inner{padding:20px} .hero-title{font-size:30px} .grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;padding:16px} .search{padding:14px 16px 16px} .sub,.info,.status{padding-left:16px;padding-right:16px} .logo-badge{min-width:48px;height:48px;border-radius:14px} } </style>
 
 </head>
 <body><header>COEZIV TV</header>
-<div class="sub">Canale românești • versiune simplă, rapidă și stabilă</div><div class="search">
+<div class="sub">Canale românești • versiune simplă, rapidă și stabilă</div><section class="hero">
+  <div class="hero-inner">
+    <h1 class="hero-title">Televiziune românească, rapid și curat</h1>
+    <div class="hero-sub">Interfață comercială, minimalistă și stabilă: selectezi canalul și îl deschizi instant, fără player inclus și fără complicații.</div>
+    <div class="hero-pills">
+      <span class="hero-pill">Canale românești</span>
+      <span class="hero-pill">Fără player inclus</span>
+      <span class="hero-pill">Deschidere directă</span>
+    </div>
+  </div>
+</section><div class="search">
   <input id="search" placeholder="Caută canal...">
 </div><div id="status" class="status">Playlistul se încarcă...</div>
 <div class="info">Click sau Enter pe un card pentru a deschide canalul direct.</div><div id="grid" class="grid"></div><script>
@@ -102,16 +116,31 @@ function render(){
 
   status.textContent = `Rezultate afișate: ${filtered.length}`;
 
-  filtered.forEach((ch) => {
+  filtered.forEach((ch, index) => {
     const card = document.createElement("div");
     card.className = "card";
     card.tabIndex = 0;
 
+    const logoText = getLogoText(ch.title);
+    const posterStyle = `background-image:${getPosterGradient(index)}`;
+
     card.innerHTML = `
-      <div class="thumb">TV</div>
+      <div class="poster">
+        <div class="poster-bg" style="${posterStyle}"></div>
+        <div class="logo-badge">
+          <div class="logo-text">${escapeHtml(logoText)}</div>
+        </div>
+        <div class="poster-labels">
+          <span class="live-chip"><span class="dot"></span>LIVE</span>
+          <span class="country-chip">RO</span>
+        </div>
+      </div>
       <div class="card-body">
         <div class="card-title">${escapeHtml(ch.title)}</div>
-        <div class="card-meta">România • Live</div>
+        <div class="card-meta">
+          <span>Canal românesc</span>
+          <span>Online</span>
+        </div>
         <button class="card-btn" type="button">Deschide</button>
       </div>
     `;
@@ -142,6 +171,28 @@ function escapeHtml(str){
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
+}
+
+function getLogoText(title){
+  const clean = (title || "TV").replace(/[^a-zA-Z0-9\s]/g, " ").trim();
+  const words = clean.split(/\s+/).filter(Boolean);
+  if (!words.length) return "TV";
+  if (words.length === 1) return words[0].slice(0, 3).toUpperCase();
+  return (words[0][0] + words[1][0]).toUpperCase();
+}
+
+function getPosterGradient(index){
+  const gradients = [
+    "linear-gradient(135deg,#0f172a,#1d4ed8)",
+    "linear-gradient(135deg,#3f0d12,#a71d31)",
+    "linear-gradient(135deg,#1f2937,#0f766e)",
+    "linear-gradient(135deg,#312e81,#7c3aed)",
+    "linear-gradient(135deg,#111827,#ea580c)",
+    "linear-gradient(135deg,#172554,#2563eb)",
+    "linear-gradient(135deg,#3f3f46,#e11d48)",
+    "linear-gradient(135deg,#052e16,#16a34a)"
+  ];
+  return gradients[index % gradients.length];
 }
 
 search.addEventListener("input", render);
