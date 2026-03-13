@@ -112,20 +112,39 @@ function parseM3U(text){
 
 function renderPopular(){
   popularRail.innerHTML = "";
-  const preferred = ["PRO", "ANT", "DIG", "TVR", "KAN", "PRI", "B1", "ROM"];
-  const picked = [];
 
-  preferred.forEach(tag => {
-    const found = channels.find(c => getLogoText(c.title) === tag && !picked.includes(c.url));
-    if (found) picked.push(found.url);
+  /* Lista manuală cu canale cu adevărat populare în RO */
+  const popularNames = [
+    "pro tv",
+    "antena 1",
+    "kanal d",
+    "digi24",
+    "romania tv",
+    "prima tv",
+    "tvr 1",
+    "b1"
+  ];
+
+  const popular = [];
+
+  popularNames.forEach(name => {
+    const found = channels.find(c => c.title.toLowerCase().includes(name));
+    if(found) popular.push(found);
   });
 
-  const popular = channels.filter(c => picked.includes(c.url)).concat(channels.filter(c => !picked.includes(c.url)).slice(0, 8 - picked.length)).slice(0,8);
+  /* dacă nu avem destule, completăm cu primele din playlist */
+  if(popular.length < 8){
+    channels.forEach(c => {
+      if(popular.length >= 8) return;
+      if(!popular.includes(c)) popular.push(c);
+    });
+  }
 
-  popular.forEach((ch, index) => {
+  popular.slice(0,8).forEach((ch, index) => {
     const card = document.createElement("div");
     card.className = "popular-card";
     card.tabIndex = 0;
+
     card.innerHTML = `
       <div class="popular-bg" style="background-image:${getPosterGradient(index)}"></div>
       <div class="popular-overlay"></div>
@@ -135,7 +154,9 @@ function renderPopular(){
         <div class="popular-badge"><span class="dot"></span>LIVE</div>
       </div>
     `;
+
     const open = () => window.open(ch.url, "_blank");
+
     card.addEventListener("click", open);
     card.addEventListener("keydown", (e) => {
       if (e.key === "Enter" || e.key === " ") {
@@ -143,6 +164,7 @@ function renderPopular(){
         open();
       }
     });
+
     popularRail.appendChild(card);
   });
 }
