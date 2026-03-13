@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Coeziv Fuel 11:00 DK</title>
+  <style>
+    :root {
+      --bg: #0b1320;
+      --panel: #121c2d;
+      --panel-2: #18253b;
+      --text: #e8eef8;
+      --muted: #a9b8cf;
+      --accent: #6ee7b7;
+      --accent-2: #60a5fa;
+      --warn: #fbbf24;
+      --danger: #f87171;
+      --border: rgba(255,255,255,0.08);
+      --shadow: 0 18px 40px rgba(0,0,0,0.28);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: radial-gradient(circle at top, #15233a 0%, var(--bg) 45%);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    .wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+    .hero {
+      display: grid;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    h1 {
+      margin: 0;
+      font-size: clamp(1.7rem, 4vw, 2.8rem);
+      line-height: 1.05;
+    }
+    .sub {
+      color: var(--muted);
+      max-width: 900px;
+      line-height: 1.55;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 20px;
+    }
+    @media (max-width: 900px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+    .card {
+      background: linear-gradient(180deg, var(--panel), var(--panel-2));
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+    .card h2, .card h3 { margin-top: 0; }
+    .inputs {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 14px;
+    }
+    @media (max-width: 640px) {
+      .inputs { grid-template-columns: 1fr; }
+    }
+    label {
+      display: grid;
+      gap: 8px;
+      font-size: 0.95rem;
+      color: var(--muted);
+    }
+    input, select, button, textarea {
+      width: 100%;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(8, 15, 27, 0.8);
+      color: var(--text);
+      border-radius: 14px;
+      padding: 13px 14px;
+      font-size: 1rem;
+    }
+    input:focus, select:focus, button:focus, textarea:focus {
+      outline: 2px solid rgba(96,165,250,0.55);
+      outline-offset: 2px;
+    }
+    button {
+      cursor: pointer;
+      font-weight: 700;
+      transition: transform .12s ease, opacity .12s ease, background .12s ease;
+    }
+    button:hover { transform: translateY(-1px); }
+    .primary {
+      background: linear-gradient(135deg, var(--accent-2), var(--accent));
+      color: #07111f;
+      border: none;
+    }
+    .secondary {
+      background: transparent;
+      color: var(--text);
+    }
+    .actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 14px;
+      flex-wrap: wrap;
+    }
+    .result {
+      display: grid;
+      gap: 12px;
+    }
+    .big {
+      font-size: clamp(2rem, 5vw, 3.4rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.92rem;
+      width: fit-content;
+    }
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 12px;
+      margin-top: 10px;
+    }
+    .stat {
+      padding: 14px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+    }
+    .stat .k {
+      color: var(--muted);
+      font-size: 0.86rem;
+      margin-bottom: 6px;
+    }
+    .stat .v {
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+    .mono {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+    .muted { color: var(--muted); }
+    .ok { color: var(--accent); }
+    .warn { color: var(--warn); }
+    .danger { color: var(--danger); }
+    .status {
+      white-space: pre-wrap;
+      line-height: 1.5;
+      font-size: 0.94rem;
+      color: var(--muted);
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px;
+      min-height: 120px;
+    }
+    .footer-note {
+      margin-top: 16px;
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+    .formula {
+      padding: 14px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      overflow-x: auto;
+    }
+    .small { font-size: 0.88rem; }
+    .hr {
+      height: 1px;
+      background: var(--border);
+      margin: 14px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <div class="pill">Model coeziv 11:00 • Danemarca</div>
+      <h1>Predicție automată a prețului de la 11:00</h1>
+      <div class="sub">
+        Tu introduci doar prețul de azi. Pagina încearcă să adune din internet restul semnalelor utile: preț curent publicat de brand, curs USD/DKK și momentul ultimei actualizări. Rezultatul folosește modelul simplu: <b>preț nou ≈ preț azi + impulsul publicat online</b>.
+      </div>
+    </section>
+
+    <div class="grid">
+      <section class="card">
+        <h2>Date de intrare</h2>
+        <div class="inputs">
+          <label>
+            Prețul tău de azi (DKK/l)
+            <input id="todayPrice" type="number" step="0.01" min="0" placeholder="ex. 15.49" />
+          </label>
+          <label>
+            Combustibil
+            <select id="fuelType">
+              <option value="E10">Benzină / E10 / 95</option>
+              <option value="Diesel">Diesel</option>
+              <option value="Premium E10">Premium benzină</option>
+              <option value="Premium Diesel">Premium diesel</option>
+            </select>
+          </label>
+          <label>
+            Brand / sursă preferată
+            <select id="brand">
+              <option value="circlek">Circle K</option>
+              <option value="q8">Q8 / F24</option>
+              <option value="shell">Shell</option>
+              <option value="generic">Generic DK (fallback)</option>
+            </select>
+          </label>
+          <label>
+            Ora ta de referință
+            <select id="timing">
+              <option value="before11">Prețul introdus este înainte de 11:00</option>
+              <option value="after11">Prețul introdus este deja după 11:00</option>
+            </select>
+          </label>
+        </div>
+        <div class="actions">
+          <button class="primary" id="runBtn">Culege date și calculează</button>
+          <button class="secondary" id="demoBtn">Exemplu rapid</button>
+        </div>
+
+        <div class="hr"></div>
+
+        <h3>Formula folosită</h3>
+        <div class="formula">P(11:00) = P(azi) + [P(internet) - P(azi)] + k_fx</div>
+        <p class="small muted">
+          În practică, dacă sursa online publică deja noul preț de listă, atunci impulsul principal este diferența dintre prețul tău și prețul găsit online. Corecția <span class="mono">k_fx</span> este foarte mică și vine doar din mișcarea USD/DKK.
+        </p>
+      </section>
+
+      <aside class="card result">
+        <h2>Rezultat</h2>
+        <div class="pill" id="confidencePill">Aștept date…</div>
+        <div>
+          <div class="muted">Preț estimat la 11:00</div>
+          <div class="big" id="predicted">—</div>
+        </div>
+        <div class="stat-grid">
+          <div class="stat">
+            <div class="k">Preț găsit pe internet</div>
+            <div class="v" id="onlinePrice">—</div>
+          </div>
+          <div class="stat">
+            <div class="k">Impuls</div>
+            <div class="v" id="deltaValue">—</div>
+          </div>
+          <div class="stat">
+            <div class="k">USD/DKK</div>
+            <div class="v" id="usdRate">—</div>
+          </div>
+          <div class="stat">
+            <div class="k">Ultima actualizare</div>
+            <div class="v small" id="lastUpdated">—</div>
+          </div>
+        </div>
+        <div class="status" id="statusBox">Pagina nu a rulat încă.</div>
+      </aside>
+    </div>
+
+    <div class="card" style="margin-top:20px;">
+      <h2>Notă practică</h2>
+      <div class="footer-note">
+        Unele surse publice își pot schimba structura sau pot bloca accesul direct din browser. În astfel de cazuri, pagina încearcă mai multe surse și fallback-uri. Dacă un furnizor își schimbă API-ul, actualizează doar secțiunea de surse din JavaScript, nu toată pagina.
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const statusBox = $('statusBox');
+
+    function setStatus(lines, tone = 'muted') {
+      statusBox.textContent = Array.isArray(lines) ? lines.join('\n') : String(lines);
+      statusBox.className = 'status ' + tone;
+    }
+
+    function toNum(v) {
+      if (typeof v === 'number') return v;
+      if (v == null) return NaN;
+      const x = String(v).replace(/\./g, '').replace(',', '.').replace(/[^0-9.-]/g, '');
+      return Number(x);
+    }
+
+    function fmt(v) {
+      if (!Number.isFinite(v)) return '—';
+      return v.toFixed(2) + ' DKK/l';
+    }
+
+    function median(arr) {
+      const a = arr.filter(Number.isFinite).sort((x,y)=>x-y);
+      if (!a.length) return NaN;
+      const mid = Math.floor(a.length / 2);
+      return a.length % 2 ? a[mid] : (a[mid - 1] + a[mid]) / 2;
+    }
+
+    function deepFindPrices(node, wanted) {
+      const out = [];
+      const wantedLower = wanted.toLowerCase();
+      const visit = (value, parentKey = '') => {
+        if (value == null) return;
+        if (Array.isArray(value)) {
+          value.forEach(v => visit(v, parentKey));
+          return;
+        }
+        if (typeof value === 'object') {
+          for (const [k, v] of Object.entries(value)) {
+            const key = String(k).toLowerCase();
+            if (typeof v === 'string' || typeof v === 'number') {
+              const n = toNum(v);
+              if (Number.isFinite(n)) {
+                if (key.includes('price') || key.includes('pris') || key.includes('amount') || key.includes('value')) {
+                  if (parentKey.includes(wantedLower) || key.includes(wantedLower)) out.push(n);
+                }
+              }
+            }
+            visit(v, key + ' ' + parentKey);
+          }
+        }
+      };
+      visit(node, '');
+      return out;
+    }
+
+    async function fetchJson(url, options = {}) {
+      const res = await fetch(url, options);
+      if (!res.ok) throw new Error(`HTTP ${res.status} la ${url}`);
+      return await res.json();
+    }
+
+    async function fetchText(url, options = {}) {
+      const res = await fetch(url, options);
+      if (!res.ok) throw new Error(`HTTP ${res.status} la ${url}`);
+      return await res.text();
+    }
+
+    async function fetchUsdDkk() {
+      const xmlUrl = 'https://www.nationalbanken.dk/api/currencyratesxml?lang=en';
+      try {
+        const xml = await fetchText(xmlUrl);
+        const m = xml.match(/desc="US dollars"\s+rate="([0-9.]+)"/i);
+        if (m) return Number(m[1]) / 100;
+      } catch (_) {}
+
+      // Fallback via public text mirror
+      const proxyUrl = 'https://r.jina.ai/http://www.nationalbanken.dk/api/currencyratesxml?lang=en';
+      const txt = await fetchText(proxyUrl);
+      const m = txt.match(/US dollars"\s+rate="([0-9.]+)"/i);
+      if (!m) throw new Error('Nu am putut extrage USD/DKK.');
+      return Number(m[1]) / 100;
+    }
+
+    async function fetchCircleK(fuelType) {
+      const endpoint = 'https://api.circlek.com/eu/prices/v1/fuel/countries/DK';
+      const data = await fetchJson(endpoint, { headers: { 'X-App-Name': 'PRICES' } });
+      const prices = [];
+      let updated = null;
+
+      const sites = data.sites || data.items || [];
+      for (const site of sites) {
+        const products = site.products || site.fuels || site.prices || [];
+        for (const p of products) {
+          const label = [p.name, p.productName, p.productType, p.code, p.fuelType].filter(Boolean).join(' ').toLowerCase();
+          const matchE10 = fuelType === 'E10' && /(e10|95|benzin|petrol)/i.test(label) && !/premium|plus/i.test(label);
+          const matchDiesel = fuelType === 'Diesel' && /diesel/i.test(label) && !/premium|plus/i.test(label);
+          const matchPE10 = fuelType === 'Premium E10' && /(premium|plus)/i.test(label) && /(e10|95|benzin|petrol)/i.test(label);
+          const matchPD = fuelType === 'Premium Diesel' && /(premium|plus)/i.test(label) && /diesel/i.test(label);
+          if (matchE10 || matchDiesel || matchPE10 || matchPD) {
+            const price = toNum(p.price || p.amount || p.currentPrice || p.salesPrice);
+            if (Number.isFinite(price)) prices.push(price);
+            updated = updated || p.lastUpdated || p.updatedAt || site.updatedAt || site.lastUpdated;
+          }
+        }
+      }
+
+      const val = median(prices);
+      if (!Number.isFinite(val)) throw new Error('Circle K nu a returnat un preț utilizabil pentru ' + fuelType);
+      return { source: 'Circle K API', price: val, updatedAt: updated || 'n/a' };
+    }
+
+    async function fetchQ8(fuelType) {
+      const endpoint = 'https://beta.q8.dk/Station/GetStationPrices?page=1&pageSize=2000';
+      const data = await fetchJson(endpoint);
+      const rows = data.items || data.results || data.data || [];
+      const prices = [];
+      let updated = null;
+
+      const matchers = {
+        'E10': /(e10|95|goeasy 95|benzin|petrol)/i,
+        'Diesel': /diesel/i,
+        'Premium E10': /(premium|extra|plus)/i,
+        'Premium Diesel': /(premium|extra)/i
+      };
+
+      const wanted = matchers[fuelType];
+      for (const row of rows) {
+        const text = JSON.stringify(row);
+        if (!wanted.test(text)) continue;
+        const extracted = deepFindPrices(row, fuelType === 'E10' ? '95' : fuelType.toLowerCase());
+        extracted.forEach(v => {
+          if (v > 5 && v < 40) prices.push(v);
+        });
+        updated = updated || row.lastUpdated || row.updatedAt || row.modified;
+      }
+
+      const val = median(prices);
+      if (!Number.isFinite(val)) throw new Error('Q8/F24 nu a returnat un preț utilizabil pentru ' + fuelType);
+      return { source: 'Q8/F24 API', price: val, updatedAt: updated || 'n/a' };
+    }
+
+    async function fetchShell(fuelType) {
+      const endpoint = 'https://shellpumpepriser.geoapp.me/v1/prices';
+      const data = await fetchJson(endpoint);
+      const rows = data.items || data.prices || data.data || [];
+      const prices = [];
+      let updated = null;
+      for (const row of rows) {
+        const text = JSON.stringify(row).toLowerCase();
+        const matchE10 = fuelType === 'E10' && /(95|e10|petrol|benzin)/i.test(text) && !/premium|v-power|plus/i.test(text);
+        const matchDiesel = fuelType === 'Diesel' && /diesel/i.test(text) && !/premium|v-power|plus/i.test(text);
+        const matchPE10 = fuelType === 'Premium E10' && /(premium|v-power|plus)/i.test(text) && /(95|e10|petrol|benzin)/i.test(text);
+        const matchPD = fuelType === 'Premium Diesel' && /(premium|v-power|plus)/i.test(text) && /diesel/i.test(text);
+        if (matchE10 || matchDiesel || matchPE10 || matchPD) {
+          const found = deepFindPrices(row, 'price').filter(v => v > 5 && v < 40);
+          prices.push(...found);
+          updated = updated || row.lastUpdated || row.updatedAt || row.modified;
+        }
+      }
+      const val = median(prices);
+      if (!Number.isFinite(val)) throw new Error('Shell nu a returnat un preț utilizabil pentru ' + fuelType);
+      return { source: 'Shell API', price: val, updatedAt: updated || 'n/a' };
+    }
+
+    async function fetchGenericFromBenzinpriser(brand, fuelType) {
+      const brandMap = {
+        circlek: 'circlek',
+        q8: 'q8',
+        shell: 'shell',
+        generic: 'circlek'
+      };
+      const slug = brandMap[brand] || 'circlek';
+      const url = `https://r.jina.ai/http://benzinpriser.io/brands/${slug}/`;
+      const txt = await fetchText(url);
+
+      const patterns = {
+        'E10': /E10\s+([0-9]+\.[0-9]+)/i,
+        'Diesel': /Diesel\s+([0-9]+\.[0-9]+)/i,
+        'Premium Diesel': /Premium Diesel\s+([0-9]+\.[0-9]+)/i,
+        'Premium E10': /Premium E10\s+([0-9]+\.[0-9]+)/i
+      };
+      const m = txt.match(patterns[fuelType]);
+      if (!m) throw new Error('Fallback benzinpriser.io nu a găsit prețul pentru ' + fuelType);
+
+      let updated = 'n/a';
+      const u = txt.match(/Last price refresh:\s*([^\n]+)/i) || txt.match(/([0-9]+\s+(minutes?|hours?)\s+ago)/i);
+      if (u) updated = u[1].trim();
+
+      return { source: 'benzinpriser.io fallback', price: Number(m[1]), updatedAt: updated };
+    }
+
+    async function fetchBrandPrice(brand, fuelType) {
+      const attempts = [];
+      const tryOne = async (fn, label) => {
+        try {
+          const r = await fn();
+          attempts.push(`✓ ${label}: ${r.price.toFixed(2)} DKK/l`);
+          return { ...r, attempts };
+        } catch (e) {
+          attempts.push(`✗ ${label}: ${e.message}`);
+          return null;
+        }
+      };
+
+      if (brand === 'circlek') {
+        return await tryOne(() => fetchCircleK(fuelType), 'Circle K API')
+          || await tryOne(() => fetchGenericFromBenzinpriser('circlek', fuelType), 'Circle K fallback');
+      }
+      if (brand === 'q8') {
+        return await tryOne(() => fetchQ8(fuelType), 'Q8/F24 API')
+          || await tryOne(() => fetchGenericFromBenzinpriser('q8', fuelType), 'Q8 fallback');
+      }
+      if (brand === 'shell') {
+        return await tryOne(() => fetchShell(fuelType), 'Shell API')
+          || await tryOne(() => fetchGenericFromBenzinpriser('shell', fuelType), 'Shell fallback');
+      }
+
+      return await tryOne(() => fetchCircleK(fuelType), 'Circle K API')
+        || await tryOne(() => fetchQ8(fuelType), 'Q8/F24 API')
+        || await tryOne(() => fetchShell(fuelType), 'Shell API')
+        || await tryOne(() => fetchGenericFromBenzinpriser('circlek', fuelType), 'Generic fallback');
+    }
+
+    function updatePill(text, cls = '') {
+      const el = $('confidencePill');
+      el.textContent = text;
+      el.className = 'pill ' + cls;
+    }
+
+    async function run() {
+      const todayPrice = Number($('todayPrice').value);
+      const fuelType = $('fuelType').value;
+      const brand = $('brand').value;
+      const timing = $('timing').value;
+
+      if (!Number.isFinite(todayPrice) || todayPrice <= 0) {
+        updatePill('Date lipsă', 'danger');
+        setStatus('Introdu un preț valid, de exemplu 15.49.', 'danger');
+        return;
+      }
+
+      $('predicted').textContent = '…';
+      $('onlinePrice').textContent = '…';
+      $('deltaValue').textContent = '…';
+      $('usdRate').textContent = '…';
+      $('lastUpdated').textContent = '…';
+      updatePill('Se culeg date…', 'warn');
+      setStatus('Pornesc colectarea datelor din internet…', 'warn');
+
+      const notes = [];
+      try {
+        const [brandData, usdDkk] = await Promise.all([
+          fetchBrandPrice(brand, fuelType),
+          fetchUsdDkk().catch(e => {
+            notes.push('USD/DKK indisponibil: ' + e.message);
+            return NaN;
+          })
+        ]);
+
+        if (!brandData) throw new Error('Nicio sursă nu a livrat un preț utilizabil.');
+        const onlinePrice = brandData.price;
+        const baseDelta = onlinePrice - todayPrice;
+
+        // Very small FX correction to keep the coeziv idea without overfitting.
+        let fxCorrection = 0;
+        if (Number.isFinite(usdDkk)) {
+          const neutral = 6.45;
+          fxCorrection = (usdDkk - neutral) * 0.04; // intentionally tiny
+        }
+
+        let predicted = todayPrice + baseDelta + fxCorrection;
+        if (timing === 'after11') {
+          predicted = onlinePrice;
+          notes.push('Ai indicat că prețul introdus este deja după 11:00, deci am tratat prețul online drept referință dominantă.');
+        }
+
+        $('predicted').textContent = fmt(predicted);
+        $('onlinePrice').textContent = fmt(onlinePrice);
+        $('deltaValue').textContent = (baseDelta >= 0 ? '+' : '') + baseDelta.toFixed(2) + ' DKK/l';
+        $('usdRate').textContent = Number.isFinite(usdDkk) ? usdDkk.toFixed(4) : 'n/a';
+        $('lastUpdated').textContent = brandData.updatedAt || 'n/a';
+
+        const isStrong = brandData.source.includes('API');
+        updatePill(isStrong ? 'Încredere bună' : 'Încredere medie', isStrong ? 'ok' : 'warn');
+
+        const lines = [
+          `Sursa folosită: ${brandData.source}`,
+          `Combustibil: ${fuelType}`,
+          `Preț introdus: ${todayPrice.toFixed(2)} DKK/l`,
+          `Preț găsit online: ${onlinePrice.toFixed(2)} DKK/l`,
+          `Impuls calculat: ${(baseDelta >= 0 ? '+' : '') + baseDelta.toFixed(2)} DKK/l`,
+          Number.isFinite(usdDkk) ? `USD/DKK: ${usdDkk.toFixed(4)} (corecție mică: ${(fxCorrection >= 0 ? '+' : '') + fxCorrection.toFixed(3)})` : 'USD/DKK: indisponibil',
+          '',
+          'Jurnal surse:',
+          ...(brandData.attempts || []),
+          ...(notes.length ? ['', ...notes] : [])
+        ];
+        setStatus(lines, isStrong ? 'ok' : 'warn');
+      } catch (e) {
+        updatePill('Eroare de sursă', 'danger');
+        setStatus([
+          'Nu am putut calcula automat.',
+          '',
+          e.message,
+          '',
+          'În browser local, unele site-uri pot bloca fetch-ul direct. În acest caz, servește fișierul dintr-un mic server local sau schimbă sursa din selector.'
+        ], 'danger');
+      }
+    }
+
+    $('runBtn').addEventListener('click', run);
+    $('demoBtn').addEventListener('click', () => {
+      $('todayPrice').value = '15.49';
+      $('fuelType').value = 'E10';
+      $('brand').value = 'circlek';
+      $('timing').value = 'before11';
+      run();
+    });
+  </script>
+</body>
+</html>
