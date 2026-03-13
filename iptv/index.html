@@ -1,522 +1,150 @@
-<!DOCTYPE html>
-<html lang="ro">
+<!DOCTYPE html><html lang="ro">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Coeziv TV România</title>
 <style>
 :root{
   --bg:#141414;
-  --bg2:#181818;
   --card:#1f1f1f;
-  --text:#fff;
+  --card-hover:#2a2a2a;
+  --text:#ffffff;
   --muted:#b3b3b3;
-  --line:#2c2c2c;
+  --line:#333333;
   --brand:#e50914;
   --focus:#ffffff;
-  --shadow:0 18px 40px rgba(0,0,0,.45);
 }
 *{box-sizing:border-box}
 html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif}
-body{min-height:100vh;overflow-x:hidden}
-button,input{font:inherit}
-button{cursor:pointer}
+body{min-height:100vh}
+button,input{font:inherit}header{ padding:22px 20px 14px; font-size:34px; font-weight:900; color:var(--brand); letter-spacing:.5px; }
 
-.topbar{
-  position:fixed;top:0;left:0;right:0;z-index:30;
-  display:flex;align-items:center;justify-content:space-between;
-  padding:18px 28px;
-  background:linear-gradient(180deg,rgba(0,0,0,.8),rgba(0,0,0,.25),transparent);
-}
-.logo{font-size:34px;font-weight:900;color:var(--brand);letter-spacing:.5px}
-.top-actions{display:flex;gap:10px;align-items:center}
-.top-btn{
-  border:1px solid #3a3a3a;background:rgba(20,20,20,.88);color:#fff;
-  border-radius:999px;padding:10px 14px;
-}
-.top-btn:focus-visible,.top-btn.focused{outline:none;box-shadow:0 0 0 3px var(--focus)}
+.sub{ padding:0 20px 6px; color:var(--muted); font-size:14px; }
 
-.hero{
-  min-height:64vh;
-  display:flex;align-items:flex-end;
-  padding:120px 28px 56px;
-  background:
-    linear-gradient(90deg,rgba(0,0,0,.82) 0%, rgba(0,0,0,.6) 38%, rgba(0,0,0,.18) 70%, rgba(0,0,0,.45) 100%),
-    linear-gradient(180deg,transparent 58%, #141414 100%),
-    url('https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=1600&q=80') center/cover;
-}
-.hero-inner{max-width:720px}
-.hero-kicker{font-size:12px;letter-spacing:.24em;text-transform:uppercase;color:#d1d5db;margin-bottom:10px}
-.hero-title{font-size:56px;line-height:1.02;font-weight:800;margin:0 0 12px}
-.hero-desc{font-size:18px;line-height:1.6;color:#ededed;max-width:620px}
-.hero-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:22px}
-.hero-btn{
-  border:none;border-radius:6px;padding:14px 22px;font-weight:700;
-}
-.hero-btn.primary{background:#fff;color:#000}
-.hero-btn.secondary{background:rgba(109,109,110,.7);color:#fff}
-.hero-btn:focus-visible,.hero-btn.focused{outline:none;box-shadow:0 0 0 3px var(--focus)}
+.search{ padding:16px 20px 20px; } .search input{ width:100%; max-width:460px; padding:14px 16px; background:#1a1a1a; border:1px solid var(--line); color:var(--text); border-radius:10px; outline:none; } .search input:focus, .search input:focus-visible{ border-color:#777; box-shadow:0 0 0 3px rgba(255,255,255,.18); }
 
-.search-wrap{padding:0 28px 18px;margin-top:-10px}
-.search-input{
-  width:100%;max-width:480px;padding:14px 16px;border-radius:8px;border:1px solid #343434;
-  background:#0f0f0f;color:#fff;outline:none;
-}
-.search-input:focus-visible{box-shadow:0 0 0 3px var(--focus)}
+.info{ padding:0 20px 10px; color:var(--muted); font-size:13px; }
 
-.viewer{
-  margin:0 28px 28px;
-  border-radius:18px;overflow:hidden;border:1px solid var(--line);
-  background:#101010;box-shadow:var(--shadow)
-}
-.viewer-head{
-  padding:18px 20px;border-bottom:1px solid var(--line);
-  background:linear-gradient(180deg,#1a1a1a,#101010);
-  display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap
-}
-.viewer-title{font-size:30px;font-weight:800;margin:0}
-.viewer-desc{font-size:14px;color:var(--muted);line-height:1.6;margin-top:8px;max-width:840px}
-.viewer-actions{display:flex;gap:10px;flex-wrap:wrap}
-.viewer-btn{
-  border:1px solid #3a3a3a;background:#1f1f1f;color:#fff;border-radius:999px;padding:10px 14px
-}
-.viewer-btn.primary{background:var(--brand);border-color:var(--brand)}
-.viewer-btn:focus-visible,.viewer-btn.focused{outline:none;box-shadow:0 0 0 3px var(--focus)}
-.frame-wrap{position:relative;background:#000}
-iframe{width:100%;height:58vh;min-height:380px;border:none;background:#000}
-.placeholder{
-  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;
-  padding:28px;color:#cbd5e1;line-height:1.7;background:linear-gradient(180deg,#0b0b0b,#151515)
-}
-.placeholder.hidden{display:none}
+.grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:16px; padding:20px; }
 
-.status{
-  margin:0 28px 26px;
-  border:1px solid var(--line);background:#111;border-radius:14px;padding:14px 16px;
-  color:var(--muted);white-space:pre-line;line-height:1.6
-}
+.card{ background:var(--card); border:1px solid rgba(255,255,255,.05); border-radius:14px; overflow:hidden; cursor:pointer; transition:transform .18s ease, background .18s ease, border-color .18s ease; } .card:hover{ transform:scale(1.03); background:var(--card-hover); border-color:rgba(255,255,255,.18); } .card:focus, .card:focus-visible, .card.focused{ outline:none; transform:scale(1.04); border-color:var(--focus); box-shadow:0 0 0 3px rgba(255,255,255,.22); }
 
-.section{margin-bottom:28px}
-.section-head{padding:0 28px 12px}
-.section-title{font-size:24px;font-weight:800}
-.section-sub{font-size:13px;color:var(--muted);margin-top:6px}
-.rail{
-  display:grid;grid-auto-flow:column;grid-auto-columns:240px;gap:12px;
-  overflow-x:auto;padding:0 28px 14px;scroll-behavior:smooth;scrollbar-width:none
-}
-.rail::-webkit-scrollbar{display:none}
-.card{
-  background:var(--card);border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,.04);
-  transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;
-  box-shadow:0 10px 26px rgba(0,0,0,.18);position:relative
-}
-.card:hover{transform:scale(1.04);box-shadow:var(--shadow);border-color:rgba(255,255,255,.15)}
-.card.focused{transform:scale(1.06);box-shadow:0 0 0 3px var(--focus), var(--shadow);border-color:rgba(255,255,255,.4);z-index:5}
-.card-btn{display:block;width:100%;background:none;border:none;color:inherit;text-align:left;padding:0}
-.card-btn:focus{outline:none}
-.thumb{aspect-ratio:16/9;background:linear-gradient(135deg,#191919,#343434);display:flex;align-items:center;justify-content:center;overflow:hidden}
-.fallback{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:34px;font-weight:800}
-.card-body{padding:12px}
-.card-title{font-size:15px;font-weight:700;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.card-meta{font-size:12px;color:var(--muted);margin-top:6px}
-.card-actions{display:flex;gap:8px;margin-top:10px}
-.mini{flex:1;border:none;border-radius:999px;background:#2b2b2b;color:#fff;padding:8px 10px;font-size:12px}
-.mini.primary{background:var(--brand)}
-.empty{margin:0 28px;border:1px dashed var(--line);background:#111;border-radius:14px;padding:16px;color:var(--muted)}
+.thumb{ aspect-ratio:16/9; background:linear-gradient(135deg,#1e1e1e,#343434); display:flex; align-items:center; justify-content:center; font-size:34px; font-weight:800; }
 
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:0 28px 32px}
-.stat{background:#111;border:1px solid var(--line);border-radius:16px;padding:16px}
-.stat-label{font-size:12px;color:var(--muted)}
-.stat-value{font-size:28px;font-weight:800;margin-top:8px}
+.card-body{ padding:14px; } .card-title{ font-size:15px; font-weight:700; line-height:1.35; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; } .card-meta{ margin-top:6px; font-size:12px; color:var(--muted); } .card-btn{ margin-top:12px; width:100%; padding:10px 12px; border:none; border-radius:999px; background:var(--brand); color:#fff; font-weight:700; } .card-btn:hover{filter:brightness(1.06)}
 
-@media (max-width: 980px){
-  .hero-title{font-size:42px}
-  .stats{grid-template-columns:repeat(2,1fr)}
-  iframe{height:48vh}
-}
-@media (max-width: 720px){
-  .topbar{padding-top:6px}
-  .hero{padding:118px 16px 48px;min-height:58vh}
-  .search-wrap,.section-head,.rail,.stats{padding-left:16px;padding-right:16px}
-  .viewer,.status{margin-left:16px;margin-right:16px}
-  .hero-title{font-size:34px}
-  .rail{grid-auto-columns:200px}
-  iframe{height:40vh;min-height:280px}
-  .stats{grid-template-columns:1fr}
-}
-</style>
+.status{ padding:0 20px 10px; color:var(--muted); font-size:13px; white-space:pre-line; }
+
+@media (max-width:720px){ header{font-size:28px} .grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;padding:16px} .search{padding:14px 16px 16px} .sub,.info,.status{padding-left:16px;padding-right:16px} } </style>
+
 </head>
-<body>
-  <header class="topbar">
-    <div class="logo">COEZIV TV</div>
-    <div class="top-actions">
-      <button id="topRefresh" class="top-btn" tabindex="0">Reîmprospătează</button>
-      <button id="topOpen" class="top-btn" tabindex="0">Deschide direct</button>
-    </div>
-  </header>
+<body><header>COEZIV TV</header>
+<div class="sub">Canale românești • versiune simplă, rapidă și stabilă</div><div class="search">
+  <input id="search" placeholder="Caută canal...">
+</div><div id="status" class="status">Playlistul se încarcă...</div>
+<div class="info">Click sau Enter pe un card pentru a deschide canalul direct.</div><div id="grid" class="grid"></div><script>
+const PLAYLIST_URL = "/iptv/romanesti.m3u";
 
-  <section class="hero">
-    <div class="hero-inner">
-      <div class="hero-kicker">Canale românești</div>
-      <h1 id="heroTitle" class="hero-title">Coeziv TV România</h1>
-      <div id="heroDesc" class="hero-desc"></div>
-      <div class="hero-actions">
-        <button id="heroFrame" class="hero-btn primary" tabindex="0">▶ Deschide în pagină</button>
-        <button id="heroDirect" class="hero-btn secondary" tabindex="0">Deschide direct</button>
-      </div>
-    </div>
-  </section>
-
-  <div class="search-wrap">
-    <input id="searchInput" class="search-input" type="text" placeholder="Caută canal românesc..." tabindex="0" />
-  </div>
-
-  <section class="viewer">
-    <div class="viewer-head">
-      <div>
-        <h2 id="viewerTitle" class="viewer-title">Selectează un canal</h2>
-        <div id="viewerDesc" class="viewer-desc">Îl poți deschide în frame în pagina principală sau direct. Dacă furnizorul nu permite iframe, folosește deschiderea directă.</div>
-      </div>
-      <div class="viewer-actions">
-        <button id="viewerFrame" class="viewer-btn primary" tabindex="0">Deschide în pagină</button>
-        <button id="viewerDirect" class="viewer-btn" tabindex="0">Deschide direct</button>
-        <button id="viewerCopy" class="viewer-btn" tabindex="0">Copiază URL</button>
-        <button id="viewerFav" class="viewer-btn" tabindex="0">☆ Favorit</button>
-      </div>
-    </div>
-    <div class="frame-wrap">
-      <iframe id="playerFrame" referrerpolicy="no-referrer"></iframe>
-      <div id="framePlaceholder" class="placeholder">
-        Selectează un canal din rail-ul de mai jos.<br><br>
-      </div>
-    </div>
-  </section>
-
-  <div id="statusBox" class="status">Playlistul se încarcă...</div>
-
-  <section class="section">
-    <div class="section-head">
-      <div class="section-title">Canale românești</div>
-      <div class="section-sub">Un singur rail, fără meniuri inutile sau categorii inexistente</div>
-    </div>
-    <div id="railAll" class="rail"></div>
-  </section>
-
-  <div class="stats">
-    <div class="stat"><div class="stat-label">Total canale</div><div id="statTotal" class="stat-value">0</div></div>
-    <div class="stat"><div class="stat-label">Favorite</div><div id="statFavs" class="stat-value">0</div></div>
-    <div class="stat"><div class="stat-label">Rezultate</div><div id="statResults" class="stat-value">0</div></div>
-    <div class="stat"><div class="stat-label">Canal curent</div><div id="statCurrent" class="stat-value">—</div></div>
-  </div>
-
-<script>
-const PLAYLIST_URL = "https://coeziv.vercel.app/romanesti.m3u";
-const FAVORITES_KEY = "coeziv_tv_android_favorites";
-
-const searchInput = document.getElementById("searchInput");
-const railAll = document.getElementById("railAll");
-const statusBox = document.getElementById("statusBox");
-const viewerTitle = document.getElementById("viewerTitle");
-const viewerDesc = document.getElementById("viewerDesc");
-const heroTitle = document.getElementById("heroTitle");
-const heroDesc = document.getElementById("heroDesc");
-const playerFrame = document.getElementById("playerFrame");
-const framePlaceholder = document.getElementById("framePlaceholder");
-const topRefresh = document.getElementById("topRefresh");
-const topOpen = document.getElementById("topOpen");
-const heroFrame = document.getElementById("heroFrame");
-const heroDirect = document.getElementById("heroDirect");
-const viewerFrame = document.getElementById("viewerFrame");
-const viewerDirect = document.getElementById("viewerDirect");
-const viewerCopy = document.getElementById("viewerCopy");
-const viewerFav = document.getElementById("viewerFav");
-const statTotal = document.getElementById("statTotal");
-const statFavs = document.getElementById("statFavs");
-const statResults = document.getElementById("statResults");
-const statCurrent = document.getElementById("statCurrent");
+const grid = document.getElementById("grid");
+const search = document.getElementById("search");
+const status = document.getElementById("status");
 
 let channels = [];
 let filtered = [];
-let current = null;
-let favorites = loadFavorites();
-let frameTimer = null;
-let focusables = [];
 
-function loadFavorites(){
+async function loadPlaylist(){
+  status.textContent = "Playlistul se încarcă...";
   try {
-    const raw = localStorage.getItem(FAVORITES_KEY);
-    const parsed = JSON.parse(raw || "[]");
-    return Array.isArray(parsed) ? parsed : [];
-  } catch { return []; }
-}
-
-function saveFavorites(){
-  localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites));
-  statFavs.textContent = favorites.length;
-}
-
-function setStatus(text){ statusBox.textContent = text; }
-function safe(v){ return (v || "").toLowerCase().trim(); }
-function escapeHtml(str){
-  return (str || "")
-    .replaceAll("&","&amp;")
-    .replaceAll("<","&lt;")
-    .replaceAll(">","&gt;")
-    .replaceAll('"',"&quot;")
-    .replaceAll("'","&#039;");
+    const res = await fetch(PLAYLIST_URL, { cache: "no-store" });
+    if (!res.ok) throw new Error("Nu am putut încărca playlistul.");
+    const text = await res.text();
+    channels = parseM3U(text);
+    filtered = [...channels];
+    status.textContent = `Canale încărcate: ${channels.length}`;
+    render();
+  } catch (err) {
+    status.textContent = "Eroare la încărcarea playlistului.\n\n" + (err?.message || "Necunoscut");
+  }
 }
 
 function parseM3U(text){
   const lines = text.split(/\r?\n/);
   const result = [];
-  let currentItem = null;
-  for(const raw of lines){
+  let current = null;
+
+  for (const raw of lines) {
     const line = raw.trim();
-    if(!line) continue;
-    if(line.startsWith("#EXTINF")){
+    if (!line) continue;
+
+    if (line.startsWith("#EXTINF")) {
       const parts = line.split(",");
-      const name = parts[parts.length - 1].trim();
-      currentItem = { title:name, url:"", group:"Românești" };
-    } else if(line.startsWith("http") && currentItem){
-      currentItem.url = line;
-      result.push(currentItem);
-      currentItem = null;
+      const title = (parts[parts.length - 1] || "Canal necunoscut").trim();
+      current = { title, url: "" };
+    } else if (line.startsWith("http") && current) {
+      current.url = line;
+      result.push(current);
+      current = null;
     }
   }
+
   return result;
 }
 
-async function loadPlaylist(){
-  setStatus("Se încarcă playlistul românesc...");
-  try{
-    const res = await fetch(PLAYLIST_URL, { cache:"no-store" });
-    if(!res.ok) throw new Error("Nu am putut descărca playlistul.");
-    const text = await res.text();
-    channels = parseM3U(text);
-    filtered = [...channels];
-    statTotal.textContent = channels.length;
-    saveFavorites();
-    render();
-    if(!current && filtered[0]) selectChannel(filtered[0], false);
-    setStatus(`Playlist încărcat cu succes.\nCanale găsite: ${channels.length}`);
-  } catch(err){
-    setStatus("Eroare la încărcarea playlistului.\n\n" + (err?.message || "Necunoscut"));
-  }
-}
-
-function getFiltered(){
-  const q = safe(searchInput.value);
-  let list = [...channels];
-  if(q) list = list.filter(c => safe(c.title).includes(q));
-  return list.sort((a,b) => a.title.localeCompare(b.title, "ro"));
-}
-
-function buildCard(channel, index){
-  const isFav = favorites.includes(channel.url);
-  const isActive = current && current.url === channel.url;
-  const card = document.createElement("div");
-  card.className = "card" + (isActive ? " active" : "");
-  card.innerHTML = `
-    <button class="card-btn" tabindex="0" data-focus="card" data-index="${index}">
-      <div class="thumb"><div class="fallback">TV</div></div>
-      <div class="card-body">
-        <div class="card-title">${escapeHtml(channel.title)}</div>
-        <div class="card-meta">România • Live</div>
-        <div class="card-actions">
-          <button class="mini primary" type="button">Deschide</button>
-          <button class="mini" type="button">În pagină</button>
-          <button class="mini" type="button">${isFav ? "★" : "☆"}</button>
-        </div>
-      </div>
-    </button>
-  `;
-
-  const mainBtn = card.querySelector(".card-btn");
-  const [openBtn, frameBtn, favBtn] = card.querySelectorAll(".mini");
-
-  mainBtn.onclick = () => selectChannel(channel, true);
-
-  openBtn.onclick = (e) => { e.stopPropagation(); selectChannel(channel, true); openDirect(); };
-  frameBtn.onclick = (e) => { e.stopPropagation(); selectChannel(channel, true); openInFrame(); };
-  favBtn.onclick = (e) => { e.stopPropagation(); toggleFavorite(channel.url); };
-
-  return card;
-}
-
 function render(){
-  filtered = getFiltered();
-  statResults.textContent = filtered.length;
-  railAll.innerHTML = "";
+  const q = search.value.toLowerCase().trim();
+  filtered = channels.filter(c => c.title.toLowerCase().includes(q));
+  grid.innerHTML = "";
 
-  if(!filtered.length){
-    railAll.innerHTML = '<div class="empty">Niciun canal găsit pentru filtrul curent.</div>';
-  } else {
-    filtered.forEach((channel, index) => railAll.appendChild(buildCard(channel, index)));
-  }
-
-  collectFocusables();
-}
-
-function collectFocusables(){
-  focusables = Array.from(document.querySelectorAll('[tabindex="0"], .card-btn'))
-    .filter(el => el.offsetParent !== null);
-}
-
-function setFocusedElement(el){
-  if(!el) return;
-  document.querySelectorAll('.focused').forEach(x => x.classList.remove('focused'));
-  const card = el.closest('.card');
-  if(card) card.classList.add('focused');
-  else el.classList.add('focused');
-  el.focus({ preventScroll:true });
-  el.scrollIntoView({ behavior:'smooth', block:'nearest', inline:'center' });
-}
-
-function moveHorizontal(direction){
-  const active = document.activeElement;
-  if(active && active.classList.contains('card-btn')){
-    const idx = Number(active.dataset.index);
-    const next = idx + direction;
-    const target = document.querySelector(`.card-btn[data-index="${next}"]`);
-    if(target){
-      setFocusedElement(target);
-    } else {
-      railAll.scrollBy({ left: direction * 280, behavior:'smooth' });
-    }
-    return true;
-  }
-  return false;
-}
-
-function moveVertical(direction){
-  const active = document.activeElement;
-  const cardButtons = Array.from(document.querySelectorAll('.card-btn'));
-  const firstCard = cardButtons[0];
-  const controls = [topRefresh, topOpen, heroFrame, heroDirect, searchInput, viewerFrame, viewerDirect, viewerCopy, viewerFav].filter(Boolean);
-
-  if(cardButtons.includes(active)){
-    if(direction < 0){
-      setFocusedElement(searchInput);
-      return true;
-    }
-    return true;
-  }
-
-  const idx = controls.indexOf(active);
-  if(idx !== -1){
-    const next = idx + direction;
-    if(next >= 0 && next < controls.length){
-      setFocusedElement(controls[next]);
-      return true;
-    }
-    if(direction > 0 && firstCard){
-      setFocusedElement(firstCard);
-      return true;
-    }
-    return true;
-  }
-
-  return false;
-}
-
-function updateFavoriteButton(){
-  viewerFav.textContent = current && favorites.includes(current.url) ? '★ Salvat' : '☆ Favorit';
-}
-
-function selectChannel(channel, updateHero=true){
-  current = channel;
-  viewerTitle.textContent = channel.title || 'Canal';
-  viewerDesc.textContent = 'Canal selectat. Îl poți deschide în frame în pagina principală sau direct, exact ca într-o interfață media pentru TV.';
-  if(updateHero){
-    heroTitle.textContent = channel.title;
-    heroDesc.textContent = 'Canal românesc selectat. Navigarea este optimizată pentru Android TV și telecomandă.';
-  }
-  statCurrent.textContent = channel.title.length > 12 ? channel.title.slice(0,12) + '…' : channel.title;
-  updateFavoriteButton();
-  render();
-  setStatus(`Canal selectat:\n${channel.title}\n\nEnter pentru selecție, butoanele pentru deschidere în pagină sau direct.`);
-}
-
-function openInFrame(){
-  if(!current){ setStatus('Selectează mai întâi un canal.'); return; }
-  clearTimeout(frameTimer);
-  framePlaceholder.classList.remove('hidden');
-  framePlaceholder.innerHTML = 'Se încearcă deschiderea canalului în frame...';
-  playerFrame.src = current.url;
-  frameTimer = setTimeout(() => {
-    framePlaceholder.innerHTML = 'Dacă imaginea nu apare, canalul probabil nu permite iframe.<br><br>Folosește «Deschide direct».';
-  }, 2400);
-  setStatus(`Canal trimis în frame:\n${current.title}\n\nDacă rămâne gol, folosește deschiderea directă.`);
-}
-
-function openDirect(){
-  if(!current){ setStatus('Selectează mai întâi un canal.'); return; }
-  const win = window.open(current.url, '_blank');
-  if(!win){
-    setStatus('Browserul a blocat tabul nou. Permite pop-up-urile pentru această pagină.');
+  if (!filtered.length) {
+    status.textContent = "Nu există canale pentru filtrul curent.";
     return;
   }
-  setStatus(`Canal deschis direct:\n${current.title}\n\nPagina principală a rămas deschisă.`);
+
+  status.textContent = `Rezultate afișate: ${filtered.length}`;
+
+  filtered.forEach((ch) => {
+    const card = document.createElement("div");
+    card.className = "card";
+    card.tabIndex = 0;
+
+    card.innerHTML = `
+      <div class="thumb">TV</div>
+      <div class="card-body">
+        <div class="card-title">${escapeHtml(ch.title)}</div>
+        <div class="card-meta">România • Live</div>
+        <button class="card-btn" type="button">Deschide</button>
+      </div>
+    `;
+
+    const open = () => window.open(ch.url, "_blank");
+
+    card.addEventListener("click", open);
+    card.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        open();
+      }
+    });
+
+    card.querySelector(".card-btn").addEventListener("click", (e) => {
+      e.stopPropagation();
+      open();
+    });
+
+    grid.appendChild(card);
+  });
 }
 
-function toggleFavorite(url){
-  if(favorites.includes(url)) favorites = favorites.filter(x => x !== url);
-  else favorites.push(url);
-  saveFavorites();
-  updateFavoriteButton();
-  render();
+function escapeHtml(str){
+  return (str || "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
 }
 
-searchInput.addEventListener('input', () => {
-  render();
-  const first = document.querySelector('.card-btn[data-index="0"]');
-  if(first) setFocusedElement(first);
-});
-
-topRefresh.onclick = loadPlaylist;
-topOpen.onclick = openDirect;
-heroFrame.onclick = openInFrame;
-heroDirect.onclick = openDirect;
-viewerFrame.onclick = openInFrame;
-viewerDirect.onclick = openDirect;
-viewerCopy.onclick = async () => {
-  if(!current?.url){ setStatus('Selectează mai întâi un canal.'); return; }
-  try { await navigator.clipboard.writeText(current.url); setStatus('URL-ul canalului a fost copiat.'); }
-  catch { setStatus('Nu am putut copia URL-ul automat.'); }
-};
-viewerFav.onclick = () => { if(current) toggleFavorite(current.url); };
-
-playerFrame.addEventListener('load', () => {
-  framePlaceholder.classList.add('hidden');
-  setStatus(`Canal încărcat în frame:\n${current?.title || 'Canal'}`);
-});
-
-document.addEventListener('focusin', (e) => {
-  const el = e.target;
-  if(el.classList.contains('card-btn') || el.classList.contains('top-btn') || el.classList.contains('hero-btn') || el.classList.contains('viewer-btn') || el.classList.contains('search-input')){
-    setFocusedElement(el);
-  }
-});
-
-document.addEventListener('keydown', (e) => {
-  if(e.key === 'ArrowRight'){
-    if(moveHorizontal(1)) e.preventDefault();
-  } else if(e.key === 'ArrowLeft'){
-    if(moveHorizontal(-1)) e.preventDefault();
-  } else if(e.key === 'ArrowDown'){
-    if(moveVertical(1)) e.preventDefault();
-  } else if(e.key === 'ArrowUp'){
-    if(moveVertical(-1)) e.preventDefault();
-  } else if(e.key === 'Enter'){
-    const active = document.activeElement;
-    if(active && active.classList.contains('card-btn')){
-      active.click();
-      e.preventDefault();
-    }
-  }
-});
-
+search.addEventListener("input", render);
 loadPlaylist();
-</script>
-</body>
+</script></body>
 </html>
