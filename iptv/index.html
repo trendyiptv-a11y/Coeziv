@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="ro">
+<!DOCTYPE html>
+<html lang="ro">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -8,7 +9,6 @@
   --bg:#141414;
   --bg2:#181818;
   --card:#1f1f1f;
-  --card-hover:#2a2a2a;
   --text:#fff;
   --muted:#b3b3b3;
   --line:#2c2c2c;
@@ -20,22 +20,131 @@
 html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif}
 body{min-height:100vh;overflow-x:hidden}
 button,input{font:inherit}
-button{cursor:pointer}.topbar{ position:fixed;top:0;left:0;right:0;z-index:30; display:flex;align-items:center;justify-content:space-between; padding:18px 28px; background:linear-gradient(180deg,rgba(0,0,0,.8),rgba(0,0,0,.25),transparent); } .logo{font-size:34px;font-weight:900;color:var(--brand);letter-spacing:.5px} .top-actions{display:flex;gap:10px;align-items:center} .top-btn{ border:1px solid #3a3a3a;background:rgba(20,20,20,.88);color:#fff; border-radius:999px;padding:10px 14px; } .top-btn:focus-visible,.top-btn.focused{outline:none;box-shadow:0 0 0 3px var(--focus)}
+button{cursor:pointer}
 
-.hero{ min-height:64vh; display:flex;align-items:flex-end; padding:120px 28px 56px; background: linear-gradient(90deg,rgba(0,0,0,.82) 0%, rgba(0,0,0,.6) 38%, rgba(0,0,0,.18) 70%, rgba(0,0,0,.45) 100%), linear-gradient(180deg,transparent 58%, #141414 100%), url('https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=1600&q=80') center/cover; } .hero-inner{max-width:720px} .hero-kicker{font-size:12px;letter-spacing:.24em;text-transform:uppercase;color:#d1d5db;margin-bottom:10px} .hero-title{font-size:56px;line-height:1.02;font-weight:800;margin:0 0 12px} .hero-desc{font-size:18px;line-height:1.6;color:#ededed;max-width:620px} .hero-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:22px} .hero-btn{ border:none;border-radius:6px;padding:14px 22px;font-weight:700; } .hero-btn.primary{background:#fff;color:#000} .hero-btn.secondary{background:rgba(109,109,110,.7);color:#fff} .hero-btn:focus-visible,.hero-btn.focused{outline:none;box-shadow:0 0 0 3px var(--focus)}
+.topbar{
+  position:fixed;top:0;left:0;right:0;z-index:30;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:18px 28px;
+  background:linear-gradient(180deg,rgba(0,0,0,.8),rgba(0,0,0,.25),transparent);
+}
+.logo{font-size:34px;font-weight:900;color:var(--brand);letter-spacing:.5px}
+.top-actions{display:flex;gap:10px;align-items:center}
+.top-btn{
+  border:1px solid #3a3a3a;background:rgba(20,20,20,.88);color:#fff;
+  border-radius:999px;padding:10px 14px;
+}
+.top-btn:focus-visible,.top-btn.focused{outline:none;box-shadow:0 0 0 3px var(--focus)}
 
-.search-wrap{padding:0 28px 18px;margin-top:-10px} .search-input{ width:100%;max-width:480px;padding:14px 16px;border-radius:8px;border:1px solid #343434; background:#0f0f0f;color:#fff;outline:none; } .search-input:focus-visible{box-shadow:0 0 0 3px var(--focus)}
+.hero{
+  min-height:64vh;
+  display:flex;align-items:flex-end;
+  padding:120px 28px 56px;
+  background:
+    linear-gradient(90deg,rgba(0,0,0,.82) 0%, rgba(0,0,0,.6) 38%, rgba(0,0,0,.18) 70%, rgba(0,0,0,.45) 100%),
+    linear-gradient(180deg,transparent 58%, #141414 100%),
+    url('https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=1600&q=80') center/cover;
+}
+.hero-inner{max-width:720px}
+.hero-kicker{font-size:12px;letter-spacing:.24em;text-transform:uppercase;color:#d1d5db;margin-bottom:10px}
+.hero-title{font-size:56px;line-height:1.02;font-weight:800;margin:0 0 12px}
+.hero-desc{font-size:18px;line-height:1.6;color:#ededed;max-width:620px}
+.hero-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:22px}
+.hero-btn{
+  border:none;border-radius:6px;padding:14px 22px;font-weight:700;
+}
+.hero-btn.primary{background:#fff;color:#000}
+.hero-btn.secondary{background:rgba(109,109,110,.7);color:#fff}
+.hero-btn:focus-visible,.hero-btn.focused{outline:none;box-shadow:0 0 0 3px var(--focus)}
 
-.viewer{ margin:0 28px 28px; border-radius:18px;overflow:hidden;border:1px solid var(--line); background:#101010;box-shadow:var(--shadow) } .viewer-head{ padding:18px 20px;border-bottom:1px solid var(--line); background:linear-gradient(180deg,#1a1a1a,#101010); display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap } .viewer-title{font-size:30px;font-weight:800;margin:0} .viewer-desc{font-size:14px;color:var(--muted);line-height:1.6;margin-top:8px;max-width:840px} .viewer-actions{display:flex;gap:10px;flex-wrap:wrap} .viewer-btn{ border:1px solid #3a3a3a;background:#1f1f1f;color:#fff;border-radius:999px;padding:10px 14px } .viewer-btn.primary{background:var(--brand);border-color:var(--brand)} .viewer-btn:focus-visible,.viewer-btn.focused{outline:none;box-shadow:0 0 0 3px var(--focus)} .frame-wrap{position:relative;background:#000} iframe{width:100%;height:58vh;min-height:380px;border:none;background:#000} .placeholder{ position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center; padding:28px;color:#cbd5e1;line-height:1.7;background:linear-gradient(180deg,#0b0b0b,#151515) } .placeholder.hidden{display:none}
+.search-wrap{padding:0 28px 18px;margin-top:-10px}
+.search-input{
+  width:100%;max-width:480px;padding:14px 16px;border-radius:8px;border:1px solid #343434;
+  background:#0f0f0f;color:#fff;outline:none;
+}
+.search-input:focus-visible{box-shadow:0 0 0 3px var(--focus)}
 
-.status{ margin:0 28px 26px; border:1px solid var(--line);background:#111;border-radius:14px;padding:14px 16px; color:var(--muted);white-space:pre-line;line-height:1.6 }
+.viewer{
+  margin:0 28px 28px;
+  border-radius:18px;overflow:hidden;border:1px solid var(--line);
+  background:#101010;box-shadow:var(--shadow)
+}
+.viewer-head{
+  padding:18px 20px;border-bottom:1px solid var(--line);
+  background:linear-gradient(180deg,#1a1a1a,#101010);
+  display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap
+}
+.viewer-title{font-size:30px;font-weight:800;margin:0}
+.viewer-desc{font-size:14px;color:var(--muted);line-height:1.6;margin-top:8px;max-width:840px}
+.viewer-actions{display:flex;gap:10px;flex-wrap:wrap}
+.viewer-btn{
+  border:1px solid #3a3a3a;background:#1f1f1f;color:#fff;border-radius:999px;padding:10px 14px
+}
+.viewer-btn.primary{background:var(--brand);border-color:var(--brand)}
+.viewer-btn:focus-visible,.viewer-btn.focused{outline:none;box-shadow:0 0 0 3px var(--focus)}
+.frame-wrap{position:relative;background:#000}
+iframe{width:100%;height:58vh;min-height:380px;border:none;background:#000}
+.placeholder{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;
+  padding:28px;color:#cbd5e1;line-height:1.7;background:linear-gradient(180deg,#0b0b0b,#151515)
+}
+.placeholder.hidden{display:none}
 
-.section{margin-bottom:28px} .section-head{padding:0 28px 12px} .section-title{font-size:24px;font-weight:800} .section-sub{font-size:13px;color:var(--muted);margin-top:6px} .rail{ display:grid;grid-auto-flow:column;grid-auto-columns:240px;gap:12px; overflow-x:auto;padding:0 28px 14px;scroll-behavior:smooth;scrollbar-width:none } .rail::-webkit-scrollbar{display:none} .card{ background:var(--card);border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,.04); transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease; box-shadow:0 10px 26px rgba(0,0,0,.18);position:relative } .card:hover{transform:scale(1.04);box-shadow:var(--shadow);border-color:rgba(255,255,255,.15)} .card.focused{transform:scale(1.06);box-shadow:0 0 0 3px var(--focus), var(--shadow);border-color:rgba(255,255,255,.4);z-index:5} .card-btn{display:block;width:100%;background:none;border:none;color:inherit;text-align:left;padding:0} .card-btn:focus{outline:none} .thumb{aspect-ratio:16/9;background:linear-gradient(135deg,#191919,#343434);display:flex;align-items:center;justify-content:center;overflow:hidden} .thumb img{width:100%;height:100%;object-fit:cover} .fallback{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:34px;font-weight:800} .card-body{padding:12px} .card-title{font-size:15px;font-weight:700;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis} .card-meta{font-size:12px;color:var(--muted);margin-top:6px} .card-actions{display:flex;gap:8px;margin-top:10px} .mini{flex:1;border:none;border-radius:999px;background:#2b2b2b;color:#fff;padding:8px 10px;font-size:12px} .mini.primary{background:var(--brand)} .empty{margin:0 28px;border:1px dashed var(--line);background:#111;border-radius:14px;padding:16px;color:var(--muted)}
+.status{
+  margin:0 28px 26px;
+  border:1px solid var(--line);background:#111;border-radius:14px;padding:14px 16px;
+  color:var(--muted);white-space:pre-line;line-height:1.6
+}
 
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:0 28px 32px} .stat{background:#111;border:1px solid var(--line);border-radius:16px;padding:16px} .stat-label{font-size:12px;color:var(--muted)} .stat-value{font-size:28px;font-weight:800;margin-top:8px}
+.section{margin-bottom:28px}
+.section-head{padding:0 28px 12px}
+.section-title{font-size:24px;font-weight:800}
+.section-sub{font-size:13px;color:var(--muted);margin-top:6px}
+.rail{
+  display:grid;grid-auto-flow:column;grid-auto-columns:240px;gap:12px;
+  overflow-x:auto;padding:0 28px 14px;scroll-behavior:smooth;scrollbar-width:none
+}
+.rail::-webkit-scrollbar{display:none}
+.card{
+  background:var(--card);border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,.04);
+  transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+  box-shadow:0 10px 26px rgba(0,0,0,.18);position:relative
+}
+.card:hover{transform:scale(1.04);box-shadow:var(--shadow);border-color:rgba(255,255,255,.15)}
+.card.focused{transform:scale(1.06);box-shadow:0 0 0 3px var(--focus), var(--shadow);border-color:rgba(255,255,255,.4);z-index:5}
+.card-btn{display:block;width:100%;background:none;border:none;color:inherit;text-align:left;padding:0}
+.card-btn:focus{outline:none}
+.thumb{aspect-ratio:16/9;background:linear-gradient(135deg,#191919,#343434);display:flex;align-items:center;justify-content:center;overflow:hidden}
+.fallback{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:34px;font-weight:800}
+.card-body{padding:12px}
+.card-title{font-size:15px;font-weight:700;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card-meta{font-size:12px;color:var(--muted);margin-top:6px}
+.card-actions{display:flex;gap:8px;margin-top:10px}
+.mini{flex:1;border:none;border-radius:999px;background:#2b2b2b;color:#fff;padding:8px 10px;font-size:12px}
+.mini.primary{background:var(--brand)}
+.empty{margin:0 28px;border:1px dashed var(--line);background:#111;border-radius:14px;padding:16px;color:var(--muted)}
 
-@media (max-width: 980px){ .hero-title{font-size:42px} .stats{grid-template-columns:repeat(2,1fr)} iframe{height:48vh} } @media (max-width: 720px){ .topbar{padding-top:6px} .hero{padding:118px 16px 48px;min-height:58vh} .search-wrap,.section-head,.rail,.stats{padding-left:16px;padding-right:16px} .viewer,.status{margin-left:16px;margin-right:16px} .hero-title{font-size:34px} .rail{grid-auto-columns:200px} iframe{height:40vh;min-height:280px} .stats{grid-template-columns:1fr} } </style>
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:0 28px 32px}
+.stat{background:#111;border:1px solid var(--line);border-radius:16px;padding:16px}
+.stat-label{font-size:12px;color:var(--muted)}
+.stat-value{font-size:28px;font-weight:800;margin-top:8px}
 
+@media (max-width: 980px){
+  .hero-title{font-size:42px}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  iframe{height:48vh}
+}
+@media (max-width: 720px){
+  .topbar{padding-top:6px}
+  .hero{padding:118px 16px 48px;min-height:58vh}
+  .search-wrap,.section-head,.rail,.stats{padding-left:16px;padding-right:16px}
+  .viewer,.status{margin-left:16px;margin-right:16px}
+  .hero-title{font-size:34px}
+  .rail{grid-auto-columns:200px}
+  iframe{height:40vh;min-height:280px}
+  .stats{grid-template-columns:1fr}
+}
+</style>
 </head>
 <body>
   <header class="topbar">
@@ -44,7 +153,9 @@ button{cursor:pointer}.topbar{ position:fixed;top:0;left:0;right:0;z-index:30; d
       <button id="topRefresh" class="top-btn" tabindex="0">Reîmprospătează</button>
       <button id="topOpen" class="top-btn" tabindex="0">Deschide direct</button>
     </div>
-  </header>  <section class="hero">
+  </header>
+
+  <section class="hero">
     <div class="hero-inner">
       <div class="hero-kicker">Canale românești</div>
       <h1 id="heroTitle" class="hero-title">Coeziv TV România</h1>
@@ -54,9 +165,13 @@ button{cursor:pointer}.topbar{ position:fixed;top:0;left:0;right:0;z-index:30; d
         <button id="heroDirect" class="hero-btn secondary" tabindex="0">Deschide direct</button>
       </div>
     </div>
-  </section>  <div class="search-wrap">
+  </section>
+
+  <div class="search-wrap">
     <input id="searchInput" class="search-input" type="text" placeholder="Caută canal românesc..." tabindex="0" />
-  </div>  <section class="viewer">
+  </div>
+
+  <section class="viewer">
     <div class="viewer-head">
       <div>
         <h2 id="viewerTitle" class="viewer-title">Selectează un canal</h2>
@@ -76,20 +191,27 @@ button{cursor:pointer}.topbar{ position:fixed;top:0;left:0;right:0;z-index:30; d
         Navigare Android TV: stânga/dreapta pe carduri, Enter pentru selecție, sus/jos între zone.
       </div>
     </div>
-  </section>  <div id="statusBox" class="status">Playlistul se încarcă...</div>  <section class="section">
+  </section>
+
+  <div id="statusBox" class="status">Playlistul se încarcă...</div>
+
+  <section class="section">
     <div class="section-head">
       <div class="section-title">Canale românești</div>
       <div class="section-sub">Un singur rail, fără meniuri inutile sau categorii inexistente</div>
     </div>
     <div id="railAll" class="rail"></div>
-  </section>  <div class="stats">
+  </section>
+
+  <div class="stats">
     <div class="stat"><div class="stat-label">Total canale</div><div id="statTotal" class="stat-value">0</div></div>
     <div class="stat"><div class="stat-label">Favorite</div><div id="statFavs" class="stat-value">0</div></div>
     <div class="stat"><div class="stat-label">Rezultate</div><div id="statResults" class="stat-value">0</div></div>
     <div class="stat"><div class="stat-label">Canal curent</div><div id="statCurrent" class="stat-value">—</div></div>
   </div>
-  <script>
-const PLAYLIST_URL = "https://coeziv.vercel.app/romanesti.m3u";
+
+<script>
+const PLAYLIST_URL = "https:coeziv.vercel.app/romanesti.m3u";
 const FAVORITES_KEY = "coeziv_tv_android_favorites";
 
 const searchInput = document.getElementById("searchInput");
@@ -120,7 +242,6 @@ let current = null;
 let favorites = loadFavorites();
 let frameTimer = null;
 let focusables = [];
-let focusedIndex = -1;
 
 function loadFavorites(){
   try {
@@ -215,7 +336,6 @@ function buildCard(channel, index){
   const [openBtn, frameBtn, favBtn] = card.querySelectorAll(".mini");
 
   mainBtn.onclick = () => selectChannel(channel, true);
-  mainBtn.onfocus = () => setFocusedElement(mainBtn);
 
   openBtn.onclick = (e) => { e.stopPropagation(); selectChannel(channel, true); openDirect(); };
   frameBtn.onclick = (e) => { e.stopPropagation(); selectChannel(channel, true); openInFrame(); };
@@ -241,31 +361,16 @@ function render(){
 function collectFocusables(){
   focusables = Array.from(document.querySelectorAll('[tabindex="0"], .card-btn'))
     .filter(el => el.offsetParent !== null);
-
-  focusables.forEach(el => {
-    el.classList.remove('focused');
-  });
-
-  if(focusables.length && focusedIndex < 0){
-    focusedIndex = 0;
-    setFocusedElement(focusables[0], false);
-  } else if(focusables.length && focusedIndex >= focusables.length){
-    focusedIndex = focusables.length - 1;
-    setFocusedElement(focusables[focusedIndex], false);
-  }
 }
 
-function setFocusedElement(el, scroll=true){
+function setFocusedElement(el){
   if(!el) return;
-  focusables.forEach(x => x.classList.remove('focused'));
+  document.querySelectorAll('.focused').forEach(x => x.classList.remove('focused'));
   const card = el.closest('.card');
   if(card) card.classList.add('focused');
   else el.classList.add('focused');
   el.focus({ preventScroll:true });
-  focusedIndex = focusables.indexOf(el);
-  if(scroll){
-    el.scrollIntoView({ behavior:'smooth', block:'nearest', inline:'center' });
-  }
+  el.scrollIntoView({ behavior:'smooth', block:'nearest', inline:'center' });
 }
 
 function moveHorizontal(direction){
@@ -295,11 +400,6 @@ function moveVertical(direction){
       setFocusedElement(searchInput);
       return true;
     }
-    return true;
-  }
-
-  if(active === searchInput && direction > 0 && firstCard){
-    setFocusedElement(firstCard);
     return true;
   }
 
@@ -345,7 +445,7 @@ function openInFrame(){
   framePlaceholder.innerHTML = 'Se încearcă deschiderea canalului în frame...';
   playerFrame.src = current.url;
   frameTimer = setTimeout(() => {
-    framePlaceholder.innerHTML = 'Dacă imaginea nu apare, canalul probabil nu permite iframe.<br><br>Folosește «Deschide direct».";
+    framePlaceholder.innerHTML = 'Dacă imaginea nu apare, canalul probabil nu permite iframe.<br><br>Folosește «Deschide direct».';
   }, 2400);
   setStatus(`Canal trimis în frame:\n${current.title}\n\nDacă rămâne gol, folosește deschiderea directă.`);
 }
@@ -395,7 +495,7 @@ playerFrame.addEventListener('load', () => {
 document.addEventListener('focusin', (e) => {
   const el = e.target;
   if(el.classList.contains('card-btn') || el.classList.contains('top-btn') || el.classList.contains('hero-btn') || el.classList.contains('viewer-btn') || el.classList.contains('search-input')){
-    setFocusedElement(el, true);
+    setFocusedElement(el);
   }
 });
 
@@ -408,7 +508,7 @@ document.addEventListener('keydown', (e) => {
     if(moveVertical(1)) e.preventDefault();
   } else if(e.key === 'ArrowUp'){
     if(moveVertical(-1)) e.preventDefault();
-  } else if(e.key === 'Enter' || e.key === 'OK'){
+  } else if(e.key === 'Enter'){
     const active = document.activeElement;
     if(active && active.classList.contains('card-btn')){
       active.click();
