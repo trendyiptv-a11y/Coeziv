@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Coeziv TV</title>
+  <title>Coeziv TV România</title>
   <style>
     :root{
       --bg:#050b16;
@@ -29,7 +29,7 @@
       font-family:Arial,Helvetica,sans-serif;
     }
     body{min-height:100vh}
-    button,input{font:inherit}
+    button,input,select{font:inherit}
 
     .topbar{
       position:sticky;
@@ -89,7 +89,7 @@
       margin:0 auto;
       padding:18px;
       display:grid;
-      grid-template-columns:340px minmax(0,1fr) 320px;
+      grid-template-columns:340px minmax(0,1fr) 300px;
       gap:16px;
     }
 
@@ -252,15 +252,17 @@
     }
     .fav-btn.active{color:var(--gold)}
 
-    .hero{
-      min-height:430px;
-      display:flex;
-      flex-direction:column;
-      justify-content:space-between;
+    .viewer{
+      display:grid;
+      grid-template-rows:auto 1fr;
+      min-height:760px;
+    }
+    .viewer-head{
+      padding:18px;
+      border-bottom:1px solid var(--border);
       background:
-        radial-gradient(circle at top right, rgba(37,99,235,.25), transparent 35%),
+        radial-gradient(circle at top right, rgba(37,99,235,.22), transparent 30%),
         linear-gradient(180deg,#0d1526,#0a1222);
-      padding:22px;
     }
     .eyebrow{
       font-size:11px;
@@ -269,21 +271,19 @@
       color:#64748b;
       margin-bottom:8px;
     }
-    .hero-title{
-      font-size:34px;
+    .viewer-title{
+      font-size:30px;
       font-weight:700;
       line-height:1.15;
       margin:0;
     }
-    .hero-sub{
+    .viewer-sub{
       margin-top:10px;
       color:var(--muted);
       line-height:1.6;
-      max-width:700px;
       font-size:15px;
     }
-
-    .hero-meta{
+    .viewer-meta{
       display:flex;
       gap:8px;
       flex-wrap:wrap;
@@ -297,12 +297,11 @@
       border-radius:999px;
       font-size:12px;
     }
-
-    .hero-actions{
+    .viewer-actions{
       display:flex;
       gap:10px;
       flex-wrap:wrap;
-      margin-top:20px;
+      margin-top:18px;
     }
     .open-main{
       border:none;
@@ -317,7 +316,7 @@
     .open-main:hover{filter:brightness(1.08)}
 
     .status-box{
-      margin-top:18px;
+      margin-top:16px;
       border:1px solid var(--border);
       background:#091120;
       border-radius:18px;
@@ -328,29 +327,39 @@
       white-space:pre-line;
     }
 
-    .preview-grid{
-      display:grid;
-      grid-template-columns:repeat(3,1fr);
-      gap:10px;
-      margin-top:18px;
+    .frame-wrap{
+      padding:18px;
+      background:#050b16;
     }
-    .preview-card{
+    .frame-box{
+      width:100%;
+      min-height:520px;
       border:1px solid var(--border);
-      background:#091120;
-      border-radius:18px;
-      padding:14px;
-      min-height:96px;
+      border-radius:20px;
+      overflow:hidden;
+      background:#000;
+      position:relative;
     }
-    .preview-label{
-      font-size:12px;
-      color:var(--muted);
+    iframe{
+      width:100%;
+      height:520px;
+      border:none;
+      background:#000;
     }
-    .preview-value{
-      font-size:18px;
-      font-weight:700;
-      margin-top:8px;
-      line-height:1.3;
-      word-break:break-word;
+    .frame-placeholder{
+      position:absolute;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:#94a3b8;
+      text-align:center;
+      padding:20px;
+      line-height:1.6;
+      background:linear-gradient(180deg,#050b16,#0a1222);
+    }
+    .frame-placeholder.hidden{
+      display:none;
     }
 
     .stat-grid{
@@ -439,9 +448,10 @@
       .channel-list{max-height:38vh}
       .topbar-inner{align-items:flex-start;flex-direction:column}
       .brand-title{font-size:24px}
-      .hero-title{font-size:26px}
-      .preview-grid{grid-template-columns:1fr}
+      .viewer-title{font-size:24px}
       .quick-cats{grid-template-columns:1fr 1fr}
+      iframe{height:420px}
+      .frame-box{min-height:420px}
     }
   </style>
 </head>
@@ -449,12 +459,12 @@
   <header class="topbar">
     <div class="topbar-inner">
       <div>
-        <div class="brand-title">Coeziv TV</div>
-        <div class="brand-sub">Interfață profesională • deschidere directă în tab nou • pagina principală rămâne deschisă</div>
+        <div class="brand-title">Coeziv TV România</div>
+        <div class="brand-sub">Canale românești • frame în pagină • fallback la deschidere directă</div>
       </div>
       <div class="top-actions">
         <button id="refreshBtn" class="btn primary">Reîmprospătează</button>
-        <button id="openCurrentTopBtn" class="btn">Deschide selecția</button>
+        <button id="openCurrentTopBtn" class="btn">Deschide direct</button>
       </div>
     </div>
   </header>
@@ -469,7 +479,7 @@
 
         <div class="search-wrap">
           <span class="search-icon">🔎</span>
-          <input id="searchInput" type="text" placeholder="Caută canal, categorie, tvg-id..." />
+          <input id="searchInput" type="text" placeholder="Caută canal..." />
         </div>
 
         <div id="quickCats" class="quick-cats"></div>
@@ -479,44 +489,38 @@
       </div>
     </section>
 
-    <section class="panel">
-      <div class="hero">
-        <div>
-          <div class="eyebrow">Canal selectat</div>
-          <h1 id="heroTitle" class="hero-title">Alege un canal</h1>
-          <div id="heroSub" class="hero-sub">
-            Selectează un canal din listă și deschide-l direct într-un tab nou. Pagina Coeziv TV rămâne deschisă pentru navigare rapidă.
-          </div>
-
-          <div class="hero-meta">
-            <span id="heroGroup" class="badge">Categorie</span>
-            <span id="heroTvg" class="badge">tvg-id</span>
-            <span id="heroMode" class="badge">Open in new tab</span>
-          </div>
-
-          <div class="hero-actions">
-            <button id="openMainBtn" class="open-main">Deschide canalul</button>
-            <button id="copyUrlBtn" class="btn">Copiază URL</button>
-            <button id="favoriteCurrentBtn" class="btn">☆ Favorit</button>
-          </div>
-
-          <div id="statusBox" class="status-box">
-            Playlistul se încarcă...
-          </div>
+    <section class="panel viewer">
+      <div class="viewer-head">
+        <div class="eyebrow">Canal selectat</div>
+        <h1 id="viewerTitle" class="viewer-title">Alege un canal</h1>
+        <div id="viewerSub" class="viewer-sub">
+          Selectează un canal din listă. Mai întâi îl încercăm în frame în pagina principală. Dacă furnizorul nu permite iframe, folosești butonul „Deschide direct”.
         </div>
 
-        <div class="preview-grid">
-          <div class="preview-card">
-            <div class="preview-label">Titlu</div>
-            <div id="previewName" class="preview-value">-</div>
-          </div>
-          <div class="preview-card">
-            <div class="preview-label">Categorie</div>
-            <div id="previewGroup" class="preview-value">-</div>
-          </div>
-          <div class="preview-card">
-            <div class="preview-label">Acțiune</div>
-            <div class="preview-value">Tab nou</div>
+        <div class="viewer-meta">
+          <span id="viewerGroup" class="badge">Categorie</span>
+          <span id="viewerTvg" class="badge">tvg-id</span>
+          <span class="badge">România</span>
+        </div>
+
+        <div class="viewer-actions">
+          <button id="openFrameBtn" class="open-main">Deschide în pagină</button>
+          <button id="openDirectBtn" class="btn">Deschide direct</button>
+          <button id="copyUrlBtn" class="btn">Copiază URL</button>
+          <button id="favoriteCurrentBtn" class="btn">☆ Favorit</button>
+        </div>
+
+        <div id="statusBox" class="status-box">
+          Playlistul se încarcă...
+        </div>
+      </div>
+
+      <div class="frame-wrap">
+        <div class="frame-box">
+          <iframe id="playerFrame" referrerpolicy="no-referrer"></iframe>
+          <div id="framePlaceholder" class="frame-placeholder">
+            Aici se va deschide canalul selectat.<br><br>
+            Dacă nu apare în frame, folosește „Deschide direct”.
           </div>
         </div>
       </div>
@@ -548,9 +552,9 @@
 
       <section class="panel">
         <div class="panel-body">
-          <div class="section-title">Cum funcționează</div>
+          <div class="section-title">Notă</div>
           <div class="helper">
-            Această versiune nu mai încearcă redare embedded. Fiecare canal se deschide direct într-un tab nou, iar aplicația rămâne pe pagina inițială pentru selecție rapidă.
+            Unele streamuri IPTV nu permit încărcare în iframe din cauza politicilor serverului. În aceste cazuri, butonul „Deschide direct” rămâne soluția sigură.
           </div>
         </div>
       </section>
@@ -558,8 +562,8 @@
   </main>
 
   <script>
-    const PLAYLIST_URL = "https://coeziv.vercel.app/iptv.m3u";
-    const FAVORITES_KEY = "coeziv_tv_favorites";
+    const PLAYLIST_URL = "https://coeziv.vercel.app/romanesti.m3u";
+    const FAVORITES_KEY = "coeziv_tv_ro_favorites";
 
     const searchInput = document.getElementById("searchInput");
     const channelList = document.getElementById("channelList");
@@ -568,12 +572,10 @@
     const listMeta = document.getElementById("listMeta");
     const statusBox = document.getElementById("statusBox");
 
-    const heroTitle = document.getElementById("heroTitle");
-    const heroSub = document.getElementById("heroSub");
-    const heroGroup = document.getElementById("heroGroup");
-    const heroTvg = document.getElementById("heroTvg");
-    const previewName = document.getElementById("previewName");
-    const previewGroup = document.getElementById("previewGroup");
+    const viewerTitle = document.getElementById("viewerTitle");
+    const viewerSub = document.getElementById("viewerSub");
+    const viewerGroup = document.getElementById("viewerGroup");
+    const viewerTvg = document.getElementById("viewerTvg");
 
     const statChannels = document.getElementById("statChannels");
     const statFavorites = document.getElementById("statFavorites");
@@ -582,15 +584,20 @@
     const tabFav = document.getElementById("tabFav");
     const refreshBtn = document.getElementById("refreshBtn");
     const openCurrentTopBtn = document.getElementById("openCurrentTopBtn");
-    const openMainBtn = document.getElementById("openMainBtn");
+    const openFrameBtn = document.getElementById("openFrameBtn");
+    const openDirectBtn = document.getElementById("openDirectBtn");
     const copyUrlBtn = document.getElementById("copyUrlBtn");
     const favoriteCurrentBtn = document.getElementById("favoriteCurrentBtn");
+
+    const playerFrame = document.getElementById("playerFrame");
+    const framePlaceholder = document.getElementById("framePlaceholder");
 
     let channels = [];
     let current = null;
     let currentCategory = "Toate";
     let currentTab = "all";
     let favorites = loadFavorites();
+    let frameTimer = null;
 
     function loadFavorites(){
       try {
@@ -643,7 +650,7 @@
 
           currentItem = {
             title,
-            group: groupMatch ? groupMatch[1] : "General",
+            group: groupMatch ? groupMatch[1] : "Românești",
             logo: logoMatch ? logoMatch[1] : "",
             tvgId: idMatch ? idMatch[1] : "",
             url: ""
@@ -654,16 +661,14 @@
           currentItem = null;
         }
       }
-
       return result;
     }
 
     async function loadPlaylist(){
-      setStatus("Se descarcă playlistul de pe GitHub...");
-
+      setStatus("Se încarcă playlistul românesc...");
       try {
         const res = await fetch(PLAYLIST_URL, { cache: "no-store" });
-        if(!res.ok) throw new Error("Nu am putut descărca playlistul.");
+        if(!res.ok) throw new Error("Nu am putut descărca playlistul românesc.");
 
         const text = await res.text();
         channels = parseM3U(text);
@@ -682,13 +687,12 @@
         if(!current && channels[0]){
           selectChannel(channels[0]);
         } else {
-          setStatus(`Playlist încărcat cu succes.\nCanale găsite: ${channels.length}`);
+          setStatus(`Playlist românesc încărcat.\nCanale găsite: ${channels.length}`);
         }
       } catch(err){
         setStatus(
           "Eroare la încărcarea playlistului.\n\n" +
-          (err?.message || "Necunoscut") +
-          "\n\nVerifică linkul raw GitHub și dacă repo-ul este public."
+          (err?.message || "Necunoscut")
         );
         channelList.innerHTML = '<div class="empty">Nu am putut încărca lista de canale.</div>';
       }
@@ -847,42 +851,61 @@
     function selectChannel(channel){
       current = channel;
 
-      heroTitle.textContent = channel.title || "Canal";
-      heroSub.textContent = "Acest canal se va deschide direct într-un tab nou. Pagina principală Coeziv TV rămâne deschisă pentru selecția următoare.";
-      heroGroup.textContent = channel.group || "Categorie";
-      heroTvg.textContent = channel.tvgId || "fără tvg-id";
-
-      previewName.textContent = channel.title || "-";
-      previewGroup.textContent = channel.group || "-";
+      viewerTitle.textContent = channel.title || "Canal";
+      viewerSub.textContent = "Canal selectat. Îl poți deschide în frame în pagina principală sau direct, dacă furnizorul nu permite iframe.";
+      viewerGroup.textContent = channel.group || "Categorie";
+      viewerTvg.textContent = channel.tvgId || "fără tvg-id";
 
       updateFavoriteCurrentButton();
       renderChannels();
 
+      framePlaceholder.classList.remove("hidden");
+      playerFrame.removeAttribute("src");
+
       setStatus(
         `Canal selectat:\n${channel.title}\n\n` +
-        `Apasă «Deschide canalul» pentru a-l lansa într-un tab nou.`
+        `Apasă «Deschide în pagină» sau «Deschide direct».`
       );
     }
 
-    function openCurrent(){
+    function openInFrame(){
+      if(!current){
+        setStatus("Selectează mai întâi un canal.");
+        return;
+      }
+
+      clearTimeout(frameTimer);
+      framePlaceholder.classList.remove("hidden");
+      framePlaceholder.innerHTML = "Se încearcă deschiderea canalului în frame...";
+
+      playerFrame.src = current.url;
+
+      frameTimer = setTimeout(() => {
+        framePlaceholder.innerHTML =
+          "Dacă imaginea nu apare, canalul probabil nu permite iframe.<br><br>Folosește butonul „Deschide direct”.";
+      }, 2500);
+
+      setStatus(
+        `Canal trimis în frame:\n${current.title}\n\n` +
+        `Dacă rămâne gol, folosește «Deschide direct».`
+      );
+    }
+
+    function openDirect(){
       if(!current){
         setStatus("Selectează mai întâi un canal.");
         return;
       }
 
       const win = window.open(current.url, "_blank");
-
       if(!win){
-        setStatus(
-          "Browserul a blocat deschiderea tabului nou.\n\n" +
-          "Permite pop-up-urile pentru această pagină și încearcă din nou."
-        );
+        setStatus("Browserul a blocat tabul nou. Permite pop-up-urile pentru această pagină.");
         return;
       }
 
       setStatus(
-        `Canal deschis în tab nou:\n${current.title}\n\n` +
-        "Pagina Coeziv TV a rămas deschisă."
+        `Canal deschis direct:\n${current.title}\n\n` +
+        "Pagina principală a rămas deschisă."
       );
     }
 
@@ -899,10 +922,10 @@
     };
 
     searchInput.addEventListener("input", renderChannels);
-
     refreshBtn.onclick = loadPlaylist;
-    openCurrentTopBtn.onclick = openCurrent;
-    openMainBtn.onclick = openCurrent;
+    openCurrentTopBtn.onclick = openDirect;
+    openFrameBtn.onclick = openInFrame;
+    openDirectBtn.onclick = openDirect;
 
     copyUrlBtn.onclick = async () => {
       if(!current?.url){
@@ -921,6 +944,13 @@
     favoriteCurrentBtn.onclick = () => {
       if(current) toggleFavorite(current.url);
     };
+
+    playerFrame.addEventListener("load", () => {
+      framePlaceholder.classList.add("hidden");
+      setStatus(
+        `Canal încărcat în frame:\n${current?.title || "Canal"}`
+      );
+    });
 
     saveFavorites();
     updateTabs();
