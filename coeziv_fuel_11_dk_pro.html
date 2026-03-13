@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Coeziv Fuel 11 DK</title>
+  <style>
+    :root {
+      --bg: #0b1220;
+      --panel: #121b2f;
+      --panel-2: #17233d;
+      --muted: #90a0c0;
+      --text: #eef4ff;
+      --line: #283657;
+      --accent: #6ee7b7;
+      --accent-2: #7dd3fc;
+      --warn: #fbbf24;
+      --danger: #fb7185;
+      --ok: #34d399;
+      --shadow: 0 20px 50px rgba(0,0,0,.28);
+      --radius: 22px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background:
+        radial-gradient(circle at top right, rgba(125,211,252,.16), transparent 30%),
+        radial-gradient(circle at left top, rgba(110,231,183,.12), transparent 26%),
+        linear-gradient(180deg, #09101d 0%, #0b1220 100%);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    .wrap {
+      width: min(1180px, calc(100% - 28px));
+      margin: 24px auto 40px;
+    }
+    .hero {
+      background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01));
+      border: 1px solid var(--line);
+      border-radius: 30px;
+      padding: 28px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+    .hero h1 {
+      margin: 0 0 10px;
+      font-size: clamp(28px, 4vw, 42px);
+      line-height: 1.05;
+      letter-spacing: -.03em;
+    }
+    .hero p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.6;
+      max-width: 980px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1.05fr .95fr;
+      gap: 18px;
+      margin-top: 18px;
+    }
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.015));
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: var(--shadow);
+    }
+    .section-title {
+      margin: 0 0 14px;
+      font-size: 13px;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: var(--accent-2);
+      font-weight: 700;
+    }
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+    label {
+      display: block;
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    input, select {
+      width: 100%;
+      background: #0c1528;
+      color: var(--text);
+      border: 1px solid #2d3d66;
+      border-radius: 14px;
+      padding: 14px 15px;
+      font-size: 16px;
+      outline: none;
+    }
+    input:focus, select:focus {
+      border-color: var(--accent-2);
+      box-shadow: 0 0 0 3px rgba(125,211,252,.15);
+    }
+    .controls {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+    }
+    button {
+      border: 0;
+      border-radius: 14px;
+      padding: 13px 18px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: #082032;
+    }
+    .secondary {
+      background: #101a2e;
+      color: var(--text);
+      border: 1px solid #2b3d65;
+    }
+    .stats, .data-grid, .explain-grid {
+      display: grid;
+      gap: 12px;
+    }
+    .stats { grid-template-columns: repeat(3, 1fr); }
+    .data-grid { grid-template-columns: repeat(2, 1fr); }
+    .explain-grid { grid-template-columns: repeat(2, 1fr); }
+    .metric {
+      padding: 16px;
+      border-radius: 18px;
+      background: linear-gradient(180deg, rgba(125,211,252,.06), rgba(255,255,255,.02));
+      border: 1px solid #26375b;
+      min-height: 108px;
+    }
+    .metric small {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 10px;
+      letter-spacing: .04em;
+    }
+    .metric .value {
+      font-size: clamp(24px, 3vw, 34px);
+      font-weight: 800;
+      letter-spacing: -.03em;
+      line-height: 1.05;
+    }
+    .metric .sub {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 10px;
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.08);
+    }
+    .up { color: var(--danger); }
+    .down { color: var(--ok); }
+    .flat { color: var(--warn); }
+    .bar-wrap {
+      margin-top: 12px;
+      background: #0c1528;
+      border-radius: 999px;
+      height: 12px;
+      overflow: hidden;
+      border: 1px solid #25365a;
+    }
+    .bar {
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      transition: width .5s ease;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+      font-size: 14px;
+    }
+    th, td {
+      text-align: left;
+      padding: 11px 10px;
+      border-bottom: 1px solid #243354;
+      vertical-align: top;
+    }
+    th { color: var(--muted); font-weight: 600; }
+    .muted { color: var(--muted); }
+    .formula {
+      padding: 16px;
+      border-radius: 18px;
+      background: #0c1528;
+      border: 1px solid #26375b;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      white-space: pre-wrap;
+      line-height: 1.65;
+      color: #d7e8ff;
+      font-size: 13px;
+    }
+    .footer-note {
+      margin-top: 16px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+    .tag {
+      display: inline-block;
+      margin: 4px 6px 0 0;
+      padding: 7px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      background: rgba(255,255,255,.05);
+      color: #dce8ff;
+      border: 1px solid rgba(255,255,255,.09);
+    }
+    .loading {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .spinner {
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,.14);
+      border-top-color: var(--accent-2);
+      animation: spin 1s linear infinite;
+    }
+    .source-list a {
+      color: var(--accent-2);
+      text-decoration: none;
+    }
+    .source-list a:hover { text-decoration: underline; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @media (max-width: 980px) {
+      .grid, .stats, .data-grid, .explain-grid, .form-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <h1>Predictor coeziv profesional pentru prețul combustibilului la 11:00 — Danemarca</h1>
+      <p>
+        Introduci doar prețul de azi. Aplicația încearcă să adune automat din internet: Brent, USD/DKK, impulsul pieței și ciclul săptămânal,
+        apoi calculează un <strong>coeficient coeziv Kc</strong> raportat la π și propune prețul probabil afișat la resetul de la 11:00.
+      </p>
+    </section>
+
+    <div class="grid">
+      <section class="card">
+        <h2 class="section-title">Intrare minimă</h2>
+        <div class="form-grid">
+          <div>
+            <label for="currentPrice">Prețul de azi (DKK/l)</label>
+            <input id="currentPrice" type="number" step="0.01" min="0" placeholder="ex. 15.49" />
+          </div>
+          <div>
+            <label for="fuelType">Tip combustibil</label>
+            <select id="fuelType">
+              <option value="benzin">Benzină</option>
+              <option value="diesel">Diesel</option>
+            </select>
+          </div>
+          <div>
+            <label for="brand">Lanț / reper</label>
+            <select id="brand">
+              <option value="market">Piață DK (general)</option>
+              <option value="circlek">Circle K</option>
+              <option value="q8">Q8 / F24</option>
+              <option value="ok">OK</option>
+              <option value="unox">Uno-X</option>
+            </select>
+          </div>
+        </div>
+        <div class="controls">
+          <button class="primary" id="calcBtn">Calculează predicția 11:00</button>
+          <button class="secondary" id="refreshBtn">Reîmprospătează datele din internet</button>
+        </div>
+        <div class="footer-note" id="statusLine">
+          <span class="loading"><span class="spinner"></span> Pregătire surse online...</span>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2 class="section-title">Rezultat</h2>
+        <div class="stats">
+          <div class="metric">
+            <small>Preț estimat la 11:00</small>
+            <div class="value" id="predictedPrice">—</div>
+            <div class="sub" id="predictedDeltaText">Completează prețul și pornește calculul.</div>
+          </div>
+          <div class="metric">
+            <small>Coeficient coeziv Kc</small>
+            <div class="value" id="kcValue">—</div>
+            <div class="sub" id="kcText">Ținta de echilibru este π = 3.1416</div>
+            <div class="bar-wrap"><div class="bar" id="kcBar"></div></div>
+          </div>
+          <div class="metric">
+            <small>Direcție probabilă</small>
+            <div class="value" id="direction">—</div>
+            <div class="pill" id="confidencePill">În așteptarea datelor</div>
+            <div class="sub" id="directionText">Modelul va arăta dacă piața tinde spre creștere, scădere sau stabilizare.</div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="grid">
+      <section class="card">
+        <h2 class="section-title">Date culese automat</h2>
+        <div class="data-grid">
+          <div class="metric">
+            <small>Brent acum / anterior</small>
+            <div class="value" id="brentNow">—</div>
+            <div class="sub" id="brentDelta">—</div>
+          </div>
+          <div class="metric">
+            <small>USD/DKK acum / anterior</small>
+            <div class="value" id="usdNow">—</div>
+            <div class="sub" id="usdDelta">—</div>
+          </div>
+          <div class="metric">
+            <small>Impuls piață DK</small>
+            <div class="value" id="marketPulse">—</div>
+            <div class="sub" id="marketPulseText">Impuls preluat din pagini publice de prețuri, dacă este disponibil.</div>
+          </div>
+          <div class="metric">
+            <small>Ciclu săptămânal</small>
+            <div class="value" id="weekdayPulse">—</div>
+            <div class="sub" id="weekdayPulseText">Bias structural după ziua curentă.</div>
+          </div>
+        </div>
+
+        <table>
+          <thead>
+            <tr><th>Element</th><th>Valoare</th><th>Rol în model</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Taxe ex. TVA</td><td id="taxCell">—</td><td>Cadru fiscal fix pe litru</td></tr>
+            <tr><td>Cost sistemic estimat</td><td id="systemCell">—</td><td>Rafinare + logistică + marjă</td></tr>
+            <tr><td>Ancoră structurală</td><td id="anchorCell">—</td><td>Preț coeziv de referință</td></tr>
+            <tr><td>r</td><td id="rCell">—</td><td>Distanță față de ancoră</td></tr>
+            <tr><td>E</td><td id="eCell">—</td><td>Energia economică activă</td></tr>
+            <tr><td>N</td><td id="nCell">4</td><td>Factori activi ai modelului</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="card">
+        <h2 class="section-title">Formula coezivă folosită</h2>
+        <div class="formula" id="formulaBlock">Se va completa după primul calcul.</div>
+        <div class="footer-note">
+          <div class="tag">Model structural</div>
+          <div class="tag">π ca punct de echilibru</div>
+          <div class="tag">Reset comercial la 11:00</div>
+          <div class="tag">Danemarca</div>
+        </div>
+      </section>
+    </div>
+
+    <div class="grid">
+      <section class="card">
+        <h2 class="section-title">Interpretare</h2>
+        <div class="explain-grid">
+          <div class="metric">
+            <small>Kc &lt; π</small>
+            <div class="value up">Tensiune de creștere</div>
+            <div class="sub">Energia pieței este prea mică față de distanța față de ancoră, iar resetul tinde să urce prețul.</div>
+          </div>
+          <div class="metric">
+            <small>Kc ≈ π</small>
+            <div class="value flat">Echilibru</div>
+            <div class="sub">Piața este aproape coerentă. Resetul de la 11:00 tinde să fie mic sau neutru.</div>
+          </div>
+          <div class="metric">
+            <small>Kc &gt; π</small>
+            <div class="value down">Compresie</div>
+            <div class="sub">Energia activă este mare față de distanță. Modelul compensează prin scădere sau temperare.</div>
+          </div>
+          <div class="metric">
+            <small>Notă practică</small>
+            <div class="value">Model hibrid</div>
+            <div class="sub">Folosirea site-urilor publice poate necesita actualizare de parsare dacă structura lor se schimbă.</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2 class="section-title">Surse publice folosite</h2>
+        <div class="source-list muted">
+          <p><a href="https://www.nationalbanken.dk/api/currencyratesxmlhistory?lang=en" target="_blank" rel="noreferrer">Danmarks Nationalbank – XML istoric USD/DKK</a></p>
+          <p><a href="https://stooq.com/q/?s=cb.f" target="_blank" rel="noreferrer">Stooq – Brent current</a></p>
+          <p><a href="https://stooq.com/q/d/?i=d&s=cb.f" target="_blank" rel="noreferrer">Stooq – Brent daily history</a></p>
+          <p><a href="https://www.fuelfinder.dk/listprices.php" target="_blank" rel="noreferrer">FuelFinder – impuls piață DK</a></p>
+          <p><a href="https://www.circlek.dk/erhverv/braendstof/priser" target="_blank" rel="noreferrer">Circle K – taxe 2026</a></p>
+          <p><a href="https://www.circlek.dk/forskel-listepris-pumpepris" target="_blank" rel="noreferrer">Circle K – metodologie listepris / pumpepris</a></p>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const proxy = (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+
+    const state = {
+      loaded: false,
+      brentNow: null,
+      brentPrev: null,
+      usdNow: null,
+      usdPrev: null,
+      fuelPulse: { benzin: 0, diesel: 0 },
+      sourceFlags: { brent: false, fx: false, pulse: false }
+    };
+
+    const taxesExVat = {
+      benzin: 5.363,
+      diesel: 4.261
+    };
+
+    const systemBase = {
+      benzin: 2.90,
+      diesel: 3.00
+    };
+
+    const weekdayBiases = {
+      0: 0.06,  // Sunday
+      1: 0.18,  // Monday
+      2: 0.06,  // Tuesday
+      3: -0.03, // Wednesday
+      4: -0.10, // Thursday
+      5: -0.08, // Friday
+      6: 0.03   // Saturday
+    };
+
+    function fmt(n, digits = 2, suffix = '') {
+      if (n === null || n === undefined || Number.isNaN(n)) return '—';
+      return `${n.toFixed(digits)}${suffix}`;
+    }
+
+    function round2(n) { return Math.round(n * 100) / 100; }
+    function clamp(n, min, max) { return Math.min(max, Math.max(min, n)); }
+
+    async function fetchText(url) {
+      const res = await fetch(proxy(url), { cache: 'no-store' });
+      if (!res.ok) throw new Error(`Fetch failed: ${url}`);
+      return await res.text();
+    }
+
+    async function loadFx() {
+      const xml = await fetchText('https://www.nationalbanken.dk/api/currencyratesxmlhistory?lang=en');
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(xml, 'application/xml');
+      const cubes = [...doc.querySelectorAll('Cube[time]')];
+      for (const cube of cubes) {
+        const usdNode = cube.querySelector('Cube[currency="USD"]');
+        if (usdNode) {
+          const rate = parseFloat((usdNode.getAttribute('rate') || '').replace(',', '.'));
+          if (!state.usdNow) {
+            state.usdNow = rate / 100;
+          } else {
+            state.usdPrev = rate / 100;
+            break;
+          }
+        }
+      }
+      state.sourceFlags.fx = Number.isFinite(state.usdNow) && Number.isFinite(state.usdPrev);
+      if (!state.sourceFlags.fx) throw new Error('USD/DKK parsing failed');
+    }
+
+    async function loadBrent() {
+      const currentHtml = await fetchText('https://stooq.com/q/?s=cb.f');
+      const historyHtml = await fetchText('https://stooq.com/q/d/?i=d&s=cb.f');
+
+      const currentPatterns = [
+        /Kurs\s*([0-9]+(?:[\.,][0-9]+)?)/i,
+        /Crude Oil Brent[^\d]{1,80}([0-9]+(?:[\.,][0-9]+)?)\s*\$\/bbl/i,
+        /([0-9]+(?:[\.,][0-9]+)?)\s*\$\/bbl/i
+      ];
+      for (const rx of currentPatterns) {
+        const m = currentHtml.match(rx);
+        if (m) {
+          state.brentNow = parseFloat(m[1].replace(',', '.'));
+          break;
+        }
+      }
+
+      const rows = [...historyHtml.matchAll(/(\d{1,2}\s+[A-Za-z]{3}\s+\d{4})\s*;\s*([0-9]+(?:[\.,][0-9]+)?)/g)];
+      if (rows.length >= 2) {
+        state.brentPrev = parseFloat(rows[0][2].replace(',', '.'));
+      }
+
+      if (!Number.isFinite(state.brentNow) && rows.length >= 1) {
+        state.brentNow = parseFloat(rows[0][2].replace(',', '.'));
+      }
+      if (!Number.isFinite(state.brentPrev) && rows.length >= 2) {
+        state.brentPrev = parseFloat(rows[1][2].replace(',', '.'));
+      }
+
+      state.sourceFlags.brent = Number.isFinite(state.brentNow) && Number.isFinite(state.brentPrev);
+      if (!state.sourceFlags.brent) throw new Error('Brent parsing failed');
+    }
+
+    async function loadFuelPulse() {
+      const html = await fetchText('https://www.fuelfinder.dk/listprices.php');
+      const text = html.replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ');
+
+      const extractSigned = (patterns) => {
+        for (const rx of patterns) {
+          const m = text.match(rx);
+          if (m) {
+            const val = parseFloat(m[1].replace(',', '.'));
+            if (Number.isFinite(val)) return val;
+          }
+        }
+        return null;
+      };
+
+      const benzin = extractSigned([
+        /Benzin[^\d+\-]{0,40}([+\-]\d+(?:[\.,]\d+)?)/i,
+        /blyfri\s*95[^\d+\-]{0,40}([+\-]\d+(?:[\.,]\d+)?)/i,
+        /95[^\d+\-]{0,20}([+\-]\d+(?:[\.,]\d+)?)/i
+      ]);
+
+      const diesel = extractSigned([
+        /Diesel[^\d+\-]{0,40}([+\-]\d+(?:[\.,]\d+)?)/i,
+        /diesel[^\d+\-]{0,20}([+\-]\d+(?:[\.,]\d+)?)/i
+      ]);
+
+      state.fuelPulse.benzin = Number.isFinite(benzin) ? benzin : 0;
+      state.fuelPulse.diesel = Number.isFinite(diesel) ? diesel : 0;
+      state.sourceFlags.pulse = Number.isFinite(benzin) || Number.isFinite(diesel);
+    }
+
+    async function loadAll() {
+      $('statusLine').innerHTML = '<span class="loading"><span class="spinner"></span> Se încarcă Brent, USD/DKK și impulsul pieței...</span>';
+      const errors = [];
+      await Promise.all([
+        loadFx().catch(err => errors.push('FX: ' + err.message)),
+        loadBrent().catch(err => errors.push('Brent: ' + err.message)),
+        loadFuelPulse().catch(err => errors.push('Fuel pulse: ' + err.message)),
+      ]);
+      state.loaded = true;
+      paintLiveData();
+
+      const okCount = Object.values(state.sourceFlags).filter(Boolean).length;
+      if (errors.length) {
+        $('statusLine').textContent = `Date încărcate parțial: ${okCount}/3 surse active. ${errors.join(' | ')}`;
+      } else {
+        $('statusLine').textContent = 'Toate sursele online au fost încărcate. Modelul este gata de calcul.';
+      }
+    }
+
+    function paintLiveData() {
+      const brentDelta = Number.isFinite(state.brentNow) && Number.isFinite(state.brentPrev)
+        ? state.brentNow - state.brentPrev : null;
+      const usdDelta = Number.isFinite(state.usdNow) && Number.isFinite(state.usdPrev)
+        ? state.usdNow - state.usdPrev : null;
+      const fuel = $('fuelType').value;
+      const pulse = state.fuelPulse[fuel] ?? 0;
+      const weekday = new Date().getDay();
+      const weekdayPulse = weekdayBiases[weekday] ?? 0;
+
+      $('brentNow').textContent = Number.isFinite(state.brentNow) ? `${fmt(state.brentNow, 2)} USD/bbl` : '—';
+      $('brentDelta').textContent = Number.isFinite(brentDelta)
+        ? `Δ față de sesiunea anterioară: ${fmt(brentDelta, 2, ' USD')}` : 'Nedisponibil';
+
+      $('usdNow').textContent = Number.isFinite(state.usdNow) ? `${fmt(state.usdNow, 4)} DKK` : '—';
+      $('usdDelta').textContent = Number.isFinite(usdDelta)
+        ? `Δ față de sesiunea anterioară: ${fmt(usdDelta, 4, ' DKK')}` : 'Nedisponibil';
+
+      $('marketPulse').textContent = `${pulse >= 0 ? '+' : ''}${fmt(pulse, 2)} DKK/l`;
+      $('marketPulseText').textContent = state.sourceFlags.pulse
+        ? 'Impuls extras din pagina publică FuelFinder.'
+        : 'Nu s-a putut extrage impulsul; modelul folosește 0 ca fallback.';
+
+      $('weekdayPulse').textContent = `${weekdayPulse >= 0 ? '+' : ''}${fmt(weekdayPulse, 2)} DKK/l`;
+      $('weekdayPulseText').textContent = `Ziua curentă: ${['Duminică','Luni','Marți','Miercuri','Joi','Vineri','Sâmbătă'][weekday]}.`;
+    }
+
+    function compute() {
+      const currentPrice = parseFloat(($('currentPrice').value || '').replace(',', '.'));
+      const fuel = $('fuelType').value;
+      if (!Number.isFinite(currentPrice) || currentPrice <= 0) {
+        alert('Introdu un preț valid în DKK/l.');
+        return;
+      }
+      paintLiveData();
+
+      const vat = 0.25;
+      const tax = taxesExVat[fuel];
+      const baseSystem = systemBase[fuel];
+      const weekday = new Date().getDay();
+      const weekdayPulse = weekdayBiases[weekday] ?? 0;
+      const marketPulse = state.fuelPulse[fuel] ?? 0;
+      const brentNow = Number.isFinite(state.brentNow) ? state.brentNow : 0;
+      const brentPrev = Number.isFinite(state.brentPrev) ? state.brentPrev : brentNow;
+      const usdNow = Number.isFinite(state.usdNow) ? state.usdNow : 0;
+      const usdPrev = Number.isFinite(state.usdPrev) ? state.usdPrev : usdNow;
+
+      const brentDkkPerL = brentNow && usdNow ? (brentNow * usdNow) / 159 : 0;
+      const brentDeltaDkkPerL = (brentNow && usdNow && brentPrev)
+        ? ((brentNow - brentPrev) * usdNow) / 159 : 0;
+      const fxDeltaImpact = brentNow
+        ? ((usdNow - usdPrev) * brentNow) / 159 : 0;
+
+      const dynamicSystem = baseSystem + 0.10 * marketPulse + 0.20 * weekdayPulse;
+      const structuralAnchor = (brentDkkPerL + dynamicSystem + tax) * (1 + vat);
+
+      const rawImpulse =
+        0.60 * brentDeltaDkkPerL +
+        0.35 * fxDeltaImpact +
+        0.55 * marketPulse +
+        1.00 * weekdayPulse;
+
+      const r = Math.max(0.18, Math.abs(currentPrice - structuralAnchor) + 0.18);
+      const N = 4;
+      const E = Math.max(0.25, Math.abs(rawImpulse) + 0.45 * r);
+      const Kc = (N * E) / (r * r);
+      const cohesiveCorrection = 0.10 * (Math.PI - Kc);
+      const predictedDelta = clamp(rawImpulse + cohesiveCorrection, -0.80, 0.80);
+      const predictedPrice = round2(currentPrice + predictedDelta);
+
+      renderResult({
+        currentPrice, fuel, tax, dynamicSystem, structuralAnchor,
+        brentDkkPerL, brentDeltaDkkPerL, fxDeltaImpact, weekdayPulse,
+        marketPulse, r, E, N, Kc, cohesiveCorrection, predictedDelta, predictedPrice
+      });
+    }
+
+    function renderResult(x) {
+      $('predictedPrice').textContent = `${fmt(x.predictedPrice, 2)} DKK/l`;
+      $('predictedDeltaText').textContent = `Δ estimat la reset: ${x.predictedDelta >= 0 ? '+' : ''}${fmt(x.predictedDelta, 2)} DKK/l`;
+      $('kcValue').textContent = fmt(x.Kc, 3);
+      const kcGap = x.Kc - Math.PI;
+      $('kcText').textContent = `Abatere față de π: ${kcGap >= 0 ? '+' : ''}${fmt(kcGap, 3)}`;
+      $('kcBar').style.width = `${clamp((x.Kc / (Math.PI * 2)) * 100, 0, 100)}%`;
+
+      let direction = 'Stabilizare';
+      let cls = 'flat';
+      if (x.predictedDelta > 0.05) { direction = 'Creștere'; cls = 'up'; }
+      if (x.predictedDelta < -0.05) { direction = 'Scădere'; cls = 'down'; }
+      $('direction').textContent = direction;
+      $('direction').className = `value ${cls}`;
+
+      const confidence = Object.values(state.sourceFlags).filter(Boolean).length;
+      const confidenceText = confidence === 3 ? 'Încredere ridicată' : confidence === 2 ? 'Încredere medie' : 'Încredere redusă';
+      $('confidencePill').textContent = `${confidenceText} · ${confidence}/3 surse online active`;
+      $('directionText').textContent =
+        direction === 'Stabilizare'
+          ? 'Predicția este foarte aproape de prețul introdus. Sistemul pare aproape coerent.'
+          : direction === 'Creștere'
+            ? 'Modelul vede o tensiune de împingere în sus la resetul de la 11:00.'
+            : 'Modelul vede o compresie probabilă în jos la resetul de la 11:00.';
+
+      $('taxCell').textContent = `${fmt(x.tax, 3)} DKK/l`;
+      $('systemCell').textContent = `${fmt(x.dynamicSystem, 2)} DKK/l`;
+      $('anchorCell').textContent = `${fmt(x.structuralAnchor, 2)} DKK/l`;
+      $('rCell').textContent = fmt(x.r, 3);
+      $('eCell').textContent = fmt(x.E, 3);
+
+      $('formulaBlock').textContent =
+`1) Ancoră structurală
+A = (Brent_DKK/L + Cost_sistemic + Taxe_exTVA) × 1.25
+A = (${fmt(x.brentDkkPerL, 3)} + ${fmt(x.dynamicSystem, 3)} + ${fmt(x.tax, 3)}) × 1.25
+A = ${fmt(x.structuralAnchor, 3)} DKK/l
+
+2) Impuls brut de reset
+I = 0.60×ΔBrent + 0.35×ΔFX + 0.55×Impuls_piață + Bias_zi
+I = 0.60×${fmt(x.brentDeltaDkkPerL, 3)} + 0.35×${fmt(x.fxDeltaImpact, 3)} + 0.55×${fmt(x.marketPulse, 3)} + ${fmt(x.weekdayPulse, 3)}
+I = ${fmt((0.60 * x.brentDeltaDkkPerL + 0.35 * x.fxDeltaImpact + 0.55 * x.marketPulse + x.weekdayPulse), 3)} DKK/l
+
+3) Coeficient coeziv
+r = |P_azi - A| + 0.18 = ${fmt(x.r, 3)}
+E = |I| + 0.45×r = ${fmt(x.E, 3)}
+Kc = (N×E)/r² = (${x.N}×${fmt(x.E,3)})/${fmt(x.r,3)}² = ${fmt(x.Kc, 3)}
+
+4) Corecție spre π
+C = 0.10×(π - Kc) = ${fmt(x.cohesiveCorrection, 3)} DKK/l
+
+5) Predicție finală 11:00
+P_11 = P_azi + I + C
+P_11 = ${fmt(x.currentPrice, 2)} + ${fmt((0.60 * x.brentDeltaDkkPerL + 0.35 * x.fxDeltaImpact + 0.55 * x.marketPulse + x.weekdayPulse), 3)} + ${fmt(x.cohesiveCorrection, 3)}
+P_11 = ${fmt(x.predictedPrice, 2)} DKK/l`;
+    }
+
+    $('fuelType').addEventListener('change', paintLiveData);
+    $('refreshBtn').addEventListener('click', loadAll);
+    $('calcBtn').addEventListener('click', async () => {
+      if (!state.loaded) await loadAll();
+      compute();
+    });
+
+    loadAll();
+  </script>
+</body>
+</html>
