@@ -1,283 +1,946 @@
-<!DOCTYPE html><html lang="ro">
+<!DOCTYPE html>
+<html lang="ro">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Coeziv TV România</title>
-<style>
-:root{
-  --bg:#0f1115;
-  --card:#1b2028;
-  --card-hover:#242b35;
-  --text:#ffffff;
-  --muted:#a9b1bc;
-  --line:#2f3742;
-  --brand:#e50914;
-  --brand-2:#ff3341;
-  --focus:#ffffff;
-  --shadow:0 18px 40px rgba(0,0,0,.38);
-}
-*{box-sizing:border-box}
-html,body{margin:0;padding:0;background:radial-gradient(circle at top,#1b1f27 0,#0f1115 42%,#0b0d11 100%);color:var(--text);font-family:Inter,Arial,Helvetica,sans-serif}
-body{min-height:100vh}
-button,input{font:inherit}header{ padding:26px 20px 12px; font-size:36px; font-weight:900; color:var(--brand); letter-spacing:.08em; text-transform:uppercase; }
-
-.sub{ padding:0 20px 6px; color:var(--muted); font-size:14px; }
-
-.hero{ margin:0 20px 14px; min-height:220px; border-radius:24px; overflow:hidden; position:relative; border:1px solid rgba(255,255,255,.06); background: linear-gradient(90deg,rgba(8,10,14,.88) 0%,rgba(8,10,14,.55) 42%,rgba(8,10,14,.1) 100%), radial-gradient(circle at 80% 20%, rgba(229,9,20,.28), transparent 20%), url('https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=1600&q=80') center/cover; box-shadow:var(--shadow); } .hero-inner{position:absolute;left:0;right:0;bottom:0;padding:28px} .hero-title{margin:0;font-size:40px;font-weight:800;letter-spacing:-.03em} .hero-sub{margin-top:10px;color:#d6dbe2;max-width:620px;line-height:1.6;font-size:15px} .hero-pills{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px} .hero-pill{padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);color:#eef2f7;font-size:12px}
-
-.search{padding:16px 20px 20px} .search input{width:100%;max-width:520px;padding:15px 18px;background:#14181f;border:1px solid var(--line);color:var(--text);border-radius:14px;outline:none;box-shadow:0 8px 20px rgba(0,0,0,.18)} .search input:focus,.search input:focus-visible{border-color:#737d8a;box-shadow:0 0 0 3px rgba(255,255,255,.16), 0 8px 20px rgba(0,0,0,.18)}
-
-.info{padding:0 20px 10px;color:var(--muted);font-size:13px} .status{padding:0 20px 10px;color:var(--muted);font-size:13px;white-space:pre-line}
-
-.section{padding:0 20px 6px} .section h2{margin:0 0 12px;font-size:24px;font-weight:800} .section-sub{margin:-4px 0 14px;color:var(--muted);font-size:13px}
-
-.popular-rail{ display:grid; grid-auto-flow:column; grid-auto-columns:minmax(280px,280px); gap:16px; overflow-x:auto; padding:2px 0 12px; scroll-behavior:smooth; scrollbar-width:none; } .popular-rail::-webkit-scrollbar{display:none} .popular-card{ position:relative; border-radius:20px; overflow:hidden; min-height:170px; border:1px solid rgba(255,255,255,.08); box-shadow:var(--shadow); cursor:pointer; transition:transform .18s ease, border-color .18s ease; } .popular-card:hover{transform:translateY(-3px) scale(1.02);border-color:rgba(255,255,255,.18)} .popular-bg{position:absolute;inset:0;background-size:cover;background-position:center;transform:scale(1.02)} .popular-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.12),rgba(0,0,0,.72))} .popular-body{position:absolute;left:0;right:0;bottom:0;padding:18px} .popular-title{font-size:24px;font-weight:800;line-height:1.15} .popular-meta{margin-top:8px;font-size:12px;color:#d8dde5} .popular-badge{display:inline-flex;align-items:center;gap:6px;padding:8px 10px;border-radius:999px;background:rgba(229,9,20,.92);font-size:11px;font-weight:800;margin-top:12px}
-
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:18px;padding:20px} .card{background:linear-gradient(180deg,#1d232c,#171b22);border:1px solid rgba(255,255,255,.05);border-radius:18px;overflow:hidden;cursor:pointer;transition:transform .18s ease, background .18s ease, border-color .18s ease, box-shadow .18s ease;box-shadow:0 12px 26px rgba(0,0,0,.18)} .card:hover{transform:translateY(-3px) scale(1.02);background:linear-gradient(180deg,#242b35,#1c2129);border-color:rgba(255,255,255,.16);box-shadow:var(--shadow)} .card:focus,.card:focus-visible,.card.focused{outline:none;transform:translateY(-2px) scale(1.025);border-color:var(--focus);box-shadow:0 0 0 3px rgba(255,255,255,.2), var(--shadow)}
-
-.poster{position:relative;aspect-ratio:16/10;overflow:hidden;background:linear-gradient(135deg,#222832,#394355)} .poster::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.04),transparent 30%),linear-gradient(0deg,rgba(9,11,15,.78),transparent 40%)} .poster-bg{position:absolute;inset:0;background-size:cover;background-position:center;filter:saturate(1.05) contrast(1.05);transform:scale(1.02)} .logo-badge{position:absolute;left:14px;top:14px;min-width:56px;height:56px;border-radius:16px;background:rgba(8,10,14,.66);border:1px solid rgba(255,255,255,.12);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:6px 10px;box-shadow:0 10px 20px rgba(0,0,0,.25)} .logo-badge img{max-width:100%;max-height:100%;object-fit:contain;display:block} .logo-text{font-size:16px;font-weight:800;color:#fff;letter-spacing:.03em} .poster-labels{position:absolute;left:14px;right:14px;bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:10px} .live-chip{display:inline-flex;align-items:center;gap:6px;padding:7px 10px;border-radius:999px;background:rgba(229,9,20,.9);color:#fff;font-size:11px;font-weight:700;letter-spacing:.04em} .dot{width:7px;height:7px;border-radius:50%;background:#fff} .country-chip{padding:7px 10px;border-radius:999px;background:rgba(8,10,14,.55);border:1px solid rgba(255,255,255,.1);color:#e8edf5;font-size:11px;font-weight:700}
-
-.card-body{padding:14px} .card-title{font-size:16px;font-weight:800;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis} .card-meta{margin-top:7px;font-size:12px;color:var(--muted);display:flex;justify-content:space-between;gap:12px} .card-btn{margin-top:14px;width:100%;padding:11px 12px;border:none;border-radius:999px;background:linear-gradient(135deg,var(--brand),var(--brand-2));color:#fff;font-weight:800;letter-spacing:.02em;box-shadow:0 10px 20px rgba(229,9,20,.25)} .card-btn:hover{filter:brightness(1.06)}
-
-@media (max-width:720px){ header{font-size:28px;padding-bottom:8px} .hero{margin:0 16px 10px;min-height:190px} .hero-inner{padding:20px} .hero-title{font-size:30px} .popular-rail{grid-auto-columns:minmax(240px,240px)} .grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;padding:16px} .search{padding:14px 16px 16px} .sub,.info,.status,.section{padding-left:16px;padding-right:16px} .logo-badge{min-width:48px;height:48px;border-radius:14px} } </style>
-
-</head>
-<body><header>COEZIV TV</header>
-<div class="sub">Canale românești • versiune simplă, rapidă și stabilă</div><section class="hero">
-  <div class="hero-inner">
-    <h1 class="hero-title">Televiziune românească, rapid și curat</h1>
-    <div class="hero-sub">Interfață comercială, minimalistă și stabilă: selectezi canalul și îl deschizi instant, fără player inclus și fără complicații.</div>
-    <div class="hero-pills">
-      <span class="hero-pill">Canale românești</span>
-      <span class="hero-pill">Fără player inclus</span>
-      <span class="hero-pill">Deschidere directă</span>
-    </div>
-  </div>
-</section><div class="search">
-  <input id="search" placeholder="Caută canal...">
-</div><div id="status" class="status">Playlistul se încarcă...</div>
-<div class="info">Click sau Enter pe un card pentru a deschide canalul direct.</div><section class="section">
-  <h2>Populare</h2>
-  <div class="section-sub">Selecție vizuală pentru canalele principale</div>
-  <div id="popularRail" class="popular-rail"></div>
-</section><div id="grid" class="grid"></div><script>
-const PLAYLIST_URL = "/iptv/romanesti.m3u";
-
-const grid = document.getElementById("grid");
-const search = document.getElementById("search");
-const status = document.getElementById("status");
-const popularRail = document.getElementById("popularRail");
-
-let channels = [];
-let filtered = [];
-
-async function loadPlaylist(){
-  status.textContent = "Playlistul se încarcă...";
-  try {
-    const res = await fetch(PLAYLIST_URL, { cache: "no-store" });
-    if (!res.ok) throw new Error("Nu am putut încărca playlistul.");
-    const text = await res.text();
-    channels = parseM3U(text);
-    filtered = [...channels];
-    status.textContent = `Canale încărcate: ${channels.length}`;
-    renderPopular();
-    render();
-  } catch (err) {
-    status.textContent = "Eroare la încărcarea playlistului.\n\n" + (err?.message || "Necunoscut");
-  }
-}
-
-function parseM3U(text){
-  const lines = text.split(/\r?\n/);
-  const result = [];
-  let current = null;
-
-  for (const raw of lines) {
-    const line = raw.trim();
-    if (!line) continue;
-
-    if (line.startsWith("#EXTINF")) {
-      const parts = line.split(",");
-      const title = (parts[parts.length - 1] || "Canal necunoscut").trim();
-      current = { title, url: "" };
-    } else if (line.startsWith("http") && current) {
-      current.url = line;
-      result.push(current);
-      current = null;
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Coeziv Player</title>
+  <style>
+    :root{
+      --bg:#0b1020;
+      --bg-soft:#121a2e;
+      --panel:#111827;
+      --panel-2:#1b2438;
+      --line:#2b3752;
+      --text:#f8fafc;
+      --muted:#94a3b8;
+      --brand:#2563eb;
+      --brand-2:#1d4ed8;
+      --ok:#16a34a;
+      --warn:#f59e0b;
+      --danger:#dc2626;
+      --shadow:0 20px 50px rgba(0,0,0,.35);
+      --radius:20px;
     }
-  }
 
-  return result;
-}
+    *{box-sizing:border-box}
+    html,body{
+      margin:0;
+      padding:0;
+      background:linear-gradient(180deg,#08101f,#0b1020 30%,#0f172a 100%);
+      color:var(--text);
+      font-family:Inter,Arial,Helvetica,sans-serif;
+    }
+    body{min-height:100vh}
+    button,input,textarea{font:inherit}
+    button{cursor:pointer}
+    .hidden{display:none!important}
 
-function renderPopular(){
-  popularRail.innerHTML = "";
+    .topbar{
+      position:sticky;
+      top:0;
+      z-index:20;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:16px;
+      padding:18px 22px;
+      background:rgba(8,16,31,.84);
+      backdrop-filter:blur(12px);
+      border-bottom:1px solid rgba(255,255,255,.06);
+    }
+    .brand{
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+    }
+    .brand h1{
+      margin:0;
+      font-size:28px;
+      line-height:1;
+      font-weight:900;
+      letter-spacing:.04em;
+    }
+    .brand p{
+      margin:0;
+      color:var(--muted);
+      font-size:12px;
+    }
+    .top-actions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
 
-  /* Lista manuală cu canale cu adevărat populare în RO */
-  const popularNames = [
-    "pro tv",
-    "antena 1",
-    "kanal d",
-    "digi24",
-    "romania tv",
-    "prima tv",
-    "tvr 1",
-    "b1"
-  ];
+    .btn{
+      border:none;
+      border-radius:14px;
+      padding:11px 15px;
+      color:var(--text);
+      background:var(--panel-2);
+      box-shadow:var(--shadow);
+    }
+    .btn.primary{
+      background:linear-gradient(135deg,var(--brand),var(--brand-2));
+    }
+    .btn.ok{
+      background:linear-gradient(135deg,#15803d,#16a34a);
+    }
+    .btn.ghost{
+      background:rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.07);
+      box-shadow:none;
+    }
 
-  const popular = [];
+    .hero{
+      margin:22px;
+      border-radius:28px;
+      overflow:hidden;
+      background:
+        linear-gradient(90deg,rgba(6,10,18,.92) 0%,rgba(6,10,18,.7) 42%,rgba(6,10,18,.2) 100%),
+        radial-gradient(circle at 85% 20%, rgba(37,99,235,.22), transparent 22%),
+        url("https://images.unsplash.com/photo-1522869635100-9f4c5e86aa37?auto=format&fit=crop&w=1600&q=80") center/cover;
+      border:1px solid rgba(255,255,255,.06);
+      box-shadow:var(--shadow);
+    }
+    .hero-inner{
+      padding:40px 34px;
+      min-height:260px;
+      display:flex;
+      flex-direction:column;
+      justify-content:flex-end;
+    }
+    .hero-kicker{
+      font-size:12px;
+      letter-spacing:.22em;
+      text-transform:uppercase;
+      color:#cbd5e1;
+    }
+    .hero h2{
+      margin:10px 0 12px;
+      font-size:48px;
+      line-height:1.02;
+    }
+    .hero p{
+      max-width:760px;
+      margin:0;
+      color:#dbe4ee;
+      line-height:1.65;
+      font-size:16px;
+    }
+    .hero-tags{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:18px;
+    }
+    .tag{
+      padding:8px 12px;
+      border-radius:999px;
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.1);
+      color:#eff6ff;
+      font-size:12px;
+    }
 
-  popularNames.forEach(name => {
-    const found = channels.find(c => c.title.toLowerCase().includes(name));
-    if(found) popular.push(found);
-  });
+    .layout{
+      display:grid;
+      grid-template-columns:360px 1fr;
+      gap:20px;
+      padding:0 22px 26px;
+    }
 
-  /* dacă nu avem destule, completăm cu primele din playlist */
-  if(popular.length < 8){
-    channels.forEach(c => {
-      if(popular.length >= 8) return;
-      if(!popular.includes(c)) popular.push(c);
-    });
-  }
+    .card-panel{
+      background:linear-gradient(180deg,#101827,#0d1422);
+      border:1px solid rgba(255,255,255,.06);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+    .card-panel .section{
+      padding:18px;
+      border-bottom:1px solid rgba(255,255,255,.05);
+    }
+    .card-panel .section:last-child{
+      border-bottom:none;
+    }
+    .section h3{
+      margin:0 0 8px;
+      font-size:18px;
+    }
+    .section p{
+      margin:0 0 12px;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.6;
+    }
 
-  popular.slice(0,8).forEach((ch, index) => {
-    const card = document.createElement("div");
-    card.className = "popular-card";
-    card.tabIndex = 0;
+    .field{
+      width:100%;
+      padding:13px 14px;
+      border-radius:14px;
+      border:1px solid var(--line);
+      background:#0b1322;
+      color:var(--text);
+      outline:none;
+    }
+    textarea.field{
+      min-height:110px;
+      resize:vertical;
+    }
+    .stack{display:grid;gap:10px}
+    .row{display:flex;gap:10px;flex-wrap:wrap}
 
-    card.innerHTML = `
-      <div class="popular-bg" style="background-image:${getPosterGradient(index)}"></div>
-      <div class="popular-overlay"></div>
-      <div class="popular-body">
-        <div class="popular-title">${escapeHtml(ch.title)}</div>
-        <div class="popular-meta">Canal românesc • Deschidere instant</div>
-        <div class="popular-badge"><span class="dot"></span>LIVE</div>
+    .message{
+      padding:12px 14px;
+      border-radius:14px;
+      font-size:13px;
+      line-height:1.55;
+      background:rgba(245,158,11,.12);
+      border:1px solid rgba(245,158,11,.25);
+      color:#fde68a;
+    }
+    .message.ok{
+      background:rgba(22,163,74,.12);
+      border-color:rgba(22,163,74,.25);
+      color:#bbf7d0;
+    }
+    .message.err{
+      background:rgba(220,38,38,.12);
+      border-color:rgba(220,38,38,.25);
+      color:#fecaca;
+    }
+
+    .stats{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+    }
+    .stat{
+      padding:14px;
+      border-radius:16px;
+      background:rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.05);
+    }
+    .stat-label{
+      color:var(--muted);
+      font-size:12px;
+    }
+    .stat-value{
+      margin-top:8px;
+      font-size:28px;
+      font-weight:900;
+    }
+
+    .main{
+      background:linear-gradient(180deg,#101827,#0d1422);
+      border:1px solid rgba(255,255,255,.06);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+    .main-head{
+      padding:20px;
+      border-bottom:1px solid rgba(255,255,255,.05);
+    }
+    .main-head h2{
+      margin:0;
+      font-size:28px;
+    }
+    .main-head p{
+      margin:10px 0 0;
+      color:var(--muted);
+      line-height:1.6;
+    }
+
+    .trial-box{
+      margin:18px 20px 0;
+      padding:18px;
+      border-radius:18px;
+      background:linear-gradient(180deg,rgba(37,99,235,.16),rgba(37,99,235,.05));
+      border:1px solid rgba(37,99,235,.24);
+    }
+    .trial-top{
+      display:flex;
+      justify-content:space-between;
+      gap:14px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+    .trial-title{
+      font-size:18px;
+      font-weight:800;
+    }
+    .trial-sub{
+      margin-top:6px;
+      color:#cbd5e1;
+      font-size:13px;
+    }
+    .progress{
+      margin-top:14px;
+      height:10px;
+      border-radius:999px;
+      background:rgba(255,255,255,.09);
+      overflow:hidden;
+    }
+    .progress > div{
+      height:100%;
+      width:100%;
+      background:linear-gradient(90deg,var(--brand),#60a5fa);
+    }
+    .limit-list{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:14px;
+    }
+    .limit-pill{
+      padding:8px 10px;
+      border-radius:999px;
+      background:rgba(255,255,255,.06);
+      font-size:12px;
+      color:#eff6ff;
+      border:1px solid rgba(255,255,255,.06);
+    }
+
+    .activate-box{
+      padding:20px;
+      border-top:1px solid rgba(255,255,255,.05);
+      border-bottom:1px solid rgba(255,255,255,.05);
+      margin-top:18px;
+      background:rgba(255,255,255,.02);
+    }
+    .activate-box h3{
+      margin:0 0 8px;
+      font-size:18px;
+    }
+    .activate-box p{
+      margin:0 0 12px;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.6;
+    }
+    .activate-row{
+      display:grid;
+      grid-template-columns:1fr auto;
+      gap:10px;
+    }
+
+    .toolbar{
+      padding:20px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:14px;
+      flex-wrap:wrap;
+    }
+    .toolbar h3{
+      margin:0;
+      font-size:20px;
+    }
+    .toolbar p{
+      margin:6px 0 0;
+      color:var(--muted);
+      font-size:13px;
+    }
+    .search{
+      min-width:280px;
+      flex:1;
+      max-width:420px;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(230px,1fr));
+      gap:18px;
+      padding:0 20px 22px;
+    }
+    .item{
+      border-radius:18px;
+      overflow:hidden;
+      background:linear-gradient(180deg,#1a2231,#141b28);
+      border:1px solid rgba(255,255,255,.05);
+      box-shadow:0 12px 26px rgba(0,0,0,.16);
+      transition:transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+      cursor:pointer;
+    }
+    .item:hover{
+      transform:translateY(-3px) scale(1.02);
+      border-color:rgba(255,255,255,.16);
+      box-shadow:var(--shadow);
+    }
+    .poster{
+      position:relative;
+      aspect-ratio:16/10;
+      overflow:hidden;
+    }
+    .poster-bg{
+      position:absolute;
+      inset:0;
+      background-size:cover;
+      background-position:center;
+      transform:scale(1.02);
+    }
+    .poster::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        linear-gradient(180deg,rgba(255,255,255,.04),transparent 30%),
+        linear-gradient(0deg,rgba(9,11,15,.8),transparent 40%);
+    }
+    .logo{
+      position:absolute;
+      z-index:2;
+      left:14px;
+      top:14px;
+      min-width:56px;
+      height:56px;
+      border-radius:16px;
+      background:rgba(8,10,14,.66);
+      border:1px solid rgba(255,255,255,.12);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:6px 10px;
+    }
+    .logo img{
+      max-width:100%;
+      max-height:100%;
+      object-fit:contain;
+      display:block;
+    }
+    .logo-text{
+      font-size:16px;
+      font-weight:800;
+      letter-spacing:.03em;
+    }
+    .poster-foot{
+      position:absolute;
+      z-index:2;
+      left:14px;
+      right:14px;
+      bottom:12px;
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:center;
+    }
+    .pill-live{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:7px 10px;
+      border-radius:999px;
+      background:rgba(22,163,74,.92);
+      color:#fff;
+      font-size:11px;
+      font-weight:800;
+    }
+    .dot{
+      width:7px;
+      height:7px;
+      border-radius:50%;
+      background:#fff;
+    }
+    .pill-type{
+      padding:7px 10px;
+      border-radius:999px;
+      background:rgba(8,10,14,.58);
+      border:1px solid rgba(255,255,255,.1);
+      font-size:11px;
+      font-weight:700;
+    }
+
+    .item-body{
+      padding:14px;
+    }
+    .item-title{
+      font-size:16px;
+      font-weight:800;
+      line-height:1.35;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .item-meta{
+      margin-top:7px;
+      font-size:12px;
+      color:var(--muted);
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .item-btn{
+      margin-top:14px;
+      width:100%;
+      padding:11px 12px;
+      border:none;
+      border-radius:999px;
+      background:linear-gradient(135deg,var(--brand),var(--brand-2));
+      color:#fff;
+      font-weight:800;
+      letter-spacing:.02em;
+    }
+
+    .empty{
+      padding:0 20px 22px;
+      color:var(--muted);
+      font-size:14px;
+    }
+
+    @media (max-width: 1024px){
+      .layout{grid-template-columns:1fr}
+    }
+    @media (max-width: 720px){
+      .topbar{padding:16px}
+      .hero{margin:16px}
+      .hero-inner{padding:22px}
+      .hero h2{font-size:34px}
+      .layout{padding:0 16px 22px}
+      .grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;padding:0 16px 18px}
+      .activate-row{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+  <header class=\"topbar\">
+    <div class=\"brand\">
+      <h1>COEZIV PLAYER</h1>
+      <p>Player premium pentru playlisturi M3U</p>
+    </div>
+    <div class=\"top-actions\">
+      <button id=\"scrollTrialBtn\" class=\"btn ghost\">Trial</button>
+      <button id=\"scrollActivateBtn\" class=\"btn primary\">Activează</button>
+    </div>
+  </header>
+
+  <section class=\"hero\">
+    <div class=\"hero-inner\">
+      <div class=\"hero-kicker\">Player / launcher premium</div>
+      <h2>Încarcă propriul playlist. Testează. Activează.</h2>
+      <p>Un produs web clar și comercial: utilizatorul își adaugă playlistul M3U, îl vede elegant organizat, îl testează în trial și apoi activează versiunea completă contra unei taxe.</p>
+      <div class=\"hero-tags\">
+        <span class=\"tag\">Trial 7 zile</span>
+        <span class=\"tag\">Activare unică</span>
+        <span class=\"tag\">Import URL sau text M3U</span>
       </div>
-    `;
+    </div>
+  </section>
 
-    const open = () => window.open(ch.url, "_blank");
-
-    card.addEventListener("click", open);
-    card.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" || e.key === " ") {
-        e.preventDefault();
-        open();
-      }
-    });
-
-    popularRail.appendChild(card);
-  });
-}
-
-function render(){
-  const q = search.value.toLowerCase().trim();
-  filtered = channels.filter(c => c.title.toLowerCase().includes(q));
-  grid.innerHTML = "";
-
-  if (!filtered.length) {
-    status.textContent = "Nu există canale pentru filtrul curent.";
-    return;
-  }
-
-  status.textContent = `Rezultate afișate: ${filtered.length}`;
-
-  filtered.forEach((ch, index) => {
-    const card = document.createElement("div");
-    card.className = "card";
-    card.tabIndex = 0;
-
-    const logoText = getLogoText(ch.title);
-    const posterStyle = `background-image:${getPosterGradient(index + 2)}`;
-
-    card.innerHTML = `
-      <div class="poster">
-        <div class="poster-bg" style="${posterStyle}"></div>
-        <div class="logo-badge">${getLogoMarkup(ch.title, logoText)}</div>
-        <div class="poster-labels">
-          <span class="live-chip"><span class="dot"></span>LIVE</span>
-          <span class="country-chip">RO</span>
+  <div class=\"layout\">
+    <aside class=\"card-panel\">
+      <div class=\"section\">
+        <h3>Import playlist</h3>
+        <p>Încarcă un URL M3U, un fișier demo sau lipește direct conținutul playlistului.</p>
+        <div class=\"stack\">
+          <input id=\"playlistUrl\" class=\"field\" type=\"text\" placeholder=\"https://siteul-tau/playlist.m3u\" />
+          <div class=\"row\">
+            <button id=\"loadUrlBtn\" class=\"btn primary\">Încarcă din URL</button>
+            <button id=\"loadDemoBtn\" class=\"btn\">Încarcă demo</button>
+          </div>
+          <textarea id=\"playlistText\" class=\"field\" placeholder=\"#EXTM3U&#10;#EXTINF:-1,Canal Exemplu&#10;https://.../stream.m3u8\"></textarea>
+          <div class=\"row\">
+            <button id=\"loadTextBtn\" class=\"btn\">Încarcă din text</button>
+            <button id=\"resetBtn\" class=\"btn ghost\">Resetează</button>
+          </div>
         </div>
       </div>
-      <div class="card-body">
-        <div class="card-title">${escapeHtml(ch.title)}</div>
-        <div class="card-meta">
-          <span>Canal românesc</span>
-          <span>Online</span>
-        </div>
-        <button class="card-btn" type="button">Deschide</button>
+
+      <div class=\"section\">
+        <div id=\"messageBox\" class=\"message\">În trial poți vedea primele 30 de elemente din playlist.</div>
       </div>
-    `;
 
-    const open = () => window.open(ch.url, "_blank");
+      <div class=\"section\">
+        <h3>Căutare</h3>
+        <p>Filtrează rapid lista afișată.</p>
+        <input id=\"searchInput\" class=\"field\" type=\"text\" placeholder=\"Caută în playlist...\" />
+      </div>
 
-    card.addEventListener("click", open);
-    card.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" || e.key === " ") {
-        e.preventDefault();
-        open();
+      <div class=\"section\">
+        <h3>Statistici</h3>
+        <div class=\"stats\">
+          <div class=\"stat\">
+            <div class=\"stat-label\">Total</div>
+            <div id=\"statTotal\" class=\"stat-value\">0</div>
+          </div>
+          <div class=\"stat\">
+            <div class=\"stat-label\">Vizibile</div>
+            <div id=\"statVisible\" class=\"stat-value\">0</div>
+          </div>
+          <div class=\"stat\">
+            <div class=\"stat-label\">Trial</div>
+            <div id=\"statTrial\" class=\"stat-value\">7d</div>
+          </div>
+          <div class=\"stat\">
+            <div class=\"stat-label\">Stare</div>
+            <div id=\"statState\" class=\"stat-value\">FREE</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <main class=\"main\">
+      <div class=\"main-head\">
+        <h2>Experiență premium pentru playlisturi proprii</h2>
+        <p>Acesta este produsul: nu vinzi conținut, ci interfața, experiența și funcțiile premium. Utilizatorul își gestionează propriul playlist și activează aplicația pentru acces complet.</p>
+      </div>
+
+      <section id=\"trialBox\" class=\"trial-box\">
+        <div class=\"trial-top\">
+          <div>
+            <div id=\"trialTitle\" class=\"trial-title\">Trial activ</div>
+            <div id=\"trialSub\" class=\"trial-sub\">Poți testa gratuit aplicația pentru 7 zile.</div>
+          </div>
+          <button id=\"activateNowBtn\" class=\"btn primary\">Activează acum</button>
+        </div>
+        <div class=\"progress\"><div id=\"trialProgress\"></div></div>
+        <div class=\"limit-list\">
+          <span class=\"limit-pill\">Primele 30 elemente</span>
+          <span class=\"limit-pill\">1 playlist</span>
+          <span class=\"limit-pill\">Ideal pentru demo</span>
+        </div>
+      </section>
+
+      <section class=\"activate-box\">
+        <h3>Activare licență</h3>
+        <p>În demo, codurile valide sunt incluse doar pentru test. În produsul real, aici conectezi Stripe + backend de licențe.</p>
+        <div class=\"activate-row\">
+          <input id=\"licenseInput\" class=\"field\" type=\"text\" placeholder=\"Ex: COEZIV-2026-PRO-1234\" />
+          <button id=\"activateBtn\" class=\"btn ok\">Activează</button>
+        </div>
+      </section>
+
+      <div class=\"toolbar\">
+        <div>
+          <h3>Catalog playlist</h3>
+          <p id=\"listSub\">În trial vezi primele 30 rezultate.</p>
+        </div>
+      </div>
+
+      <div id=\"grid\" class=\"grid\"></div>
+      <div id=\"emptyState\" class=\"empty hidden\">Nu există elemente de afișat. Încarcă un playlist sau schimbă filtrul.</div>
+    </main>
+  </div>
+
+  <script>
+    const DEMO_PLAYLIST_URL = "/iptv/romanesti.m3u";
+    const STORAGE = {
+      trialStart: "coeziv_trial_start_v2",
+      activated: "coeziv_license_activated_v2",
+      license: "coeziv_license_value_v2",
+      playlist: "coeziv_saved_playlist_text_v2"
+    };
+    const TRIAL_DAYS = 7;
+    const TRIAL_LIMIT = 30;
+    const VALID_LICENSES = ["COEZIV-2026-PRO-1234", "COEZIV-FULL-RO-9999"];
+
+    const playlistUrl = document.getElementById("playlistUrl");
+    const playlistText = document.getElementById("playlistText");
+    const loadUrlBtn = document.getElementById("loadUrlBtn");
+    const loadDemoBtn = document.getElementById("loadDemoBtn");
+    const loadTextBtn = document.getElementById("loadTextBtn");
+    const resetBtn = document.getElementById("resetBtn");
+    const searchInput = document.getElementById("searchInput");
+    const messageBox = document.getElementById("messageBox");
+    const statTotal = document.getElementById("statTotal");
+    const statVisible = document.getElementById("statVisible");
+    const statTrial = document.getElementById("statTrial");
+    const statState = document.getElementById("statState");
+    const trialTitle = document.getElementById("trialTitle");
+    const trialSub = document.getElementById("trialSub");
+    const trialProgress = document.getElementById("trialProgress");
+    const listSub = document.getElementById("listSub");
+    const grid = document.getElementById("grid");
+    const emptyState = document.getElementById("emptyState");
+    const activateBtn = document.getElementById("activateBtn");
+    const activateNowBtn = document.getElementById("activateNowBtn");
+    const licenseInput = document.getElementById("licenseInput");
+    const scrollTrialBtn = document.getElementById("scrollTrialBtn");
+    const scrollActivateBtn = document.getElementById("scrollActivateBtn");
+
+    let channels = [];
+    let filtered = [];
+    let activated = localStorage.getItem(STORAGE.activated) === "1";
+
+    function startTrialIfNeeded(){
+      if (!localStorage.getItem(STORAGE.trialStart)) {
+        localStorage.setItem(STORAGE.trialStart, String(Date.now()));
       }
+    }
+
+    function getTrialInfo(){
+      startTrialIfNeeded();
+      const start = Number(localStorage.getItem(STORAGE.trialStart));
+      const total = TRIAL_DAYS * 24 * 60 * 60 * 1000;
+      const elapsed = Date.now() - start;
+      const remaining = Math.max(0, total - elapsed);
+      const remainingDays = Math.ceil(remaining / (24 * 60 * 60 * 1000));
+      const percent = Math.max(0, Math.min(100, (remaining / total) * 100));
+      return { remainingDays, expired: remaining <= 0, percent };
+    }
+
+    function updateTrialUi(){
+      const info = getTrialInfo();
+
+      if (activated) {
+        statState.textContent = "PRO";
+        statTrial.textContent = "∞";
+        trialTitle.textContent = "Licență activă";
+        trialSub.textContent = "Varianta Pro este activă. Nu mai există limită de elemente.";
+        trialProgress.style.width = "100%";
+        messageBox.className = "message ok";
+        messageBox.textContent = "Licență activă. Playlistul complet este disponibil.";
+        listSub.textContent = "Licență activă: vezi întregul playlist.";
+        return;
+      }
+
+      statState.textContent = info.expired ? "LOCK" : "FREE";
+      statTrial.textContent = info.expired ? "0d" : `${info.remainingDays}d`;
+      trialTitle.textContent = info.expired ? "Trial expirat" : "Trial activ";
+      trialSub.textContent = info.expired
+        ? "Trialul a expirat. Activează aplicația pentru a continua."
+        : `Mai ai ${info.remainingDays} zi/zile de test.`;
+      trialProgress.style.width = `${info.percent}%`;
+
+      if (info.expired) {
+        messageBox.className = "message err";
+        messageBox.textContent = "Trial expirat. Activează aplicația pentru acces complet.";
+        listSub.textContent = "Trial expirat. Activează pentru a vedea playlistul.";
+      } else {
+        messageBox.className = "message";
+        messageBox.textContent = `În trial poți vedea primele ${TRIAL_LIMIT} elemente din playlist.`;
+        listSub.textContent = `În trial vezi primele ${TRIAL_LIMIT} rezultate.`;
+      }
+    }
+
+    function parseM3U(text){
+      const lines = text.split(/\\r?\\n/);
+      const result = [];
+      let current = null;
+
+      for (const raw of lines) {
+        const line = raw.trim();
+        if (!line) continue;
+
+        if (line.startsWith("#EXTINF")) {
+          const parts = line.split(",");
+          const title = (parts[parts.length - 1] || "Canal necunoscut").trim();
+          current = { title, url: "" };
+        } else if (line.startsWith("http") && current) {
+          current.url = line;
+          result.push(current);
+          current = null;
+        }
+      }
+      return result;
+    }
+
+    function escapeHtml(str){
+      return (str || "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function getLogoText(title){
+      const clean = (title || "TV").replace(/[^a-zA-Z0-9\\s]/g, " ").trim();
+      const words = clean.split(/\\s+/).filter(Boolean);
+      if (!words.length) return "TV";
+      if (words.length === 1) return words[0].slice(0, 3).toUpperCase();
+      return (words[0][0] + words[1][0]).toUpperCase();
+    }
+
+    function getLogoMarkup(title, fallbackText){
+      const t = (title || "").toLowerCase();
+      const map = [
+        { match:["pro tv", "protv"], src:"https://upload.wikimedia.org/wikipedia/commons/8/89/Pro_TV_2022.svg" },
+        { match:["antena 1"], src:"https://upload.wikimedia.org/wikipedia/commons/7/72/Antena_1_2022.svg" },
+        { match:["digi24", "digi 24"], src:"https://upload.wikimedia.org/wikipedia/commons/3/36/Digi24_logo.svg" },
+        { match:["tvr 1", "tvr1"], src:"https://upload.wikimedia.org/wikipedia/commons/8/84/TVR_1_2019.svg" },
+        { match:["kanal d"], src:"https://upload.wikimedia.org/wikipedia/commons/5/5f/Kanal_D_Romania_logo.svg" },
+        { match:["romania tv"], src:"https://upload.wikimedia.org/wikipedia/commons/e/e8/Romania_TV_logo.svg" },
+        { match:["prima tv"], src:"https://upload.wikimedia.org/wikipedia/commons/6/6b/Prima_TV_logo_2013.svg" },
+        { match:["b1 tv", "b1"], src:"https://upload.wikimedia.org/wikipedia/commons/0/0a/B1_TV_logo.svg" }
+      ];
+      const found = map.find(item => item.match.some(m => t.includes(m)));
+      if (found) {
+        return `<img src="${found.src}" alt="logo" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'logo-text',textContent:'${escapeHtml(fallbackText)}'}));">`;
+      }
+      return `<div class="logo-text">${escapeHtml(fallbackText)}</div>`;
+    }
+
+    function getPosterGradient(index){
+      const gradients = [
+        "linear-gradient(135deg,#0f172a,#1d4ed8)",
+        "linear-gradient(135deg,#3f0d12,#a71d31)",
+        "linear-gradient(135deg,#1f2937,#0f766e)",
+        "linear-gradient(135deg,#312e81,#7c3aed)",
+        "linear-gradient(135deg,#111827,#ea580c)",
+        "linear-gradient(135deg,#172554,#2563eb)",
+        "linear-gradient(135deg,#3f3f46,#e11d48)",
+        "linear-gradient(135deg,#052e16,#16a34a)"
+      ];
+      return gradients[index % gradients.length];
+    }
+
+    function currentVisibleList(){
+      const q = searchInput.value.toLowerCase().trim();
+      let list = channels.filter(c => c.title.toLowerCase().includes(q));
+
+      if (!activated) {
+        const trial = getTrialInfo();
+        if (trial.expired) return [];
+        list = list.slice(0, TRIAL_LIMIT);
+      }
+
+      return list;
+    }
+
+    function render(){
+      filtered = currentVisibleList();
+      statTotal.textContent = channels.length;
+      statVisible.textContent = filtered.length;
+      grid.innerHTML = "";
+
+      if (!filtered.length) {
+        emptyState.classList.remove("hidden");
+        return;
+      }
+
+      emptyState.classList.add("hidden");
+
+      filtered.forEach((ch, index) => {
+        const card = document.createElement("div");
+        card.className = "item";
+        card.tabIndex = 0;
+
+        const logoText = getLogoText(ch.title);
+
+        card.innerHTML = `
+          <div class="poster">
+            <div class="poster-bg" style="background-image:${getPosterGradient(index + 2)}"></div>
+            <div class="logo">${getLogoMarkup(ch.title, logoText)}</div>
+            <div class="poster-foot">
+              <span class="pill-live"><span class="dot"></span>READY</span>
+              <span class="pill-type">M3U</span>
+            </div>
+          </div>
+          <div class="item-body">
+            <div class="item-title">${escapeHtml(ch.title)}</div>
+            <div class="item-meta">
+              <span>Element playlist</span>
+              <span>Direct</span>
+            </div>
+            <button class="item-btn" type="button">Deschide</button>
+          </div>
+        `;
+
+        const open = () => window.open(ch.url, "_blank");
+
+        card.addEventListener("click", open);
+        card.addEventListener("keydown", (e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            open();
+          }
+        });
+        card.querySelector(".item-btn").addEventListener("click", (e) => {
+          e.stopPropagation();
+          open();
+        });
+
+        grid.appendChild(card);
+      });
+    }
+
+    async function loadFromUrl(url){
+      messageBox.className = "message";
+      messageBox.textContent = "Se încarcă playlistul...";
+      try {
+        const res = await fetch(url, { cache: "no-store" });
+        if (!res.ok) throw new Error("Nu am putut încărca URL-ul playlistului.");
+        const text = await res.text();
+        localStorage.setItem(STORAGE.playlist, text);
+        channels = parseM3U(text);
+        messageBox.className = channels.length ? "message ok" : "message err";
+        messageBox.textContent = channels.length
+          ? `Playlist încărcat: ${channels.length} elemente.`
+          : "Playlist gol sau invalid.";
+        render();
+      } catch (err) {
+        messageBox.className = "message err";
+        messageBox.textContent = err?.message || "Eroare la încărcarea playlistului.";
+      }
+    }
+
+    function loadFromText(text){
+      localStorage.setItem(STORAGE.playlist, text);
+      channels = parseM3U(text);
+      messageBox.className = channels.length ? "message ok" : "message err";
+      messageBox.textContent = channels.length
+        ? `Playlist încărcat din text: ${channels.length} elemente.`
+        : "Textul nu conține un playlist valid.";
+      render();
+    }
+
+    function resetAll(){
+      playlistUrl.value = "";
+      playlistText.value = "";
+      searchInput.value = "";
+      channels = [];
+      filtered = [];
+      localStorage.removeItem(STORAGE.playlist);
+      grid.innerHTML = "";
+      emptyState.classList.remove("hidden");
+      messageBox.className = "message";
+      messageBox.textContent = "Datele locale au fost resetate.";
+      statTotal.textContent = "0";
+      statVisible.textContent = "0";
+    }
+
+    function activateLicense(){
+      const code = licenseInput.value.trim().toUpperCase();
+      if (!VALID_LICENSES.includes(code)) {
+        messageBox.className = "message err";
+        messageBox.textContent = "Cod de licență invalid în această versiune demo.";
+        return;
+      }
+      activated = true;
+      localStorage.setItem(STORAGE.activated, "1");
+      localStorage.setItem(STORAGE.license, code);
+      updateTrialUi();
+      render();
+    }
+
+    loadUrlBtn.addEventListener("click", () => {
+      const url = playlistUrl.value.trim();
+      if (!url) return;
+      loadFromUrl(url);
     });
 
-    card.querySelector(".card-btn").addEventListener("click", (e) => {
-      e.stopPropagation();
-      open();
-    });
+    loadDemoBtn.addEventListener("click", () => loadFromUrl(DEMO_PLAYLIST_URL));
+    loadTextBtn.addEventListener("click", () => loadFromText(playlistText.value));
+    resetBtn.addEventListener("click", resetAll);
+    searchInput.addEventListener("input", render);
+    activateBtn.addEventListener("click", activateLicense);
+    activateNowBtn.addEventListener("click", () => licenseInput.scrollIntoView({ behavior: "smooth", block: "center" }));
+    scrollTrialBtn.addEventListener("click", () => document.getElementById("trialBox").scrollIntoView({ behavior: "smooth", block: "start" }));
+    scrollActivateBtn.addEventListener("click", () => licenseInput.scrollIntoView({ behavior: "smooth", block: "center" }));
 
-    grid.appendChild(card);
-  });
-}
+    (function init(){
+      startTrialIfNeeded();
+      updateTrialUi();
 
-function escapeHtml(str){
-  return (str || "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
-}
-
-function getLogoText(title){
-  const clean = (title || "TV").replace(/[^a-zA-Z0-9\s]/g, " ").trim();
-  const words = clean.split(/\s+/).filter(Boolean);
-  if (!words.length) return "TV";
-  if (words.length === 1) return words[0].slice(0, 3).toUpperCase();
-  return (words[0][0] + words[1][0]).toUpperCase();
-}
-
-function getLogoMarkup(title, fallbackText){
-  const t = (title || "").toLowerCase();
-  const map = [
-    { match:["pro tv", "protv"], src:"https://upload.wikimedia.org/wikipedia/commons/8/89/Pro_TV_2022.svg" },
-    { match:["antena 1"], src:"https://upload.wikimedia.org/wikipedia/commons/7/72/Antena_1_2022.svg" },
-    { match:["digi24", "digi 24"], src:"https://upload.wikimedia.org/wikipedia/commons/3/36/Digi24_logo.svg" },
-    { match:["tvr 1", "tvr1"], src:"https://upload.wikimedia.org/wikipedia/commons/8/84/TVR_1_2019.svg" },
-    { match:["kanal d"], src:"https://upload.wikimedia.org/wikipedia/commons/5/5f/Kanal_D_Romania_logo.svg" },
-    { match:["romania tv"], src:"https://upload.wikimedia.org/wikipedia/commons/e/e8/Romania_TV_logo.svg" },
-    { match:["prima tv"], src:"https://upload.wikimedia.org/wikipedia/commons/6/6b/Prima_TV_logo_2013.svg" },
-    { match:["b1 tv", "b1"], src:"https://upload.wikimedia.org/wikipedia/commons/0/0a/B1_TV_logo.svg" }
-  ];
-  const found = map.find(item => item.match.some(m => t.includes(m)));
-  if (found) {
-    return `<img src="${found.src}" alt="logo" onerror="this.replaceWith(document.createElement('div'));">`;
-  }
-  return `<div class="logo-text">${escapeHtml(fallbackText)}</div>`;
-}
-
-function getPosterGradient(index){
-  const gradients = [
-    "linear-gradient(135deg,#0f172a,#1d4ed8)",
-    "linear-gradient(135deg,#3f0d12,#a71d31)",
-    "linear-gradient(135deg,#1f2937,#0f766e)",
-    "linear-gradient(135deg,#312e81,#7c3aed)",
-    "linear-gradient(135deg,#111827,#ea580c)",
-    "linear-gradient(135deg,#172554,#2563eb)",
-    "linear-gradient(135deg,#3f3f46,#e11d48)",
-    "linear-gradient(135deg,#052e16,#16a34a)"
-  ];
-  return gradients[index % gradients.length];
-}
-
-search.addEventListener("input", render);
-loadPlaylist();
-</script></body>
+      const saved = localStorage.getItem(STORAGE.playlist);
+      if (saved) {
+        playlistText.value = saved;
+        loadFromText(saved);
+      } else {
+        loadFromUrl(DEMO_PLAYLIST_URL);
+      }
+    })();
+  </script>
+</body>
 </html>
