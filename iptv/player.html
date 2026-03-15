@@ -7,28 +7,24 @@
   <style>
     :root{
       --bg:#0b1020;
-      --bg-soft:#121a2e;
       --panel:#111827;
-      --panel-2:#1b2438;
+      --panel2:#1b2438;
       --line:#2b3752;
       --text:#f8fafc;
       --muted:#94a3b8;
       --brand:#2563eb;
-      --brand-2:#1d4ed8;
+      --brand2:#1d4ed8;
       --ok:#16a34a;
       --warn:#f59e0b;
       --danger:#dc2626;
-      --shadow:0 20px 50px rgba(0,0,0,.35);
-      --radius:20px;
     }
-
     *{box-sizing:border-box}
     html,body{
       margin:0;
       padding:0;
       background:linear-gradient(180deg,#08101f,#0b1020 30%,#0f172a 100%);
       color:var(--text);
-      font-family:Inter,Arial,Helvetica,sans-serif;
+      font-family:Arial,Helvetica,sans-serif;
     }
     body{min-height:100vh}
     button,input,textarea{font:inherit}
@@ -36,136 +32,67 @@
     .hidden{display:none!important}
 
     .topbar{
+      padding:18px 20px;
+      border-bottom:1px solid rgba(255,255,255,.06);
+      background:rgba(8,16,31,.9);
       position:sticky;
       top:0;
-      z-index:20;
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:16px;
-      padding:18px 22px;
-      background:rgba(8,16,31,.84);
-      backdrop-filter:blur(12px);
-      border-bottom:1px solid rgba(255,255,255,.06);
+      z-index:10;
     }
     .brand{
-      display:flex;
-      flex-direction:column;
-      gap:4px;
-    }
-    .brand h1{
-      margin:0;
       font-size:28px;
-      line-height:1;
       font-weight:900;
       letter-spacing:.04em;
     }
-    .brand p{
-      margin:0;
+    .sub{
       color:var(--muted);
-      font-size:12px;
-    }
-    .top-actions{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-    }
-
-    .btn{
-      border:none;
-      border-radius:14px;
-      padding:11px 15px;
-      color:var(--text);
-      background:var(--panel-2);
-      box-shadow:var(--shadow);
-    }
-    .btn.primary{
-      background:linear-gradient(135deg,var(--brand),var(--brand-2));
-    }
-    .btn.ok{
-      background:linear-gradient(135deg,#15803d,#16a34a);
-    }
-    .btn.ghost{
-      background:rgba(255,255,255,.05);
-      border:1px solid rgba(255,255,255,.07);
-      box-shadow:none;
+      font-size:13px;
+      margin-top:4px;
     }
 
     .hero{
-      margin:22px;
-      border-radius:28px;
-      overflow:hidden;
+      margin:20px;
+      padding:28px;
+      border-radius:24px;
       background:
-        linear-gradient(90deg,rgba(6,10,18,.92) 0%,rgba(6,10,18,.7) 42%,rgba(6,10,18,.2) 100%),
+        linear-gradient(90deg,rgba(7,10,18,.92) 0%,rgba(7,10,18,.65) 45%,rgba(7,10,18,.18) 100%),
         radial-gradient(circle at 85% 20%, rgba(37,99,235,.22), transparent 22%),
         url("https://images.unsplash.com/photo-1522869635100-9f4c5e86aa37?auto=format&fit=crop&w=1600&q=80") center/cover;
       border:1px solid rgba(255,255,255,.06);
-      box-shadow:var(--shadow);
     }
-    .hero-inner{
-      padding:40px 34px;
-      min-height:260px;
-      display:flex;
-      flex-direction:column;
-      justify-content:flex-end;
-    }
-    .hero-kicker{
-      font-size:12px;
-      letter-spacing:.22em;
-      text-transform:uppercase;
-      color:#cbd5e1;
-    }
-    .hero h2{
-      margin:10px 0 12px;
-      font-size:48px;
-      line-height:1.02;
+    .hero h1{
+      margin:0 0 10px;
+      font-size:42px;
+      line-height:1.05;
     }
     .hero p{
-      max-width:760px;
       margin:0;
+      max-width:760px;
       color:#dbe4ee;
-      line-height:1.65;
-      font-size:16px;
-    }
-    .hero-tags{
-      display:flex;
-      flex-wrap:wrap;
-      gap:10px;
-      margin-top:18px;
-    }
-    .tag{
-      padding:8px 12px;
-      border-radius:999px;
-      background:rgba(255,255,255,.08);
-      border:1px solid rgba(255,255,255,.1);
-      color:#eff6ff;
-      font-size:12px;
+      line-height:1.6;
     }
 
     .layout{
       display:grid;
       grid-template-columns:360px 1fr;
       gap:20px;
-      padding:0 22px 26px;
+      padding:0 20px 24px;
     }
 
-    .card-panel{
+    .panel,.main{
       background:linear-gradient(180deg,#101827,#0d1422);
       border:1px solid rgba(255,255,255,.06);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
+      border-radius:22px;
       overflow:hidden;
     }
-    .card-panel .section{
+
+    .section{
       padding:18px;
       border-bottom:1px solid rgba(255,255,255,.05);
     }
-    .card-panel .section:last-child{
-      border-bottom:none;
-    }
-    .section h3{
+    .section:last-child{border-bottom:none}
+    .section h2,.section h3{
       margin:0 0 8px;
-      font-size:18px;
     }
     .section p{
       margin:0 0 12px;
@@ -190,7 +117,22 @@
     .stack{display:grid;gap:10px}
     .row{display:flex;gap:10px;flex-wrap:wrap}
 
+    .btn{
+      border:none;
+      border-radius:14px;
+      padding:11px 15px;
+      color:var(--text);
+      background:var(--panel2);
+    }
+    .btn.primary{background:linear-gradient(135deg,var(--brand),var(--brand2))}
+    .btn.ok{background:linear-gradient(135deg,#15803d,#16a34a)}
+    .btn.ghost{
+      background:rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.07);
+    }
+
     .message{
+      margin-top:12px;
       padding:12px 14px;
       border-radius:14px;
       font-size:13px;
@@ -198,6 +140,7 @@
       background:rgba(245,158,11,.12);
       border:1px solid rgba(245,158,11,.25);
       color:#fde68a;
+      white-space:pre-line;
     }
     .message.ok{
       background:rgba(22,163,74,.12);
@@ -231,13 +174,6 @@
       font-weight:900;
     }
 
-    .main{
-      background:linear-gradient(180deg,#101827,#0d1422);
-      border:1px solid rgba(255,255,255,.06);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      overflow:hidden;
-    }
     .main-head{
       padding:20px;
       border-bottom:1px solid rgba(255,255,255,.05);
@@ -258,13 +194,6 @@
       border-radius:18px;
       background:linear-gradient(180deg,rgba(37,99,235,.16),rgba(37,99,235,.05));
       border:1px solid rgba(37,99,235,.24);
-    }
-    .trial-top{
-      display:flex;
-      justify-content:space-between;
-      gap:14px;
-      align-items:center;
-      flex-wrap:wrap;
     }
     .trial-title{
       font-size:18px;
@@ -287,42 +216,13 @@
       width:100%;
       background:linear-gradient(90deg,var(--brand),#60a5fa);
     }
-    .limit-list{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      margin-top:14px;
-    }
-    .limit-pill{
-      padding:8px 10px;
-      border-radius:999px;
-      background:rgba(255,255,255,.06);
-      font-size:12px;
-      color:#eff6ff;
-      border:1px solid rgba(255,255,255,.06);
-    }
 
-    .activate-box{
+    .activate{
       padding:20px;
       border-top:1px solid rgba(255,255,255,.05);
       border-bottom:1px solid rgba(255,255,255,.05);
       margin-top:18px;
       background:rgba(255,255,255,.02);
-    }
-    .activate-box h3{
-      margin:0 0 8px;
-      font-size:18px;
-    }
-    .activate-box p{
-      margin:0 0 12px;
-      color:var(--muted);
-      font-size:13px;
-      line-height:1.6;
-    }
-    .activate-row{
-      display:grid;
-      grid-template-columns:1fr auto;
-      gap:10px;
     }
 
     .toolbar{
@@ -333,24 +233,10 @@
       gap:14px;
       flex-wrap:wrap;
     }
-    .toolbar h3{
-      margin:0;
-      font-size:20px;
-    }
-    .toolbar p{
-      margin:6px 0 0;
-      color:var(--muted);
-      font-size:13px;
-    }
-    .search{
-      min-width:280px;
-      flex:1;
-      max-width:420px;
-    }
 
     .grid{
       display:grid;
-      grid-template-columns:repeat(auto-fill,minmax(230px,1fr));
+      grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
       gap:18px;
       padding:0 20px 22px;
     }
@@ -359,14 +245,12 @@
       overflow:hidden;
       background:linear-gradient(180deg,#1a2231,#141b28);
       border:1px solid rgba(255,255,255,.05);
-      box-shadow:0 12px 26px rgba(0,0,0,.16);
-      transition:transform .18s ease, border-color .18s ease, box-shadow .18s ease;
       cursor:pointer;
+      transition:.18s ease;
     }
     .item:hover{
       transform:translateY(-3px) scale(1.02);
       border-color:rgba(255,255,255,.16);
-      box-shadow:var(--shadow);
     }
     .poster{
       position:relative;
@@ -378,7 +262,6 @@
       inset:0;
       background-size:cover;
       background-position:center;
-      transform:scale(1.02);
     }
     .poster::after{
       content:"";
@@ -402,17 +285,8 @@
       align-items:center;
       justify-content:center;
       padding:6px 10px;
-    }
-    .logo img{
-      max-width:100%;
-      max-height:100%;
-      object-fit:contain;
-      display:block;
-    }
-    .logo-text{
       font-size:16px;
       font-weight:800;
-      letter-spacing:.03em;
     }
     .poster-foot{
       position:absolute;
@@ -425,35 +299,21 @@
       gap:10px;
       align-items:center;
     }
-    .pill-live{
-      display:inline-flex;
-      align-items:center;
-      gap:6px;
+    .pill-live,.pill-type{
       padding:7px 10px;
       border-radius:999px;
-      background:rgba(22,163,74,.92);
-      color:#fff;
       font-size:11px;
       font-weight:800;
     }
-    .dot{
-      width:7px;
-      height:7px;
-      border-radius:50%;
-      background:#fff;
+    .pill-live{
+      background:rgba(22,163,74,.92);
     }
     .pill-type{
-      padding:7px 10px;
-      border-radius:999px;
       background:rgba(8,10,14,.58);
       border:1px solid rgba(255,255,255,.1);
-      font-size:11px;
-      font-weight:700;
     }
 
-    .item-body{
-      padding:14px;
-    }
+    .item-body{padding:14px}
     .item-title{
       font-size:16px;
       font-weight:800;
@@ -476,10 +336,9 @@
       padding:11px 12px;
       border:none;
       border-radius:999px;
-      background:linear-gradient(135deg,var(--brand),var(--brand-2));
+      background:linear-gradient(135deg,var(--brand),var(--brand2));
       color:#fff;
       font-weight:800;
-      letter-spacing:.02em;
     }
 
     .empty{
@@ -488,153 +347,137 @@
       font-size:14px;
     }
 
-    @media (max-width: 1024px){
+    @media (max-width:1024px){
       .layout{grid-template-columns:1fr}
     }
-    @media (max-width: 720px){
-      .topbar{padding:16px}
+    @media (max-width:720px){
       .hero{margin:16px}
-      .hero-inner{padding:22px}
-      .hero h2{font-size:34px}
+      .hero h1{font-size:32px}
       .layout{padding:0 16px 22px}
       .grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;padding:0 16px 18px}
-      .activate-row{grid-template-columns:1fr}
     }
   </style>
 </head>
 <body>
-  <header class=\"topbar\">
-    <div class=\"brand\">
-      <h1>COEZIV PLAYER</h1>
-      <p>Player premium pentru playlisturi M3U</p>
+  <div class="topbar">
+    <div>
+      <div class="brand">COEZIV PLAYER</div>
+      <div class="sub">Player premium pentru playlisturi M3U</div>
     </div>
-    <div class=\"top-actions\">
-      <button id=\"scrollTrialBtn\" class=\"btn ghost\">Trial</button>
-      <button id=\"scrollActivateBtn\" class=\"btn primary\">Activează</button>
+    <div class="row">
+      <button id="scrollTrialBtn" class="btn ghost" type="button">Trial</button>
+      <button id="scrollActivateBtn" class="btn primary" type="button">Activează</button>
     </div>
-  </header>
+  </div>
 
-  <section class=\"hero\">
-    <div class=\"hero-inner\">
-      <div class=\"hero-kicker\">Player / launcher premium</div>
-      <h2>Încarcă propriul playlist. Testează. Activează.</h2>
-      <p>Un produs web clar și comercial: utilizatorul își adaugă playlistul M3U, îl vede elegant organizat, îl testează în trial și apoi activează versiunea completă contra unei taxe.</p>
-      <div class=\"hero-tags\">
-        <span class=\"tag\">Trial 7 zile</span>
-        <span class=\"tag\">Activare unică</span>
-        <span class=\"tag\">Import URL sau text M3U</span>
-      </div>
-    </div>
+  <section class="hero">
+    <h1>Încarcă propriul playlist. Testează. Activează.</h1>
+    <p>Un produs web clar și comercial: utilizatorul își adaugă playlistul M3U, îl vede elegant organizat, îl testează în trial și apoi activează versiunea completă.</p>
   </section>
 
-  <div class=\"layout\">
-    <aside class=\"card-panel\">
-      <div class=\"section\">
-        <h3>Import playlist</h3>
-        <p>Încarcă un URL M3U, un fișier demo sau lipește direct conținutul playlistului.</p>
-        <div class=\"stack\">
-          <input id=\"playlistUrl\" class=\"field\" type=\"text\" placeholder=\"https://siteul-tau/playlist.m3u\" />
-          <div class=\"row\">
-            <button id=\"loadUrlBtn\" class=\"btn primary\">Încarcă din URL</button>
-            <button id=\"loadDemoBtn\" class=\"btn\">Încarcă demo</button>
+  <div class="layout">
+    <aside class="panel">
+      <div class="section">
+        <h2>Import playlist</h2>
+        <p>Poți încărca din URL, fișier local sau text.</p>
+
+        <div class="stack">
+          <input id="playlistUrl" class="field" type="text" placeholder="https://siteul-tau/playlist.m3u" />
+
+          <div class="row">
+            <button id="loadUrlBtn" class="btn primary" type="button">Încarcă din URL</button>
+            <button id="loadDemoBtn" class="btn" type="button">Încarcă demo</button>
           </div>
-          <textarea id=\"playlistText\" class=\"field\" placeholder=\"#EXTM3U&#10;#EXTINF:-1,Canal Exemplu&#10;https://.../stream.m3u8\"></textarea>
-          <div class=\"row\">
-            <button id=\"loadTextBtn\" class=\"btn\">Încarcă din text</button>
-            <button id=\"resetBtn\" class=\"btn ghost\">Resetează</button>
+
+          <input id="playlistFile" class="field" type="file" accept=".m3u,.m3u8,.txt" />
+
+          <textarea id="playlistText" class="field" placeholder="#EXTM3U&#10;#EXTINF:-1,Canal Exemplu&#10;https://.../stream.m3u8"></textarea>
+
+          <div class="row">
+            <button id="loadTextBtn" class="btn" type="button">Încarcă din text</button>
+            <button id="resetBtn" class="btn ghost" type="button">Resetează</button>
           </div>
         </div>
+
+        <div id="messageBox" class="message">În trial poți vedea primele 30 de elemente din playlist.</div>
       </div>
 
-      <div class=\"section\">
-        <div id=\"messageBox\" class=\"message\">În trial poți vedea primele 30 de elemente din playlist.</div>
-      </div>
-
-      <div class=\"section\">
+      <div class="section">
         <h3>Căutare</h3>
         <p>Filtrează rapid lista afișată.</p>
-        <input id=\"searchInput\" class=\"field\" type=\"text\" placeholder=\"Caută în playlist...\" />
+        <input id="searchInput" class="field" type="text" placeholder="Caută în playlist..." />
       </div>
 
-      <div class=\"section\">
+      <div class="section">
         <h3>Statistici</h3>
-        <div class=\"stats\">
-          <div class=\"stat\">
-            <div class=\"stat-label\">Total</div>
-            <div id=\"statTotal\" class=\"stat-value\">0</div>
+        <div class="stats">
+          <div class="stat">
+            <div class="stat-label">Total</div>
+            <div id="statTotal" class="stat-value">0</div>
           </div>
-          <div class=\"stat\">
-            <div class=\"stat-label\">Vizibile</div>
-            <div id=\"statVisible\" class=\"stat-value\">0</div>
+          <div class="stat">
+            <div class="stat-label">Vizibile</div>
+            <div id="statVisible" class="stat-value">0</div>
           </div>
-          <div class=\"stat\">
-            <div class=\"stat-label\">Trial</div>
-            <div id=\"statTrial\" class=\"stat-value\">7d</div>
+          <div class="stat">
+            <div class="stat-label">Trial</div>
+            <div id="statTrial" class="stat-value">7d</div>
           </div>
-          <div class=\"stat\">
-            <div class=\"stat-label\">Stare</div>
-            <div id=\"statState\" class=\"stat-value\">FREE</div>
+          <div class="stat">
+            <div class="stat-label">Stare</div>
+            <div id="statState" class="stat-value">FREE</div>
           </div>
         </div>
       </div>
     </aside>
 
-    <main class=\"main\">
-      <div class=\"main-head\">
-        <h2>Experiență premium pentru playlisturi proprii</h2>
-        <p>Acesta este produsul: nu vinzi conținut, ci interfața, experiența și funcțiile premium. Utilizatorul își gestionează propriul playlist și activează aplicația pentru acces complet.</p>
+    <main class="main">
+      <div class="main-head">
+        <h2>Produs premium pentru playlisturi proprii</h2>
+        <p>Nu vinzi conținutul, ci interfața, organizarea și funcțiile premium. Utilizatorul își încarcă singur playlistul.</p>
       </div>
 
-      <section id=\"trialBox\" class=\"trial-box\">
-        <div class=\"trial-top\">
-          <div>
-            <div id=\"trialTitle\" class=\"trial-title\">Trial activ</div>
-            <div id=\"trialSub\" class=\"trial-sub\">Poți testa gratuit aplicația pentru 7 zile.</div>
-          </div>
-          <button id=\"activateNowBtn\" class=\"btn primary\">Activează acum</button>
-        </div>
-        <div class=\"progress\"><div id=\"trialProgress\"></div></div>
-        <div class=\"limit-list\">
-          <span class=\"limit-pill\">Primele 30 elemente</span>
-          <span class=\"limit-pill\">1 playlist</span>
-          <span class=\"limit-pill\">Ideal pentru demo</span>
+      <section id="trialBox" class="trial-box">
+        <div class="trial-title" id="trialTitle">Trial activ</div>
+        <div class="trial-sub" id="trialSub">Poți testa gratuit aplicația pentru 7 zile.</div>
+        <div class="progress"><div id="trialProgress"></div></div>
+      </section>
+
+      <section class="activate">
+        <h3 style="margin:0 0 8px;">Activare licență</h3>
+        <p style="margin:0 0 12px;color:var(--muted);font-size:13px;">Coduri demo: <strong>COEZIV-2026-PRO-1234</strong> sau <strong>COEZIV-FULL-RO-9999</strong></p>
+        <div class="row">
+          <input id="licenseInput" class="field" type="text" placeholder="Ex: COEZIV-2026-PRO-1234" />
+          <button id="activateBtn" class="btn ok" type="button">Activează</button>
         </div>
       </section>
 
-      <section class=\"activate-box\">
-        <h3>Activare licență</h3>
-        <p>În demo, codurile valide sunt incluse doar pentru test. În produsul real, aici conectezi Stripe + backend de licențe.</p>
-        <div class=\"activate-row\">
-          <input id=\"licenseInput\" class=\"field\" type=\"text\" placeholder=\"Ex: COEZIV-2026-PRO-1234\" />
-          <button id=\"activateBtn\" class=\"btn ok\">Activează</button>
-        </div>
-      </section>
-
-      <div class=\"toolbar\">
+      <div class="toolbar">
         <div>
-          <h3>Catalog playlist</h3>
-          <p id=\"listSub\">În trial vezi primele 30 rezultate.</p>
+          <h3 style="margin:0;">Catalog playlist</h3>
+          <p id="listSub" style="margin:6px 0 0;color:var(--muted);font-size:13px;">În trial vezi primele 30 rezultate.</p>
         </div>
       </div>
 
-      <div id=\"grid\" class=\"grid\"></div>
-      <div id=\"emptyState\" class=\"empty hidden\">Nu există elemente de afișat. Încarcă un playlist sau schimbă filtrul.</div>
+      <div id="grid" class="grid"></div>
+      <div id="emptyState" class="empty hidden">Nu există elemente de afișat.</div>
     </main>
   </div>
 
   <script>
-    const DEMO_PLAYLIST_URL = "/iptv/romanesti.m3u";
-    const STORAGE = {
-      trialStart: "coeziv_trial_start_v2",
-      activated: "coeziv_license_activated_v2",
-      license: "coeziv_license_value_v2",
-      playlist: "coeziv_saved_playlist_text_v2"
-    };
+    const DEMO_PLAYLIST_URL = "/romanesti.m3u";
     const TRIAL_DAYS = 7;
     const TRIAL_LIMIT = 30;
     const VALID_LICENSES = ["COEZIV-2026-PRO-1234", "COEZIV-FULL-RO-9999"];
+    const STORAGE = {
+      trialStart: "coeziv_trial_start_v3",
+      activated: "coeziv_license_activated_v3",
+      license: "coeziv_license_value_v3",
+      playlist: "coeziv_saved_playlist_text_v3"
+    };
 
     const playlistUrl = document.getElementById("playlistUrl");
+    const playlistFile = document.getElementById("playlistFile");
     const playlistText = document.getElementById("playlistText");
     const loadUrlBtn = document.getElementById("loadUrlBtn");
     const loadDemoBtn = document.getElementById("loadDemoBtn");
@@ -653,14 +496,19 @@
     const grid = document.getElementById("grid");
     const emptyState = document.getElementById("emptyState");
     const activateBtn = document.getElementById("activateBtn");
-    const activateNowBtn = document.getElementById("activateNowBtn");
     const licenseInput = document.getElementById("licenseInput");
     const scrollTrialBtn = document.getElementById("scrollTrialBtn");
     const scrollActivateBtn = document.getElementById("scrollActivateBtn");
+    const trialBox = document.getElementById("trialBox");
 
     let channels = [];
     let filtered = [];
     let activated = localStorage.getItem(STORAGE.activated) === "1";
+
+    function setMessage(text, type="warn"){
+      messageBox.className = "message" + (type === "ok" ? " ok" : type === "err" ? " err" : "");
+      messageBox.textContent = text;
+    }
 
     function startTrialIfNeeded(){
       if (!localStorage.getItem(STORAGE.trialStart)) {
@@ -688,8 +536,7 @@
         trialTitle.textContent = "Licență activă";
         trialSub.textContent = "Varianta Pro este activă. Nu mai există limită de elemente.";
         trialProgress.style.width = "100%";
-        messageBox.className = "message ok";
-        messageBox.textContent = "Licență activă. Playlistul complet este disponibil.";
+        setMessage("Licență activă. Playlistul complet este disponibil.", "ok");
         listSub.textContent = "Licență activă: vezi întregul playlist.";
         return;
       }
@@ -703,12 +550,10 @@
       trialProgress.style.width = `${info.percent}%`;
 
       if (info.expired) {
-        messageBox.className = "message err";
-        messageBox.textContent = "Trial expirat. Activează aplicația pentru acces complet.";
+        setMessage("Trial expirat. Activează aplicația pentru acces complet.", "err");
         listSub.textContent = "Trial expirat. Activează pentru a vedea playlistul.";
       } else {
-        messageBox.className = "message";
-        messageBox.textContent = `În trial poți vedea primele ${TRIAL_LIMIT} elemente din playlist.`;
+        setMessage(`În trial poți vedea primele ${TRIAL_LIMIT} elemente din playlist.`, "warn");
         listSub.textContent = `În trial vezi primele ${TRIAL_LIMIT} rezultate.`;
       }
     }
@@ -750,25 +595,6 @@
       if (!words.length) return "TV";
       if (words.length === 1) return words[0].slice(0, 3).toUpperCase();
       return (words[0][0] + words[1][0]).toUpperCase();
-    }
-
-    function getLogoMarkup(title, fallbackText){
-      const t = (title || "").toLowerCase();
-      const map = [
-        { match:["pro tv", "protv"], src:"https://upload.wikimedia.org/wikipedia/commons/8/89/Pro_TV_2022.svg" },
-        { match:["antena 1"], src:"https://upload.wikimedia.org/wikipedia/commons/7/72/Antena_1_2022.svg" },
-        { match:["digi24", "digi 24"], src:"https://upload.wikimedia.org/wikipedia/commons/3/36/Digi24_logo.svg" },
-        { match:["tvr 1", "tvr1"], src:"https://upload.wikimedia.org/wikipedia/commons/8/84/TVR_1_2019.svg" },
-        { match:["kanal d"], src:"https://upload.wikimedia.org/wikipedia/commons/5/5f/Kanal_D_Romania_logo.svg" },
-        { match:["romania tv"], src:"https://upload.wikimedia.org/wikipedia/commons/e/e8/Romania_TV_logo.svg" },
-        { match:["prima tv"], src:"https://upload.wikimedia.org/wikipedia/commons/6/6b/Prima_TV_logo_2013.svg" },
-        { match:["b1 tv", "b1"], src:"https://upload.wikimedia.org/wikipedia/commons/0/0a/B1_TV_logo.svg" }
-      ];
-      const found = map.find(item => item.match.some(m => t.includes(m)));
-      if (found) {
-        return `<img src="${found.src}" alt="logo" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'logo-text',textContent:'${escapeHtml(fallbackText)}'}));">`;
-      }
-      return `<div class="logo-text">${escapeHtml(fallbackText)}</div>`;
     }
 
     function getPosterGradient(index){
@@ -821,9 +647,9 @@
         card.innerHTML = `
           <div class="poster">
             <div class="poster-bg" style="background-image:${getPosterGradient(index + 2)}"></div>
-            <div class="logo">${getLogoMarkup(ch.title, logoText)}</div>
+            <div class="logo">${escapeHtml(logoText)}</div>
             <div class="poster-foot">
-              <span class="pill-live"><span class="dot"></span>READY</span>
+              <span class="pill-live">READY</span>
               <span class="pill-type">M3U</span>
             </div>
           </div>
@@ -856,37 +682,43 @@
     }
 
     async function loadFromUrl(url){
-      messageBox.className = "message";
-      messageBox.textContent = "Se încarcă playlistul...";
+      setMessage("Se încarcă playlistul...");
       try {
         const res = await fetch(url, { cache: "no-store" });
         if (!res.ok) throw new Error("Nu am putut încărca URL-ul playlistului.");
         const text = await res.text();
         localStorage.setItem(STORAGE.playlist, text);
         channels = parseM3U(text);
-        messageBox.className = channels.length ? "message ok" : "message err";
-        messageBox.textContent = channels.length
-          ? `Playlist încărcat: ${channels.length} elemente.`
-          : "Playlist gol sau invalid.";
+        setMessage(channels.length ? `Playlist încărcat: ${channels.length} elemente.` : "Playlist gol sau invalid.", channels.length ? "ok" : "err");
         render();
       } catch (err) {
-        messageBox.className = "message err";
-        messageBox.textContent = err?.message || "Eroare la încărcarea playlistului.";
+        setMessage(err?.message || "Eroare la încărcarea playlistului.", "err");
       }
     }
 
     function loadFromText(text){
       localStorage.setItem(STORAGE.playlist, text);
       channels = parseM3U(text);
-      messageBox.className = channels.length ? "message ok" : "message err";
-      messageBox.textContent = channels.length
-        ? `Playlist încărcat din text: ${channels.length} elemente.`
-        : "Textul nu conține un playlist valid.";
+      setMessage(channels.length ? `Playlist încărcat din text: ${channels.length} elemente.` : "Textul nu conține un playlist valid.", channels.length ? "ok" : "err");
       render();
+    }
+
+    function loadFromFile(file){
+      const reader = new FileReader();
+      reader.onload = () => {
+        const text = String(reader.result || "");
+        playlistText.value = text;
+        loadFromText(text);
+      };
+      reader.onerror = () => {
+        setMessage("Nu am putut citi fișierul local.", "err");
+      };
+      reader.readAsText(file);
     }
 
     function resetAll(){
       playlistUrl.value = "";
+      playlistFile.value = "";
       playlistText.value = "";
       searchInput.value = "";
       channels = [];
@@ -894,8 +726,7 @@
       localStorage.removeItem(STORAGE.playlist);
       grid.innerHTML = "";
       emptyState.classList.remove("hidden");
-      messageBox.className = "message";
-      messageBox.textContent = "Datele locale au fost resetate.";
+      setMessage("Datele locale au fost resetate.");
       statTotal.textContent = "0";
       statVisible.textContent = "0";
     }
@@ -903,8 +734,7 @@
     function activateLicense(){
       const code = licenseInput.value.trim().toUpperCase();
       if (!VALID_LICENSES.includes(code)) {
-        messageBox.className = "message err";
-        messageBox.textContent = "Cod de licență invalid în această versiune demo.";
+        setMessage("Cod de licență invalid în această versiune demo.", "err");
         return;
       }
       activated = true;
@@ -916,17 +746,32 @@
 
     loadUrlBtn.addEventListener("click", () => {
       const url = playlistUrl.value.trim();
-      if (!url) return;
+      if (!url) {
+        setMessage("Introdu mai întâi un URL playlist.", "err");
+        return;
+      }
       loadFromUrl(url);
     });
 
     loadDemoBtn.addEventListener("click", () => loadFromUrl(DEMO_PLAYLIST_URL));
-    loadTextBtn.addEventListener("click", () => loadFromText(playlistText.value));
+
+    loadTextBtn.addEventListener("click", () => {
+      if (!playlistText.value.trim()) {
+        setMessage("Lipește mai întâi conținut M3U.", "err");
+        return;
+      }
+      loadFromText(playlistText.value);
+    });
+
+    playlistFile.addEventListener("change", (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (file) loadFromFile(file);
+    });
+
     resetBtn.addEventListener("click", resetAll);
     searchInput.addEventListener("input", render);
     activateBtn.addEventListener("click", activateLicense);
-    activateNowBtn.addEventListener("click", () => licenseInput.scrollIntoView({ behavior: "smooth", block: "center" }));
-    scrollTrialBtn.addEventListener("click", () => document.getElementById("trialBox").scrollIntoView({ behavior: "smooth", block: "start" }));
+    scrollTrialBtn.addEventListener("click", () => trialBox.scrollIntoView({ behavior: "smooth", block: "start" }));
     scrollActivateBtn.addEventListener("click", () => licenseInput.scrollIntoView({ behavior: "smooth", block: "center" }));
 
     (function init(){
