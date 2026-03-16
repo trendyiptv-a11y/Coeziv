@@ -4,25 +4,28 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Activare Coeziv Player</title>
+<title>Activare Player</title>
 
 <style>
 
 body{
-font-family:Arial;
+font-family:Arial, sans-serif;
 background:#0f172a;
 color:white;
 margin:0;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
 }
 
-.container{
-max-width:420px;
-margin:auto;
-margin-top:80px;
+.card{
 background:#111827;
-padding:30px;
-border-radius:12px;
+padding:40px;
+border-radius:14px;
+width:360px;
 text-align:center;
+box-shadow:0 10px 30px rgba(0,0,0,0.4);
 }
 
 h1{
@@ -31,14 +34,16 @@ margin-bottom:10px;
 
 p{
 color:#9ca3af;
+font-size:14px;
 }
 
 input{
 width:100%;
 padding:12px;
-margin-top:15px;
+margin-top:20px;
 border-radius:8px;
 border:none;
+font-size:15px;
 }
 
 button{
@@ -49,32 +54,37 @@ border:none;
 border-radius:8px;
 font-weight:bold;
 cursor:pointer;
+font-size:15px;
 }
 
-.btn-primary{
+.activate{
 background:#2563eb;
 color:white;
 }
 
-.btn-gray{
+.request{
 background:#374151;
 color:white;
 }
 
-.device{
-margin-top:20px;
-font-size:13px;
-color:#6b7280;
+.status{
+margin-top:15px;
+font-size:14px;
 }
 
 .success{
 color:#22c55e;
-margin-top:15px;
 }
 
 .error{
 color:#ef4444;
-margin-top:15px;
+}
+
+.device{
+margin-top:20px;
+font-size:12px;
+color:#6b7280;
+word-break:break-all;
 }
 
 </style>
@@ -82,25 +92,25 @@ margin-top:15px;
 
 <body>
 
-<div class="container">
+<div class="card">
 
-<h1>Activează Playerul</h1>
+<h1>Activare</h1>
 
 <p>
-Introdu codul de activare pentru a debloca versiunea completă.
+Introdu codul de activare pentru a debloca accesul complet.
 </p>
 
 <input id="code" placeholder="Cod de activare">
 
-<button class="btn-primary" onclick="activate()">
+<button class="activate" onclick="activate()">
 Activează
 </button>
 
-<button class="btn-gray" onclick="requestCode()">
+<button class="request" onclick="requestCode()">
 Vreau cod
 </button>
 
-<div id="status"></div>
+<div id="status" class="status"></div>
 
 <div class="device">
 Dispozitiv: <span id="device"></span>
@@ -110,8 +120,6 @@ Dispozitiv: <span id="device"></span>
 
 <script>
 
-let deviceID
-
 function getDeviceID(){
 
 let id = localStorage.getItem("device_id")
@@ -120,7 +128,7 @@ if(!id){
 
 id = crypto.randomUUID()
 
-localStorage.setItem("device_id",id)
+localStorage.setItem("device_id", id)
 
 }
 
@@ -128,7 +136,7 @@ return id
 
 }
 
-deviceID = getDeviceID()
+const deviceID = getDeviceID()
 
 document.getElementById("device").innerText = deviceID
 
@@ -158,21 +166,21 @@ window.location.href="player.html"
 
 function requestCode(){
 
-window.location.href = "request-code.html"
+window.location.href="request-code.html"
 
 }
 
-function showSuccess(msg){
+function showSuccess(text){
 
 document.getElementById("status").innerHTML =
-`<div class="success">${msg}</div>`
+'<div class="success">'+text+'</div>'
 
 }
 
-function showError(msg){
+function showError(text){
 
 document.getElementById("status").innerHTML =
-`<div class="error">${msg}</div>`
+'<div class="error">'+text+'</div>'
 
 }
 
