@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="ro">
+<!DOCTYPE html>
+<html lang="ro">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -6,478 +7,173 @@
   <style>
     :root{
       --bg:#0b1020;
-      --bg-soft:#121a2e;
       --panel:#111827;
-      --panel-2:#1b2438;
+      --panel2:#1b2438;
       --line:#2b3752;
       --text:#f8fafc;
       --muted:#94a3b8;
       --brand:#2563eb;
-      --brand-2:#1d4ed8;
+      --brand2:#1d4ed8;
       --ok:#16a34a;
-      --warn:#f59e0b;
       --danger:#dc2626;
-      --shadow:0 20px 50px rgba(0,0,0,.35);
-      --radius:20px;
-    }*{box-sizing:border-box}
-html,body{
-  margin:0;
-  padding:0;
-  background:linear-gradient(180deg,#08101f,#0b1020 30%,#0f172a 100%);
-  color:var(--text);
-  font-family:Inter,Arial,Helvetica,sans-serif;
-}
-body{min-height:100vh}
-button,input,textarea{font:inherit}
-button{cursor:pointer}
-.hidden{display:none!important}
-
-.topbar{
-  position:sticky;
-  top:0;
-  z-index:20;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:16px;
-  padding:18px 22px;
-  background:rgba(8,16,31,.84);
-  backdrop-filter:blur(12px);
-  border-bottom:1px solid rgba(255,255,255,.06);
-}
-.brand{display:flex;flex-direction:column;gap:4px}
-.brand h1{
-  margin:0;
-  font-size:28px;
-  line-height:1;
-  font-weight:900;
-  letter-spacing:.04em;
-}
-.brand p{
-  margin:0;
-  color:var(--muted);
-  font-size:12px;
-}
-.top-actions{display:flex;gap:10px;flex-wrap:wrap}
-
-.btn{
-  border:none;
-  border-radius:14px;
-  padding:11px 15px;
-  color:var(--text);
-  background:var(--panel-2);
-}
-.btn.primary{background:linear-gradient(135deg,var(--brand),var(--brand-2))}
-.btn.ok{background:linear-gradient(135deg,#15803d,#16a34a)}
-.btn.ghost{
-  background:rgba(255,255,255,.05);
-  border:1px solid rgba(255,255,255,.07);
-}
-
-.hero{
-  margin:22px;
-  border-radius:28px;
-  overflow:hidden;
-  background:
-    linear-gradient(90deg,rgba(7,10,18,.92) 0%,rgba(7,10,18,.65) 45%,rgba(7,10,18,.18) 100%),
-    radial-gradient(circle at 85% 20%, rgba(37,99,235,.22), transparent 22%),
-    url("https://images.unsplash.com/photo-1522869635100-9f4c5e86aa37?auto=format&fit=crop&w=1600&q=80") center/cover;
-  border:1px solid rgba(255,255,255,.06);
-  box-shadow:var(--shadow);
-}
-.hero-inner{padding:34px}
-.hero h2{
-  margin:0 0 10px;
-  font-size:42px;
-  line-height:1.05;
-}
-.hero p{
-  margin:0;
-  max-width:760px;
-  color:#dbe4ee;
-  line-height:1.6;
-}
-.hero-tags{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
-.tag{
-  padding:8px 12px;
-  border-radius:999px;
-  background:rgba(255,255,255,.08);
-  border:1px solid rgba(255,255,255,.1);
-  color:#eff6ff;
-  font-size:12px;
-}
-
-.layout{
-  display:grid;
-  grid-template-columns:380px 1fr;
-  gap:20px;
-  padding:0 22px 26px;
-}
-
-.panel,.main{
-  background:linear-gradient(180deg,#101827,#0d1422);
-  border:1px solid rgba(255,255,255,.06);
-  border-radius:22px;
-  overflow:hidden;
-  box-shadow:var(--shadow);
-}
-
-.section{
-  padding:18px;
-  border-bottom:1px solid rgba(255,255,255,.05);
-}
-.section:last-child{border-bottom:none}
-.section h2,.section h3{margin:0 0 8px}
-.section p{
-  margin:0 0 12px;
-  color:var(--muted);
-  font-size:13px;
-  line-height:1.6;
-}
-
-.field{
-  width:100%;
-  padding:13px 14px;
-  border-radius:14px;
-  border:1px solid var(--line);
-  background:#0b1322;
-  color:var(--text);
-  outline:none;
-}
-.field:focus{border-color:#4b6cb7}
-textarea.field{
-  min-height:130px;
-  resize:vertical;
-}
-.stack{display:grid;gap:10px}
-.row{display:flex;gap:10px;flex-wrap:wrap}
-
-.message{
-  margin-top:12px;
-  padding:12px 14px;
-  border-radius:14px;
-  font-size:13px;
-  line-height:1.55;
-  background:rgba(245,158,11,.12);
-  border:1px solid rgba(245,158,11,.25);
-  color:#fde68a;
-  white-space:pre-line;
-}
-.message.ok{
-  background:rgba(22,163,74,.12);
-  border-color:rgba(22,163,74,.25);
-  color:#bbf7d0;
-}
-.message.err{
-  background:rgba(220,38,38,.12);
-  border-color:rgba(220,38,38,.25);
-  color:#fecaca;
-}
-
-.stats{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:12px;
-}
-.stat{
-  padding:14px;
-  border-radius:16px;
-  background:rgba(255,255,255,.04);
-  border:1px solid rgba(255,255,255,.05);
-}
-.stat-label{color:var(--muted);font-size:12px}
-.stat-value{margin-top:8px;font-size:28px;font-weight:900}
-
-.main-head{
-  padding:20px;
-  border-bottom:1px solid rgba(255,255,255,.05);
-}
-.main-head h2{margin:0;font-size:28px}
-.main-head p{
-  margin:10px 0 0;
-  color:var(--muted);
-  line-height:1.6;
-}
-
-.trial-box{
-  margin:18px 20px 0;
-  padding:18px;
-  border-radius:18px;
-  background:linear-gradient(180deg,rgba(37,99,235,.16),rgba(37,99,235,.05));
-  border:1px solid rgba(37,99,235,.24);
-}
-.trial-title{font-size:18px;font-weight:800}
-.trial-sub{margin-top:6px;color:#cbd5e1;font-size:13px}
-.progress{
-  margin-top:14px;
-  height:10px;
-  border-radius:999px;
-  background:rgba(255,255,255,.09);
-  overflow:hidden;
-}
-.progress > div{
-  height:100%;
-  width:100%;
-  background:linear-gradient(90deg,var(--brand),#60a5fa);
-}
-
-.activate{
-  padding:20px;
-  border-top:1px solid rgba(255,255,255,.05);
-  border-bottom:1px solid rgba(255,255,255,.05);
-  margin-top:18px;
-  background:rgba(255,255,255,.02);
-}
-.activate-grid{
-  display:grid;
-  grid-template-columns:1fr auto;
-  gap:10px;
-  align-items:center;
-}
-
-.toolbar{
-  padding:20px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:14px;
-  flex-wrap:wrap;
-}
-.toolbar h3{margin:0}
-.toolbar p{margin:6px 0 0;color:var(--muted);font-size:13px}
-
-.grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
-  gap:18px;
-  padding:0 20px 22px;
-}
-.item{
-  border-radius:18px;
-  overflow:hidden;
-  background:linear-gradient(180deg,#1a2231,#141b28);
-  border:1px solid rgba(255,255,255,.05);
-  cursor:pointer;
-  transition:.18s ease;
-}
-.item:hover{
-  transform:translateY(-3px) scale(1.02);
-  border-color:rgba(255,255,255,.16);
-}
-.poster{
-  position:relative;
-  aspect-ratio:16/10;
-  overflow:hidden;
-}
-.poster-bg{
-  position:absolute;
-  inset:0;
-  background-size:cover;
-  background-position:center;
-}
-.poster::after{
-  content:"";
-  position:absolute;
-  inset:0;
-  background:
-    linear-gradient(180deg,rgba(255,255,255,.04),transparent 30%),
-    linear-gradient(0deg,rgba(9,11,15,.8),transparent 40%);
-}
-.logo{
-  position:absolute;
-  z-index:2;
-  left:14px;
-  top:14px;
-  min-width:56px;
-  height:56px;
-  border-radius:16px;
-  background:rgba(8,10,14,.66);
-  border:1px solid rgba(255,255,255,.12);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:6px 10px;
-}
-.logo img{
-  max-width:100%;
-  max-height:100%;
-  object-fit:contain;
-  display:block;
-}
-.logo-text{font-size:16px;font-weight:800}
-.poster-foot{
-  position:absolute;
-  z-index:2;
-  left:14px;
-  right:14px;
-  bottom:12px;
-  display:flex;
-  justify-content:space-between;
-  gap:10px;
-  align-items:center;
-}
-.pill-live,.pill-type{
-  padding:7px 10px;
-  border-radius:999px;
-  font-size:11px;
-  font-weight:800;
-}
-.pill-live{background:rgba(22,163,74,.92)}
-.pill-type{
-  background:rgba(8,10,14,.58);
-  border:1px solid rgba(255,255,255,.1);
-}
-
-.item-body{padding:14px}
-.item-title{
-  font-size:16px;
-  font-weight:800;
-  line-height:1.35;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-.item-meta{
-  margin-top:7px;
-  font-size:12px;
-  color:var(--muted);
-  display:flex;
-  justify-content:space-between;
-  gap:10px;
-}
-.item-btn{
-  margin-top:14px;
-  width:100%;
-  padding:11px 12px;
-  border:none;
-  border-radius:999px;
-  background:linear-gradient(135deg,var(--brand),var(--brand-2));
-  color:#fff;
-  font-weight:800;
-}
-
-.empty{
-  padding:0 20px 22px;
-  color:var(--muted);
-  font-size:14px;
-}
-
-@media (max-width:1024px){
-  .layout{grid-template-columns:1fr}
-}
-@media (max-width:720px){
-  .hero{margin:16px}
-  .hero h2{font-size:32px}
-  .layout{padding:0 16px 22px}
-  .grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;padding:0 16px 18px}
-  .activate-grid{grid-template-columns:1fr}
-}
-
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:linear-gradient(180deg,#08101f,#0b1020 30%,#0f172a 100%);color:var(--text);font-family:Inter,Arial,Helvetica,sans-serif}
+    body{min-height:100vh}
+    button,input,textarea{font:inherit}
+    button{cursor:pointer}
+    .topbar{padding:18px 20px;border-bottom:1px solid rgba(255,255,255,.06);background:rgba(8,16,31,.92);position:sticky;top:0;z-index:10}
+    .brand{font-size:28px;font-weight:900;letter-spacing:.04em}
+    .sub{color:var(--muted);font-size:13px;margin-top:4px}
+    .hero{margin:20px;padding:28px;border-radius:24px;background:linear-gradient(90deg,rgba(7,10,18,.92) 0%,rgba(7,10,18,.65) 45%,rgba(7,10,18,.18) 100%),radial-gradient(circle at 85% 20%, rgba(37,99,235,.22), transparent 22%),url("https://images.unsplash.com/photo-1522869635100-9f4c5e86aa37?auto=format&fit=crop&w=1600&q=80") center/cover;border:1px solid rgba(255,255,255,.06)}
+    .hero h1{margin:0 0 10px;font-size:42px;line-height:1.05}
+    .hero p{margin:0;max-width:760px;color:#dbe4ee;line-height:1.6}
+    .layout{display:grid;grid-template-columns:360px 1fr;gap:20px;padding:0 20px 24px}
+    .panel,.main{background:linear-gradient(180deg,#101827,#0d1422);border:1px solid rgba(255,255,255,.06);border-radius:22px;overflow:hidden}
+    .section{padding:18px;border-bottom:1px solid rgba(255,255,255,.05)}
+    .section:last-child{border-bottom:none}
+    .section h2,.section h3{margin:0 0 8px}
+    .section p{margin:0 0 12px;color:var(--muted);font-size:13px;line-height:1.6}
+    .field{width:100%;padding:13px 14px;border-radius:14px;border:1px solid var(--line);background:#0b1322;color:var(--text);outline:none}
+    textarea.field{min-height:130px;resize:vertical}
+    .stack{display:grid;gap:10px}.row{display:flex;gap:10px;flex-wrap:wrap}
+    .btn{border:none;border-radius:14px;padding:11px 15px;color:var(--text);background:var(--panel2)}
+    .btn.primary{background:linear-gradient(135deg,var(--brand),var(--brand2))}
+    .btn.ok{background:linear-gradient(135deg,#15803d,#16a34a)}
+    .btn.ghost{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.07)}
+    .message{margin-top:12px;padding:12px 14px;border-radius:14px;font-size:13px;line-height:1.55;background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.25);color:#fde68a;white-space:pre-line}
+    .message.ok{background:rgba(22,163,74,.12);border-color:rgba(22,163,74,.25);color:#bbf7d0}
+    .message.err{background:rgba(220,38,38,.12);border-color:rgba(220,38,38,.25);color:#fecaca}
+    .stats{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .stat{padding:14px;border-radius:16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.05)}
+    .stat-label{color:var(--muted);font-size:12px}.stat-value{margin-top:8px;font-size:28px;font-weight:900}
+    .main-head{padding:20px;border-bottom:1px solid rgba(255,255,255,.05)}
+    .main-head h2{margin:0;font-size:28px}.main-head p{margin:10px 0 0;color:var(--muted);line-height:1.6}
+    .license-box{margin:18px 20px 0;padding:18px;border-radius:18px;background:linear-gradient(180deg,rgba(37,99,235,.16),rgba(37,99,235,.05));border:1px solid rgba(37,99,235,.24)}
+    .license-title{font-size:18px;font-weight:800}.license-sub{margin-top:6px;color:#cbd5e1;font-size:13px}
+    .activate{padding:20px;border-top:1px solid rgba(255,255,255,.05);border-bottom:1px solid rgba(255,255,255,.05);margin-top:18px;background:rgba(255,255,255,.02)}
+    .activate-grid{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center}
+    .toolbar{padding:20px;display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
+    .toolbar h3{margin:0}.toolbar p{margin:6px 0 0;color:var(--muted);font-size:13px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:18px;padding:0 20px 22px}
+    .item{border-radius:18px;overflow:hidden;background:linear-gradient(180deg,#1a2231,#141b28);border:1px solid rgba(255,255,255,.05);cursor:pointer;transition:.18s ease}
+    .item:hover{transform:translateY(-3px) scale(1.02);border-color:rgba(255,255,255,.16)}
+    .poster{position:relative;aspect-ratio:16/10;overflow:hidden}.poster-bg{position:absolute;inset:0;background-size:cover;background-position:center}
+    .poster::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.04),transparent 30%),linear-gradient(0deg,rgba(9,11,15,.8),transparent 40%)}
+    .logo{position:absolute;z-index:2;left:14px;top:14px;min-width:56px;height:56px;border-radius:16px;background:rgba(8,10,14,.66);border:1px solid rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;padding:6px 10px}
+    .logo-text{font-size:16px;font-weight:800}.poster-foot{position:absolute;z-index:2;left:14px;right:14px;bottom:12px;display:flex;justify-content:space-between;gap:10px;align-items:center}
+    .pill-live,.pill-type{padding:7px 10px;border-radius:999px;font-size:11px;font-weight:800}.pill-live{background:rgba(22,163,74,.92)}.pill-type{background:rgba(8,10,14,.58);border:1px solid rgba(255,255,255,.1)}
+    .item-body{padding:14px}.item-title{font-size:16px;font-weight:800;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .item-meta{margin-top:7px;font-size:12px;color:var(--muted);display:flex;justify-content:space-between;gap:10px}
+    .item-btn{margin-top:14px;width:100%;padding:11px 12px;border:none;border-radius:999px;background:linear-gradient(135deg,var(--brand),var(--brand2));color:#fff;font-weight:800}
+    .empty{padding:0 20px 22px;color:var(--muted);font-size:14px}
+    @media (max-width:1024px){.layout{grid-template-columns:1fr}}
+    @media (max-width:720px){.hero{margin:16px}.hero h1{font-size:32px}.layout{padding:0 16px 22px}.grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;padding:0 16px 18px}.activate-grid{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
   <div class="topbar">
-    <div class="brand">
-      <h1>COEZIV PLAYER</h1>
-      <p>Player premium pentru playlisturi M3U</p>
+    <div>
+      <div class="brand">COEZIV PLAYER</div>
+      <div class="sub">Player premium pentru playlisturi M3U</div>
     </div>
-    <div class="top-actions">
-      <button id="scrollTrialBtn" class="btn ghost" type="button">Trial</button>
-      <button id="scrollActivateBtn" class="btn primary" type="button">Activează</button>
-    </div>
-  </div>  <section class="hero">
-    <div class="hero-inner">
-      <div class="hero-kicker">Player / launcher premium</div>
-      <h2>Încarcă propriul playlist. Testează. Activează.</h2>
-      <p>Un produs web clar și comercial: utilizatorul își adaugă playlistul M3U, îl vede elegant organizat, îl testează în trial și apoi activează versiunea completă.</p>
-      <div class="hero-tags">
-        <span class="tag">Trial 7 zile</span>
-        <span class="tag">Activare unică</span>
-        <span class="tag">Import URL, fișier sau text</span>
-      </div>
-    </div>
-  </section>  <div class="layout">
+  </div>
+
+  <section class="hero">
+    <h1>Încarcă propriul playlist. Testează. Activează.</h1>
+    <p>Activarea este reală și legată de un Device ID generat în browser. Licența se validează pe server, nu doar în localStorage.</p>
+  </section>
+
+  <div class="layout">
     <aside class="panel">
       <div class="section">
         <h2>Import playlist</h2>
-        <p>Poți încărca din URL, fișier local sau text. Parserul acceptă playlisturi M3U reale, inclusiv linii suplimentare între streamuri.</p><div class="stack">
-      <input id="playlistUrl" class="field" type="text" placeholder="https://siteul-tau/playlist.m3u" />
-      <div class="row">
-        <button id="loadUrlBtn" class="btn primary" type="button">Încarcă din URL</button>
-        <button id="loadDemoBtn" class="btn" type="button">Încarcă demo</button>
+        <p>Poți încărca din URL, fișier local sau text. Parserul acceptă playlisturi M3U reale, inclusiv variante mai neordonate.</p>
+
+        <div class="stack">
+          <input id="playlistUrl" class="field" type="text" placeholder="https://siteul-tau/playlist.m3u" />
+          <div class="row">
+            <button id="loadUrlBtn" class="btn primary" type="button">Încarcă din URL</button>
+            <button id="loadDemoBtn" class="btn" type="button">Încarcă demo</button>
+          </div>
+
+          <input id="playlistFile" class="field" type="file" accept=".m3u,.m3u8,.txt" />
+
+          <textarea id="playlistText" class="field" placeholder="#EXTM3U&#10;#EXTINF:-1 group-title=&quot;RO&quot;,Digi Life HD RO&#10;http://server/stream.m3u8"></textarea>
+          <div class="row">
+            <button id="loadTextBtn" class="btn" type="button">Încarcă din text</button>
+            <button id="resetBtn" class="btn ghost" type="button">Resetează</button>
+          </div>
+        </div>
+
+        <div id="messageBox" class="message">În trial poți vedea primele 30 de elemente din playlist.</div>
       </div>
 
-      <input id="playlistFile" class="field" type="file" accept=".m3u,.m3u8,.txt" />
-
-      <textarea id="playlistText" class="field" placeholder="#EXTM3U&#10;#EXTINF:-1 group-title=&quot;RO&quot;,Digi Life HD RO&#10;http://server/stream.m3u8"></textarea>
-      <div class="row">
-        <button id="loadTextBtn" class="btn" type="button">Încarcă din text</button>
-        <button id="resetBtn" class="btn ghost" type="button">Resetează</button>
+      <div class="section">
+        <h3>Device ID</h3>
+        <p>Acesta este identificatorul folosit pentru legarea licenței de acest browser/dispozitiv.</p>
+        <input id="deviceIdField" class="field" type="text" readonly />
       </div>
-    </div>
 
-    <div id="messageBox" class="message">În trial poți vedea primele 30 de elemente din playlist.</div>
+      <div class="section">
+        <h3>Căutare</h3>
+        <p>Filtrează rapid lista afișată.</p>
+        <input id="searchInput" class="field" type="text" placeholder="Caută în playlist..." />
+      </div>
+
+      <div class="section">
+        <h3>Statistici</h3>
+        <div class="stats">
+          <div class="stat"><div class="stat-label">Total</div><div id="statTotal" class="stat-value">0</div></div>
+          <div class="stat"><div class="stat-label">Vizibile</div><div id="statVisible" class="stat-value">0</div></div>
+          <div class="stat"><div class="stat-label">Trial</div><div id="statTrial" class="stat-value">7d</div></div>
+          <div class="stat"><div class="stat-label">Stare</div><div id="statState" class="stat-value">FREE</div></div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="main-head">
+        <h2>Activare reală prin server</h2>
+        <p>Licența este validată pe backend și legată de Device ID. Utilizatorul nu mai poate activa doar prin editarea localStorage-ului.</p>
+      </div>
+
+      <section id="licenseBox" class="license-box">
+        <div id="licenseTitle" class="license-title">Trial activ</div>
+        <div id="licenseSub" class="license-sub">Poți testa gratuit aplicația pentru 7 zile sau până activezi licența.</div>
+        <div class="progress"><div id="trialProgress"></div></div>
+      </section>
+
+      <section class="activate">
+        <h3 style="margin:0 0 8px;">Activare licență</h3>
+        <p style="margin:0 0 12px;color:var(--muted);font-size:13px;">Aplicația trimite codul și Device ID-ul către endpointul `/api/activate`.</p>
+        <div class="activate-grid">
+          <input id="licenseInput" class="field" type="text" placeholder="Ex: COEZIV-2026-PRO-1234" />
+          <button id="activateBtn" class="btn ok" type="button">Activează</button>
+        </div>
+      </section>
+
+      <div class="toolbar">
+        <div>
+          <h3>Catalog playlist</h3>
+          <p id="listSub">În trial vezi primele 30 rezultate.</p>
+        </div>
+      </div>
+
+      <div id="grid" class="grid"></div>
+      <div id="emptyState" class="empty hidden">Nu există elemente de afișat.</div>
+    </main>
   </div>
 
-  <div class="section">
-    <h3>Căutare</h3>
-    <p>Filtrează rapid lista afișată.</p>
-    <input id="searchInput" class="field" type="text" placeholder="Caută în playlist..." />
-  </div>
-
-  <div class="section">
-    <h3>Statistici</h3>
-    <div class="stats">
-      <div class="stat"><div class="stat-label">Total</div><div id="statTotal" class="stat-value">0</div></div>
-      <div class="stat"><div class="stat-label">Vizibile</div><div id="statVisible" class="stat-value">0</div></div>
-      <div class="stat"><div class="stat-label">Trial</div><div id="statTrial" class="stat-value">7d</div></div>
-      <div class="stat"><div class="stat-label">Stare</div><div id="statState" class="stat-value">FREE</div></div>
-    </div>
-  </div>
-</aside>
-
-<main class="main">
-  <div class="main-head">
-    <h2>Produs premium pentru playlisturi proprii</h2>
-    <p>Nu vinzi conținutul, ci interfața, organizarea și funcțiile premium. Utilizatorul își încarcă singur playlistul.</p>
-  </div>
-
-  <section id="trialBox" class="trial-box">
-    <div id="trialTitle" class="trial-title">Trial activ</div>
-    <div id="trialSub" class="trial-sub">Poți testa gratuit aplicația pentru 7 zile.</div>
-    <div class="progress"><div id="trialProgress"></div></div>
-  </section>
-
-  <section class="activate">
-    <h3 style="margin:0 0 8px;">Activare licență</h3>
-    <p style="margin:0 0 12px;color:var(--muted);font-size:13px;">Coduri demo: <strong>COEZIV-2026-PRO-1234</strong> sau <strong>COEZIV-FULL-RO-9999</strong></p>
-    <div class="activate-grid">
-      <input id="licenseInput" class="field" type="text" placeholder="Ex: COEZIV-2026-PRO-1234" />
-      <button id="activateBtn" class="btn ok" type="button">Activează</button>
-    </div>
-  </section>
-
-  <div class="toolbar">
-    <div>
-      <h3>Catalog playlist</h3>
-      <p id="listSub">În trial vezi primele 30 rezultate.</p>
-    </div>
-  </div>
-
-  <div id="grid" class="grid"></div>
-  <div id="emptyState" class="empty hidden">Nu există elemente de afișat.</div>
-</main>
-
-  </div>  <script>
+  <script>
     const DEMO_PLAYLIST_URL = "/romanesti.m3u";
     const TRIAL_DAYS = 7;
     const TRIAL_LIMIT = 30;
-    const VALID_LICENSES = ["COEZIV-2026-PRO-1234", "COEZIV-FULL-RO-9999"];
     const STORAGE = {
-      trialStart: "coeziv_trial_start_v4",
-      activated: "coeziv_license_activated_v4",
-      license: "coeziv_license_value_v4",
-      playlist: "coeziv_saved_playlist_text_v4"
+      trialStart: "coeziv_trial_start_v5",
+      playlist: "coeziv_saved_playlist_text_v5",
+      token: "coeziv_license_token_v5",
+      deviceId: "coeziv_device_id_v5"
     };
 
     const playlistUrl = document.getElementById("playlistUrl");
@@ -493,21 +189,20 @@ textarea.field{
     const statVisible = document.getElementById("statVisible");
     const statTrial = document.getElementById("statTrial");
     const statState = document.getElementById("statState");
-    const trialTitle = document.getElementById("trialTitle");
-    const trialSub = document.getElementById("trialSub");
+    const licenseTitle = document.getElementById("licenseTitle");
+    const licenseSub = document.getElementById("licenseSub");
     const trialProgress = document.getElementById("trialProgress");
     const listSub = document.getElementById("listSub");
     const grid = document.getElementById("grid");
     const emptyState = document.getElementById("emptyState");
     const activateBtn = document.getElementById("activateBtn");
     const licenseInput = document.getElementById("licenseInput");
-    const scrollTrialBtn = document.getElementById("scrollTrialBtn");
-    const scrollActivateBtn = document.getElementById("scrollActivateBtn");
-    const trialBox = document.getElementById("trialBox");
+    const licenseBox = document.getElementById("licenseBox");
+    const deviceIdField = document.getElementById("deviceIdField");
 
     let channels = [];
     let filtered = [];
-    let activated = localStorage.getItem(STORAGE.activated) === "1";
+    let activationState = { activated: false, token: null };
 
     function setMessage(text, type = "warn") {
       messageBox.className = "message" + (type === "ok" ? " ok" : type === "err" ? " err" : "");
@@ -531,24 +226,71 @@ textarea.field{
       return { remainingDays, expired: remaining <= 0, percent };
     }
 
-    function updateTrialUi() {
+    function getDeviceId() {
+      let saved = localStorage.getItem(STORAGE.deviceId);
+      if (saved) return saved;
+
+      const raw = [
+        navigator.userAgent,
+        navigator.language,
+        screen.width,
+        screen.height,
+        Intl.DateTimeFormat().resolvedOptions().timeZone,
+        navigator.platform || "web"
+      ].join("|");
+
+      let hash = 0;
+      for (let i = 0; i < raw.length; i++) {
+        hash = ((hash << 5) - hash) + raw.charCodeAt(i);
+        hash |= 0;
+      }
+      saved = `COEZIV-${Math.abs(hash).toString(16).toUpperCase()}`;
+      localStorage.setItem(STORAGE.deviceId, saved);
+      return saved;
+    }
+
+    async function checkActivation() {
+      const token = localStorage.getItem(STORAGE.token);
+      if (!token) {
+        activationState = { activated: false, token: null };
+        updateLicenseUi();
+        return;
+      }
+
+      try {
+        const res = await fetch("/api/check", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token, deviceId: getDeviceId() })
+        });
+        const data = await res.json();
+        activationState = { activated: !!data.valid, token: data.valid ? token : null };
+        if (!data.valid) localStorage.removeItem(STORAGE.token);
+      } catch {
+        activationState = { activated: false, token: null };
+      }
+
+      updateLicenseUi();
+    }
+
+    function updateLicenseUi() {
       const info = getTrialInfo();
 
-      if (activated) {
+      if (activationState.activated) {
         statState.textContent = "PRO";
         statTrial.textContent = "∞";
-        trialTitle.textContent = "Licență activă";
-        trialSub.textContent = "Varianta Pro este activă. Nu mai există limită de elemente.";
+        licenseTitle.textContent = "Licență activă";
+        licenseSub.textContent = "Licența a fost validată de server și este legată de acest Device ID.";
         trialProgress.style.width = "100%";
-        setMessage("Licență activă. Playlistul complet este disponibil.", "ok");
+        setMessage("Licență activă și validată pe server.", "ok");
         listSub.textContent = "Licență activă: vezi întregul playlist.";
         return;
       }
 
       statState.textContent = info.expired ? "LOCK" : "FREE";
       statTrial.textContent = info.expired ? "0d" : `${info.remainingDays}d`;
-      trialTitle.textContent = info.expired ? "Trial expirat" : "Trial activ";
-      trialSub.textContent = info.expired
+      licenseTitle.textContent = info.expired ? "Trial expirat" : "Trial activ";
+      licenseSub.textContent = info.expired
         ? "Trialul a expirat. Activează aplicația pentru a continua."
         : `Mai ai ${info.remainingDays} zi/zile de test.`;
       trialProgress.style.width = `${info.percent}%`;
@@ -572,14 +314,11 @@ textarea.field{
 
         if (line.startsWith("#EXTINF")) {
           const titlePart = line.includes(",") ? line.split(",").slice(1).join(",").trim() : "Canal necunoscut";
-          const title = titlePart || "Canal necunoscut";
-          pendingMeta = { title };
+          pendingMeta = { title: titlePart || "Canal necunoscut" };
           continue;
         }
 
-        if (line.startsWith("#")) {
-          continue;
-        }
+        if (line.startsWith("#")) continue;
 
         if (/^https?:\/\//i.test(line)) {
           if (pendingMeta) {
@@ -587,7 +326,7 @@ textarea.field{
             pendingMeta = null;
           } else {
             const prev = lines[i - 1] || "";
-            const fallbackTitle = !prev.startsWith("http") && !prev.startsWith("#") ? prev : `Canal ${result.length + 1}`;
+            const fallbackTitle = (!prev.startsWith("http") && !prev.startsWith("#")) ? prev : `Canal ${result.length + 1}`;
             result.push({ title: fallbackTitle, url: line });
           }
           continue;
@@ -601,16 +340,7 @@ textarea.field{
         }
       }
 
-      const unique = [];
-      const seen = new Set();
-      for (const item of result) {
-        const key = `${item.title}__${item.url}`;
-        if (!seen.has(key)) {
-          seen.add(key);
-          unique.push(item);
-        }
-      }
-      return unique;
+      return result;
     }
 
     function escapeHtml(str) {
@@ -648,7 +378,7 @@ textarea.field{
       const q = searchInput.value.toLowerCase().trim();
       let list = channels.filter(c => c.title.toLowerCase().includes(q));
 
-      if (!activated) {
+      if (!activationState.activated) {
         const trial = getTrialInfo();
         if (trial.expired) return [];
         list = list.slice(0, TRIAL_LIMIT);
@@ -757,17 +487,26 @@ textarea.field{
       statVisible.textContent = "0";
     }
 
-    function activateLicense() {
+    async function activateLicense() {
       const code = licenseInput.value.trim().toUpperCase();
-      if (!VALID_LICENSES.includes(code)) {
-        setMessage("Cod de licență invalid în această versiune demo.", "err");
-        return;
+      if (!code) return setMessage("Introdu un cod de licență.", "err");
+
+      try {
+        const res = await fetch("/api/activate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ license: code, deviceId: getDeviceId() })
+        });
+        const data = await res.json();
+        if (!res.ok || !data.valid) {
+          throw new Error(data.error || "Licență invalidă sau deja folosită pe alt dispozitiv.");
+        }
+        localStorage.setItem(STORAGE.token, data.token);
+        await checkActivation();
+        render();
+      } catch (err) {
+        setMessage(err?.message || "Nu am putut activa licența.", "err");
       }
-      activated = true;
-      localStorage.setItem(STORAGE.activated, "1");
-      localStorage.setItem(STORAGE.license, code);
-      updateTrialUi();
-      render();
     }
 
     loadUrlBtn.addEventListener("click", () => {
@@ -775,28 +514,25 @@ textarea.field{
       if (!url) return setMessage("Introdu mai întâi un URL playlist.", "err");
       loadFromUrl(url);
     });
-
     loadDemoBtn.addEventListener("click", () => loadFromUrl(DEMO_PLAYLIST_URL));
-
     loadTextBtn.addEventListener("click", () => {
       if (!playlistText.value.trim()) return setMessage("Lipește mai întâi conținut M3U.", "err");
       loadFromText(playlistText.value);
     });
-
     playlistFile.addEventListener("change", (e) => {
       const file = e.target.files && e.target.files[0];
       if (file) loadFromFile(file);
     });
-
     resetBtn.addEventListener("click", resetAll);
     searchInput.addEventListener("input", render);
     activateBtn.addEventListener("click", activateLicense);
-    scrollTrialBtn.addEventListener("click", () => trialBox.scrollIntoView({ behavior: "smooth", block: "start" }));
+    scrollTrialBtn.addEventListener("click", () => licenseBox.scrollIntoView({ behavior: "smooth", block: "start" }));
     scrollActivateBtn.addEventListener("click", () => licenseInput.scrollIntoView({ behavior: "smooth", block: "center" }));
 
-    (function init(){
+    (async function init(){
+      deviceIdField.value = getDeviceId();
       startTrialIfNeeded();
-      updateTrialUi();
+      await checkActivation();
       const saved = localStorage.getItem(STORAGE.playlist);
       if (saved) {
         playlistText.value = saved;
@@ -805,5 +541,6 @@ textarea.field{
         loadFromUrl(DEMO_PLAYLIST_URL);
       }
     })();
-  </script></body>
+  </script>
+</body>
 </html>
