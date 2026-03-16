@@ -1,482 +1,182 @@
-<!DOCTYPE html><html lang="ro">
+<!DOCTYPE html>
+<html lang="ro">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Activează Coeziv Player</title>
-  <style>
-    :root{
-      --bg:#0b1020;
-      --panel:#111827;
-      --panel-2:#172033;
-      --line:#2b3752;
-      --text:#f8fafc;
-      --muted:#94a3b8;
-      --brand:#2563eb;
-      --brand-2:#1d4ed8;
-      --ok:#16a34a;
-      --shadow:0 24px 60px rgba(0,0,0,.38);
-    }
-    *{box-sizing:border-box}
-    html,body{
-      margin:0;
-      padding:0;
-      min-height:100%;
-      font-family:Inter,Arial,Helvetica,sans-serif;
-      background:linear-gradient(180deg,#08101f,#0b1020 30%,#0f172a 100%);
-      color:var(--text);
-    }
-    a{text-decoration:none;color:inherit}
-    .wrap{
-      min-height:100vh;
-      display:grid;
-      place-items:center;
-      padding:24px;
-    }
-    .page{
-      width:min(1120px,100%);
-      display:grid;
-      grid-template-columns:1.1fr .9fr;
-      gap:22px;
-      align-items:stretch;
-    }
-    .hero,
-    .panel{
-      border:1px solid rgba(255,255,255,.06);
-      border-radius:28px;
-      overflow:hidden;
-      box-shadow:var(--shadow);
-      background:linear-gradient(180deg,#111827,#0d1422);
-    }
-    .hero{
-      position:relative;
-      min-height:680px;
-      background:
-        linear-gradient(180deg,rgba(7,10,18,.25),rgba(7,10,18,.78)),
-        radial-gradient(circle at 80% 18%, rgba(37,99,235,.25), transparent 22%),
-        url('https://images.unsplash.com/photo-1522869635100-9f4c5e86aa37?auto=format&fit=crop&w=1600&q=80') center/cover;
-    }
-    .hero-inner{
-      position:absolute;
-      inset:0;
-      padding:34px;
-      display:flex;
-      flex-direction:column;
-      justify-content:space-between;
-    }
-    .brand{
-      display:inline-flex;
-      align-items:center;
-      gap:10px;
-      font-weight:900;
-      letter-spacing:.04em;
-    }
-    .brand-mark{
-      color:#60a5fa;
-      font-size:28px;
-    }
-    .brand-sub{
-      color:#cbd5e1;
-      font-size:12px;
-      letter-spacing:.18em;
-      text-transform:uppercase;
-    }
-    .eyebrow{
-      display:inline-flex;
-      padding:8px 12px;
-      border-radius:999px;
-      background:rgba(255,255,255,.08);
-      border:1px solid rgba(255,255,255,.08);
-      color:#e2e8f0;
-      font-size:12px;
-      width:max-content;
-    }
-    .hero h1{
-      margin:12px 0 12px;
-      font-size:52px;
-      line-height:1.02;
-      max-width:560px;
-    }
-    .hero p{
-      margin:0;
-      max-width:560px;
-      color:#dbe4ee;
-      line-height:1.7;
-      font-size:16px;
-    }
-    .benefits{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:12px;
-      margin-top:24px;
-      max-width:620px;
-    }
-    .benefit{
-      padding:14px;
-      border-radius:18px;
-      background:rgba(255,255,255,.08);
-      border:1px solid rgba(255,255,255,.08);
-    }
-    .benefit strong{
-      display:block;
-      margin-bottom:6px;
-      font-size:14px;
-    }
-    .benefit span{
-      color:#dbe4ee;
-      font-size:13px;
-      line-height:1.5;
-    }
-    .hero-footer{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-    }
-    .pill{
-      padding:8px 12px;
-      border-radius:999px;
-      background:rgba(255,255,255,.08);
-      border:1px solid rgba(255,255,255,.08);
-      color:#eef2f7;
-      font-size:12px;
-    }.panel{
-  padding:22px;
-  display:flex;
-  flex-direction:column;
-  gap:16px;
-}
-.top-row{
-  display:flex;
-  justify-content:space-between;
-  gap:12px;
-  align-items:flex-start;
-}
-.top-row h2{
-  margin:0;
-  font-size:28px;
-}
-.top-row p{
-  margin:8px 0 0;
-  color:var(--muted);
-  font-size:14px;
-  line-height:1.6;
-}
-.price-box{
-  min-width:128px;
-  padding:14px;
-  border-radius:20px;
-  background:linear-gradient(135deg,var(--brand),var(--brand-2));
-  text-align:center;
-}
-.price-box small{
-  display:block;
-  opacity:.9;
-  font-size:12px;
-  margin-bottom:6px;
-}
-.price-box strong{
-  font-size:34px;
-  line-height:1;
-}
-.card{
-  padding:18px;
-  border-radius:22px;
-  background:linear-gradient(180deg,#131c2d,#101827);
-  border:1px solid rgba(255,255,255,.06);
-}
-.card h3{
-  margin:0 0 8px;
-  font-size:18px;
-}
-.card p{
-  margin:0;
-  color:var(--muted);
-  font-size:13px;
-  line-height:1.6;
-}
-.field{
-  width:100%;
-  padding:14px 15px;
-  border-radius:14px;
-  border:1px solid var(--line);
-  background:#0b1322;
-  color:var(--text);
-  outline:none;
-  margin-top:12px;
-}
-.field:focus{border-color:#4b6cb7}
-.btn{
-  width:100%;
-  margin-top:12px;
-  border:none;
-  border-radius:16px;
-  padding:14px 16px;
-  font-weight:800;
-  color:#fff;
-  cursor:pointer;
-}
-.btn.primary{background:linear-gradient(135deg,var(--brand),var(--brand-2))}
-.btn.ok{background:linear-gradient(135deg,#15803d,#16a34a)}
-.btn.ghost{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.07)}
-.device-box{
-  display:grid;
-  gap:10px;
-  margin-top:10px;
-}
-.device-id{
-  padding:12px 14px;
-  border-radius:14px;
-  background:#0b1322;
-  border:1px solid var(--line);
-  color:#cbd5e1;
-  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
-  font-size:13px;
-  word-break:break-all;
-}
-.mini-row{
-  display:flex;
-  gap:10px;
-  flex-wrap:wrap;
-}
-.mini-btn{
-  flex:1;
-  min-width:120px;
-  padding:11px 12px;
-  border-radius:14px;
-  border:1px solid rgba(255,255,255,.08);
-  background:rgba(255,255,255,.05);
-  color:#fff;
-  cursor:pointer;
-  font-weight:700;
-}
-.message{
-  padding:12px 14px;
-  border-radius:14px;
-  font-size:13px;
-  line-height:1.55;
-  background:rgba(245,158,11,.12);
-  border:1px solid rgba(245,158,11,.25);
-  color:#fde68a;
-  white-space:pre-line;
-}
-.message.ok{
-  background:rgba(22,163,74,.12);
-  border-color:rgba(22,163,74,.25);
-  color:#bbf7d0;
-}
-.message.err{
-  background:rgba(220,38,38,.12);
-  border-color:rgba(220,38,38,.25);
-  color:#fecaca;
-}
-.features{
-  display:grid;
-  gap:10px;
-  margin-top:4px;
-}
-.feature{
-  display:flex;
-  justify-content:space-between;
-  gap:10px;
-  padding:12px 0;
-  border-bottom:1px solid rgba(255,255,255,.06);
-  font-size:14px;
-}
-.feature:last-child{border-bottom:none}
-.feature span{color:var(--muted)}
-.back{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  margin-top:4px;
-  padding:12px 14px;
-  border-radius:16px;
-  background:rgba(255,255,255,.05);
-  border:1px solid rgba(255,255,255,.06);
-  font-weight:700;
-}
-@media (max-width: 1024px){
-  .page{grid-template-columns:1fr}
-  .hero{min-height:520px}
-}
-@media (max-width: 720px){
-  .wrap{padding:16px}
-  .hero-inner,.panel{padding:18px}
-  .hero h1{font-size:34px}
-  .benefits{grid-template-columns:1fr}
-  .top-row{flex-direction:column}
-  .price-box{width:100%}
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Activare Coeziv Player</title>
+
+<style>
+
+body{
+font-family:Arial;
+background:#0f172a;
+color:white;
+margin:0;
 }
 
-  </style>
+.container{
+max-width:420px;
+margin:auto;
+margin-top:80px;
+background:#111827;
+padding:30px;
+border-radius:12px;
+text-align:center;
+}
+
+h1{
+margin-bottom:10px;
+}
+
+p{
+color:#9ca3af;
+}
+
+input{
+width:100%;
+padding:12px;
+margin-top:15px;
+border-radius:8px;
+border:none;
+}
+
+button{
+width:100%;
+padding:12px;
+margin-top:15px;
+border:none;
+border-radius:8px;
+font-weight:bold;
+cursor:pointer;
+}
+
+.btn-primary{
+background:#2563eb;
+color:white;
+}
+
+.btn-gray{
+background:#374151;
+color:white;
+}
+
+.device{
+margin-top:20px;
+font-size:13px;
+color:#6b7280;
+}
+
+.success{
+color:#22c55e;
+margin-top:15px;
+}
+
+.error{
+color:#ef4444;
+margin-top:15px;
+}
+
+</style>
 </head>
+
 <body>
-  <div class="wrap">
-    <div class="page">
-      <section class="hero">
-        <div class="hero-inner">
-          <div>
-            <div class="brand">
-              <div class="brand-mark">COEZIV</div>
-              <div class="brand-sub">player activation</div>
-            </div>
-          </div><div>
-        <div class="eyebrow">Activare premium</div>
-        <h1>Deblochează versiunea completă a playerului tău</h1>
-        <p>Primești activare legată de acest dispozitiv, acces complet la playlist, fără limitarea trialului și un flux simplu de licențiere care poate fi conectat ulterior la plată reală.</p>
 
-        <div class="benefits">
-          <div class="benefit">
-            <strong>Activare legată de dispozitiv</strong>
-            <span>Licența se validează cu Device ID și nu mai depinde doar de browser local.</span>
-          </div>
-          <div class="benefit">
-            <strong>Acces complet</strong>
-            <span>Fără limită de 30 de elemente, fără blocare după trial și fără onboarding forțat.</span>
-          </div>
-          <div class="benefit">
-            <strong>Poziționare comercială</strong>
-            <span>Arată ca o pagină reală de upgrade pentru un produs SaaS / OTT premium.</span>
-          </div>
-          <div class="benefit">
-            <strong>Pregătit pentru plată</strong>
-            <span>Poate fi conectat ușor la Stripe, Paddle sau Lemon Squeezy.</span>
-          </div>
-        </div>
-      </div>
+<div class="container">
 
-      <div class="hero-footer">
-        <span class="pill">Licență unică</span>
-        <span class="pill">Activare server-side</span>
-        <span class="pill">Compatibil cu Vercel</span>
-      </div>
-    </div>
-  </section>
+<h1>Activează Playerul</h1>
 
-  <section class="panel">
-    <div class="top-row">
-      <div>
-        <h2>Activează Coeziv Player</h2>
-        <p>Introdu codul primit după plată sau copiază Device ID-ul pentru emiterea unei licențe personalizate.</p>
-      </div>
-      <div class="price-box">
-        <small>preț recomandat</small>
-        <strong>9€</strong>
-      </div>
-    </div>
+<p>
+Introdu codul de activare pentru a debloca versiunea completă.
+</p>
 
-    <div class="card">
-      <h3>Device ID</h3>
-      <p>Acesta este identificatorul pe care îl poți trimite automat sau manual în fluxul de licențiere.</p>
-      <div id="deviceId" class="device-id">se generează...</div>
-      <div class="mini-row">
-        <button id="copyDeviceBtn" class="mini-btn" type="button">Copiază Device ID</button>
-        <button id="requestCodeBtn" class="mini-btn" type="button">Vreau cod</button>
-      </div>
-    </div>
+<input id="code" placeholder="Cod de activare">
 
-    <div class="card">
-      <h3>Introdu codul de activare</h3>
-      <p>În demo sunt acceptate codurile: <strong>COEZIV-2026-PRO-1234</strong> și <strong>COEZIV-FULL-RO-9999</strong>.</p>
-      <input id="licenseInput" class="field" type="text" placeholder="Ex: COEZIV-2026-PRO-1234" />
-      <button id="activateBtn" class="btn ok" type="button">Activează acum</button>
-    </div>
+<button class="btn-primary" onclick="activate()">
+Activează
+</button>
 
-    <div id="messageBox" class="message">Poți activa direct sau poți cere mai întâi un cod pe baza Device ID-ului.</div>
+<button class="btn-gray" onclick="requestCode()">
+Vreau cod
+</button>
 
-    <div class="card">
-      <h3>Ce primești după activare</h3>
-      <div class="features">
-        <div class="feature"><strong>Playlist complet</strong><span>fără limitarea trialului</span></div>
-        <div class="feature"><strong>Validare server-side</strong><span>mai greu de ocolit decât localStorage</span></div>
-        <div class="feature"><strong>Legare de dispozitiv</strong><span>un cod = un Device ID</span></div>
-        <div class="feature"><strong>Extensibil</strong><span>poți adăuga plăți și dashboard admin</span></div>
-      </div>
-    </div>
+<div id="status"></div>
 
-    <a class="back" href="/iptv">Înapoi la player</a>
-  </section>
+<div class="device">
+Dispozitiv: <span id="device"></span>
 </div>
 
-  </div>  <script>
-    const STORAGE_KEY = "coeziv_device_id_v5";
+</div>
 
-    const deviceIdEl = document.getElementById("deviceId");
-    const copyDeviceBtn = document.getElementById("copyDeviceBtn");
-    const requestCodeBtn = document.getElementById("requestCodeBtn");
-    const licenseInput = document.getElementById("licenseInput");
-    const activateBtn = document.getElementById("activateBtn");
-    const messageBox = document.getElementById("messageBox");
+<script>
 
-    function setMessage(text, type = "warn") {
-      messageBox.className = "message" + (type === "ok" ? " ok" : type === "err" ? " err" : "");
-      messageBox.textContent = text;
-    }
+let deviceID
 
-    function getDeviceId() {
-      let saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) return saved;
+function getDeviceID(){
 
-      const raw = [
-        navigator.userAgent,
-        navigator.language,
-        screen.width,
-        screen.height,
-        Intl.DateTimeFormat().resolvedOptions().timeZone,
-        navigator.platform || "web"
-      ].join("|");
+let id = localStorage.getItem("device_id")
 
-      let hash = 0;
-      for (let i = 0; i < raw.length; i++) {
-        hash = ((hash << 5) - hash) + raw.charCodeAt(i);
-        hash |= 0;
-      }
+if(!id){
 
-      saved = `COEZIV-${Math.abs(hash).toString(16).toUpperCase()}`;
-      localStorage.setItem(STORAGE_KEY, saved);
-      return saved;
-    }
+id = crypto.randomUUID()
 
-    async function activateLicense() {
-      const code = licenseInput.value.trim().toUpperCase();
-      if (!code) {
-        setMessage("Introdu mai întâi codul de activare.", "err");
-        return;
-      }
+localStorage.setItem("device_id",id)
 
-      try {
-        const res = await fetch("/api/activate", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ license: code, deviceId: getDeviceId() })
-        });
-        const data = await res.json();
+}
 
-        if (!res.ok || !data.valid) {
-          throw new Error(data.error || "Nu am putut valida licența.");
-        }
+return id
 
-        localStorage.setItem("coeziv_license_token_v5", data.token);
-        setMessage("Licența a fost activată cu succes. Poți reveni în player.", "ok");
-      } catch (err) {
-        setMessage(err?.message || "Activarea a eșuat.", "err");
-      }
-    }
+}
 
-    copyDeviceBtn.addEventListener("click", async () => {
-      try {
-        await navigator.clipboard.writeText(getDeviceId());
-        setMessage("Device ID copiat.", "ok");
-      } catch {
-        setMessage("Nu am putut copia automat Device ID-ul.", "err");
-      }
-    });
+deviceID = getDeviceID()
 
-    requestCodeBtn.addEventListener("click", () => {
-      const deviceId = encodeURIComponent(getDeviceId());
-      window.location.href = `/iptv/request-code.html?device=${deviceId}`;
-    });
+document.getElementById("device").innerText = deviceID
 
-    activateBtn.addEventListener("click", activateLicense);
-    deviceIdEl.textContent = getDeviceId();
-  </script></body>
+function activate(){
+
+const code = document.getElementById("code").value.trim()
+
+if(code.length < 4){
+
+showError("Introdu un cod valid")
+
+return
+
+}
+
+localStorage.setItem("pro","true")
+
+showSuccess("Activare reușită!")
+
+setTimeout(()=>{
+
+window.location.href="player.html"
+
+},1500)
+
+}
+
+function requestCode(){
+
+window.location.href = "request-code.html"
+
+}
+
+function showSuccess(msg){
+
+document.getElementById("status").innerHTML =
+`<div class="success">${msg}</div>`
+
+}
+
+function showError(msg){
+
+document.getElementById("status").innerHTML =
+`<div class="error">${msg}</div>`
+
+}
+
+</script>
+
+</body>
 </html>
