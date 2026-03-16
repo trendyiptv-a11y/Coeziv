@@ -3,267 +3,530 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Coeziv Player</title>
 
 <style>
+:root{
+  --bg:#0f172a;
+  --panel:#111827;
+  --panel2:#1f2937;
+  --line:#334155;
+  --text:#ffffff;
+  --muted:#94a3b8;
+  --brand:#2563eb;
+  --brand2:#1d4ed8;
+  --ok:#16a34a;
+  --danger:#ef4444;
+}
+
+*{box-sizing:border-box}
 
 body{
-font-family:Arial;
-background:#0f172a;
-color:white;
-margin:0;
-padding:0;
+  margin:0;
+  font-family:Arial, Helvetica, sans-serif;
+  background:linear-gradient(180deg,#08101f,#0b1020 30%,#0f172a 100%);
+  color:var(--text);
 }
 
 header{
-padding:20px;
-font-size:22px;
-font-weight:bold;
-background:#111827;
+  padding:20px;
+  background:#111827;
+  border-bottom:1px solid rgba(255,255,255,.06);
+}
+
+header h1{
+  margin:0;
+  font-size:28px;
+}
+
+header p{
+  margin:6px 0 0;
+  color:var(--muted);
+  font-size:13px;
 }
 
 .container{
-padding:20px;
-max-width:900px;
-margin:auto;
+  max-width:1000px;
+  margin:auto;
+  padding:20px;
 }
 
-input,textarea{
-width:100%;
-padding:12px;
-margin-top:10px;
-border-radius:8px;
-border:none;
+.hero{
+  background:linear-gradient(135deg,rgba(37,99,235,.24),rgba(29,78,216,.10));
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:18px;
+  padding:24px;
+  margin-bottom:20px;
 }
 
-button{
-padding:12px 18px;
-border:none;
-border-radius:8px;
-cursor:pointer;
-font-weight:bold;
+.hero h2{
+  margin:0 0 10px;
+  font-size:34px;
+}
+
+.hero p{
+  margin:0;
+  color:#dbe4ee;
+  line-height:1.6;
+}
+
+.section{
+  background:#111827;
+  border:1px solid rgba(255,255,255,.06);
+  border-radius:18px;
+  padding:20px;
+  margin-bottom:20px;
+}
+
+.section h3{
+  margin:0 0 8px;
+  font-size:22px;
+}
+
+.section p{
+  margin:0 0 14px;
+  color:var(--muted);
+  font-size:14px;
+  line-height:1.6;
+}
+
+.field{
+  width:100%;
+  padding:13px 14px;
+  border-radius:10px;
+  border:1px solid var(--line);
+  background:#0b1322;
+  color:var(--text);
+  outline:none;
+}
+
+textarea.field{
+  min-height:130px;
+  resize:vertical;
 }
 
 .row{
-display:flex;
-gap:10px;
-flex-wrap:wrap;
-margin-top:10px;
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:12px;
+}
+
+button{
+  border:none;
+  border-radius:10px;
+  padding:12px 16px;
+  font-weight:bold;
+  cursor:pointer;
 }
 
 .btn-primary{
-background:#2563eb;
-color:white;
+  background:linear-gradient(135deg,var(--brand),var(--brand2));
+  color:white;
 }
 
 .btn-green{
-background:#16a34a;
-color:white;
+  background:linear-gradient(135deg,#15803d,#16a34a);
+  color:white;
 }
 
 .btn-gray{
-background:#374151;
-color:white;
+  background:#374151;
+  color:white;
+}
+
+.btn-ghost{
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.08);
+  color:white;
+}
+
+.message{
+  margin-top:14px;
+  padding:12px 14px;
+  border-radius:12px;
+  font-size:14px;
+  line-height:1.5;
+  white-space:pre-line;
+  background:rgba(245,158,11,.12);
+  border:1px solid rgba(245,158,11,.25);
+  color:#fde68a;
+}
+
+.message.ok{
+  background:rgba(22,163,74,.12);
+  border-color:rgba(22,163,74,.25);
+  color:#bbf7d0;
+}
+
+.message.err{
+  background:rgba(239,68,68,.12);
+  border-color:rgba(239,68,68,.25);
+  color:#fecaca;
+}
+
+.status-bar{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:14px;
+}
+
+.badge{
+  padding:8px 12px;
+  border-radius:999px;
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.08);
+  color:#eef2f7;
+  font-size:12px;
+}
+
+.channel-list{
+  margin-top:10px;
 }
 
 .channel{
-padding:10px;
-border-bottom:1px solid #334155;
+  padding:14px 0;
+  border-bottom:1px solid rgba(255,255,255,.08);
 }
 
+.channel:last-child{
+  border-bottom:none;
+}
+
+.channel-title{
+  font-size:18px;
+  font-weight:bold;
+  margin-bottom:8px;
+}
+
+.channel a{
+  color:#60a5fa;
+  text-decoration:none;
+  font-weight:bold;
+}
+
+.channel a:hover{
+  text-decoration:underline;
+}
+
+.footer-note{
+  margin-top:16px;
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.6;
+}
+
+@media (max-width:720px){
+  .hero h2{
+    font-size:28px;
+  }
+}
 </style>
 </head>
 
 <body>
 
 <header>
-COEZIV PLAYER
+  <h1>COEZIV PLAYER</h1>
+  <p>Player premium pentru playlisturi M3U</p>
 </header>
 
 <div class="container">
 
-<h3>Import playlist</h3>
+  <section class="hero">
+    <h2>Încarcă playlistul tău. Testează. Activează.</h2>
+    <p>
+      Poți importa playlistul din URL, fișier local sau text. În trial vezi primele 30 de canale.
+      După activare, ai acces complet.
+    </p>
+  </section>
 
-<input id="urlInput" placeholder="URL playlist M3U">
+  <section class="section">
+    <h3>Import playlist</h3>
+    <p>Poți încărca din URL, fișier local sau text M3U.</p>
 
-<div class="row">
+    <input id="urlInput" class="field" placeholder="URL playlist M3U">
 
-<button class="btn-primary" onclick="loadURL()">
-Import URL
-</button>
+    <div class="row">
+      <button class="btn-primary" onclick="loadURL()">Import URL</button>
+      <button class="btn-gray" onclick="loadDemo()">Încarcă demo</button>
+      <input id="fileInput" class="field" type="file" accept=".m3u,.m3u8,.txt" onchange="loadFile(event)">
+    </div>
 
-<button class="btn-gray" onclick="loadDemo()">
-Încarcă demo
-</button>
+    <textarea id="textInput" class="field" placeholder="#EXTM3U&#10;#EXTINF:-1,Digi Life HD RO&#10;http://server/stream.m3u8"></textarea>
 
-<input type="file" onchange="loadFile(event)">
+    <div class="row">
+      <button class="btn-primary" onclick="loadText()">Import text</button>
+      <button class="btn-ghost" onclick="resetPlayer()">Resetează</button>
+    </div>
 
-</div>
+    <div class="row">
+      <button class="btn-green" onclick="goActivate()">Activează</button>
+      <button class="btn-gray" onclick="goRequestCode()">Vreau cod</button>
+    </div>
 
-<textarea id="textInput" placeholder="Lipeste playlist M3U"></textarea>
+    <div id="messageBox" class="message">
+      În trial poți vedea primele 30 de elemente din playlist.
+    </div>
 
-<button class="btn-primary" onclick="loadText()">
-Import text
-</button>
+    <div class="status-bar">
+      <div id="activationBadge" class="badge">Stare: FREE</div>
+      <div id="countBadge" class="badge">Canale: 0</div>
+    </div>
+  </section>
 
-<hr>
-
-<div class="row">
-
-<button class="btn-green" onclick="goActivate()">
-Activează
-</button>
-
-<button class="btn-gray" onclick="goRequestCode()">
-Vreau cod
-</button>
-
-</div>
-
-<hr>
-
-<h3>Canale</h3>
-
-<div id="channels"></div>
+  <section class="section">
+    <h3>Canale</h3>
+    <p id="listInfo">În trial vezi primele 30 rezultate.</p>
+    <div id="channels" class="channel-list"></div>
+    <div id="footerNote" class="footer-note"></div>
+  </section>
 
 </div>
 
 <script>
-
 const LIMIT = 30
-let isActivated = false
+let isActivated = localStorage.getItem("pro") === "true"
+let allChannels = []
+
+function refreshActivationStatus(){
+  isActivated = localStorage.getItem("pro") === "true"
+  document.getElementById("activationBadge").innerText =
+    "Stare: " + (isActivated ? "PRO" : "FREE")
+  document.getElementById("listInfo").innerText =
+    isActivated
+      ? "Licență activă: vezi toate canalele."
+      : `În trial vezi primele ${LIMIT} rezultate.`
+}
+
+function setMessage(text, type="warn"){
+  const box = document.getElementById("messageBox")
+  box.className = "message" +
+    (type === "ok" ? " ok" : type === "err" ? " err" : "")
+  box.textContent = text
+}
+
+function updateCount(count){
+  document.getElementById("countBadge").innerText = "Canale: " + count
+}
+
+function escapeHtml(text){
+  return String(text || "")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;")
+}
 
 function parseM3U(text){
+  const lines = text.split(/\r?\n/).map(x => x.trim()).filter(Boolean)
+  const channels = []
+  let pendingMeta = null
 
-const lines = text.split("\n")
+  for(let i=0;i<lines.length;i++){
+    const line = lines[i]
 
-let channels=[]
-let name=""
+    if(line.startsWith("#EXTINF")){
+      let name = "Canal necunoscut"
+      if(line.includes(",")){
+        name = line.split(",").slice(1).join(",").trim() || "Canal necunoscut"
+      }
+      pendingMeta = { name }
+      continue
+    }
 
-for(let line of lines){
+    if(line.startsWith("#")){
+      continue
+    }
 
-line=line.trim()
+    if(/^https?:\/\//i.test(line)){
+      if(pendingMeta){
+        channels.push({
+          name: pendingMeta.name,
+          url: line
+        })
+        pendingMeta = null
+      }else{
+        const prev = lines[i-1] || ""
+        const fallback = (!prev.startsWith("#") && !/^https?:\/\//i.test(prev))
+          ? prev
+          : `Canal ${channels.length + 1}`
 
-if(line.startsWith("#EXTINF")){
+        channels.push({
+          name: fallback,
+          url: line
+        })
+      }
+      continue
+    }
 
-name=line.split(",")[1]
+    const next = lines[i+1] || ""
+    if(!line.startsWith("#") && /^https?:\/\//i.test(next)){
+      channels.push({
+        name: line,
+        url: next
+      })
+      i += 1
+      pendingMeta = null
+    }
+  }
 
-}
-
-if(line.startsWith("http")){
-
-channels.push({
-name:name,
-url:line
-})
-
-}
-
-}
-
-renderChannels(channels)
-
+  return channels
 }
 
 function renderChannels(list){
+  refreshActivationStatus()
 
-const box=document.getElementById("channels")
+  const box = document.getElementById("channels")
+  const footer = document.getElementById("footerNote")
 
-box.innerHTML=""
+  box.innerHTML = ""
+  footer.innerHTML = ""
 
-let max = isActivated ? list.length : LIMIT
+  let visibleList = list
 
-for(let i=0;i<Math.min(max,list.length);i++){
+  if(!isActivated){
+    visibleList = list.slice(0, LIMIT)
+  }
 
-const ch=list[i]
+  updateCount(visibleList.length)
 
-const div=document.createElement("div")
-div.className="channel"
+  if(visibleList.length === 0){
+    box.innerHTML = "<div class='channel'>Nu există canale de afișat.</div>"
+    return
+  }
 
-div.innerHTML=
+  for(let i=0;i<visibleList.length;i++){
+    const ch = visibleList[i]
 
-`<b>${ch.name}</b>
-<br>
-<a href="${ch.url}" target="_blank">Play</a>`
+    const div = document.createElement("div")
+    div.className = "channel"
 
-box.appendChild(div)
+    div.innerHTML = `
+      <div class="channel-title">${escapeHtml(ch.name)}</div>
+      <a href="${escapeHtml(ch.url)}" target="_blank" rel="noopener noreferrer">Play</a>
+    `
 
+    box.appendChild(div)
+  }
+
+  if(!isActivated && list.length > LIMIT){
+    footer.innerHTML = `
+      Trial limit: ${LIMIT} canale<br>
+      Activează pentru acces complet.
+    `
+  }
 }
 
-if(!isActivated && list.length>LIMIT){
+function applyParsedChannels(channels){
+  allChannels = channels
+  renderChannels(allChannels)
 
-const warn=document.createElement("div")
-
-warn.style.marginTop="20px"
-
-warn.innerHTML=
-`Trial limit: ${LIMIT} canale
-<br>
-Activează pentru acces complet.`
-
-box.appendChild(warn)
-
-}
-
+  if(channels.length){
+    setMessage(`Playlist încărcat cu succes: ${channels.length} canale.`, "ok")
+  }else{
+    setMessage("Textul nu conține un playlist valid.", "err")
+  }
 }
 
 async function loadURL(){
+  const url = document.getElementById("urlInput").value.trim()
 
-const url=document.getElementById("urlInput").value
+  if(!url){
+    setMessage("Introdu mai întâi un URL playlist.", "err")
+    return
+  }
 
-const res=await fetch(url)
-
-const text=await res.text()
-
-parseM3U(text)
-
+  try{
+    setMessage("Se încarcă playlistul...")
+    const res = await fetch(url)
+    if(!res.ok){
+      throw new Error("Nu am putut încărca URL-ul playlistului.")
+    }
+    const text = await res.text()
+    const channels = parseM3U(text)
+    applyParsedChannels(channels)
+  }catch(err){
+    setMessage(err.message || "Eroare la încărcarea playlistului.", "err")
+  }
 }
 
 function loadDemo(){
-
-fetch("romanesti.m3u")
-.then(r=>r.text())
-.then(parseM3U)
-
+  setMessage("Se încarcă demo...")
+  fetch("romanesti.m3u")
+    .then(r => {
+      if(!r.ok) throw new Error("Nu am putut încărca demo-ul.")
+      return r.text()
+    })
+    .then(text => {
+      const channels = parseM3U(text)
+      applyParsedChannels(channels)
+    })
+    .catch(err => {
+      setMessage(err.message || "Eroare la demo.", "err")
+    })
 }
 
 function loadText(){
+  const text = document.getElementById("textInput").value
 
-const text=document.getElementById("textInput").value
+  if(!text.trim()){
+    setMessage("Lipește mai întâi conținutul M3U.", "err")
+    return
+  }
 
-parseM3U(text)
-
+  const channels = parseM3U(text)
+  applyParsedChannels(channels)
 }
 
 function loadFile(e){
+  const file = e.target.files[0]
+  if(!file) return
 
-const file=e.target.files[0]
+  const reader = new FileReader()
 
-const reader=new FileReader()
+  reader.onload = function(){
+    const text = String(reader.result || "")
+    document.getElementById("textInput").value = text
+    const channels = parseM3U(text)
+    applyParsedChannels(channels)
+  }
 
-reader.onload=function(){
+  reader.onerror = function(){
+    setMessage("Nu am putut citi fișierul.", "err")
+  }
 
-parseM3U(reader.result)
-
+  reader.readAsText(file)
 }
 
-reader.readAsText(file)
-
+function resetPlayer(){
+  document.getElementById("urlInput").value = ""
+  document.getElementById("textInput").value = ""
+  document.getElementById("fileInput").value = ""
+  allChannels = []
+  renderChannels([])
+  setMessage("Player resetat.")
 }
 
 function goActivate(){
-
-window.location.href="activate.html"
-
+  window.location.href = "activate.html"
 }
 
 function goRequestCode(){
-
-window.location.href="request-code.html"
-
+  window.location.href = "request-code.html"
 }
 
+window.addEventListener("focus", () => {
+  refreshActivationStatus()
+  if(allChannels.length){
+    renderChannels(allChannels)
+  }
+})
+
+refreshActivationStatus()
+loadDemo()
 </script>
 
 </body>
