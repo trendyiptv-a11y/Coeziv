@@ -1,8 +1,9 @@
-<!DOCTYPE html><html lang="ro">
+<!DOCTYPE html>
+<html lang="ro">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cere cod — Coeziv Player</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Vreau cod — Coeziv Player</title>
   <style>
     :root{
       --bg:#0b1020;
@@ -16,6 +17,7 @@
       --ok:#16a34a;
       --danger:#dc2626;
       --shadow:0 24px 60px rgba(0,0,0,.38);
+      --radius:22px;
     }
     *{box-sizing:border-box}
     html,body{
@@ -26,18 +28,22 @@
       background:linear-gradient(180deg,#08101f,#0b1020 30%,#0f172a 100%);
       color:var(--text);
     }
+    a{text-decoration:none;color:inherit}
+
     .wrap{
       min-height:100vh;
       display:grid;
       place-items:center;
-      padding:24px;
+      padding:20px;
     }
+
     .page{
       width:min(980px,100%);
       display:grid;
       grid-template-columns:1fr 1fr;
-      gap:22px;
+      gap:20px;
     }
+
     .hero,.panel{
       border:1px solid rgba(255,255,255,.06);
       border-radius:28px;
@@ -45,22 +51,25 @@
       box-shadow:var(--shadow);
       background:linear-gradient(180deg,#111827,#0d1422);
     }
+
     .hero{
       position:relative;
-      min-height:640px;
+      min-height:620px;
       background:
-        linear-gradient(180deg,rgba(7,10,18,.28),rgba(7,10,18,.8)),
+        linear-gradient(180deg,rgba(7,10,18,.28),rgba(7,10,18,.82)),
         radial-gradient(circle at 80% 18%, rgba(37,99,235,.25), transparent 22%),
         url('https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1600&q=80') center/cover;
     }
+
     .hero-inner{
       position:absolute;
       inset:0;
-      padding:30px;
+      padding:28px;
       display:flex;
       flex-direction:column;
       justify-content:space-between;
     }
+
     .eyebrow{
       display:inline-flex;
       padding:8px 12px;
@@ -71,12 +80,14 @@
       font-size:12px;
       width:max-content;
     }
+
     .hero h1{
-      margin:12px 0 12px;
-      font-size:44px;
-      line-height:1.04;
+      margin:14px 0 12px;
+      font-size:42px;
+      line-height:1.06;
       max-width:520px;
     }
+
     .hero p{
       margin:0;
       max-width:520px;
@@ -84,25 +95,39 @@
       line-height:1.7;
       font-size:15px;
     }
+
     .steps{
       display:grid;
       gap:12px;
-      margin-top:24px;
+      margin-top:22px;
       max-width:520px;
     }
+
     .step{
       padding:14px;
       border-radius:18px;
       background:rgba(255,255,255,.08);
       border:1px solid rgba(255,255,255,.08);
     }
-    .step strong{display:block;margin-bottom:6px;font-size:14px}
-    .step span{font-size:13px;color:#dbe4ee;line-height:1.5}
+
+    .step strong{
+      display:block;
+      margin-bottom:6px;
+      font-size:14px;
+    }
+
+    .step span{
+      font-size:13px;
+      color:#dbe4ee;
+      line-height:1.5;
+    }
+
     .hero-footer{
       display:flex;
       gap:10px;
       flex-wrap:wrap;
     }
+
     .pill{
       padding:8px 12px;
       border-radius:999px;
@@ -110,96 +135,168 @@
       border:1px solid rgba(255,255,255,.08);
       color:#eef2f7;
       font-size:12px;
-    }.panel{padding:22px;display:flex;flex-direction:column;gap:16px}
-.top h2{margin:0;font-size:30px}
-.top p{margin:10px 0 0;color:var(--muted);font-size:14px;line-height:1.6}
-.card{
-  padding:18px;
-  border-radius:22px;
-  background:linear-gradient(180deg,#131c2d,#101827);
-  border:1px solid rgba(255,255,255,.06);
-}
-.card h3{margin:0 0 8px;font-size:18px}
-.card p{margin:0;color:var(--muted);font-size:13px;line-height:1.6}
-.field{
-  width:100%;
-  padding:14px 15px;
-  border-radius:14px;
-  border:1px solid var(--line);
-  background:#0b1322;
-  color:var(--text);
-  outline:none;
-  margin-top:12px;
-}
-textarea.field{min-height:110px;resize:vertical}
-.field:focus{border-color:#4b6cb7}
-.device-id{
-  margin-top:12px;
-  padding:12px 14px;
-  border-radius:14px;
-  background:#0b1322;
-  border:1px solid var(--line);
-  color:#cbd5e1;
-  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
-  font-size:13px;
-  word-break:break-all;
-}
-.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
-.btn{
-  border:none;
-  border-radius:16px;
-  padding:14px 16px;
-  font-weight:800;
-  color:#fff;
-  cursor:pointer;
-}
-.btn.primary{background:linear-gradient(135deg,var(--brand),var(--brand-2))}
-.btn.ok{background:linear-gradient(135deg,#15803d,#16a34a)}
-.btn.ghost{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.07)}
-.btn.full{width:100%;margin-top:12px}
-.message{
-  padding:12px 14px;
-  border-radius:14px;
-  font-size:13px;
-  line-height:1.55;
-  background:rgba(245,158,11,.12);
-  border:1px solid rgba(245,158,11,.25);
-  color:#fde68a;
-  white-space:pre-line;
-}
-.message.ok{
-  background:rgba(22,163,74,.12);
-  border-color:rgba(22,163,74,.25);
-  color:#bbf7d0;
-}
-.message.err{
-  background:rgba(220,38,38,.12);
-  border-color:rgba(220,38,38,.25);
-  color:#fecaca;
-}
-.mini{font-size:12px;color:var(--muted);line-height:1.6;margin-top:10px}
-.back{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  padding:12px 14px;
-  border-radius:16px;
-  background:rgba(255,255,255,.05);
-  border:1px solid rgba(255,255,255,.06);
-  font-weight:700;
-  color:#fff;
-  text-decoration:none;
-}
-@media (max-width: 980px){
-  .page{grid-template-columns:1fr}
-  .hero{min-height:500px}
-}
-@media (max-width: 720px){
-  .wrap{padding:16px}
-  .hero-inner,.panel{padding:18px}
-  .hero h1{font-size:34px}
-}
+    }
 
+    .panel{
+      padding:22px;
+      display:flex;
+      flex-direction:column;
+      gap:16px;
+    }
+
+    .top h2{
+      margin:0;
+      font-size:30px;
+    }
+
+    .top p{
+      margin:10px 0 0;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.6;
+    }
+
+    .card{
+      padding:18px;
+      border-radius:22px;
+      background:linear-gradient(180deg,#131c2d,#101827);
+      border:1px solid rgba(255,255,255,.06);
+    }
+
+    .card h3{
+      margin:0 0 8px;
+      font-size:18px;
+    }
+
+    .card p{
+      margin:0;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.6;
+    }
+
+    .field{
+      width:100%;
+      padding:14px 15px;
+      border-radius:14px;
+      border:1px solid var(--line);
+      background:#0b1322;
+      color:var(--text);
+      outline:none;
+      margin-top:12px;
+    }
+
+    .field:focus{
+      border-color:#4b6cb7;
+    }
+
+    textarea.field{
+      min-height:110px;
+      resize:vertical;
+    }
+
+    .device-id{
+      margin-top:12px;
+      padding:12px 14px;
+      border-radius:14px;
+      background:#0b1322;
+      border:1px solid var(--line);
+      color:#cbd5e1;
+      font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+      font-size:13px;
+      word-break:break-all;
+    }
+
+    .row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:12px;
+    }
+
+    .btn{
+      border:none;
+      border-radius:16px;
+      padding:14px 16px;
+      font-weight:800;
+      color:#fff;
+      cursor:pointer;
+    }
+
+    .btn.primary{
+      background:linear-gradient(135deg,var(--brand),var(--brand-2));
+    }
+
+    .btn.ghost{
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.07);
+    }
+
+    .btn.full{
+      width:100%;
+      margin-top:12px;
+    }
+
+    .message{
+      padding:12px 14px;
+      border-radius:14px;
+      font-size:13px;
+      line-height:1.55;
+      background:rgba(245,158,11,.12);
+      border:1px solid rgba(245,158,11,.25);
+      color:#fde68a;
+      white-space:pre-line;
+    }
+
+    .message.ok{
+      background:rgba(22,163,74,.12);
+      border-color:rgba(22,163,74,.25);
+      color:#bbf7d0;
+    }
+
+    .message.err{
+      background:rgba(220,38,38,.12);
+      border-color:rgba(220,38,38,.25);
+      color:#fecaca;
+    }
+
+    .mini{
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.6;
+      margin-top:10px;
+    }
+
+    .back{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:12px 14px;
+      border-radius:16px;
+      background:rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.06);
+      font-weight:700;
+      color:#fff;
+      text-decoration:none;
+    }
+
+    @media (max-width: 980px){
+      .page{grid-template-columns:1fr}
+      .hero{min-height:500px}
+    }
+
+    @media (max-width: 720px){
+      .wrap{padding:14px}
+      .hero-inner,.panel{padding:18px}
+      .hero{min-height:auto}
+      .hero h1{font-size:32px}
+      .hero p{font-size:14px}
+      .steps{gap:10px}
+      .step{padding:12px 13px}
+      .top h2{font-size:26px}
+      .card{padding:16px}
+      .btn,.field{font-size:15px}
+    }
   </style>
 </head>
 <body>
@@ -208,65 +305,68 @@ textarea.field{min-height:110px;resize:vertical}
       <section class="hero">
         <div class="hero-inner">
           <div>
-            <div class="eyebrow">Cerere licență</div>
-            <h1>Trimite Device ID-ul și cere un cod de activare</h1>
-            <p>Această pagină este punctul comercial dintre trial și activarea premium. Utilizatorul vede clar ce trebuie să trimită, își lasă datele și poate continua elegant către plată sau contact.</p><div class="steps">
-          <div class="step">
-            <strong>1. Confirmă dispozitivul</strong>
-            <span>Device ID-ul este preluat automat din URL sau generat local în browser.</span>
+            <div class="eyebrow">Cerere activare</div>
+            <h1>Cere codul de activare pentru Coeziv Player</h1>
+            <p>Completează datele tale și trimite cererea. Vei primi codul de activare pentru acest dispozitiv.</p>
+
+            <div class="steps">
+              <div class="step">
+                <strong>1. Verifică dispozitivul</strong>
+                <span>Identificatorul dispozitivului este completat automat.</span>
+              </div>
+              <div class="step">
+                <strong>2. Completează datele</strong>
+                <span>Lasă emailul și, dacă vrei, un număr de telefon sau WhatsApp.</span>
+              </div>
+              <div class="step">
+                <strong>3. Trimite cererea</strong>
+                <span>Cererea va fi pregătită împreună cu toate datele necesare activării.</span>
+              </div>
+            </div>
           </div>
-          <div class="step">
-            <strong>2. Lasă emailul sau WhatsApp</strong>
-            <span>Poți folosi datele pentru livrarea codului după plată sau pentru aprobare manuală.</span>
-          </div>
-          <div class="step">
-            <strong>3. Trimite cererea</strong>
-            <span>În varianta demo, cererea se pregătește și poate fi conectată ulterior la backend, email sau formular.</span>
+
+          <div class="hero-footer">
+            <span class="pill">Cod personalizat</span>
+            <span class="pill">Activare rapidă</span>
+            <span class="pill">Device ID inclus</span>
           </div>
         </div>
-      </div>
+      </section>
 
-      <div class="hero-footer">
-        <span class="pill">Page de upgrade</span>
-        <span class="pill">Pregătită pentru Stripe</span>
-        <span class="pill">Device ID inclus</span>
-      </div>
+      <section class="panel">
+        <div class="top">
+          <h2>Vreau cod</h2>
+          <p>Completează formularul și trimite cererea de activare.</p>
+        </div>
+
+        <div class="card">
+          <h3>Dispozitiv</h3>
+          <p>Acest identificator va fi asociat codului tău de activare.</p>
+          <div id="deviceId" class="device-id">se generează...</div>
+          <div class="row">
+            <button id="copyDeviceBtn" class="btn ghost" type="button">Copiază Device ID</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Date de contact</h3>
+          <p>Completează informațiile de mai jos pentru a primi codul de activare.</p>
+          <input id="nameInput" class="field" type="text" placeholder="Nume" />
+          <input id="emailInput" class="field" type="email" placeholder="Email" />
+          <input id="phoneInput" class="field" type="text" placeholder="Telefon / WhatsApp (opțional)" />
+          <textarea id="notesInput" class="field" placeholder="Mesaj sau detalii suplimentare (opțional)"></textarea>
+          <button id="sendRequestBtn" class="btn primary full" type="button">Trimite cererea</button>
+          <div class="mini">După trimitere, cererea va fi pregătită automat cu datele completate.</div>
+        </div>
+
+        <div id="messageBox" class="message">Formular pregătit pentru trimiterea cererii.</div>
+
+        <a class="back" href="activate.html">Înapoi la activare</a>
+      </section>
     </div>
-  </section>
+  </div>
 
-  <section class="panel">
-    <div class="top">
-      <h2>Vreau cod</h2>
-      <p>Completează datele și trimite cererea. În producție, acest flux poate deschide checkout, trimite email sau salva cererea într-o bază de date.</p>
-    </div>
-
-    <div class="card">
-      <h3>Device ID detectat</h3>
-      <p>Acesta este identificatorul care va fi asociat licenței tale.</p>
-      <div id="deviceId" class="device-id">se generează...</div>
-      <div class="row">
-        <button id="copyDeviceBtn" class="btn ghost" type="button">Copiază Device ID</button>
-      </div>
-    </div>
-
-    <div class="card">
-      <h3>Date de contact</h3>
-      <p>Poți cere codul manual sau poți conecta acest formular la un sistem automat.</p>
-      <input id="nameInput" class="field" type="text" placeholder="Nume" />
-      <input id="emailInput" class="field" type="email" placeholder="Email" />
-      <input id="phoneInput" class="field" type="text" placeholder="WhatsApp / telefon (opțional)" />
-      <textarea id="notesInput" class="field" placeholder="Observații, plan dorit, cantitate, facturare etc."></textarea>
-      <button id="sendRequestBtn" class="btn primary full" type="button">Trimite cererea</button>
-      <div class="mini">În demo, butonul generează cererea completă și o deschide pregătită pentru trimitere. Poți înlocui ușor fluxul cu email, webhook, API sau checkout.</div>
-    </div>
-
-    <div id="messageBox" class="message">Pregătit pentru cererea de cod.</div>
-
-    <a class="back" href="/iptv/activate.html">Înapoi la activare</a>
-  </section>
-</div>
-
-  </div>  <script>
+  <script>
     const STORAGE_KEY = "coeziv_device_id_v5";
 
     const deviceIdEl = document.getElementById("deviceId");
@@ -330,7 +430,7 @@ textarea.field{min-height:110px;resize:vertical}
       const deviceId = getDeviceIdFromQuery();
 
       if (!email) {
-        setMessage("Introdu cel puțin un email pentru cererea de cod.", "err");
+        setMessage("Introdu o adresă de email pentru a trimite cererea.", "err");
         return;
       }
 
@@ -344,13 +444,12 @@ Nume: ${name || "-"}
 Email: ${email}
 Telefon/WhatsApp: ${phone || "-"}
 Device ID: ${deviceId}
-Observații: ${notes || "-"}
+Mesaj: ${notes || "-"}
 
 Mulțumesc.`
       );
 
-      setMessage("Cererea este pregătită. În producție poți înlocui acest flux cu API, formular sau checkout.", "ok");
-
+      setMessage("Cererea este pregătită pentru trimitere.", "ok");
       window.location.href = `mailto:contact@coeziv.app?subject=${subject}&body=${body}`;
     }
 
@@ -358,5 +457,6 @@ Mulțumesc.`
     sendRequestBtn.addEventListener("click", sendRequest);
 
     deviceIdEl.textContent = getDeviceIdFromQuery();
-  </script></body>
+  </script>
+</body>
 </html>
