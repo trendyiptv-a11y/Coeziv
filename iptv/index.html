@@ -1,283 +1,205 @@
 <!DOCTYPE html><html lang="ro">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Coeziv TV România</title>
-<style>
-:root{
-  --bg:#0f1115;
-  --card:#1b2028;
-  --card-hover:#242b35;
-  --text:#ffffff;
-  --muted:#a9b1bc;
-  --line:#2f3742;
-  --brand:#e50914;
-  --brand-2:#ff3341;
-  --focus:#ffffff;
-  --shadow:0 18px 40px rgba(0,0,0,.38);
-}
-*{box-sizing:border-box}
-html,body{margin:0;padding:0;background:radial-gradient(circle at top,#1b1f27 0,#0f1115 42%,#0b0d11 100%);color:var(--text);font-family:Inter,Arial,Helvetica,sans-serif}
-body{min-height:100vh}
-button,input{font:inherit}header{ padding:26px 20px 12px; font-size:36px; font-weight:900; color:var(--brand); letter-spacing:.08em; text-transform:uppercase; }
-
-.sub{ padding:0 20px 6px; color:var(--muted); font-size:14px; }
-
-.hero{ margin:0 20px 14px; min-height:220px; border-radius:24px; overflow:hidden; position:relative; border:1px solid rgba(255,255,255,.06); background: linear-gradient(90deg,rgba(8,10,14,.88) 0%,rgba(8,10,14,.55) 42%,rgba(8,10,14,.1) 100%), radial-gradient(circle at 80% 20%, rgba(229,9,20,.28), transparent 20%), url('https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=1600&q=80') center/cover; box-shadow:var(--shadow); } .hero-inner{position:absolute;left:0;right:0;bottom:0;padding:28px} .hero-title{margin:0;font-size:40px;font-weight:800;letter-spacing:-.03em} .hero-sub{margin-top:10px;color:#d6dbe2;max-width:620px;line-height:1.6;font-size:15px} .hero-pills{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px} .hero-pill{padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);color:#eef2f7;font-size:12px}
-
-.search{padding:16px 20px 20px} .search input{width:100%;max-width:520px;padding:15px 18px;background:#14181f;border:1px solid var(--line);color:var(--text);border-radius:14px;outline:none;box-shadow:0 8px 20px rgba(0,0,0,.18)} .search input:focus,.search input:focus-visible{border-color:#737d8a;box-shadow:0 0 0 3px rgba(255,255,255,.16), 0 8px 20px rgba(0,0,0,.18)}
-
-.info{padding:0 20px 10px;color:var(--muted);font-size:13px} .status{padding:0 20px 10px;color:var(--muted);font-size:13px;white-space:pre-line}
-
-.section{padding:0 20px 6px} .section h2{margin:0 0 12px;font-size:24px;font-weight:800} .section-sub{margin:-4px 0 14px;color:var(--muted);font-size:13px}
-
-.popular-rail{ display:grid; grid-auto-flow:column; grid-auto-columns:minmax(280px,280px); gap:16px; overflow-x:auto; padding:2px 0 12px; scroll-behavior:smooth; scrollbar-width:none; } .popular-rail::-webkit-scrollbar{display:none} .popular-card{ position:relative; border-radius:20px; overflow:hidden; min-height:170px; border:1px solid rgba(255,255,255,.08); box-shadow:var(--shadow); cursor:pointer; transition:transform .18s ease, border-color .18s ease; } .popular-card:hover{transform:translateY(-3px) scale(1.02);border-color:rgba(255,255,255,.18)} .popular-bg{position:absolute;inset:0;background-size:cover;background-position:center;transform:scale(1.02)} .popular-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.12),rgba(0,0,0,.72))} .popular-body{position:absolute;left:0;right:0;bottom:0;padding:18px} .popular-title{font-size:24px;font-weight:800;line-height:1.15} .popular-meta{margin-top:8px;font-size:12px;color:#d8dde5} .popular-badge{display:inline-flex;align-items:center;gap:6px;padding:8px 10px;border-radius:999px;background:rgba(229,9,20,.92);font-size:11px;font-weight:800;margin-top:12px}
-
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:18px;padding:20px} .card{background:linear-gradient(180deg,#1d232c,#171b22);border:1px solid rgba(255,255,255,.05);border-radius:18px;overflow:hidden;cursor:pointer;transition:transform .18s ease, background .18s ease, border-color .18s ease, box-shadow .18s ease;box-shadow:0 12px 26px rgba(0,0,0,.18)} .card:hover{transform:translateY(-3px) scale(1.02);background:linear-gradient(180deg,#242b35,#1c2129);border-color:rgba(255,255,255,.16);box-shadow:var(--shadow)} .card:focus,.card:focus-visible,.card.focused{outline:none;transform:translateY(-2px) scale(1.025);border-color:var(--focus);box-shadow:0 0 0 3px rgba(255,255,255,.2), var(--shadow)}
-
-.poster{position:relative;aspect-ratio:16/10;overflow:hidden;background:linear-gradient(135deg,#222832,#394355)} .poster::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.04),transparent 30%),linear-gradient(0deg,rgba(9,11,15,.78),transparent 40%)} .poster-bg{position:absolute;inset:0;background-size:cover;background-position:center;filter:saturate(1.05) contrast(1.05);transform:scale(1.02)} .logo-badge{position:absolute;left:14px;top:14px;min-width:56px;height:56px;border-radius:16px;background:rgba(8,10,14,.66);border:1px solid rgba(255,255,255,.12);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:6px 10px;box-shadow:0 10px 20px rgba(0,0,0,.25)} .logo-badge img{max-width:100%;max-height:100%;object-fit:contain;display:block} .logo-text{font-size:16px;font-weight:800;color:#fff;letter-spacing:.03em} .poster-labels{position:absolute;left:14px;right:14px;bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:10px} .live-chip{display:inline-flex;align-items:center;gap:6px;padding:7px 10px;border-radius:999px;background:rgba(229,9,20,.9);color:#fff;font-size:11px;font-weight:700;letter-spacing:.04em} .dot{width:7px;height:7px;border-radius:50%;background:#fff} .country-chip{padding:7px 10px;border-radius:999px;background:rgba(8,10,14,.55);border:1px solid rgba(255,255,255,.1);color:#e8edf5;font-size:11px;font-weight:700}
-
-.card-body{padding:14px} .card-title{font-size:16px;font-weight:800;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis} .card-meta{margin-top:7px;font-size:12px;color:var(--muted);display:flex;justify-content:space-between;gap:12px} .card-btn{margin-top:14px;width:100%;padding:11px 12px;border:none;border-radius:999px;background:linear-gradient(135deg,var(--brand),var(--brand-2));color:#fff;font-weight:800;letter-spacing:.02em;box-shadow:0 10px 20px rgba(229,9,20,.25)} .card-btn:hover{filter:brightness(1.06)}
-
-@media (max-width:720px){ header{font-size:28px;padding-bottom:8px} .hero{margin:0 16px 10px;min-height:190px} .hero-inner{padding:20px} .hero-title{font-size:30px} .popular-rail{grid-auto-columns:minmax(240px,240px)} .grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;padding:16px} .search{padding:14px 16px 16px} .sub,.info,.status,.section{padding-left:16px;padding-right:16px} .logo-badge{min-width:48px;height:48px;border-radius:14px} } </style>
-
-</head>
-<body><header>COEZIV TV</header>
-<div class="sub">Canale românești • versiune simplă, rapidă și stabilă</div><section class="hero">
-  <div class="hero-inner">
-    <h1 class="hero-title">Televiziune românească, rapid și curat</h1>
-    <div class="hero-sub">Interfață comercială, minimalistă și stabilă: selectezi canalul și îl deschizi instant, fără player inclus și fără complicații.</div>
-    <div class="hero-pills">
-      <span class="hero-pill">Canale românești</span>
-      <span class="hero-pill">Fără player inclus</span>
-      <span class="hero-pill">Deschidere directă</span>
-    </div>
-  </div>
-</section><div class="search">
-  <input id="search" placeholder="Caută canal...">
-</div><div id="status" class="status">Playlistul se încarcă...</div>
-<div class="info">Click sau Enter pe un card pentru a deschide canalul direct.</div><section class="section">
-  <h2>Populare</h2>
-  <div class="section-sub">Selecție vizuală pentru canalele principale</div>
-  <div id="popularRail" class="popular-rail"></div>
-</section><div id="grid" class="grid"></div><script>
-const PLAYLIST_URL = "/iptv/romanesti.m3u";
-
-const grid = document.getElementById("grid");
-const search = document.getElementById("search");
-const status = document.getElementById("status");
-const popularRail = document.getElementById("popularRail");
-
-let channels = [];
-let filtered = [];
-
-async function loadPlaylist(){
-  status.textContent = "Playlistul se încarcă...";
-  try {
-    const res = await fetch(PLAYLIST_URL, { cache: "no-store" });
-    if (!res.ok) throw new Error("Nu am putut încărca playlistul.");
-    const text = await res.text();
-    channels = parseM3U(text);
-    filtered = [...channels];
-    status.textContent = `Canale încărcate: ${channels.length}`;
-    renderPopular();
-    render();
-  } catch (err) {
-    status.textContent = "Eroare la încărcarea playlistului.\n\n" + (err?.message || "Necunoscut");
-  }
-}
-
-function parseM3U(text){
-  const lines = text.split(/\r?\n/);
-  const result = [];
-  let current = null;
-
-  for (const raw of lines) {
-    const line = raw.trim();
-    if (!line) continue;
-
-    if (line.startsWith("#EXTINF")) {
-      const parts = line.split(",");
-      const title = (parts[parts.length - 1] || "Canal necunoscut").trim();
-      current = { title, url: "" };
-    } else if (line.startsWith("http") && current) {
-      current.url = line;
-      result.push(current);
-      current = null;
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Coeziv Player — M3U Player Premium</title>
+  <style>
+    :root{
+      --bg:#0b1020;
+      --panel:#111827;
+      --panel-2:#172033;
+      --line:#2b3752;
+      --text:#f8fafc;
+      --muted:#94a3b8;
+      --brand:#2563eb;
+      --brand-2:#1d4ed8;
+      --ok:#16a34a;
+      --shadow:0 24px 60px rgba(0,0,0,.38);
     }
-  }
-
-  return result;
-}
-
-function renderPopular(){
-  popularRail.innerHTML = "";
-
-  /* Lista manuală cu canale cu adevărat populare în RO */
-  const popularNames = [
-    "pro tv",
-    "antena 1",
-    "kanal d",
-    "digi24",
-    "romania tv",
-    "prima tv",
-    "tvr 1",
-    "b1"
-  ];
-
-  const popular = [];
-
-  popularNames.forEach(name => {
-    const found = channels.find(c => c.title.toLowerCase().includes(name));
-    if(found) popular.push(found);
-  });
-
-  /* dacă nu avem destule, completăm cu primele din playlist */
-  if(popular.length < 8){
-    channels.forEach(c => {
-      if(popular.length >= 8) return;
-      if(!popular.includes(c)) popular.push(c);
-    });
-  }
-
-  popular.slice(0,8).forEach((ch, index) => {
-    const card = document.createElement("div");
-    card.className = "popular-card";
-    card.tabIndex = 0;
-
-    card.innerHTML = `
-      <div class="popular-bg" style="background-image:${getPosterGradient(index)}"></div>
-      <div class="popular-overlay"></div>
-      <div class="popular-body">
-        <div class="popular-title">${escapeHtml(ch.title)}</div>
-        <div class="popular-meta">Canal românesc • Deschidere instant</div>
-        <div class="popular-badge"><span class="dot"></span>LIVE</div>
-      </div>
-    `;
-
-    const open = () => window.open(ch.url, "_blank");
-
-    card.addEventListener("click", open);
-    card.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" || e.key === " ") {
-        e.preventDefault();
-        open();
-      }
-    });
-
-    popularRail.appendChild(card);
-  });
-}
-
-function render(){
-  const q = search.value.toLowerCase().trim();
-  filtered = channels.filter(c => c.title.toLowerCase().includes(q));
-  grid.innerHTML = "";
-
-  if (!filtered.length) {
-    status.textContent = "Nu există canale pentru filtrul curent.";
-    return;
-  }
-
-  status.textContent = `Rezultate afișate: ${filtered.length}`;
-
-  filtered.forEach((ch, index) => {
-    const card = document.createElement("div");
-    card.className = "card";
-    card.tabIndex = 0;
-
-    const logoText = getLogoText(ch.title);
-    const posterStyle = `background-image:${getPosterGradient(index + 2)}`;
-
-    card.innerHTML = `
-      <div class="poster">
-        <div class="poster-bg" style="${posterStyle}"></div>
-        <div class="logo-badge">${getLogoMarkup(ch.title, logoText)}</div>
-        <div class="poster-labels">
-          <span class="live-chip"><span class="dot"></span>LIVE</span>
-          <span class="country-chip">RO</span>
+    *{box-sizing:border-box}
+    html,body{
+      margin:0;
+      padding:0;
+      min-height:100%;
+      font-family:Inter,Arial,Helvetica,sans-serif;
+      background:linear-gradient(180deg,#08101f,#0b1020 30%,#0f172a 100%);
+      color:var(--text);
+      scroll-behavior:smooth;
+    }
+    a{text-decoration:none;color:inherit}
+    .topbar{
+      position:sticky;
+      top:0;
+      z-index:20;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:16px;
+      padding:18px 22px;
+      background:rgba(8,16,31,.84);
+      backdrop-filter:blur(12px);
+      border-bottom:1px solid rgba(255,255,255,.06);
+    }
+    .brand{display:flex;flex-direction:column;gap:4px}
+    .brand h1{margin:0;font-size:28px;line-height:1;font-weight:900;letter-spacing:.04em}
+    .brand p{margin:0;color:var(--muted);font-size:12px}
+    .nav{display:flex;gap:10px;flex-wrap:wrap}
+    .nav a{padding:10px 14px;border-radius:14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.06);font-weight:700;font-size:14px}
+    .hero{
+      margin:22px;
+      border-radius:30px;
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,.06);
+      box-shadow:var(--shadow);
+      background:
+        linear-gradient(90deg,rgba(7,10,18,.92) 0%,rgba(7,10,18,.62) 42%,rgba(7,10,18,.18) 100%),
+        radial-gradient(circle at 82% 20%, rgba(37,99,235,.26), transparent 22%),
+        url('https://images.unsplash.com/photo-1522869635100-9f4c5e86aa37?auto=format&fit=crop&w=1600&q=80') center/cover;
+    }
+    .hero-inner{padding:44px 36px;min-height:520px;display:flex;flex-direction:column;justify-content:space-between}
+    .eyebrow{display:inline-flex;padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.08);color:#e2e8f0;font-size:12px;width:max-content}
+    .hero h2{margin:14px 0 14px;font-size:62px;line-height:1.02;max-width:760px}
+    .hero p{margin:0;max-width:760px;color:#dbe4ee;line-height:1.7;font-size:17px}
+    .hero-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:26px}
+    .btn{display:inline-flex;align-items:center;justify-content:center;border:none;border-radius:16px;padding:15px 18px;font-weight:800;cursor:pointer}
+    .btn.primary{background:linear-gradient(135deg,var(--brand),var(--brand-2));color:#fff}
+    .btn.ok{background:linear-gradient(135deg,#15803d,#16a34a);color:#fff}
+    .btn.ghost{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);color:#fff}
+    .hero-pills{display:flex;gap:10px;flex-wrap:wrap}
+    .pill{padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.08);color:#eef2f7;font-size:12px}
+    .section{padding:0 22px 24px}
+    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+    .card{padding:22px;border-radius:24px;background:linear-gradient(180deg,#111827,#0d1422);border:1px solid rgba(255,255,255,.06);box-shadow:var(--shadow)}
+    .card h3{margin:0 0 10px;font-size:22px}
+    .card p{margin:0;color:var(--muted);line-height:1.7;font-size:14px}
+    .icon{width:52px;height:52px;border-radius:16px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.06);font-size:22px;margin-bottom:14px}
+    .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+    .step{padding:20px;border-radius:22px;background:linear-gradient(180deg,#111827,#0d1422);border:1px solid rgba(255,255,255,.06)}
+    .step strong{display:block;margin-bottom:8px;font-size:18px}
+    .step span{display:block;color:var(--muted);font-size:14px;line-height:1.6}
+    .pricing{display:grid;grid-template-columns:1.1fr .9fr;gap:18px}
+    .price-big{padding:28px;border-radius:26px;background:linear-gradient(135deg,var(--brand),var(--brand-2));box-shadow:var(--shadow)}
+    .price-big small{display:block;opacity:.92;font-size:13px;margin-bottom:8px;letter-spacing:.14em;text-transform:uppercase}
+    .price-big strong{display:block;font-size:68px;line-height:1;margin-bottom:10px}
+    .price-big p{margin:0;color:#eef2f7;line-height:1.6}
+    .price-card{padding:24px;border-radius:26px;background:linear-gradient(180deg,#111827,#0d1422);border:1px solid rgba(255,255,255,.06)}
+    .price-card h3{margin:0 0 12px}
+    .feature-list{display:grid;gap:10px;margin-top:10px}
+    .feature{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.06)}
+    .feature:last-child{border-bottom:none}
+    .feature span{color:var(--muted)}
+    .cta{margin-top:16px;display:flex;gap:10px;flex-wrap:wrap}
+    .footer{padding:0 22px 30px;color:var(--muted);font-size:12px;line-height:1.7}
+    @media (max-width:1024px){
+      .grid,.steps,.pricing{grid-template-columns:1fr}
+      .hero h2{font-size:46px}
+    }
+    @media (max-width:720px){
+      .topbar{padding:16px;flex-direction:column;align-items:flex-start}
+      .hero{margin:16px}
+      .hero-inner{padding:24px;min-height:420px}
+      .hero h2{font-size:34px}
+      .section{padding:0 16px 18px}
+      .price-big strong{font-size:56px}
+      .nav{width:100%}
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <h1>COEZIV PLAYER</h1>
+      <p>Player premium pentru playlisturi M3U</p>
+    </div>
+    <nav class="nav">
+      <a href="#features">Funcții</a>
+      <a href="#flow">Cum merge</a>
+      <a href="#pricing">Preț</a>
+    </nav>
+  </header>  <section class="hero">
+    <div class="hero-inner">
+      <div>
+        <div class="eyebrow">M3U player premium</div>
+        <h2>Încarcă playlistul tău. Testează gratuit. Activează când ești gata.</h2>
+        <p>Coeziv Player este un launcher premium pentru playlisturi M3U, gândit pentru browser, TV și dispozitive moderne. Nu vinzi conținut. Vinzi experiența: interfață elegantă, import simplu, trial clar și activare reală legată de dispozitiv.</p>
+        <div class="hero-row">
+          <a class="btn primary" href="/iptv/player.html">Începe trial</a>
+          <a class="btn ok" href="/iptv/activate.html">Activează</a>
+          <a class="btn ghost" href="/iptv/request-code.html">Vreau cod</a>
         </div>
       </div>
-      <div class="card-body">
-        <div class="card-title">${escapeHtml(ch.title)}</div>
-        <div class="card-meta">
-          <span>Canal românesc</span>
-          <span>Online</span>
-        </div>
-        <button class="card-btn" type="button">Deschide</button>
+      <div class="hero-pills">
+        <span class="pill">Trial 7 zile</span>
+        <span class="pill">Activare unică</span>
+        <span class="pill">Import URL / fișier / text</span>
+        <span class="pill">Device ID + verificare server</span>
       </div>
-    `;
-
-    const open = () => window.open(ch.url, "_blank");
-
-    card.addEventListener("click", open);
-    card.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" || e.key === " ") {
-        e.preventDefault();
-        open();
-      }
-    });
-
-    card.querySelector(".card-btn").addEventListener("click", (e) => {
-      e.stopPropagation();
-      open();
-    });
-
-    grid.appendChild(card);
-  });
-}
-
-function escapeHtml(str){
-  return (str || "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
-}
-
-function getLogoText(title){
-  const clean = (title || "TV").replace(/[^a-zA-Z0-9\s]/g, " ").trim();
-  const words = clean.split(/\s+/).filter(Boolean);
-  if (!words.length) return "TV";
-  if (words.length === 1) return words[0].slice(0, 3).toUpperCase();
-  return (words[0][0] + words[1][0]).toUpperCase();
-}
-
-function getLogoMarkup(title, fallbackText){
-  const t = (title || "").toLowerCase();
-  const map = [
-    { match:["pro tv", "protv"], src:"https://upload.wikimedia.org/wikipedia/commons/8/89/Pro_TV_2022.svg" },
-    { match:["antena 1"], src:"https://upload.wikimedia.org/wikipedia/commons/7/72/Antena_1_2022.svg" },
-    { match:["digi24", "digi 24"], src:"https://upload.wikimedia.org/wikipedia/commons/3/36/Digi24_logo.svg" },
-    { match:["tvr 1", "tvr1"], src:"https://upload.wikimedia.org/wikipedia/commons/8/84/TVR_1_2019.svg" },
-    { match:["kanal d"], src:"https://upload.wikimedia.org/wikipedia/commons/5/5f/Kanal_D_Romania_logo.svg" },
-    { match:["romania tv"], src:"https://upload.wikimedia.org/wikipedia/commons/e/e8/Romania_TV_logo.svg" },
-    { match:["prima tv"], src:"https://upload.wikimedia.org/wikipedia/commons/6/6b/Prima_TV_logo_2013.svg" },
-    { match:["b1 tv", "b1"], src:"https://upload.wikimedia.org/wikipedia/commons/0/0a/B1_TV_logo.svg" }
-  ];
-  const found = map.find(item => item.match.some(m => t.includes(m)));
-  if (found) {
-    return `<img src="${found.src}" alt="logo" onerror="this.replaceWith(document.createElement('div'));">`;
-  }
-  return `<div class="logo-text">${escapeHtml(fallbackText)}</div>`;
-}
-
-function getPosterGradient(index){
-  const gradients = [
-    "linear-gradient(135deg,#0f172a,#1d4ed8)",
-    "linear-gradient(135deg,#3f0d12,#a71d31)",
-    "linear-gradient(135deg,#1f2937,#0f766e)",
-    "linear-gradient(135deg,#312e81,#7c3aed)",
-    "linear-gradient(135deg,#111827,#ea580c)",
-    "linear-gradient(135deg,#172554,#2563eb)",
-    "linear-gradient(135deg,#3f3f46,#e11d48)",
-    "linear-gradient(135deg,#052e16,#16a34a)"
-  ];
-  return gradients[index % gradients.length];
-}
-
-search.addEventListener("input", render);
-loadPlaylist();
-</script></body>
+    </div>
+  </section>  <section id="features" class="section">
+    <div class="grid">
+      <article class="card">
+        <div class="icon">🎞️</div>
+        <h3>Player / launcher premium</h3>
+        <p>Interfață curată, comercială, construită pentru playlisturi proprii M3U. Utilizatorul își vede rapid conținutul și îl deschide instant.</p>
+      </article>
+      <article class="card">
+        <div class="icon">🧩</div>
+        <h3>Import flexibil</h3>
+        <p>Poți încărca playlistul din URL, fișier local sau text lipit. Parserul este gândit pentru playlisturi reale, nu doar exemple perfecte.</p>
+      </article>
+      <article class="card">
+        <div class="icon">🔐</div>
+        <h3>Trial + activare</h3>
+        <p>Utilizatorul testează gratuit, apoi activează versiunea completă prin cod validat server-side și legat de Device ID.</p>
+      </article>
+    </div>
+  </section>  <section id="flow" class="section">
+    <div class="steps">
+      <article class="step">
+        <strong>1. Intră în player</strong>
+        <span>Utilizatorul ajunge în interfața de test și poate importa imediat playlistul propriu.</span>
+      </article>
+      <article class="step">
+        <strong>2. Testează trialul</strong>
+        <span>Poate vedea primele elemente, poate evalua designul și experiența fără să plătească imediat.</span>
+      </article>
+      <article class="step">
+        <strong>3. Cere cod</strong>
+        <span>Dacă vrea activare, ajunge pe pagina „Vreau cod”, unde Device ID-ul este preluat automat.</span>
+      </article>
+      <article class="step">
+        <strong>4. Activează</strong>
+        <span>Introduce licența și deblochează versiunea completă a aplicației, validată prin server.</span>
+      </article>
+    </div>
+  </section>  <section id="pricing" class="section">
+    <div class="pricing">
+      <div class="price-big">
+        <small>ofertă recomandată</small>
+        <strong>9€</strong>
+        <p>Activare unică pentru Coeziv Player. Bună pentru MVP, simplu de înțeles și ușor de vândut.</p>
+        <div class="cta">
+          <a class="btn ghost" href="/iptv/request-code.html">Vreau cod</a>
+          <a class="btn ghost" href="/iptv/activate.html">Am deja cod</a>
+        </div>
+      </div>
+      <div class="price-card">
+        <h3>Ce include</h3>
+        <div class="feature-list">
+          <div class="feature"><strong>Trial gratuit</strong><span>da</span></div>
+          <div class="feature"><strong>Import playlist</strong><span>URL / fișier / text</span></div>
+          <div class="feature"><strong>Activare server-side</strong><span>da</span></div>
+          <div class="feature"><strong>Device ID</strong><span>da</span></div>
+          <div class="feature"><strong>Fără limitare trial</strong><span>după activare</span></div>
+          <div class="feature"><strong>Potrivit pentru Vercel</strong><span>da</span></div>
+        </div>
+        <div class="cta">
+          <a class="btn primary" href="/iptv/player.html">Începe trial</a>
+        </div>
+      </div>
+    </div>
+  </section>  <div class="footer">
+    Structură recomandată pentru MVP: <strong>/iptv/index.html</strong> pentru landing, <strong>/iptv/player.html</strong> pentru aplicație, <strong>/iptv/activate.html</strong> pentru activare și <strong>/iptv/request-code.html</strong> pentru cererea de cod.
+  </div>
+</body>
 </html>
