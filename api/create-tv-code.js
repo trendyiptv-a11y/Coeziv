@@ -9,17 +9,34 @@ function makeCode(length = 5) {
   return out;
 }
 
+function cleanupExpired() {
+  const now = Date.now();
+  for (const [key, value] of store.entries()) {
+    if (!value || !value.expiresAt || now > value.expiresAt) {
+      store.delete(key);
+    }
+  }
+}
+
 export default async function handler(req, res) {
   if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
+    return res.status(405).json({
+      ok: false,
+      error: "Method not allowed"
+    });
   }
 
   try {
+    cleanupExpired();
+
     const body = req.body || {};
     const playlistText = String(body.playlistText || "").trim();
 
     if (!playlistText) {
-      return res.status(400).json({ error: "Missing playlistText" });
+      return res.status(400).json({
+        ok: false,
+        error: "Missing playlistText"
+      });
     }
 
     let code = makeCode();
@@ -27,11 +44,12 @@ export default async function handler(req, res) {
       code = makeCode();
     }
 
-    const expiresAt = Date.now() + 10 * 60 * 1000; // 10 minute
+    const expiresAt = Date.now() + 10 * 60 * 1000;
+
     store.set(code, {
       playlistText,
       expiresAt,
-      used: false
+      createdAt: Date.now()
     });
 
     return res.status(200).json({
@@ -40,6 +58,9 @@ export default async function handler(req, res) {
       expiresInMinutes: 10
     });
   } catch (err) {
-    return res.status(500).json({ error: "Could not create TV code" });
+    return res.status(500).json({
+      ok: false,
+      error: "Could not create TV code"
+    });
   }
 }
