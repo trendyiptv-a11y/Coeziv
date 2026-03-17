@@ -1,60 +1,24 @@
-import store from "./tv-store.js";
-
-function cleanupExpired() {
-  const now = Date.now();
-  for (const [key, value] of store.entries()) {
-    if (!value || !value.expiresAt || now > value.expiresAt) {
-      store.delete(key);
-    }
-  }
-}
-
 export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).json({
-      ok: false,
-      error: "Method not allowed"
-    });
-  }
-
   try {
-    cleanupExpired();
+    const { code } = req.body;
 
-    const body = req.body || {};
-    const code = String(body.code || "").trim().toUpperCase();
+    const response = await fetch(
+      process.env.KV_REST_API_URL + "/get/tv:" + code,
+      {
+        headers: {
+          Authorization: "Bearer " + process.env.KV_REST_API_TOKEN
+        }
+      }
+    );
 
-    if (!code) {
-      return res.status(400).json({
-        ok: false,
-        error: "Missing code"
-      });
+    const data = await response.json();
+
+    if (!data.result) {
+      return res.status(404).json({ error: "Cod invalid sau expirat" });
     }
 
-    const record = store.get(code);
-
-    if (!record) {
-      return res.status(404).json({
-        ok: false,
-        error: "Code not found"
-      });
-    }
-
-    if (Date.now() > record.expiresAt) {
-      store.delete(code);
-      return res.status(410).json({
-        ok: false,
-        error: "Code expired"
-      });
-    }
-
-    return res.status(200).json({
-      ok: true,
-      playlistText: record.playlistText
-    });
+    res.json({ playlist: data.result });
   } catch (err) {
-    return res.status(500).json({
-      ok: false,
-      error: "Could not load TV code"
-    });
+    res.status(500).json({ error: "Server error" });
   }
 }
