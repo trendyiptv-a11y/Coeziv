@@ -300,10 +300,11 @@ function refreshActivationStatus(){
   document.getElementById("listInfo").innerText =
     isActivated
       ? "Licență activă: vezi toate canalele."
-      : `În trial vezi primele ${LIMIT} rezultate.`
+      : "În trial vezi primele " + LIMIT + " rezultate."
 }
 
-function setMessage(text, type="warn"){
+function setMessage(text, type){
+  if(!type) type = "warn"
   const box = document.getElementById("messageBox")
   box.className = "message" +
     (type === "ok" ? " ok" : type === "err" ? " err" : "")
@@ -324,7 +325,7 @@ function escapeHtml(text){
 }
 
 function parseM3U(text){
-  const lines = text.split(/\r?\n/).map(x => x.trim()).filter(Boolean)
+  const lines = text.split(/\r?\n/).map(function(x){ return x.trim() }).filter(Boolean)
   const channels = []
   let pendingMeta = null
 
@@ -336,7 +337,7 @@ function parseM3U(text){
       if(line.includes(",")){
         name = line.split(",").slice(1).join(",").trim() || "Canal necunoscut"
       }
-      pendingMeta = { name }
+      pendingMeta = { name: name }
       continue
     }
 
@@ -352,10 +353,10 @@ function parseM3U(text){
         })
         pendingMeta = null
       }else{
-        const prev = lines[i-1] || ""
+        const prev = lines[i - 1] || ""
         const fallback = (!prev.startsWith("#") && !/^https?:\/\//i.test(prev))
           ? prev
-          : `Canal ${channels.length + 1}`
+          : "Canal " + (channels.length + 1)
 
         channels.push({
           name: fallback,
@@ -365,7 +366,7 @@ function parseM3U(text){
       continue
     }
 
-    const next = lines[i+1] || ""
+    const next = lines[i + 1] || ""
     if(!line.startsWith("#") && /^https?:\/\//i.test(next)){
       channels.push({
         name: line,
@@ -407,19 +408,15 @@ function renderChannels(list){
     const div = document.createElement("div")
     div.className = "channel"
 
-    div.innerHTML = `
-      <div class="channel-title">${escapeHtml(ch.name)}</div>
-      <a href="${escapeHtml(ch.url)}" target="_blank" rel="noopener noreferrer">Play</a>
-    `
+    div.innerHTML =
+      "<div class=\"channel-title\">" + escapeHtml(ch.name) + "</div>" +
+      "<a href=\"" + escapeHtml(ch.url) + "\" target=\"_blank\" rel=\"noopener noreferrer\">Play</a>"
 
     box.appendChild(div)
   }
 
   if(!isActivated && list.length > LIMIT){
-    footer.innerHTML = `
-      Trial limit: ${LIMIT} canale<br>
-      Activează pentru acces complet.
-    `
+    footer.innerHTML = "Trial limit: " + LIMIT + " canale<br>Activează pentru acces complet."
   }
 }
 
@@ -428,7 +425,7 @@ function applyParsedChannels(channels){
   renderChannels(allChannels)
 
   if(channels.length){
-    setMessage(`Playlist încărcat cu succes: ${channels.length} canale.`, "ok")
+    setMessage("Playlist încărcat cu succes: " + channels.length + " canale.", "ok")
   }else{
     setMessage("Textul nu conține un playlist valid.", "err")
   }
@@ -444,12 +441,24 @@ async function loadURL(){
 
   try{
     setMessage("Se încarcă playlistul...")
-    const res = await fetch(url)
-    if(!res.ok){
-      throw new Error("Nu am putut încărca URL-ul playlistului.")
+
+    const res = await fetch("/api/fetch-playlist", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ url: url })
+    })
+
+    const data = await res.json()
+
+    if(!res.ok || !data.ok){
+      throw new Error(data.error || "Nu am putut încărca URL-ul playlistului.")
     }
-    const text = await res.text()
+
+    const text = data.text || ""
     document.getElementById("textInput").value = text
+
     const channels = parseM3U(text)
     applyParsedChannels(channels)
   }catch(err){
@@ -460,16 +469,16 @@ async function loadURL(){
 function loadDemo(){
   setMessage("Se încarcă demo...")
   fetch("romanesti.m3u")
-    .then(r => {
+    .then(function(r){
       if(!r.ok) throw new Error("Nu am putut încărca demo-ul.")
       return r.text()
     })
-    .then(text => {
+    .then(function(text){
       document.getElementById("textInput").value = text
       const channels = parseM3U(text)
       applyParsedChannels(channels)
     })
-    .catch(err => {
+    .catch(function(err){
       setMessage(err.message || "Eroare la demo.", "err")
     })
 }
@@ -529,8 +538,12 @@ function generateTVCode(){
       playlistText: playlistText
     })
   })
-  .then(res => res.json().then(data => ({ ok: res.ok, data })))
-  .then(result => {
+  .then(function(res){
+    return res.json().then(function(data){
+      return { ok: res.ok, data: data }
+    })
+  })
+  .then(function(result){
     if(!result.ok || !result.data.ok){
       throw new Error(result.data.error || "Nu am putut genera codul.")
     }
@@ -544,7 +557,7 @@ function generateTVCode(){
 
     setMessage("Cod generat cu succes.", "ok")
   })
-  .catch(err => {
+  .catch(function(err){
     setMessage(err.message || "Eroare la generare.", "err")
   })
 }
@@ -568,7 +581,7 @@ function goRequestCode(){
   window.location.href = "request-code.html"
 }
 
-window.addEventListener("focus", () => {
+window.addEventListener("focus", function(){
   refreshActivationStatus()
   if(allChannels.length){
     renderChannels(allChannels)
