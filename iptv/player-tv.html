@@ -454,27 +454,6 @@
     applyParsedChannels(parseM3U(text));
   }
 
-  function loadFromPayload(){
-    try{
-      var hash = window.location.hash || "";
-      if(hash.indexOf("#p=") !== 0){
-        return;
-      }
-
-      var encoded = hash.substring(3);
-      if(!encoded){
-        return;
-      }
-
-      var text = decodeURIComponent(escape(atob(encoded)));
-      document.getElementById("textInput").value = text;
-      applyParsedChannels(parseM3U(text));
-      setMessage("Playlist încărcat automat din link TV.", "ok");
-    }catch(e){
-      setMessage("Nu am putut citi playlistul din link.", "err");
-    }
-  }
-
   function resetPlayer(){
     document.getElementById("urlInput").value = "";
     document.getElementById("textInput").value = "";
@@ -499,7 +478,6 @@
   };
 
   refreshActivationStatus();
-  loadFromPayload();
 </script>
 
 </body>
