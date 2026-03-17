@@ -264,7 +264,7 @@ button{
     <div class="row">
       <button class="btn-green" onclick="goActivate()">Activează</button>
       <button class="btn-gray" onclick="goRequestCode()">Vreau cod</button>
-      <button class="btn-gray" onclick="generateTVCode()">Generează cod TV</button>
+      <button class="btn-gray" onclick="generateTVLink()">Generează link TV</button>
     </div>
 
     <div id="messageBox" class="message">
@@ -515,7 +515,7 @@ function loadFile(e){
   reader.readAsText(file)
 }
 
-function generateTVCode(){
+function generateTVLink(){
   const playlistText = document.getElementById("textInput").value
   const tvCodeBox = document.getElementById("tvCodeBox")
 
@@ -527,39 +527,23 @@ function generateTVCode(){
     return
   }
 
-  setMessage("Se generează codul TV...")
+  try{
+    setMessage("Se generează linkul TV...")
 
-  fetch("/api/create-tv-code", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      playlistText: playlistText
-    })
-  })
-  .then(function(res){
-    return res.json().then(function(data){
-      return { ok: res.ok, data: data }
-    })
-  })
-  .then(function(result){
-    if(!result.ok || !result.data.ok){
-      throw new Error(result.data.error || "Nu am putut genera codul.")
-    }
+    const encoded = btoa(unescape(encodeURIComponent(playlistText)))
+    const tvUrl = window.location.origin + window.location.pathname.replace("player.html", "player-tv.html") + "#p=" + encoded
 
     tvCodeBox.style.display = "block"
     tvCodeBox.className = "message ok"
     tvCodeBox.innerHTML =
-      "Cod TV: <strong style='font-size:26px;letter-spacing:3px;'>" + result.data.code + "</strong><br>" +
-      "Valabil " + result.data.expiresInMinutes + " minute.<br>" +
-      "Deschide <strong>player-tv.html</strong> pe televizor și introdu codul."
+      "Link TV generat cu succes.<br><br>" +
+      "<strong>Deschide acest link pe televizor:</strong><br>" +
+      "<a href=\"" + tvUrl + "\" target=\"_blank\" rel=\"noopener noreferrer\" style=\"color:#93c5fd;word-break:break-all;\">" + tvUrl + "</a>"
 
-    setMessage("Cod generat cu succes.", "ok")
-  })
-  .catch(function(err){
-    setMessage(err.message || "Eroare la generare.", "err")
-  })
+    setMessage("Link TV generat cu succes.", "ok")
+  }catch(err){
+    setMessage("Nu am putut genera linkul TV.", "err")
+  }
 }
 
 function resetPlayer(){
