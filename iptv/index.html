@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="ro">
+<!DOCTYPE html>
+<html lang="ro">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -15,6 +16,8 @@
   --brand-hover:#1d4ed8;
   --secondary:#1f2937;
   --secondary-hover:#374151;
+  --tv:#16a34a;
+  --tv-hover:#15803d;
   --line:rgba(255,255,255,0.06);
   --shadow:0 18px 40px rgba(0,0,0,.35);
   --radius:18px;
@@ -83,7 +86,7 @@ nav a:hover{
 .hero p{
   font-size:18px;
   color:var(--muted);
-  max-width:680px;
+  max-width:720px;
   margin:auto;
   line-height:1.65;
 }
@@ -107,12 +110,23 @@ button{
   background:var(--brand);
   color:white;
 }
-.btn-main:hover{background:var(--brand-hover)}
+.btn-main:hover{
+  background:var(--brand-hover);
+}
 .btn-secondary{
   background:var(--secondary);
   color:white;
 }
-.btn-secondary:hover{background:var(--secondary-hover)}
+.btn-secondary:hover{
+  background:var(--secondary-hover);
+}
+.btn-tv{
+  background:var(--tv);
+  color:white;
+}
+.btn-tv:hover{
+  background:var(--tv-hover);
+}
 .features{
   display:grid;
   grid-template-columns:repeat(2,minmax(0,1fr));
@@ -218,49 +232,61 @@ footer{
     <nav>
       <a href="/iptv/player.html">Player</a>
       <a href="/iptv/activate.html">Activează</a>
-      <a href="/iptv/request-code.html">Cod licență</a>
+      <a href="/iptv/player-tv.html">Smart TV</a>
     </nav>
-  </header>  <section class="hero">
+  </header>
+
+  <section class="hero">
     <h1>Player IPTV modern pentru playlisturi M3U</h1>
     <p>
       Încarcă playlistul tău și urmărește canalele direct din browser.
-      Simplu, rapid și compatibil cu majoritatea streamurilor IPTV.
-    </p><div class="buttons">
-  <button class="btn-main" onclick="openPlayer()">Deschide Playerul</button>
-  <button class="btn-secondary" onclick="openActivate()">Activează Licența</button>
-</div>
+      Simplu, rapid și fără instalare. Disponibil și în variantă optimizată
+      pentru televizoare smart și browsere mai sensibile.
+    </p>
 
-  </section>  <section class="features">
+    <div class="buttons">
+      <button class="btn-main" onclick="openPlayer()">Deschide Playerul</button>
+      <button class="btn-secondary" onclick="openActivate()">Activează Licența</button>
+      <button class="btn-tv" onclick="openTV()">Versiune Smart TV</button>
+    </div>
+  </section>
+
+  <section class="features">
     <div class="feature">
       <h3>Import playlist</h3>
       <p>
-        Poți încărca playlisturi M3U din URL, fișier local sau text.
+        Poți încărca playlisturi M3U din URL sau text, rapid și direct din browser.
       </p>
-    </div><div class="feature">
-  <h3>Compatibilitate</h3>
-  <p>
-    Suport pentru majoritatea streamurilor IPTV și linkurilor media.
-  </p>
-</div>
+    </div>
 
-<div class="feature">
-  <h3>Trial gratuit</h3>
-  <p>
-    Testează playerul în modul trial înainte de activare.
-  </p>
-</div>
+    <div class="feature">
+      <h3>Fără instalare</h3>
+      <p>
+        Playerul rulează direct în browser pe PC, laptop, Android și unele televizoare smart.
+      </p>
+    </div>
 
-<div class="feature">
-  <h3>Activare rapidă</h3>
-  <p>
-    Activează licența și obține acces complet la toate canalele.
-  </p>
-</div>
+    <div class="feature">
+      <h3>Trial gratuit</h3>
+      <p>
+        Testează playerul înainte de activare și verifică dacă se potrivește modului tău de utilizare.
+      </p>
+    </div>
 
-  </section>  <footer>
+    <div class="feature">
+      <h3>Versiune TV dedicată</h3>
+      <p>
+        Pentru browsere de televizor există o versiune simplificată, cu compatibilitate mai bună.
+      </p>
+    </div>
+  </section>
+
+  <footer>
     © Coeziv Player
   </footer>
-</div><script>
+</div>
+
+<script>
 function openPlayer(){
   window.location.href = "/iptv/player.html";
 }
@@ -268,5 +294,10 @@ function openPlayer(){
 function openActivate(){
   window.location.href = "/iptv/activate.html";
 }
-</script></body>
+
+function openTV(){
+  window.location.href = "/iptv/player-tv.html";
+}
+</script>
+</body>
 </html>
