@@ -264,14 +264,11 @@ button{
     <div class="row">
       <button class="btn-green" onclick="goActivate()">Activează</button>
       <button class="btn-gray" onclick="goRequestCode()">Vreau cod</button>
-      <button class="btn-gray" onclick="generateTVLink()">Generează link TV</button>
     </div>
 
     <div id="messageBox" class="message">
       În trial poți vedea primele 30 de elemente din playlist.
     </div>
-
-    <div id="tvCodeBox" class="message ok" style="display:none;"></div>
 
     <div class="status-bar">
       <div id="activationBadge" class="badge">Stare: FREE</div>
@@ -515,43 +512,10 @@ function loadFile(e){
   reader.readAsText(file)
 }
 
-function generateTVLink(){
-  const playlistText = document.getElementById("textInput").value
-  const tvCodeBox = document.getElementById("tvCodeBox")
-
-  tvCodeBox.style.display = "none"
-  tvCodeBox.innerHTML = ""
-
-  if(!playlistText.trim()){
-    setMessage("Încarcă mai întâi un playlist în player.", "err")
-    return
-  }
-
-  try{
-    setMessage("Se generează linkul TV...")
-
-    const encoded = btoa(unescape(encodeURIComponent(playlistText)))
-    const tvUrl = window.location.origin + window.location.pathname.replace("player.html", "player-tv.html") + "#p=" + encoded
-
-    tvCodeBox.style.display = "block"
-    tvCodeBox.className = "message ok"
-    tvCodeBox.innerHTML =
-      "Link TV generat cu succes.<br><br>" +
-      "<strong>Deschide acest link pe televizor:</strong><br>" +
-      "<a href=\"" + tvUrl + "\" target=\"_blank\" rel=\"noopener noreferrer\" style=\"color:#93c5fd;word-break:break-all;\">" + tvUrl + "</a>"
-
-    setMessage("Link TV generat cu succes.", "ok")
-  }catch(err){
-    setMessage("Nu am putut genera linkul TV.", "err")
-  }
-}
-
 function resetPlayer(){
   document.getElementById("urlInput").value = ""
   document.getElementById("textInput").value = ""
   document.getElementById("fileInput").value = ""
-  document.getElementById("tvCodeBox").style.display = "none"
-  document.getElementById("tvCodeBox").innerHTML = ""
   allChannels = []
   renderChannels([])
   setMessage("Player resetat.")
