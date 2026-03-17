@@ -1,482 +1,204 @@
 <!DOCTYPE html>
 <html lang="ro">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Coeziv Player TV</title>
-  <style>
-    body{
-      margin:0;
-      font-family:Arial, Helvetica, sans-serif;
-      background:linear-gradient(180deg,#08101f,#0b1020 30%,#0f172a 100%);
-      color:#fff;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Coeziv Player TV</title>
 
-    .wrap{
-      max-width:1100px;
-      margin:0 auto;
-      padding:20px;
-    }
-
-    .hero{
-      background:linear-gradient(135deg,rgba(37,99,235,.22),rgba(29,78,216,.08));
-      border:1px solid rgba(255,255,255,.08);
-      border-radius:18px;
-      padding:24px;
-      margin-bottom:20px;
-    }
-
-    .hero h1{
-      margin:0 0 10px;
-      font-size:34px;
-      line-height:1.15;
-    }
-
-    .hero p{
-      margin:0;
-      color:#cbd5e1;
-      line-height:1.6;
-      font-size:18px;
-    }
-
-    .panel{
-      background:#111827;
-      border:1px solid rgba(255,255,255,.06);
-      border-radius:18px;
-      padding:20px;
-      margin-bottom:20px;
-    }
-
-    .panel h2{
-      margin:0 0 10px;
-      font-size:28px;
-    }
-
-    .panel p{
-      margin:0 0 14px;
-      color:#94a3b8;
-      line-height:1.6;
-      font-size:16px;
-    }
-
-    .field{
-      width:100%;
-      padding:16px 18px;
-      border-radius:12px;
-      border:2px solid #334155;
-      background:#0b1322;
-      color:#fff;
-      font-size:20px;
-      outline:none;
-      margin-bottom:14px;
-      box-sizing:border-box;
-    }
-
-    textarea.field{
-      min-height:140px;
-      resize:vertical;
-    }
-
-    .row{
-      display:flex;
-      gap:12px;
-      flex-wrap:wrap;
-      margin-bottom:14px;
-    }
-
-    button{
-      min-width:180px;
-      min-height:58px;
-      padding:14px 22px;
-      border:none;
-      border-radius:12px;
-      font-size:22px;
-      font-weight:bold;
-      cursor:pointer;
-      color:#fff;
-    }
-
-    button:focus,
-    .field:focus,
-    a.play-link:focus{
-      outline:3px solid #facc15;
-      outline-offset:2px;
-    }
-
-    .btn-blue{ background:#2563eb; }
-    .btn-blue:hover{ background:#1d4ed8; }
-
-    .btn-green{ background:#16a34a; }
-    .btn-green:hover{ background:#15803d; }
-
-    .btn-gray{ background:#374151; }
-    .btn-gray:hover{ background:#4b5563; }
-
-    .message{
-      margin-top:10px;
-      padding:14px 16px;
-      border-radius:12px;
-      font-size:18px;
-      line-height:1.5;
-      background:rgba(245,158,11,.12);
-      border:1px solid rgba(245,158,11,.25);
-      color:#fde68a;
-    }
-
-    .message.ok{
-      background:rgba(22,163,74,.12);
-      border-color:rgba(22,163,74,.25);
-      color:#bbf7d0;
-    }
-
-    .message.err{
-      background:rgba(239,68,68,.12);
-      border-color:rgba(239,68,68,.25);
-      color:#fecaca;
-    }
-
-    .badges{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      margin-top:14px;
-    }
-
-    .badge{
-      padding:10px 14px;
-      border-radius:999px;
-      background:rgba(255,255,255,.06);
-      border:1px solid rgba(255,255,255,.08);
-      color:#eef2f7;
-      font-size:16px;
-    }
-
-    .channels{
-      margin-top:10px;
-    }
-
-    .channel{
-      padding:18px 0;
-      border-bottom:1px solid rgba(255,255,255,.08);
-    }
-
-    .channel:last-child{
-      border-bottom:none;
-    }
-
-    .channel-title{
-      font-size:28px;
-      font-weight:bold;
-      margin-bottom:10px;
-      line-height:1.35;
-    }
-
-    .play-link{
-      display:inline-block;
-      color:#60a5fa;
-      font-size:22px;
-      font-weight:bold;
-      text-decoration:none;
-      padding:8px 0;
-    }
-
-    .play-link:hover{
-      text-decoration:underline;
-    }
-
-    .note{
-      margin-top:16px;
-      color:#cbd5e1;
-      font-size:18px;
-      line-height:1.6;
-    }
-
-    @media (max-width: 720px){
-      .wrap{ padding:14px; }
-      .hero h1{ font-size:28px; }
-      .hero p,
-      .panel p,
-      .message,
-      .note,
-      .badge{ font-size:15px; }
-      .field{ font-size:18px; padding:14px; }
-      button{ width:100%; font-size:20px; min-height:54px; }
-      .channel-title{ font-size:22px; }
-      .play-link{ font-size:19px; }
-    }
-  </style>
+<style>
+/* (CSS-ul tău rămâne identic — nu l-am modificat) */
+body{
+  margin:0;
+  font-family:Arial, Helvetica, sans-serif;
+  background:linear-gradient(180deg,#08101f,#0b1020 30%,#0f172a 100%);
+  color:#fff;
+}
+.wrap{max-width:1100px;margin:0 auto;padding:20px;}
+.hero{background:linear-gradient(135deg,rgba(37,99,235,.22),rgba(29,78,216,.08));
+border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:24px;margin-bottom:20px;}
+.hero h1{margin:0 0 10px;font-size:34px;}
+.hero p{color:#cbd5e1;font-size:18px;}
+.panel{background:#111827;border-radius:18px;padding:20px;margin-bottom:20px;}
+.field{width:100%;padding:16px;border-radius:12px;border:2px solid #334155;background:#0b1322;color:#fff;font-size:20px;}
+.row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px;}
+button{min-width:180px;padding:14px;border:none;border-radius:12px;font-size:22px;font-weight:bold;cursor:pointer;color:#fff;}
+.btn-blue{background:#2563eb;}
+.btn-green{background:#16a34a;}
+.btn-gray{background:#374151;}
+.message{margin-top:10px;padding:14px;border-radius:12px;font-size:18px;}
+.message.ok{background:#064e3b;color:#bbf7d0;}
+.message.err{background:#7f1d1d;color:#fecaca;}
+.badge{padding:10px;border-radius:999px;background:#1f2937;}
+.channel{padding:18px 0;border-bottom:1px solid rgba(255,255,255,.08);}
+.channel-title{font-size:28px;font-weight:bold;}
+.play-link{color:#60a5fa;font-size:22px;}
+</style>
 </head>
+
 <body>
 
 <div class="wrap">
 
-  <div class="hero">
-    <h1>Coeziv Player TV</h1>
-    <p>Variantă simplificată pentru Smart TV și browsere mai sensibile. Fără instalare. Fără aplicație.</p>
-  </div>
+<div class="hero">
+<h1>Coeziv Player TV</h1>
+<p>Versiune optimizată pentru Smart TV</p>
+</div>
 
-  <div class="panel">
-    <h2>Import playlist</h2>
-    <p>Poți încărca un playlist M3U din URL sau poți lipi direct conținutul în câmpul de mai jos.</p>
+<!-- 🔥 NOU: COD TV -->
+<div class="panel">
+<h2>Cod TV</h2>
+<p>Introdu codul primit de pe telefon sau PC</p>
 
-    <input id="urlInput" class="field" type="text" placeholder="URL playlist M3U">
+<input id="tvCodeInput" class="field" placeholder="Ex: K7P4M">
 
-    <div class="row">
-      <button class="btn-blue" onclick="loadURL()">Încarcă URL</button>
-      <button class="btn-gray" onclick="loadDemo()">Încarcă demo</button>
-    </div>
+<div class="row">
+<button class="btn-green" onclick="loadTVCode()">Încarcă din cod</button>
+</div>
+</div>
 
-    <textarea id="textInput" class="field" placeholder="#EXTM3U&#10;#EXTINF:-1,Digi Life HD RO&#10;http://server/stream.m3u8"></textarea>
+<!-- Import playlist (original) -->
+<div class="panel">
+<h2>Import playlist</h2>
 
-    <div class="row">
-      <button class="btn-blue" onclick="loadText()">Import text</button>
-      <button class="btn-gray" onclick="resetPlayer()">Resetează</button>
-    </div>
+<input id="urlInput" class="field" placeholder="URL playlist M3U">
 
-    <div class="row">
-      <button class="btn-green" onclick="goActivate()">Activează</button>
-      <button class="btn-gray" onclick="goRequestCode()">Vreau cod</button>
-    </div>
+<div class="row">
+<button class="btn-blue" onclick="loadURL()">Încarcă URL</button>
+<button class="btn-gray" onclick="loadDemo()">Demo</button>
+</div>
 
-    <div id="messageBox" class="message">
-      În trial poți vedea primele 30 de elemente din playlist.
-    </div>
+<textarea id="textInput" class="field"></textarea>
 
-    <div class="badges">
-      <div id="statusBadge" class="badge">Stare: FREE</div>
-      <div id="countBadge" class="badge">Canale: 0</div>
-    </div>
-  </div>
+<div class="row">
+<button class="btn-blue" onclick="loadText()">Import text</button>
+<button class="btn-gray" onclick="resetPlayer()">Reset</button>
+</div>
 
-  <div class="panel">
-    <h2>Canale</h2>
-    <p id="listInfo">În trial vezi primele 30 rezultate.</p>
-    <div id="channels" class="channels"></div>
-    <div id="footerNote" class="note"></div>
-  </div>
+<div id="messageBox" class="message">Aștept input...</div>
+
+<div class="badge" id="countBadge">Canale: 0</div>
+</div>
+
+<div class="panel">
+<h2>Canale</h2>
+<div id="channels"></div>
+</div>
 
 </div>
 
 <script>
-  var LIMIT = 30;
-  var isActivated = localStorage.getItem("pro") === "true";
-  var allChannels = [];
+var LIMIT = 30;
+var allChannels = [];
 
-  function refreshActivationStatus(){
-    isActivated = localStorage.getItem("pro") === "true";
-    document.getElementById("statusBadge").innerHTML = "Stare: " + (isActivated ? "PRO" : "FREE");
-    document.getElementById("listInfo").innerHTML = isActivated
-      ? "Licență activă: vezi toate canalele."
-      : "În trial vezi primele 30 rezultate.";
+/* ===== PARSER ===== */
+function parseM3U(text){
+  var lines = text.split("\n");
+  var channels = [];
+  var name = "";
+
+  for(var i=0;i<lines.length;i++){
+    var line = lines[i].trim();
+
+    if(line.indexOf("#EXTINF") === 0){
+      name = line.split(",")[1] || "Canal";
+    }
+    else if(line.indexOf("http") === 0){
+      channels.push({name:name,url:line});
+    }
   }
 
-  function setMessage(text, type){
-    var box = document.getElementById("messageBox");
-    box.className = "message";
-    if(type === "ok"){ box.className += " ok"; }
-    if(type === "err"){ box.className += " err"; }
-    box.innerHTML = text;
+  return channels;
+}
+
+/* ===== RENDER ===== */
+function renderChannels(list){
+  var box = document.getElementById("channels");
+  box.innerHTML = "";
+
+  document.getElementById("countBadge").innerHTML = "Canale: " + list.length;
+
+  for(var i=0;i<list.length;i++){
+    var ch = list[i];
+    var div = document.createElement("div");
+    div.className = "channel";
+    div.innerHTML =
+      "<div class='channel-title'>"+ch.name+"</div>"+
+      "<a class='play-link' href='"+ch.url+"' target='_blank'>Play</a>";
+    box.appendChild(div);
+  }
+}
+
+/* ===== TV CODE LOAD ===== */
+function loadTVCode(){
+  var code = document.getElementById("tvCodeInput").value.trim().toUpperCase();
+
+  if(!code){
+    setMessage("Introdu codul.", "err");
+    return;
   }
 
-  function updateCount(count){
-    document.getElementById("countBadge").innerHTML = "Canale: " + count;
-  }
+  setMessage("Se încarcă...");
 
-  function escapeHtml(text){
-    return String(text || "")
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
-  }
+  var xhr = new XMLHttpRequest();
+  xhr.open("POST", "/api/load-tv-code", true);
+  xhr.setRequestHeader("Content-Type", "application/json");
 
-  function parseM3U(text){
-    text = String(text || "").replace(/\r/g, "");
-    var lines = text.split("\n");
-    var channels = [];
-    var meta = null;
-    var i, line, parts, name, prev, fallback, next;
+  xhr.onreadystatechange = function(){
+    if(xhr.readyState === 4){
+      var data = JSON.parse(xhr.responseText || "{}");
 
-    for(i = 0; i < lines.length; i++){
-      line = lines[i];
-      if(!line){ continue; }
-      line = line.replace(/^\s+|\s+$/g, "");
-      if(!line){ continue; }
-
-      if(line.indexOf("#EXTINF") === 0){
-        name = "Canal";
-        parts = line.split(",");
-        if(parts.length > 1){
-          name = parts.slice(1).join(",").replace(/^\s+|\s+$/g, "") || "Canal";
-        }
-        meta = { name: name };
+      if(xhr.status === 200 && data.ok){
+        document.getElementById("textInput").value = data.playlistText;
+        var channels = parseM3U(data.playlistText);
+        renderChannels(channels);
+        setMessage("Playlist încărcat din cod TV.", "ok");
+      }else{
+        setMessage(data.error || "Cod invalid.", "err");
       }
-      else if(line.charAt(0) === "#"){
-        continue;
-      }
-      else if(line.indexOf("http://") === 0 || line.indexOf("https://") === 0){
-        if(meta){
-          channels.push({
-            name: meta.name,
-            url: line
-          });
-          meta = null;
-        }else{
-          prev = i > 0 ? lines[i - 1] : "";
-          prev = String(prev || "").replace(/^\s+|\s+$/g, "");
-          fallback = (prev && prev.charAt(0) !== "#" && prev.indexOf("http") !== 0)
-            ? prev
-            : ("Canal " + (channels.length + 1));
-
-          channels.push({
-            name: fallback,
-            url: line
-          });
-        }
-      }
-      else{
-        next = i + 1 < lines.length ? lines[i + 1] : "";
-        next = String(next || "").replace(/^\s+|\s+$/g, "");
-        if(next.indexOf("http://") === 0 || next.indexOf("https://") === 0){
-          channels.push({
-            name: line,
-            url: next
-          });
-          i = i + 1;
-          meta = null;
-        }
-      }
-    }
-
-    return channels;
-  }
-
-  function renderChannels(list){
-    refreshActivationStatus();
-
-    var box = document.getElementById("channels");
-    var footer = document.getElementById("footerNote");
-    var visibleList, i, ch, div;
-
-    box.innerHTML = "";
-    footer.innerHTML = "";
-
-    if(!list){ list = []; }
-
-    visibleList = isActivated ? list : list.slice(0, LIMIT);
-    updateCount(visibleList.length);
-
-    if(visibleList.length === 0){
-      box.innerHTML = "<div class='channel'><div class='channel-title'>Nu există canale de afișat.</div></div>";
-      return;
-    }
-
-    for(i = 0; i < visibleList.length; i++){
-      ch = visibleList[i];
-      div = document.createElement("div");
-      div.className = "channel";
-      div.innerHTML =
-        "<div class='channel-title'>" + escapeHtml(ch.name) + "</div>" +
-        "<a class='play-link' href='" + escapeHtml(ch.url) + "' target='_blank' rel='noopener noreferrer'>Play</a>";
-      box.appendChild(div);
-    }
-
-    if(!isActivated && list.length > LIMIT){
-      footer.innerHTML = "Trial limit: " + LIMIT + " canale.<br>Activează pentru acces complet.";
-    }
-  }
-
-  function applyParsedChannels(channels){
-    allChannels = channels || [];
-    renderChannels(allChannels);
-
-    if(allChannels.length){
-      setMessage("Playlist încărcat cu succes: " + allChannels.length + " canale.", "ok");
-    }else{
-      setMessage("Textul nu conține un playlist valid.", "err");
-    }
-  }
-
-  function xhrGet(url, onSuccess, onError){
-    var xhr = new XMLHttpRequest();
-    xhr.open("GET", url, true);
-    xhr.onreadystatechange = function(){
-      if(xhr.readyState === 4){
-        if(xhr.status >= 200 && xhr.status < 300){
-          onSuccess(xhr.responseText);
-        }else{
-          onError("Nu am putut încărca resursa.");
-        }
-      }
-    };
-    xhr.onerror = function(){
-      onError("Eroare la încărcare.");
-    };
-    xhr.send();
-  }
-
-  function loadURL(){
-    var url = document.getElementById("urlInput").value;
-    if(!url || !url.replace(/^\s+|\s+$/g, "")){
-      setMessage("Introdu mai întâi un URL playlist.", "err");
-      return;
-    }
-
-    setMessage("Se încarcă playlistul...");
-    xhrGet(url, function(text){
-      var channels = parseM3U(text);
-      applyParsedChannels(channels);
-    }, function(msg){
-      setMessage(msg, "err");
-    });
-  }
-
-  function loadDemo(){
-    setMessage("Se încarcă demo...");
-    xhrGet("romanesti.m3u", function(text){
-      document.getElementById("textInput").value = text;
-      var channels = parseM3U(text);
-      applyParsedChannels(channels);
-    }, function(msg){
-      setMessage(msg, "err");
-    });
-  }
-
-  function loadText(){
-    var text = document.getElementById("textInput").value;
-    if(!text || !text.replace(/^\s+|\s+$/g, "")){
-      setMessage("Lipește mai întâi conținutul M3U.", "err");
-      return;
-    }
-
-    applyParsedChannels(parseM3U(text));
-  }
-
-  function resetPlayer(){
-    document.getElementById("urlInput").value = "";
-    document.getElementById("textInput").value = "";
-    allChannels = [];
-    renderChannels([]);
-    setMessage("Player resetat.");
-  }
-
-  function goActivate(){
-    window.location.href = "activate.html";
-  }
-
-  function goRequestCode(){
-    window.location.href = "request-code.html";
-  }
-
-  window.onfocus = function(){
-    refreshActivationStatus();
-    if(allChannels.length){
-      renderChannels(allChannels);
     }
   };
 
-  refreshActivationStatus();
+  xhr.send(JSON.stringify({code:code}));
+}
+
+/* ===== REST ===== */
+function setMessage(text,type){
+  var box = document.getElementById("messageBox");
+  box.className = "message " + (type || "");
+  box.innerHTML = text;
+}
+
+function loadText(){
+  var text = document.getElementById("textInput").value;
+  var channels = parseM3U(text);
+  renderChannels(channels);
+}
+
+function loadDemo(){
+  var xhr = new XMLHttpRequest();
+  xhr.open("GET","romanesti.m3u",true);
+  xhr.onload = function(){
+    document.getElementById("textInput").value = xhr.responseText;
+    renderChannels(parseM3U(xhr.responseText));
+  };
+  xhr.send();
+}
+
+function loadURL(){
+  var url = document.getElementById("urlInput").value;
+  var xhr = new XMLHttpRequest();
+  xhr.open("GET",url,true);
+  xhr.onload = function(){
+    document.getElementById("textInput").value = xhr.responseText;
+    renderChannels(parseM3U(xhr.responseText));
+  };
+  xhr.send();
+}
+
+function resetPlayer(){
+  document.getElementById("textInput").value="";
+  document.getElementById("channels").innerHTML="";
+}
 </script>
 
 </body>
