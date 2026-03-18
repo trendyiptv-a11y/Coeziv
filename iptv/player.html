@@ -264,11 +264,14 @@ button{
     <div class="row">
       <button class="btn-green" onclick="goActivate()">Activează</button>
       <button class="btn-gray" onclick="goRequestCode()">Vreau cod</button>
+      <button class="btn-gray" onclick="generateTVCode()">Trimite pe TV</button>
     </div>
 
     <div id="messageBox" class="message">
       În trial poți vedea primele 30 de elemente din playlist.
     </div>
+
+    <div id="tvCodeBox" class="message ok" style="display:none;"></div>
 
     <div class="status-bar">
       <div id="activationBadge" class="badge">Stare: FREE</div>
@@ -512,10 +515,55 @@ function loadFile(e){
   reader.readAsText(file)
 }
 
+async function generateTVCode(){
+  const text = document.getElementById("textInput").value.trim()
+  const box = document.getElementById("tvCodeBox")
+
+  box.style.display = "none"
+  box.innerHTML = ""
+
+  if(!text){
+    setMessage("Încarcă mai întâi un playlist în player.", "err")
+    return
+  }
+
+  try{
+    setMessage("Se generează codul TV...")
+
+    const res = await fetch("/api/create-code", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ playlist: text })
+    })
+
+    const data = await res.json()
+
+    if(!res.ok || !data.code){
+      throw new Error(data.error || "Nu am putut genera codul.")
+    }
+
+    box.style.display = "block"
+    box.className = "message ok"
+    box.innerHTML =
+      "Cod TV generat cu succes.<br><br>" +
+      "<strong style='font-size:34px;letter-spacing:4px;display:block;margin:6px 0 10px;'>" + data.code + "</strong>" +
+      "Deschide <strong>player-tv.html</strong> pe televizor și introdu codul.<br>" +
+      "Codul expiră automat în câteva minute."
+
+    setMessage("Cod generat cu succes.", "ok")
+  }catch(err){
+    setMessage(err.message || "Eroare la generare.", "err")
+  }
+}
+
 function resetPlayer(){
   document.getElementById("urlInput").value = ""
   document.getElementById("textInput").value = ""
   document.getElementById("fileInput").value = ""
+  document.getElementById("tvCodeBox").style.display = "none"
+  document.getElementById("tvCodeBox").innerHTML = ""
   allChannels = []
   renderChannels([])
   setMessage("Player resetat.")
