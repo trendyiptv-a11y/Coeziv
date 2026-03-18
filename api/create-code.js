@@ -4,11 +4,16 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { playlist } = req.body || {};
+    let { playlist } = req.body || {};
 
     if (!playlist || !String(playlist).trim()) {
       return res.status(400).json({ error: "Missing playlist" });
     }
+
+    // 🔥 normalizare IMPORTANTĂ
+    playlist = String(playlist)
+      .replace(/\r\n/g, "\n")
+      .replace(/\r/g, "\n");
 
     const code = Math.random().toString(36).substring(2, 8).toUpperCase();
 
@@ -18,12 +23,9 @@ export default async function handler(req, res) {
         method: "POST",
         headers: {
           Authorization: "Bearer " + process.env.KV_REST_API_TOKEN,
-          "Content-Type": "application/json"
+          "Content-Type": "text/plain"
         },
-        body: JSON.stringify({
-          value: playlist,
-          ex: 300
-        })
+        body: playlist
       }
     );
 
