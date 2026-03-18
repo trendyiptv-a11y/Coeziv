@@ -467,7 +467,8 @@
     localStorage.setItem("coeziv_tv_last_channel_url", ch.url);
     updateBadges();
     setMessage("Se deschide canalul: " + ch.name, "ok");
-    window.location.href = ch.url;
+    localStorage.setItem("coeziv_tv_channels", JSON.stringify(allChannels));
+    window.location.href = "watch-tv.html";
   }
 
   function playLastChannel(){
