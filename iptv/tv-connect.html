@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Coeziv TV Connect</title>
+  <style>
+    :root{
+      --bg:#071120;
+      --panel:#0f172a;
+      --panel-2:#111827;
+      --line:rgba(255,255,255,.08);
+      --text:#ffffff;
+      --muted:#9fb0c7;
+      --blue:#2563eb;
+      --blue-2:#1d4ed8;
+      --green:#16a34a;
+      --green-2:#15803d;
+      --gray:#374151;
+      --focus:#facc15;
+    }
+
+    *{box-sizing:border-box}
+
+    html,body{
+      margin:0;
+      min-height:100%;
+      background:linear-gradient(180deg,#071120,#0b1020 35%,#0f172a 100%);
+      color:var(--text);
+      font-family:Arial, Helvetica, sans-serif;
+    }
+
+    body{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+    }
+
+    .shell{
+      width:100%;
+      max-width:980px;
+    }
+
+    .hero{
+      background:linear-gradient(135deg,rgba(37,99,235,.22),rgba(29,78,216,.06));
+      border:1px solid var(--line);
+      border-radius:24px;
+      padding:28px;
+      box-shadow:0 20px 50px rgba(0,0,0,.28);
+    }
+
+    .brand{
+      display:inline-block;
+      padding:8px 14px;
+      border-radius:999px;
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.08);
+      color:#dbe7f5;
+      font-size:14px;
+      margin-bottom:18px;
+    }
+
+    h1{
+      margin:0 0 12px;
+      font-size:42px;
+      line-height:1.08;
+    }
+
+    .lead{
+      margin:0;
+      color:var(--muted);
+      font-size:20px;
+      line-height:1.6;
+      max-width:780px;
+    }
+
+    .panel{
+      margin-top:22px;
+      background:rgba(15,23,42,.86);
+      border:1px solid var(--line);
+      border-radius:22px;
+      padding:24px;
+    }
+
+    .label{
+      display:block;
+      font-size:16px;
+      color:#d7e3f4;
+      margin:0 0 10px;
+    }
+
+    .code-input{
+      width:100%;
+      min-height:74px;
+      border-radius:16px;
+      border:2px solid #314257;
+      background:#0a1324;
+      color:#fff;
+      padding:16px 20px;
+      font-size:34px;
+      font-weight:700;
+      letter-spacing:4px;
+      text-transform:uppercase;
+      outline:none;
+      margin-bottom:16px;
+    }
+
+    .actions{
+      display:flex;
+      gap:14px;
+      flex-wrap:wrap;
+    }
+
+    button{
+      min-width:220px;
+      min-height:72px;
+      border:none;
+      border-radius:16px;
+      padding:16px 24px;
+      color:#fff;
+      font-size:28px;
+      font-weight:700;
+      cursor:pointer;
+    }
+
+    .btn-green{
+      background:linear-gradient(135deg,var(--green),var(--green-2));
+    }
+
+    .btn-blue{
+      background:linear-gradient(135deg,var(--blue),var(--blue-2));
+    }
+
+    .btn-gray{
+      background:var(--gray);
+    }
+
+    .code-input:focus,
+    button:focus{
+      outline:4px solid var(--focus);
+      outline-offset:3px;
+    }
+
+    .message{
+      margin-top:18px;
+      padding:16px 18px;
+      border-radius:16px;
+      font-size:20px;
+      line-height:1.5;
+      background:rgba(245,158,11,.12);
+      border:1px solid rgba(245,158,11,.25);
+      color:#fde68a;
+      min-height:58px;
+    }
+
+    .message.ok{
+      background:rgba(22,163,74,.12);
+      border-color:rgba(22,163,74,.25);
+      color:#bbf7d0;
+    }
+
+    .message.err{
+      background:rgba(239,68,68,.12);
+      border-color:rgba(239,68,68,.25);
+      color:#fecaca;
+    }
+
+    .note{
+      margin-top:18px;
+      color:var(--muted);
+      font-size:18px;
+      line-height:1.6;
+    }
+
+    .status{
+      margin-top:18px;
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+
+    .badge{
+      padding:10px 14px;
+      border-radius:999px;
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.08);
+      color:#eef2f7;
+      font-size:16px;
+    }
+
+    @media (max-width: 820px){
+      body{ padding:14px; }
+      .hero{ padding:20px; border-radius:18px; }
+      h1{ font-size:30px; }
+      .lead{ font-size:17px; }
+      .panel{ padding:18px; border-radius:18px; }
+      .code-input{
+        min-height:62px;
+        font-size:26px;
+        letter-spacing:3px;
+      }
+      button{
+        width:100%;
+        min-width:0;
+        min-height:60px;
+        font-size:22px;
+      }
+      .message{ font-size:17px; }
+      .note{ font-size:15px; }
+      .badge{ font-size:14px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="shell">
+  <div class="hero">
+    <div class="brand">COEZIV TV</div>
+    <h1>Conectează televizorul</h1>
+    <p class="lead">
+      Introdu codul primit de pe telefon sau PC pentru a încărca automat playlistul.
+      După conectare, lista se salvează local pe acest dispozitiv.
+    </p>
+
+    <div class="panel">
+      <label class="label" for="codeInput">Cod TV</label>
+      <input id="codeInput" class="code-input" type="text" maxlength="8" placeholder="EX: M7OYED" autocomplete="off">
+
+      <div class="actions">
+        <button class="btn-green" id="connectBtn" onclick="connectTv()">Conectează</button>
+        <button class="btn-blue" onclick="loadDemo()">Încarcă demo</button>
+        <button class="btn-gray" onclick="clearSaved()">Șterge salvat</button>
+      </div>
+
+      <div id="messageBox" class="message">Aștept codul TV.</div>
+
+      <div class="status">
+        <div class="badge" id="saveStatus">Playlist salvat: nu</div>
+      </div>
+
+      <div class="note">
+        După conectare, televizorul va deschide automat playerul TV.
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function setMessage(text, type){
+    var box = document.getElementById("messageBox");
+    box.className = "message";
+    if(type === "ok"){ box.className += " ok"; }
+    if(type === "err"){ box.className += " err"; }
+    box.innerHTML = text;
+  }
+
+  function refreshSavedStatus(){
+    var saved = localStorage.getItem("coeziv_tv_playlist");
+    document.getElementById("saveStatus").innerHTML = "Playlist salvat: " + (saved ? "da" : "nu");
+  }
+
+  function savePlaylist(text){
+    localStorage.setItem("coeziv_tv_playlist", text);
+    localStorage.setItem("coeziv_tv_last_update", String(Date.now()));
+    refreshSavedStatus();
+  }
+
+  function goToPlayer(){
+    window.location.href = "tv-player.html";
+  }
+
+  async function connectTv(){
+    var code = document.getElementById("codeInput").value;
+    code = String(code || "").replace(/^\s+|\s+$/g, "").toUpperCase();
+
+    if(!code){
+      setMessage("Introdu codul TV.", "err");
+      return;
+    }
+
+    setMessage("Se caută playlistul...");
+    document.getElementById("connectBtn").disabled = true;
+
+    try{
+      var res = await fetch("/api/load-code", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ code: code })
+      });
+
+      var data = await res.json();
+
+      if(!res.ok || !data.playlist){
+        throw new Error(data.error || "Cod invalid sau expirat.");
+      }
+
+      savePlaylist(data.playlist);
+      setMessage("Playlist încărcat cu succes. Se deschide playerul...", "ok");
+
+      setTimeout(function(){
+        goToPlayer();
+      }, 500);
+    }catch(err){
+      setMessage(err.message || "Nu am putut încărca playlistul.", "err");
+    }finally{
+      document.getElementById("connectBtn").disabled = false;
+    }
+  }
+
+  async function loadDemo(){
+    setMessage("Se încarcă demo...");
+    try{
+      var res = await fetch("romanesti.m3u");
+      if(!res.ok){
+        throw new Error("Nu am putut încărca demo-ul.");
+      }
+      var text = await res.text();
+      savePlaylist(text);
+      setMessage("Demo încărcat. Se deschide playerul...", "ok");
+
+      setTimeout(function(){
+        goToPlayer();
+      }, 500);
+    }catch(err){
+      setMessage(err.message || "Eroare la demo.", "err");
+    }
+  }
+
+  function clearSaved(){
+    localStorage.removeItem("coeziv_tv_playlist");
+    localStorage.removeItem("coeziv_tv_last_update");
+    refreshSavedStatus();
+    setMessage("Playlistul salvat a fost șters.");
+  }
+
+  document.addEventListener("DOMContentLoaded", function(){
+    refreshSavedStatus();
+
+    var input = document.getElementById("codeInput");
+    if(input){
+      input.focus();
+      input.addEventListener("keydown", function(e){
+        if(e.key === "Enter"){
+          connectTv();
+        }
+      });
+    }
+
+    var saved = localStorage.getItem("coeziv_tv_playlist");
+    if(saved){
+      setMessage("Există deja un playlist salvat pe acest televizor.", "ok");
+    }
+  });
+</script>
+
+</body>
+</html>
