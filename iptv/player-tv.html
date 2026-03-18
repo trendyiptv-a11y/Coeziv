@@ -216,6 +216,17 @@
   </div>
 
   <div class="panel">
+    <h2>Conectare TV</h2>
+    <p>Introdu codul primit de pe telefon sau PC pentru a încărca automat playlistul.</p>
+
+    <input id="codeInput" class="field" type="text" placeholder="Ex: LS6M6A" maxlength="8">
+
+    <div class="row">
+      <button class="btn-green" onclick="loadFromCode()">Conectează</button>
+    </div>
+  </div>
+
+  <div class="panel">
     <h2>Import playlist</h2>
     <p>Poți încărca un playlist M3U din URL sau poți lipi direct conținutul în câmpul de mai jos.</p>
 
@@ -454,9 +465,44 @@
     applyParsedChannels(parseM3U(text));
   }
 
+  async function loadFromCode(){
+    var code = document.getElementById("codeInput").value;
+    code = String(code || "").replace(/^\s+|\s+$/g, "").toUpperCase();
+
+    if(!code){
+      setMessage("Introdu codul TV.", "err");
+      return;
+    }
+
+    setMessage("Se caută playlistul...");
+
+    try{
+      var res = await fetch("/api/load-code", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ code: code })
+      });
+
+      var data = await res.json();
+
+      if(!res.ok || !data.playlist){
+        throw new Error(data.error || "Cod invalid sau expirat.");
+      }
+
+      document.getElementById("textInput").value = data.playlist;
+      applyParsedChannels(parseM3U(data.playlist));
+      setMessage("Playlist încărcat cu succes din cod TV.", "ok");
+    }catch(err){
+      setMessage(err.message || "Nu am putut încărca playlistul.", "err");
+    }
+  }
+
   function resetPlayer(){
     document.getElementById("urlInput").value = "";
     document.getElementById("textInput").value = "";
+    document.getElementById("codeInput").value = "";
     allChannels = [];
     renderChannels([]);
     setMessage("Player resetat.");
@@ -476,6 +522,18 @@
       renderChannels(allChannels);
     }
   };
+
+  document.addEventListener("DOMContentLoaded", function(){
+    var input = document.getElementById("codeInput");
+    if(input){
+      input.addEventListener("keydown", function(e){
+        if(e.key === "Enter"){
+          loadFromCode();
+        }
+      });
+      input.focus();
+    }
+  });
 
   refreshActivationStatus();
 </script>
