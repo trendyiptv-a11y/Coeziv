@@ -3,185 +3,93 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Coeziv TV - Watch</title>
+<title>TV Player</title>
+
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 
 <style>
-  :root{
-    --bg:#000;
-    --panel:rgba(0,0,0,.6);
-    --text:#fff;
-    --focus:#facc15;
-  }
-
-  body{
-    margin:0;
-    background:#000;
-    color:#fff;
-    font-family:Arial, sans-serif;
-    overflow:hidden;
-  }
-
-  video{
-    position:fixed;
-    inset:0;
-    width:100%;
-    height:100%;
-    object-fit:cover;
-    background:#000;
-  }
-
-  .overlay{
-    position:absolute;
-    top:0;
-    left:0;
-    right:0;
-    padding:20px;
-    background:linear-gradient(to bottom, rgba(0,0,0,.8), transparent);
-  }
-
-  .title{
-    font-size:32px;
-    font-weight:bold;
-  }
-
-  .controls{
-    position:absolute;
-    bottom:30px;
-    left:50%;
-    transform:translateX(-50%);
-    display:flex;
-    gap:20px;
-  }
-
-  button{
-    padding:14px 20px;
-    font-size:20px;
-    border:none;
-    border-radius:10px;
-    background:rgba(255,255,255,.15);
-    color:#fff;
-    cursor:pointer;
-  }
-
-  button:focus{
-    outline:4px solid var(--focus);
-  }
-
-  .message{
-    position:absolute;
-    bottom:120px;
-    left:50%;
-    transform:translateX(-50%);
-    background:rgba(0,0,0,.6);
-    padding:12px 18px;
-    border-radius:10px;
-    font-size:18px;
-  }
+body{margin:0;background:#000;color:#fff;font-family:Arial}
+video{width:100%;height:100vh;background:#000}
+.overlay{
+ position:absolute;top:0;left:0;padding:20px;
+}
+.title{font-size:28px}
+.controls{
+ position:absolute;bottom:20px;left:50%;
+ transform:translateX(-50%);
+ display:flex;gap:10px;
+}
+button{
+ padding:10px 15px;font-size:18px;
+}
 </style>
 </head>
 
 <body>
 
-<video id="player" controls autoplay></video>
+<video id="video" controls autoplay></video>
 
 <div class="overlay">
-  <div class="title" id="channelName">Se încarcă...</div>
+  <div id="title" class="title"></div>
 </div>
 
 <div class="controls">
-  <button onclick="prevChannel()">⏮ Prev</button>
-  <button onclick="goBack()">⬅ Back</button>
-  <button onclick="nextChannel()">Next ⏭</button>
+  <button onclick="prev()">Prev</button>
+  <button onclick="back()">Back</button>
+  <button onclick="next()">Next</button>
 </div>
-
-<div id="msg" class="message">Loading...</div>
 
 <script>
 let channels = JSON.parse(localStorage.getItem("coeziv_tv_channels") || "[]");
 let currentUrl = localStorage.getItem("coeziv_tv_last_channel_url");
-let currentIndex = 0;
+let index = 0;
 
-const video = document.getElementById("player");
-const title = document.getElementById("channelName");
-const msg = document.getElementById("msg");
+const video = document.getElementById("video");
+const title = document.getElementById("title");
 
-// fallback dacă nu ai salvat lista
-if(!channels.length){
-  let txt = localStorage.getItem("coeziv_tv_playlist");
-  if(txt){
-    channels = parseM3U(txt);
-    localStorage.setItem("coeziv_tv_channels", JSON.stringify(channels));
-  }
-}
-
-function parseM3U(text){
-  let lines = text.split("\n");
-  let list = [];
-  let name = "Canal";
-
-  for(let i=0;i<lines.length;i++){
-    let l = lines[i].trim();
-
-    if(l.startsWith("#EXTINF")){
-      let p = l.split(",");
-      if(p[1]) name = p[1];
-    }
-    else if(l.startsWith("http")){
-      list.push({name:name,url:l});
-    }
-  }
-
-  return list;
-}
-
-// găsim indexul canalului curent
 for(let i=0;i<channels.length;i++){
   if(channels[i].url === currentUrl){
-    currentIndex = i;
-    break;
+    index = i;
   }
 }
 
-function play(index){
-  if(!channels[index]) return;
+function play(i){
+  let ch = channels[i];
+  if(!ch) return;
 
-  currentIndex = index;
-
-  let ch = channels[index];
-  video.src = ch.url;
+  index = i;
   title.innerText = ch.name;
 
   localStorage.setItem("coeziv_tv_last_channel_url", ch.url);
   localStorage.setItem("coeziv_tv_last_channel_name", ch.name);
 
-  msg.innerText = "▶ " + ch.name;
+  if(Hls.isSupported()){
+    let hls = new Hls();
+    hls.loadSource(ch.url);
+    hls.attachMedia(video);
+  } else {
+    video.src = ch.url;
+  }
 }
 
-function nextChannel(){
-  play((currentIndex + 1) % channels.length);
+function next(){
+  play((index+1)%channels.length);
 }
 
-function prevChannel(){
-  play((currentIndex - 1 + channels.length) % channels.length);
+function prev(){
+  play((index-1+channels.length)%channels.length);
 }
 
-function goBack(){
-  window.location.href = "tv-player.html";
+function back(){
+  window.location.href="tv-player.html";
 }
 
-// error fallback
-video.onerror = function(){
-  msg.innerText = "Nu se poate reda. Deschide direct?";
-};
+play(index);
 
-// start
-play(currentIndex);
-
-// telecomandă (taste)
+// telecomandă
 document.addEventListener("keydown", e=>{
-  if(e.key === "ArrowRight") nextChannel();
-  if(e.key === "ArrowLeft") prevChannel();
-  if(e.key === "Backspace") goBack();
+  if(e.key==="ArrowRight") next();
+  if(e.key==="ArrowLeft") prev();
 });
 </script>
 
