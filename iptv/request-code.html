@@ -78,6 +78,10 @@
       background:#2563eb;
       color:#fff;
     }
+    .mail{
+      background:#16a34a;
+      color:#fff;
+    }
     .back{
       background:#374151;
       color:#fff;
@@ -114,6 +118,7 @@
 
     <div class="actions">
       <button class="copy" onclick="copyDeviceId()">Copiază ID</button>
+      <button class="mail" onclick="sendEmail()">Trimite email</button>
       <a class="btn back" href="activate.html">Am cod deja</a>
     </div>
 
@@ -173,6 +178,23 @@
       }
 
       document.body.removeChild(temp);
+    }
+
+    function sendEmail(){
+      var subject = "Cerere cod activare Coeziv";
+
+      var body =
+        "Salut,\n\n" +
+        "Vreau un cod de activare pentru acest dispozitiv.\n\n" +
+        "Device ID:\n" + deviceId + "\n\n" +
+        "Mulțumesc!";
+
+      var mailto =
+        "mailto:EMAILUL_TAU_AICI@gmail.com" +
+        "?subject=" + encodeURIComponent(subject) +
+        "&body=" + encodeURIComponent(body);
+
+      window.location.href = mailto;
     }
   </script>
 </body>
