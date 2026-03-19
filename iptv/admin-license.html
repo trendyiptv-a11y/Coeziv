@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Licențe</title>
+  <title>Admin licențe</title>
   <style>
     body{
       font-family:Arial,sans-serif;
@@ -18,16 +18,15 @@
       box-sizing:border-box;
     }
     .card{
-      width:520px;
+      width:760px;
       max-width:100%;
       background:#111827;
       border-radius:14px;
       padding:24px;
       box-shadow:0 10px 30px rgba(0,0,0,.35);
     }
-    h1{
+    h1,h2{
       margin:0 0 10px;
-      font-size:28px;
     }
     p{
       color:#9ca3af;
@@ -55,6 +54,15 @@
       font-weight:bold;
       cursor:pointer;
     }
+    .secondary{
+      background:#374151;
+    }
+    .danger{
+      background:#b91c1c;
+    }
+    .success{
+      background:#16a34a;
+    }
     .status{
       margin-top:14px;
       min-height:20px;
@@ -74,12 +82,64 @@
       font-size:14px;
       min-height:80px;
     }
+    .section{
+      margin-top:26px;
+      padding-top:20px;
+      border-top:1px solid #374151;
+    }
+    .row{
+      display:grid;
+      grid-template-columns: 1.3fr 0.7fr 1.4fr 0.8fr 0.8fr 0.8fr;
+      gap:10px;
+      align-items:center;
+      padding:10px 0;
+      border-bottom:1px solid #233044;
+      font-size:13px;
+    }
+    .head{
+      color:#93c5fd;
+      font-weight:bold;
+    }
+    .badge{
+      display:inline-block;
+      padding:5px 8px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:bold;
+      text-align:center;
+    }
+    .free{
+      background:#14532d;
+      color:#bbf7d0;
+    }
+    .used{
+      background:#7f1d1d;
+      color:#fecaca;
+    }
+    .mini-btn{
+      width:auto;
+      margin:0;
+      padding:8px 10px;
+      font-size:12px;
+      border-radius:8px;
+    }
+    .muted{
+      color:#9ca3af;
+      font-size:12px;
+    }
+    @media (max-width: 860px){
+      .row{
+        grid-template-columns:1fr;
+        gap:6px;
+        padding:12px 0;
+      }
+    }
   </style>
 </head>
 <body>
   <div class="card">
     <h1>Admin licențe</h1>
-    <p>Generează coduri premium pentru activare.</p>
+    <p>Generează și gestionează codurile premium.</p>
 
     <input id="adminKey" type="password" placeholder="Admin key">
     <input id="count" type="number" min="1" max="50" value="1" placeholder="Număr coduri">
@@ -91,6 +151,17 @@
 
     <div id="status" class="status"></div>
     <div id="result" class="box"></div>
+
+    <div class="section">
+      <h2>Coduri generate</h2>
+      <p>Poți reîncărca lista, copia un cod, reseta sau șterge.</p>
+
+      <button class="secondary" onclick="loadLicenses()">Reîncarcă lista</button>
+
+      <div id="licensesBox" class="box" style="font-family:Arial,sans-serif;">
+        Lista este goală.
+      </div>
+    </div>
   </div>
 
   <script>
@@ -98,6 +169,31 @@
       var el = document.getElementById("status");
       el.className = "status " + (cls || "");
       el.textContent = text || "";
+    }
+
+    function fmtDate(ts){
+      if(!ts) return "-";
+      try{
+        return new Date(ts).toLocaleString();
+      }catch(e){
+        return String(ts);
+      }
+    }
+
+    async function apiPost(url, payload){
+      const res = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await res.json();
+      if(!res.ok || !data.ok){
+        throw new Error(data.error || "Request failed");
+      }
+      return data;
     }
 
     async function createLicense(){
@@ -115,29 +211,162 @@
       result.textContent = "";
 
       try{
-        var res = await fetch("/api/create-license", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            adminKey: adminKey,
-            count: count,
-            type: type
-          })
+        var data = await apiPost("/api/create-license", {
+          adminKey: adminKey,
+          count: count,
+          type: type
         });
-
-        var data = await res.json();
-
-        if(!res.ok || !data.ok){
-          throw new Error(data.error || "Nu am putut genera codurile.");
-        }
 
         setStatus("Coduri generate cu succes.", "ok");
         result.textContent = (data.codes || []).join("\n");
+
+        await loadLicenses();
       }catch(err){
-        setStatus(err.message || "Eroare.", "err");
+        setStatus(err.message || "Nu am putut genera codurile.", "err");
       }
+    }
+
+    async function loadLicenses(){
+      var adminKey = document.getElementById("adminKey").value.trim();
+      var box = document.getElementById("licensesBox");
+
+      if(!adminKey){
+        setStatus("Introdu admin key pentru a încărca lista.", "err");
+        return;
+      }
+
+      box.innerHTML = "Se încarcă...";
+      setStatus("Se încarcă licențele...", "");
+
+      try{
+        var data = await apiPost("/api/list-licenses", {
+          adminKey: adminKey
+        });
+
+        var licenses = data.licenses || [];
+
+        if(!licenses.length){
+          box.innerHTML = "Nu există coduri generate încă.";
+          setStatus("Lista a fost încărcată.", "ok");
+          return;
+        }
+
+        var html = "";
+        html += '<div class="row head">';
+        html += '<div>Cod</div><div>Status</div><div>Device</div><div>Creat</div><div>Reset</div><div>Delete</div>';
+        html += '</div>';
+
+        for(var i = 0; i < licenses.length; i++){
+          var item = licenses[i];
+          html += '<div class="row">';
+          html += '<div><strong>' + escapeHtml(item.code) + '</strong><br><span class="muted">' + escapeHtml(item.type || "premium") + '</span><br><button class="mini-btn secondary" onclick="copyCode(\'' + escapeJs(item.code) + '\')">Copy</button></div>';
+          html += '<div><span class="badge ' + (item.used ? 'used' : 'free') + '">' + (item.used ? 'USED' : 'FREE') + '</span></div>';
+          html += '<div>' + escapeHtml(item.usedBy || '-') + '</div>';
+          html += '<div><span class="muted">' + escapeHtml(fmtDate(item.createdAt)) + '</span></div>';
+          html += '<div><button class="mini-btn success" onclick="resetLicense(\'' + escapeJs(item.code) + '\')">Reset</button></div>';
+          html += '<div><button class="mini-btn danger" onclick="deleteLicense(\'' + escapeJs(item.code) + '\')">Delete</button></div>';
+          html += '</div>';
+        }
+
+        box.innerHTML = html;
+        setStatus("Lista a fost încărcată.", "ok");
+      }catch(err){
+        box.innerHTML = "Nu am putut încărca lista.";
+        setStatus(err.message || "Eroare la încărcare.", "err");
+      }
+    }
+
+    async function resetLicense(code){
+      var adminKey = document.getElementById("adminKey").value.trim();
+
+      if(!adminKey){
+        setStatus("Introdu admin key.", "err");
+        return;
+      }
+
+      if(!confirm("Resetez codul " + code + "?")){
+        return;
+      }
+
+      try{
+        await apiPost("/api/reset-license", {
+          adminKey: adminKey,
+          code: code
+        });
+
+        setStatus("Cod resetat.", "ok");
+        await loadLicenses();
+      }catch(err){
+        setStatus(err.message || "Nu am putut reseta codul.", "err");
+      }
+    }
+
+    async function deleteLicense(code){
+      var adminKey = document.getElementById("adminKey").value.trim();
+
+      if(!adminKey){
+        setStatus("Introdu admin key.", "err");
+        return;
+      }
+
+      if(!confirm("Șterg codul " + code + "?")){
+        return;
+      }
+
+      try{
+        await apiPost("/api/delete-license", {
+          adminKey: adminKey,
+          code: code
+        });
+
+        setStatus("Cod șters.", "ok");
+        await loadLicenses();
+      }catch(err){
+        setStatus(err.message || "Nu am putut șterge codul.", "err");
+      }
+    }
+
+    function copyCode(code){
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(code).then(function(){
+          setStatus("Cod copiat: " + code, "ok");
+        }).catch(function(){
+          fallbackCopy(code);
+        });
+      }else{
+        fallbackCopy(code);
+      }
+    }
+
+    function fallbackCopy(code){
+      var temp = document.createElement("textarea");
+      temp.value = code;
+      document.body.appendChild(temp);
+      temp.select();
+
+      try{
+        document.execCommand("copy");
+        setStatus("Cod copiat: " + code, "ok");
+      }catch(e){
+        setStatus("Nu am putut copia automat.", "err");
+      }
+
+      document.body.removeChild(temp);
+    }
+
+    function escapeHtml(text){
+      return String(text || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function escapeJs(text){
+      return String(text || "")
+        .replace(/\\/g, "\\\\")
+        .replace(/'/g, "\\'");
     }
   </script>
 </body>
