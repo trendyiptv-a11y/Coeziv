@@ -5,6 +5,7 @@ export default async function handler(req, res) {
 
   try {
     const body = req.body || {};
+
     const adminKey = String(body.adminKey || "").trim();
     const countRaw = Number(body.count || 1);
     const type = String(body.type || "premium").trim().toLowerCase();
@@ -28,12 +29,40 @@ export default async function handler(req, res) {
     const count = Math.max(1, Math.min(50, isNaN(countRaw) ? 1 : countRaw));
     const created = [];
 
+    const indexKey = "licenses:index";
+    let codesIndex = [];
+
+    const getIndexResp = await fetch(
+      process.env.KV_REST_API_URL + "/get/" + encodeURIComponent(indexKey),
+      {
+        method: "GET",
+        headers: {
+          Authorization: "Bearer " + process.env.KV_REST_API_TOKEN
+        }
+      }
+    );
+
+    if (getIndexResp.ok) {
+      const indexData = await getIndexResp.json();
+      if (indexData.result) {
+        try {
+          codesIndex = typeof indexData.result === "string"
+            ? JSON.parse(indexData.result)
+            : indexData.result;
+        } catch (e) {
+          codesIndex = [];
+        }
+      }
+    }
+
     for (let i = 0; i < count; i++) {
       const code = await generateUniqueLicenseCode();
 
       const payload = JSON.stringify({
         type: type,
         used: false,
+        usedBy: "",
+        usedAt: null,
         createdAt: Date.now()
       });
 
@@ -58,7 +87,32 @@ export default async function handler(req, res) {
         });
       }
 
+      if (codesIndex.indexOf(code) === -1) {
+        codesIndex.push(code);
+      }
+
       created.push(code);
+    }
+
+    const saveIndexResp = await fetch(
+      process.env.KV_REST_API_URL + "/set/" + encodeURIComponent(indexKey),
+      {
+        method: "POST",
+        headers: {
+          Authorization: "Bearer " + process.env.KV_REST_API_TOKEN,
+          "Content-Type": "text/plain"
+        },
+        body: JSON.stringify(codesIndex)
+      }
+    );
+
+    if (!saveIndexResp.ok) {
+      const text = await saveIndexResp.text();
+      return res.status(500).json({
+        ok: false,
+        error: "Failed to save licenses index",
+        details: text
+      });
     }
 
     return res.status(200).json({
