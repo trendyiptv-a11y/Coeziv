@@ -1,462 +1,179 @@
 <!DOCTYPE html>
 <html lang="ro">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Vreau cod — Coeziv Player</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Cere cod de activare</title>
   <style>
-    :root{
-      --bg:#0b1020;
-      --panel:#111827;
-      --panel-2:#172033;
-      --line:#2b3752;
-      --text:#f8fafc;
-      --muted:#94a3b8;
-      --brand:#2563eb;
-      --brand-2:#1d4ed8;
-      --ok:#16a34a;
-      --danger:#dc2626;
-      --shadow:0 24px 60px rgba(0,0,0,.38);
-      --radius:22px;
-    }
-    *{box-sizing:border-box}
-    html,body{
+    body{
+      font-family:Arial,sans-serif;
+      background:#0f172a;
+      color:#fff;
       margin:0;
       padding:0;
-      min-height:100%;
-      font-family:Inter,Arial,Helvetica,sans-serif;
-      background:linear-gradient(180deg,#08101f,#0b1020 30%,#0f172a 100%);
-      color:var(--text);
-    }
-    a{text-decoration:none;color:inherit}
-
-    .wrap{
+      display:flex;
+      justify-content:center;
+      align-items:center;
       min-height:100vh;
-      display:grid;
-      place-items:center;
-      padding:20px;
     }
-
-    .page{
-      width:min(980px,100%);
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:20px;
-    }
-
-    .hero,.panel{
-      border:1px solid rgba(255,255,255,.06);
-      border-radius:28px;
-      overflow:hidden;
-      box-shadow:var(--shadow);
-      background:linear-gradient(180deg,#111827,#0d1422);
-    }
-
-    .hero{
-      position:relative;
-      min-height:620px;
-      background:
-        linear-gradient(180deg,rgba(7,10,18,.28),rgba(7,10,18,.82)),
-        radial-gradient(circle at 80% 18%, rgba(37,99,235,.25), transparent 22%),
-        url('https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1600&q=80') center/cover;
-    }
-
-    .hero-inner{
-      position:absolute;
-      inset:0;
-      padding:28px;
-      display:flex;
-      flex-direction:column;
-      justify-content:space-between;
-    }
-
-    .eyebrow{
-      display:inline-flex;
-      padding:8px 12px;
-      border-radius:999px;
-      background:rgba(255,255,255,.08);
-      border:1px solid rgba(255,255,255,.08);
-      color:#e2e8f0;
-      font-size:12px;
-      width:max-content;
-    }
-
-    .hero h1{
-      margin:14px 0 12px;
-      font-size:42px;
-      line-height:1.06;
-      max-width:520px;
-    }
-
-    .hero p{
-      margin:0;
-      max-width:520px;
-      color:#dbe4ee;
-      line-height:1.7;
-      font-size:15px;
-    }
-
-    .steps{
-      display:grid;
-      gap:12px;
-      margin-top:22px;
-      max-width:520px;
-    }
-
-    .step{
-      padding:14px;
-      border-radius:18px;
-      background:rgba(255,255,255,.08);
-      border:1px solid rgba(255,255,255,.08);
-    }
-
-    .step strong{
-      display:block;
-      margin-bottom:6px;
-      font-size:14px;
-    }
-
-    .step span{
-      font-size:13px;
-      color:#dbe4ee;
-      line-height:1.5;
-    }
-
-    .hero-footer{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-    }
-
-    .pill{
-      padding:8px 12px;
-      border-radius:999px;
-      background:rgba(255,255,255,.08);
-      border:1px solid rgba(255,255,255,.08);
-      color:#eef2f7;
-      font-size:12px;
-    }
-
-    .panel{
-      padding:22px;
-      display:flex;
-      flex-direction:column;
-      gap:16px;
-    }
-
-    .top h2{
-      margin:0;
-      font-size:30px;
-    }
-
-    .top p{
-      margin:10px 0 0;
-      color:var(--muted);
-      font-size:14px;
-      line-height:1.6;
-    }
-
     .card{
-      padding:18px;
-      border-radius:22px;
-      background:linear-gradient(180deg,#131c2d,#101827);
-      border:1px solid rgba(255,255,255,.06);
-    }
-
-    .card h3{
-      margin:0 0 8px;
-      font-size:18px;
-    }
-
-    .card p{
-      margin:0;
-      color:var(--muted);
-      font-size:13px;
-      line-height:1.6;
-    }
-
-    .field{
-      width:100%;
-      padding:14px 15px;
+      background:#111827;
+      padding:30px;
       border-radius:14px;
-      border:1px solid var(--line);
-      background:#0b1322;
-      color:var(--text);
-      outline:none;
-      margin-top:12px;
+      width:400px;
+      max-width:92%;
+      box-shadow:0 10px 30px rgba(0,0,0,.35);
     }
-
-    .field:focus{
-      border-color:#4b6cb7;
+    h1{
+      margin-top:0;
+      margin-bottom:10px;
+      font-size:28px;
     }
-
-    textarea.field{
-      min-height:110px;
-      resize:vertical;
+    p{
+      color:#9ca3af;
+      line-height:1.55;
+      font-size:14px;
     }
-
-    .device-id{
-      margin-top:12px;
-      padding:12px 14px;
-      border-radius:14px;
-      background:#0b1322;
-      border:1px solid var(--line);
-      color:#cbd5e1;
-      font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
-      font-size:13px;
+    .box{
+      margin-top:18px;
+      padding:14px;
+      border-radius:10px;
+      background:#0b1220;
+      border:1px solid #374151;
       word-break:break-all;
+      font-size:14px;
     }
-
-    .row{
+    .label{
+      font-size:12px;
+      color:#9ca3af;
+      margin-bottom:6px;
+      display:block;
+      text-transform:uppercase;
+      letter-spacing:.5px;
+    }
+    .value{
+      color:#fff;
+      font-weight:bold;
+    }
+    .actions{
       display:flex;
       gap:10px;
       flex-wrap:wrap;
-      margin-top:12px;
+      margin-top:20px;
     }
-
-    .btn{
+    button,a.btn{
+      flex:1;
+      min-width:140px;
       border:none;
-      border-radius:16px;
-      padding:14px 16px;
-      font-weight:800;
-      color:#fff;
-      cursor:pointer;
-    }
-
-    .btn.primary{
-      background:linear-gradient(135deg,var(--brand),var(--brand-2));
-    }
-
-    .btn.ghost{
-      background:rgba(255,255,255,.06);
-      border:1px solid rgba(255,255,255,.07);
-    }
-
-    .btn.full{
-      width:100%;
-      margin-top:12px;
-    }
-
-    .message{
+      border-radius:10px;
       padding:12px 14px;
-      border-radius:14px;
-      font-size:13px;
-      line-height:1.55;
+      font-size:14px;
+      font-weight:bold;
+      cursor:pointer;
+      text-align:center;
+      text-decoration:none;
+      box-sizing:border-box;
+    }
+    .copy{
+      background:#2563eb;
+      color:#fff;
+    }
+    .back{
+      background:#374151;
+      color:#fff;
+    }
+    .status{
+      margin-top:14px;
+      font-size:14px;
+      min-height:20px;
+      color:#22c55e;
+    }
+    .warn{
+      margin-top:18px;
+      padding:12px 14px;
+      border-radius:10px;
       background:rgba(245,158,11,.12);
       border:1px solid rgba(245,158,11,.25);
       color:#fde68a;
-      white-space:pre-line;
-    }
-
-    .message.ok{
-      background:rgba(22,163,74,.12);
-      border-color:rgba(22,163,74,.25);
-      color:#bbf7d0;
-    }
-
-    .message.err{
-      background:rgba(220,38,38,.12);
-      border-color:rgba(220,38,38,.25);
-      color:#fecaca;
-    }
-
-    .mini{
-      font-size:12px;
-      color:var(--muted);
-      line-height:1.6;
-      margin-top:10px;
-    }
-
-    .back{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      padding:12px 14px;
-      border-radius:16px;
-      background:rgba(255,255,255,.05);
-      border:1px solid rgba(255,255,255,.06);
-      font-weight:700;
-      color:#fff;
-      text-decoration:none;
-    }
-
-    @media (max-width: 980px){
-      .page{grid-template-columns:1fr}
-      .hero{min-height:500px}
-    }
-
-    @media (max-width: 720px){
-      .wrap{padding:14px}
-      .hero-inner,.panel{padding:18px}
-      .hero{min-height:auto}
-      .hero h1{font-size:32px}
-      .hero p{font-size:14px}
-      .steps{gap:10px}
-      .step{padding:12px 13px}
-      .top h2{font-size:26px}
-      .card{padding:16px}
-      .btn,.field{font-size:15px}
+      font-size:13px;
+      line-height:1.5;
     }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="page">
-      <section class="hero">
-        <div class="hero-inner">
-          <div>
-            <div class="eyebrow">Cerere activare</div>
-            <h1>Cere codul de activare pentru Coeziv Player</h1>
-            <p>Completează datele tale și trimite cererea. Vei primi codul de activare pentru acest dispozitiv.</p>
+  <div class="card">
+    <h1>Cere cod de activare</h1>
+    <p>
+      Trimite acest ID de dispozitiv pentru a primi un cod de activare valid pentru acest dispozitiv.
+    </p>
 
-            <div class="steps">
-              <div class="step">
-                <strong>1. Verifică dispozitivul</strong>
-                <span>Identificatorul dispozitivului este completat automat.</span>
-              </div>
-              <div class="step">
-                <strong>2. Completează datele</strong>
-                <span>Lasă emailul și, dacă vrei, un număr de telefon sau WhatsApp.</span>
-              </div>
-              <div class="step">
-                <strong>3. Trimite cererea</strong>
-                <span>Cererea va fi pregătită împreună cu toate datele necesare activării.</span>
-              </div>
-            </div>
-          </div>
+    <div class="box">
+      <span class="label">Device ID</span>
+      <div id="deviceId" class="value"></div>
+    </div>
 
-          <div class="hero-footer">
-            <span class="pill">Cod personalizat</span>
-            <span class="pill">Activare rapidă</span>
-            <span class="pill">Device ID inclus</span>
-          </div>
-        </div>
-      </section>
+    <div class="actions">
+      <button class="copy" onclick="copyDeviceId()">Copiază ID</button>
+      <a class="btn back" href="activate.html">Am cod deja</a>
+    </div>
 
-      <section class="panel">
-        <div class="top">
-          <h2>Vreau cod</h2>
-          <p>Completează formularul și trimite cererea de activare.</p>
-        </div>
+    <div id="status" class="status"></div>
 
-        <div class="card">
-          <h3>Dispozitiv</h3>
-          <p>Acest identificator va fi asociat codului tău de activare.</p>
-          <div id="deviceId" class="device-id">se generează...</div>
-          <div class="row">
-            <button id="copyDeviceBtn" class="btn ghost" type="button">Copiază Device ID</button>
-          </div>
-        </div>
-
-        <div class="card">
-          <h3>Date de contact</h3>
-          <p>Completează informațiile de mai jos pentru a primi codul de activare.</p>
-          <input id="nameInput" class="field" type="text" placeholder="Nume" />
-          <input id="emailInput" class="field" type="email" placeholder="Email" />
-          <input id="phoneInput" class="field" type="text" placeholder="Telefon / WhatsApp (opțional)" />
-          <textarea id="notesInput" class="field" placeholder="Mesaj sau detalii suplimentare (opțional)"></textarea>
-          <button id="sendRequestBtn" class="btn primary full" type="button">Trimite cererea</button>
-          <div class="mini">După trimitere, cererea va fi pregătită automat cu datele completate.</div>
-        </div>
-
-        <div id="messageBox" class="message">Formular pregătit pentru trimiterea cererii.</div>
-
-        <a class="back" href="activate.html">Înapoi la activare</a>
-      </section>
+    <div class="warn">
+      Codul de activare trebuie generat pentru exact acest Device ID. Dacă folosești alt dispozitiv, codul nu va funcționa.
     </div>
   </div>
 
   <script>
-    const STORAGE_KEY = "coeziv_device_id_v5";
+    var DEVICE_KEY = "coeziv_device_id";
 
-    const deviceIdEl = document.getElementById("deviceId");
-    const copyDeviceBtn = document.getElementById("copyDeviceBtn");
-    const nameInput = document.getElementById("nameInput");
-    const emailInput = document.getElementById("emailInput");
-    const phoneInput = document.getElementById("phoneInput");
-    const notesInput = document.getElementById("notesInput");
-    const sendRequestBtn = document.getElementById("sendRequestBtn");
-    const messageBox = document.getElementById("messageBox");
+    function getOrCreateDeviceId(){
+      var id = localStorage.getItem(DEVICE_KEY);
 
-    function setMessage(text, type = "warn") {
-      messageBox.className = "message" + (type === "ok" ? " ok" : type === "err" ? " err" : "");
-      messageBox.textContent = text;
-    }
-
-    function generateDeviceId() {
-      let saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) return saved;
-
-      const raw = [
-        navigator.userAgent,
-        navigator.language,
-        screen.width,
-        screen.height,
-        Intl.DateTimeFormat().resolvedOptions().timeZone,
-        navigator.platform || "web"
-      ].join("|");
-
-      let hash = 0;
-      for (let i = 0; i < raw.length; i++) {
-        hash = ((hash << 5) - hash) + raw.charCodeAt(i);
-        hash |= 0;
+      if(!id){
+        if(window.crypto && window.crypto.randomUUID){
+          id = window.crypto.randomUUID();
+        }else{
+          id = "dev-" + Math.random().toString(36).slice(2) + "-" + Date.now().toString(36);
+        }
+        localStorage.setItem(DEVICE_KEY, id);
       }
 
-      saved = `COEZIV-${Math.abs(hash).toString(16).toUpperCase()}`;
-      localStorage.setItem(STORAGE_KEY, saved);
-      return saved;
+      return id;
     }
 
-    function getDeviceIdFromQuery() {
-      const params = new URLSearchParams(window.location.search);
-      const fromQuery = params.get("device");
-      return fromQuery || generateDeviceId();
-    }
+    var deviceId = getOrCreateDeviceId();
+    document.getElementById("deviceId").textContent = deviceId;
 
-    async function copyDeviceId() {
-      try {
-        await navigator.clipboard.writeText(getDeviceIdFromQuery());
-        setMessage("Device ID copiat.", "ok");
-      } catch {
-        setMessage("Nu am putut copia automat Device ID-ul.", "err");
+    function copyDeviceId(){
+      var status = document.getElementById("status");
+
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(deviceId).then(function(){
+          status.textContent = "Device ID copiat.";
+        }).catch(function(){
+          fallbackCopy(status);
+        });
+      } else {
+        fallbackCopy(status);
       }
     }
 
-    function sendRequest() {
-      const name = nameInput.value.trim();
-      const email = emailInput.value.trim();
-      const phone = phoneInput.value.trim();
-      const notes = notesInput.value.trim();
-      const deviceId = getDeviceIdFromQuery();
+    function fallbackCopy(status){
+      var temp = document.createElement("textarea");
+      temp.value = deviceId;
+      document.body.appendChild(temp);
+      temp.select();
 
-      if (!email) {
-        setMessage("Introdu o adresă de email pentru a trimite cererea.", "err");
-        return;
+      try{
+        document.execCommand("copy");
+        status.textContent = "Device ID copiat.";
+      }catch(e){
+        status.textContent = "Nu am putut copia automat. Copiază manual.";
       }
 
-      const subject = encodeURIComponent("Cerere cod activare Coeziv Player");
-      const body = encodeURIComponent(
-`Bună,
-
-Doresc un cod de activare pentru Coeziv Player.
-
-Nume: ${name || "-"}
-Email: ${email}
-Telefon/WhatsApp: ${phone || "-"}
-Device ID: ${deviceId}
-Mesaj: ${notes || "-"}
-
-Mulțumesc.`
-      );
-
-      setMessage("Cererea este pregătită pentru trimitere.", "ok");
-      window.location.href = `mailto:contact@coeziv.app?subject=${subject}&body=${body}`;
+      document.body.removeChild(temp);
     }
-
-    copyDeviceBtn.addEventListener("click", copyDeviceId);
-    sendRequestBtn.addEventListener("click", sendRequest);
-
-    deviceIdEl.textContent = getDeviceIdFromQuery();
   </script>
 </body>
 </html>
