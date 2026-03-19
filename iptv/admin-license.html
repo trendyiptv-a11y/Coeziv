@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Licențe</title>
+  <style>
+    body{
+      font-family:Arial,sans-serif;
+      background:#0f172a;
+      color:#fff;
+      margin:0;
+      padding:20px;
+      display:flex;
+      justify-content:center;
+      align-items:flex-start;
+      min-height:100vh;
+      box-sizing:border-box;
+    }
+    .card{
+      width:520px;
+      max-width:100%;
+      background:#111827;
+      border-radius:14px;
+      padding:24px;
+      box-shadow:0 10px 30px rgba(0,0,0,.35);
+    }
+    h1{
+      margin:0 0 10px;
+      font-size:28px;
+    }
+    p{
+      color:#9ca3af;
+      font-size:14px;
+      line-height:1.6;
+    }
+    input, select{
+      width:100%;
+      margin-top:12px;
+      padding:12px;
+      border:none;
+      border-radius:8px;
+      font-size:15px;
+      box-sizing:border-box;
+    }
+    button{
+      width:100%;
+      margin-top:14px;
+      padding:12px;
+      border:none;
+      border-radius:8px;
+      background:#2563eb;
+      color:#fff;
+      font-size:15px;
+      font-weight:bold;
+      cursor:pointer;
+    }
+    .status{
+      margin-top:14px;
+      min-height:20px;
+      font-size:14px;
+    }
+    .ok{ color:#22c55e; }
+    .err{ color:#ef4444; }
+    .box{
+      margin-top:18px;
+      padding:14px;
+      border-radius:10px;
+      background:#0b1220;
+      border:1px solid #374151;
+      white-space:pre-wrap;
+      word-break:break-word;
+      font-family:monospace;
+      font-size:14px;
+      min-height:80px;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Admin licențe</h1>
+    <p>Generează coduri premium pentru activare.</p>
+
+    <input id="adminKey" type="password" placeholder="Admin key">
+    <input id="count" type="number" min="1" max="50" value="1" placeholder="Număr coduri">
+    <select id="type">
+      <option value="premium">premium</option>
+    </select>
+
+    <button onclick="createLicense()">Generează coduri</button>
+
+    <div id="status" class="status"></div>
+    <div id="result" class="box"></div>
+  </div>
+
+  <script>
+    function setStatus(text, cls){
+      var el = document.getElementById("status");
+      el.className = "status " + (cls || "");
+      el.textContent = text || "";
+    }
+
+    async function createLicense(){
+      var adminKey = document.getElementById("adminKey").value.trim();
+      var count = Number(document.getElementById("count").value || 1);
+      var type = document.getElementById("type").value;
+      var result = document.getElementById("result");
+
+      if(!adminKey){
+        setStatus("Introdu admin key.", "err");
+        return;
+      }
+
+      setStatus("Se generează...", "");
+      result.textContent = "";
+
+      try{
+        var res = await fetch("/api/create-license", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            adminKey: adminKey,
+            count: count,
+            type: type
+          })
+        });
+
+        var data = await res.json();
+
+        if(!res.ok || !data.ok){
+          throw new Error(data.error || "Nu am putut genera codurile.");
+        }
+
+        setStatus("Coduri generate cu succes.", "ok");
+        result.textContent = (data.codes || []).join("\n");
+      }catch(err){
+        setStatus(err.message || "Eroare.", "err");
+      }
+    }
+  </script>
+</body>
+</html>
