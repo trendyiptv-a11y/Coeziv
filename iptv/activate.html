@@ -131,8 +131,10 @@ button:disabled{
 </div>
 
 <script>
+var DEVICE_KEY = "coeziv_device_id";
+
 function getDeviceID(){
-  var id = localStorage.getItem("device_id");
+  var id = localStorage.getItem(DEVICE_KEY);
 
   if(!id){
     if(window.crypto && window.crypto.randomUUID){
@@ -140,7 +142,7 @@ function getDeviceID(){
     }else{
       id = "dev-" + Math.random().toString(36).slice(2) + "-" + Date.now().toString(36);
     }
-    localStorage.setItem("device_id", id);
+    localStorage.setItem(DEVICE_KEY, id);
   }
 
   return id;
