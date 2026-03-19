@@ -8,7 +8,6 @@
     :root{
       --bg:#071120;
       --panel:#0f172a;
-      --panel-2:#111827;
       --line:rgba(255,255,255,.08);
       --text:#ffffff;
       --muted:#9fb0c7;
@@ -228,9 +227,9 @@
       <input id="codeInput" class="code-input" type="text" maxlength="8" placeholder="EX: M7OYED" autocomplete="off">
 
       <div class="actions">
-        <button class="btn-green" id="connectBtn" onclick="connectTv()">Conectează</button>
-        <button class="btn-blue" onclick="loadDemo()">Încarcă demo</button>
-        <button class="btn-gray" onclick="clearSaved()">Șterge salvat</button>
+        <button class="btn-green" id="connectBtn" type="button" onclick="connectTv()">Conectează</button>
+        <button class="btn-blue" type="button" onclick="loadDemo()">Încarcă demo</button>
+        <button class="btn-gray" type="button" onclick="clearSaved()">Șterge salvat</button>
       </div>
 
       <div id="messageBox" class="message">Aștept codul TV.</div>
@@ -262,7 +261,7 @@
 
   function savePlaylist(text){
     localStorage.setItem("coeziv_tv_playlist", text);
-    localStorage.setItem("coeziv_tv_last_update", String(Date.now()));
+    localStorage.setItem("coeziv_tv_last_update", String(new Date().getTime()));
     refreshSavedStatus();
   }
 
@@ -274,10 +273,14 @@
     var id = localStorage.getItem("coeziv_device_id");
 
     if(!id){
-      if(window.crypto && window.crypto.randomUUID){
-        id = window.crypto.randomUUID();
-      } else {
-        id = "dev-" + Math.random().toString(36).substr(2, 9);
+      try{
+        if(window.crypto && window.crypto.randomUUID){
+          id = window.crypto.randomUUID();
+        }
+      }catch(e){}
+
+      if(!id){
+        id = "dev-" + Math.random().toString(36).substr(2, 9) + "-" + new Date().getTime();
       }
 
       localStorage.setItem("coeziv_device_id", id);
@@ -286,7 +289,59 @@
     return id;
   }
 
-  async function connectTv(){
+  function postJson(url, payload, onSuccess, onError){
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", url, true);
+    xhr.setRequestHeader("Content-Type", "application/json");
+
+    xhr.onreadystatechange = function(){
+      if(xhr.readyState === 4){
+        var data = null;
+
+        try{
+          data = JSON.parse(xhr.responseText || "{}");
+        }catch(e){
+          if(onError){ onError("Răspuns invalid de la server."); }
+          return;
+        }
+
+        if(xhr.status >= 200 && xhr.status < 300){
+          if(onSuccess){ onSuccess(data); }
+        }else{
+          if(onError){ onError((data && data.error) ? data.error : "Eroare server."); }
+        }
+      }
+    };
+
+    xhr.onerror = function(){
+      if(onError){ onError("Eroare de rețea."); }
+    };
+
+    xhr.send(JSON.stringify(payload));
+  }
+
+  function getText(url, onSuccess, onError){
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", url, true);
+
+    xhr.onreadystatechange = function(){
+      if(xhr.readyState === 4){
+        if(xhr.status >= 200 && xhr.status < 300){
+          if(onSuccess){ onSuccess(xhr.responseText); }
+        }else{
+          if(onError){ onError("Nu am putut încărca resursa."); }
+        }
+      }
+    };
+
+    xhr.onerror = function(){
+      if(onError){ onError("Eroare de rețea."); }
+    };
+
+    xhr.send();
+  }
+
+  function connectTv(){
     var code = document.getElementById("codeInput").value;
     code = String(code || "").replace(/^\s+|\s+$/g, "").toUpperCase();
 
@@ -298,54 +353,50 @@
     setMessage("Se caută playlistul...");
     document.getElementById("connectBtn").disabled = true;
 
-    try{
-      var res = await fetch("/api/load-code", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          code: code,
-          deviceId: getDeviceId()
-        })
-      });
+    postJson(
+      "/api/load-code",
+      {
+        code: code,
+        deviceId: getDeviceId()
+      },
+      function(data){
+        if(!data || !data.playlist){
+          document.getElementById("connectBtn").disabled = false;
+          setMessage("Cod invalid sau expirat.", "err");
+          return;
+        }
 
-      var data = await res.json();
+        savePlaylist(data.playlist);
+        setMessage("Playlist încărcat cu succes. Se deschide playerul...", "ok");
 
-      if(!res.ok || !data.playlist){
-        throw new Error(data.error || "Cod invalid sau expirat.");
+        setTimeout(function(){
+          goToPlayer();
+        }, 500);
+      },
+      function(errorText){
+        document.getElementById("connectBtn").disabled = false;
+        setMessage(errorText || "Nu am putut încărca playlistul.", "err");
       }
-
-      savePlaylist(data.playlist);
-      setMessage("Playlist încărcat cu succes. Se deschide playerul...", "ok");
-
-      setTimeout(function(){
-        goToPlayer();
-      }, 500);
-    }catch(err){
-      setMessage(err.message || "Nu am putut încărca playlistul.", "err");
-    }finally{
-      document.getElementById("connectBtn").disabled = false;
-    }
+    );
   }
 
-  async function loadDemo(){
+  function loadDemo(){
     setMessage("Se încarcă demo...");
-    try{
-      var res = await fetch("romanesti.m3u");
-      if(!res.ok){
-        throw new Error("Nu am putut încărca demo-ul.");
-      }
-      var text = await res.text();
-      savePlaylist(text);
-      setMessage("Demo încărcat. Se deschide playerul...", "ok");
 
-      setTimeout(function(){
-        goToPlayer();
-      }, 500);
-    }catch(err){
-      setMessage(err.message || "Eroare la demo.", "err");
-    }
+    getText(
+      "romanesti.m3u",
+      function(text){
+        savePlaylist(text);
+        setMessage("Demo încărcat. Se deschide playerul...", "ok");
+
+        setTimeout(function(){
+          goToPlayer();
+        }, 500);
+      },
+      function(errorText){
+        setMessage(errorText || "Eroare la demo.", "err");
+      }
+    );
   }
 
   function clearSaved(){
