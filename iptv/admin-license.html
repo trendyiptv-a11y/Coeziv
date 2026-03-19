@@ -89,7 +89,7 @@
     }
     .row{
       display:grid;
-      grid-template-columns: 1.3fr 0.7fr 1.4fr 0.8fr 0.8fr 0.8fr;
+      grid-template-columns: 1.3fr 0.7fr 1.5fr 1fr 0.8fr 0.8fr;
       gap:10px;
       align-items:center;
       padding:10px 0;
@@ -180,8 +180,8 @@
       }
     }
 
-    async function apiPost(url, payload){
-      const res = await fetch(url, {
+    async function apiPost(payload){
+      const res = await fetch("/api/license", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -190,9 +190,11 @@
       });
 
       const data = await res.json();
+
       if(!res.ok || !data.ok){
         throw new Error(data.error || "Request failed");
       }
+
       return data;
     }
 
@@ -211,7 +213,8 @@
       result.textContent = "";
 
       try{
-        var data = await apiPost("/api/create-license", {
+        var data = await apiPost({
+          action: "create",
           adminKey: adminKey,
           count: count,
           type: type
@@ -239,7 +242,8 @@
       setStatus("Se încarcă licențele...", "");
 
       try{
-        var data = await apiPost("/api/list-licenses", {
+        var data = await apiPost({
+          action: "list",
           adminKey: adminKey
         });
 
@@ -289,7 +293,8 @@
       }
 
       try{
-        await apiPost("/api/reset-license", {
+        await apiPost({
+          action: "reset",
           adminKey: adminKey,
           code: code
         });
@@ -314,7 +319,8 @@
       }
 
       try{
-        await apiPost("/api/delete-license", {
+        await apiPost({
+          action: "delete",
           adminKey: adminKey,
           code: code
         });
