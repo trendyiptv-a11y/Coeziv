@@ -22,7 +22,8 @@
     }
 
     .wrap{
-      max-width:1280px;
+      width:100%;
+      max-width:none;
       margin:0 auto;
     }
 
@@ -168,13 +169,14 @@
     }
 
     .tv-grid{
-      display:grid;
-      grid-template-columns:repeat(4, minmax(0, 1fr));
+      display:flex;
+      flex-wrap:wrap;
       gap:14px;
       margin-top:14px;
     }
 
     .tv-card{
+      width:23%;
       min-height:120px;
       border:none;
       border-radius:16px;
@@ -214,8 +216,8 @@
     }
 
     @media (max-width: 1100px){
-      .tv-grid{
-        grid-template-columns:repeat(3, minmax(0, 1fr));
+      .tv-card{
+        width:31%;
       }
     }
 
@@ -252,11 +254,8 @@
         font-size:20px;
       }
 
-      .tv-grid{
-        grid-template-columns:repeat(2, minmax(0, 1fr));
-      }
-
       .tv-card{
+        width:48%;
         min-height:110px;
       }
 
@@ -266,8 +265,8 @@
     }
 
     @media (max-width: 560px){
-      .tv-grid{
-        grid-template-columns:1fr;
+      .tv-card{
+        width:100%;
       }
     }
   </style>
@@ -285,9 +284,9 @@
     <input id="searchInput" class="search" type="text" placeholder="Caută canal...">
 
     <div class="actions">
-      <button class="btn-blue" onclick="goConnect()">Schimbă playlist</button>
-      <button class="btn-green" onclick="playLastChannel()">Ultimul canal</button>
-      <button class="btn-gray" onclick="clearPlaylist()">Șterge playlist</button>
+      <button class="btn-blue" id="btnChange" onclick="goConnect()">Schimbă playlist</button>
+      <button class="btn-green" id="btnLast" onclick="playLastChannel()">Ultimul canal</button>
+      <button class="btn-gray" id="btnClear" onclick="clearPlaylist()">Șterge playlist</button>
     </div>
 
     <div id="messageBox" class="message">Player pregătit.</div>
@@ -312,6 +311,7 @@
   var allChannels = [];
   var filteredChannels = [];
   var isPremium = localStorage.getItem("pro") === "true";
+  var cardColumns = 4;
 
   function getDeviceId(){
     var id = localStorage.getItem("coeziv_device_id");
@@ -461,6 +461,20 @@
     return channels;
   }
 
+  function updateCardColumns(){
+    var width = window.innerWidth || document.documentElement.clientWidth || 1280;
+
+    if(width <= 560){
+      cardColumns = 1;
+    } else if(width <= 820){
+      cardColumns = 2;
+    } else if(width <= 1100){
+      cardColumns = 3;
+    } else {
+      cardColumns = 4;
+    }
+  }
+
   function renderChannels(list){
     var box = document.getElementById("channelList");
     box.innerHTML = "";
@@ -473,6 +487,7 @@
 
     filteredChannels = renderList;
     updateBadges();
+    updateCardColumns();
 
     if(!filteredChannels.length){
       box.innerHTML = "<div class='empty'>Nu există canale de afișat.</div>";
@@ -485,8 +500,9 @@
     for(var i = 0; i < filteredChannels.length; i++){
       var ch = filteredChannels[i];
       var item = document.createElement("button");
-      item.className = "tv-card";
+      item.className = "tv-card channel-card";
       item.setAttribute("type", "button");
+      item.setAttribute("data-index", i);
       item.onclick = (function(index){
         return function(){ playChannel(index); };
       })(i);
@@ -499,6 +515,32 @@
     }
 
     box.appendChild(grid);
+  }
+
+  function focusCard(index){
+    var cards = document.querySelectorAll(".channel-card");
+    if(!cards || !cards.length){ return; }
+    if(index < 0){ index = 0; }
+    if(index >= cards.length){ index = cards.length - 1; }
+
+    var el = cards[index];
+    if(el){
+      el.focus();
+      try{
+        el.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "nearest" });
+      }catch(e){
+        el.scrollIntoView();
+      }
+    }
+  }
+
+  function getFocusedCardIndex(){
+    var active = document.activeElement;
+    if(!active){ return -1; }
+    if(active.className && String(active.className).indexOf("channel-card") !== -1){
+      return parseInt(active.getAttribute("data-index"), 10);
+    }
+    return -1;
   }
 
   function playChannel(index){
@@ -551,6 +593,9 @@
 
     if(!q){
       renderChannels(sourceList);
+      setTimeout(function(){
+        focusCard(0);
+      }, 50);
       return;
     }
 
@@ -560,7 +605,11 @@
         list.push(sourceList[i]);
       }
     }
+
     renderChannels(list);
+    setTimeout(function(){
+      focusCard(0);
+    }, 50);
   }
 
   function initPlayer(){
@@ -584,8 +633,57 @@
       } else {
         setMessage("Rulezi în modul FREE. Sunt afișate primele " + LIMIT + " canale.", "ok");
       }
+
+      setTimeout(function(){
+        focusCard(0);
+      }, 80);
     }else{
       setMessage("Playlistul salvat nu conține canale valide.", "err");
+    }
+  }
+
+  function handleRemoteNavigation(e){
+    var key = e.key || "";
+    var index = getFocusedCardIndex();
+
+    if(index === -1){
+      return;
+    }
+
+    if(key === "ArrowRight"){
+      e.preventDefault();
+      focusCard(index + 1);
+      return;
+    }
+
+    if(key === "ArrowLeft"){
+      e.preventDefault();
+      focusCard(index - 1);
+      return;
+    }
+
+    if(key === "ArrowDown"){
+      e.preventDefault();
+      focusCard(index + cardColumns);
+      return;
+    }
+
+    if(key === "ArrowUp"){
+      e.preventDefault();
+      focusCard(index - cardColumns);
+      return;
+    }
+
+    if(key === "Enter"){
+      e.preventDefault();
+      playChannel(index);
+      return;
+    }
+
+    if(key === "Backspace" || key === "Escape"){
+      e.preventDefault();
+      goConnect();
+      return;
     }
   }
 
@@ -595,12 +693,14 @@
     var search = document.getElementById("searchInput");
     if(search){
       search.addEventListener("input", filterChannels);
-      search.focus();
     }
 
     syncPremiumStatus(function(){
       initPlayer();
     });
+
+    document.addEventListener("keydown", handleRemoteNavigation);
+    window.addEventListener("resize", updateCardColumns);
   });
 </script>
 
