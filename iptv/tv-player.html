@@ -5,100 +5,84 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Coeziv TV Player</title>
   <style>
-    :root{
-      --bg:#060b16;
-      --bg2:#0b1220;
-      --panel:#111827;
-      --panel2:#0f172a;
-      --line:rgba(255,255,255,.08);
-      --text:#ffffff;
-      --muted:#9fb0c7;
-      --blue:#2563eb;
-      --blue2:#1d4ed8;
-      --green:#16a34a;
-      --green2:#15803d;
-      --gray:#374151;
-      --focus:#facc15;
-      --card:#13203a;
-      --card2:#1a2948;
+    *{
+      box-sizing:border-box;
     }
-
-    *{box-sizing:border-box}
 
     html,body{
       margin:0;
       min-height:100%;
-      background:
-        radial-gradient(circle at top, rgba(37,99,235,.14), transparent 28%),
-        linear-gradient(180deg, var(--bg), var(--bg2) 45%, #0f172a 100%);
-      color:var(--text);
+      background:#08101f;
+      color:#ffffff;
       font-family:Arial, Helvetica, sans-serif;
     }
 
     body{
-      padding:18px;
+      padding:16px;
     }
 
     .wrap{
-      max-width:1400px;
+      max-width:1280px;
       margin:0 auto;
     }
 
-    .hero{
-      background:
-        linear-gradient(135deg, rgba(37,99,235,.18), rgba(29,78,216,.04)),
-        rgba(15,23,42,.92);
-      border:1px solid var(--line);
-      border-radius:24px;
-      padding:24px;
-      margin-bottom:20px;
-      box-shadow:0 24px 60px rgba(0,0,0,.30);
+    .hero,
+    .section{
+      background:#0f172a;
+      border:1px solid #243244;
+      border-radius:18px;
+      padding:18px;
+      margin-bottom:18px;
     }
 
     .brand{
-      display:inline-flex;
-      align-items:center;
-      gap:10px;
-      padding:8px 14px;
+      display:inline-block;
+      padding:8px 12px;
       border-radius:999px;
-      background:rgba(255,255,255,.06);
-      border:1px solid rgba(255,255,255,.08);
-      color:#dbe7f5;
+      background:#1e293b;
+      border:1px solid #334155;
+      color:#ffffff;
       font-size:14px;
-      margin-bottom:14px;
+      margin-bottom:12px;
     }
 
     .title{
       margin:0 0 8px;
-      font-size:40px;
-      line-height:1.08;
-      letter-spacing:.2px;
+      font-size:34px;
+      line-height:1.15;
+      color:#ffffff;
     }
 
-    .subtitle{
+    .subtitle,
+    .section-subtitle{
       margin:0;
-      color:var(--muted);
-      font-size:18px;
+      color:#cbd5e1;
+      font-size:17px;
       line-height:1.6;
-      max-width:900px;
+    }
+
+    .section-title{
+      margin:0 0 10px;
+      font-size:28px;
+      color:#ffffff;
     }
 
     .search{
       width:100%;
-      margin-top:18px;
-      min-height:68px;
-      border-radius:18px;
-      border:2px solid #314257;
-      background:#0a1324;
-      color:#fff;
-      padding:14px 20px;
-      font-size:26px;
+      margin-top:16px;
+      min-height:60px;
+      border-radius:14px;
+      border:2px solid #334155;
+      background:#111827;
+      color:#ffffff;
+      padding:12px 16px;
+      font-size:24px;
       outline:none;
     }
 
-    .search:focus{
-      outline:4px solid var(--focus);
-      outline-offset:3px;
+    .search::placeholder{
+      color:#cbd5e1;
+      opacity:1;
     }
 
     .actions{
@@ -109,59 +93,67 @@
     }
 
     button{
-      min-height:62px;
-      min-width:220px;
+      min-height:58px;
+      min-width:210px;
       border:none;
-      border-radius:16px;
-      padding:14px 20px;
-      color:#fff;
+      border-radius:14px;
+      padding:12px 18px;
+      color:#ffffff;
       font-size:22px;
-      font-weight:700;
+      font-weight:bold;
       cursor:pointer;
-      transition:transform .12s ease, box-shadow .12s ease, opacity .12s ease;
+      background:#374151;
     }
 
-    button:hover{
-      transform:translateY(-1px);
+    .btn-blue{
+      background:#2563eb;
+      color:#ffffff;
     }
 
-    button:focus{
-      outline:4px solid var(--focus);
+    .btn-green{
+      background:#16a34a;
+      color:#ffffff;
+    }
+
+    .btn-gray{
+      background:#4b5563;
+      color:#ffffff;
+    }
+
+    button:focus,
+    .search:focus,
+    .tv-card:focus{
+      outline:4px solid #facc15;
       outline-offset:3px;
-      transform:scale(1.03);
     }
-
-    .btn-blue{ background:linear-gradient(135deg,var(--blue),var(--blue2)); }
-    .btn-green{ background:linear-gradient(135deg,var(--green),var(--green2)); }
-    .btn-gray{ background:var(--gray); }
 
     .message{
       margin-top:16px;
       padding:14px 16px;
-      border-radius:16px;
+      border-radius:14px;
       font-size:18px;
       line-height:1.5;
-      background:rgba(245,158,11,.12);
-      border:1px solid rgba(245,158,11,.25);
+      background:#3f2f0b;
+      border:1px solid #6b4f12;
       color:#fde68a;
-      min-height:58px;
+      min-height:56px;
     }
 
     .message.ok{
-      background:rgba(22,163,74,.12);
-      border-color:rgba(22,163,74,.25);
+      background:#14532d;
+      border-color:#166534;
       color:#bbf7d0;
     }
 
     .message.err{
-      background:rgba(239,68,68,.12);
-      border-color:rgba(239,68,68,.25);
+      background:#7f1d1d;
+      border-color:#991b1b;
       color:#fecaca;
     }
 
     .badges{
       display:flex;
-      gap:12px;
+      gap:10px;
       flex-wrap:wrap;
       margin-top:16px;
     }
@@ -169,125 +161,108 @@
     .badge{
       padding:10px 14px;
       border-radius:999px;
-      background:rgba(255,255,255,.06);
-      border:1px solid rgba(255,255,255,.08);
-      color:#eef2f7;
-      font-size:16px;
-    }
-
-    .section{
-      margin-top:20px;
-      background:rgba(15,23,42,.92);
-      border:1px solid var(--line);
-      border-radius:24px;
-      padding:22px;
-      box-shadow:0 24px 60px rgba(0,0,0,.22);
-    }
-
-    .section-title{
-      margin:0 0 14px;
-      font-size:30px;
-      line-height:1.1;
-    }
-
-    .section-subtitle{
-      margin:0 0 18px;
-      color:var(--muted);
-      font-size:16px;
-      line-height:1.6;
+      background:#1e293b;
+      border:1px solid #334155;
+      color:#ffffff;
+      font-size:15px;
     }
 
     .tv-grid{
       display:grid;
-      grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
-      gap:18px;
+      grid-template-columns:repeat(4, minmax(0, 1fr));
+      gap:14px;
+      margin-top:14px;
     }
 
     .tv-card{
-      min-height:138px;
+      min-height:120px;
       border:none;
-      border-radius:20px;
-      background:
-        linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02)),
-        linear-gradient(135deg, var(--card), var(--card2));
-      border:1px solid rgba(255,255,255,.08);
-      color:#fff;
+      border-radius:16px;
+      background:#13203a;
+      border:1px solid #314257;
+      color:#ffffff;
+      text-align:left;
+      padding:14px;
+      cursor:pointer;
       display:flex;
       flex-direction:column;
       justify-content:flex-end;
-      align-items:flex-start;
-      text-align:left;
-      padding:18px;
-      cursor:pointer;
-      box-shadow:0 12px 28px rgba(0,0,0,.18);
-      transition:transform .12s ease, box-shadow .12s ease, border-color .12s ease, background .12s ease;
-    }
-
-    .tv-card:hover{
-      transform:translateY(-2px);
-      box-shadow:0 18px 34px rgba(0,0,0,.26);
-      border-color:rgba(255,255,255,.14);
-    }
-
-    .tv-card:focus{
-      outline:4px solid var(--focus);
-      outline-offset:3px;
-      transform:scale(1.04);
     }
 
     .tv-card-title{
-      font-size:28px;
-      font-weight:700;
+      font-size:24px;
+      font-weight:bold;
       line-height:1.2;
-      margin:0 0 8px;
-      width:100%;
+      color:#ffffff;
+      margin:0 0 6px;
       word-break:break-word;
     }
 
     .tv-card-meta{
-      font-size:15px;
-      color:#b8c8dc;
+      font-size:14px;
+      color:#cbd5e1;
       line-height:1.4;
     }
 
     .empty{
-      padding:20px;
-      border-radius:18px;
-      background:rgba(255,255,255,.03);
-      border:1px dashed rgba(255,255,255,.10);
-      color:var(--muted);
+      padding:18px;
+      border-radius:14px;
+      background:#111827;
+      border:1px solid #334155;
+      color:#cbd5e1;
       font-size:18px;
     }
 
     @media (max-width: 1100px){
       .tv-grid{
-        grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+        grid-template-columns:repeat(3, minmax(0, 1fr));
       }
     }
 
     @media (max-width: 820px){
-      body{ padding:12px; }
-      .hero,.section{ border-radius:18px; padding:18px; }
-      .title{ font-size:30px; }
-      .subtitle,.section-subtitle,.badge,.message{ font-size:15px; }
-      .search{ font-size:20px; min-height:58px; }
+      body{
+        padding:12px;
+      }
+
+      .hero,
+      .section{
+        border-radius:16px;
+        padding:16px;
+      }
+
+      .title{
+        font-size:28px;
+      }
+
+      .subtitle,
+      .section-subtitle,
+      .badge,
+      .message{
+        font-size:15px;
+      }
+
+      .search{
+        font-size:20px;
+        min-height:56px;
+      }
+
       button{
         width:100%;
         min-width:0;
         font-size:20px;
       }
+
       .tv-grid{
-        grid-template-columns:repeat(2,minmax(0,1fr));
-        gap:12px;
+        grid-template-columns:repeat(2, minmax(0, 1fr));
       }
+
       .tv-card{
         min-height:110px;
-        border-radius:16px;
-        padding:14px;
       }
-      .tv-card-title{ font-size:20px; }
-      .tv-card-meta{ font-size:13px; }
-      .section-title{ font-size:24px; }
+
+      .tv-card-title{
+        font-size:20px;
+      }
     }
 
     @media (max-width: 560px){
@@ -321,19 +296,82 @@
       <div class="badge" id="countBadge">Canale: 0</div>
       <div class="badge" id="savedBadge">Playlist salvat: nu</div>
       <div class="badge" id="lastBadge">Ultimul canal: -</div>
+      <div class="badge" id="premiumBadge">Stare: FREE</div>
     </div>
   </div>
 
   <div class="section">
     <h2 class="section-title">Canale</h2>
-    <p class="section-subtitle">Navigare tip grid, optimizată pentru ecrane mari și control din telecomandă.</p>
+    <p class="section-subtitle">Grid simplu, stabil și compatibil cu browsere Smart TV.</p>
     <div id="channelList"></div>
   </div>
 </div>
 
 <script>
+  var LIMIT = 30;
   var allChannels = [];
   var filteredChannels = [];
+  var isPremium = localStorage.getItem("pro") === "true";
+
+  function getDeviceId(){
+    var id = localStorage.getItem("coeziv_device_id");
+
+    if(!id){
+      try{
+        if(window.crypto && window.crypto.randomUUID){
+          id = window.crypto.randomUUID();
+        }
+      }catch(e){}
+
+      if(!id){
+        id = "dev-" + Math.random().toString(36).substr(2, 9);
+      }
+
+      localStorage.setItem("coeziv_device_id", id);
+    }
+
+    return id;
+  }
+
+  function syncPremiumStatus(callback){
+    try{
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST", "/api/check-license", true);
+      xhr.setRequestHeader("Content-Type", "application/json");
+
+      xhr.onreadystatechange = function(){
+        if(xhr.readyState === 4){
+          try{
+            var data = JSON.parse(xhr.responseText || "{}");
+
+            if(xhr.status >= 200 && xhr.status < 300 && data.ok && data.premium){
+              localStorage.setItem("pro", "true");
+              isPremium = true;
+            } else {
+              localStorage.removeItem("pro");
+              isPremium = false;
+            }
+          }catch(e){
+            isPremium = localStorage.getItem("pro") === "true";
+          }
+
+          if(callback){ callback(); }
+        }
+      };
+
+      xhr.onerror = function(){
+        isPremium = localStorage.getItem("pro") === "true";
+        if(callback){ callback(); }
+      };
+
+      xhr.send(JSON.stringify({
+        deviceId: getDeviceId()
+      }));
+    }catch(e){
+      isPremium = localStorage.getItem("pro") === "true";
+      if(callback){ callback(); }
+    }
+  }
 
   function setMessage(text, type){
     var box = document.getElementById("messageBox");
@@ -350,6 +388,7 @@
 
     var lastName = localStorage.getItem("coeziv_tv_last_channel_name") || "-";
     document.getElementById("lastBadge").innerHTML = "Ultimul canal: " + escapeHtml(lastName);
+    document.getElementById("premiumBadge").innerHTML = "Stare: " + (isPremium ? "PRO" : "FREE");
   }
 
   function escapeHtml(text){
@@ -426,7 +465,13 @@
     var box = document.getElementById("channelList");
     box.innerHTML = "";
 
-    filteredChannels = list || [];
+    var renderList = list || [];
+
+    if(!isPremium){
+      renderList = renderList.slice(0, LIMIT);
+    }
+
+    filteredChannels = renderList;
     updateBadges();
 
     if(!filteredChannels.length){
@@ -502,15 +547,17 @@
     var q = document.getElementById("searchInput").value;
     q = String(q || "").toLowerCase().trim();
 
+    var sourceList = allChannels;
+
     if(!q){
-      renderChannels(allChannels);
+      renderChannels(sourceList);
       return;
     }
 
     var list = [];
-    for(var i = 0; i < allChannels.length; i++){
-      if(String(allChannels[i].name || "").toLowerCase().indexOf(q) !== -1){
-        list.push(allChannels[i]);
+    for(var i = 0; i < sourceList.length; i++){
+      if(String(sourceList[i].name || "").toLowerCase().indexOf(q) !== -1){
+        list.push(sourceList[i]);
       }
     }
     renderChannels(list);
@@ -532,19 +579,28 @@
     renderChannels(allChannels);
 
     if(allChannels.length){
-      setMessage("Playlist încărcat local cu succes.", "ok");
+      if(isPremium){
+        setMessage("Playlist încărcat local cu succes.", "ok");
+      } else {
+        setMessage("Rulezi în modul FREE. Sunt afișate primele " + LIMIT + " canale.", "ok");
+      }
     }else{
       setMessage("Playlistul salvat nu conține canale valide.", "err");
     }
   }
 
   document.addEventListener("DOMContentLoaded", function(){
+    getDeviceId();
+
     var search = document.getElementById("searchInput");
     if(search){
       search.addEventListener("input", filterChannels);
       search.focus();
     }
-    initPlayer();
+
+    syncPremiumStatus(function(){
+      initPlayer();
+    });
   });
 </script>
 
