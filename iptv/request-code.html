@@ -20,7 +20,7 @@
       background:#111827;
       padding:30px;
       border-radius:14px;
-      width:400px;
+      width:420px;
       max-width:92%;
       box-shadow:0 10px 30px rgba(0,0,0,.35);
     }
@@ -63,7 +63,7 @@
     }
     button,a.btn{
       flex:1;
-      min-width:140px;
+      min-width:120px;
       border:none;
       border-radius:10px;
       padding:12px 14px;
@@ -102,7 +102,32 @@
       font-size:13px;
       line-height:1.5;
     }
+    .qr-wrap{
+      margin-top:18px;
+    }
+    .qr-box{
+      margin-top:10px;
+      padding:14px;
+      border-radius:10px;
+      background:#0b1220;
+      border:1px solid #374151;
+      text-align:center;
+    }
+    #qrcode{
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      min-height:190px;
+    }
+    .qr-note{
+      margin-top:10px;
+      color:#9ca3af;
+      font-size:13px;
+      line-height:1.5;
+    }
   </style>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 <body>
   <div class="card">
@@ -124,6 +149,16 @@
 
     <div id="status" class="status"></div>
 
+    <div class="qr-wrap">
+      <div class="box">
+        <span class="label">QR pentru email precompletat</span>
+        <div id="qrcode" class="qr-box"></div>
+        <div class="qr-note">
+          Scanează QR-ul și se va deschide emailul cu Device ID deja completat.
+        </div>
+      </div>
+    </div>
+
     <div class="warn">
       Codul de activare trebuie generat pentru exact acest Device ID. Dacă folosești alt dispozitiv, codul nu va funcționa.
     </div>
@@ -131,6 +166,7 @@
 
   <script>
     var DEVICE_KEY = "coeziv_device_id";
+    var OWNER_EMAIL = "trendyiptv@gmail.com";
 
     function getOrCreateDeviceId(){
       var id = localStorage.getItem(DEVICE_KEY);
@@ -149,6 +185,19 @@
 
     var deviceId = getOrCreateDeviceId();
     document.getElementById("deviceId").textContent = deviceId;
+
+    function buildMailto(){
+      var subject = "Cerere cod activare Coeziv";
+      var body =
+        "Salut,\n\n" +
+        "Vreau un cod de activare pentru acest dispozitiv.\n\n" +
+        "Device ID:\n" + deviceId + "\n\n" +
+        "Mulțumesc!";
+
+      return "mailto:" + OWNER_EMAIL +
+        "?subject=" + encodeURIComponent(subject) +
+        "&body=" + encodeURIComponent(body);
+    }
 
     function copyDeviceId(){
       var status = document.getElementById("status");
@@ -181,21 +230,24 @@
     }
 
     function sendEmail(){
-      var subject = "Cerere cod activare Coeziv";
-
-      var body =
-        "Salut,\n\n" +
-        "Vreau un cod de activare pentru acest dispozitiv.\n\n" +
-        "Device ID:\n" + deviceId + "\n\n" +
-        "Mulțumesc!";
-
-      var mailto =
-        "mailto:EMAILUL_TAU_AICI@gmail.com" +
-        "?subject=" + encodeURIComponent(subject) +
-        "&body=" + encodeURIComponent(body);
-
-      window.location.href = mailto;
+      window.location.href = buildMailto();
     }
+
+    function renderQr(){
+      var qrTarget = document.getElementById("qrcode");
+      qrTarget.innerHTML = "";
+
+      new QRCode(qrTarget, {
+        text: buildMailto(),
+        width: 180,
+        height: 180,
+        colorDark: "#ffffff",
+        colorLight: "#0b1220",
+        correctLevel: QRCode.CorrectLevel.H
+      });
+    }
+
+    renderQr();
   </script>
 </body>
 </html>
