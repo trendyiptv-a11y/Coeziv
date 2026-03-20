@@ -287,6 +287,23 @@ th {
     <div class="top-actions">
       <button id="previewBtn" class="secondary">Previzualizează M3U extras</button>
       <button id="exportAllBtn" class="secondary">Exportă tot playlistul curățat</button>
+      <button id="saveChangesBtn" class="secondary">Aplică modificările</button>
+      <button id="deleteCategoryBtn" class="danger">Șterge categoria selectată</button>
+    </div>
+
+    <div style="margin-top:14px; display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+      <div>
+        <label for="bulkCategoryInput">Mută toate canalele selectate în categoria</label>
+        <input id="bulkCategoryInput" type="text" placeholder="Noua categorie" />
+      </div>
+      <div>
+        <label for="bulkPrefixInput">Prefix pentru nume canale</label>
+        <input id="bulkPrefixInput" type="text" placeholder="ex: DK |" />
+      </div>
+    </div>
+
+    <div class="top-actions">
+      <button id="applyBulkBtn" class="secondary">Aplică editare în masă</button>
     </div>
 
     <div class="table-wrap">
@@ -296,6 +313,8 @@ th {
             <th>#</th>
             <th>Nume canal</th>
             <th>URL</th>
+            <th>Categorie</th>
+            <th>Acțiuni</th>
           </tr>
         </thead>
         <tbody id="channelTableBody">
@@ -325,6 +344,11 @@ th {
     const categoryList = document.getElementById('categoryList');
     const channelTableBody = document.getElementById('channelTableBody');
     const previewArea = document.getElementById('previewArea');
+    const saveChangesBtn = document.getElementById('saveChangesBtn');
+    const deleteCategoryBtn = document.getElementById('deleteCategoryBtn');
+    const bulkCategoryInput = document.getElementById('bulkCategoryInput');
+    const bulkPrefixInput = document.getElementById('bulkPrefixInput');
+    const applyBulkBtn = document.getElementById('applyBulkBtn');
     const statusEl = document.getElementById('status');
     const totalChannelsEl = document.getElementById('totalChannels');
     const totalCategoriesEl = document.getElementById('totalCategories');
@@ -466,13 +490,25 @@ th {
       return categories.get(cat) || [];
     }
 
+    function rebuildExtinf(item) {
+      const attrs = [];
+      if (item.tvgId) attrs.push(`tvg-id="${item.tvgId}"`);
+      if (item.tvgName) attrs.push(`tvg-name="${item.tvgName}"`);
+      if (item.tvgLogo) attrs.push(`tvg-logo="${item.tvgLogo}"`);
+      if (item.category) attrs.push(`group-title="${item.category}"`);
+      const attrText = attrs.length ? ' ' + attrs.join(' ') : '';
+      item.extinf = `#EXTINF:-1${attrText},${item.name}`;
+      return item.extinf;
+    }
+
     function buildM3U(list) {
       const out = ['#EXTM3U'];
       for (const item of list) {
-        out.push(item.extinf);
+        out.push(rebuildExtinf(item));
         out.push(item.url);
       }
-      return out.join('\n');
+      return out.join('
+');
     }
 
     function renderSelection() {
@@ -486,18 +522,28 @@ th {
       selectedCountEl.textContent = String(selectedEntries.length);
 
       if (!selectedEntries.length) {
-        channelTableBody.innerHTML = '<tr><td colspan="3" class="muted">Nu există canale în categoria selectată.</td></tr>';
+        channelTableBody.innerHTML = '<tr><td colspan="5" class="muted">Nu există canale în categoria selectată.</td></tr>';
         previewArea.value = '';
         return;
       }
 
-      channelTableBody.innerHTML = selectedEntries.map((item, index) => `
+      channelTableBody.innerHTML = selectedEntries.map((item, index) => {
+        const globalIndex = entries.indexOf(item);
+        return `
         <tr>
           <td>${index + 1}</td>
-          <td>${escapeHtml(item.name)}</td>
-          <td><a href="${escapeHtml(item.url)}" target="_blank" rel="noopener" style="color:#93c5fd;">${escapeHtml(item.url)}</a></td>
+          <td><input type="text" value="${escapeHtml(item.name)}" data-field="name" data-index="${globalIndex}" /></td>
+          <td><input type="text" value="${escapeHtml(item.url)}" data-field="url" data-index="${globalIndex}" /></td>
+          <td><input type="text" value="${escapeHtml(item.category)}" data-field="category" data-index="${globalIndex}" /></td>
+          <td>
+            <div class="row-actions">
+              <button class="secondary edit-row-btn" data-index="${globalIndex}">Salvează</button>
+              <button class="danger delete-row-btn" data-index="${globalIndex}">Șterge</button>
+            </div>
+          </td>
         </tr>
-      `).join('');
+      `;
+      }).join('');
     }
 
     function downloadText(filename, text) {
@@ -614,6 +660,114 @@ th {
       setStatus(`Playlistul complet a fost exportat în ${filename}.`);
     });
 
+    channelTableBody.addEventListener('click', (e) => {
+      const saveBtn = e.target.closest('.edit-row-btn');
+      const deleteBtn = e.target.closest('.delete-row-btn');
+
+      if (saveBtn) {
+        const index = Number(saveBtn.dataset.index);
+        const row = saveBtn.closest('tr');
+        const nameInput = row.querySelector('input[data-field="name"]');
+        const urlInputRow = row.querySelector('input[data-field="url"]');
+        const categoryInput = row.querySelector('input[data-field="category"]');
+
+        entries[index].name = nameInput.value.trim() || 'Fără nume';
+        entries[index].url = urlInputRow.value.trim();
+        entries[index].category = categoryInput.value.trim() || 'Fără categorie';
+        rebuildExtinf(entries[index]);
+        rebuildCategories();
+        renderCategories();
+        renderSelection();
+        setStatus('Canalul a fost actualizat.');
+      }
+
+      if (deleteBtn) {
+        const index = Number(deleteBtn.dataset.index);
+        entries.splice(index, 1);
+        rebuildCategories();
+        totalChannelsEl.textContent = String(entries.length);
+        totalCategoriesEl.textContent = String(categories.size);
+        if (manualCategory.value && !categories.has(manualCategory.value)) {
+          manualCategory.value = Array.from(categories.keys())[0] || '';
+          selectedCategory = manualCategory.value;
+        }
+        renderCategories();
+        renderSelection();
+        setStatus('Canalul a fost șters.');
+      }
+    });
+
+    saveChangesBtn.addEventListener('click', () => {
+      const rows = channelTableBody.querySelectorAll('tr');
+      rows.forEach((row) => {
+        const inputs = row.querySelectorAll('input[data-index]');
+        if (!inputs.length) return;
+        const index = Number(inputs[0].dataset.index);
+        const nameInput = row.querySelector('input[data-field="name"]');
+        const urlInputRow = row.querySelector('input[data-field="url"]');
+        const categoryInput = row.querySelector('input[data-field="category"]');
+
+        entries[index].name = nameInput.value.trim() || 'Fără nume';
+        entries[index].url = urlInputRow.value.trim();
+        entries[index].category = categoryInput.value.trim() || 'Fără categorie';
+        rebuildExtinf(entries[index]);
+      });
+
+      rebuildCategories();
+      totalChannelsEl.textContent = String(entries.length);
+      totalCategoriesEl.textContent = String(categories.size);
+      renderCategories();
+      renderSelection();
+      setStatus('Toate modificările vizibile au fost aplicate.');
+    });
+
+    applyBulkBtn.addEventListener('click', () => {
+      const selectedEntries = getSelectedEntries();
+      if (!selectedEntries.length) {
+        setStatus('Nu există canale pentru editare în masă.', true);
+        return;
+      }
+
+      const newCategory = bulkCategoryInput.value.trim();
+      const prefix = bulkPrefixInput.value;
+
+      selectedEntries.forEach((item) => {
+        if (newCategory) item.category = newCategory;
+        if (prefix) item.name = `${prefix} ${item.name}`.trim();
+        rebuildExtinf(item);
+      });
+
+      if (newCategory) {
+        manualCategory.value = newCategory;
+        selectedCategory = newCategory;
+      }
+
+      rebuildCategories();
+      totalChannelsEl.textContent = String(entries.length);
+      totalCategoriesEl.textContent = String(categories.size);
+      renderCategories();
+      renderSelection();
+      setStatus('Editarea în masă a fost aplicată.');
+    });
+
+    deleteCategoryBtn.addEventListener('click', () => {
+      const currentCategory = manualCategory.value.trim() || selectedCategory;
+      if (!currentCategory) {
+        setStatus('Selectează o categorie.', true);
+        return;
+      }
+
+      entries = entries.filter(item => item.category !== currentCategory);
+      rebuildCategories();
+      totalChannelsEl.textContent = String(entries.length);
+      totalCategoriesEl.textContent = String(categories.size);
+      selectedCategory = Array.from(categories.keys())[0] || '';
+      manualCategory.value = selectedCategory;
+      renderCategories();
+      renderSelection();
+      setStatus(`Categoria "${currentCategory}" a fost ștearsă.`);
+    });
+
     resetBtn.addEventListener('click', () => {
       entries = [];
       categories = new Map();
@@ -623,13 +777,15 @@ th {
       searchInput.value = '';
       manualCategory.value = '';
       urlInput.value = '';
+      bulkCategoryInput.value = '';
+      bulkPrefixInput.value = '';
       previewArea.value = '';
       totalChannelsEl.textContent = '0';
       totalCategoriesEl.textContent = '0';
       selectedCountEl.textContent = '0';
       selectedTitle.textContent = 'Nicio categorie selectată';
       categoryList.innerHTML = '';
-      channelTableBody.innerHTML = '<tr><td colspan="3" class="muted">Încarcă un fișier M3U pentru a vedea canalele.</td></tr>';
+      channelTableBody.innerHTML = '<tr><td colspan="5" class="muted">Încarcă un fișier M3U pentru a vedea canalele.</td></tr>';
       setStatus('Aplicația a fost resetată.');
     });
   </script></body>
