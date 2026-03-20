@@ -1,809 +1,636 @@
-<!doctype html>
-<html lang="ro">
+<!DOCTYPE html><html lang="ro">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>M3U Editor MEGA – Multi Group + Export TS/UA/Ref</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Extractor categorii M3U</title>
   <style>
-    :root { color-scheme: light dark; }
-    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 0; }
-    .wrap { max-width: 1200px; margin: 0 auto; padding: 16px; }
-    .card { border: 1px solid rgba(127,127,127,.25); border-radius: 16px; padding: 14px; }
-    h1 { margin: 0 0 10px; font-size: 1.1rem; }
-    .row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
-    input, select, button, textarea {
-      padding: 8px 10px; border-radius: 12px;
-      border: 1px solid rgba(127,127,127,.35);
-      background: transparent;
-      box-sizing: border-box;
-    }
-    input[type="file"] { max-width: 100%; }
-    input[type="text"] { flex: 1 1 320px; }
-    textarea { width: 100%; min-height: 90px; resize: vertical; }
-    button { cursor: pointer; }
-    button:disabled { opacity: .5; cursor: not-allowed; }
-    .meta { font-size: .9rem; opacity: .8; }
-    .pill { display:inline-block; padding: 2px 8px; border: 1px solid rgba(127,127,127,.35); border-radius: 999px; font-size: .8rem; opacity: .9; }
+    :root {
+      --bg: #0f172a;
+      --panel: #111827;
+      --panel-2: #1f2937;
+      --text: #e5e7eb;
+      --muted: #94a3b8;
+      --accent: #22c55e;
+      --accent-2: #16a34a;
+      --border: #334155;
+      --danger: #ef4444;
+    }* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background: linear-gradient(180deg, #020617, var(--bg));
+  color: var(--text);
+  min-height: 100vh;
+}
 
-    .progress { height: 10px; border-radius: 999px; border: 1px solid rgba(127,127,127,.25); overflow:hidden; flex: 1 1 360px; }
-    .bar { height: 100%; width: 0%; background: rgba(255,170,0,.55); }
+.wrap {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px;
+}
 
-    .split { display:grid; grid-template-columns: 1.15fr .85fr; gap: 12px; margin-top: 12px; }
-    @media (max-width: 920px){ .split{ grid-template-columns: 1fr; } }
+h1 {
+  margin: 0 0 8px;
+  font-size: 30px;
+}
 
-    .list { max-height: 520px; overflow:auto; border-radius: 14px; border: 1px solid rgba(127,127,127,.25); }
-    .item {
-      display:grid; grid-template-columns: 72px 1fr;
-      gap: 10px;
-      padding: 10px 12px;
-      border-bottom: 1px solid rgba(127,127,127,.14);
-      cursor:pointer;
-    }
-    .item:last-child{ border-bottom:none; }
-    .item.active { outline: 2px solid rgba(255,170,0,.6); outline-offset:-2px; }
-    .idx { opacity:.7; font-variant-numeric: tabular-nums; }
-    .title { font-weight: 650; }
-    .sub { font-size:.85rem; opacity:.75; word-break: break-all; }
+.subtitle {
+  color: var(--muted);
+  margin-bottom: 20px;
+}
 
-    .grid2 { display:grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    @media (max-width: 700px){ .grid2{ grid-template-columns: 1fr; } }
+.grid {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: 20px;
+}
 
-    .groupBox { max-height: 180px; }
-    .gRow {
-      display:grid; grid-template-columns: 28px 1fr;
-      gap: 10px;
-      padding: 8px 10px;
-      border-bottom: 1px solid rgba(127,127,127,.14);
-      align-items:center;
-    }
-    .gRow:last-child { border-bottom: none; }
-    .gTitle { font-weight: 650; }
+.card {
+  background: rgba(17, 24, 39, 0.95);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 18px;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+}
 
-    .panel { border: 1px solid rgba(127,127,127,.25); border-radius: 14px; padding: 10px; }
-    .warn { color: #c98000; }
-    .ok { color: #2aa14a; }
-    .small { font-size: .85rem; opacity: .85; }
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+label {
+  font-size: 14px;
+  color: var(--muted);
+  display: block;
+  margin-bottom: 6px;
+}
+
+input[type="file"], select, input[type="text"], textarea {
+  width: 100%;
+  background: var(--panel-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px;
+  font-size: 14px;
+}
+
+textarea {
+  min-height: 110px;
+  resize: vertical;
+}
+
+button {
+  appearance: none;
+  border: none;
+  background: var(--accent);
+  color: #052e16;
+  font-weight: 700;
+  padding: 12px 14px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: 0.15s ease;
+}
+
+button:hover { background: var(--accent-2); color: white; }
+button.secondary {
+  background: #334155;
+  color: white;
+}
+button.secondary:hover { background: #475569; }
+button.danger {
+  background: #7f1d1d;
+  color: #fecaca;
+}
+button.danger:hover { background: var(--danger); color: white; }
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.stat {
+  background: #0b1220;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 12px;
+}
+
+.stat .num {
+  font-size: 24px;
+  font-weight: 800;
+  margin-top: 5px;
+}
+
+.category-list {
+  max-height: 420px;
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: #0b1220;
+  margin-top: 10px;
+}
+
+.category-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(51, 65, 85, 0.6);
+  cursor: pointer;
+}
+
+.category-item:hover,
+.category-item.active {
+  background: rgba(34, 197, 94, 0.12);
+}
+
+.badge {
+  background: rgba(34, 197, 94, 0.18);
+  color: #bbf7d0;
+  border: 1px solid rgba(34, 197, 94, 0.25);
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.table-wrap {
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: #0b1220;
+  margin-top: 12px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+th, td {
+  text-align: left;
+  padding: 12px;
+  border-bottom: 1px solid rgba(51, 65, 85, 0.6);
+  vertical-align: top;
+}
+
+th {
+  color: #cbd5e1;
+  background: rgba(15, 23, 42, 0.8);
+  position: sticky;
+  top: 0;
+}
+
+.muted { color: var(--muted); }
+.status {
+  margin-top: 10px;
+  min-height: 22px;
+  color: #bbf7d0;
+}
+
+.row-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.top-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+
+.small {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+@media (max-width: 900px) {
+  .grid { grid-template-columns: 1fr; }
+}
+
   </style>
 </head>
 <body>
   <div class="wrap">
-    <div class="card">
-      <h1>M3U Editor MEGA (120MB+) — multi-grup + export “force TS / UA / referer”</h1>
-
-      <div class="row">
-        <input id="file" type="file" accept=".m3u,.m3u8,text/plain,audio/x-mpegurl,application/vnd.apple.mpegurl" />
-        <button id="exportAll" disabled>⬇ Export all</button>
-        <button id="exportResults" disabled>⬇ Export results</button>
-        <span class="meta" id="status">Încarcă un M3U mare (parsing streaming).</span>
+    <h1>Extractor categorii M3U</h1>
+    <div class="subtitle">Încarci un playlist .m3u / .m3u8, vezi categoriile și exporți o categorie separată într-un fișier nou.</div><div class="grid">
+  <div class="card">
+    <div class="controls">
+      <div>
+        <label for="fileInput">Încarcă playlist M3U</label>
+        <input id="fileInput" type="file" accept=".m3u,.m3u8,text/plain" />
       </div>
 
-      <div class="row" style="margin-top:10px;">
-        <div class="progress"><div class="bar" id="bar"></div></div>
-        <span class="pill" id="stats">0 entries</span>
-        <span class="pill" id="groupsCount">0 groups</span>
-        <span class="pill" id="groupState">All</span>
+      <div>
+        <label for="urlInput">Sau încarcă din URL</label>
+        <input id="urlInput" type="text" placeholder="https://exemplu.com/playlist.m3u" />
       </div>
 
-      <div class="split">
-        <!-- LEFT -->
-        <div>
-          <div class="row" style="margin-top:6px;">
-            <input id="q" type="text" placeholder="Caută (title/url/group) — pentru fișiere mari, min 2-3 caractere" />
-            <select id="limit" title="Max rezultate afișate">
-              <option value="200">200</option>
-              <option value="500" selected>500</option>
-              <option value="2000">2000</option>
-              <option value="5000">5000</option>
-            </select>
-            <select id="minChars" title="Min caractere pentru rezultate când nu filtrezi grupuri">
-              <option value="1">min 1</option>
-              <option value="2" selected>min 2</option>
-              <option value="3">min 3</option>
-            </select>
-          </div>
+      <div class="row-actions">
+        <button id="loadUrlBtn" class="secondary">Încarcă din URL</button>
+      </div>
 
-          <div class="panel" style="margin-top:10px;">
-            <div class="row">
-              <input id="groupQ" type="text" placeholder="Filtrează lista de grupuri (ex: RO, EN, SPORT...)" />
-              <label class="row" style="gap:8px; flex:0 0 auto;">
-                <input id="allGroups" type="checkbox" checked />
-                <span class="meta">All groups</span>
-              </label>
-              <button id="selectNone" type="button">None</button>
-              <button id="selectAll" type="button">All</button>
-            </div>
+      <div>
+        <label for="searchInput">Caută categorie</label>
+        <input id="searchInput" type="text" placeholder="ex: News, Sports, Movies" />
+      </div>
 
-            <div class="list groupBox" id="groupBox" style="margin-top:8px;"></div>
+      <div>
+        <label for="manualCategory">Sau scrie categoria exactă pentru export</label>
+        <input id="manualCategory" type="text" placeholder="Numele exact din group-title" />
+      </div>
 
-            <div class="meta" style="margin-top:8px;">
-              <span class="warn">Comportament:</span>
-              All = fără filtru. Debifezi All → “None selected” (nu trece nimic până bifezi grupuri).
-            </div>
-          </div>
+      <div class="row-actions">
+        <button id="exportBtn">Exportă categoria selectată</button>
+        <button id="copyBtn" class="secondary">Copiază M3U extras</button>
+        <button id="resetBtn" class="danger">Resetează</button>
+      </div>
 
-          <div class="meta" style="margin: 10px 0 8px;">Rezultate</div>
-          <div class="list" id="results"></div>
-          <div class="meta" id="resultsHint" style="margin-top:8px;"></div>
+      <div class="status" id="status"></div>
+
+      <div class="stats">
+        <div class="stat">
+          <div class="small">Canale totale</div>
+          <div class="num" id="totalChannels">0</div>
         </div>
-
-        <!-- RIGHT -->
-        <div>
-          <div class="panel">
-            <div class="meta" style="margin-bottom:8px;">Opțiuni export (pentru compatibilitate în aplicații IPTV)</div>
-
-            <div class="row">
-              <label class="row" style="gap:8px;">
-                <input id="forceTs" type="checkbox" checked />
-                <span>Force .ts dacă lipsește extensia</span>
-              </label>
-            </div>
-
-            <div class="row" style="margin-top:6px;">
-              <label class="row" style="gap:8px;">
-                <input id="forceM3u8" type="checkbox" />
-                <span>Force .m3u8 dacă lipsește extensia</span>
-              </label>
-            </div>
-
-            <div class="meta small" style="margin-top:8px;">
-              Dacă bifezi ambele, are prioritate <b>.m3u8</b>. (Poți lăsa doar TS.)
-            </div>
-
-            <hr style="opacity:.25; margin: 12px 0;">
-
-            <div class="row">
-              <label class="row" style="gap:8px;">
-                <input id="addUA" type="checkbox" />
-                <span>Adaugă User-Agent (EXTVLCOPT)</span>
-              </label>
-            </div>
-            <input id="uaValue" type="text" placeholder="ex: VLC/3.0.20 LibVLC/3.0.20" style="margin-top:6px;" />
-
-            <div class="row" style="margin-top:10px;">
-              <label class="row" style="gap:8px;">
-                <input id="addRef" type="checkbox" />
-                <span>Adaugă Referrer (EXTVLCOPT)</span>
-              </label>
-            </div>
-            <input id="refValue" type="text" placeholder="ex: http://site.tld/" style="margin-top:6px;" />
-
-            <div class="meta small" style="margin-top:10px;">
-              Unele aplicații ignoră EXTVLCOPT. Dacă merge pe Xtream dar nu pe M3U, acest hack uneori ajută.
-            </div>
-          </div>
-
-          <div class="panel" style="margin-top:12px;">
-            <div class="meta" style="margin-bottom:8px;">Editare intrare</div>
-
-            <div class="grid2">
-              <div>
-                <div class="meta">Title</div>
-                <input id="eTitle" type="text" />
-              </div>
-              <div>
-                <div class="meta">Group</div>
-                <input id="eGroup" type="text" />
-              </div>
-            </div>
-
-            <div style="margin-top:10px;">
-              <div class="meta">URL</div>
-              <input id="eUrl" type="text" />
-            </div>
-
-            <div class="row" style="margin-top:10px;">
-              <button id="save" disabled>💾 Save</button>
-              <button id="duplicate" disabled>⎘ Duplicate</button>
-              <button id="remove" disabled>🗑 Delete</button>
-              <button id="clearSel" disabled>Clear selection</button>
-            </div>
-
-            <div class="meta small" style="margin-top:10px;">
-              Notă: acest editor exportă format simplu (#EXTINF + URL + headere “##### GROUP #####”).
-              Dacă vrei export <span class="ok">lossless</span> (cu tvg-logo, tvg-id etc.), pot extinde.
-            </div>
-          </div>
-
-          <div class="panel" style="margin-top:12px;">
-            <div class="meta" style="margin-bottom:8px;">Test rapid (diagnostic)</div>
-            <div class="meta small">
-              Dacă aplicația îți “încarcă M3U” dar nu redă:
-              încearcă export cu <b>Force .ts</b> ON și, dacă tot nu, încearcă și cu User-Agent.
-            </div>
-          </div>
+        <div class="stat">
+          <div class="small">Categorii</div>
+          <div class="num" id="totalCategories">0</div>
         </div>
+        <div class="stat">
+          <div class="small">În selecție</div>
+          <div class="num" id="selectedCount">0</div>
+        </div>
+      </div>
+
+      <div>
+        <label>Categorii detectate</label>
+        <div class="category-list" id="categoryList"></div>
       </div>
     </div>
   </div>
 
-<script>
-(() => {
-  const $ = (s) => document.querySelector(s);
+  <div class="card">
+    <div>
+      <strong id="selectedTitle">Nicio categorie selectată</strong>
+      <div class="small" style="margin-top:6px;">Categoriile sunt luate din <code>group-title</code>. Dacă lipsește, canalul intră în categoria <b>Fără categorie</b>.</div>
+    </div>
 
-  const el = {
-    file: $("#file"),
-    exportAll: $("#exportAll"),
-    exportResults: $("#exportResults"),
-    status: $("#status"),
-    bar: $("#bar"),
-    stats: $("#stats"),
-    groupsCount: $("#groupsCount"),
-    groupState: $("#groupState"),
+    <div class="top-actions">
+      <button id="previewBtn" class="secondary">Previzualizează M3U extras</button>
+      <button id="exportAllBtn" class="secondary">Exportă tot playlistul curățat</button>
+    </div>
 
-    q: $("#q"),
-    limit: $("#limit"),
-    minChars: $("#minChars"),
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Nume canal</th>
+            <th>URL</th>
+          </tr>
+        </thead>
+        <tbody id="channelTableBody">
+          <tr><td colspan="3" class="muted">Încarcă un fișier M3U pentru a vedea canalele.</td></tr>
+        </tbody>
+      </table>
+    </div>
 
-    groupQ: $("#groupQ"),
-    allGroups: $("#allGroups"),
-    selectNone: $("#selectNone"),
-    selectAll: $("#selectAll"),
-    groupBox: $("#groupBox"),
+    <div style="margin-top:14px;">
+      <label for="previewArea">Previzualizare M3U</label>
+      <textarea id="previewArea" readonly placeholder="Aici apare conținutul M3U extras..."></textarea>
+    </div>
+  </div>
+</div>
 
-    results: $("#results"),
-    resultsHint: $("#resultsHint"),
+  </div>  <script>
+    const fileInput = document.getElementById('fileInput');
+    const urlInput = document.getElementById('urlInput');
+    const loadUrlBtn = document.getElementById('loadUrlBtn');
+    const searchInput = document.getElementById('searchInput');
+    const manualCategory = document.getElementById('manualCategory');
+    const exportBtn = document.getElementById('exportBtn');
+    const copyBtn = document.getElementById('copyBtn');
+    const previewBtn = document.getElementById('previewBtn');
+    const exportAllBtn = document.getElementById('exportAllBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const categoryList = document.getElementById('categoryList');
+    const channelTableBody = document.getElementById('channelTableBody');
+    const previewArea = document.getElementById('previewArea');
+    const statusEl = document.getElementById('status');
+    const totalChannelsEl = document.getElementById('totalChannels');
+    const totalCategoriesEl = document.getElementById('totalCategories');
+    const selectedCountEl = document.getElementById('selectedCount');
+    const selectedTitle = document.getElementById('selectedTitle');
 
-    forceTs: $("#forceTs"),
-    forceM3u8: $("#forceM3u8"),
-    addUA: $("#addUA"),
-    uaValue: $("#uaValue"),
-    addRef: $("#addRef"),
-    refValue: $("#refValue"),
+    let playlistName = 'playlist';
+    let entries = [];
+    let categories = new Map();
+    let selectedCategory = '';
 
-    eTitle: $("#eTitle"),
-    eGroup: $("#eGroup"),
-    eUrl: $("#eUrl"),
-    save: $("#save"),
-    duplicate: $("#duplicate"),
-    remove: $("#remove"),
-    clearSel: $("#clearSel"),
-  };
+    function setStatus(message, isError = false) {
+      statusEl.textContent = message;
+      statusEl.style.color = isError ? '#fecaca' : '#bbf7d0';
+    }
 
-  /** @typedef {{title:string,url:string,group:string}} Entry */
+    function safeFileName(name) {
+      return (name || 'categorie')
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-zA-Z0-9._-]+/g, '_')
+        .replace(/^_+|_+$/g, '')
+        .slice(0, 80) || 'categorie';
+    }
 
-  // ----- State -----
-  /** @type {Entry[]} */
-  let entries = [];
-  /** groupName -> count */
-  let groupCounts = new Map();
-  /** @type {number[]} */
-  let viewIdx = [];
-  let selectedIndex = -1;
+    function parseAttributes(extinfLine) {
+      const attrs = {};
+      const regex = /(\w+(?:-\w+)*)="([^"]*)"/g;
+      let match;
+      while ((match = regex.exec(extinfLine)) !== null) {
+        attrs[match[1]] = match[2];
+      }
+      return attrs;
+    }
 
-  /**
-   * groupMode:
-   *  - "all": nu aplicăm filtru de grup (toate incluse)
-   *  - "none": nimic selectat -> 0 rezultate
-   *  - "some": doar grupurile din selectedGroups
-   */
-  let groupMode = "all";
-  /** @type {Set<string>} */
-  let selectedGroups = new Set();
+    function parseM3U(content) {
+      const lines = content.replace(/^\uFEFF/, '').split(/\r?\n/);
+      const parsed = [];
 
-  const HEADER_RE = /^\s*#+\s*(.*?)\s*#+\s*$/; // ##### GROUP #####
-  const YIELD_EVERY = 8000;
-  const GROUP_UI_MAX = 600;
-  const SEARCH_DEBOUNCE_MS = 220;
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i].trim();
+        if (!line.startsWith('#EXTINF')) continue;
 
-  function setStatus(t){ el.status.textContent = t; }
-  function esc(s){
-    return String(s ?? "")
-      .replaceAll("&","&amp;").replaceAll("<","&lt;")
-      .replaceAll(">","&gt;").replaceAll('"',"&quot;")
-      .replaceAll("'","&#039;");
-  }
-  function getLimit(){ return parseInt(el.limit.value, 10) || 500; }
-  function getMinChars(){ return parseInt(el.minChars.value, 10) || 2; }
-
-  function groupStateLabel(){
-    if (groupMode === "all") return "All";
-    if (groupMode === "none") return "None";
-    return `${selectedGroups.size} selected`;
-  }
-
-  function syncHeaderPills(){
-    el.groupsCount.textContent = `${groupCounts.size.toLocaleString("ro-RO")} groups`;
-    el.groupState.textContent = groupStateLabel();
-    el.allGroups.checked = (groupMode === "all");
-  }
-
-  function passesGroupFilter(entry){
-    if (groupMode === "all") return true;
-    if (groupMode === "none") return false;
-    return selectedGroups.has(entry.group);
-  }
-
-  // ----- Streaming parse -----
-  async function loadFileStreaming(file){
-    entries = [];
-    groupCounts = new Map();
-    viewIdx = [];
-    clearSelection(true);
-
-    groupMode = "all";
-    selectedGroups = new Set();
-
-    el.bar.style.width = "0%";
-    el.results.innerHTML = "";
-    el.resultsHint.textContent = "";
-    syncHeaderPills();
-
-    setStatus(`Parsing ${file.name}...`);
-
-    const decoder = new TextDecoder("utf-8", { fatal:false });
-    const reader = file.stream().getReader();
-    const total = file.size;
-    let read = 0;
-
-    let buffer = "";
-    let pendingTitle = "";
-    let currentGroup = "Ungrouped";
-
-    while (true){
-      const { value, done } = await reader.read();
-      if (done) break;
-
-      read += value.byteLength;
-      buffer += decoder.decode(value, { stream:true });
-
-      let nl;
-      while ((nl = buffer.indexOf("\n")) !== -1){
-        const raw = buffer.slice(0, nl);
-        buffer = buffer.slice(nl + 1);
-
-        const line = raw.replace(/\r/g,"").trim();
-        if (!line) continue;
-
-        if (line.startsWith("#EXTINF:")){
-          const comma = line.indexOf(",");
-          pendingTitle = (comma !== -1) ? line.slice(comma + 1).trim() : "";
-          continue;
-        }
-        if (line.startsWith("#")) continue;
-
-        const m = pendingTitle.match(HEADER_RE);
-        if (m){
-          const g = (m[1] || "").trim();
-          if (g) currentGroup = g;
-          pendingTitle = "";
-          continue;
+        const attrs = parseAttributes(line);
+        const commaIndex = line.indexOf(',');
+        const name = commaIndex >= 0 ? line.slice(commaIndex + 1).trim() : 'Fără nume';
+        let url = '';
+        let j = i + 1;
+        while (j < lines.length) {
+          const next = lines[j].trim();
+          if (!next || next.startsWith('#')) {
+            j++;
+            continue;
+          }
+          url = next;
+          break;
         }
 
-        const entry = {
-          title: pendingTitle || line,
-          url: line,
-          group: currentGroup || "Ungrouped"
-        };
-        entries.push(entry);
-        groupCounts.set(entry.group, (groupCounts.get(entry.group) || 0) + 1);
-        pendingTitle = "";
-
-        if (entries.length % YIELD_EVERY === 0){
-          const pct = Math.min(100, Math.round((read / total) * 100));
-          el.bar.style.width = pct + "%";
-          el.stats.textContent = `${entries.length.toLocaleString("ro-RO")} entries`;
-          syncHeaderPills();
-          setStatus(`Parsing... ${pct}%`);
-          await new Promise(r => setTimeout(r, 0));
+        if (url) {
+          parsed.push({
+            extinf: line,
+            name,
+            url,
+            category: (attrs['group-title'] || 'Fără categorie').trim() || 'Fără categorie',
+            tvgId: attrs['tvg-id'] || '',
+            tvgName: attrs['tvg-name'] || '',
+            tvgLogo: attrs['tvg-logo'] || ''
+          });
         }
       }
+
+      return parsed;
     }
 
-    buffer += decoder.decode();
-    el.bar.style.width = "100%";
-    el.stats.textContent = `${entries.length.toLocaleString("ro-RO")} entries`;
-    syncHeaderPills();
+    function loadPlaylistText(text, sourceLabel = 'playlist') {
+      entries = parseM3U(text);
+      rebuildCategories();
 
-    setStatus(`Gata: ${file.name} · ${entries.length.toLocaleString("ro-RO")} intrări · ${groupCounts.size.toLocaleString("ro-RO")} groups`);
+      totalChannelsEl.textContent = String(entries.length);
+      totalCategoriesEl.textContent = String(categories.size);
 
-    renderGroupBox();
-    buildAndRenderResults();
+      const firstCategory = Array.from(categories.keys())[0] || '';
+      selectedCategory = firstCategory;
+      manualCategory.value = firstCategory;
 
-    el.exportAll.disabled = (entries.length === 0);
-  }
+      renderCategories();
+      renderSelection();
 
-  // ----- Group UI -----
-  function renderGroupBox(){
-    const q = (el.groupQ.value || "").trim().toLowerCase();
-    const names = Array.from(groupCounts.keys()).sort((a,b)=>a.localeCompare(b));
-
-    el.groupBox.innerHTML = "";
-    let shown = 0;
-
-    for (const g of names){
-      if (q && !g.toLowerCase().includes(q)) continue;
-      shown++;
-      if (shown > GROUP_UI_MAX) break;
-
-      const count = groupCounts.get(g) || 0;
-      let checked = false;
-      if (groupMode === "all") checked = true;
-      else if (groupMode === "none") checked = false;
-      else checked = selectedGroups.has(g);
-
-      const row = document.createElement("div");
-      row.className = "gRow";
-      row.innerHTML = `
-        <div><input type="checkbox" /></div>
-        <div><div class="gTitle">${esc(g)} <span class="pill">${count}</span></div></div>
-      `;
-      const cb = row.querySelector("input");
-      cb.checked = checked;
-
-      cb.addEventListener("change", () => onToggleGroup(g, cb.checked));
-      el.groupBox.appendChild(row);
+      setStatus(`Playlist încărcat: ${sourceLabel}. Detectate ${entries.length} canale și ${categories.size} categorii.`);
     }
 
-    if (shown >= GROUP_UI_MAX){
-      const hint = document.createElement("div");
-      hint.className = "meta";
-      hint.style.padding = "8px 10px";
-      hint.textContent = `Afișez max ${GROUP_UI_MAX} grupuri. Folosește filtrul de grupuri pentru restul.`;
-      el.groupBox.appendChild(hint);
-    }
-  }
-
-  function onToggleGroup(groupName, isChecked){
-    // logic curat:
-    // - all + debifezi un grup => some = toate minus acel grup
-    // - none + bifezi => some = {grup}
-    // - some => add/remove; dacă 0 => none; dacă toate => all
-    if (groupMode === "all"){
-      if (isChecked) return;
-      groupMode = "some";
-      selectedGroups = new Set(groupCounts.keys());
-      selectedGroups.delete(groupName);
-      if (selectedGroups.size === 0) groupMode = "none";
-    } else if (groupMode === "none"){
-      if (!isChecked) return;
-      groupMode = "some";
-      selectedGroups = new Set([groupName]);
-    } else {
-      if (isChecked) selectedGroups.add(groupName);
-      else selectedGroups.delete(groupName);
-
-      if (selectedGroups.size === 0){
-        groupMode = "none";
-      } else if (selectedGroups.size === groupCounts.size){
-        groupMode = "all";
-        selectedGroups.clear();
+    function rebuildCategories() {
+      categories = new Map();
+      for (const entry of entries) {
+        if (!categories.has(entry.category)) categories.set(entry.category, []);
+        categories.get(entry.category).push(entry);
       }
     }
 
-    syncHeaderPills();
-    renderGroupBox();
-    scheduleRebuildResults();
-  }
+    function renderCategories() {
+      const term = searchInput.value.trim().toLowerCase();
+      const items = Array.from(categories.entries())
+        .sort((a, b) => b[1].length - a[1].length || a[0].localeCompare(b[0], 'ro'))
+        .filter(([cat]) => cat.toLowerCase().includes(term));
 
-  function setGroupModeAll(){
-    groupMode = "all";
-    selectedGroups.clear();
-    syncHeaderPills();
-    renderGroupBox();
-    scheduleRebuildResults();
-  }
+      categoryList.innerHTML = '';
 
-  function setGroupModeNone(){
-    groupMode = "none";
-    selectedGroups.clear();
-    syncHeaderPills();
-    renderGroupBox();
-    scheduleRebuildResults();
-  }
-
-  function onAllGroupsChanged(){
-    if (el.allGroups.checked) setGroupModeAll();
-    else setGroupModeNone();
-  }
-
-  // ----- Results -----
-  function buildViewIndexes(){
-    viewIdx = [];
-    const q = (el.q.value || "").trim().toLowerCase();
-    const hasQuery = q.length > 0;
-    const min = getMinChars();
-    const lim = getLimit();
-
-    if (entries.length === 0) return;
-    if (groupMode === "none") return;
-
-    // UX: dacă nu ai query și ești pe "all", nu scana (fișier mare)
-    if (!hasQuery && groupMode === "all") return;
-
-    // dacă ești pe "all", cerem query minim
-    if (groupMode === "all" && hasQuery && q.length < min) return;
-
-    for (let i = 0; i < entries.length; i++){
-      const e = entries[i];
-      if (!passesGroupFilter(e)) continue;
-
-      if (hasQuery){
-        const hay = (e.title + " " + e.url + " " + e.group).toLowerCase();
-        if (!hay.includes(q)) continue;
+      if (!items.length) {
+        categoryList.innerHTML = '<div class="category-item"><span>Nicio categorie găsită</span></div>';
+        return;
       }
 
-      viewIdx.push(i);
-      if (viewIdx.length >= lim) break;
-    }
-  }
-
-  function renderResults(){
-    el.results.innerHTML = "";
-    el.exportResults.disabled = true;
-
-    if (entries.length === 0){
-      el.results.innerHTML = `<div class="item"><div class="idx">—</div><div><div class="title">Nimic încărcat</div><div class="sub">Încarcă un .m3u/.m3u8</div></div></div>`;
-      el.resultsHint.textContent = "";
-      return;
-    }
-
-    const q = (el.q.value || "").trim();
-    const min = getMinChars();
-
-    if (groupMode === "none"){
-      el.results.innerHTML = `<div class="item"><div class="idx">ℹ️</div><div><div class="title">None selected</div><div class="sub">Bifează grupuri sau activează All.</div></div></div>`;
-      el.resultsHint.textContent = "";
-      return;
+      for (const [cat, group] of items) {
+        const div = document.createElement('div');
+        div.className = 'category-item' + (cat === selectedCategory ? ' active' : '');
+        div.innerHTML = `<span>${escapeHtml(cat)}</span><span class="badge">${group.length}</span>`;
+        div.addEventListener('click', () => {
+          selectedCategory = cat;
+          manualCategory.value = cat;
+          renderCategories();
+          renderSelection();
+        });
+        categoryList.appendChild(div);
+      }
     }
 
-    if (groupMode === "all" && q.length < min){
-      el.results.innerHTML = `<div class="item"><div class="idx">ℹ️</div><div><div class="title">Scrie minim ${min} caractere</div><div class="sub">Playlist mare: evităm scanarea fără query sau filtru de grup.</div></div></div>`;
-      el.resultsHint.textContent = "";
-      return;
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
     }
 
-    if (viewIdx.length === 0){
-      el.results.innerHTML = `<div class="item"><div class="idx">—</div><div><div class="title">Niciun rezultat</div><div class="sub">Schimbă căutarea sau grupurile.</div></div></div>`;
-      el.resultsHint.textContent = "";
-      return;
+    function getSelectedEntries() {
+      const manual = manualCategory.value.trim();
+      const cat = manual || selectedCategory;
+      if (!cat) return [];
+      return categories.get(cat) || [];
     }
 
-    for (const i of viewIdx){
-      const e = entries[i];
-      const div = document.createElement("div");
-      div.className = "item" + (i === selectedIndex ? " active" : "");
-      div.innerHTML = `
-        <div class="idx">#${i+1}</div>
-        <div>
-          <div class="title">${esc(e.title)}</div>
-          <div class="sub">${esc(e.group)} · ${esc(e.url)}</div>
-        </div>
-      `;
-      div.addEventListener("click", () => selectEntry(i));
-      el.results.appendChild(div);
+    function buildM3U(list) {
+      const out = ['#EXTM3U'];
+      for (const item of list) {
+        out.push(item.extinf);
+        out.push(item.url);
+      }
+      return out.join('\n');
     }
 
-    el.exportResults.disabled = false;
-    el.resultsHint.textContent = `Rezultate: ${viewIdx.length} (limit ${getLimit()}) · Group: ${groupStateLabel()}`;
-  }
+    function renderSelection() {
+      const selectedEntries = getSelectedEntries();
+      const currentCategory = manualCategory.value.trim() || selectedCategory;
 
-  function buildAndRenderResults(){
-    buildViewIndexes();
-    renderResults();
-  }
+      selectedTitle.textContent = currentCategory
+        ? `Categoria: ${currentCategory}`
+        : 'Nicio categorie selectată';
 
-  // ----- Selection / Editor -----
-  function clearSelection(skipRender){
-    selectedIndex = -1;
-    el.eTitle.value = "";
-    el.eGroup.value = "";
-    el.eUrl.value = "";
+      selectedCountEl.textContent = String(selectedEntries.length);
 
-    el.save.disabled = true;
-    el.duplicate.disabled = true;
-    el.remove.disabled = true;
-    el.clearSel.disabled = true;
-
-    if (!skipRender) renderResults();
-  }
-
-  function selectEntry(i){
-    selectedIndex = i;
-    const e = entries[i];
-    el.eTitle.value = e.title;
-    el.eGroup.value = e.group;
-    el.eUrl.value = e.url;
-
-    el.save.disabled = false;
-    el.duplicate.disabled = false;
-    el.remove.disabled = false;
-    el.clearSel.disabled = false;
-
-    renderResults();
-  }
-
-  function saveSelected(){
-    if (selectedIndex < 0) return;
-    const url = (el.eUrl.value || "").trim();
-    if (!url) { alert("URL lipsă."); return; }
-
-    const title = (el.eTitle.value || "").trim() || url;
-    const group = (el.eGroup.value || "").trim() || "Ungrouped";
-
-    const oldGroup = entries[selectedIndex].group;
-    entries[selectedIndex] = { title, url, group };
-
-    if (oldGroup !== group){
-      groupCounts.set(oldGroup, Math.max(0, (groupCounts.get(oldGroup) || 1) - 1));
-      if ((groupCounts.get(oldGroup) || 0) === 0) groupCounts.delete(oldGroup);
-      groupCounts.set(group, (groupCounts.get(group) || 0) + 1);
-
-      // dacă ești în "some" și ai schimbat group-ul, nu schimbăm selecția automat
-      syncHeaderPills();
-      renderGroupBox();
-    }
-
-    setStatus("Salvat.");
-    scheduleRebuildResults();
-  }
-
-  function duplicateSelected(){
-    if (selectedIndex < 0) return;
-    const copy = { ...entries[selectedIndex] };
-    entries.splice(selectedIndex + 1, 0, copy);
-    groupCounts.set(copy.group, (groupCounts.get(copy.group) || 0) + 1);
-
-    setStatus("Duplicat.");
-    syncHeaderPills();
-    renderGroupBox();
-
-    selectEntry(selectedIndex + 1);
-    scheduleRebuildResults();
-  }
-
-  function deleteSelected(){
-    if (selectedIndex < 0) return;
-    if (!confirm("Ștergi intrarea selectată?")) return;
-
-    const g = entries[selectedIndex].group;
-    entries.splice(selectedIndex, 1);
-
-    groupCounts.set(g, Math.max(0, (groupCounts.get(g) || 1) - 1));
-    if ((groupCounts.get(g) || 0) === 0) groupCounts.delete(g);
-
-    setStatus("Șters.");
-    syncHeaderPills();
-    renderGroupBox();
-
-    clearSelection(true);
-    scheduleRebuildResults();
-  }
-
-  // ----- Export helpers -----
-  function normalizeUrl(url){
-    // păstrează querystring intact
-    const parts = url.split("?");
-    const base = parts[0];
-    const qs = parts.length > 1 ? "?" + parts.slice(1).join("?") : "";
-
-    const lower = base.toLowerCase();
-
-    const hasKnownExt =
-      lower.endsWith(".ts") || lower.endsWith(".m3u8") ||
-      lower.endsWith(".mp4") || lower.endsWith(".webm") ||
-      lower.endsWith(".mp3") || lower.endsWith(".aac") ||
-      lower.endsWith(".m4a") || lower.endsWith(".ogg") ||
-      lower.endsWith(".wav") || lower.endsWith(".flac");
-
-    if (hasKnownExt) return base + qs;
-
-    // dacă nu are extensie:
-    if (el.forceM3u8.checked) return base + ".m3u8" + qs;
-    if (el.forceTs.checked) return base + ".ts" + qs;
-
-    return base + qs;
-  }
-
-  function maybeVlcOptsLines(){
-    const lines = [];
-    if (el.addUA.checked){
-      const ua = (el.uaValue.value || "").trim();
-      if (ua) lines.push(`#EXTVLCOPT:http-user-agent=${ua}`);
-    }
-    if (el.addRef.checked){
-      const ref = (el.refValue.value || "").trim();
-      if (ref) lines.push(`#EXTVLCOPT:http-referrer=${ref}`);
-    }
-    return lines;
-  }
-
-  function toM3U(list){
-    // format simplu:
-    // #EXTM3U
-    // #EXTINF:-1,##### GROUP #####
-    // #
-    // (opțional EXTVLCOPT)
-    // #EXTINF:-1,Title
-    // URL (normalizat)
-    let out = "#EXTM3U\n";
-    let lastGroup = null;
-
-    const vlcOptLines = maybeVlcOptsLines();
-
-    for (const e of list){
-      const g = (e.group || "Ungrouped").trim() || "Ungrouped";
-      if (g !== lastGroup){
-        out += `#EXTINF:-1,##### ${g} #####\n`;
-        out += `#\n`;
-        lastGroup = g;
+      if (!selectedEntries.length) {
+        channelTableBody.innerHTML = '<tr><td colspan="3" class="muted">Nu există canale în categoria selectată.</td></tr>';
+        previewArea.value = '';
+        return;
       }
 
-      // opțiuni VLC înainte de item (unii clienți cer exact aici)
-      for (const l of vlcOptLines) out += l + "\n";
-
-      const title = (e.title || "").trim() || e.url;
-      out += `#EXTINF:-1,${title}\n`;
-      out += `${normalizeUrl(e.url)}\n`;
+      channelTableBody.innerHTML = selectedEntries.map((item, index) => `
+        <tr>
+          <td>${index + 1}</td>
+          <td>${escapeHtml(item.name)}</td>
+          <td><a href="${escapeHtml(item.url)}" target="_blank" rel="noopener" style="color:#93c5fd;">${escapeHtml(item.url)}</a></td>
+        </tr>
+      `).join('');
     }
-    return out;
-  }
 
-  function exportAll(){
-    const m3u = toM3U(entries);
-    const name = "edited.m3u";
-    const mime = "audio/x-mpegurl";
-    const blob = new Blob([m3u], {type:mime});
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = name;
-    a.click();
-    setTimeout(()=>URL.revokeObjectURL(a.href), 1500);
-  }
+    function downloadText(filename, text) {
+      const blob = new Blob([text], { type: 'application/x-mpegURL;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
 
-  function exportResults(){
-    const subset = viewIdx.map(i => entries[i]);
-    const m3u = toM3U(subset);
-    const name = "results.m3u";
-    const mime = "audio/x-mpegurl";
-    const blob = new Blob([m3u], {type:mime});
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = name;
-    a.click();
-    setTimeout(()=>URL.revokeObjectURL(a.href), 1500);
-  }
+    fileInput.addEventListener('change', async (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
 
-  // ----- Debounce -----
-  let t = null;
-  function scheduleRebuildResults(){
-    clearTimeout(t);
-    t = setTimeout(buildAndRenderResults, SEARCH_DEBOUNCE_MS);
-  }
+      playlistName = file.name.replace(/\.(m3u8?|txt)$/i, '') || 'playlist';
 
-  // ----- Wire events -----
-  el.file.addEventListener("change", async () => {
-    const f = el.file.files?.[0];
-    if (!f) return;
-    await loadFileStreaming(f);
-  });
+      try {
+        const text = await file.text();
+        loadPlaylistText(text, file.name);
+      } catch (err) {
+        console.error(err);
+        setStatus('Nu am putut citi fișierul.', true);
+      }
+    });
 
-  el.q.addEventListener("input", scheduleRebuildResults);
-  el.limit.addEventListener("change", scheduleRebuildResults);
-  el.minChars.addEventListener("change", scheduleRebuildResults);
+    loadUrlBtn.addEventListener('click', async () => {
+      const url = urlInput.value.trim();
+      if (!url) {
+        setStatus('Introdu un URL valid.', true);
+        return;
+      }
 
-  el.groupQ.addEventListener("input", () => renderGroupBox());
-  el.allGroups.addEventListener("change", onAllGroupsChanged);
-  el.selectNone.addEventListener("click", setGroupModeNone);
-  el.selectAll.addEventListener("click", setGroupModeAll);
+      try {
+        const urlObj = new URL(url);
+        playlistName = (urlObj.pathname.split('/').pop() || 'playlist').replace(/\.(m3u8?|txt)$/i, '') || 'playlist';
 
-  el.save.addEventListener("click", saveSelected);
-  el.duplicate.addEventListener("click", duplicateSelected);
-  el.remove.addEventListener("click", deleteSelected);
-  el.clearSel.addEventListener("click", () => clearSelection(false));
+        setStatus('Se încearcă încărcarea din URL...');
+        const response = await fetch(url, {
+          method: 'GET',
+          mode: 'cors',
+          cache: 'no-store'
+        });
 
-  el.exportAll.addEventListener("click", exportAll);
-  el.exportResults.addEventListener("click", exportResults);
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
 
-  // când schimbi opțiuni export, nu e nevoie să regenerezi rezultate; doar exportul se schimbă.
-  // (nimic de făcut)
+        const text = await response.text();
+        loadPlaylistText(text, url);
+      } catch (err) {
+        console.error(err);
+        setStatus('Nu am putut încărca playlistul din URL. Posibil blocaj CORS sau sursa nu permite fetch direct din browser. În acest caz, descarcă fișierul local și încarcă-l manual.', true);
+      }
+    });
 
-  // init
-  el.stats.textContent = "0 entries";
-  syncHeaderPills();
-  renderGroupBox();
-  renderResults();
+    searchInput.addEventListener('input', renderCategories);
+    manualCategory.addEventListener('input', renderSelection);
 
-})();
-</script>
-</body>
+    previewBtn.addEventListener('click', () => {
+      const selectedEntries = getSelectedEntries();
+      if (!selectedEntries.length) {
+        setStatus('Nu există nimic de previzualizat.', true);
+        return;
+      }
+      previewArea.value = buildM3U(selectedEntries);
+      setStatus('Previzualizarea M3U a fost generată.');
+    });
+
+    exportBtn.addEventListener('click', () => {
+      const selectedEntries = getSelectedEntries();
+      const currentCategory = manualCategory.value.trim() || selectedCategory;
+
+      if (!currentCategory || !selectedEntries.length) {
+        setStatus('Selectează o categorie validă înainte de export.', true);
+        return;
+      }
+
+      const content = buildM3U(selectedEntries);
+      const filename = `${safeFileName(playlistName)}_${safeFileName(currentCategory)}.m3u`;
+      downloadText(filename, content);
+      previewArea.value = content;
+      setStatus(`Categoria "${currentCategory}" a fost exportată în ${filename}.`);
+    });
+
+    copyBtn.addEventListener('click', async () => {
+      const selectedEntries = getSelectedEntries();
+      if (!selectedEntries.length) {
+        setStatus('Nu există conținut de copiat.', true);
+        return;
+      }
+
+      const content = buildM3U(selectedEntries);
+      previewArea.value = content;
+      try {
+        await navigator.clipboard.writeText(content);
+        setStatus('M3U-ul extras a fost copiat în clipboard.');
+      } catch {
+        setStatus('Clipboard indisponibil. Folosește previzualizarea și copiază manual.', true);
+      }
+    });
+
+    exportAllBtn.addEventListener('click', () => {
+      if (!entries.length) {
+        setStatus('Încarcă mai întâi un playlist.', true);
+        return;
+      }
+      const content = buildM3U(entries);
+      const filename = `${safeFileName(playlistName)}_curatat.m3u`;
+      downloadText(filename, content);
+      setStatus(`Playlistul complet a fost exportat în ${filename}.`);
+    });
+
+    resetBtn.addEventListener('click', () => {
+      entries = [];
+      categories = new Map();
+      selectedCategory = '';
+      playlistName = 'playlist';
+      fileInput.value = '';
+      searchInput.value = '';
+      manualCategory.value = '';
+      urlInput.value = '';
+      previewArea.value = '';
+      totalChannelsEl.textContent = '0';
+      totalCategoriesEl.textContent = '0';
+      selectedCountEl.textContent = '0';
+      selectedTitle.textContent = 'Nicio categorie selectată';
+      categoryList.innerHTML = '';
+      channelTableBody.innerHTML = '<tr><td colspan="3" class="muted">Încarcă un fișier M3U pentru a vedea canalele.</td></tr>';
+      setStatus('Aplicația a fost resetată.');
+    });
+  </script></body>
 </html>
