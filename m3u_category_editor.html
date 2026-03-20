@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>M3U Category Editor</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --panel: #121933;
+      --panel2: #1a2447;
+      --text: #e8ecf7;
+      --muted: #9fb0d8;
+      --accent: #60a5fa;
+      --accent2: #34d399;
+      --danger: #f87171;
+      --border: #2b3a67;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: linear-gradient(180deg, #060914, var(--bg));
+      color: var(--text);
+    }
+    .wrap { max-width: 1280px; margin: 0 auto; padding: 20px; }
+    h1 { margin: 0 0 8px; font-size: 28px; }
+    .sub { color: var(--muted); margin-bottom: 18px; }
+    .grid {
+      display: grid;
+      grid-template-columns: 360px 1fr;
+      gap: 18px;
+    }
+    .card {
+      background: rgba(18,25,51,.95);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 16px;
+      box-shadow: 0 10px 25px rgba(0,0,0,.25);
+    }
+    label { display:block; color: var(--muted); font-size: 13px; margin-bottom: 6px; }
+    input, textarea, select {
+      width: 100%; padding: 11px 12px; border-radius: 12px; border: 1px solid var(--border);
+      background: var(--panel2); color: var(--text); font-size: 14px;
+    }
+    textarea { min-height: 120px; resize: vertical; }
+    button {
+      border: none; border-radius: 12px; padding: 11px 14px; cursor: pointer; font-weight: 700;
+      background: var(--accent); color: #07111f;
+    }
+    button.secondary { background: #334155; color: #fff; }
+    button.success { background: var(--accent2); color: #062117; }
+    button.danger { background: #7f1d1d; color: #fee2e2; }
+    button:hover { filter: brightness(1.05); }
+    .stack { display: grid; gap: 12px; }
+    .row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .row > * { flex: 1; min-width: 120px; }
+    .stats { display:grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+    .stat { background:#0f1630; border:1px solid var(--border); border-radius: 14px; padding: 12px; }
+    .num { font-size: 22px; font-weight: 800; margin-top: 4px; }
+    .status { min-height: 22px; color: #bbf7d0; font-size: 14px; }
+    .category-list {
+      border:1px solid var(--border); border-radius: 14px; overflow:auto; max-height: 420px; background:#0f1630;
+    }
+    .cat-item {
+      display:flex; justify-content:space-between; align-items:center; gap:12px; padding:12px 14px;
+      border-bottom:1px solid rgba(43,58,103,.6); cursor:pointer;
+    }
+    .cat-item:hover, .cat-item.active { background: rgba(96,165,250,.12); }
+    .badge { background: rgba(52,211,153,.12); color:#bbf7d0; border:1px solid rgba(52,211,153,.25); border-radius:999px; padding:4px 10px; font-size: 12px; }
+    .table-wrap { overflow:auto; border:1px solid var(--border); border-radius: 14px; background:#0f1630; }
+    table { width: 100%; border-collapse: collapse; min-width: 980px; }
+    th, td { padding: 10px; border-bottom:1px solid rgba(43,58,103,.6); vertical-align: top; }
+    th { position: sticky; top: 0; background:#0d1530; color:#c7d2fe; text-align:left; }
+    td input { min-width: 120px; }
+    .small { font-size: 12px; color: var(--muted); }
+    .titleline { display:flex; justify-content:space-between; gap:12px; align-items:center; margin-bottom:12px; }
+    @media (max-width: 980px) { .grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>M3U Category Editor</h1>
+    <div class="sub">Încarci playlist din fișier sau URL, alegi categoria, editezi canalele și exporți categoria sau tot playlistul.</div>
+
+    <div class="grid">
+      <div class="card stack">
+        <div>
+          <label for="fileInput">Fișier M3U / M3U8</label>
+          <input id="fileInput" type="file" accept=".m3u,.m3u8,.txt" />
+        </div>
+
+        <div>
+          <label for="urlInput">URL playlist</label>
+          <input id="urlInput" type="text" placeholder="https://exemplu.com/playlist.m3u" />
+        </div>
+
+        <div class="row">
+          <button id="loadUrlBtn" class="secondary">Încarcă din URL</button>
+          <button id="resetBtn" class="danger">Reset</button>
+        </div>
+
+        <div>
+          <label for="searchInput">Caută categorie</label>
+          <input id="searchInput" type="text" placeholder="ex: News, Sports" />
+        </div>
+
+        <div>
+          <label for="manualCategory">Categorie selectată</label>
+          <input id="manualCategory" type="text" placeholder="Alege sau scrie o categorie" />
+        </div>
+
+        <div class="status" id="status"></div>
+
+        <div class="stats">
+          <div class="stat"><div class="small">Canale</div><div class="num" id="totalChannels">0</div></div>
+          <div class="stat"><div class="small">Categorii</div><div class="num" id="totalCategories">0</div></div>
+          <div class="stat"><div class="small">În selecție</div><div class="num" id="selectedCount">0</div></div>
+        </div>
+
+        <div>
+          <label>Categorii</label>
+          <div id="categoryList" class="category-list"></div>
+        </div>
+      </div>
+
+      <div class="card stack">
+        <div class="titleline">
+          <div>
+            <strong id="selectedTitle">Nicio categorie selectată</strong>
+            <div class="small">Dacă group-title lipsește, canalul intră în „Fără categorie”.</div>
+          </div>
+          <div class="row" style="justify-content:flex-end;">
+            <button id="previewBtn" class="secondary">Previzualizează</button>
+            <button id="copyBtn" class="secondary">Copiază</button>
+            <button id="exportBtn">Exportă categoria</button>
+            <button id="exportAllBtn" class="success">Exportă tot</button>
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label for="bulkCategoryInput">Mută toate în categoria</label>
+            <input id="bulkCategoryInput" type="text" placeholder="Noua categorie" />
+          </div>
+          <div>
+            <label for="bulkPrefixInput">Prefix nume</label>
+            <input id="bulkPrefixInput" type="text" placeholder="ex: DK |" />
+          </div>
+        </div>
+
+        <div class="row">
+          <button id="applyBulkBtn" class="secondary">Aplică editare în masă</button>
+          <button id="deleteCategoryBtn" class="danger">Șterge categoria</button>
+          <button id="saveVisibleBtn" class="secondary">Salvează modificările vizibile</button>
+        </div>
+
+        <div class="card" style="padding:12px; background:#0f1630;">
+          <div class="small" style="margin-bottom:10px;">Adaugă canal nou</div>
+          <div class="row">
+            <input id="newName" type="text" placeholder="Nume canal" />
+            <input id="newUrl" type="text" placeholder="URL stream" />
+            <input id="newCategory" type="text" placeholder="Categorie" />
+          </div>
+          <div class="row" style="margin-top:10px;">
+            <input id="newTvgId" type="text" placeholder="tvg-id" />
+            <input id="newTvgName" type="text" placeholder="tvg-name" />
+            <input id="newTvgLogo" type="text" placeholder="tvg-logo" />
+            <button id="addChannelBtn" class="success">Adaugă</button>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Nume</th>
+                <th>URL</th>
+                <th>Categorie</th>
+                <th>tvg-id</th>
+                <th>tvg-name</th>
+                <th>tvg-logo</th>
+                <th>Acțiuni</th>
+              </tr>
+            </thead>
+            <tbody id="channelTableBody">
+              <tr><td colspan="8" class="small">Încarcă un playlist pentru a începe.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div>
+          <label for="previewArea">Previzualizare M3U</label>
+          <textarea id="previewArea" readonly></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const fileInput = document.getElementById('fileInput');
+    const urlInput = document.getElementById('urlInput');
+    const loadUrlBtn = document.getElementById('loadUrlBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const searchInput = document.getElementById('searchInput');
+    const manualCategory = document.getElementById('manualCategory');
+    const statusEl = document.getElementById('status');
+    const totalChannelsEl = document.getElementById('totalChannels');
+    const totalCategoriesEl = document.getElementById('totalCategories');
+    const selectedCountEl = document.getElementById('selectedCount');
+    const categoryList = document.getElementById('categoryList');
+    const selectedTitle = document.getElementById('selectedTitle');
+    const previewBtn = document.getElementById('previewBtn');
+    const copyBtn = document.getElementById('copyBtn');
+    const exportBtn = document.getElementById('exportBtn');
+    const exportAllBtn = document.getElementById('exportAllBtn');
+    const bulkCategoryInput = document.getElementById('bulkCategoryInput');
+    const bulkPrefixInput = document.getElementById('bulkPrefixInput');
+    const applyBulkBtn = document.getElementById('applyBulkBtn');
+    const deleteCategoryBtn = document.getElementById('deleteCategoryBtn');
+    const saveVisibleBtn = document.getElementById('saveVisibleBtn');
+    const addChannelBtn = document.getElementById('addChannelBtn');
+    const channelTableBody = document.getElementById('channelTableBody');
+    const previewArea = document.getElementById('previewArea');
+    const newName = document.getElementById('newName');
+    const newUrl = document.getElementById('newUrl');
+    const newCategory = document.getElementById('newCategory');
+    const newTvgId = document.getElementById('newTvgId');
+    const newTvgName = document.getElementById('newTvgName');
+    const newTvgLogo = document.getElementById('newTvgLogo');
+
+    let playlistName = 'playlist';
+    let entries = [];
+    let categories = new Map();
+    let selectedCategory = '';
+
+    function setStatus(msg, error = false) {
+      statusEl.textContent = msg;
+      statusEl.style.color = error ? '#fecaca' : '#bbf7d0';
+    }
+
+    function escapeHtml(s) {
+      return String(s ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function safeFileName(name) {
+      return (name || 'playlist')
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-zA-Z0-9._-]+/g, '_')
+        .replace(/^_+|_+$/g, '')
+        .slice(0, 80) || 'playlist';
+    }
+
+    function parseAttributes(line) {
+      const attrs = {};
+      const regex = /(\w+(?:-\w+)*)="([^"]*)"/g;
+      let match;
+      while ((match = regex.exec(line)) !== null) attrs[match[1]] = match[2];
+      return attrs;
+    }
+
+    function rebuildExtinf(item) {
+      const attrs = [];
+      if (item.tvgId) attrs.push(`tvg-id="${String(item.tvgId).replace(/"/g, '&quot;')}"`);
+      if (item.tvgName) attrs.push(`tvg-name="${String(item.tvgName).replace(/"/g, '&quot;')}"`);
+      if (item.tvgLogo) attrs.push(`tvg-logo="${String(item.tvgLogo).replace(/"/g, '&quot;')}"`);
+      if (item.category) attrs.push(`group-title="${String(item.category).replace(/"/g, '&quot;')}"`);
+      item.extinf = `#EXTINF:-1${attrs.length ? ' ' + attrs.join(' ') : ''},${item.name || 'Fără nume'}`;
+      return item.extinf;
+    }
+
+    function parseM3U(content) {
+      const lines = content.replace(/^\uFEFF/, '').split(/\r?\n/);
+      const parsed = [];
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i].trim();
+        if (!line.startsWith('#EXTINF')) continue;
+        const attrs = parseAttributes(line);
+        const commaIndex = line.indexOf(',');
+        const name = commaIndex >= 0 ? line.slice(commaIndex + 1).trim() : 'Fără nume';
+        let url = '';
+        let j = i + 1;
+        while (j < lines.length) {
+          const next = lines[j].trim();
+          if (!next || next.startsWith('#')) { j++; continue; }
+          url = next;
+          break;
+        }
+        if (!url) continue;
+        parsed.push({
+          extinf: line,
+          name,
+          url,
+          category: (attrs['group-title'] || 'Fără categorie').trim() || 'Fără categorie',
+          tvgId: attrs['tvg-id'] || '',
+          tvgName: attrs['tvg-name'] || '',
+          tvgLogo: attrs['tvg-logo'] || ''
+        });
+      }
+      return parsed;
+    }
+
+    function rebuildCategories() {
+      categories = new Map();
+      entries.forEach(item => {
+        const cat = item.category || 'Fără categorie';
+        if (!categories.has(cat)) categories.set(cat, []);
+        categories.get(cat).push(item);
+      });
+    }
+
+    function loadPlaylistText(text, sourceLabel = 'playlist') {
+      entries = parseM3U(text);
+      rebuildCategories();
+      totalChannelsEl.textContent = String(entries.length);
+      totalCategoriesEl.textContent = String(categories.size);
+      selectedCategory = Array.from(categories.keys())[0] || '';
+      manualCategory.value = selectedCategory;
+      renderCategories();
+      renderSelection();
+      setStatus(`Playlist încărcat: ${sourceLabel}. ${entries.length} canale, ${categories.size} categorii.`);
+    }
+
+    function getCurrentCategory() {
+      return manualCategory.value.trim() || selectedCategory;
+    }
+
+    function getSelectedEntries() {
+      const cat = getCurrentCategory();
+      return cat ? (categories.get(cat) || []) : [];
+    }
+
+    function renderCategories() {
+      const term = searchInput.value.trim().toLowerCase();
+      const items = Array.from(categories.entries())
+        .sort((a, b) => b[1].length - a[1].length || a[0].localeCompare(b[0], 'ro'))
+        .filter(([cat]) => cat.toLowerCase().includes(term));
+      categoryList.innerHTML = '';
+      if (!items.length) {
+        categoryList.innerHTML = '<div class="cat-item"><span>Nicio categorie</span></div>';
+        return;
+      }
+      items.forEach(([cat, group]) => {
+        const div = document.createElement('div');
+        div.className = 'cat-item' + (cat === getCurrentCategory() ? ' active' : '');
+        div.innerHTML = `<span>${escapeHtml(cat)}</span><span class="badge">${group.length}</span>`;
+        div.addEventListener('click', () => {
+          selectedCategory = cat;
+          manualCategory.value = cat;
+          renderCategories();
+          renderSelection();
+        });
+        categoryList.appendChild(div);
+      });
+    }
+
+    function buildM3U(list) {
+      const out = ['#EXTM3U'];
+      list.forEach(item => {
+        out.push(rebuildExtinf(item));
+        out.push(item.url);
+      });
+      return out.join('\n');
+    }
+
+    function renderSelection() {
+      const currentCategory = getCurrentCategory();
+      const selected = getSelectedEntries();
+      selectedTitle.textContent = currentCategory ? `Categoria: ${currentCategory}` : 'Nicio categorie selectată';
+      selectedCountEl.textContent = String(selected.length);
+
+      if (!selected.length) {
+        channelTableBody.innerHTML = '<tr><td colspan="8" class="small">Nu există canale în categoria selectată.</td></tr>';
+        previewArea.value = '';
+        return;
+      }
+
+      channelTableBody.innerHTML = selected.map((item, idx) => {
+        const globalIndex = entries.indexOf(item);
+        return `
+          <tr>
+            <td>${idx + 1}</td>
+            <td><input data-index="${globalIndex}" data-field="name" value="${escapeHtml(item.name)}"></td>
+            <td><input data-index="${globalIndex}" data-field="url" value="${escapeHtml(item.url)}"></td>
+            <td><input data-index="${globalIndex}" data-field="category" value="${escapeHtml(item.category)}"></td>
+            <td><input data-index="${globalIndex}" data-field="tvgId" value="${escapeHtml(item.tvgId)}"></td>
+            <td><input data-index="${globalIndex}" data-field="tvgName" value="${escapeHtml(item.tvgName)}"></td>
+            <td><input data-index="${globalIndex}" data-field="tvgLogo" value="${escapeHtml(item.tvgLogo)}"></td>
+            <td>
+              <div class="row">
+                <button class="secondary save-row-btn" data-index="${globalIndex}">Salvează</button>
+                <button class="danger delete-row-btn" data-index="${globalIndex}">Șterge</button>
+              </div>
+            </td>
+          </tr>`;
+      }).join('');
+    }
+
+    function downloadText(filename, text) {
+      const blob = new Blob([text], { type: 'application/x-mpegURL;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1500);
+    }
+
+    function applyRowValues(row) {
+      const inputs = row.querySelectorAll('input[data-index]');
+      if (!inputs.length) return;
+      const index = Number(inputs[0].dataset.index);
+      const item = entries[index];
+      if (!item) return;
+      inputs.forEach(input => {
+        const field = input.dataset.field;
+        item[field] = input.value.trim();
+      });
+      item.name = item.name || 'Fără nume';
+      item.url = item.url || '';
+      item.category = item.category || 'Fără categorie';
+      rebuildExtinf(item);
+    }
+
+    fileInput.addEventListener('change', async (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      playlistName = file.name.replace(/\.(m3u8?|txt)$/i, '') || 'playlist';
+      try {
+        const text = await file.text();
+        loadPlaylistText(text, file.name);
+      } catch (err) {
+        console.error(err);
+        setStatus('Nu am putut citi fișierul.', true);
+      }
+    });
+
+    loadUrlBtn.addEventListener('click', async () => {
+      const url = urlInput.value.trim();
+      if (!url) return setStatus('Introdu un URL.', true);
+      try {
+        const u = new URL(url);
+        playlistName = (u.pathname.split('/').pop() || 'playlist').replace(/\.(m3u8?|txt)$/i, '') || 'playlist';
+        setStatus('Se încearcă încărcarea din URL...');
+        const res = await fetch(url, { mode: 'cors', cache: 'no-store' });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const text = await res.text();
+        loadPlaylistText(text, url);
+      } catch (err) {
+        console.error(err);
+        setStatus('URL-ul nu a putut fi citit direct. Probabil CORS. Descarcă fișierul și încarcă-l local.', true);
+      }
+    });
+
+    searchInput.addEventListener('input', renderCategories);
+    manualCategory.addEventListener('input', () => { renderCategories(); renderSelection(); });
+
+    channelTableBody.addEventListener('click', (e) => {
+      const saveBtn = e.target.closest('.save-row-btn');
+      const deleteBtn = e.target.closest('.delete-row-btn');
+      if (saveBtn) {
+        applyRowValues(saveBtn.closest('tr'));
+        rebuildCategories();
+        totalChannelsEl.textContent = String(entries.length);
+        totalCategoriesEl.textContent = String(categories.size);
+        renderCategories();
+        renderSelection();
+        setStatus('Canal actualizat.');
+      }
+      if (deleteBtn) {
+        const index = Number(deleteBtn.dataset.index);
+        entries.splice(index, 1);
+        rebuildCategories();
+        totalChannelsEl.textContent = String(entries.length);
+        totalCategoriesEl.textContent = String(categories.size);
+        if (!categories.has(getCurrentCategory())) {
+          selectedCategory = Array.from(categories.keys())[0] || '';
+          manualCategory.value = selectedCategory;
+        }
+        renderCategories();
+        renderSelection();
+        setStatus('Canal șters.');
+      }
+    });
+
+    saveVisibleBtn.addEventListener('click', () => {
+      channelTableBody.querySelectorAll('tr').forEach(tr => applyRowValues(tr));
+      rebuildCategories();
+      totalChannelsEl.textContent = String(entries.length);
+      totalCategoriesEl.textContent = String(categories.size);
+      renderCategories();
+      renderSelection();
+      setStatus('Modificările vizibile au fost salvate.');
+    });
+
+    applyBulkBtn.addEventListener('click', () => {
+      const list = getSelectedEntries();
+      if (!list.length) return setStatus('Nu există canale în selecție.', true);
+      const newCat = bulkCategoryInput.value.trim();
+      const prefix = bulkPrefixInput.value.trim();
+      list.forEach(item => {
+        if (newCat) item.category = newCat;
+        if (prefix) item.name = `${prefix} ${item.name}`.trim();
+        rebuildExtinf(item);
+      });
+      rebuildCategories();
+      if (newCat) {
+        selectedCategory = newCat;
+        manualCategory.value = newCat;
+      }
+      totalChannelsEl.textContent = String(entries.length);
+      totalCategoriesEl.textContent = String(categories.size);
+      renderCategories();
+      renderSelection();
+      setStatus('Editarea în masă a fost aplicată.');
+    });
+
+    deleteCategoryBtn.addEventListener('click', () => {
+      const cat = getCurrentCategory();
+      if (!cat) return setStatus('Nu este selectată nicio categorie.', true);
+      entries = entries.filter(item => item.category !== cat);
+      rebuildCategories();
+      totalChannelsEl.textContent = String(entries.length);
+      totalCategoriesEl.textContent = String(categories.size);
+      selectedCategory = Array.from(categories.keys())[0] || '';
+      manualCategory.value = selectedCategory;
+      renderCategories();
+      renderSelection();
+      setStatus(`Categoria "${cat}" a fost ștearsă.`);
+    });
+
+    addChannelBtn.addEventListener('click', () => {
+      const item = {
+        name: newName.value.trim() || 'Canal nou',
+        url: newUrl.value.trim(),
+        category: newCategory.value.trim() || getCurrentCategory() || 'Fără categorie',
+        tvgId: newTvgId.value.trim(),
+        tvgName: newTvgName.value.trim(),
+        tvgLogo: newTvgLogo.value.trim(),
+        extinf: ''
+      };
+      if (!item.url) return setStatus('URL-ul canalului este obligatoriu.', true);
+      rebuildExtinf(item);
+      entries.push(item);
+      rebuildCategories();
+      totalChannelsEl.textContent = String(entries.length);
+      totalCategoriesEl.textContent = String(categories.size);
+      selectedCategory = item.category;
+      manualCategory.value = item.category;
+      renderCategories();
+      renderSelection();
+      [newName,newUrl,newCategory,newTvgId,newTvgName,newTvgLogo].forEach(el => el.value = '');
+      setStatus('Canal adăugat.');
+    });
+
+    previewBtn.addEventListener('click', () => {
+      const list = getSelectedEntries();
+      if (!list.length) return setStatus('Nu există nimic de previzualizat.', true);
+      previewArea.value = buildM3U(list);
+      setStatus('Previzualizarea categoriei a fost generată.');
+    });
+
+    copyBtn.addEventListener('click', async () => {
+      const list = getSelectedEntries();
+      if (!list.length) return setStatus('Nu există nimic de copiat.', true);
+      const text = buildM3U(list);
+      previewArea.value = text;
+      try {
+        await navigator.clipboard.writeText(text);
+        setStatus('M3U copiat în clipboard.');
+      } catch {
+        setStatus('Clipboard indisponibil. Copiază manual din previzualizare.', true);
+      }
+    });
+
+    exportBtn.addEventListener('click', () => {
+      const cat = getCurrentCategory();
+      const list = getSelectedEntries();
+      if (!cat || !list.length) return setStatus('Selectează o categorie validă.', true);
+      const text = buildM3U(list);
+      previewArea.value = text;
+      downloadText(`${safeFileName(playlistName)}_${safeFileName(cat)}.m3u`, text);
+      setStatus(`Categoria "${cat}" a fost exportată.`);
+    });
+
+    exportAllBtn.addEventListener('click', () => {
+      if (!entries.length) return setStatus('Încarcă mai întâi un playlist.', true);
+      const text = buildM3U(entries);
+      previewArea.value = text;
+      downloadText(`${safeFileName(playlistName)}_editat.m3u`, text);
+      setStatus('Playlistul complet a fost exportat.');
+    });
+
+    resetBtn.addEventListener('click', () => {
+      playlistName = 'playlist';
+      entries = [];
+      categories = new Map();
+      selectedCategory = '';
+      fileInput.value = '';
+      urlInput.value = '';
+      searchInput.value = '';
+      manualCategory.value = '';
+      bulkCategoryInput.value = '';
+      bulkPrefixInput.value = '';
+      previewArea.value = '';
+      [newName,newUrl,newCategory,newTvgId,newTvgName,newTvgLogo].forEach(el => el.value = '');
+      totalChannelsEl.textContent = '0';
+      totalCategoriesEl.textContent = '0';
+      selectedCountEl.textContent = '0';
+      selectedTitle.textContent = 'Nicio categorie selectată';
+      categoryList.innerHTML = '';
+      channelTableBody.innerHTML = '<tr><td colspan="8" class="small">Încarcă un playlist pentru a începe.</td></tr>';
+      setStatus('Aplicația a fost resetată.');
+    });
+  </script>
+</body>
+</html>
