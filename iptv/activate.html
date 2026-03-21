@@ -23,7 +23,7 @@ body{
   background:#111827;
   padding:40px;
   border-radius:14px;
-  width:360px;
+  width:380px;
   max-width:100%;
   text-align:center;
   box-shadow:0 10px 30px rgba(0,0,0,0.4);
@@ -58,6 +58,12 @@ button{
   font-weight:bold;
   cursor:pointer;
   font-size:15px;
+}
+
+button:focus,
+input:focus{
+  outline:4px solid #facc15;
+  outline-offset:3px;
 }
 
 button:disabled{
@@ -114,11 +120,11 @@ button:disabled{
 
   <input id="code" placeholder="Cod de activare" autocomplete="off">
 
-  <button id="activateBtn" class="activate" onclick="activatePremium()">
+  <button id="activateBtn" type="button" class="activate" onclick="activatePremium()">
     Activează
   </button>
 
-  <button class="request" onclick="requestCode()">
+  <button type="button" class="request" onclick="requestCode()">
     Vreau cod
   </button>
 
@@ -137,11 +143,16 @@ function getDeviceID(){
   var id = localStorage.getItem(DEVICE_KEY);
 
   if(!id){
-    if(window.crypto && window.crypto.randomUUID){
-      id = window.crypto.randomUUID();
-    }else{
-      id = "dev-" + Math.random().toString(36).slice(2) + "-" + Date.now().toString(36);
+    try{
+      if(window.crypto && window.crypto.randomUUID){
+        id = window.crypto.randomUUID();
+      }
+    }catch(e){}
+
+    if(!id){
+      id = "dev-" + Math.random().toString(36).slice(2) + "-" + new Date().getTime().toString(36);
     }
+
     localStorage.setItem(DEVICE_KEY, id);
   }
 
@@ -149,7 +160,7 @@ function getDeviceID(){
 }
 
 var deviceID = getDeviceID();
-document.getElementById("device").innerText = deviceID;
+document.getElementById("device").innerHTML = escapeHtml(deviceID);
 
 function setStatus(text, type){
   var status = document.getElementById("status");
@@ -170,10 +181,41 @@ function requestCode(){
   window.location.href = "request-code.html";
 }
 
-async function activatePremium(){
+function postJson(url, payload, onSuccess, onError){
+  var xhr = new XMLHttpRequest();
+  xhr.open("POST", url, true);
+  xhr.setRequestHeader("Content-Type", "application/json");
+
+  xhr.onreadystatechange = function(){
+    if(xhr.readyState === 4){
+      var data = null;
+
+      try{
+        data = JSON.parse(xhr.responseText || "{}");
+      }catch(e){
+        if(onError){ onError("Răspuns invalid de la server."); }
+        return;
+      }
+
+      if(xhr.status >= 200 && xhr.status < 300){
+        if(onSuccess){ onSuccess(data); }
+      }else{
+        if(onError){ onError((data && data.error) ? data.error : "Eroare server."); }
+      }
+    }
+  };
+
+  xhr.onerror = function(){
+    if(onError){ onError("Eroare de rețea."); }
+  };
+
+  xhr.send(JSON.stringify(payload));
+}
+
+function activatePremium(){
   var codeInput = document.getElementById("code");
   var activateBtn = document.getElementById("activateBtn");
-  var code = String(codeInput.value || "").trim().toUpperCase();
+  var code = String(codeInput.value || "").replace(/^\s+|\s+$/g, "").toUpperCase();
 
   if(!code){
     setStatus("Introdu un cod valid.", "error");
@@ -183,39 +225,46 @@ async function activatePremium(){
   activateBtn.disabled = true;
   setStatus("Se verifică licența...", "info");
 
-  try{
-    var res = await fetch("/api/activate-license", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        code: code,
-        deviceId: deviceID
-      })
-    });
+  postJson(
+    "/api/activate-license",
+    {
+      code: code,
+      deviceId: deviceID
+    },
+    function(data){
+      if(!data || !data.ok || !data.premium){
+        activateBtn.disabled = false;
+        setStatus((data && data.error) ? data.error : "Activarea a eșuat.", "error");
+        return;
+      }
 
-    var data = await res.json();
+      localStorage.setItem("pro", "true");
+      localStorage.setItem("activated_license_code", code);
 
-    if(!res.ok || !data.ok || !data.premium){
-      throw new Error(data.error || "Activarea a eșuat.");
+      setStatus("Activare reușită!", "success");
+
+      setTimeout(function(){
+        window.location.href = "player.html";
+      }, 1200);
+    },
+    function(errorText){
+      activateBtn.disabled = false;
+      setStatus(errorText || "Nu am putut activa licența.", "error");
     }
-
-    localStorage.setItem("pro", "true");
-    localStorage.setItem("activated_license_code", code);
-
-    setStatus("Activare reușită!", "success");
-
-    setTimeout(function(){
-      window.location.href = "player.html";
-    }, 1200);
-
-  }catch(err){
-    setStatus(err.message || "Nu am putut activa licența.", "error");
-  }finally{
-    activateBtn.disabled = false;
-  }
+  );
 }
+
+document.addEventListener("DOMContentLoaded", function(){
+  var input = document.getElementById("code");
+  if(input){
+    input.focus();
+    input.addEventListener("keydown", function(e){
+      if(e.key === "Enter"){
+        activatePremium();
+      }
+    });
+  }
+});
 </script>
 
 </body>
