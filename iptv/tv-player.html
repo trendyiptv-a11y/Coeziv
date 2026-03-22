@@ -462,17 +462,30 @@
   }
 
   function updateCardColumns(){
-    var width = window.innerWidth || document.documentElement.clientWidth || 1280;
+    var cards = document.querySelectorAll(".channel-card");
+    var firstTop = null;
+    var cols = 0;
+    var i;
 
-    if(width <= 560){
+    if(!cards || !cards.length){
       cardColumns = 1;
-    } else if(width <= 820){
-      cardColumns = 2;
-    } else if(width <= 1100){
-      cardColumns = 3;
-    } else {
-      cardColumns = 4;
+      return;
     }
+
+    for(i = 0; i < cards.length; i++){
+      var top = cards[i].offsetTop;
+
+      if(firstTop === null){
+        firstTop = top;
+        cols = 1;
+      } else if(top === firstTop){
+        cols++;
+      } else {
+        break;
+      }
+    }
+
+    cardColumns = cols > 0 ? cols : 1;
   }
 
   function renderChannels(list){
@@ -487,7 +500,6 @@
 
     filteredChannels = renderList;
     updateBadges();
-    updateCardColumns();
 
     if(!filteredChannels.length){
       box.innerHTML = "<div class='empty'>Nu există canale de afișat.</div>";
@@ -503,6 +515,7 @@
       item.className = "tv-card channel-card";
       item.setAttribute("type", "button");
       item.setAttribute("data-index", i);
+      item.setAttribute("tabindex", "0");
       item.onclick = (function(index){
         return function(){ playChannel(index); };
       })(i);
@@ -515,13 +528,25 @@
     }
 
     box.appendChild(grid);
+    updateCardColumns();
   }
 
   function focusCard(index){
     var cards = document.querySelectorAll(".channel-card");
-    if(!cards || !cards.length){ return; }
-    if(index < 0){ index = 0; }
-    if(index >= cards.length){ index = cards.length - 1; }
+
+    updateCardColumns();
+
+    if(!cards || !cards.length){
+      return;
+    }
+
+    if(index < 0){
+      index = 0;
+    }
+
+    if(index >= cards.length){
+      index = cards.length - 1;
+    }
 
     var el = cards[index];
     if(el){
@@ -541,6 +566,52 @@
       return parseInt(active.getAttribute("data-index"), 10);
     }
     return -1;
+  }
+
+  function findVerticalTarget(currentIndex, direction){
+    var cards = document.querySelectorAll(".channel-card");
+    var current = cards[currentIndex];
+    var i, bestIndex, bestScore;
+
+    if(!cards || !cards.length || !current){
+      return currentIndex;
+    }
+
+    var currentRect = current.getBoundingClientRect();
+    var currentCenterX = currentRect.left + currentRect.width / 2;
+    var currentTop = currentRect.top;
+
+    bestIndex = currentIndex;
+    bestScore = null;
+
+    for(i = 0; i < cards.length; i++){
+      if(i === currentIndex){
+        continue;
+      }
+
+      var rect = cards[i].getBoundingClientRect();
+      var centerX = rect.left + rect.width / 2;
+      var deltaY = rect.top - currentTop;
+
+      if(direction === "down" && deltaY <= 10){
+        continue;
+      }
+
+      if(direction === "up" && deltaY >= -10){
+        continue;
+      }
+
+      var rowDistance = Math.abs(deltaY);
+      var colDistance = Math.abs(centerX - currentCenterX);
+      var score = rowDistance * 1000 + colDistance;
+
+      if(bestScore === null || score < bestScore){
+        bestScore = score;
+        bestIndex = i;
+      }
+    }
+
+    return bestIndex;
   }
 
   function playChannel(index){
@@ -644,43 +715,44 @@
 
   function handleRemoteNavigation(e){
     var key = e.key || "";
+    var code = e.keyCode || 0;
     var index = getFocusedCardIndex();
 
     if(index === -1){
       return;
     }
 
-    if(key === "ArrowRight"){
+    if(key === "ArrowRight" || code === 39){
       e.preventDefault();
       focusCard(index + 1);
       return;
     }
 
-    if(key === "ArrowLeft"){
+    if(key === "ArrowLeft" || code === 37){
       e.preventDefault();
       focusCard(index - 1);
       return;
     }
 
-    if(key === "ArrowDown"){
+    if(key === "ArrowDown" || code === 40){
       e.preventDefault();
-      focusCard(index + cardColumns);
+      focusCard(findVerticalTarget(index, "down"));
       return;
     }
 
-    if(key === "ArrowUp"){
+    if(key === "ArrowUp" || code === 38){
       e.preventDefault();
-      focusCard(index - cardColumns);
+      focusCard(findVerticalTarget(index, "up"));
       return;
     }
 
-    if(key === "Enter"){
+    if(key === "Enter" || code === 13){
       e.preventDefault();
       playChannel(index);
       return;
     }
 
-    if(key === "Backspace" || key === "Escape"){
+    if(key === "Backspace" || key === "Escape" || code === 8 || code === 27 || code === 461){
       e.preventDefault();
       goConnect();
       return;
@@ -700,7 +772,9 @@
     });
 
     document.addEventListener("keydown", handleRemoteNavigation);
-    window.addEventListener("resize", updateCardColumns);
+    window.addEventListener("resize", function(){
+      updateCardColumns();
+    });
   });
 </script>
 
