@@ -242,7 +242,7 @@
     <div class="brand">COEZIV TV • M3U8</div>
     <h1 class="title">Canale din playlist M3U8</h1>
     <p class="subtitle">
-      Încarcă automat canalele din <b>tv.m3u8</b>, fără player integrat. Enter sau click deschide canalul selectat.
+      Încarcă automat canalele din <b>tv.m3u8</b>, fără player integrat. Enter deschide canalul selectat.
     </p>
 
     <input id="searchInput" class="search" type="text" placeholder="Caută canal...">
@@ -250,6 +250,7 @@
     <div class="actions">
       <button class="btn-blue" type="button" onclick="reloadPlaylist()">Reîncarcă playlist</button>
       <button class="btn-green" type="button" onclick="openFocusedChannel()">Deschide selectatul</button>
+      <button class="btn-blue" type="button" onclick="openLastChannel()">Ultimul canal</button>
       <button class="btn-gray" type="button" onclick="clearSearch()">Șterge căutarea</button>
     </div>
 
@@ -258,6 +259,7 @@
     <div class="badges">
       <div class="badge" id="countBadge">Canale: 0</div>
       <div class="badge">Sursă: /iptv/tv.m3u8</div>
+      <div class="badge" id="lastBadge">Ultimul: -</div>
     </div>
   </div>
 
@@ -270,6 +272,8 @@
 
 <script>
   var PLAYLIST_URL = "https://coeziv.vercel.app/iptv/tv.m3u8";
+  var LAST_URL_KEY = "coeziv_tv_last_channel_url";
+  var LAST_NAME_KEY = "coeziv_tv_last_channel_name";
   var allChannels = [];
   var filteredChannels = [];
 
@@ -292,6 +296,9 @@
 
   function updateBadges(){
     document.getElementById("countBadge").innerHTML = "Canale: " + filteredChannels.length;
+
+    var lastName = localStorage.getItem(LAST_NAME_KEY) || "-";
+    document.getElementById("lastBadge").innerHTML = "Ultimul: " + escapeHtml(lastName);
   }
 
   function absolutizeUrl(baseUrl, maybeRelative){
@@ -374,7 +381,7 @@
     box.appendChild(grid);
 
     setTimeout(function(){
-      focusCard(0);
+      focusSavedOrFirst();
     }, 50);
   }
 
@@ -394,6 +401,22 @@
         el.scrollIntoView();
       }
     }
+  }
+
+  function focusSavedOrFirst(){
+    var lastUrl = localStorage.getItem(LAST_URL_KEY) || "";
+    var i;
+
+    if(lastUrl){
+      for(i = 0; i < filteredChannels.length; i++){
+        if(filteredChannels[i].url === lastUrl){
+          focusCard(i);
+          return;
+        }
+      }
+    }
+
+    focusCard(0);
   }
 
   function getFocusedCardIndex(){
@@ -444,6 +467,13 @@
     return bestIndex;
   }
 
+  function saveLastChannel(ch){
+    if(!ch){ return; }
+    localStorage.setItem(LAST_URL_KEY, ch.url || "");
+    localStorage.setItem(LAST_NAME_KEY, ch.name || "");
+    updateBadges();
+  }
+
   function playChannel(index){
     var ch = filteredChannels[index];
     if(!ch || !ch.url){
@@ -451,6 +481,7 @@
       return;
     }
 
+    saveLastChannel(ch);
     setMessage("Se deschide canalul: " + ch.name, "ok");
     window.location.href = ch.url;
   }
@@ -466,6 +497,19 @@
       return;
     }
     playChannel(index);
+  }
+
+  function openLastChannel(){
+    var lastUrl = localStorage.getItem(LAST_URL_KEY) || "";
+    var lastName = localStorage.getItem(LAST_NAME_KEY) || "ultimul canal";
+
+    if(!lastUrl){
+      setMessage("Nu există ultim canal salvat.", "err");
+      return;
+    }
+
+    setMessage("Se deschide " + lastName + "...", "ok");
+    window.location.href = lastUrl;
   }
 
   function clearSearch(){
