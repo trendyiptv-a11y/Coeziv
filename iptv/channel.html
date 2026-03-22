@@ -3,12 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Canal TV</title>
+  <title>Coeziv TV Direct</title>
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <style>
     *{ box-sizing:border-box; }
 
-    html,body{
+    html, body{
       margin:0;
+      padding:0;
+      width:100%;
       min-height:100%;
       background:#08101f;
       color:#fff;
@@ -29,7 +32,6 @@
       border:1px solid #243244;
       border-radius:18px;
       padding:18px;
-      margin-bottom:18px;
     }
 
     .brand{
@@ -38,29 +40,43 @@
       border-radius:999px;
       background:#1e293b;
       border:1px solid #334155;
-      color:#fff;
       font-size:14px;
       margin-bottom:12px;
     }
 
     h1{
       margin:0 0 8px;
-      font-size:34px;
-      line-height:1.15;
+      font-size:32px;
+      line-height:1.2;
     }
 
     .meta{
       color:#cbd5e1;
       font-size:16px;
       line-height:1.5;
-      margin-bottom:14px;
+      margin-bottom:16px;
+    }
+
+    .player-wrap{
+      background:#000;
+      border-radius:16px;
+      overflow:hidden;
+      border:1px solid #243244;
+    }
+
+    video{
+      width:100%;
+      min-height:280px;
+      max-height:72vh;
+      background:#000;
+      display:block;
     }
 
     .actions{
       display:flex;
       gap:12px;
       flex-wrap:wrap;
-      margin-top:14px;
+      margin-top:16px;
     }
 
     button, a.btn{
@@ -113,21 +129,6 @@
       color:#fecaca;
     }
 
-    .player-wrap{
-      background:#000;
-      border-radius:16px;
-      overflow:hidden;
-      border:1px solid #243244;
-    }
-
-    video{
-      width:100%;
-      min-height:280px;
-      max-height:70vh;
-      background:#000;
-      display:block;
-    }
-
     .info{
       margin-top:14px;
       padding:12px 14px;
@@ -150,206 +151,152 @@
   </style>
 </head>
 <body>
-<div class="wrap">
+  <div class="wrap">
+    <div class="panel">
+      <div class="brand">COEZIV TV • DIRECT</div>
+      <h1>TV Live</h1>
+      <div class="meta">Player dedicat pentru un singur stream.</div>
 
-  <div class="panel">
-    <div class="brand">COEZIV TV • CANAL</div>
-    <h1 id="channelTitle">Canal</h1>
-    <div class="meta" id="channelMeta">Se pregătește redarea...</div>
+      <div class="player-wrap">
+        <video id="tvVideo" controls autoplay playsinline></video>
+      </div>
 
-    <div class="player-wrap">
-      <video id="tvVideo" controls autoplay playsinline></video>
+      <div id="messageBox" class="message">Se încarcă streamul...</div>
+
+      <div class="actions">
+        <button class="btn-blue" type="button" onclick="startPlayback()">Pornește</button>
+        <button class="btn-gray" type="button" onclick="reloadPlayback()">Reîncarcă</button>
+        <a class="btn btn-green" id="directLink" href="https://coeziv.vercel.app/iptv/tv.m3u8" target="_self">Deschide direct</a>
+      </div>
+
+      <div class="info" id="urlInfo">
+        Sursă: https://coeziv.vercel.app/iptv/tv.m3u8
+      </div>
     </div>
-
-    <div id="messageBox" class="message">Se încarcă...</div>
-
-    <div class="actions">
-      <button id="btnBack" class="btn-gray" type="button" onclick="goBack()">Înapoi la listă</button>
-      <button id="btnPrev" class="btn-blue" type="button" onclick="prevChannel()">Canal anterior</button>
-      <button id="btnNext" class="btn-blue" type="button" onclick="nextChannel()">Canal următor</button>
-      <a id="btnDirect" class="btn btn-green" href="#" target="_self">Deschide direct</a>
-    </div>
-
-    <div class="info" id="urlInfo"></div>
   </div>
 
-</div>
+  <script>
+    var STREAM_URL = "https://coeziv.vercel.app/iptv/tv.m3u8";
+    var video = null;
+    var hls = null;
 
-<script>
-  var channels = [];
-  var currentIndex = 0;
-  var video = null;
-
-  function setMessage(text, type){
-    var box = document.getElementById("messageBox");
-    box.className = "message";
-    if(type === "ok"){ box.className += " ok"; }
-    if(type === "err"){ box.className += " err"; }
-    box.innerHTML = escapeHtml(text || "");
-  }
-
-  function escapeHtml(text){
-    return String(text || "")
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
-  }
-
-  function getParam(name){
-    var params = new URLSearchParams(window.location.search);
-    return params.get(name) || "";
-  }
-
-  function loadChannels(){
-    try{
-      channels = JSON.parse(localStorage.getItem("coeziv_tv_channels") || "[]");
-    }catch(e){
-      channels = [];
-    }
-  }
-
-  function resolveCurrentIndex(){
-    var idx = parseInt(getParam("i"), 10);
-    if(isNaN(idx)){ idx = 0; }
-
-    if(idx < 0){ idx = 0; }
-    if(idx >= channels.length){ idx = channels.length - 1; }
-
-    currentIndex = idx;
-  }
-
-  function updateUI(){
-    if(!channels.length || !channels[currentIndex]){
-      document.getElementById("channelTitle").innerHTML = "Canal indisponibil";
-      document.getElementById("channelMeta").innerHTML = "Nu există date pentru canal.";
-      document.getElementById("urlInfo").innerHTML = "Playlistul nu este disponibil.";
-      setMessage("Nu pot încărca acest canal.", "err");
-      return;
+    function setMessage(text, type){
+      var box = document.getElementById("messageBox");
+      box.className = "message";
+      if(type === "ok"){ box.className += " ok"; }
+      if(type === "err"){ box.className += " err"; }
+      box.innerHTML = String(text || "");
     }
 
-    var ch = channels[currentIndex];
-    document.getElementById("channelTitle").innerHTML = escapeHtml(ch.name || "Canal");
-    document.getElementById("channelMeta").innerHTML =
-      "Canal " + (currentIndex + 1) + " din " + channels.length;
-
-    document.getElementById("urlInfo").innerHTML =
-      "Sursă: " + escapeHtml(ch.url || "");
-
-    var directBtn = document.getElementById("btnDirect");
-    directBtn.href = ch.url || "#";
-
-    localStorage.setItem("coeziv_tv_last_channel_name", ch.name || "");
-    localStorage.setItem("coeziv_tv_last_channel_url", ch.url || "");
-  }
-
-  function playCurrentChannel(){
-    if(!channels.length || !channels[currentIndex]){
-      setMessage("Canal invalid.", "err");
-      return;
+    function destroyHls(){
+      try{
+        if(hls){
+          hls.destroy();
+          hls = null;
+        }
+      }catch(e){}
     }
 
-    var ch = channels[currentIndex];
-    updateUI();
+    function startPlayback(){
+      if(!video){ return; }
 
-    if(!video){ return; }
+      destroyHls();
 
-    try{
-      video.pause();
-    }catch(e){}
+      try{
+        video.pause();
+      }catch(e){}
 
-    video.removeAttribute("src");
-    video.load();
+      try{
+        video.removeAttribute("src");
+        video.load();
+      }catch(e){}
 
-    setMessage("Se încearcă redarea: " + (ch.name || "Canal"), "");
-    video.src = ch.url || "";
+      setMessage("Se încearcă redarea...", "");
 
-    var playPromise = null;
-    try{
-      playPromise = video.play();
-    }catch(e){
-      setMessage("Browserul nu a pornit redarea automat.", "err");
+      if(window.Hls && Hls.isSupported()){
+        try{
+          hls = new Hls({
+            enableWorker: true,
+            lowLatencyMode: false
+          });
+
+          hls.loadSource(STREAM_URL);
+          hls.attachMedia(video);
+
+          hls.on(Hls.Events.MANIFEST_PARSED, function(){
+            var p = video.play();
+            if(p && typeof p.catch === "function"){
+              p.catch(function(){
+                setMessage("Redarea nu a pornit automat.", "err");
+              });
+            }
+          });
+
+          hls.on(Hls.Events.ERROR, function(event, data){
+            if(data && data.fatal){
+              setMessage("Eroare HLS: " + data.type, "err");
+            }
+          });
+
+          return;
+        }catch(e){
+          setMessage("HLS.js a eșuat, încerc direct.", "err");
+        }
+      }
+
+      if(video.canPlayType("application/vnd.apple.mpegurl")){
+        video.src = STREAM_URL;
+        var pp = video.play();
+        if(pp && typeof pp.catch === "function"){
+          pp.catch(function(){
+            setMessage("Browserul nu a pornit redarea.", "err");
+          });
+        }
+      } else {
+        setMessage("Browserul nu suportă acest stream.", "err");
+      }
     }
 
-    if(playPromise && typeof playPromise.then === "function"){
-      playPromise.then(function(){
-        setMessage("Redare pornită.", "ok");
-      }).catch(function(){
-        setMessage("Redarea directă nu a pornit. Poți încerca «Deschide direct».", "err");
-      });
-    }
-  }
-
-  function nextChannel(){
-    if(!channels.length){ return; }
-    currentIndex++;
-    if(currentIndex >= channels.length){
-      currentIndex = 0;
-    }
-    playCurrentChannel();
-  }
-
-  function prevChannel(){
-    if(!channels.length){ return; }
-    currentIndex--;
-    if(currentIndex < 0){
-      currentIndex = channels.length - 1;
-    }
-    playCurrentChannel();
-  }
-
-  function goBack(){
-    window.location.href = "tv-player.html";
-  }
-
-  function handleKeys(e){
-    var key = e.key || "";
-    var code = e.keyCode || 0;
-
-    if(key === "ArrowRight" || code === 39 || code === 34 || code === 427){
-      e.preventDefault();
-      nextChannel();
-      return;
+    function reloadPlayback(){
+      startPlayback();
     }
 
-    if(key === "ArrowLeft" || code === 37 || code === 33 || code === 428){
-      e.preventDefault();
-      prevChannel();
-      return;
+    function handleKeys(e){
+      var key = e.key || "";
+      var code = e.keyCode || 0;
+
+      if(key === "Enter" || code === 13){
+        e.preventDefault();
+        startPlayback();
+        return;
+      }
+
+      if(key === "Backspace" || key === "Escape" || code === 8 || code === 27 || code === 461){
+        e.preventDefault();
+        window.history.back();
+      }
     }
 
-    if(key === "Backspace" || key === "Escape" || code === 8 || code === 27 || code === 461){
-      e.preventDefault();
-      goBack();
-      return;
-    }
-  }
+    document.addEventListener("DOMContentLoaded", function(){
+      video = document.getElementById("tvVideo");
 
-  document.addEventListener("DOMContentLoaded", function(){
-    video = document.getElementById("tvVideo");
+      if(video){
+        video.addEventListener("playing", function(){
+          setMessage("Redare pornită.", "ok");
+        });
 
-    loadChannels();
-    resolveCurrentIndex();
-    updateUI();
-    playCurrentChannel();
+        video.addEventListener("waiting", function(){
+          setMessage("Se încarcă bufferul...", "");
+        });
 
-    if(video){
-      video.addEventListener("playing", function(){
-        setMessage("Redare pornită.", "ok");
-      });
+        video.addEventListener("error", function(){
+          setMessage("Canalul nu pornește în playerul web.", "err");
+        });
+      }
 
-      video.addEventListener("error", function(){
-        setMessage("Canalul nu pornește în playerul web. Încearcă «Deschide direct».", "err");
-      });
-
-      video.addEventListener("waiting", function(){
-        setMessage("Se încarcă bufferul...", "");
-      });
-    }
-
-    document.addEventListener("keydown", handleKeys);
-  });
-</script>
+      document.addEventListener("keydown", handleKeys);
+      startPlayback();
+    });
+  </script>
 </body>
 </html>
