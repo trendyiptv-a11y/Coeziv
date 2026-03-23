@@ -1,43 +1,383 @@
 <!DOCTYPE html>
-<html>
+<html lang="ro">
 <head>
-  <meta charset="UTF-8">
-  <title>IPTV TEST SONY</title>
-  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TS Playlist File Test</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #08101f;
+      color: #fff;
+      padding: 16px;
+    }
+    .wrap {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .panel {
+      background: #0f172a;
+      border: 1px solid #243244;
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+    h1, h2 {
+      margin: 0 0 10px;
+    }
+    p {
+      color: #cbd5e1;
+      line-height: 1.5;
+    }
+    input {
+      width: 100%;
+      border: 2px solid #334155;
+      background: #111827;
+      color: #fff;
+      border-radius: 12px;
+      padding: 12px;
+      font-size: 16px;
+      outline: none;
+    }
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+    button, a.btn {
+      border: none;
+      background: #2563eb;
+      color: #fff;
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 48px;
+    }
+    .btn-gray { background: #4b5563; }
+    .btn-green { background: #16a34a; }
+    .message {
+      margin-top: 12px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: #3f2f0b;
+      color: #fde68a;
+      min-height: 46px;
+    }
+    .ok { background: #14532d; color: #bbf7d0; }
+    .err { background: #7f1d1d; color: #fecaca; }
+    video {
+      width: 100%;
+      background: #000;
+      border-radius: 12px;
+      min-height: 240px;
+      max-height: 60vh;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 12px;
+      margin-top: 14px;
+    }
+    .card {
+      background: #13203a;
+      border: 1px solid #314257;
+      border-radius: 14px;
+      padding: 14px;
+      cursor: pointer;
+    }
+    .card:focus {
+      outline: 4px solid #facc15;
+      outline-offset: 2px;
+    }
+    .name {
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+    .meta {
+      color: #cbd5e1;
+      font-size: 13px;
+      word-break: break-all;
+    }
+  </style>
 </head>
+<body>
+  <div class="wrap">
+    <div class="panel">
+      <h1>TS Playlist File Test</h1>
+      <p>Încarcă automat playlistul din fișierul local/public și încearcă redarea canalelor TS în browser.</p>
 
-<body style="background:#000;color:#fff;text-align:center">
+      <input id="playlistUrl" value="/iptv/RO_DK.m3u" />
 
-<video id="video" controls autoplay width="90%"></video>
-<br><br>
+      <div class="actions">
+        <button onclick="loadPlaylistFromFile()">Încarcă fișierul</button>
+        <button class="btn-gray" onclick="clearAll()">Șterge</button>
+      </div>
 
-<input id="url" value="https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8" style="width:80%">
-<br><br>
+      <div id="msg" class="message">Pregătit.</div>
+    </div>
 
-<button onclick="play()">PLAY</button>
+    <div class="panel">
+      <h2 id="nowTitle">Canal selectat: -</h2>
+      <video id="player" controls autoplay playsinline></video>
 
-<script>
-function play() {
-  var video = document.getElementById('video');
-  var url = document.getElementById('url').value;
+      <div class="actions">
+        <button onclick="retryPlay()">Reîncearcă</button>
+        <a id="openDirect" class="btn btn-green" href="#" target="_self">Deschide direct</a>
+      </div>
+    </div>
 
-  if (Hls.isSupported()) {
-    var hls = new Hls();
-    hls.loadSource(url);
-    hls.attachMedia(video);
-    hls.on(Hls.Events.MANIFEST_PARSED,function() {
-      video.play();
+    <div class="panel">
+      <h2>Canale TS</h2>
+      <div id="list" class="grid"></div>
+    </div>
+  </div>
+
+  <script>
+    var channels = [];
+    var currentIndex = -1;
+
+    function setMsg(text, type) {
+      var el = document.getElementById("msg");
+      el.className = "message";
+      if (type === "ok") el.className += " ok";
+      if (type === "err") el.className += " err";
+      el.textContent = text || "";
+    }
+
+    function escapeHtml(text) {
+      return String(text || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function parseM3U(text) {
+      text = String(text || "").replace(/\r/g, "");
+      var lines = text.split("\n");
+      var out = [];
+      var currentName = null;
+
+      for (var i = 0; i < lines.length; i++) {
+        var line = (lines[i] || "").trim();
+        if (!line) continue;
+
+        if (line.indexOf("#EXTINF") === 0) {
+          var parts = line.split(",");
+          currentName = parts.length > 1 ? parts.slice(1).join(",").trim() : "Canal";
+          continue;
+        }
+
+        if (line.charAt(0) === "#") {
+          continue;
+        }
+
+        if (/^https?:\/\//i.test(line)) {
+          out.push({
+            name: currentName || ("Canal " + (out.length + 1)),
+            url: line
+          });
+          currentName = null;
+        }
+      }
+
+      return out;
+    }
+
+    function renderList() {
+      var box = document.getElementById("list");
+      box.innerHTML = "";
+
+      if (!channels.length) {
+        box.innerHTML = "<p>Nu există canale valide.</p>";
+        return;
+      }
+
+      for (var i = 0; i < channels.length; i++) {
+        var ch = channels[i];
+        var card = document.createElement("button");
+        card.className = "card";
+        card.type = "button";
+        card.setAttribute("data-index", i);
+        card.onclick = (function(index) {
+          return function() { playChannel(index); };
+        })(i);
+
+        card.innerHTML =
+          '<div class="name">' + escapeHtml(ch.name) + '</div>' +
+          '<div class="meta">' + escapeHtml(ch.url) + '</div>';
+
+        box.appendChild(card);
+      }
+    }
+
+    function loadPlaylistFromFile() {
+      var url = document.getElementById("playlistUrl").value.trim();
+      if (!url) {
+        setMsg("Introdu calea fișierului playlist.", "err");
+        return;
+      }
+
+      setMsg("Se încarcă fișierul playlist...", "");
+
+      var xhr = new XMLHttpRequest();
+      xhr.open("GET", url, true);
+
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            var parsed = parseM3U(xhr.responseText || "");
+            channels = parsed.filter(function(ch) {
+              return /\.ts(\?|$)/i.test(ch.url) || /^https?:\/\//i.test(ch.url);
+            });
+
+            renderList();
+            setMsg("Playlist încărcat. Canale găsite: " + channels.length, "ok");
+
+            if (channels.length) {
+              playChannel(0);
+            }
+          } else {
+            setMsg("Nu am putut încărca fișierul playlist.", "err");
+          }
+        }
+      };
+
+      xhr.onerror = function() {
+        setMsg("Eroare de rețea la încărcarea fișierului.", "err");
+      };
+
+      xhr.send();
+    }
+
+    function playChannel(index) {
+      var ch = channels[index];
+      if (!ch) {
+        setMsg("Canal invalid.", "err");
+        return;
+      }
+
+      currentIndex = index;
+
+      var video = document.getElementById("player");
+      var direct = document.getElementById("openDirect");
+      var title = document.getElementById("nowTitle");
+
+      title.textContent = "Canal selectat: " + ch.name;
+      direct.href = ch.url;
+
+      try { video.pause(); } catch (e) {}
+      try {
+        video.removeAttribute("src");
+        video.load();
+      } catch (e) {}
+
+      setMsg("Se încearcă redarea: " + ch.name, "");
+
+      var source = document.createElement("source");
+      source.src = ch.url;
+      source.type = "application/x-mpegurl";
+
+      video.innerHTML = "";
+      video.appendChild(source);
+      video.load();
+
+      var p;
+      try {
+        p = video.play();
+      } catch (e) {
+        setMsg("Browserul nu a pornit redarea.", "err");
+        return;
+      }
+
+      if (p && typeof p.then === "function") {
+        p.then(function() {
+          setMsg("Redare pornită.", "ok");
+        }).catch(function() {
+          tryDirect(ch.url);
+        });
+      }
+    }
+
+    function tryDirect(url) {
+      var video = document.getElementById("player");
+
+      try { video.pause(); } catch (e) {}
+      try {
+        video.innerHTML = "";
+        video.src = url;
+        video.load();
+      } catch (e) {}
+
+      var p;
+      try {
+        p = video.play();
+      } catch (e) {
+        setMsg("Redarea directă a eșuat.", "err");
+        return;
+      }
+
+      if (p && typeof p.then === "function") {
+        p.then(function() {
+          setMsg("Redare directă pornită.", "ok");
+        }).catch(function() {
+          setMsg("Acest canal nu pornește în browser. Încearcă «Deschide direct».", "err");
+        });
+      }
+    }
+
+    function retryPlay() {
+      if (currentIndex >= 0) {
+        playChannel(currentIndex);
+      }
+    }
+
+    function clearAll() {
+      document.getElementById("list").innerHTML = "";
+      document.getElementById("nowTitle").textContent = "Canal selectat: -";
+      document.getElementById("openDirect").href = "#";
+      channels = [];
+      currentIndex = -1;
+
+      var video = document.getElementById("player");
+      try { video.pause(); } catch (e) {}
+      try {
+        video.removeAttribute("src");
+        video.innerHTML = "";
+        video.load();
+      } catch (e) {}
+
+      setMsg("Șters.", "");
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+      var video = document.getElementById("player");
+
+      video.addEventListener("playing", function() {
+        setMsg("Redare pornită.", "ok");
+      });
+
+      video.addEventListener("waiting", function() {
+        setMsg("Se încarcă bufferul...", "");
+      });
+
+      video.addEventListener("error", function() {
+        setMsg("Canalul nu pornește în playerul web.", "err");
+      });
+
+      loadPlaylistFromFile();
     });
-  } 
-  else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-    video.src = url;
-    video.play();
-  } 
-  else {
-    alert("NU SUPORTĂ HLS");
-  }
-}
-</script>
-
+  </script>
 </body>
 </html>
