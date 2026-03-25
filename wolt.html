@@ -15,6 +15,7 @@
       --border: #1f2937;
       --input: #0b1220;
       --warn: #f59e0b;
+      --violet: #a78bfa;
     }* { box-sizing: border-box; }
 body {
   margin: 0;
@@ -24,22 +25,12 @@ body {
   padding: 18px;
 }
 
-.container {
-  max-width: 1300px;
-  margin: 0 auto;
-}
-
+.container { max-width: 1300px; margin: 0 auto; }
 h1, h2, h3 { margin: 0 0 10px; }
 p { color: var(--muted); line-height: 1.5; }
 
-.grid {
-  display: grid;
-  gap: 16px;
-}
-
-.grid-2 {
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-}
+.grid { display: grid; gap: 16px; }
+.grid-2 { grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
 
 .card {
   background: rgba(17, 24, 39, 0.92);
@@ -75,17 +66,14 @@ textarea { min-height: 90px; resize: vertical; }
   margin-bottom: 12px;
 }
 
-.col-2 { grid-column: span 2; }
 .col-3 { grid-column: span 3; }
 .col-4 { grid-column: span 4; }
-.col-5 { grid-column: span 5; }
 .col-6 { grid-column: span 6; }
-.col-8 { grid-column: span 8; }
 .col-12 { grid-column: span 12; }
 
 @media (max-width: 900px) {
   .row { grid-template-columns: 1fr; }
-  .col-2, .col-3, .col-4, .col-5, .col-6, .col-8, .col-12 { grid-column: span 1; }
+  .col-3, .col-4, .col-6, .col-12 { grid-column: span 1; }
 }
 
 .actions {
@@ -99,7 +87,6 @@ textarea { min-height: 90px; resize: vertical; }
   width: auto;
   min-width: 180px;
   cursor: pointer;
-  transition: 0.2s ease;
 }
 
 .primary { background: var(--accent); color: #052e16; border: none; font-weight: bold; }
@@ -107,6 +94,7 @@ textarea { min-height: 90px; resize: vertical; }
 .ghost { background: transparent; border: 1px solid #475569; }
 .danger { background: var(--danger); color: white; border: none; }
 .warning { background: var(--warn); color: #111827; border: none; font-weight: bold; }
+.violet { background: var(--violet); color: #1e1b4b; border: none; font-weight: bold; }
 
 .stat-grid {
   display: grid;
@@ -148,9 +136,7 @@ th {
   top: 0;
 }
 
-tr:nth-child(even) td {
-  background: rgba(15, 23, 42, 0.5);
-}
+tr:nth-child(even) td { background: rgba(15, 23, 42, 0.5); }
 
 .tag {
   display: inline-block;
@@ -164,6 +150,7 @@ tr:nth-child(even) td {
 .tag-work { background: rgba(34,197,94,0.18); color: #86efac; }
 .tag-commute { background: rgba(56,189,248,0.18); color: #7dd3fc; }
 .tag-no { background: rgba(239,68,68,0.18); color: #fca5a5; }
+.tag-json { background: rgba(167,139,250,0.18); color: #c4b5fd; }
 
 .muted { color: var(--muted); }
 .small { font-size: 12px; }
@@ -186,105 +173,45 @@ tr:nth-child(even) td {
   line-height: 1.55;
 }
 
-.footer-space { height: 24px; }
-
   </style>
 </head>
 <body>
   <div class="container">
     <div class="card">
       <h1>Raport KM zilnic Wolt + evidență pentru Kørselsfradrag</h1>
-      <p>
-        Pagina separă <strong>km făcuți pentru activitatea Wolt</strong> de <strong>naveta casă–punct de lucru</strong>,
-        astfel încât să ai o evidență clară pentru uz propriu și pentru eventuală verificare fiscală.
-      </p>
-      <div class="note small">
-        Atenție: acest instrument este pentru evidență și organizare. Pentru SKAT, naveta deductibilă și kørsel erhvervsmæssig nu sunt același lucru.
-        Verifică mereu situația ta fiscală exactă înainte de depunere.
-      </div>
+      <p>Acum poți importa CSV și Google Timeline JSON cu semanticSegments. Pentru Timeline, parserul filtrează segmentele după intervalul turei.</p>
+      <div class="note small">Pentru import JSON: setează mai întâi data, ora de start și ora de stop a turei.</div>
     </div><div class="grid grid-2" style="margin-top:16px;">
   <div class="card">
     <h2>Setări generale</h2>
     <div class="row">
-      <div class="col-6">
-        <label>Nume</label>
-        <input id="driverName" placeholder="Ex: Sergiu Bulboacă" />
-      </div>
-      <div class="col-6">
-        <label>CPR / referință internă</label>
-        <input id="driverRef" placeholder="Opțional" />
-      </div>
-      <div class="col-6">
-        <label>Adresă de acasă</label>
-        <input id="homeAddress" placeholder="Ex: Varde / Copenhaga" />
-      </div>
-      <div class="col-6">
-        <label>Punct de pornire Wolt / zonă uzuală</label>
-        <input id="workBase" placeholder="Ex: Wolt zone center" />
-      </div>
-      <div class="col-4">
-        <label>Km casă → bază Wolt (dus)</label>
-        <input id="commuteOneWayKm" type="number" min="0" step="0.1" value="0" />
-      </div>
-      <div class="col-4">
-        <label>Prag zilnic minim (km) pentru navetă</label>
-        <input id="dailyThresholdKm" type="number" min="0" step="1" value="24" />
-      </div>
-      <div class="col-4">
-        <label>An fiscal</label>
-        <input id="taxYear" type="number" min="2020" max="2100" value="2026" />
-      </div>
+      <div class="col-6"><label>Nume</label><input id="driverName" placeholder="Ex: Sergiu Bulboacă" /></div>
+      <div class="col-6"><label>CPR / referință internă</label><input id="driverRef" placeholder="Opțional" /></div>
+      <div class="col-6"><label>Adresă de acasă</label><input id="homeAddress" placeholder="Ex: Varde / Copenhaga" /></div>
+      <div class="col-6"><label>Punct de pornire Wolt / zonă uzuală</label><input id="workBase" placeholder="Ex: Wolt zone center" /></div>
+      <div class="col-4"><label>Km casă → bază Wolt (dus)</label><input id="commuteOneWayKm" type="number" min="0" step="0.1" value="0" /></div>
+      <div class="col-4"><label>Prag zilnic minim (km)</label><input id="dailyThresholdKm" type="number" min="0" step="1" value="24" /></div>
+      <div class="col-4"><label>An fiscal</label><input id="taxYear" type="number" min="2020" max="2100" value="2026" /></div>
     </div>
   </div>
 
   <div class="card">
     <h2>Adaugă o zi de lucru</h2>
     <div class="row">
-      <div class="col-4">
-        <label>Data</label>
-        <input id="dayDate" type="date" />
-      </div>
-      <div class="col-4">
-        <label>Ore lucrate</label>
-        <input id="hoursWorked" type="number" min="0" step="0.1" value="0" />
-      </div>
-      <div class="col-4">
-        <label>Număr livrări</label>
-        <input id="deliveriesCount" type="number" min="0" step="1" value="0" />
-      </div>
+      <div class="col-3"><label>Data</label><input id="dayDate" type="date" /></div>
+      <div class="col-3"><label>Ora start tură</label><input id="shiftStart" type="time" value="17:00" /></div>
+      <div class="col-3"><label>Ora stop tură</label><input id="shiftEnd" type="time" value="21:00" /></div>
+      <div class="col-3"><label>Ore lucrate</label><input id="hoursWorked" type="number" min="0" step="0.1" value="0" /></div>
 
-      <div class="col-4">
-        <label>Km în timpul livrărilor</label>
-        <input id="deliveryKm" type="number" min="0" step="0.1" value="0" />
-      </div>
-      <div class="col-4">
-        <label>Navetă efectuată?</label>
-        <select id="didCommute">
-          <option value="yes">Da</option>
-          <option value="no">Nu</option>
-        </select>
-      </div>
-      <div class="col-4">
-        <label>Zi eligibilă pentru fradrag?</label>
-        <select id="fradragEligible">
-          <option value="yes">Da</option>
-          <option value="no">Nu</option>
-        </select>
-      </div>
+      <div class="col-4"><label>Număr livrări</label><input id="deliveriesCount" type="number" min="0" step="1" value="0" /></div>
+      <div class="col-4"><label>Km în timpul livrărilor</label><input id="deliveryKm" type="number" min="0" step="0.1" value="0" /></div>
+      <div class="col-4"><label>Navetă efectuată?</label><select id="didCommute"><option value="yes">Da</option><option value="no">Nu</option></select></div>
 
-      <div class="col-6">
-        <label>Punct start</label>
-        <input id="startPoint" placeholder="Ex: Acasă / Wolt zone" />
-      </div>
-      <div class="col-6">
-        <label>Punct final</label>
-        <input id="endPoint" placeholder="Ex: Acasă / ultima zonă" />
-      </div>
+      <div class="col-4"><label>Zi eligibilă pentru fradrag?</label><select id="fradragEligible"><option value="yes">Da</option><option value="no">Nu</option></select></div>
+      <div class="col-4"><label>Punct start</label><input id="startPoint" placeholder="Ex: Acasă / Wolt zone" /></div>
+      <div class="col-4"><label>Punct final</label><input id="endPoint" placeholder="Ex: Acasă / ultima zonă" /></div>
 
-      <div class="col-12">
-        <label>Scop / observații</label>
-        <textarea id="notes" placeholder="Ex: Livrări Wolt în centru, ploaie, trafic, pornire din baza X"></textarea>
-      </div>
+      <div class="col-12"><label>Scop / observații</label><textarea id="notes" placeholder="Ex: Livrări Wolt în centru, ploaie, trafic"></textarea></div>
     </div>
 
     <div class="actions">
@@ -297,10 +224,13 @@ tr:nth-child(even) td {
     <div style="margin-top:14px; border-top:1px solid #243041; padding-top:14px;">
       <label>Încarcă CSV</label>
       <input id="csvFile" type="file" accept=".csv,text/csv" onchange="importCSV(event)" />
-      <p class="small muted" style="margin-top:8px;">
-        Coloane acceptate: date, hoursWorked, deliveriesCount, deliveryKm, didCommute, eligible, startPoint, endPoint, notes.
-        Valorile pentru didCommute și eligible pot fi: yes/no, da/nu, true/false, 1/0.
-      </p>
+      <p class="small muted">Coloane acceptate: date, shiftStart, shiftEnd, hoursWorked, deliveriesCount, deliveryKm, didCommute, eligible, startPoint, endPoint, notes.</p>
+    </div>
+
+    <div style="margin-top:14px; border-top:1px solid #243041; padding-top:14px;">
+      <label>Încarcă Google Timeline JSON</label>
+      <input id="jsonFile" type="file" accept=".json,application/json" onchange="importTimelineJSON(event)" />
+      <p class="small muted">Parser pentru format cu semanticSegments și timelinePath.</p>
     </div>
   </div>
 </div>
@@ -308,30 +238,12 @@ tr:nth-child(even) td {
 <div class="card" style="margin-top:16px;">
   <h2>Rezumat automat</h2>
   <div class="stat-grid">
-    <div class="stat">
-      <div class="label">Zile înregistrate</div>
-      <div class="value" id="statDays">0</div>
-    </div>
-    <div class="stat">
-      <div class="label">KM total Wolt</div>
-      <div class="value" id="statTotalKm">0</div>
-    </div>
-    <div class="stat">
-      <div class="label">KM livrări</div>
-      <div class="value" id="statDeliveryKm">0</div>
-    </div>
-    <div class="stat">
-      <div class="label">KM navetă total</div>
-      <div class="value" id="statCommuteKm">0</div>
-    </div>
-    <div class="stat">
-      <div class="label">KM navetă potențial eligibili</div>
-      <div class="value" id="statEligibleKm">0</div>
-    </div>
-    <div class="stat">
-      <div class="label">Ore totale lucrate</div>
-      <div class="value" id="statHours">0</div>
-    </div>
+    <div class="stat"><div class="label">Zile înregistrate</div><div class="value" id="statDays">0</div></div>
+    <div class="stat"><div class="label">KM total Wolt</div><div class="value" id="statTotalKm">0</div></div>
+    <div class="stat"><div class="label">KM livrări</div><div class="value" id="statDeliveryKm">0</div></div>
+    <div class="stat"><div class="label">KM navetă total</div><div class="value" id="statCommuteKm">0</div></div>
+    <div class="stat"><div class="label">KM navetă eligibili</div><div class="value" id="statEligibleKm">0</div></div>
+    <div class="stat"><div class="label">Ore totale</div><div class="value" id="statHours">0</div></div>
   </div>
 </div>
 
@@ -340,16 +252,7 @@ tr:nth-child(even) td {
   <table id="entriesTable">
     <thead>
       <tr>
-        <th>Data</th>
-        <th>Ore</th>
-        <th>Livrări</th>
-        <th>Km livrări</th>
-        <th>Km navetă</th>
-        <th>Km total</th>
-        <th>Tip</th>
-        <th>Start / Final</th>
-        <th>Observații</th>
-        <th>Acțiune</th>
+        <th>Data</th><th>Tură</th><th>Ore</th><th>Livrări</th><th>Km livrări</th><th>Km navetă</th><th>Km total</th><th>Tip</th><th>Start / Final</th><th>Observații</th><th>Acțiune</th>
       </tr>
     </thead>
     <tbody></tbody>
@@ -359,7 +262,6 @@ tr:nth-child(even) td {
 <div class="grid grid-2" style="margin-top:16px;">
   <div class="card">
     <h2>Raport intern – activitate Wolt</h2>
-    <p class="small">Acest raport include toți km înregistrați: livrări + navetă.</p>
     <div class="actions">
       <button class="secondary" onclick="generateReports()">Generează rapoarte</button>
       <button class="ghost" onclick="downloadCSV()">Descarcă CSV</button>
@@ -370,13 +272,10 @@ tr:nth-child(even) td {
   </div>
 
   <div class="card">
-    <h2>Raport separat – documentare pentru fradrag / control</h2>
-    <p class="small">Acest raport evidențiază strict naveta și zilele marcate eligibile.</p>
+    <h2>Raport navetă / fradrag</h2>
     <div id="fradragReport" class="report">Apasă „Generează rapoarte”.</div>
   </div>
 </div>
-
-<div class="footer-space"></div>
 
   </div>  <script>
     let entries = [];
@@ -386,17 +285,11 @@ tr:nth-child(even) td {
     }
 
     function escapeHtml(str) {
-      return String(str || '')
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
+      return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
     }
 
     function fillToday() {
-      const today = new Date().toISOString().slice(0, 10);
-      document.getElementById('dayDate').value = today;
+      document.getElementById('dayDate').value = new Date().toISOString().slice(0, 10);
     }
 
     function getSettings() {
@@ -417,20 +310,19 @@ tr:nth-child(even) td {
     function addEntry() {
       const settings = getSettings();
       const date = document.getElementById('dayDate').value;
-      if (!date) {
-        alert('Alege data.');
-        return;
-      }
+      if (!date) return alert('Alege data.');
 
       const didCommute = document.getElementById('didCommute').value === 'yes';
       const eligible = document.getElementById('fradragEligible').value === 'yes';
       const commuteKm = didCommute ? settings.commuteRoundTripKm : 0;
       const deliveryKm = Number(document.getElementById('deliveryKm').value || 0);
-      const totalKm = commuteKm + deliveryKm;
 
-      const entry = {
+      entries.push({
         id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random()),
+        source: 'manual',
         date,
+        shiftStart: document.getElementById('shiftStart').value || '',
+        shiftEnd: document.getElementById('shiftEnd').value || '',
         hoursWorked: Number(document.getElementById('hoursWorked').value || 0),
         deliveriesCount: Number(document.getElementById('deliveriesCount').value || 0),
         deliveryKm,
@@ -438,75 +330,52 @@ tr:nth-child(even) td {
         eligible,
         commuteKm,
         eligibleCommuteKm: eligible && commuteKm > settings.dailyThresholdKm ? commuteKm - settings.dailyThresholdKm : 0,
-        totalKm,
+        totalKm: commuteKm + deliveryKm,
         startPoint: document.getElementById('startPoint').value.trim(),
         endPoint: document.getElementById('endPoint').value.trim(),
         notes: document.getElementById('notes').value.trim()
-      };
+      });
 
-      entries.push(entry);
       entries.sort((a, b) => a.date.localeCompare(b.date));
-      render();
       saveData();
-      clearDayForm();
-    }
-
-    function clearDayForm() {
-      document.getElementById('hoursWorked').value = 0;
-      document.getElementById('deliveriesCount').value = 0;
-      document.getElementById('deliveryKm').value = 0;
-      document.getElementById('didCommute').value = 'yes';
-      document.getElementById('fradragEligible').value = 'yes';
-      document.getElementById('startPoint').value = '';
-      document.getElementById('endPoint').value = '';
-      document.getElementById('notes').value = '';
+      render();
     }
 
     function removeEntry(id) {
       entries = entries.filter(e => e.id !== id);
-      render();
       saveData();
+      render();
     }
 
     function render() {
       const tbody = document.querySelector('#entriesTable tbody');
       tbody.innerHTML = entries.map(e => {
-        const typeLabel = e.eligible
-          ? '<span class="tag tag-commute">Navetă eligibilă</span>'
-          : e.didCommute
-            ? '<span class="tag tag-work">Wolt + navetă</span>'
-            : '<span class="tag tag-no">Doar activitate</span>';
+        let typeLabel = '<span class="tag tag-no">Doar activitate</span>';
+        if (e.source === 'timeline-json') typeLabel = '<span class="tag tag-json">JSON Timeline</span>';
+        else if (e.eligible) typeLabel = '<span class="tag tag-commute">Navetă eligibilă</span>';
+        else if (e.didCommute) typeLabel = '<span class="tag tag-work">Wolt + navetă</span>';
 
-        return `
-          <tr>
-            <td>${escapeHtml(e.date)}</td>
-            <td>${round1(e.hoursWorked)}</td>
-            <td>${escapeHtml(e.deliveriesCount)}</td>
-            <td>${round1(e.deliveryKm)}</td>
-            <td>${round1(e.commuteKm)}</td>
-            <td><strong>${round1(e.totalKm)}</strong></td>
-            <td>${typeLabel}</td>
-            <td>${escapeHtml(e.startPoint)}<br><span class="muted">${escapeHtml(e.endPoint)}</span></td>
-            <td>${escapeHtml(e.notes)}</td>
-            <td><button class="danger" onclick="removeEntry('${e.id}')">Șterge</button></td>
-          </tr>
-        `;
+        return '<tr>' +
+          '<td>' + escapeHtml(e.date) + '</td>' +
+          '<td>' + escapeHtml((e.shiftStart || '-') + '–' + (e.shiftEnd || '-')) + '</td>' +
+          '<td>' + round1(e.hoursWorked) + '</td>' +
+          '<td>' + escapeHtml(e.deliveriesCount) + '</td>' +
+          '<td>' + round1(e.deliveryKm) + '</td>' +
+          '<td>' + round1(e.commuteKm) + '</td>' +
+          '<td><strong>' + round1(e.totalKm) + '</strong></td>' +
+          '<td>' + typeLabel + '</td>' +
+          '<td>' + escapeHtml(e.startPoint) + '<br><span class="muted">' + escapeHtml(e.endPoint) + '</span></td>' +
+          '<td>' + escapeHtml(e.notes) + '</td>' +
+          '<td><button class="danger" onclick="removeEntry(\'' + e.id + '\')">Șterge</button></td>' +
+          '</tr>';
       }).join('');
 
-      const totalDays = entries.length;
-      const totalKm = entries.reduce((s, e) => s + e.totalKm, 0);
-      const totalDeliveryKm = entries.reduce((s, e) => s + e.deliveryKm, 0);
-      const totalCommuteKm = entries.reduce((s, e) => s + e.commuteKm, 0);
-      const totalEligibleKm = entries.reduce((s, e) => s + e.eligibleCommuteKm, 0);
-      const totalHours = entries.reduce((s, e) => s + e.hoursWorked, 0);
-
-      document.getElementById('statDays').textContent = totalDays;
-      document.getElementById('statTotalKm').textContent = round1(totalKm);
-      document.getElementById('statDeliveryKm').textContent = round1(totalDeliveryKm);
-      document.getElementById('statCommuteKm').textContent = round1(totalCommuteKm);
-      document.getElementById('statEligibleKm').textContent = round1(totalEligibleKm);
-      document.getElementById('statHours').textContent = round1(totalHours);
-
+      document.getElementById('statDays').textContent = entries.length;
+      document.getElementById('statTotalKm').textContent = round1(entries.reduce((s, e) => s + e.totalKm, 0));
+      document.getElementById('statDeliveryKm').textContent = round1(entries.reduce((s, e) => s + e.deliveryKm, 0));
+      document.getElementById('statCommuteKm').textContent = round1(entries.reduce((s, e) => s + e.commuteKm, 0));
+      document.getElementById('statEligibleKm').textContent = round1(entries.reduce((s, e) => s + e.eligibleCommuteKm, 0));
+      document.getElementById('statHours').textContent = round1(entries.reduce((s, e) => s + e.hoursWorked, 0));
       generateReports();
     }
 
@@ -517,228 +386,223 @@ tr:nth-child(even) td {
       const totalCommuteKm = entries.reduce((sum, e) => sum + e.commuteKm, 0);
       const totalEligibleKm = entries.reduce((sum, e) => sum + e.eligibleCommuteKm, 0);
       const totalHours = entries.reduce((sum, e) => sum + e.hoursWorked, 0);
-      const totalDeliveries = entries.reduce((sum, e) => sum + e.deliveriesCount, 0);
-      const eligibleDays = entries.filter(e => e.eligible && e.commuteKm > s.dailyThresholdKm).length;
+      const timelineDays = entries.filter(e => e.source === 'timeline-json').length;
 
-      const workReport = [
-        `RAPORT INTERN – ACTIVITATE WOLT`,
-        `An fiscal: ${s.taxYear || '-'}`,
-        `Nume: ${s.driverName || '-'}`,
-        `Referință: ${s.driverRef || '-'}`,
-        `Adresă acasă: ${s.homeAddress || '-'}`,
-        `Bază / zonă lucru: ${s.workBase || '-'}`,
-        ``,
-        `Total zile înregistrate: ${entries.length}`,
-        `Total ore lucrate: ${round1(totalHours)}`,
-        `Total livrări: ${totalDeliveries}`,
-        `KM livrări: ${round1(totalDeliveryKm)}`,
-        `KM navetă: ${round1(totalCommuteKm)}`,
-        `KM total activitate: ${round1(totalKm)}`,
-        ``,
-        `Observație: raportul include atât deplasările din timpul activității Wolt, cât și naveta declarată între casă și baza de lucru.`
+      document.getElementById('workReport').textContent = [
+        'RAPORT INTERN – ACTIVITATE WOLT',
+        'An fiscal: ' + (s.taxYear || '-'),
+        'Nume: ' + (s.driverName || '-'),
+        'Adresă acasă: ' + (s.homeAddress || '-'),
+        'Zile înregistrate: ' + entries.length,
+        'Din Timeline JSON: ' + timelineDays,
+        'Ore totale: ' + round1(totalHours),
+        'KM livrări: ' + round1(totalDeliveryKm),
+        'KM navetă: ' + round1(totalCommuteKm),
+        'KM total: ' + round1(totalKm)
       ].join('\n');
 
-      const fradragLines = entries
-        .filter(e => e.eligible)
-        .map((e, index) => {
-          return `${index + 1}. ${e.date} | Navetă totală: ${round1(e.commuteKm)} km | KM potențial eligibili peste prag: ${round1(e.eligibleCommuteKm)} | Start: ${e.startPoint || '-'} | Final: ${e.endPoint || '-'} | Notă: ${e.notes || '-'}`;
-        });
-
-      const fradragReport = [
-        `RAPORT SEPARAT – NAVETĂ / DOCUMENTARE FISCALĂ`,
-        `An fiscal: ${s.taxYear || '-'}`,
-        `Nume: ${s.driverName || '-'}`,
-        `Adresă acasă: ${s.homeAddress || '-'}`,
-        `Loc uzual de pornire spre lucru: ${s.workBase || '-'}`,
-        `Km casă → bază (dus): ${round1(s.commuteOneWayKm)}`,
-        `Km navetă dus-întors: ${round1(s.commuteRoundTripKm)}`,
-        `Prag zilnic setat: ${round1(s.dailyThresholdKm)} km`,
-        ``,
-        `Zile marcate eligibile: ${eligibleDays}`,
-        `Total km navetă declarați: ${round1(totalCommuteKm)}`,
-        `Total km potențial eligibili peste prag: ${round1(totalEligibleKm)}`,
-        ``,
-        `Detaliere pe zile:`,
-        fradragLines.length ? fradragLines.join('\n') : 'Nu există zile marcate eligibile.',
-        ``,
-        `Notă: acesta este un jurnal de susținere și nu înlocuiește cerințele sau verificările SKAT.`
+      document.getElementById('fradragReport').textContent = [
+        'RAPORT NAVETĂ / FRADRAG',
+        'Km casă → bază (dus): ' + round1(s.commuteOneWayKm),
+        'Km dus-întors: ' + round1(s.commuteRoundTripKm),
+        'Prag zilnic: ' + round1(s.dailyThresholdKm),
+        'Total km navetă: ' + round1(totalCommuteKm),
+        'Total km eligibili peste prag: ' + round1(totalEligibleKm)
       ].join('\n');
-
-      document.getElementById('workReport').textContent = workReport;
-      document.getElementById('fradragReport').textContent = fradragReport;
-    }
-
-    function downloadCSV() {
-      if (!entries.length) {
-        alert('Nu există date de exportat.');
-        return;
-      }
-
-      const headers = [
-        'date','hoursWorked','deliveriesCount','deliveryKm','commuteKm','eligibleCommuteKm','totalKm','didCommute','eligible','startPoint','endPoint','notes'
-      ];
-
-      const rows = entries.map(e => headers.map(h => {
-        const value = e[h];
-        return `"${String(value ?? '').replace(/"/g, '""')}"`;
-      }).join(','));
-
-      const csv = [headers.join(','), ...rows].join('\n');
-      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `wolt_km_report_${new Date().toISOString().slice(0,10)}.csv`;
-      a.click();
-      URL.revokeObjectURL(url);
     }
 
     function parseBool(value) {
-      const v = String(value || '').trim().toLowerCase();
-      return ['yes', 'da', 'true', '1', 'y'].includes(v);
-    }
-
-    function normalizeDate(value) {
-      const raw = String(value || '').trim();
-      if (!raw) return '';
-      if (raw.indexOf('-') > -1 && raw.length === 10) return raw;
-      if (raw.indexOf('.') > -1) {
-        const p = raw.split('.');
-        if (p.length === 3) return p[2] + '-' + p[1] + '-' + p[0];
-      }
-      if (raw.indexOf('/') > -1) {
-        const p = raw.split('/');
-        if (p.length === 3) return p[2] + '-' + p[1] + '-' + p[0];
-      }
-      return raw;
+      return ['yes', 'da', 'true', '1', 'y'].includes(String(value || '').trim().toLowerCase());
     }
 
     function splitCSVLine(line) {
       const result = [];
       let current = '';
       let inQuotes = false;
-
       for (let i = 0; i < line.length; i++) {
         const char = line[i];
         const next = line[i + 1];
-
         if (char === '"') {
-          if (inQuotes && next === '"') {
-            current += '"';
-            i++;
-          } else {
-            inQuotes = !inQuotes;
-          }
+          if (inQuotes && next === '"') { current += '"'; i++; }
+          else { inQuotes = !inQuotes; }
         } else if (char === ',' && !inQuotes) {
-          result.push(current);
-          current = '';
+          result.push(current); current = '';
         } else {
           current += char;
         }
       }
-
       result.push(current);
-      return result.map(function(v) { return v.trim(); });
+      return result.map(v => v.trim());
     }
 
     function importCSV(event) {
       const file = event.target.files && event.target.files[0];
       if (!file) return;
-
       const reader = new FileReader();
       reader.onload = function(e) {
         try {
-          const text = String(e.target.result || '').replace('﻿', '');
-          const lines = text.split('
-').map(function(line) { return line.replace('
-', ''); }).filter(function(line) { return line.trim(); });
-
-          if (lines.length < 2) {
-            alert('CSV-ul nu conține suficiente date.');
-            return;
-          }
-
+          const text = String(e.target.result || '').replace(/^\uFEFF/, '');
+          const lines = text.split(/\r?\n/).filter(line => line.trim());
           const headers = splitCSVLine(lines[0]);
-          const required = ['date', 'deliveryKm'];
-          const missing = required.filter(function(h) { return !headers.includes(h); });
-
-          if (missing.length) {
-            alert('Lipsesc coloane obligatorii: ' + missing.join(', '));
-            return;
-          }
-
           const settings = getSettings();
           const imported = [];
-
           for (let i = 1; i < lines.length; i++) {
             const cols = splitCSVLine(lines[i]);
-            if (!cols.some(function(v) { return String(v).trim() !== ''; })) continue;
-
             const row = {};
-            headers.forEach(function(h, idx) {
-              row[h] = cols[idx] || '';
-            });
-
-            const date = normalizeDate(row.date);
-            if (!date) continue;
-
+            headers.forEach((h, idx) => row[h] = cols[idx] || '');
+            if (!row.date) continue;
             const didCommute = parseBool(row.didCommute);
             const eligible = parseBool(row.eligible);
             const commuteKm = didCommute ? settings.commuteRoundTripKm : 0;
             const deliveryKm = Number(row.deliveryKm || 0);
-
             imported.push({
               id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random() + i),
-              date: date,
+              source: 'csv',
+              date: row.date,
+              shiftStart: row.shiftStart || '',
+              shiftEnd: row.shiftEnd || '',
               hoursWorked: Number(row.hoursWorked || 0),
               deliveriesCount: Number(row.deliveriesCount || 0),
-              deliveryKm: deliveryKm,
-              didCommute: didCommute,
-              eligible: eligible,
-              commuteKm: commuteKm,
+              deliveryKm,
+              didCommute,
+              eligible,
+              commuteKm,
               eligibleCommuteKm: eligible && commuteKm > settings.dailyThresholdKm ? commuteKm - settings.dailyThresholdKm : 0,
               totalKm: commuteKm + deliveryKm,
-              startPoint: String(row.startPoint || '').trim(),
-              endPoint: String(row.endPoint || '').trim(),
-              notes: String(row.notes || '').trim()
+              startPoint: row.startPoint || '',
+              endPoint: row.endPoint || '',
+              notes: row.notes || ''
             });
           }
-
-          if (!imported.length) {
-            alert('Nu am găsit rânduri valide în CSV.');
-            return;
-          }
-
           entries = entries.concat(imported);
-          entries.sort(function(a, b) { return a.date.localeCompare(b.date); });
+          entries.sort((a, b) => a.date.localeCompare(b.date));
           saveData();
           render();
           event.target.value = '';
           alert('Au fost importate ' + imported.length + ' înregistrări.');
         } catch (err) {
           console.error(err);
-          alert('A apărut o eroare la importul CSV.');
+          alert('Eroare la import CSV.');
         }
       };
-
       reader.readAsText(file, 'utf-8');
     }
 
-    function downloadSampleCSV() {
-      const sample = [
-        'date,hoursWorked,deliveriesCount,deliveryKm,didCommute,eligible,startPoint,endPoint,notes',
-        '2026-03-25,4.5,11,38.2,yes,yes,Acasă,Wolt centru,"Shift seară, trafic moderat"',
-        '2026-03-26,3.0,7,21.4,no,no,Wolt centru,Wolt centru,"Doar activitate în zonă"'
-      ].join('
-');
+    function toDateTime(s) {
+      if (!s) return null;
+      const d = new Date(String(s).replace(' ', 'T'));
+      return isNaN(d.getTime()) ? null : d;
+    }
 
-      const blob = new Blob([sample], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'wolt_km_sample.csv';
-      a.click();
-      URL.revokeObjectURL(url);
+    function parsePointString(pointStr) {
+      if (!pointStr) return null;
+      const parts = String(pointStr).split(',').map(v => Number(String(v).trim()));
+      if (parts.length !== 2 || Number.isNaN(parts[0]) || Number.isNaN(parts[1])) return null;
+      return { lat: parts[0], lon: parts[1] };
+    }
+
+    function haversineKm(lat1, lon1, lat2, lon2) {
+      const R = 6371;
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+      const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) * Math.sin(dLon/2) * Math.sin(dLon/2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      return R * c;
+    }
+
+    function getSegmentDistanceKm(segment) {
+      const path = Array.isArray(segment.timelinePath) ? segment.timelinePath : [];
+      if (path.length < 2) return 0;
+      let total = 0;
+      for (let i = 1; i < path.length; i++) {
+        const a = parsePointString(path[i - 1].point);
+        const b = parsePointString(path[i].point);
+        if (!a || !b) continue;
+        total += haversineKm(a.lat, a.lon, b.lat, b.lon);
+      }
+      return total;
+    }
+
+    function importTimelineJSON(event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const raw = JSON.parse(String(e.target.result || '{}'));
+          const semanticSegments = Array.isArray(raw.semanticSegments) ? raw.semanticSegments : [];
+          if (!semanticSegments.length) return alert('Nu am găsit semanticSegments în JSON.');
+
+          const dateStr = document.getElementById('dayDate').value;
+          const shiftStartStr = document.getElementById('shiftStart').value;
+          const shiftEndStr = document.getElementById('shiftEnd').value;
+          if (!dateStr || !shiftStartStr || !shiftEndStr) return alert('Completează data, ora start și ora stop.');
+
+          const shiftStart = new Date(dateStr + 'T' + shiftStartStr + ':00');
+          const shiftEnd = new Date(dateStr + 'T' + shiftEndStr + ':00');
+          if (isNaN(shiftStart.getTime()) || isNaN(shiftEnd.getTime()) || shiftEnd <= shiftStart) return alert('Intervalul turei nu este valid.');
+
+          let deliveryKm = 0;
+          let firstPoint = '';
+          let lastPoint = '';
+          let usedSegments = 0;
+          let visitCount = 0;
+
+          semanticSegments.forEach(seg => {
+            const segStart = toDateTime(seg.startTime);
+            const segEnd = toDateTime(seg.endTime);
+            if (!segStart || !segEnd) return;
+            if (!(segStart < shiftEnd && segEnd > shiftStart)) return;
+
+            if (Array.isArray(seg.timelinePath) && seg.timelinePath.length > 1) {
+              deliveryKm += getSegmentDistanceKm(seg);
+              usedSegments += 1;
+              const first = parsePointString(seg.timelinePath[0].point);
+              const last = parsePointString(seg.timelinePath[seg.timelinePath.length - 1].point);
+              if (first && !firstPoint) firstPoint = first.lat.toFixed(5) + ', ' + first.lon.toFixed(5);
+              if (last) lastPoint = last.lat.toFixed(5) + ', ' + last.lon.toFixed(5);
+            }
+            if (seg.visit) visitCount += 1;
+          });
+
+          if (deliveryKm <= 0 && usedSegments === 0) return alert('Nu am găsit segmente de mișcare în intervalul selectat.');
+
+          const settings = getSettings();
+          const didCommute = document.getElementById('didCommute').value === 'yes';
+          const eligible = document.getElementById('fradragEligible').value === 'yes';
+          const commuteKm = didCommute ? settings.commuteRoundTripKm : 0;
+          const hoursWorked = (shiftEnd.getTime() - shiftStart.getTime()) / 3600000;
+
+          entries.push({
+            id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random()),
+            source: 'timeline-json',
+            date: dateStr,
+            shiftStart: shiftStartStr,
+            shiftEnd: shiftEndStr,
+            hoursWorked: Number(hoursWorked.toFixed(2)),
+            deliveriesCount: 0,
+            deliveryKm: Number(deliveryKm.toFixed(1)),
+            didCommute,
+            eligible,
+            commuteKm,
+            eligibleCommuteKm: eligible && commuteKm > settings.dailyThresholdKm ? commuteKm - settings.dailyThresholdKm : 0,
+            totalKm: Number((commuteKm + deliveryKm).toFixed(1)),
+            startPoint: firstPoint || document.getElementById('startPoint').value.trim(),
+            endPoint: lastPoint || document.getElementById('endPoint').value.trim(),
+            notes: 'Import Timeline JSON: ' + usedSegments + ' segmente mișcare, ' + visitCount + ' vizite în interval.'
+          });
+
+          entries.sort((a, b) => a.date.localeCompare(b.date));
+          saveData();
+          render();
+          event.target.value = '';
+          alert('Import reușit: ' + round1(deliveryKm) + ' km calculați din Timeline.');
+        } catch (err) {
+          console.error(err);
+          alert('Eroare la citirea Timeline JSON.');
+        }
+      };
+      reader.readAsText(file, 'utf-8');
     }
 
     function saveData() {
@@ -754,11 +618,11 @@ tr:nth-child(even) td {
         },
         entries
       };
-      localStorage.setItem('woltKmReportData', JSON.stringify(payload));
+      localStorage.setItem('woltKmReportDataV2', JSON.stringify(payload));
     }
 
     function loadData() {
-      const raw = localStorage.getItem('woltKmReportData');
+      const raw = localStorage.getItem('woltKmReportDataV2');
       if (!raw) return;
       try {
         const data = JSON.parse(raw);
@@ -771,17 +635,40 @@ tr:nth-child(even) td {
         document.getElementById('dailyThresholdKm').value = s.dailyThresholdKm || 24;
         document.getElementById('taxYear').value = s.taxYear || new Date().getFullYear();
         entries = Array.isArray(data.entries) ? data.entries : [];
-        render();
       } catch (e) {
-        console.error('Eroare la încărcarea datelor:', e);
+        console.error(e);
       }
     }
 
     function resetAll() {
       if (!confirm('Sigur vrei să ștergi toate datele?')) return;
       entries = [];
-      localStorage.removeItem('woltKmReportData');
+      localStorage.removeItem('woltKmReportDataV2');
       render();
+    }
+
+    function downloadCSV() {
+      if (!entries.length) return alert('Nu există date de exportat.');
+      const headers = ['date','shiftStart','shiftEnd','hoursWorked','deliveriesCount','deliveryKm','commuteKm','eligibleCommuteKm','totalKm','didCommute','eligible','source','startPoint','endPoint','notes'];
+      const rows = entries.map(e => headers.map(h => '"' + String(e[h] ?? '').replace(/"/g, '""') + '"').join(','));
+      const csv = [headers.join(','), ...rows].join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'wolt_km_report.csv'; a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function downloadSampleCSV() {
+      const sample = [
+        'date,shiftStart,shiftEnd,hoursWorked,deliveriesCount,deliveryKm,didCommute,eligible,startPoint,endPoint,notes',
+        '2026-03-25,17:00,21:30,4.5,11,38.2,yes,yes,Acasă,Wolt centru,"Shift seară, trafic moderat"'
+      ].join('\n');
+      const blob = new Blob([sample], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'wolt_km_sample.csv'; a.click();
+      URL.revokeObjectURL(url);
     }
 
     fillToday();
