@@ -293,6 +293,15 @@ tr:nth-child(even) td {
       <button class="warning" onclick="saveData()">Salvează local</button>
       <button class="danger" onclick="resetAll()">Șterge tot</button>
     </div>
+
+    <div style="margin-top:14px; border-top:1px solid #243041; padding-top:14px;">
+      <label>Încarcă CSV</label>
+      <input id="csvFile" type="file" accept=".csv,text/csv" onchange="importCSV(event)" />
+      <p class="small muted" style="margin-top:8px;">
+        Coloane acceptate: date, hoursWorked, deliveriesCount, deliveryKm, didCommute, eligible, startPoint, endPoint, notes.
+        Valorile pentru didCommute și eligible pot fi: yes/no, da/nu, true/false, 1/0.
+      </p>
+    </div>
   </div>
 </div>
 
@@ -354,6 +363,7 @@ tr:nth-child(even) td {
     <div class="actions">
       <button class="secondary" onclick="generateReports()">Generează rapoarte</button>
       <button class="ghost" onclick="downloadCSV()">Descarcă CSV</button>
+      <button class="ghost" onclick="downloadSampleCSV()">Descarcă model CSV</button>
       <button class="ghost" onclick="window.print()">Printează / PDF</button>
     </div>
     <div id="workReport" class="report">Apasă „Generează rapoarte”.</div>
@@ -579,6 +589,154 @@ tr:nth-child(even) td {
       const a = document.createElement('a');
       a.href = url;
       a.download = `wolt_km_report_${new Date().toISOString().slice(0,10)}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function parseBool(value) {
+      const v = String(value || '').trim().toLowerCase();
+      return ['yes', 'da', 'true', '1', 'y'].includes(v);
+    }
+
+    function normalizeDate(value) {
+      const raw = String(value || '').trim();
+      if (!raw) return '';
+      if (raw.indexOf('-') > -1 && raw.length === 10) return raw;
+      if (raw.indexOf('.') > -1) {
+        const p = raw.split('.');
+        if (p.length === 3) return p[2] + '-' + p[1] + '-' + p[0];
+      }
+      if (raw.indexOf('/') > -1) {
+        const p = raw.split('/');
+        if (p.length === 3) return p[2] + '-' + p[1] + '-' + p[0];
+      }
+      return raw;
+    }
+
+    function splitCSVLine(line) {
+      const result = [];
+      let current = '';
+      let inQuotes = false;
+
+      for (let i = 0; i < line.length; i++) {
+        const char = line[i];
+        const next = line[i + 1];
+
+        if (char === '"') {
+          if (inQuotes && next === '"') {
+            current += '"';
+            i++;
+          } else {
+            inQuotes = !inQuotes;
+          }
+        } else if (char === ',' && !inQuotes) {
+          result.push(current);
+          current = '';
+        } else {
+          current += char;
+        }
+      }
+
+      result.push(current);
+      return result.map(function(v) { return v.trim(); });
+    }
+
+    function importCSV(event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const text = String(e.target.result || '').replace('﻿', '');
+          const lines = text.split('
+').map(function(line) { return line.replace('
+', ''); }).filter(function(line) { return line.trim(); });
+
+          if (lines.length < 2) {
+            alert('CSV-ul nu conține suficiente date.');
+            return;
+          }
+
+          const headers = splitCSVLine(lines[0]);
+          const required = ['date', 'deliveryKm'];
+          const missing = required.filter(function(h) { return !headers.includes(h); });
+
+          if (missing.length) {
+            alert('Lipsesc coloane obligatorii: ' + missing.join(', '));
+            return;
+          }
+
+          const settings = getSettings();
+          const imported = [];
+
+          for (let i = 1; i < lines.length; i++) {
+            const cols = splitCSVLine(lines[i]);
+            if (!cols.some(function(v) { return String(v).trim() !== ''; })) continue;
+
+            const row = {};
+            headers.forEach(function(h, idx) {
+              row[h] = cols[idx] || '';
+            });
+
+            const date = normalizeDate(row.date);
+            if (!date) continue;
+
+            const didCommute = parseBool(row.didCommute);
+            const eligible = parseBool(row.eligible);
+            const commuteKm = didCommute ? settings.commuteRoundTripKm : 0;
+            const deliveryKm = Number(row.deliveryKm || 0);
+
+            imported.push({
+              id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random() + i),
+              date: date,
+              hoursWorked: Number(row.hoursWorked || 0),
+              deliveriesCount: Number(row.deliveriesCount || 0),
+              deliveryKm: deliveryKm,
+              didCommute: didCommute,
+              eligible: eligible,
+              commuteKm: commuteKm,
+              eligibleCommuteKm: eligible && commuteKm > settings.dailyThresholdKm ? commuteKm - settings.dailyThresholdKm : 0,
+              totalKm: commuteKm + deliveryKm,
+              startPoint: String(row.startPoint || '').trim(),
+              endPoint: String(row.endPoint || '').trim(),
+              notes: String(row.notes || '').trim()
+            });
+          }
+
+          if (!imported.length) {
+            alert('Nu am găsit rânduri valide în CSV.');
+            return;
+          }
+
+          entries = entries.concat(imported);
+          entries.sort(function(a, b) { return a.date.localeCompare(b.date); });
+          saveData();
+          render();
+          event.target.value = '';
+          alert('Au fost importate ' + imported.length + ' înregistrări.');
+        } catch (err) {
+          console.error(err);
+          alert('A apărut o eroare la importul CSV.');
+        }
+      };
+
+      reader.readAsText(file, 'utf-8');
+    }
+
+    function downloadSampleCSV() {
+      const sample = [
+        'date,hoursWorked,deliveriesCount,deliveryKm,didCommute,eligible,startPoint,endPoint,notes',
+        '2026-03-25,4.5,11,38.2,yes,yes,Acasă,Wolt centru,"Shift seară, trafic moderat"',
+        '2026-03-26,3.0,7,21.4,no,no,Wolt centru,Wolt centru,"Doar activitate în zonă"'
+      ].join('
+');
+
+      const blob = new Blob([sample], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'wolt_km_sample.csv';
       a.click();
       URL.revokeObjectURL(url);
     }
