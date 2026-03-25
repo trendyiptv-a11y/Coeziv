@@ -1,0 +1,629 @@
+<!DOCTYPE html><html lang="ro">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wolt KM Report – Kørselsfradrag</title>
+      --muted: #94a3b8;
+      --text: #e5e7eb;
+      --accent: #22c55e;
+      --accent-2: #38bdf8;
+      --danger: #ef4444;
+      --border: #1f2937;
+      --input: #0b1220;
+      --warn: #f59e0b;
+    }* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background: linear-gradient(180deg, #020617 0%, #0f172a 100%);
+  color: var(--text);
+  padding: 18px;
+}
+
+.container {
+  max-width: 1300px;
+  margin: 0 auto;
+}
+
+h1, h2, h3 { margin: 0 0 10px; }
+p { color: var(--muted); line-height: 1.5; }
+
+.grid {
+  display: grid;
+  gap: 16px;
+}
+
+.grid-2 {
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+}
+
+.card {
+  background: rgba(17, 24, 39, 0.92);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 18px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+}
+
+label {
+  display: block;
+  font-size: 14px;
+  margin-bottom: 6px;
+  color: #cbd5e1;
+}
+
+input, select, textarea, button {
+  width: 100%;
+  border-radius: 12px;
+  border: 1px solid #334155;
+  background: var(--input);
+  color: var(--text);
+  padding: 12px 14px;
+  font-size: 14px;
+}
+
+textarea { min-height: 90px; resize: vertical; }
+
+.row {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.col-2 { grid-column: span 2; }
+.col-3 { grid-column: span 3; }
+.col-4 { grid-column: span 4; }
+.col-5 { grid-column: span 5; }
+.col-6 { grid-column: span 6; }
+.col-8 { grid-column: span 8; }
+.col-12 { grid-column: span 12; }
+
+@media (max-width: 900px) {
+  .row { grid-template-columns: 1fr; }
+  .col-2, .col-3, .col-4, .col-5, .col-6, .col-8, .col-12 { grid-column: span 1; }
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.actions button {
+  width: auto;
+  min-width: 180px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.primary { background: var(--accent); color: #052e16; border: none; font-weight: bold; }
+.secondary { background: var(--accent-2); color: #082f49; border: none; font-weight: bold; }
+.ghost { background: transparent; border: 1px solid #475569; }
+.danger { background: var(--danger); color: white; border: none; }
+.warning { background: var(--warn); color: #111827; border: none; font-weight: bold; }
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.stat {
+  background: rgba(2, 6, 23, 0.75);
+  border: 1px solid #243041;
+  border-radius: 16px;
+  padding: 14px;
+}
+
+.stat .label { color: var(--muted); font-size: 12px; }
+.stat .value { font-size: 24px; font-weight: bold; margin-top: 6px; }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+  overflow: hidden;
+  border-radius: 14px;
+}
+
+th, td {
+  padding: 10px;
+  border-bottom: 1px solid #243041;
+  text-align: left;
+  vertical-align: top;
+  font-size: 14px;
+}
+
+th {
+  background: #0b1220;
+  color: #cbd5e1;
+  position: sticky;
+  top: 0;
+}
+
+tr:nth-child(even) td {
+  background: rgba(15, 23, 42, 0.5);
+}
+
+.tag {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.tag-work { background: rgba(34,197,94,0.18); color: #86efac; }
+.tag-commute { background: rgba(56,189,248,0.18); color: #7dd3fc; }
+.tag-no { background: rgba(239,68,68,0.18); color: #fca5a5; }
+
+.muted { color: var(--muted); }
+.small { font-size: 12px; }
+.note {
+  border-left: 4px solid var(--warn);
+  padding: 10px 12px;
+  background: rgba(245, 158, 11, 0.08);
+  border-radius: 10px;
+  color: #fde68a;
+}
+
+.report {
+  white-space: pre-wrap;
+  background: #020617;
+  border: 1px solid #223046;
+  border-radius: 16px;
+  padding: 16px;
+  margin-top: 12px;
+  color: #e2e8f0;
+  line-height: 1.55;
+}
+
+.footer-space { height: 24px; }
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <h1>Raport KM zilnic Wolt + evidență pentru Kørselsfradrag</h1>
+      <p>
+        Pagina separă <strong>km făcuți pentru activitatea Wolt</strong> de <strong>naveta casă–punct de lucru</strong>,
+        astfel încât să ai o evidență clară pentru uz propriu și pentru eventuală verificare fiscală.
+      </p>
+      <div class="note small">
+        Atenție: acest instrument este pentru evidență și organizare. Pentru SKAT, naveta deductibilă și kørsel erhvervsmæssig nu sunt același lucru.
+        Verifică mereu situația ta fiscală exactă înainte de depunere.
+      </div>
+    </div><div class="grid grid-2" style="margin-top:16px;">
+  <div class="card">
+    <h2>Setări generale</h2>
+    <div class="row">
+      <div class="col-6">
+        <label>Nume</label>
+        <input id="driverName" placeholder="Ex: Sergiu Bulboacă" />
+      </div>
+      <div class="col-6">
+        <label>CPR / referință internă</label>
+        <input id="driverRef" placeholder="Opțional" />
+      </div>
+      <div class="col-6">
+        <label>Adresă de acasă</label>
+        <input id="homeAddress" placeholder="Ex: Varde / Copenhaga" />
+      </div>
+      <div class="col-6">
+        <label>Punct de pornire Wolt / zonă uzuală</label>
+        <input id="workBase" placeholder="Ex: Wolt zone center" />
+      </div>
+      <div class="col-4">
+        <label>Km casă → bază Wolt (dus)</label>
+        <input id="commuteOneWayKm" type="number" min="0" step="0.1" value="0" />
+      </div>
+      <div class="col-4">
+        <label>Prag zilnic minim (km) pentru navetă</label>
+        <input id="dailyThresholdKm" type="number" min="0" step="1" value="24" />
+      </div>
+      <div class="col-4">
+        <label>An fiscal</label>
+        <input id="taxYear" type="number" min="2020" max="2100" value="2026" />
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Adaugă o zi de lucru</h2>
+    <div class="row">
+      <div class="col-4">
+        <label>Data</label>
+        <input id="dayDate" type="date" />
+      </div>
+      <div class="col-4">
+        <label>Ore lucrate</label>
+        <input id="hoursWorked" type="number" min="0" step="0.1" value="0" />
+      </div>
+      <div class="col-4">
+        <label>Număr livrări</label>
+        <input id="deliveriesCount" type="number" min="0" step="1" value="0" />
+      </div>
+
+      <div class="col-4">
+        <label>Km în timpul livrărilor</label>
+        <input id="deliveryKm" type="number" min="0" step="0.1" value="0" />
+      </div>
+      <div class="col-4">
+        <label>Navetă efectuată?</label>
+        <select id="didCommute">
+          <option value="yes">Da</option>
+          <option value="no">Nu</option>
+        </select>
+      </div>
+      <div class="col-4">
+        <label>Zi eligibilă pentru fradrag?</label>
+        <select id="fradragEligible">
+          <option value="yes">Da</option>
+          <option value="no">Nu</option>
+        </select>
+      </div>
+
+      <div class="col-6">
+        <label>Punct start</label>
+        <input id="startPoint" placeholder="Ex: Acasă / Wolt zone" />
+      </div>
+      <div class="col-6">
+        <label>Punct final</label>
+        <input id="endPoint" placeholder="Ex: Acasă / ultima zonă" />
+      </div>
+
+      <div class="col-12">
+        <label>Scop / observații</label>
+        <textarea id="notes" placeholder="Ex: Livrări Wolt în centru, ploaie, trafic, pornire din baza X"></textarea>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="primary" onclick="addEntry()">Adaugă ziua</button>
+      <button class="ghost" onclick="fillToday()">Completează cu azi</button>
+      <button class="warning" onclick="saveData()">Salvează local</button>
+      <button class="danger" onclick="resetAll()">Șterge tot</button>
+    </div>
+  </div>
+</div>
+
+<div class="card" style="margin-top:16px;">
+  <h2>Rezumat automat</h2>
+  <div class="stat-grid">
+    <div class="stat">
+      <div class="label">Zile înregistrate</div>
+      <div class="value" id="statDays">0</div>
+    </div>
+    <div class="stat">
+      <div class="label">KM total Wolt</div>
+      <div class="value" id="statTotalKm">0</div>
+    </div>
+    <div class="stat">
+      <div class="label">KM livrări</div>
+      <div class="value" id="statDeliveryKm">0</div>
+    </div>
+    <div class="stat">
+      <div class="label">KM navetă total</div>
+      <div class="value" id="statCommuteKm">0</div>
+    </div>
+    <div class="stat">
+      <div class="label">KM navetă potențial eligibili</div>
+      <div class="value" id="statEligibleKm">0</div>
+    </div>
+    <div class="stat">
+      <div class="label">Ore totale lucrate</div>
+      <div class="value" id="statHours">0</div>
+    </div>
+  </div>
+</div>
+
+<div class="card" style="margin-top:16px; overflow:auto;">
+  <h2>Jurnal zilnic</h2>
+  <table id="entriesTable">
+    <thead>
+      <tr>
+        <th>Data</th>
+        <th>Ore</th>
+        <th>Livrări</th>
+        <th>Km livrări</th>
+        <th>Km navetă</th>
+        <th>Km total</th>
+        <th>Tip</th>
+        <th>Start / Final</th>
+        <th>Observații</th>
+        <th>Acțiune</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
+
+<div class="grid grid-2" style="margin-top:16px;">
+  <div class="card">
+    <h2>Raport intern – activitate Wolt</h2>
+    <p class="small">Acest raport include toți km înregistrați: livrări + navetă.</p>
+    <div class="actions">
+      <button class="secondary" onclick="generateReports()">Generează rapoarte</button>
+      <button class="ghost" onclick="downloadCSV()">Descarcă CSV</button>
+      <button class="ghost" onclick="window.print()">Printează / PDF</button>
+    </div>
+    <div id="workReport" class="report">Apasă „Generează rapoarte”.</div>
+  </div>
+
+  <div class="card">
+    <h2>Raport separat – documentare pentru fradrag / control</h2>
+    <p class="small">Acest raport evidențiază strict naveta și zilele marcate eligibile.</p>
+    <div id="fradragReport" class="report">Apasă „Generează rapoarte”.</div>
+  </div>
+</div>
+
+<div class="footer-space"></div>
+
+  </div>  <script>
+    let entries = [];
+
+    function round1(n) {
+      return (Math.round((Number(n) + Number.EPSILON) * 10) / 10).toFixed(1);
+    }
+
+    function escapeHtml(str) {
+      return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function fillToday() {
+      const today = new Date().toISOString().slice(0, 10);
+      document.getElementById('dayDate').value = today;
+    }
+
+    function getSettings() {
+      const commuteOneWay = Number(document.getElementById('commuteOneWayKm').value || 0);
+      const dailyThreshold = Number(document.getElementById('dailyThresholdKm').value || 24);
+      return {
+        driverName: document.getElementById('driverName').value.trim(),
+        driverRef: document.getElementById('driverRef').value.trim(),
+        homeAddress: document.getElementById('homeAddress').value.trim(),
+        workBase: document.getElementById('workBase').value.trim(),
+        commuteOneWayKm: commuteOneWay,
+        commuteRoundTripKm: commuteOneWay * 2,
+        dailyThresholdKm: dailyThreshold,
+        taxYear: document.getElementById('taxYear').value.trim()
+      };
+    }
+
+    function addEntry() {
+      const settings = getSettings();
+      const date = document.getElementById('dayDate').value;
+      if (!date) {
+        alert('Alege data.');
+        return;
+      }
+
+      const didCommute = document.getElementById('didCommute').value === 'yes';
+      const eligible = document.getElementById('fradragEligible').value === 'yes';
+      const commuteKm = didCommute ? settings.commuteRoundTripKm : 0;
+      const deliveryKm = Number(document.getElementById('deliveryKm').value || 0);
+      const totalKm = commuteKm + deliveryKm;
+
+      const entry = {
+        id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random()),
+        date,
+        hoursWorked: Number(document.getElementById('hoursWorked').value || 0),
+        deliveriesCount: Number(document.getElementById('deliveriesCount').value || 0),
+        deliveryKm,
+        didCommute,
+        eligible,
+        commuteKm,
+        eligibleCommuteKm: eligible && commuteKm > settings.dailyThresholdKm ? commuteKm - settings.dailyThresholdKm : 0,
+        totalKm,
+        startPoint: document.getElementById('startPoint').value.trim(),
+        endPoint: document.getElementById('endPoint').value.trim(),
+        notes: document.getElementById('notes').value.trim()
+      };
+
+      entries.push(entry);
+      entries.sort((a, b) => a.date.localeCompare(b.date));
+      render();
+      saveData();
+      clearDayForm();
+    }
+
+    function clearDayForm() {
+      document.getElementById('hoursWorked').value = 0;
+      document.getElementById('deliveriesCount').value = 0;
+      document.getElementById('deliveryKm').value = 0;
+      document.getElementById('didCommute').value = 'yes';
+      document.getElementById('fradragEligible').value = 'yes';
+      document.getElementById('startPoint').value = '';
+      document.getElementById('endPoint').value = '';
+      document.getElementById('notes').value = '';
+    }
+
+    function removeEntry(id) {
+      entries = entries.filter(e => e.id !== id);
+      render();
+      saveData();
+    }
+
+    function render() {
+      const tbody = document.querySelector('#entriesTable tbody');
+      tbody.innerHTML = entries.map(e => {
+        const typeLabel = e.eligible
+          ? '<span class="tag tag-commute">Navetă eligibilă</span>'
+          : e.didCommute
+            ? '<span class="tag tag-work">Wolt + navetă</span>'
+            : '<span class="tag tag-no">Doar activitate</span>';
+
+        return `
+          <tr>
+            <td>${escapeHtml(e.date)}</td>
+            <td>${round1(e.hoursWorked)}</td>
+            <td>${escapeHtml(e.deliveriesCount)}</td>
+            <td>${round1(e.deliveryKm)}</td>
+            <td>${round1(e.commuteKm)}</td>
+            <td><strong>${round1(e.totalKm)}</strong></td>
+            <td>${typeLabel}</td>
+            <td>${escapeHtml(e.startPoint)}<br><span class="muted">${escapeHtml(e.endPoint)}</span></td>
+            <td>${escapeHtml(e.notes)}</td>
+            <td><button class="danger" onclick="removeEntry('${e.id}')">Șterge</button></td>
+          </tr>
+        `;
+      }).join('');
+
+      const totalDays = entries.length;
+      const totalKm = entries.reduce((s, e) => s + e.totalKm, 0);
+      const totalDeliveryKm = entries.reduce((s, e) => s + e.deliveryKm, 0);
+      const totalCommuteKm = entries.reduce((s, e) => s + e.commuteKm, 0);
+      const totalEligibleKm = entries.reduce((s, e) => s + e.eligibleCommuteKm, 0);
+      const totalHours = entries.reduce((s, e) => s + e.hoursWorked, 0);
+
+      document.getElementById('statDays').textContent = totalDays;
+      document.getElementById('statTotalKm').textContent = round1(totalKm);
+      document.getElementById('statDeliveryKm').textContent = round1(totalDeliveryKm);
+      document.getElementById('statCommuteKm').textContent = round1(totalCommuteKm);
+      document.getElementById('statEligibleKm').textContent = round1(totalEligibleKm);
+      document.getElementById('statHours').textContent = round1(totalHours);
+
+      generateReports();
+    }
+
+    function generateReports() {
+      const s = getSettings();
+      const totalKm = entries.reduce((sum, e) => sum + e.totalKm, 0);
+      const totalDeliveryKm = entries.reduce((sum, e) => sum + e.deliveryKm, 0);
+      const totalCommuteKm = entries.reduce((sum, e) => sum + e.commuteKm, 0);
+      const totalEligibleKm = entries.reduce((sum, e) => sum + e.eligibleCommuteKm, 0);
+      const totalHours = entries.reduce((sum, e) => sum + e.hoursWorked, 0);
+      const totalDeliveries = entries.reduce((sum, e) => sum + e.deliveriesCount, 0);
+      const eligibleDays = entries.filter(e => e.eligible && e.commuteKm > s.dailyThresholdKm).length;
+
+      const workReport = [
+        `RAPORT INTERN – ACTIVITATE WOLT`,
+        `An fiscal: ${s.taxYear || '-'}`,
+        `Nume: ${s.driverName || '-'}`,
+        `Referință: ${s.driverRef || '-'}`,
+        `Adresă acasă: ${s.homeAddress || '-'}`,
+        `Bază / zonă lucru: ${s.workBase || '-'}`,
+        ``,
+        `Total zile înregistrate: ${entries.length}`,
+        `Total ore lucrate: ${round1(totalHours)}`,
+        `Total livrări: ${totalDeliveries}`,
+        `KM livrări: ${round1(totalDeliveryKm)}`,
+        `KM navetă: ${round1(totalCommuteKm)}`,
+        `KM total activitate: ${round1(totalKm)}`,
+        ``,
+        `Observație: raportul include atât deplasările din timpul activității Wolt, cât și naveta declarată între casă și baza de lucru.`
+      ].join('\n');
+
+      const fradragLines = entries
+        .filter(e => e.eligible)
+        .map((e, index) => {
+          return `${index + 1}. ${e.date} | Navetă totală: ${round1(e.commuteKm)} km | KM potențial eligibili peste prag: ${round1(e.eligibleCommuteKm)} | Start: ${e.startPoint || '-'} | Final: ${e.endPoint || '-'} | Notă: ${e.notes || '-'}`;
+        });
+
+      const fradragReport = [
+        `RAPORT SEPARAT – NAVETĂ / DOCUMENTARE FISCALĂ`,
+        `An fiscal: ${s.taxYear || '-'}`,
+        `Nume: ${s.driverName || '-'}`,
+        `Adresă acasă: ${s.homeAddress || '-'}`,
+        `Loc uzual de pornire spre lucru: ${s.workBase || '-'}`,
+        `Km casă → bază (dus): ${round1(s.commuteOneWayKm)}`,
+        `Km navetă dus-întors: ${round1(s.commuteRoundTripKm)}`,
+        `Prag zilnic setat: ${round1(s.dailyThresholdKm)} km`,
+        ``,
+        `Zile marcate eligibile: ${eligibleDays}`,
+        `Total km navetă declarați: ${round1(totalCommuteKm)}`,
+        `Total km potențial eligibili peste prag: ${round1(totalEligibleKm)}`,
+        ``,
+        `Detaliere pe zile:`,
+        fradragLines.length ? fradragLines.join('\n') : 'Nu există zile marcate eligibile.',
+        ``,
+        `Notă: acesta este un jurnal de susținere și nu înlocuiește cerințele sau verificările SKAT.`
+      ].join('\n');
+
+      document.getElementById('workReport').textContent = workReport;
+      document.getElementById('fradragReport').textContent = fradragReport;
+    }
+
+    function downloadCSV() {
+      if (!entries.length) {
+        alert('Nu există date de exportat.');
+        return;
+      }
+
+      const headers = [
+        'date','hoursWorked','deliveriesCount','deliveryKm','commuteKm','eligibleCommuteKm','totalKm','didCommute','eligible','startPoint','endPoint','notes'
+      ];
+
+      const rows = entries.map(e => headers.map(h => {
+        const value = e[h];
+        return `"${String(value ?? '').replace(/"/g, '""')}"`;
+      }).join(','));
+
+      const csv = [headers.join(','), ...rows].join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `wolt_km_report_${new Date().toISOString().slice(0,10)}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function saveData() {
+      const payload = {
+        settings: {
+          driverName: document.getElementById('driverName').value,
+          driverRef: document.getElementById('driverRef').value,
+          homeAddress: document.getElementById('homeAddress').value,
+          workBase: document.getElementById('workBase').value,
+          commuteOneWayKm: document.getElementById('commuteOneWayKm').value,
+          dailyThresholdKm: document.getElementById('dailyThresholdKm').value,
+          taxYear: document.getElementById('taxYear').value
+        },
+        entries
+      };
+      localStorage.setItem('woltKmReportData', JSON.stringify(payload));
+    }
+
+    function loadData() {
+      const raw = localStorage.getItem('woltKmReportData');
+      if (!raw) return;
+      try {
+        const data = JSON.parse(raw);
+        const s = data.settings || {};
+        document.getElementById('driverName').value = s.driverName || '';
+        document.getElementById('driverRef').value = s.driverRef || '';
+        document.getElementById('homeAddress').value = s.homeAddress || '';
+        document.getElementById('workBase').value = s.workBase || '';
+        document.getElementById('commuteOneWayKm').value = s.commuteOneWayKm || 0;
+        document.getElementById('dailyThresholdKm').value = s.dailyThresholdKm || 24;
+        document.getElementById('taxYear').value = s.taxYear || new Date().getFullYear();
+        entries = Array.isArray(data.entries) ? data.entries : [];
+        render();
+      } catch (e) {
+        console.error('Eroare la încărcarea datelor:', e);
+      }
+    }
+
+    function resetAll() {
+      if (!confirm('Sigur vrei să ștergi toate datele?')) return;
+      entries = [];
+      localStorage.removeItem('woltKmReportData');
+      render();
+    }
+
+    fillToday();
+    loadData();
+    render();
+  </script></body>
+</html>
