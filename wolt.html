@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="ro">
+<!DOCTYPE html>
+<html lang="ro">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -16,270 +17,399 @@
       --input: #0b1220;
       --warn: #f59e0b;
       --json: #8b5cf6;
-    }* { box-sizing: border-box; }
-body {
-  margin: 0;
-  font-family: Arial, Helvetica, sans-serif;
-  background: linear-gradient(180deg, #020617 0%, #0f172a 100%);
-  color: var(--text);
-  padding: 18px;
-}
+    }
 
-.container { max-width: 1300px; margin: 0 auto; }
-h1, h2, h3 { margin: 0 0 10px; }
-p { color: var(--muted); line-height: 1.5; }
+    * { box-sizing: border-box; }
 
-.grid { display: grid; gap: 16px; }
-.grid-2 { grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: linear-gradient(180deg, #020617 0%, #0f172a 100%);
+      color: var(--text);
+      padding: 18px;
+    }
 
-.card {
-  background: rgba(17, 24, 39, 0.92);
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  padding: 18px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
-}
+    .container {
+      max-width: 1300px;
+      margin: 0 auto;
+    }
 
-label {
-  display: block;
-  font-size: 14px;
-  margin-bottom: 6px;
-  color: #cbd5e1;
-}
+    h1, h2, h3 { margin: 0 0 10px; }
+    p { color: var(--muted); line-height: 1.5; }
 
-input, select, textarea, button {
-  width: 100%;
-  border-radius: 12px;
-  border: 1px solid #334155;
-  background: var(--input);
-  color: var(--text);
-  padding: 12px 14px;
-  font-size: 14px;
-}
+    .grid {
+      display: grid;
+      gap: 16px;
+    }
 
-textarea { min-height: 90px; resize: vertical; }
+    .grid-2 {
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    }
 
-.row {
-  display: grid;
-  grid-template-columns: repeat(12, 1fr);
-  gap: 12px;
-  margin-bottom: 12px;
-}
+    .card {
+      background: rgba(17, 24, 39, 0.92);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    }
 
-.col-4 { grid-column: span 4; }
-.col-6 { grid-column: span 6; }
-.col-12 { grid-column: span 12; }
+    label {
+      display: block;
+      font-size: 14px;
+      margin-bottom: 6px;
+      color: #cbd5e1;
+    }
 
-@media (max-width: 900px) {
-  .row { grid-template-columns: 1fr; }
-  .col-4, .col-6, .col-12 { grid-column: span 1; }
-}
+    input, select, textarea, button {
+      width: 100%;
+      border-radius: 12px;
+      border: 1px solid #334155;
+      background: var(--input);
+      color: var(--text);
+      padding: 12px 14px;
+      font-size: 14px;
+    }
 
-.actions {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-top: 8px;
-}
+    textarea {
+      min-height: 90px;
+      resize: vertical;
+    }
 
-.actions button {
-  width: auto;
-  min-width: 180px;
-  cursor: pointer;
-}
+    .row {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 12px;
+      margin-bottom: 12px;
+    }
 
-.primary { background: var(--accent); color: #052e16; border: none; font-weight: bold; }
-.secondary { background: var(--accent-2); color: #082f49; border: none; font-weight: bold; }
-.ghost { background: transparent; border: 1px solid #475569; }
-.danger { background: var(--danger); color: white; border: none; }
-.warning { background: var(--warn); color: #111827; border: none; font-weight: bold; }
+    .col-4 { grid-column: span 4; }
+    .col-6 { grid-column: span 6; }
+    .col-12 { grid-column: span 12; }
 
-.stat-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 12px;
-  margin-top: 12px;
-}
+    @media (max-width: 900px) {
+      .row { grid-template-columns: 1fr; }
+      .col-4, .col-6, .col-12 { grid-column: span 1; }
+    }
 
-.stat {
-  background: rgba(2, 6, 23, 0.75);
-  border: 1px solid #243041;
-  border-radius: 16px;
-  padding: 14px;
-}
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
 
-.stat .label { color: var(--muted); font-size: 12px; }
-.stat .value { font-size: 24px; font-weight: bold; margin-top: 6px; }
+    .actions button {
+      width: auto;
+      min-width: 180px;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
 
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 12px;
-  overflow: hidden;
-  border-radius: 14px;
-}
+    .primary { background: var(--accent); color: #052e16; border: none; font-weight: bold; }
+    .secondary { background: var(--accent-2); color: #082f49; border: none; font-weight: bold; }
+    .ghost { background: transparent; border: 1px solid #475569; }
+    .danger { background: var(--danger); color: white; border: none; }
+    .warning { background: var(--warn); color: #111827; border: none; font-weight: bold; }
 
-th, td {
-  padding: 10px;
-  border-bottom: 1px solid #243041;
-  text-align: left;
-  vertical-align: top;
-  font-size: 14px;
-}
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
 
-th {
-  background: #0b1220;
-  color: #cbd5e1;
-  position: sticky;
-  top: 0;
-}
+    .stat {
+      background: rgba(2, 6, 23, 0.75);
+      border: 1px solid #243041;
+      border-radius: 16px;
+      padding: 14px;
+    }
 
-tr:nth-child(even) td { background: rgba(15, 23, 42, 0.5); }
+    .stat .label { color: var(--muted); font-size: 12px; }
+    .stat .value { font-size: 24px; font-weight: bold; margin-top: 6px; }
 
-.tag {
-  display: inline-block;
-  padding: 4px 8px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: bold;
-  white-space: nowrap;
-}
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      overflow: hidden;
+      border-radius: 14px;
+    }
 
-.tag-work { background: rgba(34,197,94,0.18); color: #86efac; }
-.tag-commute { background: rgba(56,189,248,0.18); color: #7dd3fc; }
-.tag-no { background: rgba(239,68,68,0.18); color: #fca5a5; }
-.tag-json { background: rgba(139,92,246,0.20); color: #d8b4fe; }
+    th, td {
+      padding: 10px;
+      border-bottom: 1px solid #243041;
+      text-align: left;
+      vertical-align: top;
+      font-size: 14px;
+    }
 
-.muted { color: var(--muted); }
-.small { font-size: 12px; }
-.note {
-  border-left: 4px solid var(--warn);
-  padding: 10px 12px;
-  background: rgba(245, 158, 11, 0.08);
-  border-radius: 10px;
-  color: #fde68a;
-}
+    th {
+      background: #0b1220;
+      color: #cbd5e1;
+      position: sticky;
+      top: 0;
+    }
 
-.report {
-  white-space: pre-wrap;
-  background: #020617;
-  border: 1px solid #223046;
-  border-radius: 16px;
-  padding: 16px;
-  margin-top: 12px;
-  color: #e2e8f0;
-  line-height: 1.55;
-}
+    tr:nth-child(even) td {
+      background: rgba(15, 23, 42, 0.5);
+    }
 
+    .tag {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: bold;
+      white-space: nowrap;
+    }
+
+    .tag-work { background: rgba(34,197,94,0.18); color: #86efac; }
+    .tag-commute { background: rgba(56,189,248,0.18); color: #7dd3fc; }
+    .tag-no { background: rgba(239,68,68,0.18); color: #fca5a5; }
+    .tag-json { background: rgba(139,92,246,0.20); color: #d8b4fe; }
+
+    .muted { color: var(--muted); }
+    .small { font-size: 12px; }
+
+    .note {
+      border-left: 4px solid var(--warn);
+      padding: 10px 12px;
+      background: rgba(245, 158, 11, 0.08);
+      border-radius: 10px;
+      color: #fde68a;
+    }
+
+    .report {
+      white-space: pre-wrap;
+      background: #020617;
+      border: 1px solid #223046;
+      border-radius: 16px;
+      padding: 16px;
+      margin-top: 12px;
+      color: #e2e8f0;
+      line-height: 1.55;
+    }
+
+    .footer-space { height: 24px; }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="card">
       <h1>Raport KM zilnic Wolt + evidență pentru Kørselsfradrag</h1>
-      <p>Versiune cu import CSV și import Google Timeline JSON pentru toate zilele detectate din fișier.</p>
-      <div class="note small">Importul JSON grupează automat după zi și calculează km din timelinePath. Intrările JSON sunt marcate separat în tabel.</div>
-    </div><div class="grid grid-2" style="margin-top:16px;">
-  <div class="card">
-    <h2>Setări generale</h2>
-    <div class="row">
-      <div class="col-6"><label>Nume</label><input id="driverName" placeholder="Ex: Sergiu Bulboacă" /></div>
-      <div class="col-6"><label>CPR / referință internă</label><input id="driverRef" placeholder="Opțional" /></div>
-      <div class="col-6"><label>Adresă de acasă</label><input id="homeAddress" placeholder="Ex: Varde / Copenhaga" /></div>
-      <div class="col-6"><label>Punct de pornire Wolt / zonă uzuală</label><input id="workBase" placeholder="Ex: Wolt zone center" /></div>
-      <div class="col-4"><label>Km casă → bază Wolt (dus)</label><input id="commuteOneWayKm" type="number" min="0" step="0.1" value="0" /></div>
-      <div class="col-4"><label>Prag zilnic minim (km) pentru navetă</label><input id="dailyThresholdKm" type="number" min="0" step="1" value="24" /></div>
-      <div class="col-4"><label>An fiscal</label><input id="taxYear" type="number" min="2020" max="2100" value="2026" /></div>
+      <p>
+        Pagina separă <strong>km făcuți pentru activitatea Wolt</strong> de
+        <strong>naveta casă–punct de lucru</strong>, astfel încât să ai o evidență
+        clară pentru uz propriu și pentru eventuală verificare fiscală.
+      </p>
+      <div class="note small">
+        Pentru importul Google Timeline JSON, parserul caută <strong>semanticSegments</strong>
+        și calculează km din <strong>timelinePath</strong>.
+      </div>
     </div>
+
+    <div class="grid grid-2" style="margin-top:16px;">
+      <div class="card">
+        <h2>Setări generale</h2>
+        <div class="row">
+          <div class="col-6">
+            <label>Nume</label>
+            <input id="driverName" placeholder="Ex: Sergiu Bulboacă" />
+          </div>
+          <div class="col-6">
+            <label>CPR / referință internă</label>
+            <input id="driverRef" placeholder="Opțional" />
+          </div>
+          <div class="col-6">
+            <label>Adresă de acasă</label>
+            <input id="homeAddress" placeholder="Ex: Varde / Copenhaga" />
+          </div>
+          <div class="col-6">
+            <label>Punct de pornire Wolt / zonă uzuală</label>
+            <input id="workBase" placeholder="Ex: Wolt zone center" />
+          </div>
+          <div class="col-4">
+            <label>Km casă → bază Wolt (dus)</label>
+            <input id="commuteOneWayKm" type="number" min="0" step="0.1" value="0" />
+          </div>
+          <div class="col-4">
+            <label>Prag zilnic minim (km) pentru navetă</label>
+            <input id="dailyThresholdKm" type="number" min="0" step="1" value="24" />
+          </div>
+          <div class="col-4">
+            <label>An fiscal</label>
+            <input id="taxYear" type="number" min="2020" max="2100" value="2026" />
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Adaugă o zi de lucru</h2>
+        <div class="row">
+          <div class="col-4">
+            <label>Data</label>
+            <input id="dayDate" type="date" />
+          </div>
+          <div class="col-4">
+            <label>Ore lucrate</label>
+            <input id="hoursWorked" type="number" min="0" step="0.1" value="0" />
+          </div>
+          <div class="col-4">
+            <label>Număr livrări</label>
+            <input id="deliveriesCount" type="number" min="0" step="1" value="0" />
+          </div>
+
+          <div class="col-4">
+            <label>Km în timpul livrărilor</label>
+            <input id="deliveryKm" type="number" min="0" step="0.1" value="0" />
+          </div>
+          <div class="col-4">
+            <label>Navetă efectuată?</label>
+            <select id="didCommute">
+              <option value="yes">Da</option>
+              <option value="no">Nu</option>
+            </select>
+          </div>
+          <div class="col-4">
+            <label>Zi eligibilă pentru fradrag?</label>
+            <select id="fradragEligible">
+              <option value="yes">Da</option>
+              <option value="no">Nu</option>
+            </select>
+          </div>
+
+          <div class="col-6">
+            <label>Punct start</label>
+            <input id="startPoint" placeholder="Ex: Acasă / Wolt zone" />
+          </div>
+          <div class="col-6">
+            <label>Punct final</label>
+            <input id="endPoint" placeholder="Ex: Acasă / ultima zonă" />
+          </div>
+
+          <div class="col-12">
+            <label>Scop / observații</label>
+            <textarea id="notes" placeholder="Ex: Livrări Wolt în centru, ploaie, trafic, pornire din baza X"></textarea>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="primary" type="button" onclick="addEntry()">Adaugă ziua</button>
+          <button class="ghost" type="button" onclick="fillToday()">Completează cu azi</button>
+          <button class="warning" type="button" onclick="saveData()">Salvează local</button>
+          <button class="danger" type="button" onclick="resetAll()">Șterge tot</button>
+        </div>
+
+        <div style="margin-top:14px; border-top:1px solid #243041; padding-top:14px;">
+          <label>Încarcă CSV</label>
+          <input id="csvFile" type="file" accept=".csv,text/csv" onchange="importCSV(event)" />
+          <p class="small muted" style="margin-top:8px;">
+            Coloane acceptate: date, hoursWorked, deliveriesCount, deliveryKm, didCommute, eligible, startPoint, endPoint, notes.
+            Valorile pentru didCommute și eligible pot fi: yes/no, da/nu, true/false, 1/0.
+          </p>
+        </div>
+
+        <div style="margin-top:14px; border-top:1px solid #243041; padding-top:14px;">
+          <label>Încarcă Google Timeline JSON</label>
+          <input id="jsonFile" type="file" accept=".json,application/json" onchange="importTimelineJSON(event)" />
+          <p class="small muted" style="margin-top:8px;">
+            Importă toate zilele detectate din semanticSegments. Km se calculează din punctele GPS.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:16px;">
+      <h2>Rezumat automat</h2>
+      <div class="stat-grid">
+        <div class="stat">
+          <div class="label">Zile înregistrate</div>
+          <div class="value" id="statDays">0</div>
+        </div>
+        <div class="stat">
+          <div class="label">KM total Wolt</div>
+          <div class="value" id="statTotalKm">0</div>
+        </div>
+        <div class="stat">
+          <div class="label">KM livrări</div>
+          <div class="value" id="statDeliveryKm">0</div>
+        </div>
+        <div class="stat">
+          <div class="label">KM navetă total</div>
+          <div class="value" id="statCommuteKm">0</div>
+        </div>
+        <div class="stat">
+          <div class="label">KM navetă potențial eligibili</div>
+          <div class="value" id="statEligibleKm">0</div>
+        </div>
+        <div class="stat">
+          <div class="label">Ore totale lucrate</div>
+          <div class="value" id="statHours">0</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:16px; overflow:auto;">
+      <h2>Jurnal zilnic</h2>
+      <table id="entriesTable">
+        <thead>
+          <tr>
+            <th>Data</th>
+            <th>Ore</th>
+            <th>Livrări</th>
+            <th>Km livrări</th>
+            <th>Km navetă</th>
+            <th>Km total</th>
+            <th>Tip</th>
+            <th>Start / Final</th>
+            <th>Observații</th>
+            <th>Acțiune</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div class="grid grid-2" style="margin-top:16px;">
+      <div class="card">
+        <h2>Raport intern – activitate Wolt</h2>
+        <p class="small">Acest raport include toți km înregistrați: livrări + navetă.</p>
+        <div class="actions">
+          <button class="secondary" type="button" onclick="generateReports()">Generează rapoarte</button>
+          <button class="ghost" type="button" onclick="downloadCSV()">Descarcă CSV</button>
+          <button class="ghost" type="button" onclick="downloadSampleCSV()">Descarcă model CSV</button>
+          <button class="ghost" type="button" onclick="window.print()">Printează / PDF</button>
+        </div>
+        <div id="workReport" class="report">Apasă „Generează rapoarte”.</div>
+      </div>
+
+      <div class="card">
+        <h2>Raport separat – documentare pentru fradrag / control</h2>
+        <p class="small">Acest raport evidențiază strict naveta și zilele marcate eligibile.</p>
+        <div id="fradragReport" class="report">Apasă „Generează rapoarte”.</div>
+      </div>
+    </div>
+
+    <div class="footer-space"></div>
   </div>
 
-  <div class="card">
-    <h2>Adaugă o zi de lucru</h2>
-    <div class="row">
-      <div class="col-4"><label>Data</label><input id="dayDate" type="date" /></div>
-      <div class="col-4"><label>Ore lucrate</label><input id="hoursWorked" type="number" min="0" step="0.1" value="0" /></div>
-      <div class="col-4"><label>Număr livrări</label><input id="deliveriesCount" type="number" min="0" step="1" value="0" /></div>
-      <div class="col-4"><label>Km în timpul livrărilor</label><input id="deliveryKm" type="number" min="0" step="0.1" value="0" /></div>
-      <div class="col-4"><label>Navetă efectuată?</label><select id="didCommute"><option value="yes">Da</option><option value="no">Nu</option></select></div>
-      <div class="col-4"><label>Zi eligibilă pentru fradrag?</label><select id="fradragEligible"><option value="yes">Da</option><option value="no">Nu</option></select></div>
-      <div class="col-6"><label>Punct start</label><input id="startPoint" placeholder="Ex: Acasă / Wolt zone" /></div>
-      <div class="col-6"><label>Punct final</label><input id="endPoint" placeholder="Ex: Acasă / ultima zonă" /></div>
-      <div class="col-12"><label>Scop / observații</label><textarea id="notes" placeholder="Ex: Livrări Wolt în centru, ploaie, trafic, pornire din baza X"></textarea></div>
-    </div>
-
-    <div class="actions">
-      <button class="primary" onclick="addEntry()">Adaugă ziua</button>
-      <button class="ghost" onclick="fillToday()">Completează cu azi</button>
-      <button class="warning" onclick="saveData()">Salvează local</button>
-      <button class="danger" onclick="resetAll()">Șterge tot</button>
-    </div>
-
-    <div style="margin-top:14px; border-top:1px solid #243041; padding-top:14px;">
-      <label>Încarcă CSV</label>
-      <input id="csvFile" type="file" accept=".csv,text/csv" onchange="importCSV(event)" />
-      <p class="small muted" style="margin-top:8px;">Coloane acceptate: date, hoursWorked, deliveriesCount, deliveryKm, didCommute, eligible, startPoint, endPoint, notes.</p>
-    </div>
-
-    <div style="margin-top:14px; border-top:1px solid #243041; padding-top:14px;">
-      <label>Încarcă Google Timeline JSON</label>
-      <input id="jsonFile" type="file" accept=".json,application/json" onchange="importTimelineJSON(event)" />
-      <p class="small muted" style="margin-top:8px;">Importă toate zilele detectate din semanticSegments. Km se calculează din punctele GPS.</p>
-    </div>
-  </div>
-</div>
-
-<div class="card" style="margin-top:16px;">
-  <h2>Rezumat automat</h2>
-  <div class="stat-grid">
-    <div class="stat"><div class="label">Zile înregistrate</div><div class="value" id="statDays">0</div></div>
-    <div class="stat"><div class="label">KM total Wolt</div><div class="value" id="statTotalKm">0</div></div>
-    <div class="stat"><div class="label">KM livrări</div><div class="value" id="statDeliveryKm">0</div></div>
-    <div class="stat"><div class="label">KM navetă total</div><div class="value" id="statCommuteKm">0</div></div>
-    <div class="stat"><div class="label">KM navetă potențial eligibili</div><div class="value" id="statEligibleKm">0</div></div>
-    <div class="stat"><div class="label">Ore totale lucrate</div><div class="value" id="statHours">0</div></div>
-  </div>
-</div>
-
-<div class="card" style="margin-top:16px; overflow:auto;">
-  <h2>Jurnal zilnic</h2>
-  <table id="entriesTable">
-    <thead>
-      <tr>
-        <th>Data</th><th>Ore</th><th>Livrări</th><th>Km livrări</th><th>Km navetă</th><th>Km total</th><th>Tip</th><th>Start / Final</th><th>Observații</th><th>Acțiune</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-</div>
-
-<div class="grid grid-2" style="margin-top:16px;">
-  <div class="card">
-    <h2>Raport intern – activitate Wolt</h2>
-    <p class="small">Acest raport include toți km înregistrați: livrări + navetă.</p>
-    <div class="actions">
-      <button class="secondary" onclick="generateReports()">Generează rapoarte</button>
-      <button class="ghost" onclick="downloadCSV()">Descarcă CSV</button>
-      <button class="ghost" onclick="downloadSampleCSV()">Descarcă model CSV</button>
-      <button class="ghost" onclick="window.print()">Printează / PDF</button>
-    </div>
-    <div id="workReport" class="report">Apasă „Generează rapoarte”.</div>
-  </div>
-  <div class="card">
-    <h2>Raport separat – documentare pentru fradrag / control</h2>
-    <p class="small">Acest raport evidențiază strict naveta și zilele marcate eligibile.</p>
-    <div id="fradragReport" class="report">Apasă „Generează rapoarte”.</div>
-  </div>
-</div>
-
-  </div>  <script>
+  <script>
     let entries = [];
+    const STORAGE_KEY = 'woltKmReportData_v_final';
 
     function round1(n) {
       return (Math.round((Number(n) + Number.EPSILON) * 10) / 10).toFixed(1);
     }
 
     function escapeHtml(str) {
-      return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\"/g, '&quot;').replace(/'/g, '&#039;');
+      return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
     }
 
     function fillToday() {
@@ -287,8 +417,8 @@ tr:nth-child(even) td { background: rgba(15, 23, 42, 0.5); }
     }
 
     function getSettings() {
-      var commuteOneWay = Number(document.getElementById('commuteOneWayKm').value || 0);
-      var dailyThreshold = Number(document.getElementById('dailyThresholdKm').value || 24);
+      const commuteOneWay = Number(document.getElementById('commuteOneWayKm').value || 0);
+      const dailyThreshold = Number(document.getElementById('dailyThresholdKm').value || 24);
       return {
         driverName: document.getElementById('driverName').value.trim(),
         driverRef: document.getElementById('driverRef').value.trim(),
@@ -301,83 +431,123 @@ tr:nth-child(even) td { background: rgba(15, 23, 42, 0.5); }
       };
     }
 
-    function addEntry() {
-      var settings = getSettings();
-      var date = document.getElementById('dayDate').value;
-      if (!date) return alert('Alege data.');
-      var didCommute = document.getElementById('didCommute').value === 'yes';
-      var eligible = document.getElementById('fradragEligible').value === 'yes';
-      var commuteKm = didCommute ? settings.commuteRoundTripKm : 0;
-      var deliveryKm = Number(document.getElementById('deliveryKm').value || 0);
+    function clearDayForm() {
+      document.getElementById('hoursWorked').value = 0;
+      document.getElementById('deliveriesCount').value = 0;
+      document.getElementById('deliveryKm').value = 0;
+      document.getElementById('didCommute').value = 'yes';
+      document.getElementById('fradragEligible').value = 'yes';
+      document.getElementById('startPoint').value = '';
+      document.getElementById('endPoint').value = '';
+      document.getElementById('notes').value = '';
+    }
 
-      entries.push({
-        id: (crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random())),
+    function addEntry() {
+      const settings = getSettings();
+      const date = document.getElementById('dayDate').value;
+
+      if (!date) {
+        alert('Alege data.');
+        return;
+      }
+
+      const didCommute = document.getElementById('didCommute').value === 'yes';
+      const eligible = document.getElementById('fradragEligible').value === 'yes';
+      const commuteKm = didCommute ? settings.commuteRoundTripKm : 0;
+      const deliveryKm = Number(document.getElementById('deliveryKm').value || 0);
+      const totalKm = commuteKm + deliveryKm;
+
+      const entry = {
+        id: (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : String(Date.now() + Math.random()),
         source: 'manual',
-        date: date,
+        date,
         hoursWorked: Number(document.getElementById('hoursWorked').value || 0),
         deliveriesCount: Number(document.getElementById('deliveriesCount').value || 0),
-        deliveryKm: deliveryKm,
-        didCommute: didCommute,
-        eligible: eligible,
-        commuteKm: commuteKm,
-        eligibleCommuteKm: eligible && commuteKm > settings.dailyThresholdKm ? commuteKm - settings.dailyThresholdKm : 0,
-        totalKm: commuteKm + deliveryKm,
+        deliveryKm,
+        didCommute,
+        eligible,
+        commuteKm,
+        eligibleCommuteKm: eligible && commuteKm > settings.dailyThresholdKm
+          ? commuteKm - settings.dailyThresholdKm
+          : 0,
+        totalKm,
         startPoint: document.getElementById('startPoint').value.trim(),
         endPoint: document.getElementById('endPoint').value.trim(),
         notes: document.getElementById('notes').value.trim()
-      });
+      };
 
-      entries.sort(function(a, b) { return a.date.localeCompare(b.date); });
-      saveData();
+      entries.push(entry);
+      entries.sort((a, b) => a.date.localeCompare(b.date));
+      saveData(false);
       render();
+      clearDayForm();
     }
 
     function removeEntry(id) {
-      entries = entries.filter(function(e) { return e.id !== id; });
-      saveData();
+      entries = entries.filter(e => e.id !== id);
+      saveData(false);
       render();
     }
 
     function render() {
-      var tbody = document.querySelector('#entriesTable tbody');
-      tbody.innerHTML = entries.map(function(e) {
-        var typeLabel = e.eligible ? '<span class="tag tag-commute">Navetă eligibilă</span>' : (e.didCommute ? '<span class="tag tag-work">Wolt + navetă</span>' : '<span class="tag tag-no">Doar activitate</span>');
-        if (e.source === 'timeline-json') typeLabel = '<span class="tag tag-json">JSON Timeline</span>';
-        return '<tr>' +
-          '<td>' + escapeHtml(e.date) + '</td>' +
-          '<td>' + round1(e.hoursWorked) + '</td>' +
-          '<td>' + escapeHtml(e.deliveriesCount) + '</td>' +
-          '<td>' + round1(e.deliveryKm) + '</td>' +
-          '<td>' + round1(e.commuteKm) + '</td>' +
-          '<td><strong>' + round1(e.totalKm) + '</strong></td>' +
-          '<td>' + typeLabel + '</td>' +
-          '<td>' + escapeHtml(e.startPoint) + '<br><span class="muted">' + escapeHtml(e.endPoint) + '</span></td>' +
-          '<td>' + escapeHtml(e.notes) + '</td>' +
-          '<td><button class="danger" onclick="removeEntry(\'' + e.id + '\')">Șterge</button></td>' +
-          '</tr>';
+      const tbody = document.querySelector('#entriesTable tbody');
+
+      tbody.innerHTML = entries.map(e => {
+        let typeLabel = e.eligible
+          ? '<span class="tag tag-commute">Navetă eligibilă</span>'
+          : e.didCommute
+            ? '<span class="tag tag-work">Wolt + navetă</span>'
+            : '<span class="tag tag-no">Doar activitate</span>';
+
+        if (e.source === 'timeline-json') {
+          typeLabel = '<span class="tag tag-json">JSON Timeline</span>';
+        }
+
+        return `
+          <tr>
+            <td>${escapeHtml(e.date)}</td>
+            <td>${round1(e.hoursWorked)}</td>
+            <td>${escapeHtml(e.deliveriesCount)}</td>
+            <td>${round1(e.deliveryKm)}</td>
+            <td>${round1(e.commuteKm)}</td>
+            <td><strong>${round1(e.totalKm)}</strong></td>
+            <td>${typeLabel}</td>
+            <td>${escapeHtml(e.startPoint)}<br><span class="muted">${escapeHtml(e.endPoint)}</span></td>
+            <td>${escapeHtml(e.notes)}</td>
+            <td><button class="danger" type="button" onclick="removeEntry('${e.id}')">Șterge</button></td>
+          </tr>
+        `;
       }).join('');
 
-      document.getElementById('statDays').textContent = entries.length;
-      document.getElementById('statTotalKm').textContent = round1(entries.reduce(function(s, e) { return s + e.totalKm; }, 0));
-      document.getElementById('statDeliveryKm').textContent = round1(entries.reduce(function(s, e) { return s + e.deliveryKm; }, 0));
-      document.getElementById('statCommuteKm').textContent = round1(entries.reduce(function(s, e) { return s + e.commuteKm; }, 0));
-      document.getElementById('statEligibleKm').textContent = round1(entries.reduce(function(s, e) { return s + e.eligibleCommuteKm; }, 0));
-      document.getElementById('statHours').textContent = round1(entries.reduce(function(s, e) { return s + e.hoursWorked; }, 0));
+      const totalDays = entries.length;
+      const totalKm = entries.reduce((s, e) => s + Number(e.totalKm || 0), 0);
+      const totalDeliveryKm = entries.reduce((s, e) => s + Number(e.deliveryKm || 0), 0);
+      const totalCommuteKm = entries.reduce((s, e) => s + Number(e.commuteKm || 0), 0);
+      const totalEligibleKm = entries.reduce((s, e) => s + Number(e.eligibleCommuteKm || 0), 0);
+      const totalHours = entries.reduce((s, e) => s + Number(e.hoursWorked || 0), 0);
+
+      document.getElementById('statDays').textContent = totalDays;
+      document.getElementById('statTotalKm').textContent = round1(totalKm);
+      document.getElementById('statDeliveryKm').textContent = round1(totalDeliveryKm);
+      document.getElementById('statCommuteKm').textContent = round1(totalCommuteKm);
+      document.getElementById('statEligibleKm').textContent = round1(totalEligibleKm);
+      document.getElementById('statHours').textContent = round1(totalHours);
+
       generateReports();
     }
 
     function generateReports() {
-      var s = getSettings();
-      var totalKm = entries.reduce(function(sum, e) { return sum + e.totalKm; }, 0);
-      var totalDeliveryKm = entries.reduce(function(sum, e) { return sum + e.deliveryKm; }, 0);
-      var totalCommuteKm = entries.reduce(function(sum, e) { return sum + e.commuteKm; }, 0);
-      var totalEligibleKm = entries.reduce(function(sum, e) { return sum + e.eligibleCommuteKm; }, 0);
-      var totalHours = entries.reduce(function(sum, e) { return sum + e.hoursWorked; }, 0);
-      var totalDeliveries = entries.reduce(function(sum, e) { return sum + e.deliveriesCount; }, 0);
-      var eligibleDays = entries.filter(function(e) { return e.eligible && e.commuteKm > s.dailyThresholdKm; }).length;
-      var jsonDays = entries.filter(function(e) { return e.source === 'timeline-json'; }).length;
+      const s = getSettings();
+      const totalKm = entries.reduce((sum, e) => sum + Number(e.totalKm || 0), 0);
+      const totalDeliveryKm = entries.reduce((sum, e) => sum + Number(e.deliveryKm || 0), 0);
+      const totalCommuteKm = entries.reduce((sum, e) => sum + Number(e.commuteKm || 0), 0);
+      const totalEligibleKm = entries.reduce((sum, e) => sum + Number(e.eligibleCommuteKm || 0), 0);
+      const totalHours = entries.reduce((sum, e) => sum + Number(e.hoursWorked || 0), 0);
+      const totalDeliveries = entries.reduce((sum, e) => sum + Number(e.deliveriesCount || 0), 0);
+      const eligibleDays = entries.filter(e => e.eligible && Number(e.commuteKm || 0) > s.dailyThresholdKm).length;
+      const jsonDays = entries.filter(e => e.source === 'timeline-json').length;
 
-      document.getElementById('workReport').textContent = [
+      const workReport = [
         'RAPORT INTERN – ACTIVITATE WOLT',
         'An fiscal: ' + (s.taxYear || '-'),
         'Nume: ' + (s.driverName || '-'),
@@ -391,14 +561,25 @@ tr:nth-child(even) td { background: rgba(15, 23, 42, 0.5); }
         'Total livrări: ' + totalDeliveries,
         'KM livrări: ' + round1(totalDeliveryKm),
         'KM navetă: ' + round1(totalCommuteKm),
-        'KM total activitate: ' + round1(totalKm)
+        'KM total activitate: ' + round1(totalKm),
+        '',
+        'Observație: raportul include atât deplasările din timpul activității Wolt, cât și naveta declarată între casă și baza de lucru.'
       ].join('\n');
 
-      var fradragLines = entries.filter(function(e) { return e.eligible; }).map(function(e, index) {
-        return (index + 1) + '. ' + e.date + ' | Navetă totală: ' + round1(e.commuteKm) + ' km | KM potențial eligibili peste prag: ' + round1(e.eligibleCommuteKm) + ' | Start: ' + (e.startPoint || '-') + ' | Final: ' + (e.endPoint || '-') + ' | Notă: ' + (e.notes || '-');
-      });
+      const fradragLines = entries
+        .filter(e => e.eligible)
+        .map((e, index) => {
+          return (
+            (index + 1) + '. ' + e.date +
+            ' | Navetă totală: ' + round1(e.commuteKm) + ' km' +
+            ' | KM potențial eligibili peste prag: ' + round1(e.eligibleCommuteKm) +
+            ' | Start: ' + (e.startPoint || '-') +
+            ' | Final: ' + (e.endPoint || '-') +
+            ' | Notă: ' + (e.notes || '-')
+          );
+        });
 
-      document.getElementById('fradragReport').textContent = [
+      const fradragReport = [
         'RAPORT SEPARAT – NAVETĂ / DOCUMENTARE FISCALĂ',
         'An fiscal: ' + (s.taxYear || '-'),
         'Nume: ' + (s.driverName || '-'),
@@ -413,215 +594,329 @@ tr:nth-child(even) td { background: rgba(15, 23, 42, 0.5); }
         'Total km potențial eligibili peste prag: ' + round1(totalEligibleKm),
         '',
         'Detaliere pe zile:',
-        fradragLines.length ? fradragLines.join('\n') : 'Nu există zile marcate eligibile.'
+        fradragLines.length ? fradragLines.join('\n') : 'Nu există zile marcate eligibile.',
+        '',
+        'Notă: acesta este un jurnal de susținere și nu înlocuiește cerințele sau verificările SKAT.'
       ].join('\n');
+
+      document.getElementById('workReport').textContent = workReport;
+      document.getElementById('fradragReport').textContent = fradragReport;
     }
 
     function downloadCSV() {
-      if (!entries.length) return alert('Nu există date de exportat.');
-      var headers = ['date','hoursWorked','deliveriesCount','deliveryKm','commuteKm','eligibleCommuteKm','totalKm','didCommute','eligible','source','startPoint','endPoint','notes'];
-      var rows = entries.map(function(e) {
-        return headers.map(function(h) {
-          return '"' + String(e[h] == null ? '' : e[h]).replace(/"/g, '""') + '"';
+      if (!entries.length) {
+        alert('Nu există date de exportat.');
+        return;
+      }
+
+      const headers = [
+        'date','hoursWorked','deliveriesCount','deliveryKm','commuteKm',
+        'eligibleCommuteKm','totalKm','didCommute','eligible','source',
+        'startPoint','endPoint','notes'
+      ];
+
+      const rows = entries.map(e => {
+        return headers.map(h => {
+          const value = e[h];
+          return '"' + String(value == null ? '' : value).replace(/"/g, '""') + '"';
         }).join(',');
       });
-      var csv = [headers.join(',')].concat(rows).join('\n');
-      var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-      var url = URL.createObjectURL(blob);
-      var a = document.createElement('a');
+
+      const csv = [headers.join(',')].concat(rows).join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
       a.href = url;
-      a.download = 'wolt_km_report_' + new Date().toISOString().slice(0,10) + '.csv';
+      a.download = 'wolt_km_report_' + new Date().toISOString().slice(0, 10) + '.csv';
+      document.body.appendChild(a);
       a.click();
+      document.body.removeChild(a);
       URL.revokeObjectURL(url);
     }
 
     function downloadSampleCSV() {
-      var sample = [
+      const sample = [
         'date,hoursWorked,deliveriesCount,deliveryKm,didCommute,eligible,startPoint,endPoint,notes',
         '2026-03-25,4.5,11,38.2,yes,yes,Acasă,Wolt centru,"Shift seară, trafic moderat"',
         '2026-03-26,3.0,7,21.4,no,no,Wolt centru,Wolt centru,"Doar activitate în zonă"'
       ].join('\n');
-      var blob = new Blob([sample], { type: 'text/csv;charset=utf-8;' });
-      var url = URL.createObjectURL(blob);
-      var a = document.createElement('a');
+
+      const blob = new Blob([sample], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
       a.href = url;
       a.download = 'wolt_km_sample.csv';
+      document.body.appendChild(a);
       a.click();
+      document.body.removeChild(a);
       URL.revokeObjectURL(url);
     }
 
     function parseBool(value) {
-      return ['yes', 'da', 'true', '1', 'y'].indexOf(String(value || '').trim().toLowerCase()) !== -1;
+      const v = String(value || '').trim().toLowerCase();
+      return ['yes', 'da', 'true', '1', 'y'].includes(v);
     }
 
     function normalizeDate(value) {
-      var raw = String(value || '').trim();
+      const raw = String(value || '').trim();
       if (!raw) return '';
-      if (raw.indexOf('-') > -1 && raw.length === 10) return raw;
+
+      if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) return raw;
+
       if (raw.indexOf('.') > -1) {
-        var p1 = raw.split('.');
-        if (p1.length === 3) return p1[2] + '-' + p1[1] + '-' + p1[0];
+        const p = raw.split('.');
+        if (p.length === 3) return p[2] + '-' + p[1] + '-' + p[0];
       }
+
       if (raw.indexOf('/') > -1) {
-        var p2 = raw.split('/');
-        if (p2.length === 3) return p2[2] + '-' + p2[1] + '-' + p2[0];
+        const p = raw.split('/');
+        if (p.length === 3) return p[2] + '-' + p[1] + '-' + p[0];
       }
+
       return raw;
     }
 
     function splitCSVLine(line) {
-      var result = [];
-      var current = '';
-      var inQuotes = false;
-      for (var i = 0; i < line.length; i++) {
-        var char = line[i];
-        var next = line[i + 1];
+      const result = [];
+      let current = '';
+      let inQuotes = false;
+
+      for (let i = 0; i < line.length; i++) {
+        const char = line[i];
+        const next = line[i + 1];
+
         if (char === '"') {
-          if (inQuotes && next === '"') { current += '"'; i++; }
-          else { inQuotes = !inQuotes; }
+          if (inQuotes && next === '"') {
+            current += '"';
+            i++;
+          } else {
+            inQuotes = !inQuotes;
+          }
         } else if (char === ',' && !inQuotes) {
-          result.push(current); current = '';
+          result.push(current);
+          current = '';
         } else {
           current += char;
         }
       }
+
       result.push(current);
-      return result.map(function(v) { return v.trim(); });
+      return result.map(v => v.trim());
     }
 
     function importCSV(event) {
-      var file = event.target.files && event.target.files[0];
+      const file = event.target.files && event.target.files[0];
       if (!file) return;
-      var reader = new FileReader();
+
+      const reader = new FileReader();
       reader.onload = function(e) {
         try {
-          var text = String(e.target.result || '').replace(/^\uFEFF/, '');
-          var lines = text.split(/\r?\n/).map(function(line) { return line.trimEnd ? line.trimEnd() : line.replace(/\s+$/, ''); }).filter(function(line) { return line.trim(); });
-          if (lines.length < 2) return alert('CSV-ul nu conține suficiente date.');
-          var headers = splitCSVLine(lines[0]);
-          var settings = getSettings();
-          var imported = [];
-          for (var i = 1; i < lines.length; i++) {
-            var cols = splitCSVLine(lines[i]);
-            if (!cols.some(function(v) { return String(v).trim() !== ''; })) continue;
-            var row = {};
-            headers.forEach(function(h, idx) { row[h] = cols[idx] || ''; });
-            var date = normalizeDate(row.date);
+          const text = String(e.target.result || '').replace(/^\uFEFF/, '');
+          const lines = text
+            .split(/\r?\n/)
+            .map(line => line.replace(/\r/g, ''))
+            .filter(line => line.trim());
+
+          if (lines.length < 2) {
+            alert('CSV-ul nu conține suficiente date.');
+            return;
+          }
+
+          const headers = splitCSVLine(lines[0]);
+          const required = ['date', 'deliveryKm'];
+          const missing = required.filter(h => !headers.includes(h));
+
+          if (missing.length) {
+            alert('Lipsesc coloane obligatorii: ' + missing.join(', '));
+            return;
+          }
+
+          const settings = getSettings();
+          const imported = [];
+
+          for (let i = 1; i < lines.length; i++) {
+            const cols = splitCSVLine(lines[i]);
+            if (!cols.some(v => String(v).trim() !== '')) continue;
+
+            const row = {};
+            headers.forEach((h, idx) => {
+              row[h] = cols[idx] || '';
+            });
+
+            const date = normalizeDate(row.date);
             if (!date) continue;
-            var didCommute = parseBool(row.didCommute);
-            var eligible = parseBool(row.eligible);
-            var commuteKm = didCommute ? settings.commuteRoundTripKm : 0;
-            var deliveryKm = Number(row.deliveryKm || 0);
+
+            const didCommute = parseBool(row.didCommute);
+            const eligible = parseBool(row.eligible);
+            const commuteKm = didCommute ? settings.commuteRoundTripKm : 0;
+            const deliveryKm = Number(row.deliveryKm || 0);
+
             imported.push({
-              id: (crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random() + i)),
+              id: (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : String(Date.now() + Math.random() + i),
               source: 'csv',
-              date: date,
+              date,
               hoursWorked: Number(row.hoursWorked || 0),
               deliveriesCount: Number(row.deliveriesCount || 0),
-              deliveryKm: deliveryKm,
-              didCommute: didCommute,
-              eligible: eligible,
-              commuteKm: commuteKm,
-              eligibleCommuteKm: eligible && commuteKm > settings.dailyThresholdKm ? commuteKm - settings.dailyThresholdKm : 0,
+              deliveryKm,
+              didCommute,
+              eligible,
+              commuteKm,
+              eligibleCommuteKm: eligible && commuteKm > settings.dailyThresholdKm
+                ? commuteKm - settings.dailyThresholdKm
+                : 0,
               totalKm: commuteKm + deliveryKm,
               startPoint: String(row.startPoint || '').trim(),
               endPoint: String(row.endPoint || '').trim(),
               notes: String(row.notes || '').trim()
             });
           }
+
+          if (!imported.length) {
+            alert('Nu am găsit rânduri valide în CSV.');
+            return;
+          }
+
           entries = entries.concat(imported);
-          entries.sort(function(a, b) { return a.date.localeCompare(b.date); });
-          saveData(); render(); event.target.value = '';
+          entries.sort((a, b) => a.date.localeCompare(b.date));
+          saveData(false);
+          render();
+          event.target.value = '';
           alert('Au fost importate ' + imported.length + ' înregistrări.');
         } catch (err) {
           console.error(err);
           alert('A apărut o eroare la importul CSV.');
         }
       };
+
       reader.readAsText(file, 'utf-8');
     }
 
     function parsePointString(pointStr) {
       if (!pointStr) return null;
-      var cleaned = String(pointStr).replace(/°/g, '').replace(/\s+/g, ' ').trim();
-      var parts = cleaned.split(',').map(function(v) { return Number(v.trim()); });
-      if (parts.length !== 2 || Number.isNaN(parts[0]) || Number.isNaN(parts[1])) return null;
+
+      const cleaned = String(pointStr)
+        .replace(/°/g, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+
+      const parts = cleaned.split(',').map(v => Number(v.trim()));
+      if (parts.length !== 2 || Number.isNaN(parts[0]) || Number.isNaN(parts[1])) {
+        return null;
+      }
+
       return { lat: parts[0], lon: parts[1] };
     }
 
     function haversineKm(lat1, lon1, lat2, lon2) {
-      var R = 6371;
-      var dLat = (lat2 - lat1) * Math.PI / 180;
-      var dLon = (lon2 - lon1) * Math.PI / 180;
-      var a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) * Math.sin(dLon/2) * Math.sin(dLon/2);
-      var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      const R = 6371;
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+      const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
       return R * c;
     }
 
     function getSegmentDistanceKm(segment) {
-      var path = Array.isArray(segment.timelinePath) ? segment.timelinePath : [];
+      const path = Array.isArray(segment.timelinePath) ? segment.timelinePath : [];
       if (path.length < 2) return 0;
-      var total = 0;
-      for (var i = 1; i < path.length; i++) {
-        var a = parsePointString(path[i - 1].point);
-        var b = parsePointString(path[i].point);
+
+      let total = 0;
+      for (let i = 1; i < path.length; i++) {
+        const a = parsePointString(path[i - 1].point);
+        const b = parsePointString(path[i].point);
         if (!a || !b) continue;
-        var d = haversineKm(a.lat, a.lon, b.lat, b.lon);
-        if (!Number.isNaN(d) && Number.isFinite(d)) total += d;
+
+        const d = haversineKm(a.lat, a.lon, b.lat, b.lon);
+        if (Number.isFinite(d) && !Number.isNaN(d)) {
+          total += d;
+        }
       }
       return total;
     }
 
     function toDateTime(s) {
       if (!s) return null;
-      var d = new Date(String(s).replace(' ', 'T'));
+      const d = new Date(String(s).replace(' ', 'T'));
       return isNaN(d.getTime()) ? null : d;
     }
 
     function formatLocalDate(d) {
-      var y = d.getFullYear();
-      var m = String(d.getMonth() + 1).padStart(2, '0');
-      var day = String(d.getDate()).padStart(2, '0');
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
       return y + '-' + m + '-' + day;
     }
 
     function importTimelineJSON(event) {
-      var file = event.target.files && event.target.files[0];
+      const file = event.target.files && event.target.files[0];
       if (!file) return;
-      var reader = new FileReader();
+
+      const reader = new FileReader();
       reader.onload = function(e) {
         try {
-          var raw = JSON.parse(String(e.target.result || '{}'));
-          var segments = Array.isArray(raw.semanticSegments) ? raw.semanticSegments : [];
-          if (!segments.length) return alert('Nu am găsit semanticSegments în JSON.');
-          var grouped = {};
-          segments.forEach(function(seg) {
-            var start = toDateTime(seg.startTime);
-            var end = toDateTime(seg.endTime);
+          const raw = JSON.parse(String(e.target.result || '{}'));
+          const segments = Array.isArray(raw.semanticSegments) ? raw.semanticSegments : [];
+
+          if (!segments.length) {
+            alert('Nu am găsit semanticSegments în JSON.');
+            return;
+          }
+
+          const grouped = {};
+
+          segments.forEach(seg => {
+            const start = toDateTime(seg.startTime);
+            const end = toDateTime(seg.endTime);
             if (!start && !end) return;
-            var baseDate = start ? formatLocalDate(start) : formatLocalDate(end);
-            if (!grouped[baseDate]) grouped[baseDate] = { date: baseDate, deliveryKm: 0, visits: 0, segments: 0, firstPoint: '', lastPoint: '' };
-            var bucket = grouped[baseDate];
+
+            const baseDate = start ? formatLocalDate(start) : formatLocalDate(end);
+
+            if (!grouped[baseDate]) {
+              grouped[baseDate] = {
+                date: baseDate,
+                deliveryKm: 0,
+                visits: 0,
+                segments: 0,
+                firstPoint: '',
+                lastPoint: ''
+              };
+            }
+
+            const bucket = grouped[baseDate];
+
             if (Array.isArray(seg.timelinePath) && seg.timelinePath.length > 1) {
-              var segmentKm = getSegmentDistanceKm(seg);
+              const segmentKm = getSegmentDistanceKm(seg);
               if (segmentKm > 0) {
                 bucket.deliveryKm += segmentKm;
                 bucket.segments += 1;
-                var first = parsePointString(seg.timelinePath[0].point);
-                var last = parsePointString(seg.timelinePath[seg.timelinePath.length - 1].point);
-                if (first && !bucket.firstPoint) bucket.firstPoint = first.lat.toFixed(5) + ', ' + first.lon.toFixed(5);
-                if (last) bucket.lastPoint = last.lat.toFixed(5) + ', ' + last.lon.toFixed(5);
+
+                const first = parsePointString(seg.timelinePath[0].point);
+                const last = parsePointString(seg.timelinePath[seg.timelinePath.length - 1].point);
+
+                if (first && !bucket.firstPoint) {
+                  bucket.firstPoint = first.lat.toFixed(5) + ', ' + first.lon.toFixed(5);
+                }
+                if (last) {
+                  bucket.lastPoint = last.lat.toFixed(5) + ', ' + last.lon.toFixed(5);
+                }
               }
             }
-            if (seg.visit) bucket.visits += 1;
+
+            if (seg.visit) {
+              bucket.visits += 1;
+            }
           });
 
-          var imported = [];
-          Object.keys(grouped).sort().forEach(function(dateKey, index) {
-            var day = grouped[dateKey];
+          const imported = [];
+          Object.keys(grouped).sort().forEach((dateKey, index) => {
+            const day = grouped[dateKey];
             if (day.segments === 0 || day.deliveryKm <= 0) return;
+
             imported.push({
-              id: (crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random() + index)),
+              id: (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : String(Date.now() + Math.random() + index),
               source: 'timeline-json',
               date: day.date,
               hoursWorked: 0,
@@ -637,41 +932,60 @@ tr:nth-child(even) td { background: rgba(15, 23, 42, 0.5); }
               notes: 'Import Timeline JSON: ' + day.segments + ' segmente mișcare, ' + day.visits + ' vizite în zi.'
             });
           });
-          if (!imported.length) return alert('Nu am găsit zile valide cu km calculați în JSON.');
+
+          if (!imported.length) {
+            alert('Nu am găsit zile valide cu km calculați în JSON.');
+            return;
+          }
+
           entries = entries.concat(imported);
-          entries.sort(function(a, b) { return a.date.localeCompare(b.date); });
-          saveData(); render(); event.target.value = '';
+          entries.sort((a, b) => a.date.localeCompare(b.date));
+          saveData(false);
+          render();
+          event.target.value = '';
           alert('Import reușit: ' + imported.length + ' zile adăugate din Timeline JSON.');
         } catch (err) {
           console.error(err);
           alert('A apărut o eroare la citirea Timeline JSON.');
         }
       };
+
       reader.readAsText(file, 'utf-8');
     }
 
-    function saveData() {
-      var payload = {
-        settings: {
-          driverName: document.getElementById('driverName').value,
-          driverRef: document.getElementById('driverRef').value,
-          homeAddress: document.getElementById('homeAddress').value,
-          workBase: document.getElementById('workBase').value,
-          commuteOneWayKm: document.getElementById('commuteOneWayKm').value,
-          dailyThresholdKm: document.getElementById('dailyThresholdKm').value,
-          taxYear: document.getElementById('taxYear').value
-        },
-        entries: entries
-      };
-      localStorage.setItem('woltKmReportAllDaysData', JSON.stringify(payload));
+    function saveData(showMessage = true) {
+      try {
+        const payload = {
+          settings: {
+            driverName: document.getElementById('driverName').value,
+            driverRef: document.getElementById('driverRef').value,
+            homeAddress: document.getElementById('homeAddress').value,
+            workBase: document.getElementById('workBase').value,
+            commuteOneWayKm: document.getElementById('commuteOneWayKm').value,
+            dailyThresholdKm: document.getElementById('dailyThresholdKm').value,
+            taxYear: document.getElementById('taxYear').value
+          },
+          entries: entries
+        };
+
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+        if (showMessage) {
+          alert('Datele au fost salvate local.');
+        }
+      } catch (e) {
+        console.error(e);
+        alert('Nu am putut salva local datele.');
+      }
     }
 
     function loadData() {
-      var raw = localStorage.getItem('woltKmReportAllDaysData');
+      const raw = localStorage.getItem(STORAGE_KEY);
       if (!raw) return;
+
       try {
-        var data = JSON.parse(raw);
-        var s = data.settings || {};
+        const data = JSON.parse(raw);
+        const s = data.settings || {};
+
         document.getElementById('driverName').value = s.driverName || '';
         document.getElementById('driverRef').value = s.driverRef || '';
         document.getElementById('homeAddress').value = s.homeAddress || '';
@@ -679,21 +993,35 @@ tr:nth-child(even) td { background: rgba(15, 23, 42, 0.5); }
         document.getElementById('commuteOneWayKm').value = s.commuteOneWayKm || 0;
         document.getElementById('dailyThresholdKm').value = s.dailyThresholdKm || 24;
         document.getElementById('taxYear').value = s.taxYear || new Date().getFullYear();
+
         entries = Array.isArray(data.entries) ? data.entries : [];
       } catch (e) {
-        console.error(e);
+        console.error('Eroare la încărcarea datelor:', e);
+        entries = [];
       }
     }
 
     function resetAll() {
       if (!confirm('Sigur vrei să ștergi toate datele?')) return;
       entries = [];
-      localStorage.removeItem('woltKmReportAllDaysData');
+      localStorage.removeItem(STORAGE_KEY);
+
+      document.getElementById('driverName').value = '';
+      document.getElementById('driverRef').value = '';
+      document.getElementById('homeAddress').value = '';
+      document.getElementById('workBase').value = '';
+      document.getElementById('commuteOneWayKm').value = 0;
+      document.getElementById('dailyThresholdKm').value = 24;
+      document.getElementById('taxYear').value = new Date().getFullYear();
+
+      clearDayForm();
+      fillToday();
       render();
     }
 
     fillToday();
     loadData();
     render();
-  </script></body>
+  </script>
+</body>
 </html>
