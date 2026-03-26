@@ -219,6 +219,31 @@ th {
 @media print {
   @page { size: A4; margin: 12mm; }
   body { background: #fff; padding: 0; }
+  .container { max-width: none; }
+  .card { display: none !important; }
+  .card:has(#simpleReport) {
+    display: block !important;
+    box-shadow: none;
+    border-color: #ccc;
+    margin: 0;
+    padding: 0;
+    background: #fff;
+  }
+  .card:has(#simpleReport) h2 {
+    margin-bottom: 10px;
+  }
+  #simpleReport {
+    display: block !important;
+    background: #fff;
+    border: none;
+    padding: 0;
+    color: #000;
+    white-space: pre-wrap;
+    line-height: 1.45;
+    font-size: 11pt;
+  }
+}
+  body { background: #fff; padding: 0; }
   .card { box-shadow: none; border-color: #ccc; }
   .actions, #ocrImages, #previewGrid, #ocrRawText, #statusBox { display: none !important; }
   .box, .day-block, .preview-card { background: #fff; }
