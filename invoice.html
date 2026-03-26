@@ -2,186 +2,48 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Invoice OCR simplu + PDF v2</title>
+  <title>Invoice OCR simplu + PDF v3 DK</title>
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@4.4.168/build/pdf.min.mjs" type="module"></script>
   <style>
     :root {
-      --bg: #0b1220;
-      --card: #ffffff;
-      --text: #0f172a;
-      --muted: #475569;
-      --line: #dbe3ee;
-      --primary: #2563eb;
-      --success: #16a34a;
-      --secondary: #e2e8f0;
-      --danger: #dc2626;
+      --bg:#0b1220; --card:#fff; --text:#0f172a; --muted:#475569; --line:#dbe3ee;
+      --primary:#2563eb; --success:#16a34a; --secondary:#e2e8f0; --danger:#dc2626;
     }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: Arial, Helvetica, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      padding: 16px;
-    }
-    .container { max-width: 1120px; margin: 0 auto; }
-    .card {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      padding: 16px;
-      margin-bottom: 16px;
-    }
-    h1, h2 { margin: 0 0 10px; }
-    p { margin: 0; color: var(--muted); line-height: 1.5; }
-    .note {
-      margin-top: 10px;
-      padding: 10px 12px;
-      border-radius: 12px;
-      background: #eff6ff;
-      border: 1px solid #bfdbfe;
-      color: #1e3a8a;
-      font-size: 13px;
-    }
-    .row {
-      display: grid;
-      grid-template-columns: repeat(12, 1fr);
-      gap: 12px;
-      margin-bottom: 12px;
-    }
-    .col-4 { grid-column: span 4; }
-    .col-6 { grid-column: span 6; }
-    .col-12 { grid-column: span 12; }
-    @media (max-width: 900px) {
-      .row { grid-template-columns: 1fr; }
-      .col-4, .col-6, .col-12 { grid-column: span 1; }
-    }
-    label {
-      display: block;
-      margin-bottom: 6px;
-      font-size: 14px;
-      font-weight: 700;
-      color: var(--text);
-    }
-    input, select, button {
-      width: 100%;
-      padding: 12px 14px;
-      border-radius: 12px;
-      border: 1px solid #cbd5e1;
-      background: #fff;
-      color: var(--text);
-      font-size: 16px;
-    }
-    .actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 8px;
-    }
-    .actions button {
-      width: auto;
-      min-width: 170px;
-      border: none;
-      cursor: pointer;
-      font-weight: 700;
-    }
-    .btn-primary { background: var(--primary); color: #fff; }
-    .btn-success { background: var(--success); color: #fff; }
-    .btn-secondary { background: var(--secondary); color: #0f172a; border: 1px solid #cbd5e1; }
-    .btn-danger { background: var(--danger); color: #fff; }
-    .status, .box {
-      margin-top: 10px;
-      padding: 12px 14px;
-      border-radius: 12px;
-      border: 1px solid var(--line);
-      background: #f8fafc;
-      white-space: pre-wrap;
-      line-height: 1.5;
-    }
-    .preview-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-      gap: 10px;
-      margin-top: 12px;
-    }
-    .preview-card {
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      padding: 10px;
-      background: #f8fafc;
-    }
-    .preview-card img {
-      width: 100%;
-      height: 200px;
-      object-fit: contain;
-      display: block;
-      background: #fff;
-      border-radius: 10px;
-      border: 1px solid var(--line);
-    }
-    .small { margin-top: 8px; font-size: 12px; color: var(--muted); word-break: break-word; }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 12px;
-    }
-    th, td {
-      padding: 10px;
-      border-bottom: 1px solid var(--line);
-      text-align: left;
-      vertical-align: top;
-      font-size: 14px;
-      color: var(--text);
-    }
-    th { background: #f1f5f9; font-weight: 700; }
-    .metrics {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 10px;
-      margin-top: 12px;
-    }
-    .metric {
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      padding: 12px;
-      background: #f8fafc;
-    }
-    .metric .k { font-size: 12px; color: var(--muted); }
-    .metric .v { font-size: 22px; font-weight: 700; margin-top: 4px; }
-    @media print {
-      @page { size: A4; margin: 12mm; }
-      body { background: #fff; padding: 0; }
-      .card { display: none !important; }
-      .print-card { display: block !important; border-color: #ccc; }
-      #reportBox { border: none; background: #fff; padding: 0; color: #000; }
-    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text);padding:16px}
+    .container{max-width:1120px;margin:0 auto}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:16px}
+    h1,h2{margin:0 0 10px} p{margin:0;color:var(--muted);line-height:1.5}
+    .note{margin-top:10px;padding:10px 12px;border-radius:12px;background:#eff6ff;border:1px solid #bfdbfe;color:#1e3a8a;font-size:13px}
+    .row{display:grid;grid-template-columns:repeat(12,1fr);gap:12px;margin-bottom:12px}
+    .col-4{grid-column:span 4}.col-6{grid-column:span 6}.col-12{grid-column:span 12}
+    @media (max-width:900px){.row{grid-template-columns:1fr}.col-4,.col-6,.col-12{grid-column:span 1}}
+    label{display:block;margin-bottom:6px;font-size:14px;font-weight:700;color:var(--text)}
+    input,select,button{width:100%;padding:12px 14px;border-radius:12px;border:1px solid #cbd5e1;background:#fff;color:var(--text);font-size:16px}
+    .actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}.actions button{width:auto;min-width:170px;border:none;cursor:pointer;font-weight:700}
+    .btn-primary{background:var(--primary);color:#fff}.btn-success{background:var(--success);color:#fff}.btn-secondary{background:var(--secondary);color:#0f172a;border:1px solid #cbd5e1}.btn-danger{background:var(--danger);color:#fff}
+    .status,.box{margin-top:10px;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:#f8fafc;white-space:pre-wrap;line-height:1.5}
+    .preview-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-top:12px}
+    .preview-card{border:1px solid var(--line);border-radius:14px;padding:10px;background:#f8fafc}
+    .preview-card img{width:100%;height:200px;object-fit:contain;display:block;background:#fff;border-radius:10px;border:1px solid var(--line)}
+    .small{margin-top:8px;font-size:12px;color:var(--muted);word-break:break-word}
+    table{width:100%;border-collapse:collapse;margin-top:12px} th,td{padding:10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top;font-size:14px;color:var(--text)} th{background:#f1f5f9;font-weight:700}
+    .metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-top:12px}.metric{border:1px solid var(--line);border-radius:14px;padding:12px;background:#f8fafc}.metric .k{font-size:12px;color:var(--muted)}.metric .v{font-size:22px;font-weight:700;margin-top:4px}
+    @media print{@page{size:A4;margin:12mm}body{background:#fff;padding:0}.card{display:none!important}.print-card{display:block!important;border-color:#ccc}#reportBox{border:none;background:#fff;padding:0;color:#000}}
   </style>
 </head>
 <body>
   <div class="container">
     <div class="card">
-      <h1>Invoice OCR simplu + PDF v2</h1>
-      <p>Versiune calibrată mai bine pentru facturi daneze de tip GLS. Extrage: furnizor, client, CVR/VAT, nr. factură, debitornr., date, net, TVA și total.</p>
-      <div class="note">Parserul folosește etichete de câmp, nu doar potriviri vagi. Verifică manual rezultatul înainte de utilizare contabilă.</div>
+      <h1>Invoice OCR simplu + PDF v3 DK</h1>
+      <p>Versiune rafinată pentru facturi daneze de tip GLS. Prioritizează etichete de câmp și separă mai strict furnizorul, clientul, netul, TVA și totalul.</p>
+      <div class="note">Flux: încarci PDF sau imagini → Extrage din toate → verifici tabelul → Generează raport.</div>
     </div><div class="card">
   <h2>Setări raport</h2>
   <div class="row">
-    <div class="col-4">
-      <label>Nume / firmă</label>
-      <input id="ownerName" placeholder="Ex: Sergiu Bulboacă / Firma X" />
-    </div>
-    <div class="col-4">
-      <label>Observații</label>
-      <input id="reportNote" placeholder="Ex: lot facturi martie" />
-    </div>
-    <div class="col-4">
-      <label>Mod raport</label>
-      <select id="reportMode">
-        <option value="all">Toate documentele</option>
-        <option value="single">Doar documentul selectat în tabel</option>
-      </select>
-    </div>
+    <div class="col-4"><label>Nume / firmă</label><input id="ownerName" placeholder="Ex: Sergiu Bulboacă / Firma X" /></div>
+    <div class="col-4"><label>Observații</label><input id="reportNote" placeholder="Ex: lot facturi martie" /></div>
+    <div class="col-4"><label>Mod raport</label><select id="reportMode"><option value="all">Toate documentele</option><option value="single">Doar documentul selectat în tabel</option></select></div>
   </div>
 </div>
 
@@ -221,20 +83,7 @@
   <h2>Documente extrase</h2>
   <table id="docsTable">
     <thead>
-      <tr>
-        <th>#</th>
-        <th>Fișier</th>
-        <th>Tip</th>
-        <th>Furnizor</th>
-        <th>Client</th>
-        <th>Dată</th>
-        <th>Fakturanr.</th>
-        <th>Debitornr.</th>
-        <th>CVR / VAT</th>
-        <th>Net</th>
-        <th>TVA</th>
-        <th>Total</th>
-      </tr>
+      <tr><th>#</th><th>Fișier</th><th>Tip</th><th>Furnizor</th><th>Client</th><th>Dată</th><th>Fakturanr.</th><th>Debitornr.</th><th>CVR / VAT</th><th>Net</th><th>TVA</th><th>Total</th></tr>
     </thead>
     <tbody></tbody>
   </table>
@@ -253,429 +102,243 @@
     let extractedDocs = [];
     let selectedDocIndex = 0;
 
-    function setStatus(text) {
-      document.getElementById('statusBox').textContent = 'Status: ' + text;
-    }
+    function setStatus(text){ document.getElementById('statusBox').textContent = 'Status: ' + text; }
+    function round2(n){ return (Math.round((Number(n)+Number.EPSILON)*100)/100).toFixed(2); }
+    function escapeHtml(str){ return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;'); }
+    function normalizeTextBasic(str){ return String(str||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[’'`]/g,'').replace(/\s+/g,' ').trim(); }
 
-    function round2(n) {
-      return (Math.round((Number(n) + Number.EPSILON) * 100) / 100).toFixed(2);
-    }
-
-    function escapeHtml(str) {
-      return String(str || '')
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
-    }
-
-    function normalizeTextBasic(str) {
-      return String(str || '')
-        .toLowerCase()
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .replace(/[’'`]/g, '')
-        .replace(/\s+/g, ' ')
-        .trim();
-    }
-
-    function clearState() {
-      filesState = [];
-      extractedDocs = [];
-      selectedDocIndex = 0;
-      document.getElementById('previewGrid').innerHTML = '';
-      document.getElementById('rawTextBox').textContent = '';
-      document.getElementById('summaryBox').textContent = 'Nu există încă rezultate.';
-      document.getElementById('reportBox').textContent = 'Apasă „Generează raport”.';
-      document.getElementById('metricDocs').textContent = '0';
-      document.getElementById('metricInvoices').textContent = '0';
-      document.getElementById('metricTotals').textContent = '0';
-      document.getElementById('metricAmount').textContent = '0.00';
+    function clearState(){
+      filesState=[]; extractedDocs=[]; selectedDocIndex=0;
+      document.getElementById('previewGrid').innerHTML='';
+      document.getElementById('rawTextBox').textContent='';
+      document.getElementById('summaryBox').textContent='Nu există încă rezultate.';
+      document.getElementById('reportBox').textContent='Apasă „Generează raport”.';
+      document.getElementById('metricDocs').textContent='0';
+      document.getElementById('metricInvoices').textContent='0';
+      document.getElementById('metricTotals').textContent='0';
+      document.getElementById('metricAmount').textContent='0.00';
       renderTable();
     }
 
-    async function fileToDataUrl(file) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = e => resolve(String(e.target.result || ''));
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
-    }
+    async function fileToDataUrl(file){ return new Promise((resolve,reject)=>{ const r=new FileReader(); r.onload=e=>resolve(String(e.target.result||'')); r.onerror=reject; r.readAsDataURL(file); }); }
 
-    async function renderPdfPages(file) {
+    async function renderPdfPages(file){
       const arrBuf = await file.arrayBuffer();
-      const pdf = await pdfjsLib.getDocument({ data: arrBuf }).promise;
-      const pages = [];
-      for (let i = 1; i <= pdf.numPages; i++) {
+      const pdf = await pdfjsLib.getDocument({data: arrBuf}).promise;
+      const pages=[];
+      for(let i=1;i<=pdf.numPages;i++){
         const page = await pdf.getPage(i);
-        const viewport = page.getViewport({ scale: 1.6 });
+        const viewport = page.getViewport({scale:1.7});
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
-        canvas.width = viewport.width;
-        canvas.height = viewport.height;
-        await page.render({ canvasContext: ctx, viewport }).promise;
-        pages.push({ pageNo: i, dataUrl: canvas.toDataURL('image/png') });
+        canvas.width = viewport.width; canvas.height = viewport.height;
+        await page.render({canvasContext:ctx, viewport}).promise;
+        pages.push({pageNo:i, dataUrl:canvas.toDataURL('image/png')});
       }
       return pages;
     }
 
-    async function loadFiles(event) {
+    async function loadFiles(event){
       clearState();
       const files = Array.from(event.target.files || []);
-      if (!files.length) {
-        setStatus('nu ai selectat documente.');
-        return;
-      }
-
+      if(!files.length){ setStatus('nu ai selectat documente.'); return; }
       setStatus('încarc ' + files.length + ' fișier(e)...');
       const previewGrid = document.getElementById('previewGrid');
-
-      for (const file of files) {
+      for(const file of files){
         const isPdf = /pdf$/i.test(file.name) || file.type === 'application/pdf';
-        if (isPdf) {
+        if(isPdf){
           const pages = await renderPdfPages(file);
-          for (const page of pages) {
-            filesState.push({ fileName: file.name, label: file.name + ' | pagina ' + page.pageNo, dataUrl: page.dataUrl, pageNo: page.pageNo, sourceType: 'pdf' });
+          for(const page of pages){
+            filesState.push({fileName:file.name, label:file.name + ' | pagina ' + page.pageNo, dataUrl:page.dataUrl, pageNo:page.pageNo, sourceType:'pdf'});
             const card = document.createElement('div');
-            card.className = 'preview-card';
-            card.innerHTML = '<img src="' + page.dataUrl + '" alt="pdf page" /><div class="small">' + escapeHtml(file.name) + ' | pagina ' + page.pageNo + '</div>';
+            card.className='preview-card';
+            card.innerHTML = '<img src="'+page.dataUrl+'" alt="pdf" /><div class="small">'+escapeHtml(file.name)+' | pagina '+page.pageNo+'</div>';
             previewGrid.appendChild(card);
           }
         } else {
           const dataUrl = await fileToDataUrl(file);
-          filesState.push({ fileName: file.name, label: file.name, dataUrl, pageNo: 1, sourceType: 'image' });
+          filesState.push({fileName:file.name, label:file.name, dataUrl, pageNo:1, sourceType:'image'});
           const card = document.createElement('div');
-          card.className = 'preview-card';
-          card.innerHTML = '<img src="' + dataUrl + '" alt="image" /><div class="small">' + escapeHtml(file.name) + '</div>';
+          card.className='preview-card';
+          card.innerHTML = '<img src="'+dataUrl+'" alt="image" /><div class="small">'+escapeHtml(file.name)+'</div>';
           previewGrid.appendChild(card);
         }
       }
-
       setStatus(filesState.length + ' element(e) pregătite pentru OCR.');
     }
 
-    function parseDate(text) {
-      const patterns = [
-        /(\d{2}[\.\-/]\d{2}[\.\-/]\d{4})/,
-        /(\d{4}[\.\-/]\d{2}[\.\-/]\d{2})/
-      ];
-      for (const p of patterns) {
-        const m = text.match(p);
-        if (m) return m[1].replace(/\./g, '-').replace(/\//g, '-');
-      }
-      return '';
-    }
+    function linesOf(text){ return text.split(/\r?\n/).map(s=>s.trim()).filter(Boolean); }
+    function parseDate(text){ const patterns=[/(\d{2}[\.\-/]\d{2}[\.\-/]\d{4})/,/(\d{4}[\.\-/]\d{2}[\.\-/]\d{2})/]; for(const p of patterns){const m=text.match(p); if(m) return m[1].replace(/\./g,'-').replace(/\//g,'-');} return ''; }
+    function parseDanishMonthDate(text){ const months={januar:'01',februar:'02',marts:'03',april:'04',maj:'05',juni:'06',juli:'07',august:'08',september:'09',oktober:'10',november:'11',december:'12'}; const m=normalizeTextBasic(text).match(/(\d{1,2})\.\s*(januar|februar|marts|april|maj|juni|juli|august|september|oktober|november|december)\s*(\d{4})/); if(!m) return ''; return String(m[1]).padStart(2,'0')+'-'+months[m[2]]+'-'+m[3]; }
 
-    function parseDanishMonthDate(text) {
-      const months = { januar:'01', februar:'02', marts:'03', april:'04', maj:'05', juni:'06', juli:'07', august:'08', september:'09', oktober:'10', november:'11', december:'12' };
-      const m = normalizeTextBasic(text).match(/(\d{1,2})\.\s*(januar|februar|marts|april|maj|juni|juli|august|september|oktober|november|december)\s*(\d{4})/);
-      if (!m) return '';
-      return String(m[1]).padStart(2, '0') + '-' + months[m[2]] + '-' + m[3];
-    }
-
-    function matchLabelValue(text, labels) {
-      const lines = text.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
-      for (const line of lines) {
+    function lineByLabel(text, labels){
+      const lines = linesOf(text);
+      for(const line of lines){
         const ln = normalizeTextBasic(line);
-        for (const label of labels) {
-          const lab = normalizeTextBasic(label);
-          if (ln.includes(lab)) {
-            const idx = ln.indexOf(lab);
-            const rawTail = line.slice(Math.min(line.length, idx + label.length)).replace(/^\s*[:.-]?\s*/, '').trim();
-            if (rawTail) return rawTail;
-          }
+        for(const label of labels){
+          if(ln.includes(normalizeTextBasic(label))) return line;
         }
       }
       return '';
     }
 
-    function parseCVR(text) {
-      const direct = matchLabelValue(text, ['CVR-nr.', 'CVR nr', 'CVR']);
-      if (direct) {
-        const m = direct.match(/(?:DK\s*)?\d{8,12}/i);
-        if (m) return m[0].replace(/\s+/g, '');
-      }
-      const m2 = text.match(/CVR[- ]?nr\.?\s*(DK\s*)?\d{8,12}/i);
-      if (m2) return m2[0].replace(/.*?(DK\s*)?(\d{8,12}).*/i, (_, dk, num) => (dk ? 'DK' : '') + num);
-      return '';
-    }
-
-    function parseFakturanr(text) {
-      const v = matchLabelValue(text, ['Fakturanr.', 'Fakturanr', 'Invoice no', 'Invoice nr']);
-      if (v) {
-        const m = v.match(/[A-Za-z0-9\-\/]{4,}/);
-        if (m) return m[0];
+    function valueAfterLabel(text, labels){
+      const line = lineByLabel(text, labels);
+      if(!line) return '';
+      for(const label of labels){
+        const re = new RegExp(label.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + '\\s*[:.-]?\\s*(.+)$','i');
+        const m = line.match(re);
+        if(m && m[1]) return m[1].trim();
       }
       return '';
     }
 
-    function parseDebitornr(text) {
-      const v = matchLabelValue(text, ['Debitornr.', 'Debitornr', 'Debtor no', 'Customer no']);
-      if (v) {
-        const m = v.match(/[A-Za-z0-9\-\/]{3,}/);
-        if (m) return m[0];
+    function parseCVR(text){
+      const line = lineByLabel(text, ['CVR-nr.', 'CVR nr', 'CVR']);
+      if(line){
+        const m = line.match(/(DK\s*)?\d{8,12}/i);
+        if(m) return (m[1] ? 'DK' : '') + m[0].replace(/DK\s*/i,'').replace(/\s+/g,'');
       }
       return '';
     }
 
-    function parseAmountAfterLabel(text, labels) {
-      const v = matchLabelValue(text, labels);
-      if (v) {
-        const m = v.match(/\d+[\.,]\d{2}/);
-        if (m) return m[0].replace(',', '.');
-      }
-      const lines = text.split(/\r?\n/);
-      for (const line of lines) {
-        const ln = normalizeTextBasic(line);
-        for (const label of labels) {
-          if (ln.includes(normalizeTextBasic(label))) {
-            const m = line.match(/\d+[\.,]\d{2}/g);
-            if (m && m.length) return m[m.length - 1].replace(',', '.');
-          }
-        }
-      }
+    function parseFakturanr(text){
+      const line = lineByLabel(text, ['Fakturanr.', 'Fakturanr', 'Invoice no', 'Invoice nr']);
+      if(line){ const m = line.match(/(?:Fakturanr\.?|Invoice\s*(?:no|nr)\.?)\s*[:.-]?\s*([A-Za-z0-9\-\/]+)/i); if(m) return m[1]; }
       return '';
     }
 
-    function parseSupplier(text, fileLabel) {
-      const lines = text.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+    function parseDebitornr(text){
+      const line = lineByLabel(text, ['Debitornr.', 'Debitornr', 'Debtor no', 'Customer no']);
+      if(line){ const m = line.match(/(?:Debitornr\.?|Debtor\s*no\.?|Customer\s*no\.?)\s*[:.-]?\s*([A-Za-z0-9\-\/]+)/i); if(m) return m[1]; }
+      return '';
+    }
+
+    function parseAmountFromSpecificLine(text, labels){
+      const line = lineByLabel(text, labels);
+      if(!line) return '';
+      const nums = line.match(/\d+[\.,]\d{2}/g);
+      return nums && nums.length ? nums[nums.length-1].replace(',', '.') : '';
+    }
+
+    function parseSupplier(text, fileLabel){
+      const lines = linesOf(text);
       const cvrIdx = lines.findIndex(line => normalizeTextBasic(line).includes('cvr'));
-      if (cvrIdx > 0) {
-        for (let i = cvrIdx - 1; i >= 0 && i >= cvrIdx - 4; i--) {
-          const l = normalizeTextBasic(lines[i]);
-          if (!l) continue;
-          if (/debitornr|fakturanr|bogforingsdato|forfaldsdato|faktura/.test(l)) continue;
-          if (/^\d/.test(l)) continue;
-          if (l.includes('sergiu bulboaca')) continue;
-          return lines[i];
+      if(cvrIdx >= 1){
+        for(let i=cvrIdx-1;i>=0 && i>=cvrIdx-3;i--){
+          const raw = lines[i];
+          const l = normalizeTextBasic(raw);
+          if(!l) continue;
+          if(/kokmose|kolding|campus alle|varde|debitornr|fakturanr|bogforingsdato|forfaldsdato/.test(l)) continue;
+          if(/general logistics/.test(l)) return raw;
+          if(/a\/s/.test(l)) return raw;
         }
       }
-      for (const line of lines.slice(0, 8)) {
-        const l = normalizeTextBasic(line);
-        if (!l) continue;
-        if (l.includes('faktura') || l.includes('invoice') || l.includes('debitornr') || l.includes('fakturanr')) continue;
-        if (l.includes('sergiu bulboaca')) continue;
-        if (/^\d/.test(l)) continue;
-        if (l.includes('general logistics') || l.includes('a/s')) return line;
-      }
+      const glsLine = lines.find(line => /general logistics/i.test(line));
+      if(glsLine) return glsLine;
       return fileLabel || '';
     }
 
-    function parseCustomer(text) {
-      const lines = text.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+    function parseCustomer(text){
+      const lines = linesOf(text);
       const debIdx = lines.findIndex(line => normalizeTextBasic(line).includes('debitornr'));
-      if (debIdx > 0) {
+      if(debIdx > 0){
         const candidates = [];
-        for (let i = Math.max(0, debIdx - 4); i < debIdx; i++) {
+        for(let i=Math.max(0, debIdx-5); i<debIdx; i++){
           const raw = lines[i];
           const l = normalizeTextBasic(raw);
-          if (!l) continue;
-          if (/faktura|invoice|general logistics|cvr|kokmose/.test(l)) continue;
+          if(!l) continue;
+          if(/general logistics|kokmose|kolding|cvr|faktura|invoice|fakturanr/.test(l)) continue;
+          if(/^\d{4}\s+[a-z]/.test(l)) continue; // 6800 Varde
+          if(/^\d/.test(l)) continue;
           candidates.push(raw);
         }
-        if (candidates.length) return candidates.join(', ');
+        if(candidates.length) return candidates[0];
       }
+      const sergiu = lines.find(line => /sergiu bulboaca/i.test(line));
+      if(sergiu) return sergiu;
       return '';
     }
 
-    function detectDocType(text) {
-      const l = normalizeTextBasic(text);
-      if (l.includes('faktura') || l.includes('invoice')) return 'Factură';
-      if (l.includes('bon fiscal') || l.includes('receipt')) return 'Bon';
-      return 'Document';
-    }
+    function detectDocType(text){ const l=normalizeTextBasic(text); if(l.includes('faktura')||l.includes('invoice')) return 'Factură'; if(l.includes('bon fiscal')||l.includes('receipt')) return 'Bon'; return 'Document'; }
 
-    function parseDocument(text, fileLabel) {
-      const dateLabel = matchLabelValue(text, ['Bogføringsdato', 'Bogforingsdato', 'Faktura', 'Invoice date']);
-      const date = parseDate(dateLabel) || parseDanishMonthDate(dateLabel) || parseDate(text) || parseDanishMonthDate(text);
+    function parseDocument(text, fileLabel){
+      const dateSource = lineByLabel(text, ['Bogføringsdato', 'Bogforingsdato', 'Faktura', 'Invoice date']);
+      const date = parseDate(dateSource) || parseDanishMonthDate(dateSource) || parseDate(text) || parseDanishMonthDate(text);
       const supplier = parseSupplier(text, fileLabel);
       const customer = parseCustomer(text);
       const cvr = parseCVR(text);
       const fakturanr = parseFakturanr(text);
       const debitornr = parseDebitornr(text);
-      const net = parseAmountAfterLabel(text, ['Netto DKK', 'Netto', 'Net amount']);
-      const vat = parseAmountAfterLabel(text, ['Moms', 'VAT']);
-      const total = parseAmountAfterLabel(text, ['I alt DKK', 'I alt', 'Total DKK', 'Grand total', 'Total']);
+      const net = parseAmountFromSpecificLine(text, ['Netto DKK', 'Netto']);
+      const vat = parseAmountFromSpecificLine(text, ['Moms']);
+      const total = parseAmountFromSpecificLine(text, ['I alt DKK', 'I alt']);
       const docType = detectDocType(text);
       return { docType, supplier, customer, date, fakturanr, debitornr, cvr, net, vat, total };
     }
 
-    function renderTable() {
+    function renderTable(){
       const tbody = document.querySelector('#docsTable tbody');
-      tbody.innerHTML = extractedDocs.map((d, idx) => {
-        const selected = idx === selectedDocIndex ? ' style="background:#eff6ff;"' : '';
-        return '<tr data-idx="' + idx + '"' + selected + '>' +
-          '<td>' + (idx + 1) + '</td>' +
-          '<td>' + escapeHtml(d.fileLabel) + '</td>' +
-          '<td>' + escapeHtml(d.docType || '-') + '</td>' +
-          '<td>' + escapeHtml(d.supplier || '-') + '</td>' +
-          '<td>' + escapeHtml(d.customer || '-') + '</td>' +
-          '<td>' + escapeHtml(d.date || '-') + '</td>' +
-          '<td>' + escapeHtml(d.fakturanr || '-') + '</td>' +
-          '<td>' + escapeHtml(d.debitornr || '-') + '</td>' +
-          '<td>' + escapeHtml(d.cvr || '-') + '</td>' +
-          '<td>' + escapeHtml(d.net || '-') + '</td>' +
-          '<td>' + escapeHtml(d.vat || '-') + '</td>' +
-          '<td>' + escapeHtml(d.total || '-') + '</td>' +
-          '</tr>';
+      tbody.innerHTML = extractedDocs.map((d,idx)=>{
+        const selected = idx===selectedDocIndex ? ' style="background:#eff6ff;"' : '';
+        return '<tr data-idx="'+idx+'"'+selected+'><td>'+(idx+1)+'</td><td>'+escapeHtml(d.fileLabel)+'</td><td>'+escapeHtml(d.docType||'-')+'</td><td>'+escapeHtml(d.supplier||'-')+'</td><td>'+escapeHtml(d.customer||'-')+'</td><td>'+escapeHtml(d.date||'-')+'</td><td>'+escapeHtml(d.fakturanr||'-')+'</td><td>'+escapeHtml(d.debitornr||'-')+'</td><td>'+escapeHtml(d.cvr||'-')+'</td><td>'+escapeHtml(d.net||'-')+'</td><td>'+escapeHtml(d.vat||'-')+'</td><td>'+escapeHtml(d.total||'-')+'</td></tr>';
       }).join('');
-
-      tbody.querySelectorAll('tr').forEach(tr => {
-        tr.addEventListener('click', () => {
-          selectedDocIndex = Number(tr.getAttribute('data-idx') || 0);
-          renderTable();
-          setStatus('document selectat: ' + (selectedDocIndex + 1));
-        });
-      });
+      tbody.querySelectorAll('tr').forEach(tr=>tr.addEventListener('click',()=>{selectedDocIndex=Number(tr.getAttribute('data-idx')||0); renderTable(); setStatus('document selectat: '+(selectedDocIndex+1));}));
     }
 
-    function updateMetrics() {
-      const invoiceCount = extractedDocs.filter(d => d.docType === 'Factură').length;
-      const totals = extractedDocs.filter(d => d.total);
-      const totalAmount = totals.reduce((sum, d) => sum + Number(d.total || 0), 0);
-      document.getElementById('metricDocs').textContent = String(extractedDocs.length);
-      document.getElementById('metricInvoices').textContent = String(invoiceCount);
-      document.getElementById('metricTotals').textContent = String(totals.length);
-      document.getElementById('metricAmount').textContent = round2(totalAmount);
-      document.getElementById('summaryBox').textContent = [
-        'Documente procesate: ' + extractedDocs.length,
-        'Facturi detectate: ' + invoiceCount,
-        'Documente cu total detectat: ' + totals.length,
-        'Total sume detectate: ' + round2(totalAmount)
-      ].join('\n');
+    function updateMetrics(){
+      const invoiceCount = extractedDocs.filter(d=>d.docType==='Factură').length;
+      const totals = extractedDocs.filter(d=>d.total);
+      const totalAmount = totals.reduce((sum,d)=>sum+Number(d.total||0),0);
+      document.getElementById('metricDocs').textContent=String(extractedDocs.length);
+      document.getElementById('metricInvoices').textContent=String(invoiceCount);
+      document.getElementById('metricTotals').textContent=String(totals.length);
+      document.getElementById('metricAmount').textContent=round2(totalAmount);
+      document.getElementById('summaryBox').textContent=['Documente procesate: '+extractedDocs.length,'Facturi detectate: '+invoiceCount,'Documente cu total detectat: '+totals.length,'Total sume detectate: '+round2(totalAmount)].join('\n');
     }
 
-    async function runExtraction() {
-      if (!filesState.length) {
-        alert('Încarcă mai întâi imagini sau PDF-uri.');
-        return;
-      }
-      setStatus('rulez OCR pe ' + filesState.length + ' element(e)...');
-      extractedDocs = [];
-      selectedDocIndex = 0;
-      const rawTexts = [];
-
-      for (let i = 0; i < filesState.length; i++) {
-        const item = filesState[i];
-        setStatus('procesez ' + (i + 1) + ' din ' + filesState.length + ': ' + item.label);
-        try {
-          const result = await Tesseract.recognize(item.dataUrl, 'eng');
+    async function runExtraction(){
+      if(!filesState.length){ alert('Încarcă mai întâi imagini sau PDF-uri.'); return; }
+      setStatus('rulez OCR pe '+filesState.length+' element(e)...');
+      extractedDocs=[]; selectedDocIndex=0; const rawTexts=[];
+      for(let i=0;i<filesState.length;i++){
+        const item=filesState[i]; setStatus('procesez '+(i+1)+' din '+filesState.length+': '+item.label);
+        try{
+          const result = await Tesseract.recognize(item.dataUrl,'eng');
           const text = result && result.data && result.data.text ? result.data.text : '';
-          rawTexts.push('--- ' + item.label + ' ---\n' + text);
-          const parsed = parseDocument(text, item.label);
-          extractedDocs.push({ ...parsed, fileLabel: item.label, rawText: text });
-        } catch (err) {
-          console.error(err);
-          rawTexts.push('--- ' + item.label + ' ---\nEroare OCR');
-          extractedDocs.push({ fileLabel: item.label, docType: 'Document', supplier: '', customer: '', date: '', fakturanr: '', debitornr: '', cvr: '', net: '', vat: '', total: '', rawText: '' });
+          rawTexts.push('--- '+item.label+' ---\n'+text);
+          extractedDocs.push({...parseDocument(text,item.label), fileLabel:item.label, rawText:text});
+        }catch(err){
+          console.error(err); rawTexts.push('--- '+item.label+' ---\nEroare OCR');
+          extractedDocs.push({fileLabel:item.label,docType:'Document',supplier:'',customer:'',date:'',fakturanr:'',debitornr:'',cvr:'',net:'',vat:'',total:'',rawText:''});
         }
       }
-
       document.getElementById('rawTextBox').textContent = rawTexts.join('\n\n');
-      renderTable();
-      updateMetrics();
-      setStatus('extracție finalizată.');
+      renderTable(); updateMetrics(); setStatus('extracție finalizată.');
     }
 
-    function getReportDocs() {
-      const mode = document.getElementById('reportMode').value;
-      if (mode === 'single' && extractedDocs[selectedDocIndex]) return [extractedDocs[selectedDocIndex]];
-      return extractedDocs.slice();
-    }
+    function getReportDocs(){ const mode=document.getElementById('reportMode').value; if(mode==='single' && extractedDocs[selectedDocIndex]) return [extractedDocs[selectedDocIndex]]; return extractedDocs.slice(); }
 
-    function generateReport() {
-      const docs = getReportDocs();
-      if (!docs.length) {
-        alert('Nu există documente extrase pentru raport.');
-        return;
-      }
-      const owner = document.getElementById('ownerName').value.trim();
-      const note = document.getElementById('reportNote').value.trim();
-      const totalAmount = docs.reduce((sum, d) => sum + Number(d.total || 0), 0);
-      const lines = docs.map((d, i) => [
-        '------------------------------',
-        'Document #' + (i + 1),
-        'Fișier: ' + (d.fileLabel || '-'),
-        'Tip: ' + (d.docType || '-'),
-        'Furnizor: ' + (d.supplier || '-'),
-        'Client: ' + (d.customer || '-'),
-        'Dată: ' + (d.date || '-'),
-        'Fakturanr.: ' + (d.fakturanr || '-'),
-        'Debitornr.: ' + (d.debitornr || '-'),
-        'CVR / VAT ID: ' + (d.cvr || '-'),
-        'Net: ' + (d.net || '-'),
-        'TVA: ' + (d.vat || '-'),
-        'Total: ' + (d.total || '-')
-      ].join('\n')).join('\n\n');
-
-      const report = [
-        'RAPORT SIMPLU – INVOICE OCR',
-        'Nume / firmă: ' + (owner || '-'),
-        'Observații: ' + (note || '-'),
-        'Mod raport: ' + (document.getElementById('reportMode').value === 'single' ? 'Doar documentul selectat' : 'Toate documentele'),
-        '',
-        'Număr documente în raport: ' + docs.length,
-        'Total sume detectate: ' + round2(totalAmount),
-        '',
-        lines
-      ].join('\n');
-
-      document.getElementById('reportBox').textContent = report;
+    function generateReport(){
+      const docs=getReportDocs(); if(!docs.length){ alert('Nu există documente extrase pentru raport.'); return; }
+      const owner=document.getElementById('ownerName').value.trim(); const note=document.getElementById('reportNote').value.trim();
+      const totalAmount=docs.reduce((sum,d)=>sum+Number(d.total||0),0);
+      const lines=docs.map((d,i)=>['------------------------------','Document #'+(i+1),'Fișier: '+(d.fileLabel||'-'),'Tip: '+(d.docType||'-'),'Furnizor: '+(d.supplier||'-'),'Client: '+(d.customer||'-'),'Dată: '+(d.date||'-'),'Fakturanr.: '+(d.fakturanr||'-'),'Debitornr.: '+(d.debitornr||'-'),'CVR / VAT ID: '+(d.cvr||'-'),'Net: '+(d.net||'-'),'TVA: '+(d.vat||'-'),'Total: '+(d.total||'-')].join('\n')).join('\n\n');
+      document.getElementById('reportBox').textContent=['RAPORT SIMPLU – INVOICE OCR','Nume / firmă: '+(owner||'-'),'Observații: '+(note||'-'),'Mod raport: '+(document.getElementById('reportMode').value==='single'?'Doar documentul selectat':'Toate documentele'),'','Număr documente în raport: '+docs.length,'Total sume detectate: '+round2(totalAmount),'',lines].join('\n');
       setStatus('raport generat.');
     }
 
-    function downloadTxt() {
-      const report = document.getElementById('reportBox').textContent.trim();
-      if (!report || report === 'Apasă „Generează raport”.') {
-        alert('Generează mai întâi raportul.');
-        return;
-      }
-      const blob = new Blob([report], { type: 'text/plain;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'invoice_ocr_report.txt';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    }
-
-    function downloadCsv() {
-      const docs = getReportDocs();
-      if (!docs.length) {
-        alert('Nu există documente pentru export.');
-        return;
-      }
-      const headers = ['file','type','supplier','customer','date','fakturanr','debitornr','cvr','net','vat','total'];
-      const rows = docs.map(d => [d.fileLabel || '', d.docType || '', d.supplier || '', d.customer || '', d.date || '', d.fakturanr || '', d.debitornr || '', d.cvr || '', d.net || '', d.vat || '', d.total || ''].map(v => '"' + String(v).replace(/"/g, '""') + '"').join(','));
-      const csv = [headers.join(',')].concat(rows).join('\n');
-      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'invoice_ocr_export.csv';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    }
+    function downloadTxt(){ const report=document.getElementById('reportBox').textContent.trim(); if(!report||report==='Apasă „Generează raport”.'){ alert('Generează mai întâi raportul.'); return; } const blob=new Blob([report],{type:'text/plain;charset=utf-8;'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='invoice_ocr_report.txt'; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); }
+    function downloadCsv(){ const docs=getReportDocs(); if(!docs.length){ alert('Nu există documente pentru export.'); return; } const headers=['file','type','supplier','customer','date','fakturanr','debitornr','cvr','net','vat','total']; const rows=docs.map(d=>[d.fileLabel||'',d.docType||'',d.supplier||'',d.customer||'',d.date||'',d.fakturanr||'',d.debitornr||'',d.cvr||'',d.net||'',d.vat||'',d.total||''].map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')); const csv=[headers.join(',')].concat(rows).join('\n'); const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='invoice_ocr_export.csv'; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); }
 
     document.getElementById('docFiles').addEventListener('change', loadFiles);
     document.getElementById('btnExtract').addEventListener('click', runExtraction);
     document.getElementById('btnReport').addEventListener('click', generateReport);
     document.getElementById('btnTxt').addEventListener('click', downloadTxt);
     document.getElementById('btnCsv').addEventListener('click', downloadCsv);
-    document.getElementById('btnPrint').addEventListener('click', () => window.print());
-    document.getElementById('btnClear').addEventListener('click', () => {
-      document.getElementById('docFiles').value = '';
-      clearState();
-      setStatus('totul a fost curățat.');
-    });
+    document.getElementById('btnPrint').addEventListener('click', ()=>window.print());
+    document.getElementById('btnClear').addEventListener('click', ()=>{ document.getElementById('docFiles').value=''; clearState(); setStatus('totul a fost curățat.'); });
 
-    clearState();
-    setStatus('pregătit.');
+    clearState(); setStatus('pregătit.');
   </script></body>
 </html>
