@@ -2,7 +2,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Invoice OCR simplu + PDF</title>
+  <title>Invoice OCR simplu + PDF v2</title>
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@4.4.168/build/pdf.min.mjs" type="module"></script>
   <style>
@@ -64,7 +64,7 @@
       font-weight: 700;
       color: var(--text);
     }
-    input, select, button, textarea {
+    input, select, button {
       width: 100%;
       padding: 12px 14px;
       border-radius: 12px;
@@ -73,7 +73,6 @@
       color: var(--text);
       font-size: 16px;
     }
-    textarea { min-height: 90px; resize: vertical; }
     .actions {
       display: flex;
       flex-wrap: wrap;
@@ -112,7 +111,7 @@
       padding: 10px;
       background: #f8fafc;
     }
-    .preview-card canvas, .preview-card img {
+    .preview-card img {
       width: 100%;
       height: 200px;
       object-fit: contain;
@@ -162,9 +161,9 @@
 <body>
   <div class="container">
     <div class="card">
-      <h1>Invoice OCR simplu + suport PDF</h1>
-      <p>Versiune de demo pentru facturi și documente similare. Poți încărca imagini sau PDF-uri, aplicația extrage textul, încearcă să identifice câmpurile utile și generează un raport simplu.</p>
-      <div class="note">Aceasta este o versiune orientată pe prevalidare. Verifică manual valorile extrase înainte de orice utilizare contabilă.</div>
+      <h1>Invoice OCR simplu + PDF v2</h1>
+      <p>Versiune calibrată mai bine pentru facturi daneze de tip GLS. Extrage: furnizor, client, CVR/VAT, nr. factură, debitornr., date, net, TVA și total.</p>
+      <div class="note">Parserul folosește etichete de câmp, nu doar potriviri vagi. Verifică manual rezultatul înainte de utilizare contabilă.</div>
     </div><div class="card">
   <h2>Setări raport</h2>
   <div class="row">
@@ -177,7 +176,7 @@
       <input id="reportNote" placeholder="Ex: lot facturi martie" />
     </div>
     <div class="col-4">
-      <label>Tip raport</label>
+      <label>Mod raport</label>
       <select id="reportMode">
         <option value="all">Toate documentele</option>
         <option value="single">Doar documentul selectat în tabel</option>
@@ -213,8 +212,8 @@
   <div class="metrics">
     <div class="metric"><div class="k">Documente procesate</div><div class="v" id="metricDocs">0</div></div>
     <div class="metric"><div class="k">Facturi detectate</div><div class="v" id="metricInvoices">0</div></div>
-    <div class="metric"><div class="k">Total documente cu sumă</div><div class="v" id="metricTotals">0</div></div>
-    <div class="metric"><div class="k">Total sumă detectată</div><div class="v" id="metricAmount">0.00</div></div>
+    <div class="metric"><div class="k">Documente cu total</div><div class="v" id="metricTotals">0</div></div>
+    <div class="metric"><div class="k">Total sume detectate</div><div class="v" id="metricAmount">0.00</div></div>
   </div>
 </div>
 
@@ -227,9 +226,12 @@
         <th>Fișier</th>
         <th>Tip</th>
         <th>Furnizor</th>
+        <th>Client</th>
         <th>Dată</th>
-        <th>Nr.</th>
-        <th>CUI</th>
+        <th>Fakturanr.</th>
+        <th>Debitornr.</th>
+        <th>CVR / VAT</th>
+        <th>Net</th>
         <th>TVA</th>
         <th>Total</th>
       </tr>
@@ -274,7 +276,6 @@
         .normalize('NFD')
         .replace(/[\u0300-\u036f]/g, '')
         .replace(/[’'`]/g, '')
-        .replace(/[^a-z0-9\-\/\. ]+/g, ' ')
         .replace(/\s+/g, ' ')
         .trim();
     }
@@ -309,7 +310,7 @@
       const pages = [];
       for (let i = 1; i <= pdf.numPages; i++) {
         const page = await pdf.getPage(i);
-        const viewport = page.getViewport({ scale: 1.5 });
+        const viewport = page.getViewport({ scale: 1.6 });
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
         canvas.width = viewport.width;
@@ -336,14 +337,7 @@
         if (isPdf) {
           const pages = await renderPdfPages(file);
           for (const page of pages) {
-            filesState.push({
-              fileName: file.name,
-              label: file.name + ' | pagina ' + page.pageNo,
-              dataUrl: page.dataUrl,
-              pageNo: page.pageNo,
-              sourceType: 'pdf'
-            });
-
+            filesState.push({ fileName: file.name, label: file.name + ' | pagina ' + page.pageNo, dataUrl: page.dataUrl, pageNo: page.pageNo, sourceType: 'pdf' });
             const card = document.createElement('div');
             card.className = 'preview-card';
             card.innerHTML = '<img src="' + page.dataUrl + '" alt="pdf page" /><div class="small">' + escapeHtml(file.name) + ' | pagina ' + page.pageNo + '</div>';
@@ -351,13 +345,7 @@
           }
         } else {
           const dataUrl = await fileToDataUrl(file);
-          filesState.push({
-            fileName: file.name,
-            label: file.name,
-            dataUrl,
-            pageNo: 1,
-            sourceType: 'image'
-          });
+          filesState.push({ fileName: file.name, label: file.name, dataUrl, pageNo: 1, sourceType: 'image' });
           const card = document.createElement('div');
           card.className = 'preview-card';
           card.innerHTML = '<img src="' + dataUrl + '" alt="image" /><div class="small">' + escapeHtml(file.name) + '</div>';
@@ -375,97 +363,143 @@
       ];
       for (const p of patterns) {
         const m = text.match(p);
-        if (m) return m[1];
+        if (m) return m[1].replace(/\./g, '-').replace(/\//g, '-');
       }
       return '';
     }
 
-    function parseVatId(text) {
-      const lines = text.split(/\r?\n/);
+    function parseDanishMonthDate(text) {
+      const months = { januar:'01', februar:'02', marts:'03', april:'04', maj:'05', juni:'06', juli:'07', august:'08', september:'09', oktober:'10', november:'11', december:'12' };
+      const m = normalizeTextBasic(text).match(/(\d{1,2})\.\s*(januar|februar|marts|april|maj|juni|juli|august|september|oktober|november|december)\s*(\d{4})/);
+      if (!m) return '';
+      return String(m[1]).padStart(2, '0') + '-' + months[m[2]] + '-' + m[3];
+    }
+
+    function matchLabelValue(text, labels) {
+      const lines = text.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
       for (const line of lines) {
-        const l = normalizeTextBasic(line);
-        if (l.includes('cui') || l.includes('vat') || l.includes('tva') || l.includes('ro')) {
-          const m = line.match(/\b(?:RO\s*)?\d{2,12}\b/);
-          if (m) return m[0].replace(/\s+/g, '');
+        const ln = normalizeTextBasic(line);
+        for (const label of labels) {
+          const lab = normalizeTextBasic(label);
+          if (ln.includes(lab)) {
+            const idx = ln.indexOf(lab);
+            const rawTail = line.slice(Math.min(line.length, idx + label.length)).replace(/^\s*[:.-]?\s*/, '').trim();
+            if (rawTail) return rawTail;
+          }
         }
       }
       return '';
     }
 
-    function parseInvoiceNumber(text) {
-      const lines = text.split(/\r?\n/);
-      for (const line of lines) {
-        const l = normalizeTextBasic(line);
-        if (l.includes('factura') || l.includes('invoice') || l.includes('nr') || l.includes('numar')) {
-          const m = line.match(/(?:nr\.?|no\.?|invoice\s*no\.?|factura\s*nr\.?)[\s:\-]*([A-Za-z0-9\-\/]+)/i);
-          if (m) return m[1];
-        }
+    function parseCVR(text) {
+      const direct = matchLabelValue(text, ['CVR-nr.', 'CVR nr', 'CVR']);
+      if (direct) {
+        const m = direct.match(/(?:DK\s*)?\d{8,12}/i);
+        if (m) return m[0].replace(/\s+/g, '');
+      }
+      const m2 = text.match(/CVR[- ]?nr\.?\s*(DK\s*)?\d{8,12}/i);
+      if (m2) return m2[0].replace(/.*?(DK\s*)?(\d{8,12}).*/i, (_, dk, num) => (dk ? 'DK' : '') + num);
+      return '';
+    }
+
+    function parseFakturanr(text) {
+      const v = matchLabelValue(text, ['Fakturanr.', 'Fakturanr', 'Invoice no', 'Invoice nr']);
+      if (v) {
+        const m = v.match(/[A-Za-z0-9\-\/]{4,}/);
+        if (m) return m[0];
       }
       return '';
     }
 
-    function parseAmounts(text) {
+    function parseDebitornr(text) {
+      const v = matchLabelValue(text, ['Debitornr.', 'Debitornr', 'Debtor no', 'Customer no']);
+      if (v) {
+        const m = v.match(/[A-Za-z0-9\-\/]{3,}/);
+        if (m) return m[0];
+      }
+      return '';
+    }
+
+    function parseAmountAfterLabel(text, labels) {
+      const v = matchLabelValue(text, labels);
+      if (v) {
+        const m = v.match(/\d+[\.,]\d{2}/);
+        if (m) return m[0].replace(',', '.');
+      }
       const lines = text.split(/\r?\n/);
-      let vat = '';
-      let total = '';
-
       for (const line of lines) {
-        const l = normalizeTextBasic(line);
-        const nums = line.match(/\d+[\.,]\d{2}/g);
-        if (!nums) continue;
-        const last = nums[nums.length - 1].replace(',', '.');
-
-        if (!vat && (l.includes('tva') || l.includes('vat'))) {
-          vat = last;
-        }
-        if (!total && (l.includes('total') || l.includes('de plata') || l.includes('de plată') || l.includes('grand total'))) {
-          total = last;
+        const ln = normalizeTextBasic(line);
+        for (const label of labels) {
+          if (ln.includes(normalizeTextBasic(label))) {
+            const m = line.match(/\d+[\.,]\d{2}/g);
+            if (m && m.length) return m[m.length - 1].replace(',', '.');
+          }
         }
       }
-
-      if (!total) {
-        const allNums = text.match(/\d+[\.,]\d{2}/g);
-        if (allNums && allNums.length) total = allNums[allNums.length - 1].replace(',', '.');
-      }
-
-      return { vat, total };
+      return '';
     }
 
     function parseSupplier(text, fileLabel) {
       const lines = text.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+      const cvrIdx = lines.findIndex(line => normalizeTextBasic(line).includes('cvr'));
+      if (cvrIdx > 0) {
+        for (let i = cvrIdx - 1; i >= 0 && i >= cvrIdx - 4; i--) {
+          const l = normalizeTextBasic(lines[i]);
+          if (!l) continue;
+          if (/debitornr|fakturanr|bogforingsdato|forfaldsdato|faktura/.test(l)) continue;
+          if (/^\d/.test(l)) continue;
+          if (l.includes('sergiu bulboaca')) continue;
+          return lines[i];
+        }
+      }
       for (const line of lines.slice(0, 8)) {
         const l = normalizeTextBasic(line);
         if (!l) continue;
-        if (l.includes('factura') || l.includes('invoice') || l.includes('cui') || l.includes('tva') || l.length < 3) continue;
+        if (l.includes('faktura') || l.includes('invoice') || l.includes('debitornr') || l.includes('fakturanr')) continue;
+        if (l.includes('sergiu bulboaca')) continue;
         if (/^\d/.test(l)) continue;
-        return line;
+        if (l.includes('general logistics') || l.includes('a/s')) return line;
       }
       return fileLabel || '';
     }
 
+    function parseCustomer(text) {
+      const lines = text.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+      const debIdx = lines.findIndex(line => normalizeTextBasic(line).includes('debitornr'));
+      if (debIdx > 0) {
+        const candidates = [];
+        for (let i = Math.max(0, debIdx - 4); i < debIdx; i++) {
+          const raw = lines[i];
+          const l = normalizeTextBasic(raw);
+          if (!l) continue;
+          if (/faktura|invoice|general logistics|cvr|kokmose/.test(l)) continue;
+          candidates.push(raw);
+        }
+        if (candidates.length) return candidates.join(', ');
+      }
+      return '';
+    }
+
     function detectDocType(text) {
       const l = normalizeTextBasic(text);
-      if (l.includes('factura') || l.includes('invoice')) return 'Factură';
+      if (l.includes('faktura') || l.includes('invoice')) return 'Factură';
       if (l.includes('bon fiscal') || l.includes('receipt')) return 'Bon';
       return 'Document';
     }
 
     function parseDocument(text, fileLabel) {
-      const date = parseDate(text);
-      const vatId = parseVatId(text);
-      const invoiceNumber = parseInvoiceNumber(text);
-      const amounts = parseAmounts(text);
+      const dateLabel = matchLabelValue(text, ['Bogføringsdato', 'Bogforingsdato', 'Faktura', 'Invoice date']);
+      const date = parseDate(dateLabel) || parseDanishMonthDate(dateLabel) || parseDate(text) || parseDanishMonthDate(text);
       const supplier = parseSupplier(text, fileLabel);
+      const customer = parseCustomer(text);
+      const cvr = parseCVR(text);
+      const fakturanr = parseFakturanr(text);
+      const debitornr = parseDebitornr(text);
+      const net = parseAmountAfterLabel(text, ['Netto DKK', 'Netto', 'Net amount']);
+      const vat = parseAmountAfterLabel(text, ['Moms', 'VAT']);
+      const total = parseAmountAfterLabel(text, ['I alt DKK', 'I alt', 'Total DKK', 'Grand total', 'Total']);
       const docType = detectDocType(text);
-      return {
-        docType,
-        supplier,
-        date,
-        invoiceNumber,
-        vatId,
-        vat: amounts.vat,
-        total: amounts.total
-      };
+      return { docType, supplier, customer, date, fakturanr, debitornr, cvr, net, vat, total };
     }
 
     function renderTable() {
@@ -477,9 +511,12 @@
           '<td>' + escapeHtml(d.fileLabel) + '</td>' +
           '<td>' + escapeHtml(d.docType || '-') + '</td>' +
           '<td>' + escapeHtml(d.supplier || '-') + '</td>' +
+          '<td>' + escapeHtml(d.customer || '-') + '</td>' +
           '<td>' + escapeHtml(d.date || '-') + '</td>' +
-          '<td>' + escapeHtml(d.invoiceNumber || '-') + '</td>' +
-          '<td>' + escapeHtml(d.vatId || '-') + '</td>' +
+          '<td>' + escapeHtml(d.fakturanr || '-') + '</td>' +
+          '<td>' + escapeHtml(d.debitornr || '-') + '</td>' +
+          '<td>' + escapeHtml(d.cvr || '-') + '</td>' +
+          '<td>' + escapeHtml(d.net || '-') + '</td>' +
           '<td>' + escapeHtml(d.vat || '-') + '</td>' +
           '<td>' + escapeHtml(d.total || '-') + '</td>' +
           '</tr>';
@@ -532,17 +569,7 @@
         } catch (err) {
           console.error(err);
           rawTexts.push('--- ' + item.label + ' ---\nEroare OCR');
-          extractedDocs.push({
-            fileLabel: item.label,
-            docType: 'Document',
-            supplier: '',
-            date: '',
-            invoiceNumber: '',
-            vatId: '',
-            vat: '',
-            total: '',
-            rawText: ''
-          });
+          extractedDocs.push({ fileLabel: item.label, docType: 'Document', supplier: '', customer: '', date: '', fakturanr: '', debitornr: '', cvr: '', net: '', vat: '', total: '', rawText: '' });
         }
       }
 
@@ -554,9 +581,7 @@
 
     function getReportDocs() {
       const mode = document.getElementById('reportMode').value;
-      if (mode === 'single' && extractedDocs[selectedDocIndex]) {
-        return [extractedDocs[selectedDocIndex]];
-      }
+      if (mode === 'single' && extractedDocs[selectedDocIndex]) return [extractedDocs[selectedDocIndex]];
       return extractedDocs.slice();
     }
 
@@ -575,9 +600,12 @@
         'Fișier: ' + (d.fileLabel || '-'),
         'Tip: ' + (d.docType || '-'),
         'Furnizor: ' + (d.supplier || '-'),
+        'Client: ' + (d.customer || '-'),
         'Dată: ' + (d.date || '-'),
-        'Nr. document: ' + (d.invoiceNumber || '-'),
-        'CUI / VAT ID: ' + (d.vatId || '-'),
+        'Fakturanr.: ' + (d.fakturanr || '-'),
+        'Debitornr.: ' + (d.debitornr || '-'),
+        'CVR / VAT ID: ' + (d.cvr || '-'),
+        'Net: ' + (d.net || '-'),
         'TVA: ' + (d.vat || '-'),
         'Total: ' + (d.total || '-')
       ].join('\n')).join('\n\n');
@@ -621,10 +649,8 @@
         alert('Nu există documente pentru export.');
         return;
       }
-      const headers = ['file','type','supplier','date','invoice_number','vat_id','vat','total'];
-      const rows = docs.map(d => [
-        d.fileLabel || '', d.docType || '', d.supplier || '', d.date || '', d.invoiceNumber || '', d.vatId || '', d.vat || '', d.total || ''
-      ].map(v => '"' + String(v).replace(/"/g, '""') + '"').join(','));
+      const headers = ['file','type','supplier','customer','date','fakturanr','debitornr','cvr','net','vat','total'];
+      const rows = docs.map(d => [d.fileLabel || '', d.docType || '', d.supplier || '', d.customer || '', d.date || '', d.fakturanr || '', d.debitornr || '', d.cvr || '', d.net || '', d.vat || '', d.total || ''].map(v => '"' + String(v).replace(/"/g, '""') + '"').join(','));
       const csv = [headers.join(',')].concat(rows).join('\n');
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
