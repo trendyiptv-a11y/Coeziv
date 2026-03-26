@@ -2,7 +2,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Wolt OCR Multi-Screenshot – Raport simplu</title>
+  <title>Wolt OCR Multi-Screenshot – Raport simplu v2</title>
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
   <style>
     :root {
@@ -26,7 +26,7 @@
     }
     .container { max-width: 1200px; margin: 0 auto; }
     .card {
-      background: rgba(17,24,39,.94);
+      background: rgba(17, 24, 39, 0.94);
       border: 1px solid var(--border);
       border-radius: 18px;
       padding: 18px;
@@ -36,26 +36,26 @@
     h1,h2,h3 { margin: 0 0 10px; }
     p { color: var(--muted); line-height: 1.5; }
     label {
-      display:block;
-      color:#cbd5e1;
-      font-size:14px;
-      margin-bottom:6px;
+      display: block;
+      color: #cbd5e1;
+      font-size: 14px;
+      margin-bottom: 6px;
     }
-    input, textarea, button {
-      width:100%;
-      border-radius:12px;
-      border:1px solid #334155;
-      background:var(--input);
-      color:var(--text);
-      padding:12px 14px;
-      font-size:14px;
+    input, textarea, button, select {
+      width: 100%;
+      border-radius: 12px;
+      border: 1px solid #334155;
+      background: var(--input);
+      color: var(--text);
+      padding: 12px 14px;
+      font-size: 14px;
     }
     textarea { min-height: 90px; resize: vertical; }
     .row {
-      display:grid;
+      display: grid;
       grid-template-columns: repeat(12, 1fr);
-      gap:12px;
-      margin-bottom:12px;
+      gap: 12px;
+      margin-bottom: 12px;
     }
     .col-4 { grid-column: span 4; }
     .col-6 { grid-column: span 6; }
@@ -65,15 +65,15 @@
       .col-4,.col-6,.col-12 { grid-column: span 1; }
     }
     .actions {
-      display:flex;
-      flex-wrap:wrap;
-      gap:10px;
-      margin-top:8px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 8px;
     }
     .actions button {
-      width:auto;
-      min-width:180px;
-      cursor:pointer;
+      width: auto;
+      min-width: 180px;
+      cursor: pointer;
     }
     .primary { background: var(--accent2); color:#052e16; border:none; font-weight:bold; }
     .secondary { background: var(--accent); color:#082f49; border:none; font-weight:bold; }
@@ -127,6 +127,23 @@
       position:sticky;
       top:0;
     }
+    .day-block {
+      margin-top: 16px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      background: #020617;
+    }
+    .day-head {
+      padding: 12px 14px;
+      background: #0b1220;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
     .pill {
       display:inline-block;
       padding:4px 8px;
@@ -136,13 +153,20 @@
       background: rgba(56,189,248,.18);
       color:#7dd3fc;
     }
+    @media print {
+      body { background: #fff; color: #000; padding: 0; }
+      .card { box-shadow:none; background:#fff; border:1px solid #ccc; }
+      .actions, #ocrImages, #previewGrid, #ocrRawText, .small { display: none !important; }
+      .box, .day-block { background:#fff; color:#000; }
+      th { background:#eee; color:#000; }
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="card">
-      <h1>Wolt OCR multi-screenshot + raport simplu</h1>
-      <p>Versiune simplificată: doar OCR din mai multe screenshot-uri Wolt și raport simplu. Raportul include data, numărul de livrări, km total și locațiile extrase.</p>
+      <h1>Wolt OCR multi-screenshot + raport simplu v2</h1>
+      <p>Varianta simplă, rafinată: OCR din mai multe screenshot-uri, deduplicare, grupare automată pe zile și raport clar cu locații, ore și km.</p>
     </div><div class="card">
   <h2>Setări raport</h2>
   <div class="row">
@@ -151,12 +175,21 @@
       <input id="driverName" placeholder="Ex: Sergiu Bulboacă" />
     </div>
     <div class="col-4">
-      <label>Data zilei</label>
+      <label>Data zilei selectate manual</label>
       <input id="reportDate" type="date" />
     </div>
     <div class="col-4">
       <label>Observații</label>
       <input id="reportNote" placeholder="Ex: Wolt seară Varde" />
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-12">
+      <label>Mod raport</label>
+      <select id="reportMode">
+        <option value="all">Raport pentru toate zilele detectate</option>
+        <option value="selected">Raport doar pentru data selectată manual</option>
+      </select>
     </div>
   </div>
 </div>
@@ -171,6 +204,7 @@
         <button class="secondary" type="button" onclick="runMultiOcr()">Extrage din toate</button>
         <button class="primary" type="button" onclick="generateSimpleReport()">Generează raport</button>
         <button class="ghost" type="button" onclick="downloadReportTxt()">Descarcă raport TXT</button>
+        <button class="ghost" type="button" onclick="downloadDeliveriesCsv()">Descarcă CSV simplu</button>
         <button class="ghost" type="button" onclick="window.print()">Printează / PDF</button>
         <button class="danger" type="button" onclick="clearAll()">Curăță tot</button>
       </div>
@@ -281,12 +315,7 @@
         }
 
         if (km !== null) {
-          deliveries.push({
-            date: detectedDate,
-            time,
-            location,
-            km
-          });
+          deliveries.push({ date: detectedDate, time, location, km });
         }
       }
 
@@ -303,6 +332,19 @@
         if ((a.date || '') !== (b.date || '')) return (a.date || '').localeCompare(b.date || '');
         return (a.time || '').localeCompare(b.time || '');
       });
+    }
+
+    function groupByDate(list) {
+      const groups = {};
+      list.forEach(item => {
+        const date = item.date || 'Fără dată';
+        if (!groups[date]) groups[date] = [];
+        groups[date].push(item);
+      });
+      Object.keys(groups).forEach(date => {
+        groups[date].sort((a, b) => (a.time || '').localeCompare(b.time || ''));
+      });
+      return groups;
     }
 
     function renderOcrTable() {
@@ -362,39 +404,66 @@
       }
     }
 
+    function getFilteredResults() {
+      const mode = document.getElementById('reportMode').value;
+      const selectedDate = document.getElementById('reportDate').value;
+      if (mode === 'selected' && selectedDate) {
+        return ocrResults.filter(x => x.date === selectedDate);
+      }
+      return ocrResults.slice();
+    }
+
     function generateSimpleReport() {
-      if (!ocrResults.length) {
-        alert('Rulează mai întâi OCR-ul.');
+      const filtered = getFilteredResults();
+      if (!filtered.length) {
+        alert('Nu există rezultate OCR pentru raport.');
         return;
       }
 
-      const manualDate = document.getElementById('reportDate').value;
       const note = document.getElementById('reportNote').value.trim();
       const name = document.getElementById('driverName').value.trim();
-      const dates = Array.from(new Set(ocrResults.map(x => x.date).filter(Boolean)));
-      const reportDate = manualDate || (dates.length === 1 ? dates[0] : dates.join(', '));
-      const totalKm = ocrResults.reduce((sum, d) => sum + Number(d.km || 0), 0);
-      const locations = Array.from(new Set(ocrResults.map(x => x.location).filter(Boolean)));
+      const grouped = groupByDate(filtered);
+      const allDates = Object.keys(grouped).sort();
+      const totalKmAll = filtered.reduce((sum, d) => sum + Number(d.km || 0), 0);
+      const totalLocationsAll = Array.from(new Set(filtered.map(x => x.location).filter(Boolean))).length;
 
-      const routeLines = ocrResults.map((d, index) => {
-        return (index + 1) + '. ' + (d.time || '-') + ' | ' + (d.location || '-') + ' | ' + round1(d.km || 0) + ' km';
-      });
+      const blocks = allDates.map(date => {
+        const items = grouped[date];
+        const totalKm = items.reduce((sum, d) => sum + Number(d.km || 0), 0);
+        const locations = Array.from(new Set(items.map(x => x.location).filter(Boolean)));
+        const firstLocation = items.length ? items[0].location : '-';
+        const lastLocation = items.length ? items[items.length - 1].location : '-';
+        const lines = items.map((d, index) => {
+          return (index + 1) + '. ' + (d.time || '-') + ' | ' + (d.location || '-') + ' | ' + round1(d.km || 0) + ' km';
+        }).join('\n');
+
+        return [
+          '==============================',
+          'DATA: ' + date,
+          'Total livrări: ' + items.length,
+          'Total km: ' + round1(totalKm),
+          'Prima locație: ' + firstLocation,
+          'Ultima locație: ' + lastLocation,
+          'Locații distincte: ' + locations.length,
+          'Locații:',
+          locations.length ? locations.map((loc, i) => (i + 1) + '. ' + loc).join('\n') : '-',
+          'Detaliere livrări:',
+          lines
+        ].join('\n');
+      }).join('\n\n');
 
       const report = [
         'RAPORT SIMPLU – WOLT OCR MULTI-SCREENSHOT',
         'Nume: ' + (name || '-'),
-        'Data: ' + (reportDate || '-'),
+        'Mod raport: ' + (document.getElementById('reportMode').value === 'selected' ? 'Doar data selectată' : 'Toate zilele detectate'),
         'Observații: ' + (note || '-'),
         '',
-        'Total livrări detectate: ' + ocrResults.length,
-        'Total km detectați: ' + round1(totalKm),
-        'Total locații distincte: ' + locations.length,
+        'Total zile în raport: ' + allDates.length,
+        'Total livrări în raport: ' + filtered.length,
+        'Total km în raport: ' + round1(totalKmAll),
+        'Total locații distincte în raport: ' + totalLocationsAll,
         '',
-        'Locații detectate:',
-        locations.length ? locations.map((loc, i) => (i + 1) + '. ' + loc).join('\n') : '-',
-        '',
-        'Detaliere livrări:',
-        routeLines.join('\n')
+        blocks
       ].join('\n');
 
       document.getElementById('simpleReport').textContent = report;
@@ -411,6 +480,26 @@
       const a = document.createElement('a');
       a.href = url;
       a.download = 'raport_wolt_ocr.txt';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    function downloadDeliveriesCsv() {
+      const filtered = getFilteredResults();
+      if (!filtered.length) {
+        alert('Nu există rezultate OCR pentru export.');
+        return;
+      }
+      const headers = ['date','time','location','km'];
+      const rows = filtered.map(item => headers.map(h => '"' + String(item[h] == null ? '' : item[h]).replace(/"/g, '""') + '"').join(','));
+      const csv = [headers.join(',')].concat(rows).join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'wolt_ocr_deliveries.csv';
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
