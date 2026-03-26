@@ -2,264 +2,226 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Wolt OCR Multi-Screenshot – Raport simplu v2</title>
+  <title>Wolt OCR Multi-Screenshot – Simplu v3</title>
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
   <style>
     :root {
-      --bg: #0f172a;
-      --card: #111827;
-      --text: #e5e7eb;
-      --muted: #94a3b8;
-      --accent: #38bdf8;
-      --accent2: #22c55e;
-      --danger: #ef4444;
-      --border: #243041;
-      --input: #0b1220;
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: Arial, Helvetica, sans-serif;
-      background: linear-gradient(180deg, #020617 0%, #0f172a 100%);
-      color: var(--text);
-      padding: 18px;
-    }
-    .container { max-width: 1200px; margin: 0 auto; }
-    .card {
-      background: rgba(17, 24, 39, 0.94);
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      padding: 18px;
-      box-shadow: 0 10px 30px rgba(0,0,0,.25);
-      margin-bottom: 16px;
-    }
-    h1,h2,h3 { margin: 0 0 10px; }
-    p { color: var(--muted); line-height: 1.5; }
-    label {
-      display: block;
-      color: #cbd5e1;
-      font-size: 14px;
-      margin-bottom: 6px;
-    }
-    input, textarea, button, select {
-      width: 100%;
-      border-radius: 12px;
-      border: 1px solid #334155;
-      background: var(--input);
-      color: var(--text);
-      padding: 12px 14px;
-      font-size: 14px;
-    }
-    textarea { min-height: 90px; resize: vertical; }
-    .row {
-      display: grid;
-      grid-template-columns: repeat(12, 1fr);
-      gap: 12px;
-      margin-bottom: 12px;
-    }
-    .col-4 { grid-column: span 4; }
-    .col-6 { grid-column: span 6; }
-    .col-12 { grid-column: span 12; }
-    @media (max-width: 900px) {
-      .row { grid-template-columns: 1fr; }
-      .col-4,.col-6,.col-12 { grid-column: span 1; }
-    }
-    .actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 8px;
-    }
-    .actions button {
-      width: auto;
-      min-width: 180px;
-      cursor: pointer;
-    }
-    .primary { background: var(--accent2); color:#052e16; border:none; font-weight:bold; }
-    .secondary { background: var(--accent); color:#082f49; border:none; font-weight:bold; }
-    .ghost { background: transparent; border:1px solid #475569; }
-    .danger { background: var(--danger); color:white; border:none; }
-    .preview-grid {
-      display:grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px,1fr));
-      gap:10px;
-      margin-top:12px;
-    }
-    .preview-card {
-      background:#020617;
-      border:1px solid var(--border);
-      border-radius:14px;
-      padding:10px;
-    }
-    .preview-card img {
-      width:100%;
-      height:180px;
-      object-fit:contain;
-      display:block;
-      background:#000;
-      border-radius:10px;
-    }
-    .small { font-size:12px; color:var(--muted); }
-    .box {
-      white-space:pre-wrap;
-      background:#020617;
-      border:1px solid var(--border);
-      border-radius:14px;
-      padding:14px;
-      line-height:1.55;
-      margin-top:12px;
-    }
-    table {
-      width:100%;
-      border-collapse:collapse;
-      margin-top:12px;
-    }
-    th, td {
-      padding:10px;
-      border-bottom:1px solid var(--border);
-      text-align:left;
-      vertical-align:top;
-      font-size:14px;
-    }
-    th {
-      background:#0b1220;
-      color:#cbd5e1;
-      position:sticky;
-      top:0;
-    }
-    .day-block {
-      margin-top: 16px;
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      overflow: hidden;
-      background: #020617;
-    }
-    .day-head {
-      padding: 12px 14px;
-      background: #0b1220;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-    .pill {
-      display:inline-block;
-      padding:4px 8px;
-      border-radius:999px;
-      font-size:12px;
-      font-weight:bold;
-      background: rgba(56,189,248,.18);
-      color:#7dd3fc;
-    }
-    @media print {
-      @page {
-        size: A4;
-        margin: 12mm;
-      }body {
-    background: #fff;
-    color: #000;
-    padding: 0;
-    font-size: 11pt;
-  }
+      --bg: #0b1220;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --line: #dbe3ee;
+      --primary: #2563eb;
+      --primaryText: #ffffff;
+      --secondary: #e2e8f0;
+      --secondaryText: #0f172a;
+      --danger: #dc2626;
+      --success: #16a34a;
+      --inputBg: #ffffff;
+    }* { box-sizing: border-box; }
 
-  .container {
-    max-width: none;
-    margin: 0;
-  }
-
-  .card {
-    box-shadow: none;
-    background: #fff;
-    color: #000;
-    border: 1px solid #cfcfcf;
-    border-radius: 10px;
-    margin-bottom: 10px;
-    padding: 12px;
-    break-inside: avoid;
-    page-break-inside: avoid;
-  }
-
-  h1, h2, h3 {
-    color: #000;
-    page-break-after: avoid;
-    break-after: avoid;
-  }
-
-  p, label, .small, .pill, th, td, .box {
-    color: #000 !important;
-  }
-
-  .actions,
-  #ocrImages,
-  #previewGrid,
-  #ocrRawText,
-  .small,
-  input,
-  select,
-  button {
-    display: none !important;
-  }
-
-  #ocrSummary {
-    display: block !important;
-  }
-
-  .box,
-  .day-block {
-    background: #fff;
-    color: #000;
-    border: 1px solid #d8d8d8;
-  }
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    page-break-inside: auto;
-  }
-
-  thead {
-    display: table-header-group;
-  }
-
-  tfoot {
-    display: table-footer-group;
-  }
-
-  tr {
-    break-inside: avoid;
-    page-break-inside: avoid;
-  }
-
-  th {
-    background: #efefef !important;
-    color: #000 !important;
-    position: static;
-  }
-
-  td {
-    background: #fff !important;
-  }
-
-  .card:has(#ocrTable) {
-    page-break-before: auto;
-  }
-
-  .card:has(#simpleReport) {
-    page-break-before: always;
-  }
-
-  #simpleReport {
-    white-space: pre-wrap;
-    line-height: 1.45;
-    font-size: 10.5pt;
-  }
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  padding: 16px;
 }
-  .card { box-shadow:none; background:#fff; border:1px solid #ccc; }
-  .actions, #ocrImages, #previewGrid, #ocrRawText, .small { display: none !important; }
-  .box, .day-block { background:#fff; color:#000; }
-  th { background:#eee; color:#000; }
+
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+h1, h2, h3 {
+  margin: 0 0 10px;
+  color: var(--text);
+}
+
+p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.note {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  color: #1e3a8a;
+  font-size: 13px;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.col-4 { grid-column: span 4; }
+.col-6 { grid-column: span 6; }
+.col-12 { grid-column: span 12; }
+
+@media (max-width: 900px) {
+  .row { grid-template-columns: 1fr; }
+  .col-4, .col-6, .col-12 { grid-column: span 1; }
+}
+
+label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+input, select, textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid #cbd5e1;
+  background: var(--inputBg);
+  color: var(--text);
+  font-size: 16px;
+}
+
+textarea {
+  min-height: 90px;
+  resize: vertical;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.actions button {
+  width: auto;
+  min-width: 170px;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-primary { background: var(--primary); color: var(--primaryText); }
+.btn-secondary { background: var(--secondary); color: var(--secondaryText); border: 1px solid #cbd5e1; }
+.btn-danger { background: var(--danger); color: #fff; }
+.btn-success { background: var(--success); color: #fff; }
+
+.status {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #f8fafc;
+  border: 1px solid var(--line);
+  color: var(--text);
+  font-size: 14px;
+}
+
+.preview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.preview-card {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 10px;
+  background: #f8fafc;
+}
+
+.preview-card img {
+  width: 100%;
+  height: 180px;
+  object-fit: contain;
+  display: block;
+  background: #fff;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+}
+
+.small {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 8px;
+  word-break: break-word;
+}
+
+.box {
+  white-space: pre-wrap;
+  background: #f8fafc;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 14px;
+  color: var(--text);
+  line-height: 1.5;
+  min-height: 80px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+}
+
+th, td {
+  padding: 10px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  vertical-align: top;
+  font-size: 14px;
+  color: var(--text);
+}
+
+th {
+  background: #f1f5f9;
+  font-weight: 700;
+}
+
+.day-block {
+  margin-top: 14px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.day-head {
+  padding: 12px 14px;
+  background: #eff6ff;
+  border-bottom: 1px solid var(--line);
+  font-weight: 700;
+  color: #1d4ed8;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+@media print {
+  @page { size: A4; margin: 12mm; }
+  body { background: #fff; padding: 0; }
+  .card { box-shadow: none; border-color: #ccc; }
+  .actions, #ocrImages, #previewGrid, #ocrRawText, #statusBox { display: none !important; }
+  .box, .day-block, .preview-card { background: #fff; }
 }
 
   </style>
@@ -267,8 +229,9 @@
 <body>
   <div class="container">
     <div class="card">
-      <h1>Wolt OCR multi-screenshot + raport simplu v2</h1>
-      <p>Varianta simplă, rafinată: OCR din mai multe screenshot-uri, deduplicare, grupare automată pe zile și raport clar cu locații, ore și km.</p>
+      <h1>Wolt OCR multi-screenshot + raport simplu</h1>
+      <p>Varianta simplă, cu contrast bun și flow clar: încarci screenshot-uri, rulezi OCR, verifici livrările și generezi raportul.</p>
+      <div class="note">Raportul include data, orele, locațiile și km. Nu extrage sume.</div>
     </div><div class="card">
   <h2>Setări raport</h2>
   <div class="row">
@@ -277,7 +240,7 @@
       <input id="driverName" placeholder="Ex: Sergiu Bulboacă" />
     </div>
     <div class="col-4">
-      <label>Data zilei selectate manual</label>
+      <label>Data selectată manual</label>
       <input id="reportDate" type="date" />
     </div>
     <div class="col-4">
@@ -297,26 +260,27 @@
 </div>
 
 <div class="card">
-  <h2>Încarcă screenshot-uri Wolt</h2>
+  <h2>Screenshot-uri Wolt</h2>
   <div class="row">
     <div class="col-6">
       <label>Selectează unul sau mai multe screenshot-uri</label>
       <input id="ocrImages" type="file" accept="image/*" multiple onchange="loadImages(event)" />
       <div class="actions">
-        <button class="secondary" type="button" onclick="runMultiOcr()">Extrage din toate</button>
-        <button class="primary" type="button" onclick="generateSimpleReport()">Generează raport</button>
-        <button class="ghost" type="button" onclick="downloadReportTxt()">Descarcă raport TXT</button>
-        <button class="ghost" type="button" onclick="downloadDeliveriesCsv()">Descarcă CSV simplu</button>
-        <button class="ghost" type="button" onclick="window.print()">Printează / PDF</button>
-        <button class="danger" type="button" onclick="clearAll()">Curăță tot</button>
+        <button class="btn-primary" type="button" onclick="runMultiOcr()">1. Extrage din toate</button>
+        <button class="btn-success" type="button" onclick="generateSimpleReport()">2. Generează raport</button>
+        <button class="btn-secondary" type="button" onclick="downloadReportTxt()">Descarcă raport TXT</button>
+        <button class="btn-secondary" type="button" onclick="downloadDeliveriesCsv()">Descarcă CSV simplu</button>
+        <button class="btn-secondary" type="button" onclick="window.print()">Printează / PDF</button>
+        <button class="btn-danger" type="button" onclick="clearAll()">Curăță tot</button>
       </div>
+      <div id="statusBox" class="status">Status: aștept screenshot-uri.</div>
       <div id="previewGrid" class="preview-grid"></div>
     </div>
     <div class="col-6">
-      <label>Text OCR combinat</label>
+      <label>Rezumat OCR</label>
+      <div id="ocrSummary" class="box">Nu există încă rezultate.</div>
+      <label style="margin-top:12px;">Text OCR combinat</label>
       <div id="ocrRawText" class="box"></div>
-      <label style="margin-top:12px;">Rezumat OCR</label>
-      <div id="ocrSummary" class="box"></div>
     </div>
   </div>
 </div>
@@ -345,6 +309,10 @@
     let ocrImages = [];
     let ocrResults = [];
 
+    function setStatus(text) {
+      document.getElementById('statusBox').textContent = 'Status: ' + text;
+    }
+
     function round1(n) {
       return (Math.round((Number(n) + Number.EPSILON) * 10) / 10).toFixed(1);
     }
@@ -366,7 +334,11 @@
       const files = Array.from(event.target.files || []);
       ocrImages = [];
       document.getElementById('previewGrid').innerHTML = '';
-      if (!files.length) return;
+      clearResultsOnly();
+      if (!files.length) {
+        setStatus('nu ai selectat imagini.');
+        return;
+      }
 
       files.forEach(file => {
         const reader = new FileReader();
@@ -375,11 +347,13 @@
           ocrImages.push({ name: file.name, dataUrl });
           const card = document.createElement('div');
           card.className = 'preview-card';
-          card.innerHTML = '<img src="' + dataUrl + '" alt="preview" /><div class="small" style="margin-top:8px;">' + escapeHtml(file.name) + '</div>';
+          card.innerHTML = '<img src="' + dataUrl + '" alt="preview" /><div class="small">' + escapeHtml(file.name) + '</div>';
           document.getElementById('previewGrid').appendChild(card);
         };
         reader.readAsDataURL(file);
       });
+
+      setStatus(files.length + ' imagine/imaginI încărcate.');
     }
 
     function normalizeWoltDate(text) {
@@ -416,9 +390,7 @@
           }
         }
 
-        if (km !== null) {
-          deliveries.push({ date: detectedDate, time, location, km });
-        }
+        if (km !== null) deliveries.push({ date: detectedDate, time, location, km });
       }
 
       return deliveries;
@@ -443,22 +415,20 @@
         if (!groups[date]) groups[date] = [];
         groups[date].push(item);
       });
-      Object.keys(groups).forEach(date => {
-        groups[date].sort((a, b) => (a.time || '').localeCompare(b.time || ''));
-      });
+      Object.keys(groups).forEach(date => groups[date].sort((a, b) => (a.time || '').localeCompare(b.time || '')));
       return groups;
     }
 
     function renderOcrTable() {
       const tbody = document.querySelector('#ocrTable tbody');
-      tbody.innerHTML = ocrResults.map(d => {
-        return '<tr>' +
-          '<td>' + escapeHtml(d.date || '-') + '</td>' +
-          '<td>' + escapeHtml(d.time || '-') + '</td>' +
-          '<td>' + escapeHtml(d.location || '-') + '</td>' +
-          '<td>' + round1(d.km || 0) + '</td>' +
-          '</tr>';
-      }).join('');
+      tbody.innerHTML = ocrResults.map(d => (
+        '<tr>' +
+        '<td>' + escapeHtml(d.date || '-') + '</td>' +
+        '<td>' + escapeHtml(d.time || '-') + '</td>' +
+        '<td>' + escapeHtml(d.location || '-') + '</td>' +
+        '<td>' + round1(d.km || 0) + '</td>' +
+        '</tr>'
+      )).join('');
     }
 
     async function runMultiOcr() {
@@ -467,6 +437,7 @@
         return;
       }
 
+      setStatus('rulez OCR pe ' + ocrImages.length + ' imagini...');
       document.getElementById('ocrSummary').textContent = 'Procesez imaginile...';
       document.getElementById('ocrRawText').textContent = '';
       ocrResults = [];
@@ -474,6 +445,7 @@
 
       for (let i = 0; i < ocrImages.length; i++) {
         const img = ocrImages[i];
+        setStatus('procesez imaginea ' + (i + 1) + ' din ' + ocrImages.length + ': ' + img.name);
         try {
           const result = await Tesseract.recognize(img.dataUrl, 'eng');
           const text = result && result.data && result.data.text ? result.data.text : '';
@@ -504,6 +476,8 @@
       if (dates.length === 1) {
         document.getElementById('reportDate').value = dates[0];
       }
+
+      setStatus('OCR finalizat. Livrări detectate: ' + ocrResults.length + '.');
     }
 
     function getFilteredResults() {
@@ -535,9 +509,9 @@
         const locations = Array.from(new Set(items.map(x => x.location).filter(Boolean)));
         const firstLocation = items.length ? items[0].location : '-';
         const lastLocation = items.length ? items[items.length - 1].location : '-';
-        const lines = items.map((d, index) => {
-          return (index + 1) + '. ' + (d.time || '-') + ' | ' + (d.location || '-') + ' | ' + round1(d.km || 0) + ' km';
-        }).join('\n');
+        const lines = items.map((d, index) => (
+          (index + 1) + '. ' + (d.time || '-') + ' | ' + (d.location || '-') + ' | ' + round1(d.km || 0) + ' km'
+        )).join('\n');
 
         return [
           '==============================',
@@ -569,6 +543,7 @@
       ].join('\n');
 
       document.getElementById('simpleReport').textContent = report;
+      setStatus('raport generat.');
     }
 
     function downloadReportTxt() {
@@ -608,18 +583,24 @@
       URL.revokeObjectURL(url);
     }
 
-    function clearAll() {
-      ocrImages = [];
+    function clearResultsOnly() {
       ocrResults = [];
-      document.getElementById('ocrImages').value = '';
-      document.getElementById('previewGrid').innerHTML = '';
       document.getElementById('ocrRawText').textContent = '';
-      document.getElementById('ocrSummary').textContent = '';
+      document.getElementById('ocrSummary').textContent = 'Nu există încă rezultate.';
       document.getElementById('simpleReport').textContent = 'Apasă „Generează raport”.';
       renderOcrTable();
     }
 
+    function clearAll() {
+      ocrImages = [];
+      clearResultsOnly();
+      document.getElementById('ocrImages').value = '';
+      document.getElementById('previewGrid').innerHTML = '';
+      setStatus('totul a fost curățat.');
+    }
+
     fillToday();
     renderOcrTable();
+    setStatus('pregătit.');
   </script></body>
 </html>
