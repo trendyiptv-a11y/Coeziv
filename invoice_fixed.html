@@ -47,6 +47,7 @@
           <button class="btn-secondary" type="button" id="btnTxt">Descarcă raport TXT</button>
           <button class="btn-secondary" type="button" id="btnCsv">Descarcă CSV simplu</button>
           <button class="btn-secondary" type="button" id="btnPrint">Printează / PDF</button>
+          <button class="btn-secondary" type="button" id="btnDebug">🔍 Debug text PDF</button>
           <button class="btn-danger" type="button" id="btnClear">Curăță tot</button>
         </div>
         <div id="statusBox" class="status">Status: pregătit.</div>
@@ -306,27 +307,44 @@ function parseAmountFromSpecificLine(text, labels){
   return last;
 }
 
-// FIX 5: parsare TVA — caută linia cu "25% Moms 41,00" (nu "I alt" și nu "Moms-id")
+// FIX 5: parsare TVA robustă
+// Structura GLS: "25% Moms" și "41,00" pot fi pe linii separate sau pe aceeași linie
+// Strategia: găsim linia cu "Moms" (nu "Moms-id", nu "I alt"), luăm PRIMUL număr xx,xx
+// Dacă linia are mai multe numere, TVA e mai mic decât totalul — luăm minimul > 0
 function parseMoms(text){
-  const lines=linesOf(text);
+  const lines = linesOf(text);
+
+  // Caută linia exactă cu Moms (nu Moms-id, nu I alt, nu Netto)
   for(const line of lines){
-    const ln=normalizeTextBasic(line);
-    // Linia corectă: conține "moms" sau "vat", conține un procent (25%), NU conține "i alt", NU conține "moms-id"
-    if((ln.includes('moms') || ln.includes('vat') || ln.includes('tva'))
-       && !ln.includes('moms-id') && !ln.includes('i alt') && !ln.includes('total')
-       && /%/.test(line)){
-      const nums=line.match(/\d[\d\s]*[.,]\d{2}/g);
-      if(nums && nums.length) return nums[nums.length-1].replace(/\s/g,'').replace(',','.');
+    const ln = normalizeTextBasic(line);
+    if(!ln.includes('moms') && !ln.includes('vat') && !ln.includes('tva')) continue;
+    if(ln.includes('moms-id') || ln.includes('i alt') || ln.includes('netto') || ln.includes('total')) continue;
+
+    const nums = (line.match(/\d+[.,]\d{2}/g) || [])
+      .map(n => parseFloat(n.replace(',','.')))
+      .filter(n => n > 0);
+
+    if(!nums.length) continue;
+    // Dacă o singură sumă — returnează
+    if(nums.length === 1) return nums[0].toFixed(2);
+    // Dacă mai multe — TVA e suma mai mică (nu procentul 25.00 care e număr întreg)
+    // Filtrează numere care par procente (< 100 și fără zecimale semnificative)
+    const candidates = nums.filter(n => n !== 25 && n !== 20 && n !== 10);
+    if(candidates.length) return Math.min(...candidates).toFixed(2);
+    return Math.min(...nums).toFixed(2);
+  }
+
+  // Fallback: linia de după "I alt DKK" care nu e Netto
+  const iltIdx = lines.findIndex(l => /i alt/i.test(l));
+  if(iltIdx >= 0){
+    for(let i=iltIdx+1; i<Math.min(iltIdx+4, lines.length); i++){
+      const ln = normalizeTextBasic(lines[i]);
+      if(ln.includes('netto')) continue;
+      const nums = (lines[i].match(/\d+[.,]\d{2}/g)||[]).map(n=>parseFloat(n.replace(',','.')));
+      if(nums.length) return Math.min(...nums).toFixed(2);
     }
   }
-  // Fallback: linia cu "Moms" care nu e "Moms-id" și nu e "I alt"
-  for(const line of lines){
-    const ln=normalizeTextBasic(line);
-    if(ln.includes('moms') && !ln.includes('moms-id') && !ln.includes('i alt')){
-      const nums=line.match(/\d[\d\s]*[.,]\d{2}/g);
-      if(nums && nums.length) return nums[nums.length-1].replace(/\s/g,'').replace(',','.');
-    }
-  }
+
   return '';
 }
 
@@ -515,6 +533,14 @@ function downloadCsv(){
   document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
 }
 
+document.getElementById('btnDebug').addEventListener('click', ()=>{
+  if(!extractedDocs.length){ alert('Extrage mai întâi documentele.'); return; }
+  const doc = extractedDocs[selectedDocIndex] || extractedDocs[0];
+  const lines = linesOf(doc.rawText||'');
+  const numbered = lines.map((l,i)=>(i+1)+': '+l).join('\n');
+  document.getElementById('rawTextBox').textContent = '=== DEBUG LINII PDF ===\n'+numbered;
+  setStatus('debug afișat în "Text extras"');
+});
 document.getElementById('docFiles').addEventListener('change', loadFiles);
 document.getElementById('btnExtract').addEventListener('click', runExtraction);
 document.getElementById('btnReport').addEventListener('click', generateReport);
