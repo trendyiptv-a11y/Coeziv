@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Interpreter Facturi</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --panel: #121932;
+      --panel-2: #182140;
+      --text: #eef2ff;
+      --muted: #aab4d6;
+      --line: #2b3763;
+      --accent: #7aa2ff;
+      --ok: #44d17a;
+      --warn: #ffb84d;
+      --bad: #ff6b6b;
+      --shadow: 0 12px 36px rgba(0,0,0,.28);
+      --radius: 18px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background:
+        radial-gradient(circle at top right, rgba(122,162,255,.12), transparent 32%),
+        linear-gradient(180deg, #09101d, #0d1428 48%, #0b1020 100%);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    .wrap { width: min(1180px, calc(100% - 24px)); margin: 22px auto 40px; }
+    .hero { display: grid; gap: 10px; margin-bottom: 18px; }
+    h1 { margin: 0; font-size: clamp(1.7rem, 2.5vw, 2.4rem); letter-spacing: .2px; }
+    .sub { color: var(--muted); line-height: 1.5; }
+    .grid { display: grid; grid-template-columns: 1.15fr .85fr; gap: 18px; }
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.01));
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .card h2 { margin: 0; font-size: 1.02rem; padding: 18px 18px 0; }
+    .card .body { padding: 18px; }
+    .dropzone {
+      border: 1.5px dashed #4b5e9f;
+      border-radius: 16px;
+      padding: 22px;
+      background: rgba(122,162,255,.05);
+      text-align: center;
+      transition: .2s ease;
+    }
+    .dropzone.drag { background: rgba(122,162,255,.12); border-color: var(--accent); }
+    .muted { color: var(--muted); }
+    .small { font-size: .92rem; }
+    .row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .row > * { flex: 1; }
+    textarea, input, button, select {
+      width: 100%;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: var(--panel-2);
+      color: var(--text);
+      padding: 12px 14px;
+      font: inherit;
+    }
+    textarea { min-height: 250px; resize: vertical; line-height: 1.45; }
+    button {
+      background: linear-gradient(180deg, #7aa2ff, #5888ff);
+      border: none;
+      color: white;
+      cursor: pointer;
+      font-weight: 700;
+      box-shadow: 0 10px 24px rgba(88,136,255,.24);
+    }
+    button.secondary, button.ghost {
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      box-shadow: none;
+    }
+    .pill {
+      display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px;
+      border-radius: 999px; background: rgba(122,162,255,.08); color: #d6e1ff;
+      border: 1px solid rgba(122,162,255,.25); font-size: .9rem; width: auto;
+    }
+    .status { margin-top: 12px; min-height: 24px; color: var(--muted); }
+    .kv { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .field {
+      background: rgba(255,255,255,.02); border: 1px solid var(--line);
+      border-radius: 14px; padding: 12px 14px; min-height: 76px;
+    }
+    .field .label { font-size: .82rem; color: var(--muted); margin-bottom: 6px; }
+    .field .value { font-size: 1rem; font-weight: 650; word-break: break-word; }
+    .field.full { grid-column: 1 / -1; }
+    .score { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+    .bar { flex: 1; min-width: 180px; height: 12px; border-radius: 999px; background: #202b50; overflow: hidden; border: 1px solid var(--line); }
+    .bar > i { display: block; height: 100%; width: 0%; background: linear-gradient(90deg, #5b8cff, #7effb6); }
+    .flags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    .flag { padding: 8px 10px; border-radius: 999px; font-size: .85rem; border: 1px solid var(--line); background: rgba(255,255,255,.02); }
+    .flag.bad { border-color: rgba(255,107,107,.35); color: #ffd1d1; background: rgba(255,107,107,.07); }
+    .flag.ok { border-color: rgba(68,209,122,.35); color: #d2ffe2; background: rgba(68,209,122,.07); }
+    .preview {
+      width: 100%; max-height: 300px; object-fit: contain;
+      border-radius: 14px; border: 1px solid var(--line);
+      background: #0b1127; margin-top: 12px; display: none;
+    }
+    table { width: 100%; border-collapse: collapse; font-size: .94rem; }
+    th, td { border-bottom: 1px solid var(--line); padding: 10px 8px; text-align: left; vertical-align: top; }
+    th { color: var(--muted); font-weight: 600; }
+    pre {
+      margin: 0; background: #0b1127; border: 1px solid var(--line);
+      border-radius: 16px; padding: 14px; overflow: auto; color: #dce7ff;
+    }
+    .hint { margin-top: 10px; color: var(--muted); font-size: .9rem; }
+    @media (max-width: 860px) { .grid, .kv { grid-template-columns: 1fr; } .wrap { width: min(100%, calc(100% - 16px)); } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <div class="pill">HTML local · PDF / imagine / text · fără backend</div>
+      <h1>Interpreter facturi</h1>
+      <div class="sub">
+        Încarcă o factură PDF sau imagine, ori lipește textul ei.
+        Aplicația încearcă să extragă automat: furnizor, client, număr factură, dată, scadență, monedă, subtotal, TVA, total, CUI/CIF, IBAN și alte indicii utile.
+      </div>
+    </section>
+
+    <div class="grid">
+      <section class="card">
+        <h2>Intrare</h2>
+        <div class="body">
+          <div id="dropzone" class="dropzone">
+            <div style="font-size:1.15rem;font-weight:700;margin-bottom:6px;">Trage aici factura</div>
+            <div class="muted">Acceptă PDF, PNG, JPG, WEBP sau text copiat manual</div>
+            <div class="hint">Pentru PDF scanat fără text, aplicația încearcă automat OCR pe pagini.</div>
+            <div style="margin-top:14px;">
+              <input id="fileInput" type="file" accept=".pdf,image/*,.txt,text/plain" />
+            </div>
+          </div>
+
+          <div class="row" style="margin-top:14px;">
+            <button id="extractBtn">Interpretează factura</button>
+            <button id="sampleBtn" class="secondary">Încarcă exemplu</button>
+            <button id="clearBtn" class="ghost">Șterge</button>
+          </div>
+
+          <div id="status" class="status">Aștept fișier sau text.</div>
+
+          <img id="preview" class="preview" alt="Previzualizare" />
+
+          <div style="margin-top:16px;">
+            <label for="rawText" class="muted small">Text brut factură</label>
+            <textarea id="rawText" placeholder="Lipește aici textul facturii sau încarcă un fișier..."></textarea>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Rezultat</h2>
+        <div class="body">
+          <div class="score">
+            <div class="bar"><i id="scoreBar"></i></div>
+            <strong id="scoreText">0%</strong>
+          </div>
+          <div id="fields" class="kv"></div>
+          <div id="flags" class="flags"></div>
+        </div>
+      </section>
+    </div>
+
+    <section class="card" style="margin-top:18px;">
+      <h2>Linii detectate</h2>
+      <div class="body">
+        <table>
+          <thead>
+            <tr>
+              <th>Descriere</th>
+              <th>Cant.</th>
+              <th>Preț unitar</th>
+              <th>Total linie</th>
+            </tr>
+          </thead>
+          <tbody id="itemsBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card" style="margin-top:18px;">
+      <h2>JSON extras</h2>
+      <div class="body">
+        <pre id="jsonOut">{}</pre>
+      </div>
+    </section>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.3.136/pdf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+  <script>
+    if (window.pdfjsLib) {
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.3.136/pdf.worker.min.js';
+    }
+
+    const el = (id) => document.getElementById(id);
+    const dropzone = el('dropzone');
+    const fileInput = el('fileInput');
+    const rawText = el('rawText');
+    const statusEl = el('status');
+    const preview = el('preview');
+    const fields = el('fields');
+    const flags = el('flags');
+    const itemsBody = el('itemsBody');
+    const jsonOut = el('jsonOut');
+    const scoreBar = el('scoreBar');
+    const scoreText = el('scoreText');
+
+    let currentFile = null;
+
+    const fieldOrder = [
+      ['supplier', 'Furnizor'], ['customer', 'Client'], ['invoiceNumber', 'Număr factură'],
+      ['invoiceDate', 'Data facturii'], ['dueDate', 'Scadență'], ['currency', 'Monedă'],
+      ['subtotal', 'Subtotal'], ['vat', 'TVA'], ['total', 'Total'], ['iban', 'IBAN'],
+      ['supplierVatId', 'CUI/CIF furnizor'], ['customerVatId', 'CUI/CIF client'],
+      ['paymentTerms', 'Condiții plată'], ['notes', 'Observații']
+    ];
+
+    function setStatus(msg, type='info') {
+      const colors = { info: 'var(--muted)', ok: 'var(--ok)', warn: 'var(--warn)', bad: 'var(--bad)' };
+      statusEl.textContent = msg;
+      statusEl.style.color = colors[type] || colors.info;
+    }
+
+    function normalizeText(text) {
+      return (text || '')
+        .replace(/\u00A0/g, ' ')
+        .replace(/[|]/g, 'I')
+        .replace(/[“”]/g, '"')
+        .replace(/[–—]/g, '-')
+        .replace(/\r/g, '')
+        .replace(/\t/g, ' ')
+        .replace(/[ ]{2,}/g, ' ')
+        .replace(/\n{3,}/g, '\n\n')
+        .trim();
+    }
+
+    function cleanValue(v) { return typeof v === 'string' ? v.replace(/^[:\-\s]+/, '').trim() : v; }
+    function escapeHtml(s) {
+      return String(s ?? '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
+    }
+    function moneyToNumber(str) {
+      if (!str) return null;
+      const cleaned = String(str)
+        .replace(/[^\d,.-]/g, '')
+        .replace(/\.(?=\d{3}(\D|$))/g, '')
+        .replace(',', '.');
+      const n = parseFloat(cleaned);
+      return Number.isFinite(n) ? n : null;
+    }
+    function formatMoney(n, currency='') { return (n == null || Number.isNaN(n)) ? '' : `${n.toFixed(2)}${currency ? ' ' + currency : ''}`; }
+    function findFirst(text, regexes) {
+      for (const rx of regexes) {
+        const m = text.match(rx);
+        if (m && m[1]) return cleanValue(m[1]);
+      }
+      return '';
+    }
+    function findCurrency(text) {
+      const map = ['RON', 'EUR', 'USD', 'DKK', 'SEK', 'NOK', 'GBP'];
+      for (const c of map) if (new RegExp(`\\b${c}\\b`, 'i').test(text)) return c;
+      if (/lei|ron/i.test(text)) return 'RON';
+      if (/kr\.?\b/i.test(text) && /danmark|cvr|moms|faktura/i.test(text)) return 'DKK';
+      return '';
+    }
+    function findAmountByLabel(text, labels) {
+      const patterns = [];
+      for (const label of labels) patterns.push(new RegExp(`${label}[^\n\d]{0,20}([\d .,'-]+(?:[,.]\d{2})?)`, 'i'));
+      for (const rx of patterns) {
+        const m = text.match(rx);
+        if (m && m[1]) {
+          const n = moneyToNumber(m[1]);
+          if (n != null) return n;
+        }
+      }
+      return null;
+    }
+    function findDateByLabel(text, labels) {
+      const datePart = '(\\d{1,2}[./-]\\d{1,2}[./-]\\d{2,4}|\\d{4}[./-]\\d{1,2}[./-]\\d{1,2})';
+      const regexes = labels.map(label => new RegExp(`${label}[^\n\d]{0,20}${datePart}`, 'i'));
+      return findFirst(text, regexes);
+    }
+    function detectSupplier(text) {
+      const lines = text.split('\n').map(x => x.trim()).filter(Boolean);
+      const invoiceIdx = lines.findIndex(l => /factura|invoice|faktura/i.test(l));
+      const windowLines = lines.slice(0, invoiceIdx > 0 ? Math.min(invoiceIdx + 1, 8) : 8);
+      const labeled = findFirst(text, [
+        /(?:furnizor|emitent|supplier|seller|from)\s*[:\-]\s*([^\n]+)/i,
+        /(?:company|firm[aă])\s*[:\-]\s*([^\n]+)/i
+      ]);
+      if (labeled) return labeled;
+      return windowLines.find(l => !/factura|invoice|faktura|cui|cif|iban|telefon|email|www\./i.test(l) && l.length > 3) || '';
+    }
+    function detectCustomer(text) {
+      return findFirst(text, [
+        /(?:client|customer|bill to|sold to|buyer|cump[aă]r[aă]tor|beneficiar)\s*[:\-]\s*([^\n]+)/i,
+        /(?:attn\.?|to)\s*[:\-]\s*([^\n]+)/i
+      ]);
+    }
+    function extractIBAN(text) {
+      const m = text.replace(/\s+/g, ' ').match(/\b([A-Z]{2}\d{2}[A-Z0-9 ]{10,34})\b/);
+      return m ? m[1].replace(/\s{2,}/g, ' ').trim() : '';
+    }
+    function extractVatId(text, which='supplier') {
+      const specific = which === 'customer'
+        ? [/(?:client\s+cui|client\s+cif|customer\s+vat|customer\s+tax id|beneficiar\s+cui)\s*[:\-]?\s*([A-Z]{0,4}\s?\d{2,15})/i]
+        : [/(?:cui|cif|vat\s*id|tax\s*id|cvr|momsnr\.?|org\.nr\.?)\s*[:\-]?\s*([A-Z]{0,4}\s?\d{2,15})/i];
+      return findFirst(text, specific);
+    }
+    function parseItems(text) {
+      const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+      const items = [];
+      const itemRegex = /^(.*?)(?:\s{2,}|\t|\s)(\d+(?:[.,]\d+)?)\s+(\d+(?:[.,]\d{2,4})?)\s+(\d+(?:[.,]\d{2,4})?)$/;
+      lines.forEach(line => {
+        const m = line.match(itemRegex);
+        if (m && m[1] && !/subtotal|total|tva|vat|moms/i.test(line)) {
+          items.push({ description: m[1].trim(), quantity: m[2], unitPrice: m[3], lineTotal: m[4] });
+        }
+      });
+      return items.slice(0, 25);
+    }
+    function detectNotes(data) {
+      const notes = [];
+      if (data.total != null && data.subtotal != null && data.vat != null) {
+        const diff = Math.abs((data.subtotal + data.vat) - data.total);
+        if (diff > 0.11) notes.push(`Subtotal + TVA nu bate exact cu totalul (diferență ${diff.toFixed(2)}).`);
+      }
+      if (!data.invoiceNumber) notes.push('Numărul facturii nu a fost detectat clar.');
+      if (!data.invoiceDate) notes.push('Data facturii nu a fost detectată clar.');
+      if (!data.total && data.total !== 0) notes.push('Totalul nu a fost detectat clar.');
+      if (!data.currency) notes.push('Moneda nu a fost detectată clar.');
+      return notes.join(' ');
+    }
+    function estimateConfidence(data) {
+      let score = 0;
+      const weights = { supplier:12, customer:8, invoiceNumber:12, invoiceDate:12, dueDate:6, currency:8, subtotal:8, vat:8, total:14, iban:5, supplierVatId:4, customerVatId:3 };
+      for (const [k, w] of Object.entries(weights)) if (data[k] !== '' && data[k] != null) score += w;
+      if (data.total != null && data.subtotal != null && data.vat != null) {
+        const diff = Math.abs((data.subtotal + data.vat) - data.total);
+        if (diff < 0.11) score += 8;
+      }
+      return Math.min(100, Math.round(score));
+    }
+    function interpretInvoice(text) {
+      text = normalizeText(text);
+      const currency = findCurrency(text);
+      const data = {
+        supplier: detectSupplier(text),
+        customer: detectCustomer(text),
+        invoiceNumber: findFirst(text, [
+          /(?:factura\s*nr\.?|nr\.?\s*factura|invoice\s*(?:no\.?|number)?|faktura\s*nr\.?|fakturanr\.?)\s*[:#\-]?\s*([A-Z0-9\/-]{3,})/i,
+          /\b(?:nr\.?|no\.?)\s*[:#\-]?\s*([A-Z0-9\/-]{4,})\b/i
+        ]),
+        invoiceDate: findDateByLabel(text, ['data facturii', 'invoice date', 'fakturadato', 'date']),
+        dueDate: findDateByLabel(text, ['scadenta', 'scadență', 'due date', 'payment due', 'forfaldsdato']),
+        currency,
+        subtotal: findAmountByLabel(text, ['subtotal', 'sub total', 'net', 'valoare fara tva', 'valoare fără tva', 'total fara tva', 'total fără tva', 'ekskl\. moms', 'netto']),
+        vat: findAmountByLabel(text, ['tva', 'vat', 'moms']),
+        total: findAmountByLabel(text, ['total de plata', 'total de plată', 'grand total', 'amount due', 'de plata', 'de plată', 'total', 'suma de plata', 'sumă de plată', 'inkl\. moms']),
+        iban: extractIBAN(text),
+        supplierVatId: extractVatId(text, 'supplier'),
+        customerVatId: extractVatId(text, 'customer'),
+        paymentTerms: findFirst(text, [
+          /(?:conditii de plata|condiții de plată|payment terms|betalingsbetingelser)\s*[:\-]\s*([^\n]+)/i
+        ]),
+        items: parseItems(text)
+      };
+      data.notes = detectNotes(data);
+      data.confidence = estimateConfidence(data);
+      return data;
+    }
+
+    function render(data) {
+      fields.innerHTML = '';
+      const currency = data.currency || '';
+      fieldOrder.forEach(([key, label]) => {
+        let value = data[key];
+        if (['subtotal', 'vat', 'total'].includes(key) && value != null && value !== '') value = formatMoney(value, currency);
+        if (value == null || value === '') value = '—';
+        const full = key === 'notes' || key === 'iban';
+        fields.insertAdjacentHTML('beforeend',
+          `<div class="field ${full ? 'full' : ''}"><div class="label">${escapeHtml(label)}</div><div class="value">${escapeHtml(value)}</div></div>`);
+      });
+
+      flags.innerHTML = '';
+      const okFlags = [];
+      const badFlags = [];
+      if (data.total != null) okFlags.push('Total detectat');
+      else badFlags.push('Total lipsă');
+      if (data.vat != null) okFlags.push('TVA detectat');
+      else badFlags.push('TVA lipsă');
+      if (data.iban) okFlags.push('IBAN detectat');
+      if (data.supplierVatId) okFlags.push('ID fiscal furnizor');
+      if (!data.invoiceNumber) badFlags.push('Număr factură incert');
+      if (!data.invoiceDate) badFlags.push('Dată factură incertă');
+      [...okFlags.map(x => ({t:x,c:'ok'})), ...badFlags.map(x => ({t:x,c:'bad'}))].forEach(f => {
+        flags.insertAdjacentHTML('beforeend', `<div class="flag ${f.c}">${escapeHtml(f.t)}</div>`);
+      });
+
+      itemsBody.innerHTML = '';
+      if (data.items?.length) {
+        data.items.forEach(item => {
+          itemsBody.insertAdjacentHTML('beforeend', `
+            <tr>
+              <td>${escapeHtml(item.description)}</td>
+              <td>${escapeHtml(item.quantity)}</td>
+              <td>${escapeHtml(item.unitPrice)}</td>
+              <td>${escapeHtml(item.lineTotal)}</td>
+            </tr>`);
+        });
+      } else {
+        itemsBody.innerHTML = `<tr><td colspan="4" class="muted">Nu am detectat linii clar structurate.</td></tr>`;
+      }
+
+      jsonOut.textContent = JSON.stringify(data, null, 2);
+      scoreBar.style.width = `${data.confidence || 0}%`;
+      scoreText.textContent = `${data.confidence || 0}%`;
+    }
+
+    async function ocrImageBlob(blob, lang='eng+ron') {
+      const result = await Tesseract.recognize(blob, lang);
+      return result?.data?.text || '';
+    }
+
+    async function renderPdfPagesToText(pdf) {
+      let combined = '';
+      const maxPages = Math.min(pdf.numPages, 8);
+      for (let i = 1; i <= maxPages; i++) {
+        setStatus(`PDF scanat: rulez OCR pe pagina ${i}/${maxPages}...`, 'warn');
+        const page = await pdf.getPage(i);
+        const viewport = page.getViewport({ scale: 1.8 });
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.ceil(viewport.width);
+        canvas.height = Math.ceil(viewport.height);
+        const ctx = canvas.getContext('2d', { alpha: false });
+        await page.render({ canvasContext: ctx, viewport }).promise;
+        const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+        combined += '\n' + await ocrImageBlob(blob);
+      }
+      return combined.trim();
+    }
+
+    async function extractTextFromPdf(file) {
+      if (!window.pdfjsLib) throw new Error('pdf.js nu s-a încărcat.');
+      setStatus('Extrag textul din PDF...', 'info');
+      const arrayBuffer = await file.arrayBuffer();
+      const uint8 = new Uint8Array(arrayBuffer);
+      const loadingTask = pdfjsLib.getDocument({ data: uint8, useWorkerFetch: false, isEvalSupported: false });
+      const pdf = await loadingTask.promise;
+
+      let combined = '';
+      for (let i = 1; i <= pdf.numPages; i++) {
+        setStatus(`Citesc textul PDF pagina ${i}/${pdf.numPages}...`, 'info');
+        const page = await pdf.getPage(i);
+        const textContent = await page.getTextContent();
+        const pageText = (textContent.items || []).map(item => item.str).join(' ');
+        combined += `\n${pageText}\n`;
+      }
+      combined = normalizeText(combined);
+      if (combined.length >= 40) return combined;
+
+      setStatus('PDF-ul pare scanat sau fără text selectabil. Încerc OCR...', 'warn');
+      return await renderPdfPagesToText(pdf);
+    }
+
+    async function runOcrOnImage(file) {
+      setStatus('Rulez OCR local pe imagine... poate dura puțin.', 'warn');
+      return await ocrImageBlob(file);
+    }
+
+    async function handleFile(file) {
+      currentFile = file;
+      const type = file.type || '';
+      preview.style.display = 'none';
+      preview.removeAttribute('src');
+
+      if (type.startsWith('image/')) {
+        preview.src = URL.createObjectURL(file);
+        preview.style.display = 'block';
+        rawText.value = await runOcrOnImage(file);
+        setStatus('Text extras din imagine. Apasă „Interpretează factura”.', 'ok');
+        return;
+      }
+
+      if (type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
+        rawText.value = await extractTextFromPdf(file);
+        if (!rawText.value.trim()) {
+          setStatus('Nu am putut scoate text util din PDF. Încearcă o poză clară a facturii.', 'bad');
+        } else {
+          setStatus('Text extras din PDF. Apasă „Interpretează factura”.', 'ok');
+        }
+        return;
+      }
+
+      if (type.startsWith('text/') || file.name.toLowerCase().endsWith('.txt')) {
+        rawText.value = await file.text();
+        setStatus('Text încărcat. Apasă „Interpretează factura”.', 'ok');
+        return;
+      }
+
+      setStatus('Tip de fișier necunoscut. Folosește PDF, imagine sau TXT.', 'bad');
+    }
+
+    async function interpretCurrent() {
+      const text = rawText.value.trim();
+      if (!text) {
+        setStatus('Nu există text de interpretat.', 'bad');
+        return;
+      }
+      const data = interpretInvoice(text);
+      render(data);
+      setStatus('Factura a fost interpretată.', data.confidence >= 70 ? 'ok' : 'warn');
+    }
+
+    function loadSample() {
+      rawText.value = `FACTURA FISCALA
+Seria INV Nr. 2026-00451
+Data facturii: 26.03.2026
+Scadenta: 02.04.2026
+
+Furnizor: SC EXEMPLU SERVICE SRL
+CUI: RO12345678
+IBAN: RO49AAAA1B31007593840000
+
+Client: SNAP PARTS APS
+Client CUI: DK44556677
+
+Produs A        2  125,00  250,00
+Serviciu B      1  300,00  300,00
+
+Subtotal: 550,00 RON
+TVA: 104,50 RON
+Total de plata: 654,50 RON
+Conditii de plata: transfer bancar`;
+      setStatus('Exemplu încărcat.', 'ok');
+    }
+
+    async function safeHandle(file) {
+      try {
+        await handleFile(file);
+      } catch (err) {
+        console.error(err);
+        setStatus('Nu am putut citi fișierul. Verifică internetul/CDN sau încearcă imagine în loc de PDF.', 'bad');
+      }
+    }
+
+    fileInput.addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (file) await safeHandle(file);
+    });
+
+    ['dragenter', 'dragover'].forEach(evt => {
+      dropzone.addEventListener(evt, e => { e.preventDefault(); dropzone.classList.add('drag'); });
+    });
+    ['dragleave', 'drop'].forEach(evt => {
+      dropzone.addEventListener(evt, e => { e.preventDefault(); dropzone.classList.remove('drag'); });
+    });
+    dropzone.addEventListener('drop', async (e) => {
+      const file = e.dataTransfer.files[0];
+      if (file) await safeHandle(file);
+    });
+
+    el('extractBtn').addEventListener('click', interpretCurrent);
+    el('sampleBtn').addEventListener('click', () => { loadSample(); interpretCurrent(); });
+    el('clearBtn').addEventListener('click', () => {
+      currentFile = null;
+      rawText.value = '';
+      fileInput.value = '';
+      preview.style.display = 'none';
+      preview.removeAttribute('src');
+      fields.innerHTML = '';
+      flags.innerHTML = '';
+      itemsBody.innerHTML = '';
+      jsonOut.textContent = '{}';
+      scoreBar.style.width = '0%';
+      scoreText.textContent = '0%';
+      setStatus('Curățat.', 'info');
+    });
+
+    loadSample();
+    interpretCurrent();
+  </script>
+</body>
+</html>
