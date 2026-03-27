@@ -2,7 +2,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Invoice OCR/PDF Hybrid v4</title>
+  <title>Invoice OCR/PDF Hybrid v5 Layout</title>
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
   <style>
     :root{--bg:#0b1220;--card:#fff;--text:#0f172a;--muted:#475569;--line:#dbe3ee;--primary:#2563eb;--success:#16a34a;--secondary:#e2e8f0;--danger:#dc2626}
@@ -23,9 +23,9 @@
 <body>
 <div class="container">
   <div class="card">
-    <h1>Invoice OCR/PDF Hybrid v4</h1>
-    <p>PDF-urile digitale se citesc direct din textul intern. Imaginile și scanurile folosesc OCR. Asta oferă rezultate mai stabile pentru facturi.</p>
-    <div class="note">Pentru PDF digital: extragere text directă. Pentru poze/scanuri: OCR. Parserul este orientat pe câmpuri precum Fakturanr., Debitornr., CVR-nr., Netto, Moms și I alt.</div>
+    <h1>Invoice OCR/PDF Hybrid v5 Layout</h1>
+    <p>PDF-urile digitale sunt reconstruite pe linii din coordonate, apoi parserul extrage câmpurile de factură. Imaginile și scanurile merg în continuare prin OCR.</p>
+    <div class="note">Aceasta este versiunea corectă pentru PDF-uri digitale: nu mai lipește textul brut, ci reconstruiește liniile folosind coordonatele din PDF.</div>
   </div>  <div class="card">
     <h2>Setări raport</h2>
     <div class="row">
@@ -107,14 +107,40 @@ async function renderPdfPages(file){
   return pages;
 }
 
-async function extractPdfText(file){
+function rebuildTextLinesFromItems(items){
+  const rows = [];
+  const tolerance = 3;
+  for(const item of items){
+    const x = item.transform[4];
+    const y = item.transform[5];
+    const str = String(item.str || '').trim();
+    if(!str) continue;
+    let row = rows.find(r => Math.abs(r.y - y) <= tolerance);
+    if(!row){ row = { y, parts: [] }; rows.push(row); }
+    row.parts.push({ x, str });
+  }
+  rows.sort((a,b) => b.y - a.y);
+  return rows.map(row => {
+    row.parts.sort((a,b) => a.x - b.x);
+    let line = '';
+    let prevX = null;
+    for(const p of row.parts){
+      if(prevX !== null) line += ' ';
+      line += p.str;
+      prevX = p.x;
+    }
+    return line.replace(/\s+/g,' ').trim();
+  }).filter(Boolean).join('\n');
+}
+
+async function extractPdfTextWithLayout(file){
   const arrBuf = await file.arrayBuffer();
   const pdf = await pdfjsLib.getDocument({data: arrBuf}).promise;
   const pages = [];
   for(let i=1;i<=pdf.numPages;i++){
     const page = await pdf.getPage(i);
     const content = await page.getTextContent();
-    const text = content.items.map(item => item.str).join(' ');
+    const text = rebuildTextLinesFromItems(content.items);
     pages.push({ pageNo:i, text });
   }
   return pages;
@@ -130,10 +156,10 @@ async function loadFiles(event){
     const isPdf = /pdf$/i.test(file.name) || file.type === 'application/pdf';
     if(isPdf){
       const pages = await renderPdfPages(file);
-      const textPages = await extractPdfText(file);
+      const textPages = await extractPdfTextWithLayout(file);
       for(const page of pages){
         const tp = textPages.find(x => x.pageNo === page.pageNo);
-        filesState.push({ fileName:file.name, label:file.name+' | pagina '+page.pageNo, dataUrl:page.dataUrl, pageNo:page.pageNo, sourceType:'pdf-text', rawPdfText: tp ? tp.text : '' });
+        filesState.push({ fileName:file.name, label:file.name+' | pagina '+page.pageNo, dataUrl:page.dataUrl, pageNo:page.pageNo, sourceType:'pdf-text-layout', rawPdfText: tp ? tp.text : '' });
         const card = document.createElement('div');
         card.className='preview-card';
         card.innerHTML = '<img src="'+page.dataUrl+'" alt="pdf" /><div class="small">'+escapeHtml(file.name)+' | pagina '+page.pageNo+'</div>';
@@ -153,51 +179,26 @@ async function loadFiles(event){
 
 function parseDate(text){ const patterns=[/(\d{2}[\.\-/]\d{2}[\.\-/]\d{4})/,/(\d{4}[\.\-/]\d{2}[\.\-/]\d{2})/]; for(const p of patterns){ const m=text.match(p); if(m) return m[1].replace(/\./g,'-').replace(/\//g,'-'); } return ''; }
 function parseDanishMonthDate(text){ const months={januar:'01',februar:'02',marts:'03',april:'04',maj:'05',juni:'06',juli:'07',august:'08',september:'09',oktober:'10',november:'11',december:'12'}; const m=normalizeTextBasic(text).match(/(\d{1,2})\.\s*(januar|februar|marts|april|maj|juni|juli|august|september|oktober|november|december)\s*(\d{4})/); if(!m) return ''; return String(m[1]).padStart(2,'0')+'-'+months[m[2]]+'-'+m[3]; }
-
 function labelRegex(label){ return label.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'); }
 function lineByLabel(text, labels){ const lines=linesOf(text); for(const line of lines){ const ln=normalizeTextBasic(line); for(const label of labels){ if(ln.includes(normalizeTextBasic(label))) return line; } } return ''; }
+function valueAfterLabel(text, labels){ const lines=linesOf(text); for(const line of lines){ for(const label of labels){ const re=new RegExp(labelRegex(label)+'\\s*[:.-]?\\s*(.+)$','i'); const m=line.match(re); if(m && m[1]) return m[1].trim(); } } return ''; }
 
-function valueAfterLabel(text, labels){
-  const lines = linesOf(text);
-  for(const line of lines){
-    for(const label of labels){
-      const re = new RegExp(labelRegex(label)+'\\s*[:.-]?\\s*(.+)$','i');
-      const m = line.match(re);
-      if(m && m[1]) return m[1].trim();
-    }
-  }
-  return '';
-}
-
-function parseCVR(text){
-  const direct = valueAfterLabel(text,['CVR-nr.','CVR nr','CVR']);
-  if(direct){ const m = direct.match(/(DK\s*)?\d{8,12}/i); if(m) return (m[1]?'DK':'') + m[0].replace(/DK\s*/i,'').replace(/\s+/g,''); }
-  const m2 = text.match(/CVR[- ]?nr\.?\s*(DK\s*)?(\d{8,12})/i);
-  if(m2) return (m2[1]?'DK':'') + m2[2];
-  return '';
-}
-
+function parseCVR(text){ const direct=valueAfterLabel(text,['CVR-nr.','CVR nr','CVR']); if(direct){ const m=direct.match(/(DK\s*)?\d{8,12}/i); if(m) return (m[1]?'DK':'') + m[0].replace(/DK\s*/i,'').replace(/\s+/g,''); } const m2=text.match(/CVR[- ]?nr\.?\s*(DK\s*)?(\d{8,12})/i); if(m2) return (m2[1]?'DK':'')+m2[2]; return ''; }
 function parseFakturanr(text){ const v=valueAfterLabel(text,['Fakturanr.','Fakturanr','Invoice no','Invoice nr']); if(v){ const m=v.match(/[A-Za-z0-9\-\/]{4,}/); if(m) return m[0]; } return ''; }
 function parseDebitornr(text){ const v=valueAfterLabel(text,['Debitornr.','Debitornr','Debtor no','Customer no']); if(v){ const m=v.match(/[A-Za-z0-9\-\/]{3,}/); if(m) return m[0]; } return ''; }
-
-function parseAmountFromSpecificLine(text, labels){
-  const line = lineByLabel(text, labels);
-  if(!line) return '';
-  const nums = line.match(/\d+[\.,]\d{2}/g);
-  return nums && nums.length ? nums[nums.length-1].replace(',', '.') : '';
-}
+function parseAmountFromSpecificLine(text, labels){ const line=lineByLabel(text, labels); if(!line) return ''; const nums=line.match(/\d+[\.,]\d{2}/g); return nums && nums.length ? nums[nums.length-1].replace(',', '.') : ''; }
 
 function parseSupplier(text, fileLabel){
   const lines = linesOf(text);
-  const glsIndex = lines.findIndex(line => /General Logistics Systems Denmark A\/S/i.test(line));
-  if(glsIndex >= 0) return lines[glsIndex];
-  const cvrIndex = lines.findIndex(line => /CVR/i.test(line));
-  if(cvrIndex > 0){
-    for(let i=cvrIndex-1;i>=0 && i>=cvrIndex-4;i--){
-      const raw = lines[i]; const l = normalizeTextBasic(raw);
+  const exact = lines.find(line => /General Logistics Systems Denmark A\/S/i.test(line));
+  if(exact) return exact;
+  const cvrIdx = lines.findIndex(line => /CVR/i.test(line));
+  if(cvrIdx > 0){
+    for(let i=cvrIdx-1;i>=0 && i>=cvrIdx-6;i--){
+      const raw=lines[i], l=normalizeTextBasic(raw);
       if(!l) continue;
-      if(/campus alle|varde|sergiu bulboaca|debitornr|fakturanr|bogforingsdato|forfaldsdato|kokmose|kolding/.test(l)) continue;
-      return raw;
+      if(/sergiu bulboaca|campus alle|varde|debitornr|fakturanr|bogforingsdato|forfaldsdato|kokmose|kolding|nummer|beskrivelse|antal|enhed|salgspris|moms-id|belob/.test(l)) continue;
+      if(/[a-z]/i.test(raw)) return raw;
     }
   }
   return fileLabel || '';
@@ -205,14 +206,14 @@ function parseSupplier(text, fileLabel){
 
 function parseCustomer(text){
   const lines = linesOf(text);
-  const personIndex = lines.findIndex(line => /Sergiu Bulboaca/i.test(line));
-  if(personIndex >= 0) return lines[personIndex];
-  const debIndex = lines.findIndex(line => /Debitornr/i.test(line));
-  if(debIndex > 0){
-    for(let i=Math.max(0, debIndex-5); i<debIndex; i++){
-      const raw = lines[i]; const l = normalizeTextBasic(raw);
+  const exact = lines.find(line => /Sergiu Bulboaca/i.test(line));
+  if(exact) return exact;
+  const debIdx = lines.findIndex(line => /Debitornr/i.test(line));
+  if(debIdx > 0){
+    for(let i=Math.max(0,debIdx-6); i<debIdx; i++){
+      const raw=lines[i], l=normalizeTextBasic(raw);
       if(!l) continue;
-      if(/general logistics|kokmose|kolding|cvr|faktura|invoice|fakturanr/.test(l)) continue;
+      if(/general logistics|kokmose|kolding|cvr|faktura|invoice|fakturanr|nummer|beskrivelse|antal|enhed|salgspris|moms-id|belob/.test(l)) continue;
       if(/^\d{4}\s+[a-z]/.test(l)) continue;
       if(/^\d/.test(l)) continue;
       return raw;
@@ -226,75 +227,31 @@ function detectDocType(text){ const l=normalizeTextBasic(text); if(l.includes('f
 function parseDocument(text, fileLabel){
   const dateSource = lineByLabel(text,['Bogføringsdato','Bogforingsdato','Faktura','Invoice date']);
   const date = parseDate(dateSource) || parseDanishMonthDate(dateSource) || parseDate(text) || parseDanishMonthDate(text);
-  return {
-    docType: detectDocType(text),
-    supplier: parseSupplier(text, fileLabel),
-    customer: parseCustomer(text),
-    date,
-    fakturanr: parseFakturanr(text),
-    debitornr: parseDebitornr(text),
-    cvr: parseCVR(text),
-    net: parseAmountFromSpecificLine(text,['Netto DKK','Netto']),
-    vat: parseAmountFromSpecificLine(text,['Moms']),
-    total: parseAmountFromSpecificLine(text,['I alt DKK','I alt'])
-  };
+  return { docType: detectDocType(text), supplier: parseSupplier(text, fileLabel), customer: parseCustomer(text), date, fakturanr: parseFakturanr(text), debitornr: parseDebitornr(text), cvr: parseCVR(text), net: parseAmountFromSpecificLine(text,['Netto DKK','Netto']), vat: parseAmountFromSpecificLine(text,['Moms']), total: parseAmountFromSpecificLine(text,['I alt DKK','I alt']) };
 }
 
-function renderTable(){
-  const tbody=document.querySelector('#docsTable tbody');
-  tbody.innerHTML = extractedDocs.map((d,idx)=>{ const selected=idx===selectedDocIndex?' style="background:#eff6ff;"':''; return '<tr data-idx="'+idx+'"'+selected+'><td>'+(idx+1)+'</td><td>'+escapeHtml(d.fileLabel)+'</td><td>'+escapeHtml(d.sourceKind||'-')+'</td><td>'+escapeHtml(d.docType||'-')+'</td><td>'+escapeHtml(d.supplier||'-')+'</td><td>'+escapeHtml(d.customer||'-')+'</td><td>'+escapeHtml(d.date||'-')+'</td><td>'+escapeHtml(d.fakturanr||'-')+'</td><td>'+escapeHtml(d.debitornr||'-')+'</td><td>'+escapeHtml(d.cvr||'-')+'</td><td>'+escapeHtml(d.net||'-')+'</td><td>'+escapeHtml(d.vat||'-')+'</td><td>'+escapeHtml(d.total||'-')+'</td></tr>'; }).join('');
-  tbody.querySelectorAll('tr').forEach(tr=>tr.addEventListener('click',()=>{ selectedDocIndex=Number(tr.getAttribute('data-idx')||0); renderTable(); setStatus('document selectat: '+(selectedDocIndex+1)); }));
-}
+function renderTable(){ const tbody=document.querySelector('#docsTable tbody'); tbody.innerHTML=extractedDocs.map((d,idx)=>{ const selected=idx===selectedDocIndex?' style="background:#eff6ff;"':''; return '<tr data-idx="'+idx+'"'+selected+'><td>'+(idx+1)+'</td><td>'+escapeHtml(d.fileLabel)+'</td><td>'+escapeHtml(d.sourceKind||'-')+'</td><td>'+escapeHtml(d.docType||'-')+'</td><td>'+escapeHtml(d.supplier||'-')+'</td><td>'+escapeHtml(d.customer||'-')+'</td><td>'+escapeHtml(d.date||'-')+'</td><td>'+escapeHtml(d.fakturanr||'-')+'</td><td>'+escapeHtml(d.debitornr||'-')+'</td><td>'+escapeHtml(d.cvr||'-')+'</td><td>'+escapeHtml(d.net||'-')+'</td><td>'+escapeHtml(d.vat||'-')+'</td><td>'+escapeHtml(d.total||'-')+'</td></tr>'; }).join(''); tbody.querySelectorAll('tr').forEach(tr=>tr.addEventListener('click',()=>{ selectedDocIndex=Number(tr.getAttribute('data-idx')||0); renderTable(); setStatus('document selectat: '+(selectedDocIndex+1)); })); }
 
-function updateMetrics(){
-  const invoiceCount = extractedDocs.filter(d=>d.docType==='Factură').length;
-  const totals = extractedDocs.filter(d=>d.total);
-  const totalAmount = totals.reduce((sum,d)=>sum+Number(d.total||0),0);
-  document.getElementById('metricDocs').textContent=String(extractedDocs.length);
-  document.getElementById('metricInvoices').textContent=String(invoiceCount);
-  document.getElementById('metricTotals').textContent=String(totals.length);
-  document.getElementById('metricAmount').textContent=round2(totalAmount);
-  document.getElementById('summaryBox').textContent=['Documente procesate: '+extractedDocs.length,'Facturi detectate: '+invoiceCount,'Documente cu total detectat: '+totals.length,'Total sume detectate: '+round2(totalAmount)].join('\n');
-}
+function updateMetrics(){ const invoiceCount=extractedDocs.filter(d=>d.docType==='Factură').length; const totals=extractedDocs.filter(d=>d.total); const totalAmount=totals.reduce((sum,d)=>sum+Number(d.total||0),0); document.getElementById('metricDocs').textContent=String(extractedDocs.length); document.getElementById('metricInvoices').textContent=String(invoiceCount); document.getElementById('metricTotals').textContent=String(totals.length); document.getElementById('metricAmount').textContent=round2(totalAmount); document.getElementById('summaryBox').textContent=['Documente procesate: '+extractedDocs.length,'Facturi detectate: '+invoiceCount,'Documente cu total detectat: '+totals.length,'Total sume detectate: '+round2(totalAmount)].join('\n'); }
 
 async function runExtraction(){
   if(!filesState.length){ alert('Încarcă mai întâi imagini sau PDF-uri.'); return; }
-  setStatus('procesez '+filesState.length+' element(e)...');
-  extractedDocs=[]; selectedDocIndex=0; const rawTexts=[];
+  setStatus('procesez '+filesState.length+' element(e)...'); extractedDocs=[]; selectedDocIndex=0; const rawTexts=[];
   for(let i=0;i<filesState.length;i++){
     const item=filesState[i]; setStatus('procesez '+(i+1)+' din '+filesState.length+': '+item.label);
     try{
-      let text=''; let sourceKind='';
-      if(item.sourceType==='pdf-text'){
-        text = item.rawPdfText || '';
-        sourceKind = 'PDF text';
-      } else {
-        const result = await Tesseract.recognize(item.dataUrl,'eng');
-        text = result && result.data && result.data.text ? result.data.text : '';
-        sourceKind = 'OCR';
-      }
+      let text='', sourceKind='';
+      if(item.sourceType==='pdf-text-layout'){ text=item.rawPdfText||''; sourceKind='PDF text'; }
+      else { const result=await Tesseract.recognize(item.dataUrl,'eng'); text=result && result.data && result.data.text ? result.data.text : ''; sourceKind='OCR'; }
       rawTexts.push('--- '+item.label+' ['+sourceKind+'] ---\n'+text);
       extractedDocs.push({...parseDocument(text,item.label), fileLabel:item.label, rawText:text, sourceKind});
-    }catch(err){
-      console.error(err);
-      rawTexts.push('--- '+item.label+' ---\nEroare procesare');
-      extractedDocs.push({fileLabel:item.label,sourceKind:'Eroare',docType:'Document',supplier:'',customer:'',date:'',fakturanr:'',debitornr:'',cvr:'',net:'',vat:'',total:'',rawText:''});
-    }
+    }catch(err){ console.error(err); rawTexts.push('--- '+item.label+' ---\nEroare procesare'); extractedDocs.push({fileLabel:item.label,sourceKind:'Eroare',docType:'Document',supplier:'',customer:'',date:'',fakturanr:'',debitornr:'',cvr:'',net:'',vat:'',total:'',rawText:''}); }
   }
-  document.getElementById('rawTextBox').textContent = rawTexts.join('\n\n');
-  renderTable(); updateMetrics(); setStatus('extracție finalizată.');
+  document.getElementById('rawTextBox').textContent=rawTexts.join('\n\n'); renderTable(); updateMetrics(); setStatus('extracție finalizată.');
 }
 
 function getReportDocs(){ const mode=document.getElementById('reportMode').value; if(mode==='single' && extractedDocs[selectedDocIndex]) return [extractedDocs[selectedDocIndex]]; return extractedDocs.slice(); }
-
-function generateReport(){
-  const docs=getReportDocs(); if(!docs.length){ alert('Nu există documente extrase pentru raport.'); return; }
-  const owner=document.getElementById('ownerName').value.trim(); const note=document.getElementById('reportNote').value.trim(); const totalAmount=docs.reduce((sum,d)=>sum+Number(d.total||0),0);
-  const lines=docs.map((d,i)=>['------------------------------','Document #'+(i+1),'Fișier: '+(d.fileLabel||'-'),'Sursă: '+(d.sourceKind||'-'),'Tip: '+(d.docType||'-'),'Furnizor: '+(d.supplier||'-'),'Client: '+(d.customer||'-'),'Dată: '+(d.date||'-'),'Fakturanr.: '+(d.fakturanr||'-'),'Debitornr.: '+(d.debitornr||'-'),'CVR / VAT ID: '+(d.cvr||'-'),'Net: '+(d.net||'-'),'TVA: '+(d.vat||'-'),'Total: '+(d.total||'-')].join('\n')).join('\n\n');
-  document.getElementById('reportBox').textContent=['RAPORT SIMPLU – INVOICE OCR/PDF HYBRID','Nume / firmă: '+(owner||'-'),'Observații: '+(note||'-'),'Mod raport: '+(document.getElementById('reportMode').value==='single'?'Doar documentul selectat':'Toate documentele'),'','Număr documente în raport: '+docs.length,'Total sume detectate: '+round2(totalAmount),'',lines].join('\n');
-  setStatus('raport generat.');
-}
-
+function generateReport(){ const docs=getReportDocs(); if(!docs.length){ alert('Nu există documente extrase pentru raport.'); return; } const owner=document.getElementById('ownerName').value.trim(); const note=document.getElementById('reportNote').value.trim(); const totalAmount=docs.reduce((sum,d)=>sum+Number(d.total||0),0); const lines=docs.map((d,i)=>['------------------------------','Document #'+(i+1),'Fișier: '+(d.fileLabel||'-'),'Sursă: '+(d.sourceKind||'-'),'Tip: '+(d.docType||'-'),'Furnizor: '+(d.supplier||'-'),'Client: '+(d.customer||'-'),'Dată: '+(d.date||'-'),'Fakturanr.: '+(d.fakturanr||'-'),'Debitornr.: '+(d.debitornr||'-'),'CVR / VAT ID: '+(d.cvr||'-'),'Net: '+(d.net||'-'),'TVA: '+(d.vat||'-'),'Total: '+(d.total||'-')].join('\n')).join('\n\n'); document.getElementById('reportBox').textContent=['RAPORT SIMPLU – INVOICE OCR/PDF HYBRID','Nume / firmă: '+(owner||'-'),'Observații: '+(note||'-'),'Mod raport: '+(document.getElementById('reportMode').value==='single'?'Doar documentul selectat':'Toate documentele'),'','Număr documente în raport: '+docs.length,'Total sume detectate: '+round2(totalAmount),'',lines].join('\n'); setStatus('raport generat.'); }
 function downloadTxt(){ const report=document.getElementById('reportBox').textContent.trim(); if(!report||report==='Apasă „Generează raport”.'){ alert('Generează mai întâi raportul.'); return; } const blob=new Blob([report],{type:'text/plain;charset=utf-8;'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='invoice_hybrid_report.txt'; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); }
 function downloadCsv(){ const docs=getReportDocs(); if(!docs.length){ alert('Nu există documente pentru export.'); return; } const headers=['file','source','type','supplier','customer','date','fakturanr','debitornr','cvr','net','vat','total']; const rows=docs.map(d=>[d.fileLabel||'',d.sourceKind||'',d.docType||'',d.supplier||'',d.customer||'',d.date||'',d.fakturanr||'',d.debitornr||'',d.cvr||'',d.net||'',d.vat||'',d.total||''].map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')); const csv=[headers.join(',')].concat(rows).join('\n'); const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='invoice_hybrid_export.csv'; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); }
 
