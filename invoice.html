@@ -2,922 +2,106 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Invoice OCR Enterprise Local First Mobile Stable</title>
+  <title>Invoice OCR Enterprise Mobile Stable</title>
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
   <style>
-    :root {
-      --bg: #f8fafc;
-      --card: #ffffff;
-      --text: #0f172a;
-      --muted: #64748b;
-      --line: #dbe3ee;
-      --primary: #2563eb;
-      --primary-dark: #1d4ed8;
-      --success: #16a34a;
-      --warning: #d97706;
-      --danger: #dc2626;
-      --secondary: #e2e8f0;
-    }
-    * { box-sizing: border-box; }
-    body { margin: 0; font-family: Arial, Helvetica, sans-serif; background: var(--bg); color: var(--text); }
-    .app { max-width: 1200px; margin: 0 auto; padding: 14px; }
-    .card { background: var(--card); border: 1px solid var(--line); border-radius: 24px; box-shadow: 0 10px 28px rgba(15,23,42,.05); margin-bottom: 16px; overflow: hidden; }
-    .card-inner { padding: 18px; }
-    .hero { background: linear-gradient(135deg,#020617 0%,#111827 55%,#1e293b 100%); color: #fff; border: none; }
-    h1,h2,h3,p { margin: 0; }
-    h1 { font-size: 28px; line-height: 1.15; }
-    h2 { font-size: 22px; }
-    .subtle { color: var(--muted); font-size: 14px; line-height: 1.5; }
-    .hero .subtle { color: rgba(255,255,255,.78); }
-    .grid { display: grid; gap: 14px; }
-    .grid-2 { grid-template-columns: 1fr 1fr; }
-    .grid-3 { grid-template-columns: repeat(3,1fr); }
-    .grid-4 { grid-template-columns: repeat(4,1fr); }
-    .section-title { display:flex; align-items:center; gap:10px; margin-bottom:14px; }
-    .icon { width:42px; height:42px; border-radius:16px; display:inline-flex; align-items:center; justify-content:center; background:#f1f5f9; font-size:20px; }
-    .hero-panels .panel, .stat, .soft, .field-card, .status-box, .preview, .step, .template-card { border:1px solid var(--line); border-radius:18px; background:#f8fafc; padding:14px; }
-    .hero-panels { display:grid; grid-template-columns: repeat(3,1fr); gap:12px; margin-top:18px; }
-    .hero-panels .panel { background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.12); }
-    .label { display:block; font-size:13px; font-weight:700; color:#334155; margin-bottom:6px; }
-    .helper { font-size:12px; color: var(--muted); margin-top:8px; line-height:1.45; }
-    input[type=text], input[type=file], select, textarea { width:100%; border:1px solid #cbd5e1; border-radius:16px; padding:12px 14px; font-size:14px; color:var(--text); background:#fff; }
-    textarea { min-height: 90px; resize: vertical; }
-    .btn-row { display:flex; flex-wrap:wrap; gap:10px; }
-    .btn { border:0; border-radius:16px; padding:12px 16px; font-size:14px; font-weight:700; cursor:pointer; min-height:46px; }
-    .btn-primary { background: var(--primary); color:#fff; }
-    .btn-primary:hover { background: var(--primary-dark); }
-    .btn-success { background: var(--success); color:#fff; }
-    .btn-secondary { background: var(--secondary); color:#0f172a; }
-    .btn-outline { background:#fff; border:1px solid var(--line); color:#0f172a; }
-    .btn-danger { background: var(--danger); color:#fff; }
-    .badge { display:inline-flex; align-items:center; gap:6px; padding:7px 10px; border-radius:999px; font-size:12px; font-weight:700; }
-    .valid { background:#dcfce7; color:#166534; }
-    .warning { background:#fef3c7; color:#92400e; }
-    .review_required { background:#e0f2fe; color:#075985; }
-    .failed { background:#fee2e2; color:#991b1b; }
-    .light { background:#fff; border:1px solid var(--line); color:#334155; }
-    .tabs { display:flex; gap:8px; background:#fff; border:1px solid var(--line); border-radius:18px; padding:6px; overflow:auto; }
-    .tab-btn { border:0; background:transparent; border-radius:14px; padding:12px 16px; font-weight:700; color:#334155; cursor:pointer; white-space:nowrap; }
-    .tab-btn.active { background:#e0f2fe; color:#0c4a6e; }
-    .tab-panel { display:none; margin-top:16px; }
-    .tab-panel.active { display:block; }
-    .table-wrap { border:1px solid var(--line); border-radius:20px; overflow:auto; background:#fff; }
-    table { width:100%; border-collapse: collapse; min-width: 720px; }
-    th, td { padding:12px 14px; text-align:left; border-bottom:1px solid #edf2f7; vertical-align:top; font-size:14px; }
-    th { background:#f8fafc; font-size:12px; text-transform:uppercase; letter-spacing:.04em; color:#475569; }
-    tr.selected { background:#eff6ff; }
-    .raw-box { max-height: 260px; overflow:auto; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:12px; white-space:pre-wrap; }
-    .error-box { background:#fff1f2; border-color:#fecdd3; color:#9f1239; }
-    .ok-box { background:#ecfdf5; border-color:#bbf7d0; color:#166534; }
-    .warn-box { background:#fff7ed; border-color:#fed7aa; color:#9a3412; }
-    .progress { height:10px; background:#e2e8f0; border-radius:999px; overflow:hidden; margin-top:10px; }
-    .progress > span { display:block; height:100%; background: linear-gradient(90deg,#38bdf8 0%,#2563eb 100%); }
-    .field-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
-    .preview-document { border:1px dashed #cbd5e1; border-radius:18px; background:#fff; padding:18px; margin-top:12px; line-height:1.6; font-size:14px; color:#475569; }
-    .pill-list { display:flex; flex-wrap:wrap; gap:8px; }
-    @media (max-width: 1000px) {
-      .grid-4 { grid-template-columns: 1fr 1fr; }
-      .grid-3, .grid-2, .hero-panels, .field-grid { grid-template-columns: 1fr; }
-    }
-    @media (max-width: 640px) {
-      .app { padding: 10px; }
-      h1 { font-size: 24px; }
-      .btn-row { flex-direction: column; }
-      .btn-row .btn { width: 100%; }
-      .grid-4 { grid-template-columns: 1fr; }
-      .card-inner { padding: 16px; }
-    }
-    @media print {
-      @page { size:A4; margin:12mm; }
-      body { background:#fff; }
-      .hero, #tab-workspace, #tab-templates, .tabs, #topStatusCard { display:none !important; }
-      #tab-review { display:block !important; }
-      .preview, .field-card, .card { box-shadow:none; border-color:#ddd; }
-      .btn-row { display:none !important; }
-      #rawExtractedText, #errorLog { display:none !important; }
-    }
+    :root{--bg:#f8fafc;--card:#fff;--text:#0f172a;--muted:#64748b;--line:#dbe3ee;--primary:#2563eb;--success:#16a34a;--warning:#d97706;--danger:#dc2626;--secondary:#e2e8f0}
+    *{box-sizing:border-box} body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text)}
+    .app{max-width:1180px;margin:0 auto;padding:12px}.card{background:var(--card);border:1px solid var(--line);border-radius:24px;box-shadow:0 10px 28px rgba(15,23,42,.05);margin-bottom:16px;overflow:hidden}.card-inner{padding:16px}
+    .hero{background:linear-gradient(135deg,#020617 0%,#111827 55%,#1e293b 100%);color:#fff;border:none} .hero .subtle{color:rgba(255,255,255,.78)}
+    h1,h2,p{margin:0} h1{font-size:26px;line-height:1.15} h2{font-size:22px} .subtle{font-size:14px;color:var(--muted);line-height:1.5}
+    .grid{display:grid;gap:14px}.grid-2{grid-template-columns:1fr 1fr}.grid-3{grid-template-columns:repeat(3,1fr)}.grid-4{grid-template-columns:repeat(4,1fr)}
+    .section-title{display:flex;align-items:center;gap:10px;margin-bottom:14px}.icon{width:42px;height:42px;border-radius:16px;display:inline-flex;align-items:center;justify-content:center;background:#f1f5f9;font-size:20px}
+    .panel,.stat,.box,.field-card,.template-card{border:1px solid var(--line);border-radius:18px;background:#f8fafc;padding:14px}.hero-panels{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:18px}.hero-panels .panel{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.12)}
+    .label{display:block;font-size:13px;font-weight:700;color:#334155;margin-bottom:6px}.helper{font-size:12px;color:var(--muted);margin-top:8px;line-height:1.45}
+    input[type=text],input[type=file],select,textarea{width:100%;border:1px solid #cbd5e1;border-radius:16px;padding:12px 14px;font-size:14px;background:#fff;color:var(--text)} textarea{min-height:90px;resize:vertical}
+    .btn-row{display:flex;flex-wrap:wrap;gap:10px}.btn{border:0;border-radius:16px;padding:12px 16px;font-size:14px;font-weight:700;cursor:pointer;min-height:46px}.btn-primary{background:var(--primary);color:#fff}.btn-success{background:var(--success);color:#fff}.btn-secondary{background:var(--secondary);color:#0f172a}.btn-outline{background:#fff;border:1px solid var(--line);color:#0f172a}.btn-danger{background:var(--danger);color:#fff}
+    .badge{display:inline-flex;align-items:center;gap:6px;padding:7px 10px;border-radius:999px;font-size:12px;font-weight:700}.valid{background:#dcfce7;color:#166534}.warning{background:#fef3c7;color:#92400e}.review_required{background:#e0f2fe;color:#075985}.failed{background:#fee2e2;color:#991b1b}.light{background:#fff;border:1px solid var(--line);color:#334155}
+    .tabs{display:flex;gap:8px;background:#fff;border:1px solid var(--line);border-radius:18px;padding:6px;overflow:auto}.tab-btn{border:0;background:transparent;border-radius:14px;padding:12px 16px;font-weight:700;color:#334155;cursor:pointer;white-space:nowrap}.tab-btn.active{background:#e0f2fe;color:#0c4a6e}.tab-panel{display:none;margin-top:16px}.tab-panel.active{display:block}
+    .table-wrap{border:1px solid var(--line);border-radius:20px;overflow:auto;background:#fff} table{width:100%;border-collapse:collapse;min-width:720px} th,td{padding:12px 14px;text-align:left;border-bottom:1px solid #edf2f7;vertical-align:top;font-size:14px} th{background:#f8fafc;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:#475569} tr.selected{background:#eff6ff}
+    .raw-box{max-height:260px;overflow:auto;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px;white-space:pre-wrap}.ok-box{background:#ecfdf5;border-color:#bbf7d0;color:#166534}.warn-box{background:#fff7ed;border-color:#fed7aa;color:#9a3412}.error-box{background:#fff1f2;border-color:#fecdd3;color:#9f1239}
+    .progress{height:10px;background:#e2e8f0;border-radius:999px;overflow:hidden;margin-top:10px}.progress>span{display:block;height:100%;background:linear-gradient(90deg,#38bdf8 0%,#2563eb 100%)} .field-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.preview-document{border:1px dashed #cbd5e1;border-radius:18px;background:#fff;padding:18px;margin-top:12px;line-height:1.6;font-size:14px;color:#475569}.pill-list{display:flex;flex-wrap:wrap;gap:8px}
+    @media (max-width:1000px){.grid-4,.grid-3,.grid-2,.hero-panels,.field-grid{grid-template-columns:1fr}} @media (max-width:640px){.app{padding:10px}h1{font-size:24px}.btn-row{flex-direction:column}.btn-row .btn{width:100%}.card-inner{padding:16px}}
   </style>
 </head>
 <body>
-  <div class="app">
-    <section class="card hero">
-      <div class="card-inner">
-        <div class="section-title">
-          <div class="icon" style="background:rgba(255,255,255,.09); color:#fff;">🧾</div>
-          <div>
-            <h1>Invoice OCR Enterprise Local</h1>
-            <p class="subtle" style="margin-top:8px;">Variantă stabilă pentru mobil. Fără procesare automată la selectare. Upload → Procesează → Review → Export.</p>
-          </div>
-        </div>
-        <div class="hero-panels">
-          <div class="panel">
-            <div class="label" style="color:rgba(255,255,255,.75)">Pipeline</div>
-            <div style="font-size:18px;font-weight:700;margin-top:6px;">PDF text + OCR fallback</div>
-            <div class="helper" style="color:rgba(255,255,255,.7)">PDF digital local, imagini și scanuri prin OCR local.</div>
-          </div>
-          <div class="panel">
-            <div class="label" style="color:rgba(255,255,255,.75)">Mobil stabil</div>
-            <div style="font-size:18px;font-weight:700;margin-top:6px;">Buton explicit Procesează</div>
-            <div class="helper" style="color:rgba(255,255,255,.7)">Procesarea pornește doar când apeși butonul dedicat.</div>
-          </div>
-          <div class="panel">
-            <div class="label" style="color:rgba(255,255,255,.75)">Debug vizibil</div>
-            <div style="font-size:18px;font-weight:700;margin-top:6px;">Status + erori reale</div>
-            <div class="helper" style="color:rgba(255,255,255,.7)">Vezi clar unde s-a blocat: selectare, citire, OCR sau parsare.</div>
-          </div>
-        </div>
-      </div>
-    </section><section class="card" id="topStatusCard">
-  <div class="card-inner grid grid-4">
-    <div class="stat">
-      <div class="label">Documents</div>
-      <div style="font-size:32px;font-weight:700;margin-top:6px;" id="statDocuments">0</div>
-      <div class="helper">În workspace local</div>
-    </div>
-    <div class="stat">
-      <div class="label">Valid</div>
-      <div style="font-size:32px;font-weight:700;margin-top:6px;" id="statValid">0</div>
-      <div class="helper">Au trecut validarea</div>
-    </div>
-    <div class="stat">
-      <div class="label">Review queue</div>
-      <div style="font-size:32px;font-weight:700;margin-top:6px;" id="statReview">0</div>
-      <div class="helper">Necesită intervenție umană</div>
-    </div>
-    <div class="stat">
-      <div class="label">Avg confidence</div>
-      <div style="font-size:32px;font-weight:700;margin-top:6px;" id="statConfidence">0%</div>
-      <div class="helper">Media câmpurilor</div>
-    </div>
-  </div>
-</section>
-
-<div class="tabs">
-  <button class="tab-btn active" data-tab="workspace">Workspace</button>
-  <button class="tab-btn" data-tab="review">Review</button>
-  <button class="tab-btn" data-tab="templates">Templates</button>
+<div class="app">
+  <section class="card hero"><div class="card-inner"><div class="section-title"><div class="icon" style="background:rgba(255,255,255,.09);color:#fff">🧾</div><div><h1>Invoice OCR Enterprise Mobile Stable</h1><p class="subtle" style="margin-top:8px">Selectezi fișierele, apoi apeși butonul de procesare. PDF text first, OCR fallback, erori vizibile.</p></div></div><div class="hero-panels"><div class="panel"><div class="label" style="color:rgba(255,255,255,.75)">Pipeline</div><div style="font-size:18px;font-weight:700;margin-top:6px">PDF text + OCR fallback</div><div class="helper" style="color:rgba(255,255,255,.7)">PDF digital local, imagini și scanuri prin OCR local.</div></div><div class="panel"><div class="label" style="color:rgba(255,255,255,.75)">Mobil stabil</div><div style="font-size:18px;font-weight:700;margin-top:6px">Buton Procesează</div><div class="helper" style="color:rgba(255,255,255,.7)">Nicio procesare automată la selectare.</div></div><div class="panel"><div class="label" style="color:rgba(255,255,255,.75)">Debug</div><div style="font-size:18px;font-weight:700;margin-top:6px">Status + erori clare</div><div class="helper" style="color:rgba(255,255,255,.7)">Vezi dacă problema e la PDF, OCR sau parsare.</div></div></div></div></section>  <section class="card"><div class="card-inner grid grid-4"><div class="stat"><div class="label">Documents</div><div style="font-size:32px;font-weight:700;margin-top:6px" id="statDocuments">0</div><div class="helper">În workspace local</div></div><div class="stat"><div class="label">Valid</div><div style="font-size:32px;font-weight:700;margin-top:6px" id="statValid">0</div><div class="helper">Au trecut validarea</div></div><div class="stat"><div class="label">Review queue</div><div style="font-size:32px;font-weight:700;margin-top:6px" id="statReview">0</div><div class="helper">Necesită intervenție umană</div></div><div class="stat"><div class="label">Avg confidence</div><div style="font-size:32px;font-weight:700;margin-top:6px" id="statConfidence">0%</div><div class="helper">Media câmpurilor</div></div></div></section>  <div class="tabs"><button class="tab-btn active" data-tab="workspace">Workspace</button><button class="tab-btn" data-tab="review">Review</button><button class="tab-btn" data-tab="templates">Templates</button></div>  <section class="tab-panel active" id="tab-workspace">
+    <div class="grid grid-2">
+      <section class="card"><div class="card-inner"><div class="section-title"><div class="icon">📁</div><div><h2>Upload și procesare</h2></div></div>
+        <div class="grid grid-3" style="margin-bottom:14px"><div><label class="label">Nume / firmă</label><input type="text" id="ownerName" placeholder="Ex: Sergiu Bulboacă / Firma X" /></div><div><label class="label">Observații</label><input type="text" id="reportNote" placeholder="Ex: lot facturi martie" /></div><div><label class="label">Mod raport</label><select id="reportMode"><option value="all">Toate documentele</option><option value="single">Doar documentul selectat</option></select></div></div>
+        <div class="box"><label class="label">Fișiere locale</label><input type="file" id="workspaceImportFile" accept="image/*,.pdf,application/pdf,.json" multiple /><div class="helper">Selectezi fișierele, apoi apeși <strong>Procesează documentele</strong>.</div><div class="pill-list" id="selectedFilesList" style="margin-top:12px"></div></div>
+        <div class="btn-row" style="margin-top:14px"><button class="btn btn-primary" id="processFilesBtn">▶ Procesează documentele</button><button class="btn btn-outline" id="saveWorkspaceBtn">💾 Save workspace JSON</button><button class="btn btn-secondary" id="exportCsvBtn">⬇ Export CSV</button><button class="btn btn-secondary" id="exportTxtBtn">📝 Export TXT</button></div>
+        <div class="grid grid-2" style="margin-top:14px"><div><label class="label">Căutare</label><input type="text" id="searchInput" placeholder="Search supplier, customer, invoice number..." /></div><div><label class="label">Status</label><select id="statusFilter"><option value="all">All statuses</option><option value="valid">Valid</option><option value="warning">Warning</option><option value="review_required">Review</option><option value="failed">Failed</option></select></div></div>
+        <div class="box ok-box" style="margin-top:14px" id="statusBox">Status: pregătit.</div><div class="box error-box" style="margin-top:14px;display:none" id="errorLog"></div>
+        <div class="table-wrap" style="margin-top:16px"><table><thead><tr><th>File</th><th>Source</th><th>Status</th><th>Template</th><th>Total</th></tr></thead><tbody id="workspaceTableBody"></tbody></table></div>
+      </div></section><section class="card"><div class="card-inner"><div class="section-title"><div class="icon">⚙️</div><div><h2>Routing și debug</h2></div></div><div class="grid"><div class="box"><div class="label">Selected document</div><div style="font-weight:700;margin-top:6px" id="selectedDocName">-</div><div class="helper" id="selectedDocTemplate">Template: -</div></div><div class="box"><div class="label">Routing</div><div style="font-weight:700;margin-top:6px" id="selectedDocSource">-</div><div class="helper">PDF text pipeline sau OCR pipeline, ambele locale.</div></div><div class="box"><div class="label">Validation status</div><div style="margin-top:8px" id="selectedStatusBadge">-</div><div class="helper">Cross-check: total ≈ net + TVA, IDs prezente, template potrivit.</div></div><div class="box"><div class="label">Text extras brut</div><div id="rawExtractedText" class="raw-box" style="margin-top:10px">Nu există încă text extras.</div></div></div></div></section>
 </div>
 
-<section class="tab-panel active" id="tab-workspace">
-  <div class="grid grid-2">
-    <section class="card">
-      <div class="card-inner">
-        <div class="section-title">
-          <div class="icon">📁</div>
-          <div><h2>Upload și procesare</h2></div>
-        </div>
-
-        <div class="grid grid-3" style="margin-bottom:14px;">
-          <div>
-            <label>Nume / firmă</label>
-            <input type="text" id="ownerName" placeholder="Ex: Sergiu Bulboacă / Firma X" />
-          </div>
-          <div>
-            <label>Observații</label>
-            <input type="text" id="reportNote" placeholder="Ex: lot facturi martie" />
-          </div>
-          <div>
-            <label>Mod raport</label>
-            <select id="reportMode">
-              <option value="all">Toate documentele</option>
-              <option value="single">Doar documentul selectat</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="upload-box">
-          <label>Fișiere locale</label>
-          <input type="file" id="workspaceImportFile" accept="image/*,.pdf,application/pdf,.json" multiple />
-          <div class="helper">Selectezi fișierele, apoi apeși <strong>Procesează documentele</strong>.</div>
-          <div class="pill-list" id="selectedFilesList" style="margin-top:12px;"></div>
-        </div>
-
-        <div class="btn-row" style="margin-top:14px;">
-          <button class="btn btn-primary" id="processFilesBtn">▶ Procesează documentele</button>
-          <button class="btn btn-outline" id="saveWorkspaceBtn">💾 Save workspace JSON</button>
-          <button class="btn btn-secondary" id="exportCsvBtn">⬇ Export CSV</button>
-          <button class="btn btn-secondary" id="exportTxtBtn">📝 Export TXT</button>
-        </div>
-
-        <div class="grid grid-2" style="margin-top:14px;">
-          <div>
-            <label>Căutare</label>
-            <input type="text" id="searchInput" placeholder="Search supplier, customer, invoice number..." />
-          </div>
-          <div>
-            <label>Status</label>
-            <select id="statusFilter">
-              <option value="all">All statuses</option>
-              <option value="valid">Valid</option>
-              <option value="warning">Warning</option>
-              <option value="review_required">Review</option>
-              <option value="failed">Failed</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="status-box ok-box" style="margin-top:14px;" id="statusBox">Status: pregătit.</div>
-        <div class="status-box error-box" style="margin-top:14px; display:none;" id="errorLog"></div>
-
-        <div class="table-wrap" style="margin-top:16px;">
-          <table>
-            <thead>
-              <tr>
-                <th>File</th>
-                <th>Source</th>
-                <th>Status</th>
-                <th>Template</th>
-                <th>Total</th>
-              </tr>
-            </thead>
-            <tbody id="workspaceTableBody"></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <section class="card">
-      <div class="card-inner">
-        <div class="section-title">
-          <div class="icon">⚙️</div>
-          <div><h2>Routing și debug</h2></div>
-        </div>
-        <div class="grid">
-          <div class="step">
-            <div class="label">Selected document</div>
-            <div style="font-weight:700; margin-top:6px;" id="selectedDocName">-</div>
-            <div class="helper" id="selectedDocTemplate">Template: -</div>
-          </div>
-          <div class="step">
-            <div class="label">Routing</div>
-            <div style="font-weight:700; margin-top:6px;" id="selectedDocSource">-</div>
-            <div class="helper">PDF text pipeline sau OCR pipeline, ambele locale.</div>
-          </div>
-          <div class="step">
-            <div class="label">Validation status</div>
-            <div style="margin-top:8px;" id="selectedStatusBadge">-</div>
-            <div class="helper">Cross-check: total ≈ net + TVA, IDs prezente, template potrivit.</div>
-          </div>
-          <div class="status-box">
-            <div class="label">Text extras brut</div>
-            <div id="rawExtractedText" class="raw-box" style="margin-top:10px;">Nu există încă text extras.</div>
-          </div>
-        </div>
-      </div>
-    </section>
-  </div>
-</section>
-
-<section class="tab-panel" id="tab-review">
-  <div class="grid grid-2">
-    <section class="card">
-      <div class="card-inner">
-        <div class="section-title">
-          <div class="icon">👁️</div>
-          <div><h2>Document review panel</h2></div>
-        </div>
-        <div class="preview">
-          <div class="label">Local preview placeholder</div>
-          <div class="preview-document" id="previewBox"></div>
-          <div class="btn-row" style="margin-top:14px;">
-            <button class="btn btn-outline" id="markReviewBtn">Mark review</button>
-            <button class="btn btn-success" id="approveBtn">Approve locally</button>
-            <button class="btn btn-danger" id="markFailedBtn">Mark failed</button>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="card">
-      <div class="card-inner">
-        <div class="section-title">
-          <div class="icon">🧠</div>
-          <div><h2>Editable extracted fields</h2></div>
-        </div>
-        <div class="field-grid" id="fieldGrid"></div>
-        <div class="field-card" style="margin-top:12px;">
-          <div class="label">Operator notes</div>
-          <textarea id="notesInput"></textarea>
-        </div>
-      </div>
-    </section>
-  </div>
-</section>
-
-<section class="tab-panel" id="tab-templates">
-  <div class="grid grid-2">
-    <section class="card">
-      <div class="card-inner">
-        <div class="section-title">
-          <div class="icon">🧩</div>
-          <div><h2>Template library</h2></div>
-        </div>
-        <div id="templateList" class="grid"></div>
-      </div>
-    </section>
-
-    <section class="card">
-      <div class="card-inner">
-        <div class="section-title">
-          <div class="icon">💻</div>
-          <div><h2>Local-first enterprise model</h2></div>
-        </div>
-        <div class="grid">
-          <div class="template-card"><div style="font-weight:700;">No API dependency</div><div class="helper">Import, extracție, review și export rămân locale.</div></div>
-          <div class="template-card"><div style="font-weight:700;">Portable workspace</div><div class="helper">Workspace JSON funcționează ca persistență locală și snapshot de review.</div></div>
-          <div class="template-card"><div style="font-weight:700;">Enterprise workflow without backend</div><div class="helper">Batch processing, confidence scoring, template routing și export în browser.</div></div>
-        </div>
-      </div>
-    </section>
-  </div>
-</section>
-
-  </div>  <script type="module">
-    import * as pdfjsLib from 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.4.168/build/pdf.min.mjs';
-    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.4.168/build/pdf.worker.min.mjs';
-
-    const templateRules = [
-      { name: 'GLS Denmark', mode: 'Strict vendor template', fields: 'Supplier, customer, CVR, debtor, fakturanr., Moms, I alt' },
-      { name: 'Generic DK Invoice', mode: 'Label-based parser', fields: 'Invoice no, VAT, total, date' },
-      { name: 'Receipt Generic', mode: 'OCR fallback', fields: 'Merchant, date, total, VAT' }
-    ];
-
-    const fieldConfig = [
-      ['supplier', 'Supplier'], ['customer', 'Customer'], ['invoiceNumber', 'Invoice number'], ['debtorNumber', 'Debtor number'],
-      ['taxId', 'Tax ID'], ['invoiceDate', 'Invoice date'], ['net', 'Net'], ['vat', 'VAT'], ['total', 'Total']
-    ];
-
-    let documents = [];
-    let selectedId = '';
-    let searchQuery = '';
-    let statusFilter = 'all';
-    let pendingFiles = [];
-
-    function setStatus(text, kind = 'ok') {
-      const box = document.getElementById('statusBox');
-      box.textContent = 'Status: ' + text;
-      box.className = 'status-box ' + (kind === 'error' ? 'error-box' : kind === 'warn' ? 'warn-box' : 'ok-box');
-    }
-
-    function showError(text) {
-      const box = document.getElementById('errorLog');
-      box.style.display = 'block';
-      box.textContent = text;
-    }
-
-    function clearError() {
-      const box = document.getElementById('errorLog');
-      box.style.display = 'none';
-      box.textContent = '';
-    }
-
-    function sourceLabel(source) { return source === 'pdf_text' ? 'PDF text' : 'OCR image'; }
-    function round2(n){ return (Math.round((Number(n)+Number.EPSILON)*100)/100).toFixed(2); }
-    function normalizeTextBasic(str){ return String(str||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[’'`]/g,'').replace(/\s+/g,' ').trim(); }
-    function linesOf(text){ return text.split(/\r?\n/).map(s=>s.trim()).filter(Boolean); }
-    function escapeHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-    function escapeAttr(s){ return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-
-    function statusBadge(status) {
-      const labels = { valid: 'Valid', warning: 'Warning', review_required: 'Review', failed: 'Failed' };
-      return `<span class="badge ${status}">${labels[status] || status}</span>`;
-    }
-
-    function createField(value='-', confidence=0, source='Pending extraction') { return { value, confidence, source }; }
-
-    function makeDocBase(fileName, sourceType, template='Generic DK Invoice') {
-      return {
-        id: 'DOC-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8),
-        fileName, sourceType, template, reviewStatus: 'review_required',
-        supplier: createField(), customer: createField(), invoiceNumber: createField(), debtorNumber: createField(), taxId: createField(),
-        invoiceDate: createField(), net: createField(), vat: createField(), total: createField(), notes: '', isEdited: false, rawText: ''
-      };
-    }
-
-    function renderSelectedFiles() {
-      const holder = document.getElementById('selectedFilesList');
-      if (!pendingFiles.length) {
-        holder.innerHTML = '<span class="badge light">Niciun fișier selectat</span>';
-        return;
-      }
-      holder.innerHTML = pendingFiles.map((file) => `<span class="badge light">${escapeHtml(file.name)}</span>`).join('');
-    }
-
-    function getFilteredDocs() {
-      return documents.filter((doc) => {
-        const haystack = [doc.fileName, doc.supplier.value, doc.customer.value, doc.invoiceNumber.value, doc.taxId.value, doc.template].join(' ').toLowerCase();
-        const matchesQuery = !searchQuery || haystack.includes(searchQuery.toLowerCase());
-        const matchesStatus = statusFilter === 'all' || doc.reviewStatus === statusFilter;
-        return matchesQuery && matchesStatus;
-      });
-    }
-
-    function getSelectedDoc() {
-      const filtered = getFilteredDocs();
-      return filtered.find((doc) => doc.id === selectedId) || documents[0] || null;
-    }
-
-    function calculateStats() {
-      if (!documents.length) return { totalDocs: 0, validDocs: 0, reviewDocs: 0, avgConfidence: 0 };
-      const totalDocs = documents.length;
-      const validDocs = documents.filter((d) => d.reviewStatus === 'valid').length;
-      const reviewDocs = documents.filter((d) => d.reviewStatus === 'review_required').length;
-      const avgConfidence = Math.round(documents.reduce((acc, doc) => acc + fieldConfig.reduce((sum, [key]) => sum + (doc[key].confidence || 0), 0) / fieldConfig.length, 0) / documents.length);
-      return { totalDocs, validDocs, reviewDocs, avgConfidence };
-    }
-
-    function renderStats() {
-      const stats = calculateStats();
-      document.getElementById('statDocuments').textContent = String(stats.totalDocs);
-      document.getElementById('statValid').textContent = String(stats.validDocs);
-      document.getElementById('statReview').textContent = String(stats.reviewDocs);
-      document.getElementById('statConfidence').textContent = `${stats.avgConfidence}%`;
-    }
-
-    function renderWorkspaceTable() {
-      const tbody = document.getElementById('workspaceTableBody');
-      const filtered = getFilteredDocs();
-      tbody.innerHTML = filtered.map((doc) => `
-        <tr class="${doc.id === selectedId ? 'selected' : ''}" data-id="${doc.id}">
-          <td><strong>${escapeHtml(doc.fileName)}</strong></td>
-          <td>${sourceLabel(doc.sourceType)}</td>
-          <td>${statusBadge(doc.reviewStatus)}</td>
-          <td>${escapeHtml(doc.template)}</td>
-          <td>${escapeHtml(doc.total.value)}</td>
-        </tr>
-      `).join('');
-      Array.from(tbody.querySelectorAll('tr')).forEach((tr) => tr.addEventListener('click', () => { selectedId = tr.getAttribute('data-id'); renderAll(); }));
-    }
-
-    function renderSidebarInfo() {
-      const doc = getSelectedDoc();
-      document.getElementById('selectedDocName').textContent = doc ? doc.fileName : '-';
-      document.getElementById('selectedDocTemplate').textContent = doc ? `Template: ${doc.template}` : 'Template: -';
-      document.getElementById('selectedDocSource').textContent = doc ? sourceLabel(doc.sourceType) : '-';
-      document.getElementById('selectedStatusBadge').innerHTML = doc ? statusBadge(doc.reviewStatus) : '-';
-      document.getElementById('rawExtractedText').textContent = doc && doc.rawText ? doc.rawText : 'Nu există încă text extras.';
-    }
-
-    function renderPreview() {
-      const doc = getSelectedDoc();
-      const preview = document.getElementById('previewBox');
-      if (!doc) { preview.innerHTML = '<em>No document selected.</em>'; return; }
-      preview.innerHTML = `
-        <div><strong>Source:</strong> ${sourceLabel(doc.sourceType)}</div>
-        <div><strong>Template:</strong> ${escapeHtml(doc.template)}</div>
-        <div><strong>Supplier:</strong> ${escapeHtml(doc.supplier.value)}</div>
-        <div><strong>Customer:</strong> ${escapeHtml(doc.customer.value)}</div>
-        <div><strong>Invoice #:</strong> ${escapeHtml(doc.invoiceNumber.value)}</div>
-        <div><strong>Debtor #:</strong> ${escapeHtml(doc.debtorNumber.value)}</div>
-        <div><strong>Tax ID:</strong> ${escapeHtml(doc.taxId.value)}</div>
-        <div><strong>Invoice date:</strong> ${escapeHtml(doc.invoiceDate.value)}</div>
-        <div><strong>Net:</strong> ${escapeHtml(doc.net.value)}</div>
-        <div><strong>VAT:</strong> ${escapeHtml(doc.vat.value)}</div>
-        <div><strong>Total:</strong> ${escapeHtml(doc.total.value)}</div>
-        <div style="margin-top:12px;color:#64748b;"><strong>Notes:</strong> ${escapeHtml(doc.notes || '-')}</div>
-      `;
-    }
-
-    function renderFieldGrid() {
-      const doc = getSelectedDoc();
-      const container = document.getElementById('fieldGrid');
-      if (!doc) { container.innerHTML = ''; document.getElementById('notesInput').value = ''; return; }
-      container.innerHTML = fieldConfig.map(([key, label]) => {
-        const field = doc[key];
-        return `
-          <div class="field-card">
-            <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start;">
-              <div>
-                <div class="label">${label}</div>
-                <div class="helper" style="margin-top:4px;">Source: ${escapeHtml(field.source)}</div>
-              </div>
-              <span class="badge light">${field.confidence}%</span>
-            </div>
-            <input type="text" data-field="${key}" value="${escapeAttr(field.value)}" style="margin-top:10px;" />
-            <div class="progress"><span style="width:${field.confidence}%;"></span></div>
-          </div>
-        `;
-      }).join('');
-      Array.from(container.querySelectorAll('input[data-field]')).forEach((input) => {
-        input.addEventListener('input', (e) => updateField(e.target.getAttribute('data-field'), e.target.value));
-      });
-      const notes = document.getElementById('notesInput');
-      notes.value = doc.notes || '';
-      notes.oninput = (e) => {
-        const current = documents.find((d) => d.id === doc.id);
-        if (!current) return;
-        current.notes = e.target.value;
-        current.isEdited = true;
-      };
-    }
-
-    function renderTemplates() {
-      const list = document.getElementById('templateList');
-      list.innerHTML = templateRules.map((rule) => `
-        <div class="template-card">
-          <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start;">
-            <div>
-              <div style="font-weight:700;">${escapeHtml(rule.name)}</div>
-              <div class="helper" style="margin-top:6px;">${escapeHtml(rule.mode)}</div>
-            </div>
-            <span class="badge light">Active</span>
-          </div>
-          <div class="helper" style="margin-top:12px;">${escapeHtml(rule.fields)}</div>
-        </div>
-      `).join('');
-    }
-
-    function updateField(fieldKey, value) {
-      const doc = documents.find((d) => d.id === selectedId);
-      if (!doc || !doc[fieldKey]) return;
-      doc[fieldKey].value = value;
-      if (!String(doc[fieldKey].source).includes('Manual edit')) doc[fieldKey].source += ' · Manual edit';
-      doc.isEdited = true;
-      renderPreview();
-    }
-
-    function setDocStatus(status) {
-      const doc = documents.find((d) => d.id === selectedId);
-      if (!doc) return;
-      doc.reviewStatus = status;
-      renderAll();
-    }
-
-    function saveWorkspace() {
-      const blob = new Blob([JSON.stringify(documents, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'invoice-ocr-local-workspace.json';
-      a.click();
-      URL.revokeObjectURL(url);
-    }
-
-    function exportCsv() {
-      const headers = ['file_name','source_type','status','supplier','customer','invoice_number','debtor_number','tax_id','invoice_date','net','vat','total','template','notes'];
-      const rows = documents.map((d) => [d.fileName,d.sourceType,d.reviewStatus,d.supplier.value,d.customer.value,d.invoiceNumber.value,d.debtorNumber.value,d.taxId.value,d.invoiceDate.value,d.net.value,d.vat.value,d.total.value,d.template,d.notes||''].map((v) => `"${String(v).replace(/"/g, '""')}"`).join(','));
-      const csv = [headers.join(','), ...rows].join('\n');
-      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'invoice-ocr-local-export.csv';
-      a.click();
-      URL.revokeObjectURL(url);
-    }
-
-    function exportTxt() {
-      const mode = document.getElementById('reportMode').value;
-      const docs = mode === 'single' ? documents.filter((d) => d.id === selectedId) : documents.slice();
-      const owner = document.getElementById('ownerName').value.trim();
-      const note = document.getElementById('reportNote').value.trim();
-      const totalAmount = docs.reduce((sum, d) => sum + Number(d.total.value || 0), 0);
-      const content = [
-        'RAPORT SIMPLU – INVOICE OCR ENTERPRISE LOCAL',
-        'Nume / firmă: ' + (owner || '-'),
-        'Observații: ' + (note || '-'),
-        'Documente: ' + docs.length,
-        'Total sume: ' + totalAmount.toFixed(2),
-        ''
-      ].concat(docs.flatMap((d, i) => [
-        '------------------------------','Document #' + (i + 1),'Fișier: ' + d.fileName,'Sursă: ' + sourceLabel(d.sourceType),'Status: ' + d.reviewStatus,
-        'Furnizor: ' + d.supplier.value,'Client: ' + d.customer.value,'Invoice #: ' + d.invoiceNumber.value,'Debtor #: ' + d.debtorNumber.value,
-        'Tax ID: ' + d.taxId.value,'Dată: ' + d.invoiceDate.value,'Net: ' + d.net.value,'VAT: ' + d.vat.value,'Total: ' + d.total.value,
-        'Template: ' + d.template,'Notes: ' + (d.notes || '-'),''
-      ])).join('\n');
-      const blob = new Blob([content], { type: 'text/plain;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'invoice-ocr-local-report.txt';
-      a.click();
-      URL.revokeObjectURL(url);
-    }
-
-    function importWorkspaceJson(file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        try {
-          const parsed = JSON.parse(String(e.target.result || '[]'));
-          if (!Array.isArray(parsed)) throw new Error('Invalid JSON');
-          documents = parsed;
-          selectedId = documents[0] ? documents[0].id : '';
-          setStatus('Workspace JSON încărcat.');
-          clearError();
-          renderAll();
-        } catch (err) {
-          setStatus('Import JSON eșuat.', 'error');
-          showError('Fișier JSON invalid pentru workspace.');
-        }
-      };
-      reader.readAsText(file, 'utf-8');
-    }
-
-    function rebuildTextLinesFromItems(items) {
-      const rows = [];
-      const tolerance = 3;
-      for (const item of items) {
-        const x = item.transform[4];
-        const y = item.transform[5];
-        const str = String(item.str || '').trim();
-        if (!str) continue;
-        let row = rows.find((r) => Math.abs(r.y - y) <= tolerance);
-        if (!row) { row = { y, parts: [] }; rows.push(row); }
-        row.parts.push({ x, str });
-      }
-      rows.sort((a, b) => b.y - a.y);
-      return rows.map((row) => row.parts.sort((a, b) => a.x - b.x).map((p) => p.str).join(' ').replace(/\s+/g, ' ').trim()).filter(Boolean).join('\n');
-    }
-
-    async function extractPdfTextWithLayout(file) {
-      const arrBuf = await file.arrayBuffer();
-      const pdf = await pdfjsLib.getDocument({ data: arrBuf }).promise;
-      const pages = [];
-      for (let i = 1; i <= pdf.numPages; i++) {
-        const page = await pdf.getPage(i);
-        const content = await page.getTextContent();
-        pages.push({ pageNo: i, text: rebuildTextLinesFromItems(content.items) });
-      }
-      return pages;
-    }
-
-    async function fileToDataUrl(file) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = (e) => resolve(String(e.target.result || ''));
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
-    }
-
-    function lineByLabel(text, labels) {
-      const lines = linesOf(text);
-      for (const line of lines) {
-        const ln = normalizeTextBasic(line);
-        for (const label of labels) {
-          if (ln.includes(normalizeTextBasic(label))) return line;
-        }
-      }
-      return '';
-    }
-
-    function labelRegex(label){ return label.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'); }
-    function valueAfterLabel(text, labels) {
-      const lines = linesOf(text);
-      for (const line of lines) {
-        for (const label of labels) {
-          const re = new RegExp(labelRegex(label) + '\\s*[:.-]?\\s*(.+)$', 'i');
-          const m = line.match(re);
-          if (m && m[1]) return m[1].trim();
-        }
-      }
-      return '';
-    }
-
-    function parseAmountAfterStrongLabel(text, labels) {
-      const lines = linesOf(text);
-      for (const line of lines) {
-        const lower = normalizeTextBasic(line);
-        for (const label of labels) {
-          if (lower.includes(normalizeTextBasic(label))) {
-            const nums = line.match(/\d+[\.,]\d{2}/g);
-            if (nums && nums.length) return nums[nums.length - 1].replace(',', '.');
-          }
-        }
-      }
-      return '';
-    }
-
-    function parseDate(text) {
-      const patterns = [/(\d{2}[\.\-/]\d{2}[\.\-/]\d{4})/, /(\d{4}[\.\-/]\d{2}[\.\-/]\d{2})/];
-      for (const p of patterns) {
-        const m = text.match(p);
-        if (m) return m[1].replace(/\./g, '-').replace(/\//g, '-');
-      }
-      return '';
-    }
-
-    function parseDanishMonthDate(text) {
-      const months = { januar:'01', februar:'02', marts:'03', april:'04', maj:'05', juni:'06', juli:'07', august:'08', september:'09', oktober:'10', november:'11', december:'12' };
-      const m = normalizeTextBasic(text).match(/(\d{1,2})\.\s*(januar|februar|marts|april|maj|juni|juli|august|september|oktober|november|december)\s*(\d{4})/);
-      if (!m) return '';
-      return String(m[1]).padStart(2, '0') + '-' + months[m[2]] + '-' + m[3];
-    }
-
-    function parseCVR(text) {
-      const direct = valueAfterLabel(text, ['CVR-nr.', 'CVR nr', 'CVR']);
-      if (direct) {
-        const m = direct.match(/(DK\s*)?\d{8,12}/i);
-        if (m) return (m[1] ? 'DK' : '') + m[0].replace(/DK\s*/i, '').replace(/\s+/g, '');
-      }
-      const m2 = text.match(/CVR[- ]?nr\.?\s*(DK\s*)?(\d{8,12})/i);
-      if (m2) return (m2[1] ? 'DK' : '') + m2[2];
-      return '';
-    }
-
-    function parseFakturanr(text) {
-      const v = valueAfterLabel(text, ['Fakturanr.', 'Fakturanr', 'Invoice no', 'Invoice nr']);
-      if (v) {
-        const m = v.match(/[A-Za-z0-9\-\/]{4,}/);
-        if (m) return m[0];
-      }
-      return '';
-    }
-
-    function parseDebitornr(text) {
-      const v = valueAfterLabel(text, ['Debitornr.', 'Debitornr', 'Debtor no', 'Customer no']);
-      if (v) {
-        const m = v.match(/[A-Za-z0-9\-\/]{3,}/);
-        if (m) return m[0];
-      }
-      return '';
-    }
-
-    function parseSupplier(text, fileName) {
-      const lines = linesOf(text);
-      const exact = lines.find((line) => /^General Logistics Systems Denmark A\/S$/i.test(line.trim()));
-      if (exact) return { value: exact.trim(), confidence: 99, source: 'Exact line match' };
-      const contains = lines.find((line) => /General Logistics Systems Denmark A\/S/i.test(line));
-      if (contains) return { value: 'General Logistics Systems Denmark A/S', confidence: 95, source: 'Strong vendor match' };
-      const candidates = lines.filter((line) => /a\/s|aps|ab|gmbh|srl|ltd|oy/i.test(line));
-      if (candidates.length) return { value: candidates[0], confidence: 72, source: 'Company suffix match' };
-      return { value: '-', confidence: 0, source: fileName ? 'No supplier match' : 'Missing' };
-    }
-
-    function parseCustomer(text) {
-      const lines = linesOf(text);
-      const exact = lines.find((line) => /^Sergiu Bulboaca$/i.test(line.trim()));
-      if (exact) return { value: exact.trim(), confidence: 99, source: 'Exact line match' };
-      const contains = lines.find((line) => /Sergiu Bulboaca/i.test(line));
-      if (contains) return { value: 'Sergiu Bulboaca', confidence: 95, source: 'Strong customer match' };
-      const debtorIdx = lines.findIndex((line) => /Debitornr/i.test(line));
-      if (debtorIdx > 0) {
-        const candidates = lines.slice(Math.max(0, debtorIdx - 5), debtorIdx).filter((line) => {
-          const l = normalizeTextBasic(line);
-          if (!l) return false;
-          if (/general logistics|kokmose|kolding|faktura|invoice|debitornr|fakturanr|cvr/.test(l)) return false;
-          if (/^\d{4}\s+[a-z]/.test(l) || /^\d/.test(l)) return false;
-          return true;
-        });
-        if (candidates.length) return { value: candidates[0], confidence: 68, source: 'Debtor block inference' };
-      }
-      return { value: '-', confidence: 0, source: 'No customer match' };
-    }
-
-    function detectTemplate(text, fileName) {
-      const l = normalizeTextBasic(text + ' ' + fileName);
-      if (l.includes('general logistics systems denmark') || (l.includes('fakturanr') && l.includes('debitornr') && l.includes('cvr'))) return 'GLS Denmark';
-      if (l.includes('receipt') || l.includes('bon fiscal')) return 'Receipt Generic';
-      return 'Generic DK Invoice';
-    }
-
-    function createParsedField(value, confidence, source) {
-      return { value: value || '-', confidence: value ? confidence : 0, source: value ? source : 'Missing' };
-    }
-
-    function parseDocument(text, fileName, sourceType) {
-      const dateSource = lineByLabel(text, ['Bogføringsdato', 'Bogforingsdato', 'Faktura', 'Invoice date', 'Date']);
-      const date = parseDate(dateSource) || parseDanishMonthDate(dateSource) || parseDate(text) || parseDanishMonthDate(text);
-      const supplier = parseSupplier(text, fileName);
-      const customer = parseCustomer(text);
-      const invoiceNumber = parseFakturanr(text);
-      const debtorNumber = parseDebitornr(text);
-      const cvr = parseCVR(text);
-      const net = parseAmountAfterStrongLabel(text, ['Netto DKK', 'Netto', 'Net amount']);
-      const vat = parseAmountAfterStrongLabel(text, ['25% Moms', 'Moms', 'VAT']);
-      const total = parseAmountAfterStrongLabel(text, ['I alt DKK', 'I alt', 'Total DKK', 'Total']);
-      const template = detectTemplate(text, fileName);
-      let reviewStatus = 'review_required';
-      if (invoiceNumber && total) reviewStatus = 'valid';
-      else if (total) reviewStatus = 'warning';
-
-      return {
-        id: 'DOC-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8),
-        fileName, sourceType, template, reviewStatus,
-        supplier, customer,
-        invoiceNumber: createParsedField(invoiceNumber, invoiceNumber ? 96 : 0, 'Invoice number label'),
-        debtorNumber: createParsedField(debtorNumber, debtorNumber ? 94 : 0, 'Debtor label'),
-        taxId: createParsedField(cvr, cvr ? 98 : 0, 'CVR/VAT label'),
-        invoiceDate: createParsedField(date, date ? 92 : 0, 'Date label'),
-        net: createParsedField(net, net ? 92 : 0, 'Net line'),
-        vat: createParsedField(vat, vat ? 92 : 0, 'VAT line'),
-        total: createParsedField(total, total ? 97 : 0, 'Total line'),
-        notes: 'Extracted locally.',
-        isEdited: false,
-        rawText: text
-      };
-    }
-
-    async function processFiles() {
-      clearError();
-      if (!pendingFiles.length) {
-        setStatus('Nu există fișiere selectate.', 'warn');
-        showError('Selectează mai întâi unul sau mai multe fișiere, apoi apasă „Procesează documentele”.');
-        return;
-      }
-
-      setStatus('Pornesc procesarea locală...');
-      const importedDocs = [];
-
-      for (let idx = 0; idx < pendingFiles.length; idx++) {
-        const file = pendingFiles[idx];
-        try {
-          if (/\.json$/i.test(file.name)) {
-            setStatus(`Încarc workspace JSON: ${file.name}`);
-            await new Promise((resolve, reject) => {
-              const reader = new FileReader();
-              reader.onload = (e) => {
-                try {
-                  const parsed = JSON.parse(String(e.target.result || '[]'));
-                  if (!Array.isArray(parsed)) throw new Error('Invalid JSON');
-                  documents = parsed.concat(documents);
-                  resolve();
-                } catch (err) {
-                  reject(err);
-                }
-              };
-              reader.onerror = reject;
-              reader.readAsText(file, 'utf-8');
-            });
-            continue;
-          }
-
-          const isPdf = /\.pdf$/i.test(file.name) || file.type === 'application/pdf';
-          if (isPdf) {
-            setStatus(`Citesc PDF ${idx + 1}/${pendingFiles.length}: ${file.name}`);
-            const pages = await extractPdfTextWithLayout(file);
-            if (!pages.length) throw new Error('PDF fără text extras.');
-            pages.forEach((page) => importedDocs.push(parseDocument(page.text, `${file.name} | pagina ${page.pageNo}`, 'pdf_text')));
-          } else {
-            setStatus(`Rulez OCR ${idx + 1}/${pendingFiles.length}: ${file.name}`);
-            const dataUrl = await fileToDataUrl(file);
-            const result = await Tesseract.recognize(dataUrl, 'eng');
-            const text = result && result.data && result.data.text ? result.data.text : '';
-            if (!text.trim()) throw new Error('OCR nu a returnat text.');
-            importedDocs.push(parseDocument(text, file.name, 'ocr_image'));
-          }
-        } catch (err) {
-          console.error(err);
-          importedDocs.push({
-            ...makeDocBase(file.name, /\.pdf$/i.test(file.name) ? 'pdf_text' : 'ocr_image'),
-            notes: 'Procesarea locală a eșuat: ' + (err && err.message ? err.message : 'eroare necunoscută'),
-            reviewStatus: 'failed'
-          });
-          showError(`Eroare la fișierul ${file.name}: ${err && err.message ? err.message : 'eroare necunoscută'}`);
-        }
-      }
-
-      if (importedDocs.length) {
-        documents = importedDocs.concat(documents);
-        selectedId = documents[0].id;
-      }
-
-      pendingFiles = [];
-      document.getElementById('workspaceImportFile').value = '';
-      renderSelectedFiles();
-      renderAll();
-      setStatus('Procesare finalizată.');
-    }
-
-    function renderAll() {
-      renderStats();
-      renderWorkspaceTable();
-      renderSidebarInfo();
-      renderPreview();
-      renderFieldGrid();
-      renderTemplates();
-    }
-
-    document.querySelectorAll('.tab-btn').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.tab-btn').forEach((b) => b.classList.remove('active'));
-        document.querySelectorAll('.tab-panel').forEach((panel) => panel.classList.remove('active'));
-        btn.classList.add('active');
-        document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
-      });
-    });
-
-    document.getElementById('searchInput').addEventListener('input', (e) => { searchQuery = e.target.value; renderWorkspaceTable(); });
-    document.getElementById('statusFilter').addEventListener('change', (e) => { statusFilter = e.target.value; renderWorkspaceTable(); });
-    document.getElementById('approveBtn').addEventListener('click', () => setDocStatus('valid'));
-    document.getElementById('markReviewBtn').addEventListener('click', () => setDocStatus('review_required'));
-    document.getElementById('markFailedBtn').addEventListener('click', () => setDocStatus('failed'));
-    document.getElementById('saveWorkspaceBtn').addEventListener('click', saveWorkspace);
-    document.getElementById('saveWorkspaceTopBtn').addEventListener('click', saveWorkspace);
-    document.getElementById('exportCsvBtn').addEventListener('click', exportCsv);
-    document.getElementById('exportCsvTopBtn').addEventListener('click', exportCsv);
-    document.getElementById('exportTxtBtn').addEventListener('click', exportTxt);
-    document.getElementById('processFilesBtn').addEventListener('click', processFiles);
-    document.getElementById('workspaceImportFile').addEventListener('change', (e) => {
-      pendingFiles = Array.from(e.target.files || []);
-      renderSelectedFiles();
-      clearError();
-      setStatus(pendingFiles.length ? `${pendingFiles.length} fișier(e) selectate. Apasă „Procesează documentele”.` : 'Niciun fișier selectat.', pendingFiles.length ? 'ok' : 'warn');
-    });
-
-    renderSelectedFiles();
-    renderTemplates();
-    setStatus('Pregătit pentru selectare fișiere.');
-    renderAll();
-  </script></body>
+  </section>  <section class="tab-panel" id="tab-review"><div class="grid grid-2"><section class="card"><div class="card-inner"><div class="section-title"><div class="icon">👁️</div><div><h2>Document review panel</h2></div></div><div class="box"><div class="label">Local preview placeholder</div><div class="preview-document" id="previewBox"></div><div class="btn-row" style="margin-top:14px"><button class="btn btn-outline" id="markReviewBtn">Mark review</button><button class="btn btn-success" id="approveBtn">Approve locally</button><button class="btn btn-danger" id="markFailedBtn">Mark failed</button></div></div></div></section><section class="card"><div class="card-inner"><div class="section-title"><div class="icon">🧠</div><div><h2>Editable extracted fields</h2></div></div><div class="field-grid" id="fieldGrid"></div><div class="field-card" style="margin-top:12px"><div class="label">Operator notes</div><textarea id="notesInput"></textarea></div></div></section></div></section>  <section class="tab-panel" id="tab-templates"><div class="grid grid-2"><section class="card"><div class="card-inner"><div class="section-title"><div class="icon">🧩</div><div><h2>Template library</h2></div></div><div id="templateList" class="grid"></div></div></section><section class="card"><div class="card-inner"><div class="section-title"><div class="icon">💻</div><div><h2>Local-first enterprise model</h2></div></div><div class="grid"><div class="template-card"><div style="font-weight:700">No API dependency</div><div class="helper">Import, extracție, review și export rămân locale.</div></div><div class="template-card"><div style="font-weight:700">Portable workspace</div><div class="helper">Workspace JSON funcționează ca persistență locală și snapshot de review.</div></div><div class="template-card"><div style="font-weight:700">Enterprise workflow without backend</div><div class="helper">Batch processing, confidence scoring, template routing și export în browser.</div></div></div></div></section></div></section>
+</div><script type="module">
+  import * as pdfjsLib from 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.4.168/build/pdf.min.mjs';
+  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.4.168/build/pdf.worker.min.mjs';
+
+  const templateRules = [
+    { name: 'GLS Denmark', mode: 'Strict vendor template', fields: 'Supplier, customer, CVR, debtor, fakturanr., Moms, I alt' },
+    { name: 'Generic DK Invoice', mode: 'Label-based parser', fields: 'Invoice no, VAT, total, date' },
+    { name: 'Receipt Generic', mode: 'OCR fallback', fields: 'Merchant, date, total, VAT' }
+  ];
+  const fieldConfig = [['supplier','Supplier'],['customer','Customer'],['invoiceNumber','Invoice number'],['debtorNumber','Debtor number'],['taxId','Tax ID'],['invoiceDate','Invoice date'],['net','Net'],['vat','VAT'],['total','Total']];
+  let documents = []; let selectedId = ''; let searchQuery = ''; let statusFilter = 'all'; let pendingFiles = [];
+
+  function setStatus(text, kind='ok'){ const box=document.getElementById('statusBox'); box.textContent='Status: '+text; box.className='box '+(kind==='error'?'error-box':kind==='warn'?'warn-box':'ok-box'); }
+  function showError(text){ const box=document.getElementById('errorLog'); box.style.display='block'; box.textContent=text; }
+  function clearError(){ const box=document.getElementById('errorLog'); box.style.display='none'; box.textContent=''; }
+  function sourceLabel(source){ return source==='pdf_text'?'PDF text':'OCR image'; }
+  function normalizeTextBasic(str){ return String(str||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[’'`]/g,'').replace(/\s+/g,' ').trim(); }
+  function linesOf(text){ return text.split(/\r?\n/).map(s=>s.trim()).filter(Boolean); }
+  function escapeHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function escapeAttr(s){ return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function statusBadge(status){ const labels={valid:'Valid',warning:'Warning',review_required:'Review',failed:'Failed'}; return `<span class="badge ${status}">${labels[status]||status}</span>`; }
+  function createField(value='-',confidence=0,source='Pending extraction'){ return {value,confidence,source}; }
+  function makeDocBase(fileName,sourceType,template='Generic DK Invoice'){ return {id:'DOC-'+Date.now()+'-'+Math.random().toString(36).slice(2,8),fileName,sourceType,template,reviewStatus:'review_required',supplier:createField(),customer:createField(),invoiceNumber:createField(),debtorNumber:createField(),taxId:createField(),invoiceDate:createField(),net:createField(),vat:createField(),total:createField(),notes:'',isEdited:false,rawText:''}; }
+
+  function renderSelectedFiles(){ const holder=document.getElementById('selectedFilesList'); if(!pendingFiles.length){ holder.innerHTML='<span class="badge light">Niciun fișier selectat</span>'; return; } holder.innerHTML=pendingFiles.map(file=>`<span class="badge light">${escapeHtml(file.name)}</span>`).join(''); }
+  function getFilteredDocs(){ return documents.filter(doc=>{ const haystack=[doc.fileName,doc.supplier.value,doc.customer.value,doc.invoiceNumber.value,doc.taxId.value,doc.template].join(' ').toLowerCase(); return (!searchQuery||haystack.includes(searchQuery.toLowerCase())) && (statusFilter==='all'||doc.reviewStatus===statusFilter); }); }
+  function getSelectedDoc(){ const filtered=getFilteredDocs(); return filtered.find(doc=>doc.id===selectedId)||documents[0]||null; }
+  function calculateStats(){ if(!documents.length) return {totalDocs:0,validDocs:0,reviewDocs:0,avgConfidence:0}; const totalDocs=documents.length, validDocs=documents.filter(d=>d.reviewStatus==='valid').length, reviewDocs=documents.filter(d=>d.reviewStatus==='review_required').length; const avgConfidence=Math.round(documents.reduce((acc,doc)=>acc+fieldConfig.reduce((sum,[key])=>sum+(doc[key].confidence||0),0)/fieldConfig.length,0)/documents.length); return {totalDocs,validDocs,reviewDocs,avgConfidence}; }
+  function renderStats(){ const s=calculateStats(); document.getElementById('statDocuments').textContent=String(s.totalDocs); document.getElementById('statValid').textContent=String(s.validDocs); document.getElementById('statReview').textContent=String(s.reviewDocs); document.getElementById('statConfidence').textContent=`${s.avgConfidence}%`; }
+  function renderWorkspaceTable(){ const tbody=document.getElementById('workspaceTableBody'); const filtered=getFilteredDocs(); tbody.innerHTML=filtered.map(doc=>`<tr class="${doc.id===selectedId?'selected':''}" data-id="${doc.id}"><td><strong>${escapeHtml(doc.fileName)}</strong></td><td>${sourceLabel(doc.sourceType)}</td><td>${statusBadge(doc.reviewStatus)}</td><td>${escapeHtml(doc.template)}</td><td>${escapeHtml(doc.total.value)}</td></tr>`).join(''); Array.from(tbody.querySelectorAll('tr')).forEach(tr=>tr.addEventListener('click',()=>{ selectedId=tr.getAttribute('data-id'); renderAll(); })); }
+  function renderSidebarInfo(){ const doc=getSelectedDoc(); document.getElementById('selectedDocName').textContent=doc?doc.fileName:'-'; document.getElementById('selectedDocTemplate').textContent=doc?`Template: ${doc.template}`:'Template: -'; document.getElementById('selectedDocSource').textContent=doc?sourceLabel(doc.sourceType):'-'; document.getElementById('selectedStatusBadge').innerHTML=doc?statusBadge(doc.reviewStatus):'-'; document.getElementById('rawExtractedText').textContent=doc&&doc.rawText?doc.rawText:'Nu există încă text extras.'; }
+  function renderPreview(){ const doc=getSelectedDoc(); const preview=document.getElementById('previewBox'); if(!doc){ preview.innerHTML='<em>No document selected.</em>'; return; } preview.innerHTML=`<div><strong>Source:</strong> ${sourceLabel(doc.sourceType)}</div><div><strong>Template:</strong> ${escapeHtml(doc.template)}</div><div><strong>Supplier:</strong> ${escapeHtml(doc.supplier.value)}</div><div><strong>Customer:</strong> ${escapeHtml(doc.customer.value)}</div><div><strong>Invoice #:</strong> ${escapeHtml(doc.invoiceNumber.value)}</div><div><strong>Debtor #:</strong> ${escapeHtml(doc.debtorNumber.value)}</div><div><strong>Tax ID:</strong> ${escapeHtml(doc.taxId.value)}</div><div><strong>Invoice date:</strong> ${escapeHtml(doc.invoiceDate.value)}</div><div><strong>Net:</strong> ${escapeHtml(doc.net.value)}</div><div><strong>VAT:</strong> ${escapeHtml(doc.vat.value)}</div><div><strong>Total:</strong> ${escapeHtml(doc.total.value)}</div><div style="margin-top:12px;color:#64748b;"><strong>Notes:</strong> ${escapeHtml(doc.notes||'-')}</div>`; }
+  function renderFieldGrid(){ const doc=getSelectedDoc(); const container=document.getElementById('fieldGrid'); if(!doc){ container.innerHTML=''; document.getElementById('notesInput').value=''; return; } container.innerHTML=fieldConfig.map(([key,label])=>{ const field=doc[key]; return `<div class="field-card"><div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start;"><div><div class="label">${label}</div><div class="helper" style="margin-top:4px;">Source: ${escapeHtml(field.source)}</div></div><span class="badge light">${field.confidence}%</span></div><input type="text" data-field="${key}" value="${escapeAttr(field.value)}" style="margin-top:10px;" /><div class="progress"><span style="width:${field.confidence}%;"></span></div></div>`; }).join(''); Array.from(container.querySelectorAll('input[data-field]')).forEach(input=>input.addEventListener('input',e=>updateField(e.target.getAttribute('data-field'),e.target.value))); const notes=document.getElementById('notesInput'); notes.value=doc.notes||''; notes.oninput=(e)=>{ const current=documents.find(d=>d.id===doc.id); if(!current) return; current.notes=e.target.value; current.isEdited=true; }; }
+  function renderTemplates(){ const list=document.getElementById('templateList'); list.innerHTML=templateRules.map(rule=>`<div class="template-card"><div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start;"><div><div style="font-weight:700;">${escapeHtml(rule.name)}</div><div class="helper" style="margin-top:6px;">${escapeHtml(rule.mode)}</div></div><span class="badge light">Active</span></div><div class="helper" style="margin-top:12px;">${escapeHtml(rule.fields)}</div></div>`).join(''); }
+  function updateField(fieldKey,value){ const doc=documents.find(d=>d.id===selectedId); if(!doc||!doc[fieldKey]) return; doc[fieldKey].value=value; if(!String(doc[fieldKey].source).includes('Manual edit')) doc[fieldKey].source+=' · Manual edit'; doc.isEdited=true; renderPreview(); }
+  function setDocStatus(status){ const doc=documents.find(d=>d.id===selectedId); if(!doc) return; doc.reviewStatus=status; renderAll(); }
+  function saveWorkspace(){ const blob=new Blob([JSON.stringify(documents,null,2)],{type:'application/json'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='invoice-ocr-local-workspace.json'; a.click(); URL.revokeObjectURL(url); }
+  function exportCsv(){ const headers=['file_name','source_type','status','supplier','customer','invoice_number','debtor_number','tax_id','invoice_date','net','vat','total','template','notes']; const rows=documents.map(d=>[d.fileName,d.sourceType,d.reviewStatus,d.supplier.value,d.customer.value,d.invoiceNumber.value,d.debtorNumber.value,d.taxId.value,d.invoiceDate.value,d.net.value,d.vat.value,d.total.value,d.template,d.notes||''].map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')); const csv=[headers.join(','),...rows].join('\n'); const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='invoice-ocr-local-export.csv'; a.click(); URL.revokeObjectURL(url); }
+  function exportTxt(){ const mode=document.getElementById('reportMode').value; const docs=mode==='single'?documents.filter(d=>d.id===selectedId):documents.slice(); const owner=document.getElementById('ownerName').value.trim(); const note=document.getElementById('reportNote').value.trim(); const totalAmount=docs.reduce((sum,d)=>sum+Number(d.total.value||0),0); const content=['RAPORT SIMPLU – INVOICE OCR ENTERPRISE LOCAL','Nume / firmă: '+(owner||'-'),'Observații: '+(note||'-'),'Documente: '+docs.length,'Total sume: '+totalAmount.toFixed(2),''].concat(docs.flatMap((d,i)=>['------------------------------','Document #'+(i+1),'Fișier: '+d.fileName,'Sursă: '+sourceLabel(d.sourceType),'Status: '+d.reviewStatus,'Furnizor: '+d.supplier.value,'Client: '+d.customer.value,'Invoice #: '+d.invoiceNumber.value,'Debtor #: '+d.debtorNumber.value,'Tax ID: '+d.taxId.value,'Dată: '+d.invoiceDate.value,'Net: '+d.net.value,'VAT: '+d.vat.value,'Total: '+d.total.value,'Template: '+d.template,'Notes: '+(d.notes||'-'),''])).join('\n'); const blob=new Blob([content],{type:'text/plain;charset=utf-8;'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='invoice-ocr-local-report.txt'; a.click(); URL.revokeObjectURL(url); }
+  function rebuildTextLinesFromItems(items){ const rows=[]; const tolerance=3; for(const item of items){ const x=item.transform[4], y=item.transform[5], str=String(item.str||'').trim(); if(!str) continue; let row=rows.find(r=>Math.abs(r.y-y)<=tolerance); if(!row){ row={y,parts:[]}; rows.push(row); } row.parts.push({x,str}); } rows.sort((a,b)=>b.y-a.y); return rows.map(row=>row.parts.sort((a,b)=>a.x-b.x).map(p=>p.str).join(' ').replace(/\s+/g,' ').trim()).filter(Boolean).join('\n'); }
+  async function extractPdfTextWithLayout(file){ const arrBuf=await file.arrayBuffer(); const pdf=await pdfjsLib.getDocument({data:arrBuf}).promise; const pages=[]; for(let i=1;i<=pdf.numPages;i++){ const page=await pdf.getPage(i); const content=await page.getTextContent(); pages.push({pageNo:i,text:rebuildTextLinesFromItems(content.items)}); } return pages; }
+  async function fileToDataUrl(file){ return new Promise((resolve,reject)=>{ const reader=new FileReader(); reader.onload=e=>resolve(String(e.target.result||'')); reader.onerror=reject; reader.readAsDataURL(file); }); }
+  function lineByLabel(text,labels){ const lines=linesOf(text); for(const line of lines){ const ln=normalizeTextBasic(line); for(const label of labels){ if(ln.includes(normalizeTextBasic(label))) return line; } } return ''; }
+  function labelRegex(label){ return label.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'); }
+  function valueAfterLabel(text,labels){ const lines=linesOf(text); for(const line of lines){ for(const label of labels){ const re=new RegExp(labelRegex(label)+'\\s*[:.-]?\\s*(.+)$','i'); const m=line.match(re); if(m&&m[1]) return m[1].trim(); } } return ''; }
+  function parseAmountAfterStrongLabel(text,labels){ const lines=linesOf(text); for(const line of lines){ const lower=normalizeTextBasic(line); for(const label of labels){ if(lower.includes(normalizeTextBasic(label))){ const nums=line.match(/\d+[\.,]\d{2}/g); if(nums&&nums.length) return nums[nums.length-1].replace(',','.'); } } } return ''; }
+  function parseDate(text){ const patterns=[/(\d{2}[\.\-/]\d{2}[\.\-/]\d{4})/,/(\d{4}[\.\-/]\d{2}[\.\-/]\d{2})/]; for(const p of patterns){ const m=text.match(p); if(m) return m[1].replace(/\./g,'-').replace(/\//g,'-'); } return ''; }
+  function parseDanishMonthDate(text){ const months={januar:'01',februar:'02',marts:'03',april:'04',maj:'05',juni:'06',juli:'07',august:'08',september:'09',oktober:'10',november:'11',december:'12'}; const m=normalizeTextBasic(text).match(/(\d{1,2})\.\s*(januar|februar|marts|april|maj|juni|juli|august|september|oktober|november|december)\s*(\d{4})/); if(!m) return ''; return String(m[1]).padStart(2,'0')+'-'+months[m[2]]+'-'+m[3]; }
+  function parseCVR(text){ const direct=valueAfterLabel(text,['CVR-nr.','CVR nr','CVR']); if(direct){ const m=direct.match(/(DK\s*)?\d{8,12}/i); if(m) return (m[1]?'DK':'')+m[0].replace(/DK\s*/i,'').replace(/\s+/g,''); } const m2=text.match(/CVR[- ]?nr\.?\s*(DK\s*)?(\d{8,12})/i); if(m2) return (m2[1]?'DK':'')+m2[2]; return ''; }
+  function parseFakturanr(text){ const v=valueAfterLabel(text,['Fakturanr.','Fakturanr','Invoice no','Invoice nr']); if(v){ const m=v.match(/[A-Za-z0-9\-\/]{4,}/); if(m) return m[0]; } return ''; }
+  function parseDebitornr(text){ const v=valueAfterLabel(text,['Debitornr.','Debitornr','Debtor no','Customer no']); if(v){ const m=v.match(/[A-Za-z0-9\-\/]{3,}/); if(m) return m[0]; } return ''; }
+  function parseSupplier(text,fileName){ const lines=linesOf(text); const exact=lines.find(line=>/^General Logistics Systems Denmark A\/S$/i.test(line.trim())); if(exact) return {value:exact.trim(),confidence:99,source:'Exact line match'}; const contains=lines.find(line=>/General Logistics Systems Denmark A\/S/i.test(line)); if(contains) return {value:'General Logistics Systems Denmark A/S',confidence:95,source:'Strong vendor match'}; const candidates=lines.filter(line=>/a\/s|aps|ab|gmbh|srl|ltd|oy/i.test(line)); if(candidates.length) return {value:candidates[0],confidence:72,source:'Company suffix match'}; return {value:'-',confidence:0,source:fileName?'No supplier match':'Missing'}; }
+  function parseCustomer(text){ const lines=linesOf(text); const exact=lines.find(line=>/^Sergiu Bulboaca$/i.test(line.trim())); if(exact) return {value:exact.trim(),confidence:99,source:'Exact line match'}; const contains=lines.find(line=>/Sergiu Bulboaca/i.test(line)); if(contains) return {value:'Sergiu Bulboaca',confidence:95,source:'Strong customer match'}; const debtorIdx=lines.findIndex(line=>/Debitornr/i.test(line)); if(debtorIdx>0){ const candidates=lines.slice(Math.max(0,debtorIdx-5),debtorIdx).filter(line=>{ const l=normalizeTextBasic(line); if(!l) return false; if(/general logistics|kokmose|kolding|faktura|invoice|debitornr|fakturanr|cvr/.test(l)) return false; if(/^\d{4}\s+[a-z]/.test(l)||/^\d/.test(l)) return false; return true; }); if(candidates.length) return {value:candidates[0],confidence:68,source:'Debtor block inference'}; } return {value:'-',confidence:0,source:'No customer match'}; }
+  function detectTemplate(text,fileName){ const l=normalizeTextBasic(text+' '+fileName); if(l.includes('general logistics systems denmark')||(l.includes('fakturanr')&&l.includes('debitornr')&&l.includes('cvr'))) return 'GLS Denmark'; if(l.includes('receipt')||l.includes('bon fiscal')) return 'Receipt Generic'; return 'Generic DK Invoice'; }
+  function createParsedField(value,confidence,source){ return {value:value||'-',confidence:value?confidence:0,source:value?source:'Missing'}; }
+  function parseDocument(text,fileName,sourceType){ const dateSource=lineByLabel(text,['Bogføringsdato','Bogforingsdato','Faktura','Invoice date','Date']); const date=parseDate(dateSource)||parseDanishMonthDate(dateSource)||parseDate(text)||parseDanishMonthDate(text); const supplier=parseSupplier(text,fileName), customer=parseCustomer(text), invoiceNumber=parseFakturanr(text), debtorNumber=parseDebitornr(text), cvr=parseCVR(text), net=parseAmountAfterStrongLabel(text,['Netto DKK','Netto','Net amount']), vat=parseAmountAfterStrongLabel(text,['25% Moms','Moms','VAT']), total=parseAmountAfterStrongLabel(text,['I alt DKK','I alt','Total DKK','Total']), template=detectTemplate(text,fileName); let reviewStatus='review_required'; if(invoiceNumber&&total) reviewStatus='valid'; else if(total) reviewStatus='warning'; return {id:'DOC-'+Date.now()+'-'+Math.random().toString(36).slice(2,8),fileName,sourceType,template,reviewStatus,supplier,customer,invoiceNumber:createParsedField(invoiceNumber,invoiceNumber?96:0,'Invoice number label'),debtorNumber:createParsedField(debtorNumber,debtorNumber?94:0,'Debtor label'),taxId:createParsedField(cvr,cvr?98:0,'CVR/VAT label'),invoiceDate:createParsedField(date,date?92:0,'Date label'),net:createParsedField(net,net?92:0,'Net line'),vat:createParsedField(vat,vat?92:0,'VAT line'),total:createParsedField(total,total?97:0,'Total line'),notes:'Extracted locally.',isEdited:false,rawText:text}; }
+  async function processFiles(){ clearError(); if(!pendingFiles.length){ setStatus('Nu există fișiere selectate.','warn'); showError('Selectează mai întâi fișierele, apoi apasă „Procesează documentele”.'); return; } setStatus('Pornesc procesarea locală...'); const importedDocs=[]; for(let idx=0; idx<pendingFiles.length; idx++){ const file=pendingFiles[idx]; try{ if(/\.json$/i.test(file.name)){ setStatus(`Încarc workspace JSON: ${file.name}`); await new Promise((resolve,reject)=>{ const reader=new FileReader(); reader.onload=e=>{ try{ const parsed=JSON.parse(String(e.target.result||'[]')); if(!Array.isArray(parsed)) throw new Error('JSON invalid'); documents=parsed.concat(documents); resolve(); }catch(err){ reject(err); } }; reader.onerror=reject; reader.readAsText(file,'utf-8'); }); continue; } const isPdf=/\.pdf$/i.test(file.name)||file.type==='application/pdf'; if(isPdf){ setStatus(`Citesc PDF ${idx+1}/${pendingFiles.length}: ${file.name}`); const pages=await extractPdfTextWithLayout(file); if(!pages.length) throw new Error('PDF fără text extras.'); pages.forEach(page=>importedDocs.push(parseDocument(page.text,`${file.name} | pagina ${page.pageNo}`,'pdf_text'))); } else { setStatus(`Rulez OCR ${idx+1}/${pendingFiles.length}: ${file.name}`); const dataUrl=await fileToDataUrl(file); const result=await Tesseract.recognize(dataUrl,'eng'); const text=result&&result.data&&result.data.text?result.data.text:''; if(!text.trim()) throw new Error('OCR nu a returnat text.'); importedDocs.push(parseDocument(text,file.name,'ocr_image')); } }catch(err){ console.error(err); importedDocs.push({...makeDocBase(file.name,/\.pdf$/i.test(file.name)?'pdf_text':'ocr_image'),notes:'Procesarea locală a eșuat: '+(err&&err.message?err.message:'eroare necunoscută'),reviewStatus:'failed'}); showError(`Eroare la fișierul ${file.name}: ${err&&err.message?err.message:'eroare necunoscută'}`); } } if(importedDocs.length){ documents=importedDocs.concat(documents); selectedId=documents[0].id; } pendingFiles=[]; document.getElementById('workspaceImportFile').value=''; renderSelectedFiles(); renderAll(); setStatus('Procesare finalizată.'); }
+  function renderAll(){ renderStats(); renderWorkspaceTable(); renderSidebarInfo(); renderPreview(); renderFieldGrid(); renderTemplates(); }
+  document.querySelectorAll('.tab-btn').forEach(btn=>btn.addEventListener('click',()=>{ document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active')); document.querySelectorAll('.tab-panel').forEach(panel=>panel.classList.remove('active')); btn.classList.add('active'); document.getElementById('tab-'+btn.dataset.tab).classList.add('active'); }));
+  document.getElementById('searchInput').addEventListener('input',e=>{ searchQuery=e.target.value; renderWorkspaceTable(); });
+  document.getElementById('statusFilter').addEventListener('change',e=>{ statusFilter=e.target.value; renderWorkspaceTable(); });
+  document.getElementById('approveBtn').addEventListener('click',()=>setDocStatus('valid')); document.getElementById('markReviewBtn').addEventListener('click',()=>setDocStatus('review_required')); document.getElementById('markFailedBtn').addEventListener('click',()=>setDocStatus('failed')); document.getElementById('saveWorkspaceBtn').addEventListener('click',saveWorkspace); document.getElementById('exportCsvBtn').addEventListener('click',exportCsv); document.getElementById('exportTxtBtn').addEventListener('click',exportTxt); document.getElementById('processFilesBtn').addEventListener('click',processFiles);
+  document.getElementById('workspaceImportFile').addEventListener('change',e=>{ pendingFiles=Array.from(e.target.files||[]); renderSelectedFiles(); clearError(); setStatus(pendingFiles.length?`${pendingFiles.length} fișier(e) selectate. Apasă „Procesează documentele”.`:'Niciun fișier selectat.',pendingFiles.length?'ok':'warn'); });
+  renderSelectedFiles(); renderTemplates(); renderAll(); setStatus('Pregătit pentru selectare fișiere.');
+</script></body>
 </html>
