@@ -2,106 +2,379 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Invoice OCR Enterprise Mobile Stable</title>
+  <title>Extractor Coeziv Local</title>
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
   <style>
-    :root{--bg:#f8fafc;--card:#fff;--text:#0f172a;--muted:#64748b;--line:#dbe3ee;--primary:#2563eb;--success:#16a34a;--warning:#d97706;--danger:#dc2626;--secondary:#e2e8f0}
-    *{box-sizing:border-box} body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text)}
-    .app{max-width:1180px;margin:0 auto;padding:12px}.card{background:var(--card);border:1px solid var(--line);border-radius:24px;box-shadow:0 10px 28px rgba(15,23,42,.05);margin-bottom:16px;overflow:hidden}.card-inner{padding:16px}
-    .hero{background:linear-gradient(135deg,#020617 0%,#111827 55%,#1e293b 100%);color:#fff;border:none} .hero .subtle{color:rgba(255,255,255,.78)}
-    h1,h2,p{margin:0} h1{font-size:26px;line-height:1.15} h2{font-size:22px} .subtle{font-size:14px;color:var(--muted);line-height:1.5}
+    :root{
+      --bg:#f8fafc;--card:#ffffff;--text:#0f172a;--muted:#64748b;--line:#dbe3ee;
+      --primary:#2563eb;--primary-dark:#1d4ed8;--success:#16a34a;--warning:#d97706;
+      --danger:#dc2626;--secondary:#e2e8f0;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text)}
+    .app{max-width:1100px;margin:0 auto;padding:14px}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:24px;box-shadow:0 10px 28px rgba(15,23,42,.05);margin-bottom:16px;overflow:hidden}
+    .card-inner{padding:18px}
+    .hero{background:linear-gradient(135deg,#020617 0%,#111827 55%,#1e293b 100%);color:#fff;border:none}
+    h1,h2,h3,p{margin:0}
+    h1{font-size:28px;line-height:1.15}
+    h2{font-size:22px}
+    .subtle{color:var(--muted);font-size:14px;line-height:1.5}
+    .hero .subtle{color:rgba(255,255,255,.78)}
     .grid{display:grid;gap:14px}.grid-2{grid-template-columns:1fr 1fr}.grid-3{grid-template-columns:repeat(3,1fr)}.grid-4{grid-template-columns:repeat(4,1fr)}
-    .section-title{display:flex;align-items:center;gap:10px;margin-bottom:14px}.icon{width:42px;height:42px;border-radius:16px;display:inline-flex;align-items:center;justify-content:center;background:#f1f5f9;font-size:20px}
-    .panel,.stat,.box,.field-card,.template-card{border:1px solid var(--line);border-radius:18px;background:#f8fafc;padding:14px}.hero-panels{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:18px}.hero-panels .panel{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.12)}
-    .label{display:block;font-size:13px;font-weight:700;color:#334155;margin-bottom:6px}.helper{font-size:12px;color:var(--muted);margin-top:8px;line-height:1.45}
-    input[type=text],input[type=file],select,textarea{width:100%;border:1px solid #cbd5e1;border-radius:16px;padding:12px 14px;font-size:14px;background:#fff;color:var(--text)} textarea{min-height:90px;resize:vertical}
-    .btn-row{display:flex;flex-wrap:wrap;gap:10px}.btn{border:0;border-radius:16px;padding:12px 16px;font-size:14px;font-weight:700;cursor:pointer;min-height:46px}.btn-primary{background:var(--primary);color:#fff}.btn-success{background:var(--success);color:#fff}.btn-secondary{background:var(--secondary);color:#0f172a}.btn-outline{background:#fff;border:1px solid var(--line);color:#0f172a}.btn-danger{background:var(--danger);color:#fff}
-    .badge{display:inline-flex;align-items:center;gap:6px;padding:7px 10px;border-radius:999px;font-size:12px;font-weight:700}.valid{background:#dcfce7;color:#166534}.warning{background:#fef3c7;color:#92400e}.review_required{background:#e0f2fe;color:#075985}.failed{background:#fee2e2;color:#991b1b}.light{background:#fff;border:1px solid var(--line);color:#334155}
+    .section-title{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+    .icon{width:42px;height:42px;border-radius:16px;display:inline-flex;align-items:center;justify-content:center;background:#f1f5f9;font-size:20px}
+    .hero-panels .panel,.stat,.box,.field-card,.result-card{border:1px solid var(--line);border-radius:18px;background:#f8fafc;padding:14px}
+    .hero-panels{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:18px}
+    .hero-panels .panel{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.12)}
+    .label{display:block;font-size:13px;font-weight:700;color:#334155;margin-bottom:6px}
+    .helper{font-size:12px;color:var(--muted);margin-top:8px;line-height:1.45}
+    input[type=text],input[type=file],select,textarea{width:100%;border:1px solid #cbd5e1;border-radius:16px;padding:12px 14px;font-size:14px;color:var(--text);background:#fff}
+    textarea{min-height:120px;resize:vertical}
+    .btn-row{display:flex;flex-wrap:wrap;gap:10px}.btn{border:0;border-radius:16px;padding:12px 16px;font-size:14px;font-weight:700;cursor:pointer;min-height:46px}
+    .btn-primary{background:var(--primary);color:#fff}.btn-primary:hover{background:var(--primary-dark)}.btn-success{background:var(--success);color:#fff}.btn-secondary{background:var(--secondary);color:#0f172a}.btn-outline{background:#fff;border:1px solid var(--line);color:#0f172a}.btn-danger{background:var(--danger);color:#fff}
+    .badge{display:inline-flex;align-items:center;gap:6px;padding:7px 10px;border-radius:999px;font-size:12px;font-weight:700}.light{background:#fff;border:1px solid var(--line);color:#334155}
+    .ok-box{background:#ecfdf5;border-color:#bbf7d0;color:#166534}.warn-box{background:#fff7ed;border-color:#fed7aa;color:#9a3412}.error-box{background:#fff1f2;border-color:#fecdd3;color:#9f1239}
     .tabs{display:flex;gap:8px;background:#fff;border:1px solid var(--line);border-radius:18px;padding:6px;overflow:auto}.tab-btn{border:0;background:transparent;border-radius:14px;padding:12px 16px;font-weight:700;color:#334155;cursor:pointer;white-space:nowrap}.tab-btn.active{background:#e0f2fe;color:#0c4a6e}.tab-panel{display:none;margin-top:16px}.tab-panel.active{display:block}
-    .table-wrap{border:1px solid var(--line);border-radius:20px;overflow:auto;background:#fff} table{width:100%;border-collapse:collapse;min-width:720px} th,td{padding:12px 14px;text-align:left;border-bottom:1px solid #edf2f7;vertical-align:top;font-size:14px} th{background:#f8fafc;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:#475569} tr.selected{background:#eff6ff}
-    .raw-box{max-height:260px;overflow:auto;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px;white-space:pre-wrap}.ok-box{background:#ecfdf5;border-color:#bbf7d0;color:#166534}.warn-box{background:#fff7ed;border-color:#fed7aa;color:#9a3412}.error-box{background:#fff1f2;border-color:#fecdd3;color:#9f1239}
-    .progress{height:10px;background:#e2e8f0;border-radius:999px;overflow:hidden;margin-top:10px}.progress>span{display:block;height:100%;background:linear-gradient(90deg,#38bdf8 0%,#2563eb 100%)} .field-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.preview-document{border:1px dashed #cbd5e1;border-radius:18px;background:#fff;padding:18px;margin-top:12px;line-height:1.6;font-size:14px;color:#475569}.pill-list{display:flex;flex-wrap:wrap;gap:8px}
-    @media (max-width:1000px){.grid-4,.grid-3,.grid-2,.hero-panels,.field-grid{grid-template-columns:1fr}} @media (max-width:640px){.app{padding:10px}h1{font-size:24px}.btn-row{flex-direction:column}.btn-row .btn{width:100%}.card-inner{padding:16px}}
+    .preview{max-width:100%;border:1px solid var(--line);border-radius:18px;background:#fff;padding:10px;display:flex;align-items:center;justify-content:center;min-height:220px}.preview img{max-width:100%;max-height:320px;border-radius:12px}
+    .raw-box{max-height:300px;overflow:auto;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px;white-space:pre-wrap}
+    .field-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .result-value{font-size:30px;font-weight:700;margin-top:6px}
+    @media (max-width:1000px){.grid-4,.grid-3,.grid-2,.hero-panels,.field-grid{grid-template-columns:1fr}}
+    @media (max-width:640px){.app{padding:10px}h1{font-size:24px}.btn-row{flex-direction:column}.btn-row .btn{width:100%}.card-inner{padding:16px}}
+    @media print{.hero,.tabs,.btn-row,#statusCard{display:none!important}.tab-panel{display:none!important}.tab-panel.active{display:block!important}.card{box-shadow:none}}
   </style>
 </head>
 <body>
 <div class="app">
-  <section class="card hero"><div class="card-inner"><div class="section-title"><div class="icon" style="background:rgba(255,255,255,.09);color:#fff">🧾</div><div><h1>Invoice OCR Enterprise Mobile Stable</h1><p class="subtle" style="margin-top:8px">Selectezi fișierele, apoi apeși butonul de procesare. PDF text first, OCR fallback, erori vizibile.</p></div></div><div class="hero-panels"><div class="panel"><div class="label" style="color:rgba(255,255,255,.75)">Pipeline</div><div style="font-size:18px;font-weight:700;margin-top:6px">PDF text + OCR fallback</div><div class="helper" style="color:rgba(255,255,255,.7)">PDF digital local, imagini și scanuri prin OCR local.</div></div><div class="panel"><div class="label" style="color:rgba(255,255,255,.75)">Mobil stabil</div><div style="font-size:18px;font-weight:700;margin-top:6px">Buton Procesează</div><div class="helper" style="color:rgba(255,255,255,.7)">Nicio procesare automată la selectare.</div></div><div class="panel"><div class="label" style="color:rgba(255,255,255,.75)">Debug</div><div style="font-size:18px;font-weight:700;margin-top:6px">Status + erori clare</div><div class="helper" style="color:rgba(255,255,255,.7)">Vezi dacă problema e la PDF, OCR sau parsare.</div></div></div></div></section>  <section class="card"><div class="card-inner grid grid-4"><div class="stat"><div class="label">Documents</div><div style="font-size:32px;font-weight:700;margin-top:6px" id="statDocuments">0</div><div class="helper">În workspace local</div></div><div class="stat"><div class="label">Valid</div><div style="font-size:32px;font-weight:700;margin-top:6px" id="statValid">0</div><div class="helper">Au trecut validarea</div></div><div class="stat"><div class="label">Review queue</div><div style="font-size:32px;font-weight:700;margin-top:6px" id="statReview">0</div><div class="helper">Necesită intervenție umană</div></div><div class="stat"><div class="label">Avg confidence</div><div style="font-size:32px;font-weight:700;margin-top:6px" id="statConfidence">0%</div><div class="helper">Media câmpurilor</div></div></div></section>  <div class="tabs"><button class="tab-btn active" data-tab="workspace">Workspace</button><button class="tab-btn" data-tab="review">Review</button><button class="tab-btn" data-tab="templates">Templates</button></div>  <section class="tab-panel active" id="tab-workspace">
+  <section class="card hero">
+    <div class="card-inner">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(255,255,255,.09);color:#fff">◎</div>
+        <div>
+          <h1>Extractor Coeziv Local</h1>
+          <p class="subtle" style="margin-top:8px">Direcție simplă și stabilă: moduri separate, puține câmpuri, control mare. Începem cu <strong>Contor</strong> și <strong>Screenshot document</strong>.</p>
+        </div>
+      </div>
+      <div class="hero-panels">
+        <div class="panel"><div class="label" style="color:rgba(255,255,255,.75)">Mod Contor</div><div style="font-size:18px;font-weight:700;margin-top:6px">Index clar</div><div class="helper" style="color:rgba(255,255,255,.7)">Index, serie, dată, observații și raport.</div></div>
+        <div class="panel"><div class="label" style="color:rgba(255,255,255,.75)">Screenshot document</div><div style="font-size:18px;font-weight:700;margin-top:6px">Text brut + câmpuri</div><div class="helper" style="color:rgba(255,255,255,.7)">OCR simplu, linii detectate și corectare manuală.</div></div>
+        <div class="panel"><div class="label" style="color:rgba(255,255,255,.75)">Factură</div><div style="font-size:18px;font-weight:700;margin-top:6px">Text parser</div><div class="helper" style="color:rgba(255,255,255,.7)">Fără PDF complex pe mobil. Doar text lipit sau OCR simplu.</div></div>
+      </div>
+    </div>
+  </section>  <section class="card" id="statusCard">
+    <div class="card-inner grid grid-4">
+      <div class="stat"><div class="label">Mod activ</div><div class="result-value" id="statMode">Contor</div><div class="helper">Schimbi din taburile de sus</div></div>
+      <div class="stat"><div class="label">Fișier selectat</div><div class="result-value" id="statFile">0</div><div class="helper">0 sau 1 fișier pentru modul curent</div></div>
+      <div class="stat"><div class="label">Extracție</div><div class="result-value" id="statExtract">-</div><div class="helper">Index, text sau câmpuri extrase</div></div>
+      <div class="stat"><div class="label">Raport</div><div class="result-value" id="statReport">Ready</div><div class="helper">TXT / CSV / print</div></div>
+    </div>
+  </section>  <div class="tabs">
+    <button class="tab-btn active" data-tab="meter">Contor</button>
+    <button class="tab-btn" data-tab="screenshot">Screenshot document</button>
+    <button class="tab-btn" data-tab="invoice">Factură text</button>
+  </div>  <section class="tab-panel active" id="tab-meter">
     <div class="grid grid-2">
-      <section class="card"><div class="card-inner"><div class="section-title"><div class="icon">📁</div><div><h2>Upload și procesare</h2></div></div>
-        <div class="grid grid-3" style="margin-bottom:14px"><div><label class="label">Nume / firmă</label><input type="text" id="ownerName" placeholder="Ex: Sergiu Bulboacă / Firma X" /></div><div><label class="label">Observații</label><input type="text" id="reportNote" placeholder="Ex: lot facturi martie" /></div><div><label class="label">Mod raport</label><select id="reportMode"><option value="all">Toate documentele</option><option value="single">Doar documentul selectat</option></select></div></div>
-        <div class="box"><label class="label">Fișiere locale</label><input type="file" id="workspaceImportFile" accept="image/*,.pdf,application/pdf,.json" multiple /><div class="helper">Selectezi fișierele, apoi apeși <strong>Procesează documentele</strong>.</div><div class="pill-list" id="selectedFilesList" style="margin-top:12px"></div></div>
-        <div class="btn-row" style="margin-top:14px"><button class="btn btn-primary" id="processFilesBtn">▶ Procesează documentele</button><button class="btn btn-outline" id="saveWorkspaceBtn">💾 Save workspace JSON</button><button class="btn btn-secondary" id="exportCsvBtn">⬇ Export CSV</button><button class="btn btn-secondary" id="exportTxtBtn">📝 Export TXT</button></div>
-        <div class="grid grid-2" style="margin-top:14px"><div><label class="label">Căutare</label><input type="text" id="searchInput" placeholder="Search supplier, customer, invoice number..." /></div><div><label class="label">Status</label><select id="statusFilter"><option value="all">All statuses</option><option value="valid">Valid</option><option value="warning">Warning</option><option value="review_required">Review</option><option value="failed">Failed</option></select></div></div>
-        <div class="box ok-box" style="margin-top:14px" id="statusBox">Status: pregătit.</div><div class="box error-box" style="margin-top:14px;display:none" id="errorLog"></div>
-        <div class="table-wrap" style="margin-top:16px"><table><thead><tr><th>File</th><th>Source</th><th>Status</th><th>Template</th><th>Total</th></tr></thead><tbody id="workspaceTableBody"></tbody></table></div>
-      </div></section><section class="card"><div class="card-inner"><div class="section-title"><div class="icon">⚙️</div><div><h2>Routing și debug</h2></div></div><div class="grid"><div class="box"><div class="label">Selected document</div><div style="font-weight:700;margin-top:6px" id="selectedDocName">-</div><div class="helper" id="selectedDocTemplate">Template: -</div></div><div class="box"><div class="label">Routing</div><div style="font-weight:700;margin-top:6px" id="selectedDocSource">-</div><div class="helper">PDF text pipeline sau OCR pipeline, ambele locale.</div></div><div class="box"><div class="label">Validation status</div><div style="margin-top:8px" id="selectedStatusBadge">-</div><div class="helper">Cross-check: total ≈ net + TVA, IDs prezente, template potrivit.</div></div><div class="box"><div class="label">Text extras brut</div><div id="rawExtractedText" class="raw-box" style="margin-top:10px">Nu există încă text extras.</div></div></div></div></section>
+      <section class="card"><div class="card-inner">
+        <div class="section-title"><div class="icon">🔢</div><div><h2>Mod Contor</h2></div></div>
+        <div class="grid grid-2">
+          <div><label class="label">Tip contor</label><select id="meterType"><option>Curent</option><option>Apă</option><option>Gaz</option><option>Altul</option></select></div>
+          <div><label class="label">Dată citire</label><input type="text" id="meterDate" placeholder="Ex: 2026-03-27" /></div>
+        </div>
+        <div style="margin-top:14px"><label class="label">Poză contor</label><input type="file" id="meterImage" accept="image/*" /></div>
+        <div class="btn-row" style="margin-top:14px"><button class="btn btn-primary" id="meterExtractBtn">Extrage index</button><button class="btn btn-success" id="meterReportBtn">Generează raport</button><button class="btn btn-secondary" id="meterTxtBtn">Export TXT</button><button class="btn btn-outline" onclick="window.print()">Print</button></div>
+        <div class="box ok-box" style="margin-top:14px" id="meterStatus">Status: pregătit.</div>
+        <div class="box error-box" style="margin-top:14px;display:none" id="meterError"></div>
+        <div class="preview" style="margin-top:14px" id="meterPreview">Nicio imagine încărcată.</div>
+      </div></section><section class="card"><div class="card-inner">
+    <div class="section-title"><div class="icon">📋</div><div><h2>Rezultat Contor</h2></div></div>
+    <div class="field-grid">
+      <div class="field-card"><div class="label">Index detectat</div><input type="text" id="meterValue" placeholder="Ex: 12345" /></div>
+      <div class="field-card"><div class="label">Serie contor</div><input type="text" id="meterSerial" placeholder="Ex: serial detectat sau manual" /></div>
+    </div>
+    <div class="field-card" style="margin-top:12px"><div class="label">Observații</div><textarea id="meterNotes" placeholder="Ex: poză ușor înclinată, index verificat manual"></textarea></div>
+    <div class="field-card" style="margin-top:12px"><div class="label">Text OCR brut</div><div class="raw-box" id="meterRaw">Nu există încă rezultat.</div></div>
+    <div class="field-card" style="margin-top:12px"><div class="label">Raport</div><div class="raw-box" id="meterReport">Apasă „Generează raport”.</div></div>
+  </div></section>
 </div>
 
-  </section>  <section class="tab-panel" id="tab-review"><div class="grid grid-2"><section class="card"><div class="card-inner"><div class="section-title"><div class="icon">👁️</div><div><h2>Document review panel</h2></div></div><div class="box"><div class="label">Local preview placeholder</div><div class="preview-document" id="previewBox"></div><div class="btn-row" style="margin-top:14px"><button class="btn btn-outline" id="markReviewBtn">Mark review</button><button class="btn btn-success" id="approveBtn">Approve locally</button><button class="btn btn-danger" id="markFailedBtn">Mark failed</button></div></div></div></section><section class="card"><div class="card-inner"><div class="section-title"><div class="icon">🧠</div><div><h2>Editable extracted fields</h2></div></div><div class="field-grid" id="fieldGrid"></div><div class="field-card" style="margin-top:12px"><div class="label">Operator notes</div><textarea id="notesInput"></textarea></div></div></section></div></section>  <section class="tab-panel" id="tab-templates"><div class="grid grid-2"><section class="card"><div class="card-inner"><div class="section-title"><div class="icon">🧩</div><div><h2>Template library</h2></div></div><div id="templateList" class="grid"></div></div></section><section class="card"><div class="card-inner"><div class="section-title"><div class="icon">💻</div><div><h2>Local-first enterprise model</h2></div></div><div class="grid"><div class="template-card"><div style="font-weight:700">No API dependency</div><div class="helper">Import, extracție, review și export rămân locale.</div></div><div class="template-card"><div style="font-weight:700">Portable workspace</div><div class="helper">Workspace JSON funcționează ca persistență locală și snapshot de review.</div></div><div class="template-card"><div style="font-weight:700">Enterprise workflow without backend</div><div class="helper">Batch processing, confidence scoring, template routing și export în browser.</div></div></div></div></section></div></section>
-</div><script type="module">
-  import * as pdfjsLib from 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.4.168/build/pdf.min.mjs';
-  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.4.168/build/pdf.worker.min.mjs';
+  </section>  <section class="tab-panel" id="tab-screenshot">
+    <div class="grid grid-2">
+      <section class="card"><div class="card-inner">
+        <div class="section-title"><div class="icon">📱</div><div><h2>Mod Screenshot document</h2></div></div>
+        <div class="grid grid-2">
+          <div><label class="label">Tip document</label><select id="shotType"><option>Generic</option><option>Wolt</option><option>Bon</option><option>Confirmare plată</option></select></div>
+          <div><label class="label">Titlu raport</label><input type="text" id="shotTitle" placeholder="Ex: Screenshot martie" /></div>
+        </div>
+        <div style="margin-top:14px"><label class="label">Screenshot / poză document</label><input type="file" id="shotImage" accept="image/*" /></div>
+        <div class="btn-row" style="margin-top:14px"><button class="btn btn-primary" id="shotExtractBtn">Extrage text</button><button class="btn btn-success" id="shotReportBtn">Generează raport</button><button class="btn btn-secondary" id="shotTxtBtn">Export TXT</button><button class="btn btn-outline" onclick="window.print()">Print</button></div>
+        <div class="box ok-box" style="margin-top:14px" id="shotStatus">Status: pregătit.</div>
+        <div class="box error-box" style="margin-top:14px;display:none" id="shotError"></div>
+        <div class="preview" style="margin-top:14px" id="shotPreview">Nicio imagine încărcată.</div>
+      </div></section><section class="card"><div class="card-inner">
+    <div class="section-title"><div class="icon">📝</div><div><h2>Rezultat Screenshot</h2></div></div>
+    <div class="field-grid">
+      <div class="field-card"><div class="label">Câmp cheie 1</div><input type="text" id="shotField1" placeholder="Ex: total, nume, dată" /></div>
+      <div class="field-card"><div class="label">Câmp cheie 2</div><input type="text" id="shotField2" placeholder="Ex: valoare, ID, status" /></div>
+    </div>
+    <div class="field-card" style="margin-top:12px"><div class="label">Text extras brut</div><div class="raw-box" id="shotRaw">Nu există încă rezultat.</div></div>
+    <div class="field-card" style="margin-top:12px"><div class="label">Observații</div><textarea id="shotNotes" placeholder="Ex: text mic, verificat manual"></textarea></div>
+    <div class="field-card" style="margin-top:12px"><div class="label">Raport</div><div class="raw-box" id="shotReport">Apasă „Generează raport”.</div></div>
+  </div></section>
+</div>
 
-  const templateRules = [
-    { name: 'GLS Denmark', mode: 'Strict vendor template', fields: 'Supplier, customer, CVR, debtor, fakturanr., Moms, I alt' },
-    { name: 'Generic DK Invoice', mode: 'Label-based parser', fields: 'Invoice no, VAT, total, date' },
-    { name: 'Receipt Generic', mode: 'OCR fallback', fields: 'Merchant, date, total, VAT' }
-  ];
-  const fieldConfig = [['supplier','Supplier'],['customer','Customer'],['invoiceNumber','Invoice number'],['debtorNumber','Debtor number'],['taxId','Tax ID'],['invoiceDate','Invoice date'],['net','Net'],['vat','VAT'],['total','Total']];
-  let documents = []; let selectedId = ''; let searchQuery = ''; let statusFilter = 'all'; let pendingFiles = [];
+  </section>  <section class="tab-panel" id="tab-invoice">
+    <div class="grid grid-2">
+      <section class="card"><div class="card-inner">
+        <div class="section-title"><div class="icon">🧾</div><div><h2>Mod Factură text</h2></div></div>
+        <div><label class="label">Lipește textul facturii</label><textarea id="invoiceText" placeholder="Lipește aici textul facturii sau textul extras manual din document."></textarea></div>
+        <div class="btn-row" style="margin-top:14px"><button class="btn btn-primary" id="invoiceParseBtn">Extrage câmpuri</button><button class="btn btn-success" id="invoiceReportBtn">Generează raport</button><button class="btn btn-secondary" id="invoiceTxtBtn">Export TXT</button><button class="btn btn-outline" onclick="window.print()">Print</button></div>
+        <div class="box ok-box" style="margin-top:14px" id="invoiceStatus">Status: pregătit.</div>
+      </div></section>
+      <section class="card"><div class="card-inner">
+        <div class="section-title"><div class="icon">📂</div><div><h2>Rezultat Factură</h2></div></div>
+        <div class="field-grid">
+          <div class="field-card"><div class="label">Furnizor</div><input type="text" id="invSupplier" /></div>
+          <div class="field-card"><div class="label">Client</div><input type="text" id="invCustomer" /></div>
+          <div class="field-card"><div class="label">Nr. factură</div><input type="text" id="invNumber" /></div>
+          <div class="field-card"><div class="label">Dată</div><input type="text" id="invDate" /></div>
+          <div class="field-card"><div class="label">TVA/CVR/VAT</div><input type="text" id="invTax" /></div>
+          <div class="field-card"><div class="label">Total</div><input type="text" id="invTotal" /></div>
+        </div>
+        <div class="field-card" style="margin-top:12px"><div class="label">Raport</div><div class="raw-box" id="invoiceReport">Apasă „Generează raport”.</div></div>
+      </div></section>
+    </div>
+  </section>
+</div><script>
+  let currentTab = 'meter';
 
-  function setStatus(text, kind='ok'){ const box=document.getElementById('statusBox'); box.textContent='Status: '+text; box.className='box '+(kind==='error'?'error-box':kind==='warn'?'warn-box':'ok-box'); }
-  function showError(text){ const box=document.getElementById('errorLog'); box.style.display='block'; box.textContent=text; }
-  function clearError(){ const box=document.getElementById('errorLog'); box.style.display='none'; box.textContent=''; }
-  function sourceLabel(source){ return source==='pdf_text'?'PDF text':'OCR image'; }
-  function normalizeTextBasic(str){ return String(str||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[’'`]/g,'').replace(/\s+/g,' ').trim(); }
-  function linesOf(text){ return text.split(/\r?\n/).map(s=>s.trim()).filter(Boolean); }
-  function escapeHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-  function escapeAttr(s){ return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-  function statusBadge(status){ const labels={valid:'Valid',warning:'Warning',review_required:'Review',failed:'Failed'}; return `<span class="badge ${status}">${labels[status]||status}</span>`; }
-  function createField(value='-',confidence=0,source='Pending extraction'){ return {value,confidence,source}; }
-  function makeDocBase(fileName,sourceType,template='Generic DK Invoice'){ return {id:'DOC-'+Date.now()+'-'+Math.random().toString(36).slice(2,8),fileName,sourceType,template,reviewStatus:'review_required',supplier:createField(),customer:createField(),invoiceNumber:createField(),debtorNumber:createField(),taxId:createField(),invoiceDate:createField(),net:createField(),vat:createField(),total:createField(),notes:'',isEdited:false,rawText:''}; }
+  function setMainStats(mode, fileCount, extract, report) {
+    document.getElementById('statMode').textContent = mode;
+    document.getElementById('statFile').textContent = String(fileCount);
+    document.getElementById('statExtract').textContent = extract;
+    document.getElementById('statReport').textContent = report;
+  }
 
-  function renderSelectedFiles(){ const holder=document.getElementById('selectedFilesList'); if(!pendingFiles.length){ holder.innerHTML='<span class="badge light">Niciun fișier selectat</span>'; return; } holder.innerHTML=pendingFiles.map(file=>`<span class="badge light">${escapeHtml(file.name)}</span>`).join(''); }
-  function getFilteredDocs(){ return documents.filter(doc=>{ const haystack=[doc.fileName,doc.supplier.value,doc.customer.value,doc.invoiceNumber.value,doc.taxId.value,doc.template].join(' ').toLowerCase(); return (!searchQuery||haystack.includes(searchQuery.toLowerCase())) && (statusFilter==='all'||doc.reviewStatus===statusFilter); }); }
-  function getSelectedDoc(){ const filtered=getFilteredDocs(); return filtered.find(doc=>doc.id===selectedId)||documents[0]||null; }
-  function calculateStats(){ if(!documents.length) return {totalDocs:0,validDocs:0,reviewDocs:0,avgConfidence:0}; const totalDocs=documents.length, validDocs=documents.filter(d=>d.reviewStatus==='valid').length, reviewDocs=documents.filter(d=>d.reviewStatus==='review_required').length; const avgConfidence=Math.round(documents.reduce((acc,doc)=>acc+fieldConfig.reduce((sum,[key])=>sum+(doc[key].confidence||0),0)/fieldConfig.length,0)/documents.length); return {totalDocs,validDocs,reviewDocs,avgConfidence}; }
-  function renderStats(){ const s=calculateStats(); document.getElementById('statDocuments').textContent=String(s.totalDocs); document.getElementById('statValid').textContent=String(s.validDocs); document.getElementById('statReview').textContent=String(s.reviewDocs); document.getElementById('statConfidence').textContent=`${s.avgConfidence}%`; }
-  function renderWorkspaceTable(){ const tbody=document.getElementById('workspaceTableBody'); const filtered=getFilteredDocs(); tbody.innerHTML=filtered.map(doc=>`<tr class="${doc.id===selectedId?'selected':''}" data-id="${doc.id}"><td><strong>${escapeHtml(doc.fileName)}</strong></td><td>${sourceLabel(doc.sourceType)}</td><td>${statusBadge(doc.reviewStatus)}</td><td>${escapeHtml(doc.template)}</td><td>${escapeHtml(doc.total.value)}</td></tr>`).join(''); Array.from(tbody.querySelectorAll('tr')).forEach(tr=>tr.addEventListener('click',()=>{ selectedId=tr.getAttribute('data-id'); renderAll(); })); }
-  function renderSidebarInfo(){ const doc=getSelectedDoc(); document.getElementById('selectedDocName').textContent=doc?doc.fileName:'-'; document.getElementById('selectedDocTemplate').textContent=doc?`Template: ${doc.template}`:'Template: -'; document.getElementById('selectedDocSource').textContent=doc?sourceLabel(doc.sourceType):'-'; document.getElementById('selectedStatusBadge').innerHTML=doc?statusBadge(doc.reviewStatus):'-'; document.getElementById('rawExtractedText').textContent=doc&&doc.rawText?doc.rawText:'Nu există încă text extras.'; }
-  function renderPreview(){ const doc=getSelectedDoc(); const preview=document.getElementById('previewBox'); if(!doc){ preview.innerHTML='<em>No document selected.</em>'; return; } preview.innerHTML=`<div><strong>Source:</strong> ${sourceLabel(doc.sourceType)}</div><div><strong>Template:</strong> ${escapeHtml(doc.template)}</div><div><strong>Supplier:</strong> ${escapeHtml(doc.supplier.value)}</div><div><strong>Customer:</strong> ${escapeHtml(doc.customer.value)}</div><div><strong>Invoice #:</strong> ${escapeHtml(doc.invoiceNumber.value)}</div><div><strong>Debtor #:</strong> ${escapeHtml(doc.debtorNumber.value)}</div><div><strong>Tax ID:</strong> ${escapeHtml(doc.taxId.value)}</div><div><strong>Invoice date:</strong> ${escapeHtml(doc.invoiceDate.value)}</div><div><strong>Net:</strong> ${escapeHtml(doc.net.value)}</div><div><strong>VAT:</strong> ${escapeHtml(doc.vat.value)}</div><div><strong>Total:</strong> ${escapeHtml(doc.total.value)}</div><div style="margin-top:12px;color:#64748b;"><strong>Notes:</strong> ${escapeHtml(doc.notes||'-')}</div>`; }
-  function renderFieldGrid(){ const doc=getSelectedDoc(); const container=document.getElementById('fieldGrid'); if(!doc){ container.innerHTML=''; document.getElementById('notesInput').value=''; return; } container.innerHTML=fieldConfig.map(([key,label])=>{ const field=doc[key]; return `<div class="field-card"><div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start;"><div><div class="label">${label}</div><div class="helper" style="margin-top:4px;">Source: ${escapeHtml(field.source)}</div></div><span class="badge light">${field.confidence}%</span></div><input type="text" data-field="${key}" value="${escapeAttr(field.value)}" style="margin-top:10px;" /><div class="progress"><span style="width:${field.confidence}%;"></span></div></div>`; }).join(''); Array.from(container.querySelectorAll('input[data-field]')).forEach(input=>input.addEventListener('input',e=>updateField(e.target.getAttribute('data-field'),e.target.value))); const notes=document.getElementById('notesInput'); notes.value=doc.notes||''; notes.oninput=(e)=>{ const current=documents.find(d=>d.id===doc.id); if(!current) return; current.notes=e.target.value; current.isEdited=true; }; }
-  function renderTemplates(){ const list=document.getElementById('templateList'); list.innerHTML=templateRules.map(rule=>`<div class="template-card"><div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start;"><div><div style="font-weight:700;">${escapeHtml(rule.name)}</div><div class="helper" style="margin-top:6px;">${escapeHtml(rule.mode)}</div></div><span class="badge light">Active</span></div><div class="helper" style="margin-top:12px;">${escapeHtml(rule.fields)}</div></div>`).join(''); }
-  function updateField(fieldKey,value){ const doc=documents.find(d=>d.id===selectedId); if(!doc||!doc[fieldKey]) return; doc[fieldKey].value=value; if(!String(doc[fieldKey].source).includes('Manual edit')) doc[fieldKey].source+=' · Manual edit'; doc.isEdited=true; renderPreview(); }
-  function setDocStatus(status){ const doc=documents.find(d=>d.id===selectedId); if(!doc) return; doc.reviewStatus=status; renderAll(); }
-  function saveWorkspace(){ const blob=new Blob([JSON.stringify(documents,null,2)],{type:'application/json'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='invoice-ocr-local-workspace.json'; a.click(); URL.revokeObjectURL(url); }
-  function exportCsv(){ const headers=['file_name','source_type','status','supplier','customer','invoice_number','debtor_number','tax_id','invoice_date','net','vat','total','template','notes']; const rows=documents.map(d=>[d.fileName,d.sourceType,d.reviewStatus,d.supplier.value,d.customer.value,d.invoiceNumber.value,d.debtorNumber.value,d.taxId.value,d.invoiceDate.value,d.net.value,d.vat.value,d.total.value,d.template,d.notes||''].map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')); const csv=[headers.join(','),...rows].join('\n'); const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='invoice-ocr-local-export.csv'; a.click(); URL.revokeObjectURL(url); }
-  function exportTxt(){ const mode=document.getElementById('reportMode').value; const docs=mode==='single'?documents.filter(d=>d.id===selectedId):documents.slice(); const owner=document.getElementById('ownerName').value.trim(); const note=document.getElementById('reportNote').value.trim(); const totalAmount=docs.reduce((sum,d)=>sum+Number(d.total.value||0),0); const content=['RAPORT SIMPLU – INVOICE OCR ENTERPRISE LOCAL','Nume / firmă: '+(owner||'-'),'Observații: '+(note||'-'),'Documente: '+docs.length,'Total sume: '+totalAmount.toFixed(2),''].concat(docs.flatMap((d,i)=>['------------------------------','Document #'+(i+1),'Fișier: '+d.fileName,'Sursă: '+sourceLabel(d.sourceType),'Status: '+d.reviewStatus,'Furnizor: '+d.supplier.value,'Client: '+d.customer.value,'Invoice #: '+d.invoiceNumber.value,'Debtor #: '+d.debtorNumber.value,'Tax ID: '+d.taxId.value,'Dată: '+d.invoiceDate.value,'Net: '+d.net.value,'VAT: '+d.vat.value,'Total: '+d.total.value,'Template: '+d.template,'Notes: '+(d.notes||'-'),''])).join('\n'); const blob=new Blob([content],{type:'text/plain;charset=utf-8;'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='invoice-ocr-local-report.txt'; a.click(); URL.revokeObjectURL(url); }
-  function rebuildTextLinesFromItems(items){ const rows=[]; const tolerance=3; for(const item of items){ const x=item.transform[4], y=item.transform[5], str=String(item.str||'').trim(); if(!str) continue; let row=rows.find(r=>Math.abs(r.y-y)<=tolerance); if(!row){ row={y,parts:[]}; rows.push(row); } row.parts.push({x,str}); } rows.sort((a,b)=>b.y-a.y); return rows.map(row=>row.parts.sort((a,b)=>a.x-b.x).map(p=>p.str).join(' ').replace(/\s+/g,' ').trim()).filter(Boolean).join('\n'); }
-  async function extractPdfTextWithLayout(file){ const arrBuf=await file.arrayBuffer(); const pdf=await pdfjsLib.getDocument({data:arrBuf}).promise; const pages=[]; for(let i=1;i<=pdf.numPages;i++){ const page=await pdf.getPage(i); const content=await page.getTextContent(); pages.push({pageNo:i,text:rebuildTextLinesFromItems(content.items)}); } return pages; }
-  async function fileToDataUrl(file){ return new Promise((resolve,reject)=>{ const reader=new FileReader(); reader.onload=e=>resolve(String(e.target.result||'')); reader.onerror=reject; reader.readAsDataURL(file); }); }
-  function lineByLabel(text,labels){ const lines=linesOf(text); for(const line of lines){ const ln=normalizeTextBasic(line); for(const label of labels){ if(ln.includes(normalizeTextBasic(label))) return line; } } return ''; }
-  function labelRegex(label){ return label.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'); }
-  function valueAfterLabel(text,labels){ const lines=linesOf(text); for(const line of lines){ for(const label of labels){ const re=new RegExp(labelRegex(label)+'\\s*[:.-]?\\s*(.+)$','i'); const m=line.match(re); if(m&&m[1]) return m[1].trim(); } } return ''; }
-  function parseAmountAfterStrongLabel(text,labels){ const lines=linesOf(text); for(const line of lines){ const lower=normalizeTextBasic(line); for(const label of labels){ if(lower.includes(normalizeTextBasic(label))){ const nums=line.match(/\d+[\.,]\d{2}/g); if(nums&&nums.length) return nums[nums.length-1].replace(',','.'); } } } return ''; }
-  function parseDate(text){ const patterns=[/(\d{2}[\.\-/]\d{2}[\.\-/]\d{4})/,/(\d{4}[\.\-/]\d{2}[\.\-/]\d{2})/]; for(const p of patterns){ const m=text.match(p); if(m) return m[1].replace(/\./g,'-').replace(/\//g,'-'); } return ''; }
-  function parseDanishMonthDate(text){ const months={januar:'01',februar:'02',marts:'03',april:'04',maj:'05',juni:'06',juli:'07',august:'08',september:'09',oktober:'10',november:'11',december:'12'}; const m=normalizeTextBasic(text).match(/(\d{1,2})\.\s*(januar|februar|marts|april|maj|juni|juli|august|september|oktober|november|december)\s*(\d{4})/); if(!m) return ''; return String(m[1]).padStart(2,'0')+'-'+months[m[2]]+'-'+m[3]; }
-  function parseCVR(text){ const direct=valueAfterLabel(text,['CVR-nr.','CVR nr','CVR']); if(direct){ const m=direct.match(/(DK\s*)?\d{8,12}/i); if(m) return (m[1]?'DK':'')+m[0].replace(/DK\s*/i,'').replace(/\s+/g,''); } const m2=text.match(/CVR[- ]?nr\.?\s*(DK\s*)?(\d{8,12})/i); if(m2) return (m2[1]?'DK':'')+m2[2]; return ''; }
-  function parseFakturanr(text){ const v=valueAfterLabel(text,['Fakturanr.','Fakturanr','Invoice no','Invoice nr']); if(v){ const m=v.match(/[A-Za-z0-9\-\/]{4,}/); if(m) return m[0]; } return ''; }
-  function parseDebitornr(text){ const v=valueAfterLabel(text,['Debitornr.','Debitornr','Debtor no','Customer no']); if(v){ const m=v.match(/[A-Za-z0-9\-\/]{3,}/); if(m) return m[0]; } return ''; }
-  function parseSupplier(text,fileName){ const lines=linesOf(text); const exact=lines.find(line=>/^General Logistics Systems Denmark A\/S$/i.test(line.trim())); if(exact) return {value:exact.trim(),confidence:99,source:'Exact line match'}; const contains=lines.find(line=>/General Logistics Systems Denmark A\/S/i.test(line)); if(contains) return {value:'General Logistics Systems Denmark A/S',confidence:95,source:'Strong vendor match'}; const candidates=lines.filter(line=>/a\/s|aps|ab|gmbh|srl|ltd|oy/i.test(line)); if(candidates.length) return {value:candidates[0],confidence:72,source:'Company suffix match'}; return {value:'-',confidence:0,source:fileName?'No supplier match':'Missing'}; }
-  function parseCustomer(text){ const lines=linesOf(text); const exact=lines.find(line=>/^Sergiu Bulboaca$/i.test(line.trim())); if(exact) return {value:exact.trim(),confidence:99,source:'Exact line match'}; const contains=lines.find(line=>/Sergiu Bulboaca/i.test(line)); if(contains) return {value:'Sergiu Bulboaca',confidence:95,source:'Strong customer match'}; const debtorIdx=lines.findIndex(line=>/Debitornr/i.test(line)); if(debtorIdx>0){ const candidates=lines.slice(Math.max(0,debtorIdx-5),debtorIdx).filter(line=>{ const l=normalizeTextBasic(line); if(!l) return false; if(/general logistics|kokmose|kolding|faktura|invoice|debitornr|fakturanr|cvr/.test(l)) return false; if(/^\d{4}\s+[a-z]/.test(l)||/^\d/.test(l)) return false; return true; }); if(candidates.length) return {value:candidates[0],confidence:68,source:'Debtor block inference'}; } return {value:'-',confidence:0,source:'No customer match'}; }
-  function detectTemplate(text,fileName){ const l=normalizeTextBasic(text+' '+fileName); if(l.includes('general logistics systems denmark')||(l.includes('fakturanr')&&l.includes('debitornr')&&l.includes('cvr'))) return 'GLS Denmark'; if(l.includes('receipt')||l.includes('bon fiscal')) return 'Receipt Generic'; return 'Generic DK Invoice'; }
-  function createParsedField(value,confidence,source){ return {value:value||'-',confidence:value?confidence:0,source:value?source:'Missing'}; }
-  function parseDocument(text,fileName,sourceType){ const dateSource=lineByLabel(text,['Bogføringsdato','Bogforingsdato','Faktura','Invoice date','Date']); const date=parseDate(dateSource)||parseDanishMonthDate(dateSource)||parseDate(text)||parseDanishMonthDate(text); const supplier=parseSupplier(text,fileName), customer=parseCustomer(text), invoiceNumber=parseFakturanr(text), debtorNumber=parseDebitornr(text), cvr=parseCVR(text), net=parseAmountAfterStrongLabel(text,['Netto DKK','Netto','Net amount']), vat=parseAmountAfterStrongLabel(text,['25% Moms','Moms','VAT']), total=parseAmountAfterStrongLabel(text,['I alt DKK','I alt','Total DKK','Total']), template=detectTemplate(text,fileName); let reviewStatus='review_required'; if(invoiceNumber&&total) reviewStatus='valid'; else if(total) reviewStatus='warning'; return {id:'DOC-'+Date.now()+'-'+Math.random().toString(36).slice(2,8),fileName,sourceType,template,reviewStatus,supplier,customer,invoiceNumber:createParsedField(invoiceNumber,invoiceNumber?96:0,'Invoice number label'),debtorNumber:createParsedField(debtorNumber,debtorNumber?94:0,'Debtor label'),taxId:createParsedField(cvr,cvr?98:0,'CVR/VAT label'),invoiceDate:createParsedField(date,date?92:0,'Date label'),net:createParsedField(net,net?92:0,'Net line'),vat:createParsedField(vat,vat?92:0,'VAT line'),total:createParsedField(total,total?97:0,'Total line'),notes:'Extracted locally.',isEdited:false,rawText:text}; }
-  async function processFiles(){ clearError(); if(!pendingFiles.length){ setStatus('Nu există fișiere selectate.','warn'); showError('Selectează mai întâi fișierele, apoi apasă „Procesează documentele”.'); return; } setStatus('Pornesc procesarea locală...'); const importedDocs=[]; for(let idx=0; idx<pendingFiles.length; idx++){ const file=pendingFiles[idx]; try{ if(/\.json$/i.test(file.name)){ setStatus(`Încarc workspace JSON: ${file.name}`); await new Promise((resolve,reject)=>{ const reader=new FileReader(); reader.onload=e=>{ try{ const parsed=JSON.parse(String(e.target.result||'[]')); if(!Array.isArray(parsed)) throw new Error('JSON invalid'); documents=parsed.concat(documents); resolve(); }catch(err){ reject(err); } }; reader.onerror=reject; reader.readAsText(file,'utf-8'); }); continue; } const isPdf=/\.pdf$/i.test(file.name)||file.type==='application/pdf'; if(isPdf){ setStatus(`Citesc PDF ${idx+1}/${pendingFiles.length}: ${file.name}`); const pages=await extractPdfTextWithLayout(file); if(!pages.length) throw new Error('PDF fără text extras.'); pages.forEach(page=>importedDocs.push(parseDocument(page.text,`${file.name} | pagina ${page.pageNo}`,'pdf_text'))); } else { setStatus(`Rulez OCR ${idx+1}/${pendingFiles.length}: ${file.name}`); const dataUrl=await fileToDataUrl(file); const result=await Tesseract.recognize(dataUrl,'eng'); const text=result&&result.data&&result.data.text?result.data.text:''; if(!text.trim()) throw new Error('OCR nu a returnat text.'); importedDocs.push(parseDocument(text,file.name,'ocr_image')); } }catch(err){ console.error(err); importedDocs.push({...makeDocBase(file.name,/\.pdf$/i.test(file.name)?'pdf_text':'ocr_image'),notes:'Procesarea locală a eșuat: '+(err&&err.message?err.message:'eroare necunoscută'),reviewStatus:'failed'}); showError(`Eroare la fișierul ${file.name}: ${err&&err.message?err.message:'eroare necunoscută'}`); } } if(importedDocs.length){ documents=importedDocs.concat(documents); selectedId=documents[0].id; } pendingFiles=[]; document.getElementById('workspaceImportFile').value=''; renderSelectedFiles(); renderAll(); setStatus('Procesare finalizată.'); }
-  function renderAll(){ renderStats(); renderWorkspaceTable(); renderSidebarInfo(); renderPreview(); renderFieldGrid(); renderTemplates(); }
-  document.querySelectorAll('.tab-btn').forEach(btn=>btn.addEventListener('click',()=>{ document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active')); document.querySelectorAll('.tab-panel').forEach(panel=>panel.classList.remove('active')); btn.classList.add('active'); document.getElementById('tab-'+btn.dataset.tab).classList.add('active'); }));
-  document.getElementById('searchInput').addEventListener('input',e=>{ searchQuery=e.target.value; renderWorkspaceTable(); });
-  document.getElementById('statusFilter').addEventListener('change',e=>{ statusFilter=e.target.value; renderWorkspaceTable(); });
-  document.getElementById('approveBtn').addEventListener('click',()=>setDocStatus('valid')); document.getElementById('markReviewBtn').addEventListener('click',()=>setDocStatus('review_required')); document.getElementById('markFailedBtn').addEventListener('click',()=>setDocStatus('failed')); document.getElementById('saveWorkspaceBtn').addEventListener('click',saveWorkspace); document.getElementById('exportCsvBtn').addEventListener('click',exportCsv); document.getElementById('exportTxtBtn').addEventListener('click',exportTxt); document.getElementById('processFilesBtn').addEventListener('click',processFiles);
-  document.getElementById('workspaceImportFile').addEventListener('change',e=>{ pendingFiles=Array.from(e.target.files||[]); renderSelectedFiles(); clearError(); setStatus(pendingFiles.length?`${pendingFiles.length} fișier(e) selectate. Apasă „Procesează documentele”.`:'Niciun fișier selectat.',pendingFiles.length?'ok':'warn'); });
-  renderSelectedFiles(); renderTemplates(); renderAll(); setStatus('Pregătit pentru selectare fișiere.');
+  function readFileAsDataURL(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = e => resolve(String(e.target.result || ''));
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async function runOCRFromFile(file) {
+    const dataUrl = await readFileAsDataURL(file);
+    const result = await Tesseract.recognize(dataUrl, 'eng');
+    return {
+      dataUrl,
+      text: result && result.data && result.data.text ? result.data.text : ''
+    };
+  }
+
+  function normalizeText(text) {
+    return String(text || '').replace(/\r/g, '').trim();
+  }
+
+  function detectMeterValue(text) {
+    const clean = text.replace(/\s+/g, ' ');
+    const matches = clean.match(/\d{3,8}/g) || [];
+    if (!matches.length) return '';
+    return matches.sort((a, b) => b.length - a.length)[0];
+  }
+
+  function detectMeterSerial(text) {
+    const clean = text.replace(/\s+/g, ' ');
+    const matches = clean.match(/[A-Z0-9\-]{5,20}/g) || [];
+    if (!matches.length) return '';
+    return matches[0];
+  }
+
+  function detectKeyFields(text) {
+    const lines = normalizeText(text).split('\n').map(s => s.trim()).filter(Boolean);
+    return {
+      field1: lines[0] || '',
+      field2: lines[1] || ''
+    };
+  }
+
+  function firstMatch(text, patterns) {
+    for (const p of patterns) {
+      const m = text.match(p);
+      if (m) return m[1] || m[0] || '';
+    }
+    return '';
+  }
+
+  function parseInvoiceText(text) {
+    return {
+      supplier: firstMatch(text, [/Supplier[:\s]+(.+)/i, /^(.+A\/S.*)$/im, /^(.+ApS.*)$/im]),
+      customer: firstMatch(text, [/Customer[:\s]+(.+)/i, /Client[:\s]+(.+)/i]),
+      number: firstMatch(text, [/Fakturanr\.?[:\s]+([A-Za-z0-9\-\/]+)/i, /Invoice\s*(?:no|nr)\.?[:\s]+([A-Za-z0-9\-\/]+)/i]),
+      date: firstMatch(text, [/(\d{2}[\.\/-]\d{2}[\.\/-]\d{4})/, /(\d{4}[\.\/-]\d{2}[\.\/-]\d{2})/]),
+      tax: firstMatch(text, [/CVR[- ]?nr\.?[:\s]+((?:DK\s*)?\d{8,12})/i, /VAT[:\s]+([A-Za-z0-9\-]+)/i]),
+      total: firstMatch(text, [/I alt\s*DKK\s*(\d+[\.,]\d{2})/i, /Total\s*(\d+[\.,]\d{2})/i])
+    };
+  }
+
+  function downloadText(filename, content) {
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+      currentTab = btn.dataset.tab;
+      const names = { meter: 'Contor', screenshot: 'Screenshot', invoice: 'Factură' };
+      setMainStats(names[currentTab], 0, '-', 'Ready');
+    });
+  });
+
+  document.getElementById('meterImage').addEventListener('change', async (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    const preview = document.getElementById('meterPreview');
+    const url = await readFileAsDataURL(file);
+    preview.innerHTML = `<img src="${url}" alt="meter preview" />`;
+    document.getElementById('meterStatus').textContent = 'Status: imagine selectată. Apasă „Extrage index”.';
+    document.getElementById('meterError').style.display = 'none';
+    setMainStats('Contor', 1, 'Ready', 'Ready');
+  });
+
+  document.getElementById('meterExtractBtn').addEventListener('click', async () => {
+    const file = document.getElementById('meterImage').files && document.getElementById('meterImage').files[0];
+    if (!file) {
+      document.getElementById('meterStatus').textContent = 'Status: nu există poză selectată.';
+      document.getElementById('meterStatus').className = 'box warn-box';
+      return;
+    }
+    try {
+      document.getElementById('meterStatus').textContent = 'Status: rulez OCR pe contor...';
+      document.getElementById('meterStatus').className = 'box ok-box';
+      const res = await runOCRFromFile(file);
+      document.getElementById('meterRaw').textContent = normalizeText(res.text) || 'OCR fără rezultat.';
+      document.getElementById('meterValue').value = detectMeterValue(res.text);
+      document.getElementById('meterSerial').value = detectMeterSerial(res.text);
+      document.getElementById('meterStatus').textContent = 'Status: extracție contor finalizată.';
+      setMainStats('Contor', 1, document.getElementById('meterValue').value || 'OCR', 'Ready');
+    } catch (err) {
+      document.getElementById('meterError').style.display = 'block';
+      document.getElementById('meterError').textContent = 'Eroare OCR: ' + (err && err.message ? err.message : 'necunoscută');
+      document.getElementById('meterStatus').textContent = 'Status: extracția a eșuat.';
+      document.getElementById('meterStatus').className = 'box error-box';
+    }
+  });
+
+  document.getElementById('meterReportBtn').addEventListener('click', () => {
+    const report = [
+      'RAPORT CITIRE CONTOR',
+      'Tip contor: ' + (document.getElementById('meterType').value || '-'),
+      'Dată: ' + (document.getElementById('meterDate').value || '-'),
+      'Index: ' + (document.getElementById('meterValue').value || '-'),
+      'Serie: ' + (document.getElementById('meterSerial').value || '-'),
+      'Observații: ' + (document.getElementById('meterNotes').value || '-')
+    ].join('\n');
+    document.getElementById('meterReport').textContent = report;
+    setMainStats('Contor', document.getElementById('meterImage').files.length || 0, document.getElementById('meterValue').value || '-', 'Ready');
+  });
+
+  document.getElementById('meterTxtBtn').addEventListener('click', () => {
+    downloadText('raport_contor.txt', document.getElementById('meterReport').textContent || '');
+  });
+
+  document.getElementById('shotImage').addEventListener('change', async (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    const preview = document.getElementById('shotPreview');
+    const url = await readFileAsDataURL(file);
+    preview.innerHTML = `<img src="${url}" alt="screenshot preview" />`;
+    document.getElementById('shotStatus').textContent = 'Status: imagine selectată. Apasă „Extrage text”.';
+    document.getElementById('shotError').style.display = 'none';
+    setMainStats('Screenshot', 1, 'Ready', 'Ready');
+  });
+
+  document.getElementById('shotExtractBtn').addEventListener('click', async () => {
+    const file = document.getElementById('shotImage').files && document.getElementById('shotImage').files[0];
+    if (!file) {
+      document.getElementById('shotStatus').textContent = 'Status: nu există imagine selectată.';
+      document.getElementById('shotStatus').className = 'box warn-box';
+      return;
+    }
+    try {
+      document.getElementById('shotStatus').textContent = 'Status: rulez OCR pe screenshot...';
+      document.getElementById('shotStatus').className = 'box ok-box';
+      const res = await runOCRFromFile(file);
+      document.getElementById('shotRaw').textContent = normalizeText(res.text) || 'OCR fără rezultat.';
+      const fields = detectKeyFields(res.text);
+      document.getElementById('shotField1').value = fields.field1;
+      document.getElementById('shotField2').value = fields.field2;
+      document.getElementById('shotStatus').textContent = 'Status: extracție screenshot finalizată.';
+      setMainStats('Screenshot', 1, fields.field1 ? 'OK' : 'OCR', 'Ready');
+    } catch (err) {
+      document.getElementById('shotError').style.display = 'block';
+      document.getElementById('shotError').textContent = 'Eroare OCR: ' + (err && err.message ? err.message : 'necunoscută');
+      document.getElementById('shotStatus').textContent = 'Status: extracția a eșuat.';
+      document.getElementById('shotStatus').className = 'box error-box';
+    }
+  });
+
+  document.getElementById('shotReportBtn').addEventListener('click', () => {
+    const report = [
+      'RAPORT SCREENSHOT DOCUMENT',
+      'Tip: ' + (document.getElementById('shotType').value || '-'),
+      'Titlu: ' + (document.getElementById('shotTitle').value || '-'),
+      'Câmp 1: ' + (document.getElementById('shotField1').value || '-'),
+      'Câmp 2: ' + (document.getElementById('shotField2').value || '-'),
+      'Observații: ' + (document.getElementById('shotNotes').value || '-')
+    ].join('\n');
+    document.getElementById('shotReport').textContent = report;
+    setMainStats('Screenshot', document.getElementById('shotImage').files.length || 0, document.getElementById('shotField1').value || '-', 'Ready');
+  });
+
+  document.getElementById('shotTxtBtn').addEventListener('click', () => {
+    downloadText('raport_screenshot.txt', document.getElementById('shotReport').textContent || '');
+  });
+
+  document.getElementById('invoiceParseBtn').addEventListener('click', () => {
+    const text = document.getElementById('invoiceText').value || '';
+    const parsed = parseInvoiceText(text);
+    document.getElementById('invSupplier').value = parsed.supplier;
+    document.getElementById('invCustomer').value = parsed.customer;
+    document.getElementById('invNumber').value = parsed.number;
+    document.getElementById('invDate').value = parsed.date;
+    document.getElementById('invTax').value = parsed.tax;
+    document.getElementById('invTotal').value = parsed.total;
+    document.getElementById('invoiceStatus').textContent = 'Status: parsare factură finalizată.';
+    setMainStats('Factură', text.trim() ? 1 : 0, parsed.number || parsed.total || '-', 'Ready');
+  });
+
+  document.getElementById('invoiceReportBtn').addEventListener('click', () => {
+    const report = [
+      'RAPORT FACTURĂ TEXT',
+      'Furnizor: ' + (document.getElementById('invSupplier').value || '-'),
+      'Client: ' + (document.getElementById('invCustomer').value || '-'),
+      'Nr. factură: ' + (document.getElementById('invNumber').value || '-'),
+      'Dată: ' + (document.getElementById('invDate').value || '-'),
+      'TVA/CVR/VAT: ' + (document.getElementById('invTax').value || '-'),
+      'Total: ' + (document.getElementById('invTotal').value || '-')
+    ].join('\n');
+    document.getElementById('invoiceReport').textContent = report;
+  });
+
+  document.getElementById('invoiceTxtBtn').addEventListener('click', () => {
+    downloadText('raport_factura.txt', document.getElementById('invoiceReport').textContent || '');
+  });
+
+  setMainStats('Contor', 0, '-', 'Ready');
 </script></body>
 </html>
