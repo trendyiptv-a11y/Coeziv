@@ -1,0 +1,640 @@
+<!DOCTYPE html><html lang="ro">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Invoice Universal Parser v8</title>
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+  <style>
+    :root{--bg:#0b1220;--card:#fff;--text:#0f172a;--muted:#475569;--line:#dbe3ee;--primary:#2563eb;--success:#16a34a;--secondary:#e2e8f0;--danger:#dc2626}
+    *{box-sizing:border-box} body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text);padding:16px}
+    .container{max-width:1120px;margin:0 auto}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:16px}
+    h1,h2{margin:0 0 10px} p{margin:0;color:var(--muted);line-height:1.5}
+    .note{margin-top:10px;padding:10px 12px;border-radius:12px;background:#eff6ff;border:1px solid #bfdbfe;color:#1e3a8a;font-size:13px}
+    .badge{display:inline-block;padding:2px 8px;border-radius:8px;font-size:11px;font-weight:700}
+    .badge-dk{background:#dbeafe;color:#1d4ed8}.badge-ro{background:#dcfce7;color:#166534}.badge-en{background:#fef9c3;color:#854d0e}.badge-bon{background:#fce7f3;color:#9d174d}.badge-doc{background:#f1f5f9;color:#475569}
+    .row{display:grid;grid-template-columns:repeat(12,1fr);gap:12px;margin-bottom:12px}
+    .col-4{grid-column:span 4}.col-6{grid-column:span 6}.col-12{grid-column:span 12}
+    @media(max-width:900px){.row{grid-template-columns:1fr}.col-4,.col-6,.col-12{grid-column:span 1}}
+    label{display:block;margin-bottom:6px;font-size:14px;font-weight:700;color:var(--text)}
+    input,select,button{width:100%;padding:12px 14px;border-radius:12px;border:1px solid #cbd5e1;background:#fff;color:var(--text);font-size:16px}
+    .actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}
+    .actions button{width:auto;min-width:140px;border:none;cursor:pointer;font-weight:700}
+    .btn-primary{background:var(--primary);color:#fff}.btn-success{background:var(--success);color:#fff}
+    .btn-secondary{background:var(--secondary);color:#0f172a;border:1px solid #cbd5e1}
+    .btn-danger{background:var(--danger);color:#fff}
+    .status,.box{margin-top:10px;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:#f8fafc;white-space:pre-wrap;line-height:1.5;font-size:13px}
+    .preview-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:12px}
+    .preview-card{border:1px solid var(--line);border-radius:14px;padding:10px;background:#f8fafc}
+    .preview-card img{width:100%;height:180px;object-fit:contain;display:block;background:#fff;border-radius:10px;border:1px solid var(--line)}
+    .small{margin-top:6px;font-size:11px;color:var(--muted);word-break:break-word}
+    table{width:100%;border-collapse:collapse;margin-top:12px}
+    th,td{padding:9px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top;font-size:13px}
+    th{background:#f1f5f9;font-weight:700;font-size:12px}
+    tr:hover td{background:#f8fafc}
+    .metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-top:12px}
+    .metric{border:1px solid var(--line);border-radius:14px;padding:12px;background:#f8fafc}
+    .metric .k{font-size:12px;color:var(--muted)}.metric .v{font-size:22px;font-weight:700;margin-top:4px}
+    @media print{@page{size:A4;margin:12mm}body{background:#fff;padding:0}.card{display:none!important}.print-card{display:block!important}#reportBox{border:none;background:#fff;padding:0}}
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="card">
+    <h1>Invoice Universal Parser <span style="font-size:14px;color:var(--muted)">v8</span></h1>
+    <p>Extrage automat date din orice tip de factură sau bon fiscal, în orice limbă.</p>
+    <div class="note">✅ Suport complet: PDF digital · Scan/OCR · Bon fiscal · Factură română (CUI/TVA) · Factură daneză (GLS/CVR) · Factură engleză — fără configurare manuală, detecție automată limbă și tip.</div>
+  </div>
+
+  <div class="card">
+    <h2>Setări raport</h2>
+    <div class="row">
+      <div class="col-4"><label>Nume / firmă</label><input id="ownerName" placeholder="Ex: Firma X SRL" /></div>
+      <div class="col-4"><label>Observații</label><input id="reportNote" placeholder="Ex: lot facturi martie" /></div>
+      <div class="col-4"><label>Mod raport</label>
+        <select id="reportMode">
+          <option value="all">Toate documentele</option>
+          <option value="single">Doar documentul selectat</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Documente</h2>
+    <div class="row">
+      <div class="col-6">
+        <label>Încarcă imagini sau PDF-uri</label>
+        <input id="docFiles" type="file" accept="image/*,.pdf,application/pdf" multiple />
+        <div class="actions">
+          <button class="btn-primary" type="button" id="btnExtract">1. Extrage din toate</button>
+          <button class="btn-success" type="button" id="btnReport">2. Generează raport</button>
+          <button class="btn-secondary" type="button" id="btnTxt">⬇ TXT</button>
+          <button class="btn-secondary" type="button" id="btnCsv">⬇ CSV</button>
+          <button class="btn-secondary" type="button" id="btnPrint">🖨 Print</button>
+          <button class="btn-secondary" type="button" id="btnDebug">🔍 Debug</button>
+          <button class="btn-danger" type="button" id="btnClear">✕ Curăță</button>
+        </div>
+        <div id="statusBox" class="status">Status: pregătit.</div>
+        <div id="previewGrid" class="preview-grid"></div>
+      </div>
+      <div class="col-6">
+        <label>Text extras / Debug</label>
+        <div id="rawTextBox" class="box" style="max-height:300px;overflow:auto"></div>
+        <label style="margin-top:12px;">Rezumat</label>
+        <div id="summaryBox" class="box">Nu există încă rezultate.</div>
+      </div>
+    </div>
+    <div class="metrics">
+      <div class="metric"><div class="k">Documente procesate</div><div class="v" id="metricDocs">0</div></div>
+      <div class="metric"><div class="k">Facturi detectate</div><div class="v" id="metricInvoices">0</div></div>
+      <div class="metric"><div class="k">Bonuri detectate</div><div class="v" id="metricBons">0</div></div>
+      <div class="metric"><div class="k">Total sume</div><div class="v" id="metricAmount">0.00</div></div>
+    </div>
+  </div>
+
+  <div class="card" style="overflow:auto">
+    <h2>Documente extrase</h2>
+    <table id="docsTable">
+      <thead>
+        <tr>
+          <th>#</th><th>Fișier</th><th>Sursă</th><th>Tip</th><th>Limbă</th>
+          <th>Furnizor</th><th>Client</th><th>Dată</th>
+          <th>Nr. doc.</th><th>CUI/CVR/VAT</th>
+          <th>Net</th><th>TVA%</th><th>TVA</th><th>Total</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <div class="card print-card">
+    <h2>Raport simplu</h2>
+    <div id="reportBox" class="box">Apasă „Generează raport".</div>
+  </div>
+</div>
+
+<script type="module">
+import * as pdfjsLib from 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.4.168/build/pdf.min.mjs';
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.4.168/build/pdf.worker.min.mjs';
+
+let filesState=[], extractedDocs=[], selectedDocIndex=0;
+
+const setStatus=t=>document.getElementById('statusBox').textContent='Status: '+t;
+const round2=n=>(Math.round((Number(n)+Number.EPSILON)*100)/100).toFixed(2);
+const escHtml=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const norm=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[''`]/g,'').replace(/\s+/g,' ').trim();
+const splitLines=t=>t.split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
+
+function clearState(){
+  filesState=[]; extractedDocs=[]; selectedDocIndex=0;
+  ['previewGrid','rawTextBox'].forEach(id=>document.getElementById(id).innerHTML='');
+  document.getElementById('summaryBox').textContent='Nu există încă rezultate.';
+  document.getElementById('reportBox').textContent='Apasă „Generează raport".';
+  ['metricDocs','metricInvoices','metricBons'].forEach(id=>document.getElementById(id).textContent='0');
+  document.getElementById('metricAmount').textContent='0.00';
+  renderTable();
+}
+
+// ── PDF layout ────────────────────────────────────────────────────────────────
+function rebuildLines(items){
+  const rows=[],yTol=3;
+  for(const it of items){
+    const x=it.transform[4],y=it.transform[5],s=String(it.str||'');
+    if(!s.trim()) continue;
+    let row=rows.find(r=>Math.abs(r.y-y)<=yTol);
+    if(!row){row={y,parts:[]};rows.push(row);}
+    row.parts.push({x,s,w:it.width||0});
+  }
+  rows.sort((a,b)=>b.y-a.y);
+  return rows.map(row=>{
+    row.parts.sort((a,b)=>a.x-b.x);
+    let line='',prevEnd=null;
+    for(const p of row.parts){
+      if(prevEnd!==null){const gap=p.x-prevEnd;line+=gap>=10?'  ':gap>1?' ':'';}
+      line+=p.s;
+      prevEnd=p.x+(p.w||p.s.length*5);
+    }
+    return line.replace(/\s{3,}/g,'  ').trim();
+  }).filter(Boolean).join('\n');
+}
+
+function extractCol(items,side){
+  if(!items||!items.length) return '';
+  const xs=items.map(i=>i.transform[4]);
+  const mid=Math.min(...xs)+(Math.max(...xs)-Math.min(...xs))*0.45;
+  const rows=[],yTol=3;
+  for(const it of items){
+    const x=it.transform[4],y=it.transform[5],s=String(it.str||'');
+    if(!s.trim()) continue;
+    if(side==='left'&&x>=mid) continue;
+    if(side==='right'&&x<mid) continue;
+    let row=rows.find(r=>Math.abs(r.y-y)<=yTol);
+    if(!row){row={y,parts:[]};rows.push(row);}
+    row.parts.push({x,s});
+  }
+  rows.sort((a,b)=>b.y-a.y);
+  return rows.map(r=>{r.parts.sort((a,b)=>a.x-b.x);return r.parts.map(p=>p.s).join(' ').trim();}).filter(Boolean).join('\n');
+}
+
+async function renderPdfPages(file){
+  const pdf=await pdfjsLib.getDocument({data:await file.arrayBuffer()}).promise;
+  const out=[];
+  for(let i=1;i<=pdf.numPages;i++){
+    const page=await pdf.getPage(i);
+    const vp=page.getViewport({scale:1.5});
+    const canvas=document.createElement('canvas');
+    canvas.width=vp.width;canvas.height=vp.height;
+    await page.render({canvasContext:canvas.getContext('2d'),viewport:vp}).promise;
+    out.push({pageNo:i,dataUrl:canvas.toDataURL('image/png')});
+  }
+  return out;
+}
+
+async function extractPdfLayout(file){
+  const pdf=await pdfjsLib.getDocument({data:await file.arrayBuffer()}).promise;
+  const out=[];
+  for(let i=1;i<=pdf.numPages;i++){
+    const page=await pdf.getPage(i);
+    const content=await page.getTextContent();
+    const items=content.items;
+    out.push({pageNo:i,text:rebuildLines(items),items});
+  }
+  return out;
+}
+
+async function fileToDataUrl(file){
+  return new Promise((res,rej)=>{const r=new FileReader();r.onload=e=>res(String(e.target.result||''));r.onerror=rej;r.readAsDataURL(file);});
+}
+
+// ── Language & type detection ─────────────────────────────────────────────────
+function detectLang(text){
+  const t=norm(text);
+  if(/faktura|fakturanr|bogforingsdato|forfaldsdato|debitornr|moms|betalingsbetingelse/.test(t)) return 'DK';
+  if(/factura|furnizor|cumparator|tva|cui\s*:|cif\s*:|nr\.?\s*reg|ron\b|lei\b/.test(t)) return 'RO';
+  if(/invoice|vat number|supplier|bill to|ship to|amount due/.test(t)) return 'EN';
+  return '?';
+}
+
+function detectDocType(text){
+  const t=norm(text);
+  if(/bon fiscal|casa de marcat|operator fiscal|nr\.?\s*bon\b/.test(t)) return 'Bon fiscal';
+  if(/chitanta|chitanță|chitanta fiscala/.test(t)) return 'Chitanță';
+  if(/aviz de expeditie|aviz de însoțire|delivery note/.test(t)) return 'Aviz';
+  if(/factura|invoice|faktura/.test(t)) return 'Factură';
+  return 'Document';
+}
+
+// ── Generic helpers ───────────────────────────────────────────────────────────
+function lineByLabel(text,labels){
+  for(const line of splitLines(text)){
+    const ln=norm(line);
+    for(const lb of labels) if(ln.includes(norm(lb))) return line;
+  }
+  return '';
+}
+
+function valueAfterLabel(text,labels){
+  for(const line of splitLines(text)){
+    for(const lb of labels){
+      const re=new RegExp(lb.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'\\s*[:=\\-]?\\s*(.+)$','i');
+      const m=line.match(re);
+      if(m&&m[1].trim()) return m[1].trim();
+    }
+  }
+  return '';
+}
+
+// ── Date parsing ──────────────────────────────────────────────────────────────
+function parseDate(text){
+  if(!text) return '';
+  const allMonths={
+    ianuarie:'01',februarie:'02',martie:'03',aprilie:'04',mai:'05',iunie:'06',
+    iulie:'07',august:'08',septembrie:'09',octombrie:'10',noiembrie:'11',decembrie:'12',
+    januar:'01',februar:'02',marts:'03',april:'04',maj:'05',juni:'06',
+    juli:'07',september:'09',oktober:'10',november:'11',december:'12',
+    january:'01',february:'02',march:'03',may:'05',june:'06',july:'07',
+    august:'08',october:'10',
+  };
+  // numeric
+  let m=text.match(/(\d{2})[.\-\/](\d{2})[.\-\/](\d{4})/);
+  if(m) return m[1]+'-'+m[2]+'-'+m[3];
+  m=text.match(/(\d{4})[.\-\/](\d{2})[.\-\/](\d{2})/);
+  if(m) return m[3]+'-'+m[2]+'-'+m[1];
+  // text month
+  m=norm(text).match(/(\d{1,2})\.?\s*(ianuarie|februarie|martie|aprilie|mai|iunie|iulie|august|septembrie|octombrie|noiembrie|decembrie|januar|februar|marts|april|maj|juni|juli|august|september|oktober|november|december|january|february|march|april|may|june|july|august|october)\s+(\d{4})/);
+  if(m&&allMonths[m[2]]) return String(m[1]).padStart(2,'0')+'-'+allMonths[m[2]]+'-'+m[3];
+  return '';
+}
+
+function parseDateFromText(text){
+  for(const line of splitLines(text)){const d=parseDate(line);if(d) return d;}
+  return '';
+}
+
+// ── Tax ID ────────────────────────────────────────────────────────────────────
+function parseTaxId(text){
+  // Romania CUI/CIF
+  let m=text.match(/C(?:UI|IF)\s*[:\-]?\s*(RO\s*\d{6,10}|\d{6,10})/i);
+  if(m) return m[1].replace(/\s/g,'');
+  // Denmark CVR
+  m=text.match(/CVR[- ]?nr\.?\s*(DK\s*\d{8}|\d{8})/i);
+  if(m){const v=m[1].replace(/\s/g,'');return v.toUpperCase().startsWith('DK')?v:'DK'+v;}
+  m=text.match(/\b(DK\d{8})\b/i);
+  if(m) return m[1].toUpperCase();
+  // Generic VAT
+  m=text.match(/VAT\s*(?:ID|nr|no)?\.?\s*[:\-]?\s*([A-Z]{2}\s*\d{7,12})/i);
+  if(m) return m[1].replace(/\s/g,'');
+  return '';
+}
+
+// ── Doc number ────────────────────────────────────────────────────────────────
+function parseDocNr(text,lang){
+  const labels={
+    DK:['Fakturanr.','Fakturanr'],
+    RO:['Nr. factura','Nr factura','Factura nr','Seria','Nr.','Număr'],
+    EN:['Invoice no','Invoice nr','Invoice #','Invoice number'],
+    '?':['Fakturanr','Invoice no','Nr. factura','Nr']
+  };
+  const v=valueAfterLabel(text,labels[lang]||labels['?']);
+  if(v){const m=v.match(/[A-Za-z0-9\-\/]{3,}/);if(m) return m[0];}
+  const patterns=[/[Ff]akturanr\.?\s*(\d{5,})/,/[Nn]r\.?\s*[Ff]actur[aă]\s*[:\-]?\s*([A-Z0-9\-\/]+)/i,/[Ii]nvoice\s*(?:no|nr|#)?\s*[:\-]?\s*([A-Z0-9\-\/]+)/i];
+  for(const p of patterns){const m=text.match(p);if(m) return m[1];}
+  return '';
+}
+
+// ── Amounts ───────────────────────────────────────────────────────────────────
+function lastAmount(line){
+  const nums=line.match(/\d+[.,]\d{2}/g);
+  return nums?nums[nums.length-1].replace(',','.'):null;
+}
+
+function parseTotal(text,lang){
+  const labels={
+    DK:['I alt DKK','I alt'],
+    RO:['Total general','Total de plata','Total de plată','Total factura','Total factură','Total'],
+    EN:['Total due','Amount due','Grand total','Total'],
+    BON:['Total general','TOTAL GENERAL','Total'],
+    '?':['I alt','Total general','Grand total','Total']
+  };
+  const line=lineByLabel(text,labels[lang]||labels['?']);
+  return line?lastAmount(line)||'':'';
+}
+
+function parseNet(text,lang){
+  const labels={
+    DK:['Netto DKK','Netto'],
+    RO:['Baza impozabila','Baza impozabilă','Total fara TVA','Valoare fara TVA','Net'],
+    EN:['Net total','Subtotal','Net amount'],
+    '?':['Netto','Net','Baza impozabila','Subtotal']
+  };
+  const line=lineByLabel(text,labels[lang]||labels['?']);
+  return line?lastAmount(line)||'':'';
+}
+
+function parseVATRate(text){
+  const m=text.match(/(\d{1,2})\s*%\s*(?:moms|tva|vat|tax)/i)||text.match(/(?:moms|tva|vat|tax)\s*(\d{1,2})\s*%/i)||text.match(/cota\s*tva\s*[:\-]?\s*(\d{1,2})/i);
+  return m?m[1]+'%':'';
+}
+
+function parseVAT(text,lang){
+  const ls=splitLines(text);
+  const vatKeywords=['moms','tva','vat','tax','impozit'];
+  const skipKeywords=['moms-id','cod tva','nr tva','nr. tva','tva deductibil','tva dedus'];
+  const totalKeywords=['i alt','total general','total','grand total','amount due'];
+  const netKeywords=['netto','net','baza impozabila','subtotal fara'];
+  const percentages=[25,24,23,22,20,19,10,9,8,5,4,2];
+
+  // Strategie 1: linie între total și net
+  const totalIdx=ls.findIndex(l=>totalKeywords.some(k=>norm(l).includes(k)));
+  const netIdx=ls.findIndex(l=>netKeywords.some(k=>norm(l).includes(k)));
+  if(totalIdx>=0&&netIdx>totalIdx){
+    for(let i=totalIdx+1;i<netIdx;i++){
+      const nums=(ls[i].match(/\d+[.,]\d{2}/g)||[]).map(n=>parseFloat(n.replace(',','.'))).filter(n=>n>0&&!percentages.includes(n));
+      if(nums.length) return Math.min(...nums).toFixed(2);
+    }
+  }
+
+  // Strategie 2: linia cu keyword TVA/Moms/VAT
+  for(const line of ls){
+    const ln=norm(line);
+    if(!vatKeywords.some(k=>ln.includes(k))) continue;
+    if(skipKeywords.some(k=>ln.includes(k))) continue;
+    const nums=(line.match(/\d+[.,]\d{2}/g)||[]).map(n=>parseFloat(n.replace(',','.'))).filter(n=>n>0&&!percentages.includes(n));
+    if(nums.length) return Math.min(...nums).toFixed(2);
+  }
+  return '';
+}
+
+// ── Supplier & Customer ───────────────────────────────────────────────────────
+function parseSupplier(text,lang,items){
+  // Cu coordonate PDF (coloana dreaptă)
+  if(items&&items.length){
+    const rightLines=splitLines(extractCol(items,'right'));
+    const skipR=/cvr|faktura|fakturanr|bogforingsdato|forfaldsdato|debitornr|kokmose|kolding|nummer|beskrivelse|salgspris|moms|belob|i alt|netto|pakkenr|betalingsbetingelse|campus alle|varde|strada|str\.|bd\./;
+    for(const line of rightLines){
+      const ln=norm(line);
+      if(!ln||ln.length<3) continue;
+      if(/^\d/.test(ln)) continue;
+      if(skipR.test(ln)) continue;
+      if(/[a-zA-Z]{3}/.test(line)) return line.trim();
+    }
+  }
+  // Label-based
+  const v=valueAfterLabel(text,['Furnizor','Vanzator','Vânzător','Seller','Supplier','From','Emitent','Prestator']);
+  if(v) return v.split(/\n/)[0].trim();
+  return '';
+}
+
+function parseCustomer(text,lang,items){
+  // Cu coordonate PDF (coloana stângă)
+  if(items&&items.length){
+    const leftLines=splitLines(extractCol(items,'left'));
+    const skipL=/campus alle|strada|str\.|bd\.|blvd|calea|pakkenr|betalingsbetingelse|debitornr|nummer|beskrivelse|salgspris|moms|i alt|netto|kokmose|kolding/;
+    for(const line of leftLines){
+      const ln=norm(line);
+      if(!ln||ln.length<2) continue;
+      if(/^\d/.test(ln)) continue;
+      if(skipL.test(ln)) continue;
+      if(/[a-zA-Z]{2}/.test(line)) return line.trim();
+    }
+  }
+  // Label-based
+  const v=valueAfterLabel(text,['Client','Cumparator','Cumpărător','Beneficiar','Customer','Bill to','Ship to','To','Destinatar']);
+  if(v) return v.split(/\n/)[0].trim();
+  return '';
+}
+
+// ── Bon fiscal special parser ─────────────────────────────────────────────────
+function parseBon(text){
+  const ls=splitLines(text);
+  const totalLine=ls.find(l=>/total general|TOTAL GENERAL/i.test(l))||ls.find(l=>/\bTOTAL\b/i.test(l))||'';
+  const tvaLine=ls.find(l=>/\bT\.?V\.?A\.?\b/i.test(l)&&!/cod tva|nr tva/i.test(l))||'';
+  const total=totalLine?((totalLine.match(/\d+[.,]\d{2}/g)||[]).map(n=>parseFloat(n.replace(',','.'))).filter(n=>n>0).reduce((a,b)=>Math.max(a,b),0)||0):0;
+  const tva=tvaLine?((tvaLine.match(/\d+[.,]\d{2}/g)||[]).map(n=>parseFloat(n.replace(',','.'))).filter(n=>n>0).reduce((a,b)=>Math.min(a,b),Infinity)||0):0;
+  const nrBon=text.match(/[Nn]r\.?\s*[Bb]on\s*[:\-]?\s*(\d+)/);
+  // furnizor = prima linie cu text alfabetic
+  const supplier=ls.find(l=>/[a-zA-Z]{3}/.test(l)&&!/bon fiscal|casa de marcat|operator|nr\.\s*bon/i.test(l))||'';
+  return {
+    date: parseDateFromText(text),
+    docNr: nrBon?nrBon[1]:'',
+    total: total?total.toFixed(2):'',
+    vat: tva&&tva!==Infinity?tva.toFixed(2):'',
+    vatRate: parseVATRate(text),
+    supplier: supplier.trim(),
+    customer:''
+  };
+}
+
+// ── Main document parser ──────────────────────────────────────────────────────
+function parseDocument(text,fileLabel,items){
+  const lang=detectLang(text);
+  const docType=detectDocType(text);
+
+  if(docType==='Bon fiscal'){
+    const b=parseBon(text);
+    return {docType,lang,supplier:b.supplier,customer:'',date:b.date,docNr:b.docNr,taxId:'',net:'',vatRate:b.vatRate,vat:b.vat,total:b.total};
+  }
+
+  // Dată
+  const dateLine=lineByLabel(text,['Faktura','Bogføringsdato','Bogforingsdato','Data facturii','Data emiterii','Data','Date','Invoice date']);
+  const date=parseDate(dateLine)||parseDateFromText(text);
+
+  return {
+    docType,lang,
+    supplier: parseSupplier(text,lang,items),
+    customer: parseCustomer(text,lang,items),
+    date,
+    docNr: parseDocNr(text,lang),
+    taxId: parseTaxId(text),
+    net: parseNet(text,lang),
+    vatRate: parseVATRate(text),
+    vat: parseVAT(text,lang),
+    total: parseTotal(text,lang)
+  };
+}
+
+// ── Render table ──────────────────────────────────────────────────────────────
+function renderTable(){
+  const tbody=document.querySelector('#docsTable tbody');
+  tbody.innerHTML=extractedDocs.map((d,idx)=>{
+    const sel=idx===selectedDocIndex?' style="background:#eff6ff"':'';
+    const langClass={DK:'badge-dk',RO:'badge-ro',EN:'badge-en','?':'badge-doc'}[d.lang]||'badge-doc';
+    const typeClass=d.docType==='Bon fiscal'?'badge-bon':d.docType==='Factură'?'badge-ro':'badge-doc';
+    return `<tr data-idx="${idx}"${sel}>
+      <td>${idx+1}</td><td>${escHtml(d.fileLabel)}</td><td>${escHtml(d.sourceKind||'-')}</td>
+      <td><span class="badge ${typeClass}">${escHtml(d.docType||'-')}</span></td>
+      <td><span class="badge ${langClass}">${escHtml(d.lang||'?')}</span></td>
+      <td>${escHtml(d.supplier||'-')}</td><td>${escHtml(d.customer||'-')}</td>
+      <td>${escHtml(d.date||'-')}</td><td>${escHtml(d.docNr||'-')}</td>
+      <td>${escHtml(d.taxId||'-')}</td><td>${escHtml(d.net||'-')}</td>
+      <td>${escHtml(d.vatRate||'-')}</td><td>${escHtml(d.vat||'-')}</td>
+      <td>${escHtml(d.total||'-')}</td>
+    </tr>`;
+  }).join('');
+  tbody.querySelectorAll('tr').forEach(tr=>tr.addEventListener('click',()=>{
+    selectedDocIndex=Number(tr.getAttribute('data-idx')||0);
+    renderTable();
+    setStatus('document selectat: '+(selectedDocIndex+1));
+  }));
+}
+
+function updateMetrics(){
+  const inv=extractedDocs.filter(d=>d.docType==='Factură').length;
+  const bon=extractedDocs.filter(d=>d.docType==='Bon fiscal').length;
+  const totalAmt=extractedDocs.reduce((s,d)=>s+Number(d.total||0),0);
+  document.getElementById('metricDocs').textContent=String(extractedDocs.length);
+  document.getElementById('metricInvoices').textContent=String(inv);
+  document.getElementById('metricBons').textContent=String(bon);
+  document.getElementById('metricAmount').textContent=round2(totalAmt);
+  document.getElementById('summaryBox').textContent=[
+    'Documente procesate: '+extractedDocs.length,
+    'Facturi: '+inv+' | Bonuri: '+bon,
+    'Total sume detectate: '+round2(totalAmt)
+  ].join('\n');
+}
+
+// ── File loading ──────────────────────────────────────────────────────────────
+async function loadFiles(event){
+  clearState();
+  const files=Array.from(event.target.files||[]);
+  if(!files.length){setStatus('nu ai selectat documente.');return;}
+  setStatus('încarc '+files.length+' fișier(e)...');
+  const grid=document.getElementById('previewGrid');
+  for(const file of files){
+    const isPdf=/pdf$/i.test(file.name)||file.type==='application/pdf';
+    if(isPdf){
+      const pages=await renderPdfPages(file);
+      const textPages=await extractPdfLayout(file);
+      for(const page of pages){
+        const tp=textPages.find(x=>x.pageNo===page.pageNo);
+        filesState.push({fileName:file.name,label:file.name+' | p.'+page.pageNo,dataUrl:page.dataUrl,pageNo:page.pageNo,sourceType:'pdf-text',rawPdfText:tp?tp.text:'',rawItems:tp?tp.items:[]});
+        const card=document.createElement('div');
+        card.className='preview-card';
+        card.innerHTML=`<img src="${page.dataUrl}" alt="pdf"/><div class="small">${escHtml(file.name)} | p.${page.pageNo}</div>`;
+        grid.appendChild(card);
+      }
+    } else {
+      const dataUrl=await fileToDataUrl(file);
+      filesState.push({fileName:file.name,label:file.name,dataUrl,pageNo:1,sourceType:'ocr-image',rawPdfText:'',rawItems:[]});
+      const card=document.createElement('div');
+      card.className='preview-card';
+      card.innerHTML=`<img src="${dataUrl}" alt="img"/><div class="small">${escHtml(file.name)}</div>`;
+      grid.appendChild(card);
+    }
+  }
+  setStatus(filesState.length+' element(e) pregătite.');
+}
+
+// ── Extraction ────────────────────────────────────────────────────────────────
+async function runExtraction(){
+  if(!filesState.length){alert('Încarcă mai întâi imagini sau PDF-uri.');return;}
+  setStatus('procesez '+filesState.length+' element(e)...');
+  extractedDocs=[];selectedDocIndex=0;
+  const rawTexts=[];
+  for(let i=0;i<filesState.length;i++){
+    const item=filesState[i];
+    setStatus('procesez '+(i+1)+'/'+filesState.length+': '+item.label);
+    try{
+      let text='',sourceKind='';
+      if(item.sourceType==='pdf-text'){
+        text=item.rawPdfText||'';sourceKind='PDF text';
+      } else {
+        // OCR cu limbile română + engleză pentru acoperire maximă
+        const result=await Tesseract.recognize(item.dataUrl,'ron+eng',{logger:()=>{}});
+        text=result&&result.data&&result.data.text?result.data.text:'';
+        sourceKind='OCR';
+      }
+      rawTexts.push('--- '+item.label+' ['+sourceKind+'] ---\n'+text);
+      extractedDocs.push({...parseDocument(text,item.label,item.rawItems||[]),fileLabel:item.label,rawText:text,sourceKind});
+    } catch(err){
+      console.error(err);
+      rawTexts.push('--- '+item.label+' ---\nEroare');
+      extractedDocs.push({fileLabel:item.label,sourceKind:'Eroare',docType:'Document',lang:'?',supplier:'',customer:'',date:'',docNr:'',taxId:'',net:'',vatRate:'',vat:'',total:'',rawText:''});
+    }
+  }
+  document.getElementById('rawTextBox').textContent=rawTexts.join('\n\n');
+  renderTable();updateMetrics();setStatus('extracție finalizată.');
+}
+
+// ── Report ────────────────────────────────────────────────────────────────────
+function getReportDocs(){
+  const mode=document.getElementById('reportMode').value;
+  if(mode==='single'&&extractedDocs[selectedDocIndex]) return [extractedDocs[selectedDocIndex]];
+  return extractedDocs.slice();
+}
+
+function generateReport(){
+  const docs=getReportDocs();
+  if(!docs.length){alert('Nu există documente extrase.');return;}
+  const owner=document.getElementById('ownerName').value.trim();
+  const note=document.getElementById('reportNote').value.trim();
+  const totalAmt=docs.reduce((s,d)=>s+Number(d.total||0),0);
+  const docLines=docs.map((d,i)=>[
+    '──────────────────────────────',
+    'Document #'+(i+1),
+    'Fișier: '+(d.fileLabel||'-'),
+    'Sursă: '+(d.sourceKind||'-'),
+    'Tip: '+(d.docType||'-')+' | Limbă: '+(d.lang||'-'),
+    'Furnizor: '+(d.supplier||'-'),
+    'Client: '+(d.customer||'-'),
+    'Dată: '+(d.date||'-'),
+    'Nr. document: '+(d.docNr||'-'),
+    'CUI/CVR/VAT: '+(d.taxId||'-'),
+    'Net: '+(d.net||'-'),
+    'TVA ('+(d.vatRate||'?')+'): '+(d.vat||'-'),
+    'Total: '+(d.total||'-'),
+  ].join('\n')).join('\n\n');
+  document.getElementById('reportBox').textContent=[
+    'RAPORT – INVOICE UNIVERSAL PARSER v8',
+    'Nume / firmă: '+(owner||'-'),
+    'Observații: '+(note||'-'),
+    '',
+    'Documente în raport: '+docs.length,
+    'Total sume detectate: '+round2(totalAmt),
+    '',
+    docLines
+  ].join('\n');
+  setStatus('raport generat.');
+}
+
+function downloadTxt(){
+  const r=document.getElementById('reportBox').textContent.trim();
+  if(!r||r.startsWith('Apasă')){alert('Generează mai întâi raportul.');return;}
+  const a=Object.assign(document.createElement('a'),{href:URL.createObjectURL(new Blob([r],{type:'text/plain;charset=utf-8'})),download:'invoice_report.txt'});
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+}
+
+function downloadCsv(){
+  const docs=getReportDocs();
+  if(!docs.length){alert('Nu există documente.');return;}
+  const headers=['file','source','type','lang','supplier','customer','date','docNr','taxId','net','vatRate','vat','total'];
+  const rows=docs.map(d=>headers.map(h=>'"'+String(d[h]||'').replace(/"/g,'""')+'"').join(','));
+  const a=Object.assign(document.createElement('a'),{href:URL.createObjectURL(new Blob([[headers.join(',')].concat(rows).join('\n')],{type:'text/csv;charset=utf-8'})),download:'invoice_export.csv'});
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+}
+
+// ── Events ────────────────────────────────────────────────────────────────────
+document.getElementById('docFiles').addEventListener('change',loadFiles);
+document.getElementById('btnExtract').addEventListener('click',runExtraction);
+document.getElementById('btnReport').addEventListener('click',generateReport);
+document.getElementById('btnTxt').addEventListener('click',downloadTxt);
+document.getElementById('btnCsv').addEventListener('click',downloadCsv);
+document.getElementById('btnPrint').addEventListener('click',()=>window.print());
+document.getElementById('btnDebug').addEventListener('click',()=>{
+  if(!extractedDocs.length){alert('Extrage mai întâi documentele.');return;}
+  const doc=extractedDocs[selectedDocIndex]||extractedDocs[0];
+  const numbered=splitLines(doc.rawText||'').map((l,i)=>(i+1)+': '+l).join('\n');
+  document.getElementById('rawTextBox').textContent='=== DEBUG ['+doc.fileLabel+'] ===\nLimbă: '+doc.lang+' | Tip: '+doc.docType+'\n\n'+numbered;
+  setStatus('debug afișat');
+});
+document.getElementById('btnClear').addEventListener('click',()=>{
+  document.getElementById('docFiles').value='';
+  clearState();
+  setStatus('curățat.');
+});
+
+clearState();setStatus('pregătit — suport universal: DK · RO · EN · Bon fiscal · OCR');
+</script>
+</body>
+</html>
