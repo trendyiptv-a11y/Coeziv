@@ -1,3 +1,290 @@
+#EXTM3U
+#EXTINF:-1 tvg-id="AnimalPlanet.dk" tvg-name="DK: ANIMAL PLANET HD" group-title="RO_DK",DK: ANIMAL PLANET HD
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/185568.ts
+#EXTINF:-1 tvg-id="BBCBrit.dk" tvg-name="DK: BBC BRIT" group-title="RO_DK",DK: BBC BRIT
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/185569.ts
+#EXTINF:-1 tvg-id="BBCEarth.dk" tvg-name="DK: BBC Earth FHD" group-title="RO_DK",DK: BBC Earth HD
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/185570.ts
+#EXTINF:-1 tvg-id="DiscoveryChannel.dk" tvg-name="DK: Discovery Channel FHD" group-title="RO_DK",DK: Discovery Channel HD
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/185583.ts
+#EXTINF:-1 tvg-id="DiscoveryScience.dk" tvg-name="DK: Discovery Science HD" group-title="RO_DK",DK: Discovery Science HD
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/185584.ts
+#EXTINF:-1 tvg-name="DK: E!" group-title="RO_DK",DK: E!
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/185595.ts
+#EXTINF:-1 tvg-id="History2.dk" tvg-name="DK: H2 FHD" group-title="RO_DK",DK: H2 HD
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/185599.ts
+#EXTINF:-1 tvg-id="HistoryChannel.rs" tvg-name="DK: History" group-title="RO_DK",DK: History
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/185600.ts
+#EXTINF:-1 tvg-id="InvestigationDiscovery.dk" tvg-name="DK: Investigation Discovery HD" group-title="RO_DK",DK: Investigation Discovery HD
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/185601.ts
+#EXTINF:-1 tvg-name="DK: MEZZO HD" group-title="RO_DK",DK: MEZZO HD
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/185606.ts
+#EXTINF:-1 tvg-name="DK: MTV 80s HD" group-title="RO_DK",DK: MTV 80s HD
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/185648.ts
+#EXTINF:-1 tvg-id="MTV.dk" tvg-name="DK: MTV HD" group-title="RO_DK",DK: MTV HD
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/185607.ts
+#EXTINF:-1 tvg-id="NatGeoHD.il" tvg-name="DK: NAT GEO FHD" group-title="RO_DK",DK: NAT GEO HD
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/185609.ts
+#EXTINF:-1 tvg-id="NatGeoWild.dk" tvg-name="DK: NAT GEO WILD HD" group-title="RO_DK",DK: NAT GEO WILD HD
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/185610.ts
+#EXTINF:-1 tvg-id="ParamountNetwork.dk" tvg-name="DK: PARAMOUNT NETWORK" group-title="RO_DK",DK: PARAMOUNT NETWORK
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/185614.ts
+#EXTINF:-1 tvg-name="DK: RTL PASSION" group-title="RO_DK",DK: RTL PASSION
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/185618.ts
+#EXTINF:-1 tvg-name="DK: 3Puls" group-title="RO_DK",DK: 3Puls
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/185567.ts
+#EXTINF:-1 tvg-name="DK: 6 eren FHD" group-title="RO_DK",DK: 6 eren HD
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/185566.ts
+#EXTINF:-1 tvg-id="DK4.dk" tvg-name="DK: DK4 HD" group-title="RO_DK",DK: DK4 HD
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/185588.ts
+#EXTINF:-1 tvg-id="DRRamasjang.dk" tvg-name="DK: DR Ramasjang HD" group-title="RO_DK",DK: DR Ramasjang HD
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/185590.ts
+#EXTINF:-1 tvg-id="DR1.dk" tvg-name="DK: DR1 FHD" group-title="RO_DK",DK: DR1 HD
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/185592.ts
+#EXTINF:-1 tvg-id="DR2.dk" tvg-name="DK: DR2 FHD" group-title="RO_DK",DK: DR2 HD
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/185593.ts
+#EXTINF:-1 tvg-id="Kanal4.dk" tvg-name="DK: KANAL 4 FHD" group-title="RO_DK",DK: KANAL 4 HD
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/185602.ts
+#EXTINF:-1 tvg-id="Kanal5.dk" tvg-name="DK: Kanal 5 FHD" group-title="RO_DK",DK: Kanal 5 HD
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/185603.ts
+#EXTINF:-1 tvg-name="DK: Kanal 9 HD" group-title="RO_DK",DK: Kanal 9 HD
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/185604.ts
+#EXTINF:-1 tvg-name="DK: KKR TV" group-title="RO_DK",DK: KKR TV
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/185605.ts
+#EXTINF:-1 tvg-name="DK: KVF" group-title="RO_DK",DK: KVF
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/2295536.ts
+#EXTINF:-1 tvg-id="TV2Bornholm.dk" tvg-name="DK: TV2 Bornholm HD" group-title="RO_DK",DK: TV2 Bornholm HD
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/185625.ts
+#EXTINF:-1 tvg-id="TV2Charlie.dk" tvg-name="DK: TV2 Charlie HD" group-title="RO_DK",DK: TV2 Charlie HD
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/185626.ts
+#EXTINF:-1 tvg-id="TV2.dk" tvg-name="DK: TV2 Denmark" group-title="RO_DK",DK: TV2 Denmark
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/185628.ts
+#EXTINF:-1 tvg-id="TV2Fri.dk" tvg-name="DK: TV2 Fri HD" group-title="RO_DK",DK: TV2 Fri HD
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/185630.ts
+#EXTINF:-1 tvg-id="TV2Fyn.dk" tvg-name="DK: TV2 Fyn HD" group-title="RO_DK",DK: TV2 Fyn HD
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/185631.ts
+#EXTINF:-1 tvg-id="TV2Syd.dk" tvg-name="DK: TV2 HD" group-title="RO_DK",DK: TV2 HD
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/185640.ts
+#EXTINF:-1 tvg-id="TV2Livsstil.no" tvg-name="DK: TV2 Livsstil HD" group-title="RO_DK",DK: TV2 Livsstil HD
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/185632.ts
+#EXTINF:-1 tvg-id="TV2Lorry.dk" tvg-name="DK: TV2 Lorry HD" group-title="RO_DK",DK: TV2 Lorry HD
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/185633.ts
+#EXTINF:-1 tvg-id="TV2News.dk" tvg-name="DK: TV2 News HD" group-title="RO_DK",DK: TV2 News HD
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/185635.ts
+#EXTINF:-1 tvg-id="TV2NordSalto.dk" tvg-name="DK: TV2 Nord" group-title="RO_DK",DK: TV2 Nord
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/185636.ts
+#EXTINF:-1 tvg-id="TV2Nyhetskanalen.no" tvg-name="DK: TV2 Nyhetskanalen HD" group-title="RO_DK",DK: TV2 Nyhetskanalen HD
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/185637.ts
+#EXTINF:-1 tvg-id="TV2Zulu.dk" tvg-name="DK: TV2 Zulu HD" group-title="RO_DK",DK: TV2 Zulu HD
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/185641.ts
+#EXTINF:-1 tvg-id="TV2Ostjylland.dk" tvg-name="DK: TV2 Østjylland HD" group-title="RO_DK",DK: TV2 Østjylland HD
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/185642.ts
+#EXTINF:-1 tvg-id="TV3.dk" tvg-name="DK: TV3 HD" group-title="RO_DK",DK: TV3 HD
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/185643.ts
+#EXTINF:-1 tvg-id="TV3Max.dk" tvg-name="DK: TV3 Max HD" group-title="RO_DK",DK: TV3 Max HD
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/185644.ts
+#EXTINF:-1 tvg-id="TV3Puls.dk" tvg-name="DK: TV3 PLUS HD" group-title="RO_DK",DK: TV3 PLUS HD
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/185645.ts
+#EXTINF:-1 tvg-name="DK: Xee" group-title="RO_DK",DK: Xee
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/2458975.ts
+#EXTINF:-1 tvg-id="Boomerang.dk" tvg-name="DK: BOOMERANG HD" group-title="RO_DK",DK: BOOMERANG HD
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/185571.ts
+#EXTINF:-1 tvg-id="CartoonNetwork.dk" tvg-name="DK: CARTOON NETWORK HD" group-title="RO_DK",DK: CARTOON NETWORK HD
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/185577.ts
+#EXTINF:-1 tvg-id="DisneyChannel.dk" tvg-name="DK: Disney Channel HD" group-title="RO_DK",DK: Disney Channel HD
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/185585.ts
+#EXTINF:-1 tvg-name="DK: Disney JR" group-title="RO_DK",DK: Disney JR
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/185586.ts
+#EXTINF:-1 tvg-name="DK: Nick Junior HD" group-title="RO_DK",DK: Nick Junior HD
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/185611.ts
+#EXTINF:-1 tvg-id="Nickelodeon.dk" tvg-name="DK: nickelodeon HD" group-title="RO_DK",DK: nickelodeon HD
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/185612.ts
+#EXTINF:-1 tvg-name="DK: C More GOLF HD" group-title="RO_DK",DK: C More GOLF HD
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/185572.ts
+#EXTINF:-1 tvg-name="DK: C More Hits FHD" group-title="RO_DK",DK: C More Hits HD
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/185573.ts
+#EXTINF:-1 tvg-id="Eurosport1.dk" tvg-name="DK: EUROSPORT 1 FHD" group-title="RO_DK",DK: EUROSPORT 1 HD
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/185596.ts
+#EXTINF:-1 tvg-id="Eurosport2.dk" tvg-name="DK: EUROSPORT 2 FHD" group-title="RO_DK",DK: EUROSPORT 2 HD
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/185597.ts
+#EXTINF:-1 tvg-name="DK: SPORT Live HD" group-title="RO_DK",DK: SPORT Live HD
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/185620.ts
+#EXTINF:-1 tvg-id="TV2Sport.dk" tvg-name="DK: TV2 Sport HD" group-title="RO_DK",DK: TV2 Sport HD
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/185638.ts
+#EXTINF:-1 tvg-name="DK: TV2 Sport X" group-title="RO_DK",DK: TV2 Sport X
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/1124446.ts
+#EXTINF:-1 tvg-id="TV3Sport.dk" tvg-name="DK: TV3 Sport HD" group-title="RO_DK",DK: TV3 Sport HD
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/185646.ts
+#EXTINF:-1 tvg-id="ViasatGolf.dk" tvg-name="DK: VIASAT SPORT 6 HD" group-title="RO_DK",DK: VIASAT SPORT 6 HD
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/185656.ts
+#EXTINF:-1 tvg-name="RO: ACASA GOLD" group-title="RO_DK",RO: ACASA GOLD
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/228929.ts
+#EXTINF:-1 tvg-id="Pro2.ro" tvg-name="RO: ACASA" group-title="RO_DK",RO: ACASA
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/228927.ts
+#EXTINF:-1 tvg-id="AntenaStars.ro" tvg-name="RO: ANTENA STARS" group-title="RO_DK",RO: ANTENA STARS
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/228777.ts
+#EXTINF:-1 tvg-id="AXNBlack.ro" tvg-name="RO: AXN Black" group-title="RO_DK",RO: AXN Black
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/228780.ts
+#EXTINF:-1 tvg-id="AXN.ro" tvg-name="RO: AXN Romania" group-title="RO_DK",RO: AXN Romania
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/228782.ts
+#EXTINF:-1 tvg-name="RO: AXN SPIN" group-title="RO_DK",RO: AXN SPIN
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/228783.ts
+#EXTINF:-1 tvg-id="AXNWhite.ro" tvg-name="RO: AXN White" group-title="RO_DK",RO: AXN White
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/228784.ts
+#EXTINF:-1 tvg-id="BollywoodTV.ro" tvg-name="RO: Bollywood TV HD" group-title="RO_DK",RO: Bollywood TV HD
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/228789.ts
+#EXTINF:-1 tvg-id="cinemaraton.ro" tvg-name="RO: CINEMARATON FHD" group-title="RO_DK",RO: CINEMARATON HD
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/228797.ts
+#EXTINF:-1 tvg-id="Cinemax.mx" tvg-name="RO: Cinemax 1" group-title="RO_DK",RO: Cinemax 1
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/228801.ts
+#EXTINF:-1 tvg-name="RO: Cinemax 2" group-title="RO_DK",RO: Cinemax 2
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/228799.ts
+#EXTINF:-1 tvg-id="CineSony.mx" tvg-name="RO: CINETHRONIX" group-title="RO_DK",RO: CINETHRONIX
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/228802.ts
+#EXTINF:-1 tvg-name="RO: Comedy Central" group-title="RO_DK",RO: Comedy Central
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/228805.ts
+#EXTINF:-1 tvg-name="RO: COMEDY EST" group-title="RO_DK",RO: COMEDY EST
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/219636.ts
+#EXTINF:-1 tvg-name="RO: EPIC DRAMA" group-title="RO_DK",RO: EPIC DRAMA
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/228839.ts
+#EXTINF:-1 tvg-id="FilmNow.hu" tvg-name="RO: FILM NOW" group-title="RO_DK",RO: FILM NOW
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/228850.ts
+#EXTINF:-1 tvg-id="FilmBoxPremium.ro" tvg-name="RO: FilmBox Premium" group-title="RO_DK",RO: FilmBox Premium
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/228855.ts
+#EXTINF:-1 tvg-id="Filmcafe.ro" tvg-name="RO: FILMCAFE" group-title="RO_DK",RO: FILMCAFE
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/219654.ts
+#EXTINF:-1 tvg-id="92news.uk" tvg-name="RO: HBO 2" group-title="RO_DK",RO: HBO 2
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/228864.ts
+#EXTINF:-1 tvg-name="RO: HBO 3" group-title="RO_DK",RO: HBO 3
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/515954.ts
+#EXTINF:-1 tvg-id="HBO.ro" tvg-name="RO: HBO Romania" group-title="RO_DK",RO: HBO Romania
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/228869.ts
+#EXTINF:-1 tvg-id="ProCinema.ro" tvg-name="RO: Pro Cinema" group-title="RO_DK",RO: Pro Cinema
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/228928.ts
+#EXTINF:-1 tvg-id="TNT.ro" tvg-name="RO: TNT WB" group-title="RO_DK",RO: TNT WB
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/228965.ts
+#EXTINF:-1 tvg-name="RO: Acasa Gold" group-title="RO_DK",RO: Acasa Gold
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/2745536.ts
+#EXTINF:-1 tvg-id="AgroTV.mx" tvg-name="RO: Agro TV" group-title="RO_DK",RO: Agro TV
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/228765.ts
+#EXTINF:-1 tvg-name="RO: Alfa & Omega TV" group-title="RO_DK",RO: Alfa & Omega TV
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/228766.ts
+#EXTINF:-1 tvg-name="RO: Alpha Media TV" group-title="RO_DK",RO: Alpha Media TV
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/228767.ts
+#EXTINF:-1 tvg-name="RO: ANIMAL PLANET" group-title="RO_DK",RO: ANIMAL PLANET
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/2741844.ts
+#EXTINF:-1 tvg-name="RO: ANTENA 1" group-title="RO_DK",RO: ANTENA 1
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/228770.ts
+#EXTINF:-1 tvg-name="RO: BUCOVINA TV" group-title="RO_DK",RO: BUCOVINA TV
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/228791.ts
+#EXTINF:-1 tvg-name="RO: CREDO TV" group-title="RO_DK",RO: CREDO TV
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/228806.ts
+#EXTINF:-1 tvg-id="DigiLife.hu" tvg-name="RO: DIGI LIFE" group-title="RO_DK",RO: DIGI LIFE
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/228817.ts
+#EXTINF:-1 tvg-name="RO: Discovery Turbo Xtra (DTX)" group-title="RO_DK",RO: Discovery Turbo Xtra (DTX)
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/2741842.ts
+#EXTINF:-1 tvg-name="RO: DIVA Channel" group-title="RO_DK",RO: DIVA Channel
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/228833.ts
+#EXTINF:-1 tvg-id="DocuBox.ro" tvg-name="RO: DOCUBOX" group-title="RO_DK",RO: DOCUBOX
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/228834.ts
+#EXTINF:-1 tvg-id="FashionTV.ro" tvg-name="RO: FASHION TV" group-title="RO_DK",RO: FASHION TV
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/228846.ts
+#EXTINF:-1 tvg-id="Favorit.ro" tvg-name="RO: Favorit Tv" group-title="RO_DK",RO: Favorit Tv
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/219701.ts
+#EXTINF:-1 tvg-name="RO: History Channel HD" group-title="RO_DK",RO: History Channel HD
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/2741843.ts
+#EXTINF:-1 tvg-name="RO: Hora TV" group-title="RO_DK",RO: Hora TV
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/228873.ts
+#EXTINF:-1 tvg-name="RO: KANAL D2" group-title="RO_DK",RO: KANAL D2
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/228792.ts
+#EXTINF:-1 tvg-id="KanalD.ro" tvg-name="RO: KANAL D" group-title="RO_DK",RO: KANAL D
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/219664.ts
+#EXTINF:-1 tvg-name="RO: MDI TV" group-title="RO_DK",RO: MDI TV
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/219666.ts
+#EXTINF:-1 tvg-id="NationalTV.ro" tvg-name="RO: National TV" group-title="RO_DK",RO: National TV
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/228918.ts
+#EXTINF:-1 tvg-name="RO: Pro TV International" group-title="RO_DK",RO: Pro TV International
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/1813306.ts
+#EXTINF:-1 tvg-id="ProTV.ro" tvg-name="RO: PRO TV" group-title="RO_DK",RO: PRO TV
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/219682.ts
+#EXTINF:-1 tvg-id="ProX.ro" tvg-name="RO: PRO X" group-title="RO_DK",RO: PRO X
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/228935.ts
+#EXTINF:-1 tvg-id="SportskaTv.hr" tvg-name="RO: Speranta TV" group-title="RO_DK",RO: Speranta TV
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/228948.ts
+#EXTINF:-1 tvg-id="TarafTV.ro" tvg-name="RO: TARAF TV" group-title="RO_DK",RO: TARAF TV
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/219687.ts
+#EXTINF:-1 tvg-id="Ten.au" tvg-name="RO: Tezaur tv" group-title="RO_DK",RO: Tezaur tv
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/219689.ts
+#EXTINF:-1 tvg-id="UTV.ro" tvg-name="RO: TVR 1" group-title="RO_DK",RO: TVR 1
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/228980.ts
+#EXTINF:-1 tvg-id="TVR2.ro" tvg-name="RO: TVR 2" group-title="RO_DK",RO: TVR 2
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/228976.ts
+#EXTINF:-1 tvg-id="TVR3.ro" tvg-name="RO: TVR 3" group-title="RO_DK",RO: TVR 3
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/228977.ts
+#EXTINF:-1 tvg-name="RO: TVR Info" group-title="RO_DK",RO: TVR Info
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/2779396.ts
+#EXTINF:-1 tvg-name="RO: TVR International" group-title="RO_DK",RO: TVR International
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/228984.ts
+#EXTINF:-1 tvg-name="RO: TVR Trei" group-title="RO_DK",RO: TVR Trei
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/228981.ts
+#EXTINF:-1 tvg-id="Dutv.hr" tvg-name="RO: UTV" group-title="RO_DK",RO: UTV
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/228986.ts
+#EXTINF:-1 tvg-id="ZUTV.ro" tvg-name="RO: ZU TV" group-title="RO_DK",RO: ZU TV
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/228996.ts
+#EXTINF:-1 tvg-id="Boomerang.ro" tvg-name="RO: BOOMERANG" group-title="RO_DK",RO: BOOMERANG
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/228790.ts
+#EXTINF:-1 tvg-id="CartoonNetwork.ro" tvg-name="RO: Cartoon Network" group-title="RO_DK",RO: Cartoon Network
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/228795.ts
+#EXTINF:-1 tvg-id="DaVinciLearning.ro" tvg-name="RO: Da Vinci Kids" group-title="RO_DK",RO: Da Vinci Kids
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/228810.ts
+#EXTINF:-1 tvg-id="Davinci.id" tvg-name="RO: DAVINCI" group-title="RO_DK",RO: DAVINCI
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/219638.ts
+#EXTINF:-1 tvg-id="DisneyChannel.ro" tvg-name="RO: Disney Channel" group-title="RO_DK",RO: Disney Channel
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/228831.ts
+#EXTINF:-1 tvg-name="RO: Disney Jr" group-title="RO_DK",RO: Disney Jr
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/228832.ts
+#EXTINF:-1 tvg-name="RO: DUCK TV" group-title="RO_DK",RO: DUCK TV
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/228836.ts
+#EXTINF:-1 tvg-id="JimJam.ro" tvg-name="RO: JimJam" group-title="RO_DK",RO: JimJam
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/228881.ts
+#EXTINF:-1 tvg-id="Minimax.ro" tvg-name="RO: MINIMAX" group-title="RO_DK",RO: MINIMAX
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/228897.ts
+#EXTINF:-1 tvg-name="RO: Nick Junior" group-title="RO_DK",RO: Nick Junior
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/228921.ts
+#EXTINF:-1 tvg-name="RO: NICK TOONS" group-title="RO_DK",RO: NICK TOONS
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/219674.ts
+#EXTINF:-1 tvg-id="Nickelodeon.ro" tvg-name="RO: Nickelodeon" group-title="RO_DK",RO: Nickelodeon
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/228923.ts
+#EXTINF:-1 tvg-id="Antena3.ro" tvg-name="RO: Antena 3" group-title="RO_DK",RO: Antena 3
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/228771.ts
+#EXTINF:-1 tvg-name="RO: B1 Channel" group-title="RO_DK",RO: B1 Channel
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/228785.ts
+#EXTINF:-1 tvg-id="B1.ro" tvg-name="RO: B1" group-title="RO_DK",RO: B1
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/219704.ts
+#EXTINF:-1 tvg-id="cnn.ro" tvg-name="RO: CNN" group-title="RO_DK",RO: CNN
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/228803.ts
+#EXTINF:-1 tvg-id="Digi24.ro" tvg-name="RO: DIGI 24" group-title="RO_DK",RO: DIGI 24
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/228813.ts
+#EXTINF:-1 tvg-id="Etno.ro" tvg-name="RO: ETNO" group-title="RO_DK",RO: ETNO
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/228841.ts
+#EXTINF:-1 tvg-name="RO: euronews" group-title="RO_DK",RO: euronews
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/2665362.ts
+#EXTINF:-1 tvg-name="RO: Inter Media Tv" group-title="RO_DK",RO: Inter Media Tv
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/228877.ts
+#EXTINF:-1 tvg-id="NasulTV.ro" tvg-name="RO: Nasul TV" group-title="RO_DK",RO: Nasul TV
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/228913.ts
+#EXTINF:-1 tvg-id="PrimaTV.ro" tvg-name="RO: PRIMA TV" group-title="RO_DK",RO: PRIMA TV
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/228926.ts
+#EXTINF:-1 tvg-id="ProTV.ro" tvg-name="RO: Profit" group-title="RO_DK",RO: Profit
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/228936.ts
+#EXTINF:-1 tvg-id="KTVUPlus.us" tvg-name="RO: Realitatea Plus" group-title="RO_DK",RO: Realitatea Plus
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/228972.ts
+#EXTINF:-1 tvg-id="RealitateaTV.ro" tvg-name="RO: REALITATEA" group-title="RO_DK",RO: REALITATEA
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/219685.ts
+#EXTINF:-1 tvg-id="RomaniaTv.ro" tvg-name="RO: ROMANIA TV" group-title="RO_DK",RO: ROMANIA TV
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/228945.ts
+#EXTINF:-1 tvg-name="RO: TVR Iasi" group-title="RO_DK",RO: TVR Iasi
+http://ky-tv.cc:80/82212_d1/RVDFVPXnHd/219694.ts
 #EXTM3U url-tvg="http://televizor.fun/epg.xml.gz"
 #EXTINF:0 group-title="HD Original" tvg-rec="3" timeshift="3",.black orig (.black original)
 http://e6afa88a.megatv.fun/iptv/L3EE4QS422SQD5/9140/index.m3u8
