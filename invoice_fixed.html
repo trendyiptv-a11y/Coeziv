@@ -307,40 +307,30 @@ function parseAmountFromSpecificLine(text, labels){
   return last;
 }
 
-// FIX 5: parsare TVA robustă
-// Structura GLS: "25% Moms" și "41,00" pot fi pe linii separate sau pe aceeași linie
-// Strategia: găsim linia cu "Moms" (nu "Moms-id", nu "I alt"), luăm PRIMUL număr xx,xx
-// Dacă linia are mai multe numere, TVA e mai mic decât totalul — luăm minimul > 0
+// FIX TVA: structura GLS e mereu: "I alt DKK  205,00" / "25% Moms  41,00" / "Netto DKK  164,00"
+// TVA-ul e ÎNTOTDEAUNA linia dintre "I alt" și "Netto"
 function parseMoms(text){
   const lines = linesOf(text);
 
-  // Caută linia exactă cu Moms (nu Moms-id, nu I alt, nu Netto)
-  for(const line of lines){
-    const ln = normalizeTextBasic(line);
-    if(!ln.includes('moms') && !ln.includes('vat') && !ln.includes('tva')) continue;
-    if(ln.includes('moms-id') || ln.includes('i alt') || ln.includes('netto') || ln.includes('total')) continue;
-
-    const nums = (line.match(/\d+[.,]\d{2}/g) || [])
-      .map(n => parseFloat(n.replace(',','.')))
-      .filter(n => n > 0);
-
-    if(!nums.length) continue;
-    // Dacă o singură sumă — returnează
-    if(nums.length === 1) return nums[0].toFixed(2);
-    // Dacă mai multe — TVA e suma mai mică (nu procentul 25.00 care e număr întreg)
-    // Filtrează numere care par procente (< 100 și fără zecimale semnificative)
-    const candidates = nums.filter(n => n !== 25 && n !== 20 && n !== 10);
-    if(candidates.length) return Math.min(...candidates).toFixed(2);
-    return Math.min(...nums).toFixed(2);
+  // Strategie 1: caută linia dintre I alt și Netto
+  const iAltIdx = lines.findIndex(l => /i alt/i.test(normalizeTextBasic(l)));
+  const nettoIdx = lines.findIndex(l => /netto/i.test(normalizeTextBasic(l)));
+  if(iAltIdx >= 0 && nettoIdx > iAltIdx){
+    for(let i = iAltIdx+1; i < nettoIdx; i++){
+      const nums = (lines[i].match(/\d+[.,]\d{2}/g)||[])
+        .map(n => parseFloat(n.replace(',','.')))
+        .filter(n => n > 0 && n !== 25 && n !== 20 && n !== 10);
+      if(nums.length) return Math.min(...nums).toFixed(2);
+    }
   }
 
-  // Fallback: linia de după "I alt DKK" care nu e Netto
-  const iltIdx = lines.findIndex(l => /i alt/i.test(l));
-  if(iltIdx >= 0){
-    for(let i=iltIdx+1; i<Math.min(iltIdx+4, lines.length); i++){
-      const ln = normalizeTextBasic(lines[i]);
-      if(ln.includes('netto')) continue;
-      const nums = (lines[i].match(/\d+[.,]\d{2}/g)||[]).map(n=>parseFloat(n.replace(',','.')));
+  // Strategie 2: linia cu "Moms" (nu "Moms-id", nu "I alt")
+  for(const line of lines){
+    const ln = normalizeTextBasic(line);
+    if(ln.includes('moms') && !ln.includes('moms-id') && !ln.includes('i alt')){
+      const nums = (line.match(/\d+[.,]\d{2}/g)||[])
+        .map(n => parseFloat(n.replace(',','.')))
+        .filter(n => n > 0 && n !== 25 && n !== 20 && n !== 10);
       if(nums.length) return Math.min(...nums).toFixed(2);
     }
   }
