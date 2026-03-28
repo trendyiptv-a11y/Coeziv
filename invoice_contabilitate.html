@@ -1,0 +1,731 @@
+<!DOCTYPE html><html lang="ro">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Invoice Universal Parser v9 — Contabilitate</title>
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <style>
+    :root{--bg:#0b1220;--card:#fff;--text:#0f172a;--muted:#475569;--line:#dbe3ee;--primary:#2563eb;--success:#16a34a;--secondary:#e2e8f0;--danger:#dc2626;--warn:#f59e0b;--purple:#7c3aed}
+    *{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text);padding:16px}
+    .container{max-width:1140px;margin:0 auto}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:16px}
+    h1,h2,h3{margin:0 0 10px}p{margin:0;color:var(--muted);line-height:1.5}
+    .note{margin-top:10px;padding:10px 12px;border-radius:12px;background:#eff6ff;border:1px solid #bfdbfe;color:#1e3a8a;font-size:13px}
+    .badge{display:inline-block;padding:2px 8px;border-radius:8px;font-size:11px;font-weight:700}
+    .badge-dk{background:#dbeafe;color:#1d4ed8}.badge-ro{background:#dcfce7;color:#166534}.badge-en{background:#fef9c3;color:#854d0e}
+    .badge-bon{background:#fce7f3;color:#9d174d}.badge-doc{background:#f1f5f9;color:#475569}
+    .badge-emisa{background:#dcfce7;color:#166534}.badge-primita{background:#dbeafe;color:#1d4ed8}
+    .badge-valid{background:#dcfce7;color:#166534}.badge-invalid{background:#fee2e2;color:#991b1b}.badge-unknown{background:#fef9c3;color:#854d0e}
+    .row{display:grid;grid-template-columns:repeat(12,1fr);gap:12px;margin-bottom:12px}
+    .col-3{grid-column:span 3}.col-4{grid-column:span 4}.col-6{grid-column:span 6}.col-12{grid-column:span 12}
+    @media(max-width:900px){.row{grid-template-columns:1fr}.col-3,.col-4,.col-6,.col-12{grid-column:span 1}}
+    label{display:block;margin-bottom:6px;font-size:14px;font-weight:700;color:var(--text)}
+    input,select{width:100%;padding:10px 14px;border-radius:12px;border:1px solid #cbd5e1;background:#fff;color:var(--text);font-size:15px}
+    button{padding:12px 16px;border-radius:12px;border:none;cursor:pointer;font-weight:700;font-size:14px}
+    .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+    .actions button{min-width:130px}
+    .btn-primary{background:var(--primary);color:#fff}.btn-success{background:var(--success);color:#fff}
+    .btn-secondary{background:var(--secondary);color:#0f172a;border:1px solid #cbd5e1}
+    .btn-danger{background:var(--danger);color:#fff}.btn-purple{background:var(--purple);color:#fff}
+    .btn-warn{background:var(--warn);color:#fff}
+    .status,.box{margin-top:10px;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:#f8fafc;white-space:pre-wrap;line-height:1.5;font-size:13px}
+    .preview-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-top:12px}
+    .preview-card{border:1px solid var(--line);border-radius:12px;padding:8px;background:#f8fafc}
+    .preview-card img{width:100%;height:160px;object-fit:contain;display:block;background:#fff;border-radius:8px;border:1px solid var(--line)}
+    .small{margin-top:5px;font-size:11px;color:var(--muted);word-break:break-word}
+    table{width:100%;border-collapse:collapse;margin-top:10px;font-size:12px}
+    th,td{padding:8px 9px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}
+    th{background:#f1f5f9;font-weight:700;font-size:11px;position:sticky;top:0}
+    tr:hover td{background:#f8fafc}
+    td input[type=text]{padding:4px 8px;font-size:12px;border-radius:6px;border:1px solid #cbd5e1;width:100%}
+    td select{padding:4px 8px;font-size:12px;border-radius:6px;border:1px solid #cbd5e1;width:auto}
+    .metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-top:12px}
+    .metric{border:1px solid var(--line);border-radius:14px;padding:12px;background:#f8fafc}
+    .metric .k{font-size:11px;color:var(--muted)}.metric .v{font-size:20px;font-weight:700;margin-top:4px}
+    .tva-box{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:12px}
+    .tva-card{border-radius:14px;padding:14px;text-align:center}
+    .tva-card.recuperat{background:#dcfce7;border:1px solid #86efac}
+    .tva-card.platit{background:#fee2e2;border:1px solid #fca5a5}
+    .tva-card.net{background:#eff6ff;border:1px solid #bfdbfe}
+    .tva-card .label{font-size:12px;color:var(--muted);font-weight:600}
+    .tva-card .amount{font-size:24px;font-weight:700;margin-top:6px}
+    .tva-card.recuperat .amount{color:#166534}
+    .tva-card.platit .amount{color:#991b1b}
+    .tva-card.net .amount{color:#1d4ed8}
+    @media print{@page{size:A4;margin:12mm}body{background:#fff;padding:0}.card{display:none!important}.print-card{display:block!important}#reportBox{border:none;background:#fff;padding:0}}
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <div class="card">
+    <h1>Invoice Universal Parser <span style="font-size:13px;color:var(--muted)">v9 Contabilitate</span></h1>
+    <p>Extrage automat date din facturi și bonuri. Registru contabil cu separare emise/primite, calcul TVA și validare CUI.</p>
+    <div class="note">✅ PDF digital · Scan OCR · Bon fiscal · Factură română (CUI/TVA) · Factură daneză · Engleză &nbsp;|&nbsp; 🆕 Export Excel registru · Separare emise/primite · Calcul TVA · Validare CUI</div>
+  </div>
+
+  <!-- Setări -->
+  <div class="card">
+    <h2>Setări</h2>
+    <div class="row">
+      <div class="col-4"><label>Firma mea (nume)</label><input id="ownerName" placeholder="Ex: Firma X SRL"/></div>
+      <div class="col-4"><label>CUI firma mea</label><input id="ownerCui" placeholder="Ex: RO12345678"/></div>
+      <div class="col-4"><label>Perioadă / Observații</label><input id="reportNote" placeholder="Ex: Martie 2026"/></div>
+    </div>
+    <div class="row">
+      <div class="col-4"><label>Mod raport</label>
+        <select id="reportMode"><option value="all">Toate documentele</option><option value="single">Doar documentul selectat</option></select>
+      </div>
+      <div class="col-4"><label>Filtru tip</label>
+        <select id="filterType"><option value="all">Toate tipurile</option><option value="Factură">Doar facturi</option><option value="Bon fiscal">Doar bonuri</option></select>
+      </div>
+      <div class="col-4"><label>Filtru direcție</label>
+        <select id="filterDir"><option value="all">Emise + Primite</option><option value="emisa">Doar emise</option><option value="primita">Doar primite</option></select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Documente -->
+  <div class="card">
+    <h2>Documente</h2>
+    <div class="row">
+      <div class="col-6">
+        <label>Încarcă imagini sau PDF-uri</label>
+        <input id="docFiles" type="file" accept="image/*,.pdf,application/pdf" multiple/>
+        <div class="actions">
+          <button class="btn-primary" id="btnExtract">1. Extrage din toate</button>
+          <button class="btn-success" id="btnReport">2. Generează raport</button>
+          <button class="btn-purple" id="btnExcel">📊 Export Excel</button>
+          <button class="btn-secondary" id="btnTxt">⬇ TXT</button>
+          <button class="btn-secondary" id="btnCsv">⬇ CSV</button>
+          <button class="btn-secondary" id="btnPrint">🖨 Print</button>
+          <button class="btn-secondary" id="btnDebug">🔍 Debug</button>
+          <button class="btn-danger" id="btnClear">✕ Curăță</button>
+        </div>
+        <div id="statusBox" class="status">Status: pregătit.</div>
+        <div id="previewGrid" class="preview-grid"></div>
+      </div>
+      <div class="col-6">
+        <label>Text extras / Debug</label>
+        <div id="rawTextBox" class="box" style="max-height:260px;overflow:auto"></div>
+        <label style="margin-top:10px">Rezumat</label>
+        <div id="summaryBox" class="box">Nu există încă rezultate.</div>
+      </div>
+    </div>
+    <div class="metrics">
+      <div class="metric"><div class="k">Documente procesate</div><div class="v" id="metricDocs">0</div></div>
+      <div class="metric"><div class="k">Facturi</div><div class="v" id="metricInvoices">0</div></div>
+      <div class="metric"><div class="k">Bonuri</div><div class="v" id="metricBons">0</div></div>
+      <div class="metric"><div class="k">Facturi emise</div><div class="v" id="metricEmise">0</div></div>
+      <div class="metric"><div class="k">Facturi primite</div><div class="v" id="metricPrimite">0</div></div>
+      <div class="metric"><div class="k">Total sume</div><div class="v" id="metricAmount">0.00</div></div>
+    </div>
+  </div>
+
+  <!-- TVA Dashboard -->
+  <div class="card">
+    <h2>📊 Situație TVA</h2>
+    <div class="tva-box">
+      <div class="tva-card recuperat">
+        <div class="label">TVA de recuperat<br><small>(facturi primite)</small></div>
+        <div class="amount" id="tvaRecuperat">0.00</div>
+      </div>
+      <div class="tva-card platit">
+        <div class="label">TVA de plătit<br><small>(facturi emise)</small></div>
+        <div class="amount" id="tvaPlata">0.00</div>
+      </div>
+      <div class="tva-card net">
+        <div class="label">TVA net<br><small>(de plătit la stat)</small></div>
+        <div class="amount" id="tvaNeta">0.00</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabel documente -->
+  <div class="card" style="overflow:auto">
+    <h2>Registru documente</h2>
+    <p style="font-size:12px;margin-bottom:8px">Poți edita direct în tabel: direcție, furnizor, client, sumele.</p>
+    <table id="docsTable">
+      <thead>
+        <tr>
+          <th>#</th><th>Fișier</th><th>Sursă</th><th>Tip</th><th>Limbă</th>
+          <th>Direcție ▼</th><th>Furnizor</th><th>Client</th><th>Dată</th>
+          <th>Nr. doc.</th><th>CUI/CVR/VAT</th><th>Validare CUI</th>
+          <th>Net</th><th>TVA%</th><th>TVA</th><th>Total</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <!-- Raport -->
+  <div class="card print-card">
+    <h2>Raport contabil</h2>
+    <div id="reportBox" class="box">Apasă „Generează raport".</div>
+  </div>
+
+</div>
+<script type="module">
+import * as pdfjsLib from 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.4.168/build/pdf.min.mjs';
+pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdn.jsdelivr.net/npm/pdfjs-dist@4.4.168/build/pdf.worker.min.mjs';
+
+let filesState=[],extractedDocs=[],selectedDocIndex=0;
+
+const $=id=>document.getElementById(id);
+const setStatus=t=>$('statusBox').textContent='Status: '+t;
+const round2=n=>(Math.round((Number(n)+Number.EPSILON)*100)/100).toFixed(2);
+const escH=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const norm=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[''`]/g,'').replace(/\s+/g,' ').trim();
+const splitLines=t=>t.split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
+
+// ── CUI Validator (algoritm oficial ANAF) ─────────────────────────────────────
+function validateCUI(raw){
+  if(!raw) return 'necunoscut';
+  const cleaned=String(raw).replace(/\s/g,'').replace(/^RO/i,'').replace(/^DK/i,'');
+  if(!/^\d{6,10}$/.test(cleaned)) return 'invalid';
+  const digits=cleaned.split('').map(Number);
+  const controlWeights=[7,5,3,2,1,7,5,3,2];
+  const len=digits.length;
+  const padded=digits;
+  while(padded.length<10) padded.unshift(0);
+  let sum=0;
+  for(let i=0;i<9;i++) sum+=padded[i]*controlWeights[i];
+  const remainder=(sum*10)%11;
+  const control=remainder===10?0:remainder;
+  return control===padded[9]?'valid':'invalid';
+}
+
+// ── Direcție factură (emisa = firma mea e furnizor; primita = firma mea e client) ──
+function detectDirection(doc){
+  const ownerName=norm($('ownerName').value||'');
+  const ownerCui=norm($('ownerCui').value||'').replace(/^ro/,'');
+  if(!ownerName&&!ownerCui) return 'primita'; // default
+  const supplierN=norm(doc.supplier||'');
+  const supplierT=norm(doc.taxId||'').replace(/^ro/,'');
+  const customerN=norm(doc.customer||'');
+  if(ownerName&&supplierN.includes(ownerName)) return 'emisa';
+  if(ownerCui&&supplierT.includes(ownerCui)) return 'emisa';
+  if(ownerName&&customerN.includes(ownerName)) return 'primita';
+  return 'primita';
+}
+
+function clearState(){
+  filesState=[];extractedDocs=[];selectedDocIndex=0;
+  ['previewGrid','rawTextBox'].forEach(id=>$(id).innerHTML='');
+  $('summaryBox').textContent='Nu există încă rezultate.';
+  $('reportBox').textContent='Apasă „Generează raport".';
+  ['metricDocs','metricInvoices','metricBons','metricEmise','metricPrimite'].forEach(id=>$(id).textContent='0');
+  $('metricAmount').textContent='0.00';
+  ['tvaRecuperat','tvaPlata','tvaNeta'].forEach(id=>$(id).textContent='0.00');
+  renderTable();
+}
+
+// ── PDF helpers ───────────────────────────────────────────────────────────────
+function rebuildLines(items){
+  const rows=[],yTol=3;
+  for(const it of items){
+    const x=it.transform[4],y=it.transform[5],s=String(it.str||'');
+    if(!s.trim()) continue;
+    let row=rows.find(r=>Math.abs(r.y-y)<=yTol);
+    if(!row){row={y,parts:[]};rows.push(row);}
+    row.parts.push({x,s,w:it.width||0});
+  }
+  rows.sort((a,b)=>b.y-a.y);
+  return rows.map(row=>{
+    row.parts.sort((a,b)=>a.x-b.x);
+    let line='',prevEnd=null;
+    for(const p of row.parts){
+      if(prevEnd!==null){const gap=p.x-prevEnd;line+=gap>=10?'  ':gap>1?' ':'';}
+      line+=p.s;prevEnd=p.x+(p.w||p.s.length*5);
+    }
+    return line.replace(/\s{3,}/g,'  ').trim();
+  }).filter(Boolean).join('\n');
+}
+
+function extractCol(items,side){
+  if(!items||!items.length) return '';
+  const xs=items.map(i=>i.transform[4]);
+  const mid=Math.min(...xs)+(Math.max(...xs)-Math.min(...xs))*0.45;
+  const rows=[],yTol=3;
+  for(const it of items){
+    const x=it.transform[4],y=it.transform[5],s=String(it.str||'');
+    if(!s.trim()) continue;
+    if(side==='left'&&x>=mid) continue;
+    if(side==='right'&&x<mid) continue;
+    let row=rows.find(r=>Math.abs(r.y-y)<=yTol);
+    if(!row){row={y,parts:[]};rows.push(row);}
+    row.parts.push({x,s});
+  }
+  rows.sort((a,b)=>b.y-a.y);
+  return rows.map(r=>{r.parts.sort((a,b)=>a.x-b.x);return r.parts.map(p=>p.s).join(' ').trim();}).filter(Boolean).join('\n');
+}
+
+async function renderPdfPages(file){
+  const pdf=await pdfjsLib.getDocument({data:await file.arrayBuffer()}).promise;
+  const out=[];
+  for(let i=1;i<=pdf.numPages;i++){
+    const page=await pdf.getPage(i);
+    const vp=page.getViewport({scale:1.5});
+    const canvas=document.createElement('canvas');
+    canvas.width=vp.width;canvas.height=vp.height;
+    await page.render({canvasContext:canvas.getContext('2d'),viewport:vp}).promise;
+    out.push({pageNo:i,dataUrl:canvas.toDataURL('image/png')});
+  }
+  return out;
+}
+
+async function extractPdfLayout(file){
+  const pdf=await pdfjsLib.getDocument({data:await file.arrayBuffer()}).promise;
+  const out=[];
+  for(let i=1;i<=pdf.numPages;i++){
+    const page=await pdf.getPage(i);
+    const content=await page.getTextContent();
+    const items=content.items;
+    out.push({pageNo:i,text:rebuildLines(items),items});
+  }
+  return out;
+}
+
+async function fileToDataUrl(file){
+  return new Promise((res,rej)=>{const r=new FileReader();r.onload=e=>res(String(e.target.result||''));r.onerror=rej;r.readAsDataURL(file);});
+}
+
+// ── Parsers ───────────────────────────────────────────────────────────────────
+function detectLang(t){
+  const n=norm(t);
+  if(/faktura|fakturanr|bogforingsdato|moms|betalingsbetingelse/.test(n)) return 'DK';
+  if(/factura|furnizor|cumparator|tva|cui\s*:|cif\s*:|ron\b|lei\b/.test(n)) return 'RO';
+  if(/invoice|vat number|supplier|bill to|amount due/.test(n)) return 'EN';
+  return '?';
+}
+
+function detectDocType(t){
+  const n=norm(t);
+  if(/bon fiscal|casa de marcat|operator fiscal/.test(n)) return 'Bon fiscal';
+  if(/chitanta|chitanță/.test(n)) return 'Chitanță';
+  if(/aviz de expeditie|delivery note/.test(n)) return 'Aviz';
+  if(/factura|invoice|faktura/.test(n)) return 'Factură';
+  return 'Document';
+}
+
+function lineByLabel(text,labels){
+  for(const line of splitLines(text)){const ln=norm(line);for(const lb of labels) if(ln.includes(norm(lb))) return line;}
+  return '';
+}
+
+function valueAfterLabel(text,labels){
+  for(const line of splitLines(text)){
+    for(const lb of labels){
+      const re=new RegExp(lb.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'\\s*[:=\\-]?\\s*(.+)$','i');
+      const m=line.match(re);if(m&&m[1].trim()) return m[1].trim();
+    }
+  }
+  return '';
+}
+
+function parseDate(text){
+  if(!text) return '';
+  const months={ianuarie:'01',februarie:'02',martie:'03',aprilie:'04',mai:'05',iunie:'06',iulie:'07',august:'08',septembrie:'09',octombrie:'10',noiembrie:'11',decembrie:'12',januar:'01',februar:'02',marts:'03',april:'04',maj:'05',juni:'06',juli:'07',september:'09',oktober:'10',november:'11',december:'12',january:'01',february:'02',march:'03',may:'05',june:'06',july:'07',october:'10'};
+  let m=text.match(/(\d{2})[.\-\/](\d{2})[.\-\/](\d{4})/);if(m) return m[1]+'-'+m[2]+'-'+m[3];
+  m=text.match(/(\d{4})[.\-\/](\d{2})[.\-\/](\d{2})/);if(m) return m[3]+'-'+m[2]+'-'+m[1];
+  m=norm(text).match(/(\d{1,2})\.?\s*(ianuarie|februarie|martie|aprilie|mai|iunie|iulie|august|septembrie|octombrie|noiembrie|decembrie|januar|februar|marts|april|maj|juni|juli|august|september|oktober|november|december|january|february|march|april|may|june|july|august|october)\s+(\d{4})/);
+  if(m&&months[m[2]]) return String(m[1]).padStart(2,'0')+'-'+months[m[2]]+'-'+m[3];
+  return '';
+}
+
+function parseDateFromText(t){for(const l of splitLines(t)){const d=parseDate(l);if(d) return d;}return '';}
+
+function parseTaxId(t){
+  let m=t.match(/C(?:UI|IF)\s*[:\-]?\s*(RO\s*\d{6,10}|\d{6,10})/i);if(m) return m[1].replace(/\s/g,'');
+  m=t.match(/CVR[- ]?nr\.?\s*(DK\s*\d{8}|\d{8})/i);if(m){const v=m[1].replace(/\s/g,'');return v.toUpperCase().startsWith('DK')?v:'DK'+v;}
+  m=t.match(/\b(DK\d{8})\b/i);if(m) return m[1].toUpperCase();
+  m=t.match(/VAT\s*(?:ID|nr|no)?\.?\s*[:\-]?\s*([A-Z]{2}\s*\d{7,12})/i);if(m) return m[1].replace(/\s/g,'');
+  return '';
+}
+
+function parseDocNr(t,lang){
+  const labels={DK:['Fakturanr.','Fakturanr'],RO:['Nr. factura','Nr factura','Factura nr','Seria','Nr.'],EN:['Invoice no','Invoice nr','Invoice #'],'?':['Fakturanr','Invoice no','Nr. factura','Nr']};
+  const v=valueAfterLabel(t,labels[lang]||labels['?']);
+  if(v){const m=v.match(/[A-Za-z0-9\-\/]{3,}/);if(m) return m[0];}
+  const ps=[/[Ff]akturanr\.?\s*(\d{5,})/,/[Nn]r\.?\s*[Ff]actur[aă]\s*[:\-]?\s*([A-Z0-9\-\/]+)/i,/[Ii]nvoice\s*(?:no|nr|#)?\s*[:\-]?\s*([A-Z0-9\-\/]+)/i];
+  for(const p of ps){const m=t.match(p);if(m) return m[1];}
+  return '';
+}
+
+function lastAmt(line){const nums=line.match(/\d+[.,]\d{2}/g);return nums?nums[nums.length-1].replace(',','.'):null;}
+
+function parseTotal(t,lang){
+  const labels={DK:['I alt DKK','I alt'],RO:['Total general','Total de plata','Total de plată','Total factura','Total factură','Total'],EN:['Total due','Amount due','Grand total','Total'],'?':['I alt','Total general','Grand total','Total']};
+  const line=lineByLabel(t,labels[lang]||labels['?']);return line?lastAmt(line)||'':'';
+}
+
+function parseNet(t,lang){
+  const labels={DK:['Netto DKK','Netto'],RO:['Baza impozabila','Baza impozabilă','Total fara TVA','Net'],EN:['Net total','Subtotal','Net amount'],'?':['Netto','Net','Baza impozabila','Subtotal']};
+  const line=lineByLabel(t,labels[lang]||labels['?']);return line?lastAmt(line)||'':'';
+}
+
+function parseVATRate(t){
+  const m=t.match(/(\d{1,2})\s*%\s*(?:moms|tva|vat|tax)/i)||t.match(/(?:moms|tva|vat|tax)\s*(\d{1,2})\s*%/i)||t.match(/cota\s*tva\s*[:\-]?\s*(\d{1,2})/i);
+  return m?m[1]+'%':'';
+}
+
+function parseVAT(t,lang){
+  const ls=splitLines(t);
+  const vatKW=['moms','tva','vat','tax','impozit'];
+  const skipKW=['moms-id','cod tva','nr tva','nr. tva','tva deductibil','tva dedus'];
+  const totalKW=['i alt','total general','total','grand total','amount due'];
+  const netKW=['netto','net','baza impozabila','subtotal fara'];
+  const pcts=[25,24,23,22,20,19,10,9,8,5,4,2];
+  const totalIdx=ls.findIndex(l=>totalKW.some(k=>norm(l).includes(k)));
+  const netIdx=ls.findIndex(l=>netKW.some(k=>norm(l).includes(k)));
+  if(totalIdx>=0&&netIdx>totalIdx){
+    for(let i=totalIdx+1;i<netIdx;i++){
+      const nums=(ls[i].match(/\d+[.,]\d{2}/g)||[]).map(n=>parseFloat(n.replace(',','.'))).filter(n=>n>0&&!pcts.includes(n));
+      if(nums.length) return Math.min(...nums).toFixed(2);
+    }
+  }
+  for(const line of ls){
+    const ln=norm(line);
+    if(!vatKW.some(k=>ln.includes(k))) continue;
+    if(skipKW.some(k=>ln.includes(k))) continue;
+    const nums=(line.match(/\d+[.,]\d{2}/g)||[]).map(n=>parseFloat(n.replace(',','.'))).filter(n=>n>0&&!pcts.includes(n));
+    if(nums.length) return Math.min(...nums).toFixed(2);
+  }
+  return '';
+}
+
+function parseSupplier(t,lang,items){
+  if(items&&items.length){
+    const skipR=/cvr|faktura|fakturanr|bogforingsdato|forfaldsdato|debitornr|kokmose|kolding|nummer|beskrivelse|salgspris|moms|belob|i alt|netto|pakkenr|betalingsbetingelse|campus alle|strada|str\.|bd\./;
+    for(const line of splitLines(extractCol(items,'right'))){
+      const ln=norm(line);
+      if(!ln||ln.length<3||/^\d/.test(ln)||skipR.test(ln)) continue;
+      if(/[a-zA-Z]{3}/.test(line)) return line.trim();
+    }
+  }
+  const v=valueAfterLabel(t,['Furnizor','Vanzator','Vânzător','Seller','Supplier','From','Emitent','Prestator']);
+  if(v) return v.split(/\n/)[0].trim();
+  return '';
+}
+
+function parseCustomer(t,lang,items){
+  if(items&&items.length){
+    const skipL=/campus alle|strada|str\.|bd\.|blvd|calea|pakkenr|betalingsbetingelse|debitornr|nummer|beskrivelse|salgspris|moms|i alt|netto|kokmose|kolding/;
+    for(const line of splitLines(extractCol(items,'left'))){
+      const ln=norm(line);
+      if(!ln||ln.length<2||/^\d/.test(ln)||skipL.test(ln)) continue;
+      if(/[a-zA-Z]{2}/.test(line)) return line.trim();
+    }
+  }
+  const v=valueAfterLabel(t,['Client','Cumparator','Cumpărător','Beneficiar','Customer','Bill to','Ship to','To','Destinatar']);
+  if(v) return v.split(/\n/)[0].trim();
+  return '';
+}
+
+function parseBon(t){
+  const ls=splitLines(t);
+  const totalLine=ls.find(l=>/total general|TOTAL GENERAL/i.test(l))||ls.find(l=>/\bTOTAL\b/i.test(l))||'';
+  const tvaLine=ls.find(l=>/\bT\.?V\.?A\.?\b/i.test(l)&&!/cod tva|nr tva/i.test(l))||'';
+  const total=(totalLine.match(/\d+[.,]\d{2}/g)||[]).map(n=>parseFloat(n.replace(',','.'))).filter(n=>n>0).reduce((a,b)=>Math.max(a,b),0);
+  const tva=(tvaLine.match(/\d+[.,]\d{2}/g)||[]).map(n=>parseFloat(n.replace(',','.'))).filter(n=>n>0).reduce((a,b)=>Math.min(a,b),Infinity);
+  const nrBon=t.match(/[Nn]r\.?\s*[Bb]on\s*[:\-]?\s*(\d+)/);
+  const supplier=ls.find(l=>/[a-zA-Z]{3}/.test(l)&&!/bon fiscal|casa de marcat|operator|nr\.\s*bon/i.test(l))||'';
+  return {date:parseDateFromText(t),docNr:nrBon?nrBon[1]:'',total:total?total.toFixed(2):'',vat:tva&&tva!==Infinity?tva.toFixed(2):'',vatRate:parseVATRate(t),supplier:supplier.trim(),customer:''};
+}
+
+function parseDocument(text,fileLabel,items){
+  const lang=detectLang(text);
+  const docType=detectDocType(text);
+  if(docType==='Bon fiscal'){
+    const b=parseBon(text);
+    return {docType,lang,supplier:b.supplier,customer:'',date:b.date,docNr:b.docNr,taxId:'',net:'',vatRate:b.vatRate,vat:b.vat,total:b.total};
+  }
+  const dateLine=lineByLabel(text,['Faktura','Bogføringsdato','Bogforingsdato','Data facturii','Data emiterii','Data','Date','Invoice date']);
+  const date=parseDate(dateLine)||parseDateFromText(text);
+  return {docType,lang,supplier:parseSupplier(text,lang,items),customer:parseCustomer(text,lang,items),date,docNr:parseDocNr(text,lang),taxId:parseTaxId(text),net:parseNet(text,lang),vatRate:parseVATRate(text),vat:parseVAT(text,lang),total:parseTotal(text,lang)};
+}
+
+// ── Render table ──────────────────────────────────────────────────────────────
+function getFilteredDocs(){
+  const ft=$('filterType').value;
+  const fd=$('filterDir').value;
+  const mode=$('reportMode').value;
+  let docs=mode==='single'&&extractedDocs[selectedDocIndex]?[extractedDocs[selectedDocIndex]]:extractedDocs.slice();
+  if(ft!=='all') docs=docs.filter(d=>d.docType===ft);
+  if(fd!=='all') docs=docs.filter(d=>d.direction===fd);
+  return docs;
+}
+
+function renderTable(){
+  const tbody=document.querySelector('#docsTable tbody');
+  tbody.innerHTML=extractedDocs.map((d,idx)=>{
+    const sel=idx===selectedDocIndex?' style="background:#eff6ff"':'';
+    const langC={DK:'badge-dk',RO:'badge-ro',EN:'badge-en','?':'badge-doc'}[d.lang]||'badge-doc';
+    const typeC=d.docType==='Bon fiscal'?'badge-bon':d.docType==='Factură'?'badge-ro':'badge-doc';
+    const dirC=d.direction==='emisa'?'badge-emisa':'badge-primita';
+    const dirLabel=d.direction==='emisa'?'Emisă':'Primită';
+    const cuiStatus=validateCUI(d.taxId);
+    const cuiC={valid:'badge-valid',invalid:'badge-invalid',necunoscut:'badge-unknown'}[cuiStatus]||'badge-unknown';
+    const cuiLabel={valid:'✓ Valid',invalid:'✗ Invalid',necunoscut:'—'}[cuiStatus]||'—';
+    return `<tr data-idx="${idx}"${sel}>
+      <td>${idx+1}</td>
+      <td style="max-width:120px;word-break:break-all;font-size:11px">${escH(d.fileLabel)}</td>
+      <td>${escH(d.sourceKind||'-')}</td>
+      <td><span class="badge ${typeC}">${escH(d.docType||'-')}</span></td>
+      <td><span class="badge ${langC}">${escH(d.lang||'?')}</span></td>
+      <td>
+        <select onchange="updateDoc(${idx},'direction',this.value)">
+          <option value="primita"${d.direction==='primita'?' selected':''}>📥 Primită</option>
+          <option value="emisa"${d.direction==='emisa'?' selected':''}>📤 Emisă</option>
+        </select>
+      </td>
+      <td><input type="text" value="${escH(d.supplier||'')}" onchange="updateDoc(${idx},'supplier',this.value)"/></td>
+      <td><input type="text" value="${escH(d.customer||'')}" onchange="updateDoc(${idx},'customer',this.value)"/></td>
+      <td><input type="text" value="${escH(d.date||'')}" onchange="updateDoc(${idx},'date',this.value)"/></td>
+      <td><input type="text" value="${escH(d.docNr||'')}" onchange="updateDoc(${idx},'docNr',this.value)"/></td>
+      <td><input type="text" value="${escH(d.taxId||'')}" onchange="updateDoc(${idx},'taxId',this.value)"/></td>
+      <td><span class="badge ${cuiC}">${cuiLabel}</span></td>
+      <td><input type="text" value="${escH(d.net||'')}" onchange="updateDoc(${idx},'net',this.value)"/></td>
+      <td>${escH(d.vatRate||'-')}</td>
+      <td><input type="text" value="${escH(d.vat||'')}" onchange="updateDoc(${idx},'vat',this.value)"/></td>
+      <td><input type="text" value="${escH(d.total||'')}" onchange="updateDoc(${idx},'total',this.value)"/></td>
+    </tr>`;
+  }).join('');
+  tbody.querySelectorAll('tr').forEach(tr=>tr.addEventListener('click',e=>{
+    if(e.target.tagName==='INPUT'||e.target.tagName==='SELECT') return;
+    selectedDocIndex=Number(tr.getAttribute('data-idx')||0);
+    renderTable();setStatus('document selectat: '+(selectedDocIndex+1));
+  }));
+}
+
+window.updateDoc=(idx,field,val)=>{
+  if(extractedDocs[idx]) extractedDocs[idx][field]=val;
+  updateTVA();updateMetrics();
+};
+
+function updateTVA(){
+  let recuperat=0,platit=0;
+  for(const d of extractedDocs){
+    const vat=Number(d.vat||0);
+    if(d.direction==='primita') recuperat+=vat;
+    else platit+=vat;
+  }
+  const neta=platit-recuperat;
+  $('tvaRecuperat').textContent=round2(recuperat);
+  $('tvaPlata').textContent=round2(platit);
+  $('tvaNeta').textContent=(neta>=0?'+':'')+round2(neta);
+  $('tvaNeta').style.color=neta>0?'#991b1b':neta<0?'#166534':'#1d4ed8';
+}
+
+function updateMetrics(){
+  const inv=extractedDocs.filter(d=>d.docType==='Factură').length;
+  const bon=extractedDocs.filter(d=>d.docType==='Bon fiscal').length;
+  const emise=extractedDocs.filter(d=>d.direction==='emisa').length;
+  const primite=extractedDocs.filter(d=>d.direction==='primita').length;
+  const totalAmt=extractedDocs.reduce((s,d)=>s+Number(d.total||0),0);
+  $('metricDocs').textContent=String(extractedDocs.length);
+  $('metricInvoices').textContent=String(inv);
+  $('metricBons').textContent=String(bon);
+  $('metricEmise').textContent=String(emise);
+  $('metricPrimite').textContent=String(primite);
+  $('metricAmount').textContent=round2(totalAmt);
+  $('summaryBox').textContent=[
+    'Documente: '+extractedDocs.length+' (facturi: '+inv+', bonuri: '+bon+')',
+    'Emise: '+emise+' | Primite: '+primite,
+    'Total sume: '+round2(totalAmt)
+  ].join('\n');
+}
+
+// ── File loading ──────────────────────────────────────────────────────────────
+async function loadFiles(event){
+  clearState();
+  const files=Array.from(event.target.files||[]);
+  if(!files.length){setStatus('nu ai selectat documente.');return;}
+  setStatus('încarc '+files.length+' fișier(e)...');
+  const grid=$('previewGrid');
+  for(const file of files){
+    const isPdf=/pdf$/i.test(file.name)||file.type==='application/pdf';
+    if(isPdf){
+      const pages=await renderPdfPages(file);
+      const textPages=await extractPdfLayout(file);
+      for(const page of pages){
+        const tp=textPages.find(x=>x.pageNo===page.pageNo);
+        filesState.push({fileName:file.name,label:file.name+' | p.'+page.pageNo,dataUrl:page.dataUrl,pageNo:page.pageNo,sourceType:'pdf-text',rawPdfText:tp?tp.text:'',rawItems:tp?tp.items:[]});
+        const card=document.createElement('div');
+        card.className='preview-card';
+        card.innerHTML=`<img src="${page.dataUrl}" alt="pdf"/><div class="small">${escH(file.name)} p.${page.pageNo}</div>`;
+        grid.appendChild(card);
+      }
+    } else {
+      const dataUrl=await fileToDataUrl(file);
+      filesState.push({fileName:file.name,label:file.name,dataUrl,pageNo:1,sourceType:'ocr-image',rawPdfText:'',rawItems:[]});
+      const card=document.createElement('div');card.className='preview-card';
+      card.innerHTML=`<img src="${dataUrl}" alt="img"/><div class="small">${escH(file.name)}</div>`;
+      grid.appendChild(card);
+    }
+  }
+  setStatus(filesState.length+' element(e) pregătite.');
+}
+
+// ── Extraction ────────────────────────────────────────────────────────────────
+async function runExtraction(){
+  if(!filesState.length){alert('Încarcă mai întâi imagini sau PDF-uri.');return;}
+  setStatus('procesez '+filesState.length+' element(e)...');
+  extractedDocs=[];selectedDocIndex=0;
+  const rawTexts=[];
+  for(let i=0;i<filesState.length;i++){
+    const item=filesState[i];
+    setStatus('procesez '+(i+1)+'/'+filesState.length+': '+item.label);
+    try{
+      let text='',sourceKind='';
+      if(item.sourceType==='pdf-text'){text=item.rawPdfText||'';sourceKind='PDF text';}
+      else{const result=await Tesseract.recognize(item.dataUrl,'ron+eng',{logger:()=>{}});text=result&&result.data&&result.data.text?result.data.text:'';sourceKind='OCR';}
+      rawTexts.push('--- '+item.label+' ['+sourceKind+'] ---\n'+text);
+      const parsed=parseDocument(text,item.label,item.rawItems||[]);
+      parsed.direction=detectDirection(parsed);
+      extractedDocs.push({...parsed,fileLabel:item.label,rawText:text,sourceKind});
+    }catch(err){
+      console.error(err);
+      extractedDocs.push({fileLabel:item.label,sourceKind:'Eroare',docType:'Document',lang:'?',direction:'primita',supplier:'',customer:'',date:'',docNr:'',taxId:'',net:'',vatRate:'',vat:'',total:'',rawText:''});
+    }
+  }
+  $('rawTextBox').textContent=rawTexts.join('\n\n');
+  renderTable();updateMetrics();updateTVA();setStatus('extracție finalizată — '+extractedDocs.length+' doc(e).');
+}
+
+// ── Report ────────────────────────────────────────────────────────────────────
+function generateReport(){
+  const docs=getFilteredDocs();
+  if(!docs.length){alert('Nu există documente.');return;}
+  const owner=$('ownerName').value.trim();
+  const note=$('reportNote').value.trim();
+  const totalAmt=docs.reduce((s,d)=>s+Number(d.total||0),0);
+  const tvaRec=docs.filter(d=>d.direction==='primita').reduce((s,d)=>s+Number(d.vat||0),0);
+  const tvaPl=docs.filter(d=>d.direction==='emisa').reduce((s,d)=>s+Number(d.vat||0),0);
+  const docLines=docs.map((d,i)=>[
+    '──────────────────────────────',
+    'Document #'+(i+1)+' | '+d.docType+' | '+d.lang+' | '+(d.direction==='emisa'?'EMISĂ':'PRIMITĂ'),
+    'Fișier: '+(d.fileLabel||'-'),
+    'Furnizor: '+(d.supplier||'-'),
+    'Client: '+(d.customer||'-'),
+    'Dată: '+(d.date||'-')+' | Nr.: '+(d.docNr||'-'),
+    'CUI/CVR/VAT: '+(d.taxId||'-')+' ['+(validateCUI(d.taxId))+']',
+    'Net: '+(d.net||'-')+' | TVA('+(d.vatRate||'?')+'): '+(d.vat||'-')+' | Total: '+(d.total||'-'),
+  ].join('\n')).join('\n\n');
+  $('reportBox').textContent=[
+    'REGISTRU FACTURI — '+( note||'—'),
+    'Firma: '+(owner||'-'),
+    '',
+    'Documente: '+docs.length+' | Total: '+round2(totalAmt),
+    'TVA de recuperat (primite): '+round2(tvaRec),
+    'TVA de plătit (emise): '+round2(tvaPl),
+    'TVA net (de plătit la stat): '+round2(tvaPl-tvaRec),
+    '',
+    docLines
+  ].join('\n');
+  setStatus('raport generat.');
+}
+
+// ── Excel Export ──────────────────────────────────────────────────────────────
+function exportExcel(){
+  const docs=extractedDocs;
+  if(!docs.length){alert('Nu există documente de exportat.');return;}
+  const owner=$('ownerName').value.trim()||'Firma';
+  const note=$('reportNote').value.trim()||'Export';
+  const wb=XLSX.utils.book_new();
+
+  // Sheet 1: Registru complet
+  const headers=['#','Fișier','Sursă','Tip','Limbă','Direcție','Furnizor','Client','Dată','Nr. document','CUI/CVR/VAT','Validare CUI','Net','TVA%','TVA','Total'];
+  const rows=docs.map((d,i)=>[
+    i+1,d.fileLabel,d.sourceKind||'',d.docType||'',d.lang||'',
+    d.direction==='emisa'?'Emisă':'Primită',
+    d.supplier||'',d.customer||'',d.date||'',d.docNr||'',d.taxId||'',
+    validateCUI(d.taxId),
+    Number(d.net)||'',d.vatRate||'',Number(d.vat)||'',Number(d.total)||''
+  ]);
+  const ws1=XLSX.utils.aoa_to_sheet([headers,...rows]);
+  ws1['!cols']=[{wch:4},{wch:25},{wch:8},{wch:10},{wch:6},{wch:10},{wch:25},{wch:25},{wch:12},{wch:14},{wch:14},{wch:12},{wch:10},{wch:6},{wch:10},{wch:10}];
+  XLSX.utils.book_append_sheet(wb,ws1,'Registru complet');
+
+  // Sheet 2: Facturi primite
+  const primite=docs.filter(d=>d.direction==='primita');
+  const ws2=XLSX.utils.aoa_to_sheet([headers,...primite.map((d,i)=>[i+1,d.fileLabel,d.sourceKind||'',d.docType||'',d.lang||'','Primită',d.supplier||'',d.customer||'',d.date||'',d.docNr||'',d.taxId||'',validateCUI(d.taxId),Number(d.net)||'',d.vatRate||'',Number(d.vat)||'',Number(d.total)||''])]);
+  ws2['!cols']=ws1['!cols'];
+  XLSX.utils.book_append_sheet(wb,ws2,'Facturi primite');
+
+  // Sheet 3: Facturi emise
+  const emise=docs.filter(d=>d.direction==='emisa');
+  const ws3=XLSX.utils.aoa_to_sheet([headers,...emise.map((d,i)=>[i+1,d.fileLabel,d.sourceKind||'',d.docType||'',d.lang||'','Emisă',d.supplier||'',d.customer||'',d.date||'',d.docNr||'',d.taxId||'',validateCUI(d.taxId),Number(d.net)||'',d.vatRate||'',Number(d.vat)||'',Number(d.total)||''])]);
+  ws3['!cols']=ws1['!cols'];
+  XLSX.utils.book_append_sheet(wb,ws3,'Facturi emise');
+
+  // Sheet 4: Situatie TVA
+  const tvaRec=primite.reduce((s,d)=>s+Number(d.vat||0),0);
+  const tvaPl=emise.reduce((s,d)=>s+Number(d.vat||0),0);
+  const tvaNet=tvaPl-tvaRec;
+  const ws4=XLSX.utils.aoa_to_sheet([
+    ['SITUAȚIE TVA — '+note],['Firma:',owner],[''],
+    ['','TVA de recuperat (facturi primite):',round2(tvaRec)],
+    ['','TVA de plătit (facturi emise):',round2(tvaPl)],
+    ['','TVA net (de plătit la stat):',round2(tvaNet)],
+    [''],
+    ['Detaliu facturi primite (TVA recuperabil):'],
+    ['Nr.','Furnizor','Dată','Nr. doc.','TVA'],
+    ...primite.map((d,i)=>[i+1,d.supplier||'',d.date||'',d.docNr||'',Number(d.vat)||'']),
+    ['','','','TOTAL TVA RECUPERABIL:',round2(tvaRec)],
+    [''],
+    ['Detaliu facturi emise (TVA colectat):'],
+    ['Nr.','Client','Dată','Nr. doc.','TVA'],
+    ...emise.map((d,i)=>[i+1,d.customer||'',d.date||'',d.docNr||'',Number(d.vat)||'']),
+    ['','','','TOTAL TVA COLECTAT:',round2(tvaPl)],
+  ]);
+  ws4['!cols']=[{wch:4},{wch:30},{wch:15},{wch:15},{wch:12}];
+  XLSX.utils.book_append_sheet(wb,ws4,'Situatie TVA');
+
+  XLSX.writeFile(wb,'registru_facturi_'+note.replace(/\s+/g,'_')+'.xlsx');
+  setStatus('Excel exportat cu succes!');
+}
+
+// ── Downloads ─────────────────────────────────────────────────────────────────
+function downloadTxt(){
+  const r=$('reportBox').textContent.trim();
+  if(!r||r.startsWith('Apasă')){alert('Generează mai întâi raportul.');return;}
+  const a=Object.assign(document.createElement('a'),{href:URL.createObjectURL(new Blob([r],{type:'text/plain;charset=utf-8'})),download:'registru_facturi.txt'});
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+}
+
+function downloadCsv(){
+  const docs=extractedDocs;
+  if(!docs.length){alert('Nu există documente.');return;}
+  const headers=['file','source','type','lang','direction','supplier','customer','date','docNr','taxId','cuiValidation','net','vatRate','vat','total'];
+  const rows=docs.map(d=>[d.fileLabel||'',d.sourceKind||'',d.docType||'',d.lang||'',d.direction||'',d.supplier||'',d.customer||'',d.date||'',d.docNr||'',d.taxId||'',validateCUI(d.taxId),d.net||'',d.vatRate||'',d.vat||'',d.total||''].map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(','));
+  const a=Object.assign(document.createElement('a'),{href:URL.createObjectURL(new Blob([[headers.join(',')].concat(rows).join('\n')],{type:'text/csv;charset=utf-8'})),download:'registru_facturi.csv'});
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+}
+
+// ── Events ────────────────────────────────────────────────────────────────────
+$('docFiles').addEventListener('change',loadFiles);
+$('btnExtract').addEventListener('click',runExtraction);
+$('btnReport').addEventListener('click',generateReport);
+$('btnExcel').addEventListener('click',exportExcel);
+$('btnTxt').addEventListener('click',downloadTxt);
+$('btnCsv').addEventListener('click',downloadCsv);
+$('btnPrint').addEventListener('click',()=>window.print());
+$('btnDebug').addEventListener('click',()=>{
+  if(!extractedDocs.length){alert('Extrage mai întâi documentele.');return;}
+  const doc=extractedDocs[selectedDocIndex]||extractedDocs[0];
+  const numbered=splitLines(doc.rawText||'').map((l,i)=>(i+1)+': '+l).join('\n');
+  $('rawTextBox').textContent='=== DEBUG ['+doc.fileLabel+'] ===\nLimbă: '+doc.lang+' | Tip: '+doc.docType+' | Direcție: '+doc.direction+'\nValidare CUI: '+validateCUI(doc.taxId)+'\n\n'+numbered;
+  setStatus('debug afișat');
+});
+$('btnClear').addEventListener('click',()=>{$('docFiles').value='';clearState();setStatus('curățat.');});
+['filterType','filterDir','reportMode'].forEach(id=>$(id).addEventListener('change',renderTable));
+$('ownerName').addEventListener('change',()=>{extractedDocs.forEach(d=>d.direction=detectDirection(d));renderTable();updateMetrics();updateTVA();});
+$('ownerCui').addEventListener('change',()=>{extractedDocs.forEach(d=>d.direction=detectDirection(d));renderTable();updateMetrics();updateTVA();});
+
+clearState();setStatus('pregătit — v9 Contabilitate: DK · RO · EN · Bon · OCR · Excel · TVA · CUI');
+</script>
+</body>
+</html>
