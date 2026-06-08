@@ -441,7 +441,7 @@
       <div id="simulatorTab" class="panel tab-active">
         <div class="sim-header">
           <h1>Simulator coeziv de transfer al oxigenului</h1>
-          <p>v1.4 – efort + oxigenoterapie + șunt + factor apă interfațională f<sub>IW</sub>. Model integrat pentru uz educațional.</p>
+          <p>v1.4 – efort + oxigenoterapie + șunt + factor apă interfacială f<sub>IW</sub>. Model integrat pentru uz educațional.</p>
         </div>
 
         <div class="sim-main">
@@ -524,7 +524,7 @@
               </div>
             </div>
 
-            <div class="section-title">3b. Factor apă interfațională (f<sub>IW</sub>)</div>
+            <div class="section-title">3b. Factor apă interfacială (f<sub>IW</sub>)</div>
             <div class="grid-3">
               <div class="field">
                 <label for="fiwRange">f<sub>IW</sub> (slider)</label>
@@ -539,7 +539,7 @@
               <div class="field">
                 <label>Notă</label>
                 <div class="units">
-                  f<sub>IW</sub> modula DL: valori &gt;1 cresc DL efectiv, &lt;1 îl reduc (inflamație, dezorganizare interfață).
+                  f<sub>IW</sub> modulează DL: valori &gt;1 cresc DL efectiv, &lt;1 îl reduc (inflamație, dezorganizare interfață).
                 </div>
               </div>
             </div>
@@ -688,13 +688,13 @@
             </div>
 
             <div class="section-block">
-              <div class="section-title">4. Difuziune (DL geometric + factor apă interfațională f<sub>IW</sub>)</div>
+              <div class="section-title">4. Difuziune (DL geometric + factor apă interfacială f<sub>IW</sub>)</div>
               <div class="result-row">
                 <div class="result-label">DL clasic (geometric, intrare)</div>
                 <div class="result-value" id="resDLclassic">–</div>
               </div>
               <div class="result-row">
-                <div class="result-label">f<sub>IW</sub> (factor apă interfațională)</div>
+                <div class="result-label">f<sub>IW</sub> (factor apă interfacială)</div>
                 <div class="result-value" id="resFIW">–</div>
               </div>
               <div class="result-row">
@@ -744,7 +744,7 @@
             </div>
 
             <div class="note">
-              Heuristică: VO₂/DO₂ ≈ 0.25 în repaus, până spre 0.4 la efort; VO₂/VO₂_max_diff &lt; 0.5 sugerează rezervă bună de difuziune; Qs/Qt &gt; 20% sub FiO₂ crescută indică șunt semnificativ (ex. ARDS, pneumonie, edem sever). f<sub>IW</sub> modula DL geometric: &lt;1 = dezorganizare interfațială, &gt;1 = organizare coezivă eficientă.
+              Heuristică: VO₂/DO₂ ≈ 0.25 în repaus, până spre 0.4 la efort; VO₂/VO₂_max_diff &lt; 0.5 sugerează rezervă bună de difuziune; Qs/Qt &gt; 20% sub FiO₂ crescută indică șunt semnificativ (ex. ARDS, pneumonie, edem sever). f<sub>IW</sub> modulează DL geometric: &lt;1 = dezorganizare interfacială, &gt;1 = organizare coezivă eficientă.
             </div>
           </section>
         </div>
@@ -766,7 +766,7 @@
             <ul>
               <li>ventilația alveolară;</li>
               <li>difuziunea prin membrana alveolo-capilară (DL, componentă geometrică);</li>
-              <li>un factor suplimentar de apă interfațională f<sub>IW</sub> care modulează DL funcțional;</li>
+              <li>un factor suplimentar de apă interfacială f<sub>IW</sub> care modulează DL funcțional;</li>
               <li>transportul oxigenului prin circulație (Fick circulator);</li>
               <li>relația hemoglobină–oxigen (curba Hill);</li>
               <li>extracția tisulară globală (VO₂/DO₂);</li>
@@ -778,7 +778,7 @@
             <ul>
               <li>înțelegerea mecanismelor hipoxemiei (cauză mecanică, nu doar valoare);</li>
               <li>analiza diferențială între difuziune, V/Q mismatch, șunt, anemie și limitare circulatorie;</li>
-              <li>explorarea rolului apei interfațiale ca modulator al DL funcțional;</li>
+              <li>explorarea rolului apei interfaciale ca modulator al DL funcțional;</li>
               <li>predare, training și discuții de caz;</li>
               <li>simularea scenariilor de efort, oxigenoterapie, boală pulmonară sau cardiacă.</li>
             </ul>
@@ -834,7 +834,7 @@
               DL<sub>clasic</sub> = (A / T) × D
             </div>
             <p>unde A este suprafața, T grosimea barierei, D coeficientul de difuziune al O₂ în apă.</p>
-            <p>Modelul extins introduce un factor f<sub>IW</sub> al apei interfațiale:</p>
+            <p>Modelul extins introduce un factor f<sub>IW</sub> al apei interfaciale:</p>
             <div class="formula">
               DL<sub>efectiv</sub> = DL<sub>clasic</sub> × f<sub>IW</sub>
             </div>
@@ -843,8 +843,8 @@
               VO₂<sup>max dif</sup> = DL<sub>efectiv</sub> × (PAO₂ − PvO₂)
             </div>
             <p>
-              f<sub>IW</sub> agregă efectele posibile ale apei interfațiale asupra mobilității (D), distanței efective (T) și căilor preferențiale
-              de migrație pentru O₂. f<sub>IW</sub> = 1 corespunde DL pur geometric; valori &lt;1 reduc DL funcțional (dezorganizare interfațială),
+              f<sub>IW</sub> agregă efectele posibile ale apei interfaciale asupra mobilității (D), distanței efective (T) și căilor preferențiale
+              de migrație pentru O₂. f<sub>IW</sub> = 1 corespunde DL pur geometric; valori &lt;1 reduc DL funcțional (dezorganizare interfacială),
               valori &gt;1 îl cresc (organizare coezivă).
             </p>
 
@@ -873,7 +873,7 @@
               <li><strong>Q</strong> (debit cardiac, L/min);</li>
               <li><strong>VO₂</strong> (consum de oxigen, ml/min; dacă lipsește și există greutate, se estimează din MET-uri);</li>
               <li><strong>DL</strong> clasic (ml/min/mmHg, capacitate difuzională geometrică pentru O₂);</li>
-              <li><strong>f<sub>IW</sub></strong> (factor de modulare interfațională a DL);</li>
+              <li><strong>f<sub>IW</sub></strong> (factor de modulare interfacială a DL);</li>
               <li><strong>Greutate</strong> (kg, pentru estimarea VO₂ în funcție de efort);</li>
               <li><strong>Parametrii curbei Hill</strong>:
                 <ul>
@@ -885,7 +885,7 @@
             <p>
               Opțiunea „plămân structural normal” stabilește dacă DL geometric crește fiziologic la efort (normal) sau rămâne constant
               (fibroză, ARDS, edem alveolar semnificativ). f<sub>IW</sub> poate varia independent, sugerând modificări rapide ale apei
-              interfațiale (inflamație, reorganizare).
+              interfaciale (inflamație, reorganizare).
             </p>
           </section>
 
@@ -903,7 +903,7 @@
             <p>
               În bolile interstițiale, bifarea plămânului ca „nesănătos structural” <strong>blochează creșterea DL geometric la efort</strong>, ceea ce reproduce
               desaturarea la efort din fibroză: DO₂ crește, VO₂ crește, dar DL rămâne mic și devine limitant. f<sub>IW</sub> permite explorarea
-              ipotezei că apa interfațională poate modula suplimentar DL funcțional (de exemplu, scădere în inflamație acută).
+              ipotezei că apa interfacială poate modula suplimentar DL funcțional (de exemplu, scădere în inflamație acută).
             </p>
           </section>
 
@@ -953,7 +953,7 @@
             <h3>5.5. Difuziunea (DL + f<sub>IW</sub>)</h3>
             <ul>
               <li><strong>DL clasic</strong> – derivat din anatomie și parametrii geometrici;</li>
-              <li><strong>f<sub>IW</sub></strong> – factor de modulare al apei interfațiale;</li>
+              <li><strong>f<sub>IW</sub></strong> – factor de modulare al apei interfaciale;</li>
               <li><strong>DL efectiv</strong> = DL<sub>clasic</sub> × f<sub>IW</sub>;</li>
               <li><strong>VO₂<sup>max dif</sup></strong> – fluxul maxim difuzabil (ml/min);</li>
               <li><strong>VO₂/VO₂<sup>max dif</sup></strong> – proporția din capacitatea difuzională utilizată.</li>
@@ -1012,7 +1012,7 @@
             </ul>
             <p>
               DL efectiv devine limitant; simulatorul marchează „DL limitant” și indică risc difuzional ridicat. f<sub>IW</sub> poate explora
-              ipoteza unei reduceri suplimentare a DL prin dezorganizarea apei interfațiale în inflamație.
+              ipoteza unei reduceri suplimentare a DL prin dezorganizarea apei interfaciale în inflamație.
             </p>
 
             <h3>6.3. BPOC</h3>
@@ -1138,7 +1138,7 @@
               <li>un model coerent al întregului traseu al O₂: alveolă → membrană → sânge → inimă → țesuturi;</li>
               <li>separarea mecanică a cauzelor hipoxiei: ventilatorie, difuzională, perfuzională, de transport;</li>
               <li>posibilitatea de a simula efort, anemie, boală pulmonară, șoc;</li>
-              <li>un parametru suplimentar f<sub>IW</sub> pentru a explora rolul apei interfațiale în DL funcțional;</li>
+              <li>un parametru suplimentar f<sub>IW</sub> pentru a explora rolul apei interfaciale în DL funcțional;</li>
               <li>interpretări automate bazate pe praguri fiziologice documentate.</li>
             </ul>
             <p>
