@@ -3,6 +3,9 @@ package app.coeziv.medic;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.view.Gravity;
 import android.view.View;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
@@ -10,10 +13,14 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 public class MainActivity extends Activity {
     private WebView webView;
+    private LinearLayout splash;
+    private boolean pageLoaded = false;
+    private boolean splashMinimumShown = false;
 
     @SuppressLint("SetJavaScriptEnabled")
     @Override
@@ -23,12 +30,7 @@ public class MainActivity extends Activity {
         FrameLayout root = new FrameLayout(this);
         root.setBackgroundColor(0xFF0F172A);
 
-        TextView splash = new TextView(this);
-        splash.setText("COEZIV Medic\nSimulator O₂ & Apă Interfacială");
-        splash.setTextColor(0xFFFFFFFF);
-        splash.setTextSize(20);
-        splash.setGravity(android.view.Gravity.CENTER);
-        splash.setLineSpacing(6f, 1f);
+        splash = buildSplashView();
         root.addView(splash, new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT,
                 FrameLayout.LayoutParams.MATCH_PARENT
@@ -42,6 +44,11 @@ public class MainActivity extends Activity {
         ));
 
         setContentView(root);
+
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            splashMinimumShown = true;
+            revealAppIfReady();
+        }, 1900);
 
         WebSettings settings = webView.getSettings();
         settings.setJavaScriptEnabled(true);
@@ -68,12 +75,69 @@ public class MainActivity extends Activity {
             @Override
             public void onPageFinished(WebView view, String url) {
                 injectMobileOptimizations(view);
-                webView.setVisibility(View.VISIBLE);
-                splash.setVisibility(View.GONE);
+                pageLoaded = true;
+                revealAppIfReady();
             }
         });
 
         webView.loadUrl("file:///android_asset/simulator_medic_premium_apa.html");
+    }
+
+    private LinearLayout buildSplashView() {
+        LinearLayout container = new LinearLayout(this);
+        container.setOrientation(LinearLayout.VERTICAL);
+        container.setGravity(Gravity.CENTER);
+        container.setPadding(48, 48, 48, 48);
+        container.setBackgroundColor(0xFF0F172A);
+
+        TextView symbol = new TextView(this);
+        symbol.setText("◎");
+        symbol.setTextColor(0xFF93C5FD);
+        symbol.setTextSize(64);
+        symbol.setGravity(Gravity.CENTER);
+        container.addView(symbol);
+
+        TextView title = new TextView(this);
+        title.setText("COEZIV Medic");
+        title.setTextColor(0xFFFFFFFF);
+        title.setTextSize(28);
+        title.setGravity(Gravity.CENTER);
+        title.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
+        container.addView(title);
+
+        TextView subtitle = new TextView(this);
+        subtitle.setText("Simulator O₂ & Apă Interfacială");
+        subtitle.setTextColor(0xFFBFDBFE);
+        subtitle.setTextSize(16);
+        subtitle.setGravity(Gravity.CENTER);
+        subtitle.setPadding(0, 10, 0, 0);
+        container.addView(subtitle);
+
+        TextView motto = new TextView(this);
+        motto.setText("Respirație • Difuzie • Coerență");
+        motto.setTextColor(0xFFE0F2FE);
+        motto.setTextSize(14);
+        motto.setGravity(Gravity.CENTER);
+        motto.setPadding(0, 28, 0, 0);
+        container.addView(motto);
+
+        TextView loading = new TextView(this);
+        loading.setText("Se activează modelul coeziv…");
+        loading.setTextColor(0xFF94A3B8);
+        loading.setTextSize(13);
+        loading.setGravity(Gravity.CENTER);
+        loading.setPadding(0, 34, 0, 0);
+        container.addView(loading);
+
+        return container;
+    }
+
+    private void revealAppIfReady() {
+        if (!pageLoaded || !splashMinimumShown || webView == null || splash == null) return;
+        webView.setAlpha(0f);
+        webView.setVisibility(View.VISIBLE);
+        webView.animate().alpha(1f).setDuration(450).start();
+        splash.animate().alpha(0f).setDuration(450).withEndAction(() -> splash.setVisibility(View.GONE)).start();
     }
 
     private void injectMobileOptimizations(WebView view) {
