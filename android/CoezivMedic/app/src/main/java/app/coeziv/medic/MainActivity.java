@@ -29,6 +29,8 @@ public class MainActivity extends Activity {
 
         FrameLayout root = new FrameLayout(this);
         root.setBackgroundColor(0xFF0F172A);
+        root.setPadding(0, getSystemBarHeight("status_bar_height"), 0, getSystemBarHeight("navigation_bar_height"));
+        root.setClipToPadding(false);
 
         splash = buildSplashView();
         root.addView(splash, new FrameLayout.LayoutParams(
@@ -81,6 +83,14 @@ public class MainActivity extends Activity {
         });
 
         webView.loadUrl("file:///android_asset/simulator_medic_premium_apa.html");
+    }
+
+    private int getSystemBarHeight(String resourceName) {
+        int resourceId = getResources().getIdentifier(resourceName, "dimen", "android");
+        if (resourceId > 0) {
+            return getResources().getDimensionPixelSize(resourceId);
+        }
+        return 0;
     }
 
     private LinearLayout buildSplashView() {
@@ -147,12 +157,12 @@ public class MainActivity extends Activity {
                 "m.content='width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover';" +
                 "var s=document.createElement('style');" +
                 "s.innerHTML='html{background:#eef2f7!important;}' +" +
-                "'body{height:auto!important;min-height:100vh!important;overflow:auto!important;display:block!important;padding:0 0 140px 0!important;background:#eef2f7!important;letter-spacing:0!important;}'+" +
+                "'body{height:auto!important;min-height:100vh!important;overflow:auto!important;display:block!important;padding:0 0 38px 0!important;background:#eef2f7!important;letter-spacing:0!important;}'+" +
                 "'.sidebar{position:relative!important;top:auto!important;z-index:1!important;width:100%!important;display:flex!important;flex-direction:row!important;gap:.5rem!important;overflow-x:auto!important;padding:.55rem .7rem!important;background:#0f172a!important;box-shadow:0 2px 10px rgba(0,0,0,.18)!important;box-sizing:border-box!important;}'+" +
                 "'.sidebar h2{display:none!important}.side-btn{white-space:nowrap!important;margin:0!important;min-width:max-content!important;border-radius:10px!important;padding:.55rem .8rem!important;font-size:.96rem!important;letter-spacing:0!important;}'+" +
-                "'.main-area{display:block!important;overflow:visible!important;width:100%!important;background:#eef2f7!important;padding-bottom:90px!important;}'+" +
+                "'.main-area{display:block!important;overflow:visible!important;width:100%!important;background:#eef2f7!important;padding-bottom:22px!important;}'+" +
                 "'.topbar{display:none!important;}'+" +
-                "'.content-wrap{padding:.7rem .7rem 110px .7rem!important;box-sizing:border-box!important;}'+" +
+                "'.content-wrap{padding:.7rem .7rem 48px .7rem!important;box-sizing:border-box!important;}'+" +
                 "'.panel{border-radius:12px!important;padding:.95rem!important;margin:0 0 1rem!important;max-width:none!important;box-shadow:0 2px 10px rgba(15,23,42,.08)!important;}'+" +
                 "'#simulatorTab .sim-header{padding-bottom:.65rem!important;margin-bottom:.8rem!important;}'+" +
                 "'#simulatorTab .sim-header h1,#manualTab .manual-header h1{font-size:1.14rem!important;line-height:1.25!important;letter-spacing:0!important;}'+" +
@@ -161,8 +171,9 @@ public class MainActivity extends Activity {
                 "'#simulatorTab .card{padding:.9rem!important;border-radius:12px!important;box-shadow:none!important;}'+" +
                 "'#simulatorTab .grid-2,#simulatorTab .grid-3{grid-template-columns:1fr!important;gap:.55rem!important;}'+" +
                 "'#simulatorTab label{font-size:.9rem!important;letter-spacing:0!important;}#simulatorTab .units{font-size:.78rem!important;line-height:1.25!important;letter-spacing:0!important;}'+" +
-                "'#simulatorTab .result-row{align-items:flex-start!important;gap:.5rem!important;}'+" +
-                "'#simulatorTab .result-value{white-space:normal!important;text-align:right!important;max-width:48%!important;letter-spacing:0!important;}'+" +
+                "'#simulatorTab .result-row{display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:.18rem!important;padding:.42rem 0!important;}'+" +
+                "'#simulatorTab .result-label{width:100%!important;color:#4b5563!important;}'+" +
+                "'#simulatorTab .result-value{width:100%!important;max-width:100%!important;white-space:normal!important;text-align:left!important;line-height:1.28!important;letter-spacing:0!important;}'+" +
                 "'#manualTab .manual-main{max-width:none!important;}#manualTab p,#manualTab ul,#manualTab ol,#manualTab li{font-size:.92rem!important;line-height:1.35!important;letter-spacing:0!important;}'+" +
                 "'#manualTab table{display:block!important;overflow-x:auto!important;white-space:nowrap!important;}'+" +
                 "'input,select,button{font-size:16px!important;letter-spacing:0!important;}'+" +
