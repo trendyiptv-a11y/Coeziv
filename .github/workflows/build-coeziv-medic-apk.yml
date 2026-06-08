@@ -1,0 +1,44 @@
+name: Build COEZIV Medic APK
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "Viul/simulator_medic_premium_apa.html"
+      - "android/CoezivMedic/**"
+      - ".github/workflows/build-coeziv-medic-apk.yml"
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Copy simulator into Android assets
+        run: |
+          mkdir -p android/CoezivMedic/app/src/main/assets
+          cp Viul/simulator_medic_premium_apa.html android/CoezivMedic/app/src/main/assets/simulator_medic_premium_apa.html
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Build debug APK
+        working-directory: android/CoezivMedic
+        run: gradle --no-daemon assembleDebug
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: COEZIV-Medic-v0.1.0-debug-apk
+          path: android/CoezivMedic/app/build/outputs/apk/debug/app-debug.apk
