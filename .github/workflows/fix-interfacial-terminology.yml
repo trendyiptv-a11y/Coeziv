@@ -1,0 +1,59 @@
+name: Fix interfacial terminology
+
+on:
+  push:
+    paths:
+      - ".github/workflows/fix-interfacial-terminology.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  fix-terminology:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+
+      - name: Correct Romanian terminology in simulator
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          path = Path("Viul/simulator_medic_premium_apa.html")
+          text = path.read_text(encoding="utf-8")
+
+          replacements = {
+              "apă interfațională": "apă interfacială",
+              "apei interfațiale": "apei interfaciale",
+              "apa interfațională": "apa interfacială",
+              "apă interfațială": "apă interfacială",
+              "interfațională": "interfacială",
+              "interfațială": "interfacială",
+              "interfațiale": "interfaciale",
+              "interfaţială": "interfacială",
+              "interfaţiale": "interfaciale",
+              "fIW modula": "fIW modulează",
+              "f<sub>IW</sub> modula": "f<sub>IW</sub> modulează",
+          }
+
+          for old, new in replacements.items():
+              text = text.replace(old, new)
+
+          path.write_text(text, encoding="utf-8")
+          PY
+
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Viul/simulator_medic_premium_apa.html
+          if git diff --cached --quiet; then
+            echo "No terminology changes needed."
+          else
+            git commit -m "Corectează terminologia apei interfaciale"
+            git push
+          fi
