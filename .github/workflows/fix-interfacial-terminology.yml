@@ -57,3 +57,5 @@ jobs:
             git commit -m "Corectează terminologia apei interfaciale"
             git push
           fi
+
+# trigger: 2026-06-08-terminologie-interfaciala
