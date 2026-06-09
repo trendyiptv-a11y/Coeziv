@@ -1,0 +1,49 @@
+name: Fix O2Flux mobile responsive layout
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/fix-o2flux-mobile-responsive.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  patch-responsive:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+
+      - name: Patch mobile CSS
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          path = Path("Viul/simulator_medic_premium_apa.html")
+          text = path.read_text(encoding="utf-8")
+
+          old = """@media (max-width:820px){header{padding:.65rem .9rem;gap:.5rem;position:relative;top:auto}.logo{font-size:1rem}.nav-btn{padding:.3rem .55rem;font-size:.7rem;letter-spacing:.02em}body{overflow-x:hidden}.app-body{height:auto;overflow:visible;flex-direction:column}.panel.active{overflow:visible;height:auto;flex-direction:column}#simPanel{flex-direction:column;overflow:visible;height:auto}.sim-left{width:100%;min-width:0;border-right:none;border-bottom:1px solid var(--border);max-height:none}.inputs-scroll{overflow:visible;max-height:none}.section-group-header{position:relative;top:auto}.sim-right{overflow:visible;height:auto}.results-area{padding:.9rem}.pathway{padding:.65rem .75rem;overflow-x:auto;flex-wrap:nowrap}.pathway-step{min-width:58px}.pathway-val{font-size:.72rem}.pathway-label{font-size:.52rem}.pathway-arrow{min-width:14px;font-size:.65rem}.big-metric-row{gap:.9rem}.big-stat-val{font-size:1.35rem}.results-grid{grid-template-columns:1fr}.results-header{flex-wrap:wrap;gap:.3rem}.field-row,.field-row.col3{grid-template-columns:1fr 1fr!important}.field-row.col1{grid-template-columns:1fr!important}.manual-wrap{padding:1.25rem 1rem 3rem;max-width:100%;overflow-x:hidden}.manual-title{font-size:1.3rem}.formula-block{font-size:.72rem;overflow-x:auto;white-space:pre;word-break:normal}.manual-wrap table{display:block;overflow-x:auto}.res-row{flex-direction:column;align-items:stretch;gap:.15rem}.res-row-val{white-space:normal}.preset-grid{grid-template-columns:1fr 1fr}}"""
+
+          new = """@media (max-width:820px){html,body{width:100%!important;max-width:100%!important;overflow-x:hidden!important}header{padding:.55rem .7rem;gap:.45rem;position:relative;top:auto;width:100%;max-width:100%;overflow-x:auto;overflow-y:hidden;align-items:center;flex-wrap:nowrap;-webkit-overflow-scrolling:touch}.logo{font-size:.92rem;line-height:1.15;flex:0 0 auto;white-space:nowrap}.header-nav{margin-left:0;display:flex;gap:.35rem;flex:0 0 auto}.nav-btn{padding:.44rem .62rem;font-size:.72rem;letter-spacing:.01em;white-space:nowrap;flex:0 0 auto}body{overflow-x:hidden}.app-body{height:auto;overflow:visible;flex-direction:column;width:100%;max-width:100%}.panel.active{overflow:visible;height:auto;flex-direction:column;width:100%;max-width:100%}#simPanel{flex-direction:column;overflow:visible;height:auto}.sim-left{width:100%;min-width:0;border-right:none;border-bottom:1px solid var(--border);max-height:none}.inputs-scroll{overflow:visible;max-height:none}.section-group-header{position:relative;top:auto;padding:.8rem .9rem .6rem}.group-title{font-size:.8rem;line-height:1.2}.group-body{padding:.75rem .9rem 1rem}.sim-right{overflow:visible;height:auto}.results-area{padding:.75rem}.pathway{padding:.65rem .75rem;overflow-x:auto;flex-wrap:nowrap}.pathway-step{min-width:58px}.pathway-val{font-size:.72rem}.pathway-label{font-size:.52rem}.pathway-arrow{min-width:14px;font-size:.65rem}.big-metric-row{gap:.9rem}.big-stat-val{font-size:1.35rem}.results-grid{grid-template-columns:1fr}.results-header{flex-wrap:wrap;gap:.3rem}.field-row,.field-row.col3,.field-row.col1{grid-template-columns:1fr!important;gap:.55rem!important}.field{min-width:0}.field label{font-size:.82rem}.hint{font-size:.72rem}.field input[type=number],.field input[type=text],.field select{font-size:16px!important;padding:.5rem .58rem!important;min-height:46px;letter-spacing:0!important}.manual-wrap{padding:1.25rem 1rem 3rem;max-width:100%;overflow-x:hidden}.manual-title{font-size:1.3rem}.formula-block{font-size:.72rem;overflow-x:auto;white-space:pre;word-break:normal}.manual-wrap table{display:block;overflow-x:auto}.res-row{flex-direction:column;align-items:stretch;gap:.15rem}.res-row-val{white-space:normal}.preset-grid{grid-template-columns:1fr!important}.action-bar{padding:.75rem .9rem}.calc-btn{width:100%}}"""
+
+          if old not in text:
+              raise SystemExit("Target mobile media block not found; no changes applied.")
+          text = text.replace(old, new)
+          path.write_text(text, encoding="utf-8")
+          PY
+
+      - name: Commit responsive fix
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Viul/simulator_medic_premium_apa.html
+          if git diff --cached --quiet; then
+            echo "No responsive changes needed."
+          else
+            git commit -m "Fix O2Flux mobile responsive layout"
+            git push
+          fi
