@@ -59,6 +59,10 @@ def fetch_series_yahoo(symbol: str, start: str) -> pd.DataFrame:
     if data is None or data.empty:
         raise RuntimeError(f"Nu am primit date pentru simbolul '{symbol}'")
 
+    # yfinance poate returna coloane MultiIndex în versiunile noi.
+    if isinstance(data.columns, pd.MultiIndex):
+        data.columns = data.columns.get_level_values(0)
+
     # Folosim coloana Close
     if "Close" not in data.columns:
         raise RuntimeError(f"Răspunsul pentru '{symbol}' nu are coloana 'Close'")
@@ -66,16 +70,24 @@ def fetch_series_yahoo(symbol: str, start: str) -> pd.DataFrame:
     df = data[["Close"]].copy()
     df.rename(columns={"Close": "close"}, inplace=True)
 
-    # Indexul este data; îl transformăm în timestamp ms
+    # Indexul este data; îl transformăm în timestamp ms.
     df.index = pd.to_datetime(df.index, utc=True)
     df.reset_index(inplace=True)
-    df.rename(columns={"Date": "date"}, inplace=True)
+    if "Date" in df.columns:
+        df.rename(columns={"Date": "date"}, inplace=True)
+    elif "Datetime" in df.columns:
+        df.rename(columns={"Datetime": "date"}, inplace=True)
+    else:
+        first_col = df.columns[0]
+        df.rename(columns={first_col: "date"}, inplace=True)
 
-    # timestamp în milisecunde
-    df["timestamp"] = (df["date"].view("int64") // 10**6).astype("int64")
+    # Compatibil cu pandas 2.x și 3.x: Series.view("int64") nu mai este sigur.
+    df["timestamp"] = (pd.to_datetime(df["date"], utc=True).astype("int64") // 10**6).astype("int64")
 
     # Păstrăm doar ce ne interesează
     df = df[["timestamp", "close"]].sort_values("timestamp")
+    df["close"] = pd.to_numeric(df["close"], errors="coerce")
+    df = df.dropna(subset=["close"])
     return df
 
 
