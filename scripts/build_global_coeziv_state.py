@@ -80,9 +80,17 @@ class GlobalRegime:
 
 def load_single_series(name: str) -> pd.Series:
     """
-    Încarcă o serie din data_global/<name>.csv cu coloanele:
-       timestamp (ms), close (float)
-    și o întoarce ca pd.Series indexată pe dată.
+    Încarcă o serie din data_global/<name>.csv.
+
+    Acceptă formate CSV de tip:
+    1. date,close
+    2. datetime,close
+    3. time,close
+    4. timestamp,close unde timestamp este UNIX real în milisecunde sau secunde
+
+    Protecție:
+    - Dacă timestamp-ul este doar 0,1,2,3..., scriptul NU îl tratează ca dată reală,
+      ca să nu mai apară greșit 1970-01-01.
     """
     path = DATA_GLOBAL / f"{name}.csv"
 
@@ -90,36 +98,94 @@ def load_single_series(name: str) -> pd.Series:
         raise FileNotFoundError(f"Lipsește fișierul {path}")
 
     df = pd.read_csv(path)
+    original_columns = list(df.columns)
 
-    if "timestamp" not in df.columns or "close" not in df.columns:
-        raise ValueError(f"{path} trebuie să aibă coloanele 'timestamp' și 'close'")
+    # Normalizează numele coloanelor
+    df.columns = [str(c).strip().lower() for c in df.columns]
 
-    df = df[["timestamp", "close"]].copy()
-    df["timestamp"] = pd.to_numeric(df["timestamp"], errors="coerce")
-    df["close"] = pd.to_numeric(df["close"], errors="coerce")
-    df = df.dropna(subset=["timestamp", "close"])
+    # Detectare coloană de preț
+    close_col = None
+    for candidate in ["close", "adj close", "adj_close", "price", "value"]:
+        if candidate in df.columns:
+            close_col = candidate
+            break
 
-    df["timestamp"] = df["timestamp"].astype("int64")
+    if close_col is None:
+        raise ValueError(
+            f"{path} nu are coloană de preț validă. "
+            f"Coloane găsite: {original_columns}"
+        )
 
-    # În unele versiuni yfinance poate produce două rânduri pentru aceeași zi.
-    # Pentru modelul zilnic păstrăm ultima valoare disponibilă pentru același timestamp.
-    before = len(df)
-    df = df.sort_values("timestamp").drop_duplicates(subset=["timestamp"], keep="last")
-    duplicates_removed = before - len(df)
+    # Detectare coloană de dată
+    date_col = None
+    for candidate in ["date", "datetime", "time"]:
+        if candidate in df.columns:
+            date_col = candidate
+            break
+
+    if date_col is not None:
+        ts = pd.to_datetime(df[date_col], errors="coerce", utc=True)
+
+    elif "timestamp" in df.columns:
+        raw_ts = pd.to_numeric(df["timestamp"], errors="coerce")
+        raw_clean = raw_ts.dropna()
+
+        if raw_clean.empty:
+            raise ValueError(f"{path}: coloana timestamp nu conține valori numerice valide.")
+
+        max_ts = float(raw_clean.max())
+
+        # UNIX epoch în milisecunde. Exemplu 2026 ≈ 1_765_000_000_000
+        if max_ts > 1_000_000_000_000:
+            ts = pd.to_datetime(raw_ts, unit="ms", errors="coerce", utc=True)
+
+        # UNIX epoch în secunde. Exemplu 2026 ≈ 1_765_000_000
+        elif max_ts > 1_000_000_000:
+            ts = pd.to_datetime(raw_ts, unit="s", errors="coerce", utc=True)
+
+        else:
+            raise ValueError(
+                f"{path}: coloana timestamp pare să fie index numeric, nu dată reală. "
+                f"Max timestamp={max_ts}. "
+                "Corectează scripts/update_global_coeziv_state.py ca să salveze "
+                "coloana date sau timestamp UNIX real."
+            )
+
+    else:
+        raise ValueError(
+            f"{path} nu are coloană de dată validă. "
+            f"Trebuie una dintre: date, datetime, time sau timestamp. "
+            f"Coloane găsite: {original_columns}"
+        )
+
+    close = pd.to_numeric(df[close_col], errors="coerce")
+
+    clean = pd.DataFrame({
+        "timestamp": ts,
+        "close": close,
+    }).dropna(subset=["timestamp", "close"])
+
+    if clean.empty:
+        raise RuntimeError(f"{path}: nu au rămas date valide după curățare.")
+
+    before = len(clean)
+    clean = clean.sort_values("timestamp").drop_duplicates(subset=["timestamp"], keep="last")
+    duplicates_removed = before - len(clean)
 
     if duplicates_removed:
         log(f"  • {name}: eliminate {duplicates_removed} timestamp-uri duplicate înainte de concat.")
 
-    ts = pd.to_datetime(df["timestamp"], unit="ms", utc=True)
-    s = pd.Series(df["close"].to_numpy(dtype=float), index=ts).dropna().sort_index()
+    s = pd.Series(
+        clean["close"].to_numpy(dtype=float),
+        index=clean["timestamp"]
+    ).dropna().sort_index()
 
-    # Protecție suplimentară: pandas nu permite concat/reindex cu index duplicat.
     if s.index.has_duplicates:
         before_s = len(s)
         s = s[~s.index.duplicated(keep="last")]
         log(f"  • {name}: eliminate {before_s - len(s)} duplicate de index după conversia timpului.")
 
-    log(f"  • {name}: încărcat {len(s)} puncte")
+    log(f"  • {name}: încărcat {len(s)} puncte | {s.index[0].date()} – {s.index[-1].date()}")
 
     return s
 
@@ -373,12 +439,14 @@ def main() -> None:
         regime = classify_global_regime_coeziv(ic_val, icd_val)
         risk_score, macro_signal = compute_risk_score_and_macro(ic_val, icd_val)
         energy = coeziv_energy(ic_val, icd_val)
+        phase = coeziv_phase(ic_val, icd_val)
 
         records.append({
             "t": t_ms,
             "date": ts.strftime("%Y-%m-%d"),
             "ic_global": ic_val,
             "icd_global": icd_val,
+            "coeziv_phase": phase,
             "coeziv_energy": energy,
             "risk_score": risk_score,
             "macro_signal": macro_signal,
@@ -397,7 +465,7 @@ def main() -> None:
 
     state = {
         "model": "global_coeziv_state",
-        "version": "1.1",
+        "version": "1.2",
         "updated_at": datetime.now(timezone.utc).isoformat(),
         "source": {
             "folder": "data_global",
