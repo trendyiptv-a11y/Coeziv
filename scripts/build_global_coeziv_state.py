@@ -90,13 +90,30 @@ def load_single_series(name: str) -> pd.Series:
     if "timestamp" not in df.columns or "close" not in df.columns:
         raise ValueError(f"{path} trebuie să aibă coloanele 'timestamp' și 'close'")
 
+    df = df[["timestamp", "close"]].copy()
+    df["timestamp"] = pd.to_numeric(df["timestamp"], errors="coerce")
+    df["close"] = pd.to_numeric(df["close"], errors="coerce")
+    df = df.dropna(subset=["timestamp", "close"])
+    df["timestamp"] = df["timestamp"].astype("int64")
+
+    # În unele versiuni yfinance poate produce două rânduri pentru aceeași zi.
+    # Pentru modelul zilnic păstrăm ultima valoare disponibilă pentru același timestamp.
+    before = len(df)
+    df = df.sort_values("timestamp").drop_duplicates(subset=["timestamp"], keep="last")
+    duplicates_removed = before - len(df)
+    if duplicates_removed:
+        log(f"  • {name}: eliminate {duplicates_removed} timestamp-uri duplicate înainte de concat.")
+
     ts = pd.to_datetime(df["timestamp"], unit="ms", utc=True)
+    s = pd.Series(df["close"].to_numpy(dtype=float), index=ts).dropna().sort_index()
 
-    # conversie robustă la float (dacă apare accidental text, e filtrat ca NaN)
-    close = pd.to_numeric(df["close"], errors="coerce")
-    s = pd.Series(close.values, index=ts).dropna()
+    # Protecție suplimentară: pandas nu permite concat/reindex cu index duplicat.
+    if s.index.has_duplicates:
+        before_s = len(s)
+        s = s[~s.index.duplicated(keep="last")]
+        log(f"  • {name}: eliminate {before_s - len(s)} duplicate de index după conversia timpului.")
 
-    return s.sort_index()
+    return s
 
 
 def load_all_series() -> pd.DataFrame:
@@ -320,63 +337,23 @@ def main() -> None:
         t_ms = int(ts.timestamp() * 1000)
         ic_val = float(ic_series.loc[ts])
         icd_val = float(icd_series.loc[ts])
-        records.append(
-            {
-                "t": t_ms,
-                "ic_global": round(ic_val, 2),
-                "icd_global": round(icd_val, 2),
-            }
-        )
 
-    # sortare pentru siguranţă
-    records.sort(key=lambda x: x["t"])
+        regime = classify_global_regime_coeziv(ic_val, icd_val)
+        risk_score, macro_signal = compute_risk_score_and_macro(ic_val, icd_val)
 
-    # punctul curent = ultima zi
-    current = records[-1]
-    ic_val, icd_val = current["ic_global"], current["icd_global"]
+        records.append({
+            "t": t_ms,
+            "ic_global": ic_val,
+            "icd_global": icd_val,
+            "coeziv_energy": coeziv_energy(ic_val, icd_val),
+            "risk_score": risk_score,
+            "macro_signal": macro_signal,
+            "global_regime": regime.regime,
+        })
 
-    # regim + risk score + macro signal în model coeziv
-    regime = classify_global_regime_coeziv(ic_val, icd_val)
-    risk_score, macro_signal = compute_risk_score_and_macro(ic_val, icd_val)
-    current["regime"] = regime.regime
+    latest_ts = common_index[-1]
+    latest_ic = float(ic_series.loc[latest_ts])
+    latest_icd = float(icd_series.loc[latest_ts])
+    latest_regime = classify_global_regime_coeziv(latest_ic, latest_icd)
+    latest_risk_score, latest_macro_signal = compute_risk_score_and_macro(latest_ic, latest_icd)
 
-    # praguri dinamice extrase din istoric
-    thresholds = dynamic_thresholds(ic_series, icd_series)
-
-    as_of_date = datetime.fromtimestamp(
-        current["t"] / 1000, tz=timezone.utc
-    ).strftime("%Y-%m-%d")
-
-    payload = {
-        "as_of": as_of_date,
-        "risk_score": round(risk_score, 4),
-        "macro_signal": macro_signal,
-        "series": records,
-        "current": current,
-        "thresholds": thresholds,
-        "meta": {
-            "source": "coeziv-global-python",
-            "window_struct_days": WINDOW_STRUCT,
-            "window_dir_days": WINDOW_DIR,
-            "description": (
-                "IC_GLOBAL structural din corelații multi-asset; "
-                "ICD_GLOBAL direcțional din randamente cumulative risk-on/risk-off; "
-                "risk_score derivat din faza coezivă sin(2π·IC·ICD)."
-            ),
-        },
-    }
-
-    DATA_OUT.mkdir(parents=True, exist_ok=True)
-    with OUTPUT_JSON.open("w", encoding="utf-8") as f:
-        json.dump(payload, f, ensure_ascii=False, indent=2)
-
-    log(f"Am scris {len(records)} puncte în {OUTPUT_JSON.relative_to(ROOT)}")
-    log(
-        f"Stare curentă: IC_GLOBAL={ic_val:.2f}, "
-        f"ICD_GLOBAL={icd_val:.2f}, regim={regime.regime}, "
-        f"risk_score={risk_score:.3f}, macro_signal={macro_signal}"
-    )
-
-
-if __name__ == "__main__":
-    main()
