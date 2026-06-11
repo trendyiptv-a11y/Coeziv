@@ -32,6 +32,7 @@ from typing import Dict, List, Tuple
 import numpy as np
 import pandas as pd
 
+
 # ---- locaţii fişiere --------------------------------------------------------
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -58,7 +59,9 @@ def percentile_from_sorted(sorted_vals: List[float], value: float) -> float:
     """Percentilă dintr-o listă sortată (0–100)."""
     if not sorted_vals:
         return 50.0
+
     import bisect
+
     pos = bisect.bisect_right(sorted_vals, value)
     return 100.0 * pos / len(sorted_vals)
 
@@ -82,6 +85,7 @@ def load_single_series(name: str) -> pd.Series:
     și o întoarce ca pd.Series indexată pe dată.
     """
     path = DATA_GLOBAL / f"{name}.csv"
+
     if not path.exists():
         raise FileNotFoundError(f"Lipsește fișierul {path}")
 
@@ -94,6 +98,7 @@ def load_single_series(name: str) -> pd.Series:
     df["timestamp"] = pd.to_numeric(df["timestamp"], errors="coerce")
     df["close"] = pd.to_numeric(df["close"], errors="coerce")
     df = df.dropna(subset=["timestamp", "close"])
+
     df["timestamp"] = df["timestamp"].astype("int64")
 
     # În unele versiuni yfinance poate produce două rânduri pentru aceeași zi.
@@ -101,6 +106,7 @@ def load_single_series(name: str) -> pd.Series:
     before = len(df)
     df = df.sort_values("timestamp").drop_duplicates(subset=["timestamp"], keep="last")
     duplicates_removed = before - len(df)
+
     if duplicates_removed:
         log(f"  • {name}: eliminate {duplicates_removed} timestamp-uri duplicate înainte de concat.")
 
@@ -113,6 +119,8 @@ def load_single_series(name: str) -> pd.Series:
         s = s[~s.index.duplicated(keep="last")]
         log(f"  • {name}: eliminate {before_s - len(s)} duplicate de index după conversia timpului.")
 
+    log(f"  • {name}: încărcat {len(s)} puncte")
+
     return s
 
 
@@ -123,17 +131,22 @@ def load_all_series() -> pd.DataFrame:
     doar pe intervalul comun tuturor seriilor.
     """
     log("Încarc seriile globale din data_global/ ...")
+
     data: Dict[str, pd.Series] = {}
+
     for name in SERIES:
         data[name] = load_single_series(name)
 
     df = pd.concat(data, axis=1, join="inner").dropna()
+
     if len(df) < 260:
         raise RuntimeError(
-            "Prea puține date comune pentru seriile globale (min ~260 zile)."
+            f"Prea puține date comune pentru seriile globale: {len(df)} zile. "
+            "Minim recomandat: ~260 zile."
         )
 
     log(f"Interval comun: {df.index[0].date()} – {df.index[-1].date()} ({len(df)} zile)")
+
     return df
 
 
@@ -172,14 +185,19 @@ def compute_ic_global_structural(df: pd.DataFrame) -> pd.Series:
     sorted_hist = sorted(hist_vals)
 
     ic_idx_vals: Dict[pd.Timestamp, float] = {}
+
     for ts, v in ic_raw.items():
         if not np.isfinite(v):
             continue
+
         p = percentile_from_sorted(sorted_hist, float(v))
         ic_idx_vals[ts] = clamp(p, 0.0, 100.0)
 
     ic_index = pd.Series(ic_idx_vals).sort_index()
     ic_index.name = "ic_global"
+
+    log(f"IC_GLOBAL calculat: {len(ic_index)} puncte")
+
     return ic_index
 
 
@@ -199,6 +217,7 @@ def compute_icd_global_directional(df: pd.DataFrame) -> pd.Series:
     log(f"Calculez ICD_GLOBAL direcțional (randamente {WINDOW_DIR} zile)...")
 
     cum = {}
+
     for name in SERIES:
         series = df[name]
         base = series.shift(WINDOW_DIR)
@@ -207,7 +226,7 @@ def compute_icd_global_directional(df: pd.DataFrame) -> pd.Series:
     cum_df = pd.DataFrame(cum).dropna()
 
     # ponderi pentru coşul de risc global
-    w_spx, w_gold, w_oil, w_vix, w_dxy = 0.4, 0.15, 0.15, 0.15, 0.15
+    w_spx, w_gold, w_oil, w_vix, w_dxy = 0.40, 0.15, 0.15, 0.15, 0.15
 
     dir_raw = (
         w_spx * cum_df["spx"]
@@ -221,14 +240,19 @@ def compute_icd_global_directional(df: pd.DataFrame) -> pd.Series:
     sorted_hist = sorted(hist_vals)
 
     icd_vals: Dict[pd.Timestamp, float] = {}
+
     for ts, v in dir_raw.items():
         if not np.isfinite(v):
             continue
+
         p = percentile_from_sorted(sorted_hist, float(v))
         icd_vals[ts] = clamp(p, 0.0, 100.0)
 
     icd_index = pd.Series(icd_vals).sort_index()
     icd_index.name = "icd_global"
+
+    log(f"ICD_GLOBAL calculat: {len(icd_index)} puncte")
+
     return icd_index
 
 
@@ -257,14 +281,16 @@ def coeziv_phase(ic: float, icd: float) -> float:
     """
     ic_n = clamp(ic / 100.0, 0.0, 1.0)
     icd_n = clamp(icd / 100.0, 0.0, 1.0)
-    # fază 0…2π (π şi 2π din modelul coeziv)
+
+    # fază 0…2π
     return 2.0 * np.pi * (ic_n * icd_n)
 
 
 def coeziv_energy(ic: float, icd: float) -> float:
     """
-    Energia de fază coezivă – analog „apa din celulă”:
+    Energia de fază coezivă:
       E = sin(phase)
+
     E > 0   → expansiune / risk-on
     E < 0   → contracţie / risk-off
     """
@@ -286,11 +312,13 @@ def classify_global_regime_coeziv(ic_val: float, icd_val: float) -> GlobalRegime
             regime="bull",
             description="Fază globală de expansiune coezivă: structură ridicată + fluxuri pro-risc."
         )
+
     if energy < -0.35:
         return GlobalRegime(
             regime="bear",
             description="Fază globală de contracție coezivă: tendință defensivă / orientare spre refugii."
         )
+
     return GlobalRegime(
         regime="neutral",
         description="Zonă de echilibru fazal / tranziție: structură & direcționalitate amestecate."
@@ -321,6 +349,7 @@ def main() -> None:
     log("Pornesc build_global_coeziv_state.py (model coeziv extins)")
 
     df = load_all_series()
+
     ic_series = compute_ic_global_structural(df)
     icd_series = compute_icd_global_directional(df)
 
@@ -332,7 +361,10 @@ def main() -> None:
     if not len(common_index):
         raise RuntimeError("Nu există intersecție de date IC/ICD.")
 
-    records: List[Dict[str, float]] = []
+    log(f"Intersecție IC/ICD: {len(common_index)} puncte")
+
+    records: List[Dict[str, object]] = []
+
     for ts in common_index:
         t_ms = int(ts.timestamp() * 1000)
         ic_val = float(ic_series.loc[ts])
@@ -340,12 +372,14 @@ def main() -> None:
 
         regime = classify_global_regime_coeziv(ic_val, icd_val)
         risk_score, macro_signal = compute_risk_score_and_macro(ic_val, icd_val)
+        energy = coeziv_energy(ic_val, icd_val)
 
         records.append({
             "t": t_ms,
+            "date": ts.strftime("%Y-%m-%d"),
             "ic_global": ic_val,
             "icd_global": icd_val,
-            "coeziv_energy": coeziv_energy(ic_val, icd_val),
+            "coeziv_energy": energy,
             "risk_score": risk_score,
             "macro_signal": macro_signal,
             "global_regime": regime.regime,
@@ -356,4 +390,56 @@ def main() -> None:
     latest_icd = float(icd_series.loc[latest_ts])
     latest_regime = classify_global_regime_coeziv(latest_ic, latest_icd)
     latest_risk_score, latest_macro_signal = compute_risk_score_and_macro(latest_ic, latest_icd)
+    latest_energy = coeziv_energy(latest_ic, latest_icd)
+    latest_phase = coeziv_phase(latest_ic, latest_icd)
 
+    thresholds = dynamic_thresholds(ic_series, icd_series)
+
+    state = {
+        "model": "global_coeziv_state",
+        "version": "1.1",
+        "updated_at": datetime.now(timezone.utc).isoformat(),
+        "source": {
+            "folder": "data_global",
+            "series": SERIES,
+            "window_struct": WINDOW_STRUCT,
+            "window_dir": WINDOW_DIR,
+            "output": "data/global_coeziv_state.json",
+        },
+        "latest": {
+            "t": int(latest_ts.timestamp() * 1000),
+            "date": latest_ts.strftime("%Y-%m-%d"),
+            "ic_global": latest_ic,
+            "icd_global": latest_icd,
+            "coeziv_phase": latest_phase,
+            "coeziv_energy": latest_energy,
+            "risk_score": latest_risk_score,
+            "macro_signal": latest_macro_signal,
+            "global_regime": latest_regime.regime,
+            "description": latest_regime.description,
+        },
+        "thresholds": thresholds,
+        "series_count": len(records),
+        "series": records,
+    }
+
+    DATA_OUT.mkdir(parents=True, exist_ok=True)
+
+    with open(OUTPUT_JSON, "w", encoding="utf-8") as f:
+        json.dump(state, f, ensure_ascii=False, indent=2)
+
+    log(f"✅ Salvat {OUTPUT_JSON}")
+    log(
+        "Latest global state: "
+        f"date={state['latest']['date']}, "
+        f"IC={latest_ic:.2f}, "
+        f"ICD={latest_icd:.2f}, "
+        f"energy={latest_energy:.3f}, "
+        f"risk_score={latest_risk_score:.3f}, "
+        f"signal={latest_macro_signal}, "
+        f"regime={latest_regime.regime}"
+    )
+
+
+if __name__ == "__main__":
+    main()
