@@ -169,8 +169,6 @@
       margin-bottom: 0.8rem;
     }
 
-    /* regim global */
-
     .regime-chip {
       display: inline-flex;
       align-items: center;
@@ -217,6 +215,7 @@
       border: 1px solid rgba(148,163,184,0.55);
       background: rgba(15,23,42,0.95);
       color: var(--muted);
+      margin-bottom: 0.35rem;
     }
 
     .pill-small span.dot {
@@ -225,8 +224,6 @@
       border-radius: 999px;
       background: rgba(148,163,184,0.85);
     }
-
-    /* metrici IC / ICD / risc */
 
     .metrics-grid {
       display: grid;
@@ -306,8 +303,6 @@
       background: linear-gradient(90deg, rgba(248,250,252,0.1), #facc15);
     }
 
-    /* chart */
-
     .chart-card {
       margin-top: 1.1rem;
     }
@@ -359,8 +354,6 @@
     .legend-dot.ic  { background: rgba(129,140,248,0.95); }
     .legend-dot.icd { background: rgba(45,212,191,0.95); }
 
-    /* rezumat simplificat */
-
     .summary-card {
       margin-top: 1.1rem;
       border-radius: var(--radius-xl);
@@ -402,8 +395,6 @@
       margin-top: 0.3rem;
     }
 
-    /* error */
-
     .error-box {
       margin-top: 0.8rem;
       font-size: 0.78rem;
@@ -416,6 +407,7 @@
     }
   </style>
 </head>
+
 <body>
   <main class="page">
     <header class="hero">
@@ -426,6 +418,7 @@
         această pagină doar le vizualizează.
       </p>
       <p id="macroHeadline" class="macro-headline">Se calculează contextul global…</p>
+
       <div class="pill-row">
         <div class="pill">
           <span class="pill-dot neutral"></span>
@@ -443,7 +436,6 @@
     </header>
 
     <section class="layout">
-      <!-- stânga: regim + context -->
       <article class="card">
         <div class="card-inner">
           <div class="card-title">Regim global coeziv</div>
@@ -477,7 +469,6 @@
         </div>
       </article>
 
-      <!-- dreapta: metrici -->
       <article class="card card--secondary">
         <div class="card-inner">
           <div class="card-title">Structură, direcționalitate și risc global</div>
@@ -536,7 +527,6 @@
       </article>
     </section>
 
-    <!-- istoric chart -->
     <section class="chart-card">
       <div class="card card--secondary">
         <div class="card-inner">
@@ -562,13 +552,13 @@
       </div>
     </section>
 
-    <!-- rezumat simplificat -->
     <section class="summary-card">
       <div class="summary-title">Rezumat simplificat al contextului global</div>
       <p class="summary-main">
         Interpretare practică:
         <strong id="summaryHeadline">–</strong>
       </p>
+
       <ul class="summary-list">
         <li>
           <strong>IC Global ≈ <span id="summaryIcVal">–</span></strong>
@@ -579,6 +569,7 @@
           <span id="summaryIcdText"></span>
         </li>
       </ul>
+
       <p class="summary-note">
         Aceste informații descriu contextul global al riscului. Nu sunt recomandări
         de cumpărare sau vânzare, ci un cadru de orientare: zonele ridicate sunt
@@ -594,6 +585,18 @@
 
     function clamp(x, lo, hi) {
       return Math.min(hi, Math.max(lo, x));
+    }
+
+    function toNumber(value, fallback = null) {
+      const n = Number(value);
+      return Number.isFinite(n) ? n : fallback;
+    }
+
+    function firstDefined(...values) {
+      for (const v of values) {
+        if (v !== undefined && v !== null && v !== "") return v;
+      }
+      return null;
     }
 
     function setModeClass(el, mode) {
@@ -652,11 +655,13 @@
           ? "Context global pro-risc"
           : "Tranziție spre risk-on";
       }
+
       if (macroSignal === "risk-off") {
         return absScore > 0.35
           ? "Context global defensiv"
           : "Tranziție spre risk-off";
       }
+
       return "Zonă de echilibru / tranziție";
     }
 
@@ -670,29 +675,43 @@
           text: "Structură solidă și fluxuri pro-risc în principalele piețe. Mediul încurajează asumarea de risc, cu accent pe active ciclice."
         };
       }
+
       if (r === "bear") {
         return {
           title: "Regim coeziv bearish / defensiv",
           text: "Structură relativ ridicată, dar cu fluxuri orientate spre protecție. Mediul favorizează active defensive și conservarea capitalului."
         };
       }
-      // neutral – ne uităm la mărimea scorului
+
       if (rs > 0.15) {
         return {
           title: "Tranziție spre risk-on",
           text: "Context global aflat între defensiv și pro-risc, cu o ușoară înclinare spre asumarea de risc."
         };
       }
+
       if (rs < -0.15) {
         return {
           title: "Tranziție spre defensiv",
           text: "Context global aflat într-o fază de răcire, cu bias ușor spre protecție și reducerea riscului."
         };
       }
+
       return {
         title: "Regim neutru / de tranziție",
         text: "Structură și direcționalitate mixte. Piața nu se află într-o extremă clară, iar schimbările de regim pot apărea mai ușor."
       };
+    }
+
+    function pointTime(d) {
+      if (Number.isFinite(Number(d.t))) return Number(d.t);
+
+      if (d.date) {
+        const ms = Date.parse(String(d.date) + "T00:00:00Z");
+        return Number.isFinite(ms) ? ms : null;
+      }
+
+      return null;
     }
 
     async function initGlobal() {
@@ -702,67 +721,111 @@
         const res = await fetch("data/global_coeziv_state.json?ts=" + Date.now(), {
           cache: "no-store",
         });
+
         if (!res.ok) {
           throw new Error("Nu pot încărca global_coeziv_state.json (" + res.status + ")");
         }
+
         const data = await res.json();
 
-        const asOf = data.as_of || "–";
         const series = Array.isArray(data.series) ? data.series : [];
-        const current = data.current || (series.length ? series[series.length - 1] : null);
-        const thresholds = data.thresholds || {};
-        const riskScore = typeof data.risk_score === "number" ? data.risk_score : null;
-        const macroSignal = data.macro_signal || "echilibrat";
 
-        if (!current) {
+        /*
+          Compatibilitate cu ambele structuri:
+          veche: data.current, data.as_of, data.risk_score
+          nouă:  data.latest, data.updated_at, data.latest.risk_score
+        */
+        const latest =
+          data.latest ||
+          data.current ||
+          (series.length ? series[series.length - 1] : null);
+
+        if (!latest) {
           throw new Error("Nu există date curente în global_coeziv_state.json");
         }
 
-        const icVal  = Number(current.ic_global);
-        const icdVal = Number(current.icd_global);
-        const regimeCode = (current.regime || "neutral").toLowerCase();
+        const thresholds = data.thresholds || {};
 
-        const icLow  = thresholds.ic_low  ?? 40;
-        const icHigh = thresholds.ic_high ?? 65;
-        const icdLow = thresholds.icd_low ?? 40;
-        const icdHigh= thresholds.icd_high?? 60;
+        const asOf = firstDefined(
+          latest.date,
+          data.as_of,
+          data.asOf,
+          data.updated_at ? String(data.updated_at).slice(0, 10) : null,
+          data.updatedAt ? String(data.updatedAt).slice(0, 10) : null
+        ) || "–";
 
-        const asOfEl       = document.getElementById("asOf");
-        const icValueEl    = document.getElementById("icValue");
-        const icdValueEl   = document.getElementById("icdValue");
-        const icBar        = document.getElementById("icBar");
-        const icdBar       = document.getElementById("icdBar");
-        const icMetaEl     = document.getElementById("icMeta");
-        const icdMetaEl    = document.getElementById("icdMeta");
+        const icVal = toNumber(firstDefined(
+          latest.ic_global,
+          latest.icGlobal
+        ));
+
+        const icdVal = toNumber(firstDefined(
+          latest.icd_global,
+          latest.icdGlobal
+        ));
+
+        const riskScore = toNumber(firstDefined(
+          latest.risk_score,
+          latest.riskScore,
+          data.risk_score,
+          data.riskScore
+        ));
+
+        const macroSignal = firstDefined(
+          latest.macro_signal,
+          latest.macroSignal,
+          data.macro_signal,
+          data.macroSignal
+        ) || "echilibrat";
+
+        const regimeCode = String(firstDefined(
+          latest.global_regime,
+          latest.globalRegime,
+          latest.regime,
+          data.global_regime,
+          data.globalRegime,
+          data.regime
+        ) || "neutral").toLowerCase();
+
+        const icLow = toNumber(thresholds.ic_low, 40);
+        const icHigh = toNumber(thresholds.ic_high, 65);
+        const icdLow = toNumber(thresholds.icd_low, 40);
+        const icdHigh = toNumber(thresholds.icd_high, 60);
+
+        const asOfEl = document.getElementById("asOf");
+        const icValueEl = document.getElementById("icValue");
+        const icdValueEl = document.getElementById("icdValue");
+        const icBar = document.getElementById("icBar");
+        const icdBar = document.getElementById("icdBar");
+        const icMetaEl = document.getElementById("icMeta");
+        const icdMetaEl = document.getElementById("icdMeta");
         const icLevelBadge = document.getElementById("icLevelBadge");
-        const icdLevelBadge= document.getElementById("icdLevelBadge");
+        const icdLevelBadge = document.getElementById("icdLevelBadge");
 
-        const riskScoreEl  = document.getElementById("riskScoreValue");
-        const riskBar      = document.getElementById("riskBar");
-        const riskMetaEl   = document.getElementById("riskMeta");
-        const macroSignalEl= document.getElementById("macroSignal");
+        const riskScoreEl = document.getElementById("riskScoreValue");
+        const riskBar = document.getElementById("riskBar");
+        const riskMetaEl = document.getElementById("riskMeta");
+        const macroSignalEl = document.getElementById("macroSignal");
 
-        const regimeChip   = document.getElementById("regimeChip");
-        const regimeDot    = document.getElementById("regimeDot");
+        const regimeChip = document.getElementById("regimeChip");
+        const regimeDot = document.getElementById("regimeDot");
         const regimePillText = document.getElementById("regimePillText");
         const regimeHeadline = document.getElementById("regimeHeadline");
-        const regimeCaption  = document.getElementById("regimeCaption");
+        const regimeCaption = document.getElementById("regimeCaption");
 
         const summaryHeadline = document.getElementById("summaryHeadline");
-        const summaryIcVal    = document.getElementById("summaryIcVal");
-        const summaryIcdVal   = document.getElementById("summaryIcdVal");
-        const summaryIcText   = document.getElementById("summaryIcText");
-        const summaryIcdText  = document.getElementById("summaryIcdText");
+        const summaryIcVal = document.getElementById("summaryIcVal");
+        const summaryIcdVal = document.getElementById("summaryIcdVal");
+        const summaryIcText = document.getElementById("summaryIcText");
+        const summaryIcdText = document.getElementById("summaryIcdText");
         const macroHeadlineEl = document.getElementById("macroHeadline");
 
         if (asOfEl) asOfEl.textContent = asOf;
 
-        // headline macro deasupra, bazat pe risk_score + macro_signal
         if (macroHeadlineEl) {
           macroHeadlineEl.textContent = getHeadline(riskScore ?? 0, macroSignal);
         }
 
-        // IC & ICD numeric + bare
         if (Number.isFinite(icVal)) {
           icValueEl.textContent = icVal.toFixed(2);
           icBar.style.width = clamp(icVal, 0, 100) + "%";
@@ -788,7 +851,6 @@
         if (icLevelBadge) icLevelBadge.textContent = `IC Global: ${icClass.level}`;
         if (icdLevelBadge) icdLevelBadge.textContent = `ICD Global: ${icdClass.level}`;
 
-        // Regim
         const regimeDesc = describeRegime(regimeCode, riskScore ?? 0);
 
         if (regimeHeadline) regimeHeadline.textContent = regimeDesc.title;
@@ -818,34 +880,42 @@
           else regimeDot.classList.add("neutral");
         }
 
-        // risc global
-        if (riskScoreEl && riskScore != null) {
-          riskScoreEl.textContent = riskScore.toFixed(2);
+        if (riskScoreEl) {
+          riskScoreEl.textContent =
+            riskScore !== null && Number.isFinite(riskScore)
+              ? riskScore.toFixed(3)
+              : "–";
         }
 
-        if (riskBar && riskScore != null) {
-          // mapăm -1..1 la 0..100, cu 50 = neutru
-          const pct = clamp((riskScore + 1) * 50, 0, 100);
-          riskBar.style.width = pct + "%";
+        if (riskBar) {
+          if (riskScore !== null && Number.isFinite(riskScore)) {
+            const pct = clamp((riskScore + 1) * 50, 0, 100);
+            riskBar.style.width = pct + "%";
+          } else {
+            riskBar.style.width = "0%";
+          }
         }
 
         if (macroSignalEl) macroSignalEl.textContent = macroSignal;
 
-        if (riskMetaEl && riskScore != null) {
+        if (riskMetaEl) {
           let extra = "";
-          if (riskScore > 0.3) {
-            extra = " Mediul este clar pro-risc.";
-          } else if (riskScore < -0.3) {
-            extra = " Mediul este clar defensiv.";
-          } else if (Math.abs(riskScore) < 0.1) {
-            extra = " Mediul este relativ echilibrat.";
+
+          if (riskScore !== null && Number.isFinite(riskScore)) {
+            if (riskScore > 0.3) {
+              extra = " Mediul este clar pro-risc.";
+            } else if (riskScore < -0.3) {
+              extra = " Mediul este clar defensiv.";
+            } else if (Math.abs(riskScore) < 0.1) {
+              extra = " Mediul este relativ echilibrat.";
+            }
           }
+
           riskMetaEl.innerHTML =
             `Scor derivat din structură și direcționalitate. Semnal macro: ` +
             `<strong>${macroSignal}</strong>.${extra}`;
         }
 
-        // rezumat simplificat
         if (summaryHeadline) {
           if (regimeCode === "bull") {
             summaryHeadline.textContent = "Context global pozitiv, cu bias pro-risc.";
@@ -856,26 +926,32 @@
           }
         }
 
-        if (summaryIcVal && Number.isFinite(icVal)) {
-          summaryIcVal.textContent = icVal.toFixed(0);
+        if (summaryIcVal) {
+          summaryIcVal.textContent = Number.isFinite(icVal) ? icVal.toFixed(0) : "–";
         }
-        if (summaryIcdVal && Number.isFinite(icdVal)) {
-          summaryIcdVal.textContent = icdVal.toFixed(0);
+
+        if (summaryIcdVal) {
+          summaryIcdVal.textContent = Number.isFinite(icdVal) ? icdVal.toFixed(0) : "–";
         }
 
         if (summaryIcText) {
           summaryIcText.textContent = " – " + describeIC(icClass.level);
         }
+
         if (summaryIcdText) {
           summaryIcdText.textContent = " – " + describeICD(icdClass.level);
         }
 
-        // chart
         const ctx = document.getElementById("globalChart");
+
         if (ctx && series.length) {
-          const labels    = series.map(d => d.t);
-          const icSeries  = series.map(d => d.ic_global ?? null);
-          const icdSeries = series.map(d => d.icd_global ?? null);
+          const cleanSeries = series
+            .map(d => ({
+              t: pointTime(d),
+              ic: toNumber(firstDefined(d.ic_global, d.icGlobal)),
+              icd: toNumber(firstDefined(d.icd_global, d.icdGlobal)),
+            }))
+            .filter(d => d.t !== null);
 
           new Chart(ctx, {
             type: "line",
@@ -883,7 +959,7 @@
               datasets: [
                 {
                   label: "IC Global",
-                  data: labels.map((t, i) => ({ x: t, y: icSeries[i] })),
+                  data: cleanSeries.map(d => ({ x: d.t, y: d.ic })),
                   borderColor: "rgba(129,140,248,1)",
                   borderWidth: 1.6,
                   pointRadius: 0,
@@ -891,7 +967,7 @@
                 },
                 {
                   label: "ICD Global",
-                  data: labels.map((t, i) => ({ x: t, y: icdSeries[i] })),
+                  data: cleanSeries.map(d => ({ x: d.t, y: d.icd })),
                   borderColor: "rgba(45,212,191,1)",
                   borderWidth: 1.4,
                   pointRadius: 0,
@@ -938,6 +1014,8 @@
                   }
                 },
                 y: {
+                  min: 0,
+                  max: 100,
                   ticks: {
                     color: "rgba(148,163,184,0.9)",
                     callback(value) {
