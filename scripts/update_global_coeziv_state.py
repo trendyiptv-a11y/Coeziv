@@ -1,134 +1,203 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 """
 update_global_coeziv_state.py
 
-Script simplu care descarcă serii macro zilnice din Yahoo Finance
-și le salvează în data_global/*.csv în format:
+Descarcă seriile macro globale necesare pentru Modelul Coeziv Global:
 
-    timestamp,close
+- SPX  = S&P 500
+- VIX  = Volatility Index
+- DXY  = Dollar Index
+- GOLD = Gold futures
+- OIL  = Crude Oil futures
 
-timestamp = milisecunde UNIX (UTC)
+Salvează fișiere CSV curate în:
+
+    data_global/spx.csv
+    data_global/vix.csv
+    data_global/dxy.csv
+    data_global/gold.csv
+    data_global/oil.csv
+
+Formatul final este obligatoriu:
+
+    date,close
+    2009-01-02,931.80
+    2009-01-05,927.45
+    ...
+
+Important:
+- NU salvează index numeric 0,1,2,3...
+- NU salvează timestamp fals.
+- Salvează dată reală calendaristică.
 """
 
 from __future__ import annotations
 
-import sys
+from datetime import datetime, timezone
 from pathlib import Path
-from datetime import datetime
 from typing import Dict
 
 import pandas as pd
 import yfinance as yf
 
 
-# Rădăcina repo-ului (../ față de scripts/)
-ROOT = Path(__file__).resolve().parents[1]
+# ---------------------------------------------------------------------------
+# Config
+# ---------------------------------------------------------------------------
 
-# Folder unde salvăm seriile globale
+ROOT = Path(__file__).resolve().parents[1]
 DATA_GLOBAL = ROOT / "data_global"
 
-# Serii macro pe care le luăm din Yahoo Finance
+START_DATE = "2009-01-01"
+
 SERIES: Dict[str, str] = {
-    "spx": "^GSPC",   # S&P 500 index
-    "vix": "^VIX",    # Volatilitate
-    "dxy": "DX-Y.NYB",  # Dollar Index (poți schimba în "^DXY" dacă preferi)
-    "gold": "GC=F",   # Gold futures
-    "oil": "CL=F",    # Crude oil futures
+    "spx": "^GSPC",
+    "vix": "^VIX",
+    "dxy": "DX-Y.NYB",
+    "gold": "GC=F",
+    "oil": "CL=F",
 }
 
-START_DATE = "2009-01-01"  # punct de start (poți ajusta)
 
+# ---------------------------------------------------------------------------
+# Utils
+# ---------------------------------------------------------------------------
 
 def log(msg: str) -> None:
-    """Mic helper pentru mesaje frumoase în logul GitHub Actions."""
-    now = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+    now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
     print(f"[{now}] {msg}", flush=True)
 
 
-def fetch_series_yahoo(symbol: str, start: str) -> pd.DataFrame:
+def normalize_downloaded_frame(df: pd.DataFrame, name: str, ticker: str) -> pd.DataFrame:
     """
-    Descarcă o serie zilnică de la Yahoo Finance.
+    Primește DataFrame de la yfinance și returnează DataFrame curat:
 
-    Returnează un DataFrame cu coloanele:
-        - timestamp (ms UNIX)
-        - close
+        date, close
+
+    Protecții:
+    - elimină MultiIndex dacă apare
+    - folosește Adj Close dacă există, altfel Close
+    - păstrează doar date reale
+    - elimină duplicatele
+    - sortează cronologic
     """
-    log(f"  • Descarc {symbol} din Yahoo Finance (începând cu {start})...")
-    data = yf.download(symbol, start=start, progress=False)
+    if df is None or df.empty:
+        raise RuntimeError(f"{name}/{ticker}: yfinance a returnat DataFrame gol.")
 
-    if data is None or data.empty:
-        raise RuntimeError(f"Nu am primit date pentru simbolul '{symbol}'")
+    # Dacă yfinance returnează coloane MultiIndex, le simplificăm.
+    if isinstance(df.columns, pd.MultiIndex):
+        # Pentru download cu un singur ticker, de obicei nivelul relevant conține
+        # Open/High/Low/Close/Adj Close/Volume. Încercăm să păstrăm acest nivel.
+        possible = []
+        for level in range(df.columns.nlevels):
+            vals = set(str(v) for v in df.columns.get_level_values(level))
+            if "Close" in vals or "Adj Close" in vals:
+                possible.append(level)
 
-    # yfinance poate returna coloane MultiIndex în versiunile noi.
-    if isinstance(data.columns, pd.MultiIndex):
-        data.columns = data.columns.get_level_values(0)
+        if possible:
+            level = possible[0]
+            df.columns = df.columns.get_level_values(level)
+        else:
+            df.columns = ["_".join(str(x) for x in col if str(x)) for col in df.columns]
 
-    # Folosim coloana Close
-    if "Close" not in data.columns:
-        raise RuntimeError(f"Răspunsul pentru '{symbol}' nu are coloana 'Close'")
+    df = df.copy()
 
-    df = data[["Close"]].copy()
-    df.rename(columns={"Close": "close"}, inplace=True)
-
-    # Indexul este data; îl transformăm în timestamp ms.
-    df.index = pd.to_datetime(df.index, utc=True)
-    df.reset_index(inplace=True)
-    if "Date" in df.columns:
-        df.rename(columns={"Date": "date"}, inplace=True)
-    elif "Datetime" in df.columns:
-        df.rename(columns={"Datetime": "date"}, inplace=True)
+    # Alegem coloana de preț.
+    if "Adj Close" in df.columns:
+        close_col = "Adj Close"
+    elif "Close" in df.columns:
+        close_col = "Close"
     else:
-        first_col = df.columns[0]
-        df.rename(columns={first_col: "date"}, inplace=True)
+        raise RuntimeError(
+            f"{name}/{ticker}: nu găsesc coloana Close sau Adj Close. "
+            f"Coloane disponibile: {list(df.columns)}"
+        )
 
-    # Compatibil cu pandas 2.x și 3.x: Series.view("int64") nu mai este sigur.
-    df["timestamp"] = (pd.to_datetime(df["date"], utc=True).astype("int64") // 10**6).astype("int64")
+    # Indexul de la yfinance este data reală.
+    out = pd.DataFrame({
+        "date": pd.to_datetime(df.index, errors="coerce"),
+        "close": pd.to_numeric(df[close_col], errors="coerce"),
+    })
 
-    # Păstrăm doar ce ne interesează
-    df = df[["timestamp", "close"]].sort_values("timestamp")
-    df["close"] = pd.to_numeric(df["close"], errors="coerce")
-    df = df.dropna(subset=["close"])
-    return df
+    out = out.dropna(subset=["date", "close"])
+
+    if out.empty:
+        raise RuntimeError(f"{name}/{ticker}: nu au rămas date valide după curățare.")
+
+    # Transformăm data în format stabil YYYY-MM-DD.
+    out["date"] = pd.to_datetime(out["date"], errors="coerce").dt.strftime("%Y-%m-%d")
+    out = out.dropna(subset=["date", "close"])
+
+    # Eliminăm duplicatele pe aceeași zi.
+    before = len(out)
+    out = out.sort_values("date").drop_duplicates(subset=["date"], keep="last")
+    removed = before - len(out)
+
+    if removed:
+        log(f"  • {name}: eliminate {removed} date duplicate.")
+
+    # Verificare anti-1970 / anti-index numeric.
+    first_date = str(out["date"].iloc[0])
+    last_date = str(out["date"].iloc[-1])
+
+    if first_date.startswith("1970") and last_date.startswith("1970"):
+        raise RuntimeError(
+            f"{name}/{ticker}: datele arată ca timestamp/index greșit: "
+            f"{first_date} – {last_date}"
+        )
+
+    return out[["date", "close"]]
 
 
-def save_series_csv(name: str, df: pd.DataFrame) -> Path:
-    """
-    Salvează seria în data_global/<name>.csv și întoarce calea fișierului.
-    """
+def download_series(name: str, ticker: str) -> pd.DataFrame:
+    log(f"Descarc {ticker} pentru {name} din Yahoo Finance (începând cu {START_DATE})...")
+
+    df = yf.download(
+        ticker,
+        start=START_DATE,
+        progress=False,
+        auto_adjust=False,
+        threads=False,
+    )
+
+    out = normalize_downloaded_frame(df, name=name, ticker=ticker)
+
+    log(
+        f"  • {name}: {len(out)} puncte | "
+        f"{out['date'].iloc[0]} – {out['date'].iloc[-1]}"
+    )
+
+    return out
+
+
+def save_series(name: str, df: pd.DataFrame) -> None:
     DATA_GLOBAL.mkdir(parents=True, exist_ok=True)
-    out_path = DATA_GLOBAL / f"{name}.csv"
-    df.to_csv(out_path, index=False)
-    log(f"  ✔ Salvat {name}.csv cu {len(df)} puncte în {out_path.relative_to(ROOT)}")
-    return out_path
+
+    path = DATA_GLOBAL / f"{name}.csv"
+    df.to_csv(path, index=False, encoding="utf-8")
+
+    log(f"✔ Salvat {name}.csv cu {len(df)} puncte în {path}")
 
 
-def main() -> int:
-    log("🚀 Pornesc update_global_coeziv_state.py")
-    log(f"Rădăcina repo-ului: {ROOT}")
-    log(f"Folder data_global: {DATA_GLOBAL}")
+# ---------------------------------------------------------------------------
+# Main
+# ---------------------------------------------------------------------------
 
-    created_files = []
+def main() -> None:
+    log("Pornesc update_global_coeziv_state.py")
 
-    for name, symbol in SERIES.items():
+    DATA_GLOBAL.mkdir(parents=True, exist_ok=True)
+
+    for name, ticker in SERIES.items():
         try:
-            df = fetch_series_yahoo(symbol, START_DATE)
-        except Exception as e:
-            log(f"  ⚠ Eroare la descărcarea '{symbol}' pentru '{name}': {e}")
-            continue
+            df = download_series(name, ticker)
+            save_series(name, df)
+        except Exception as exc:
+            raise RuntimeError(f"Eroare la seria {name} ({ticker}): {exc}") from exc
 
-        try:
-            path = save_series_csv(name, df)
-            created_files.append(path)
-        except Exception as e:
-            log(f"  ⚠ Eroare la salvarea '{name}.csv': {e}")
-
-    if not created_files:
-        log("❌ Nu am reușit să actualizez nicio serie. Verifică simbolurile / conexiunea.")
-        return 1
-
-    log("✅ Update global coeziv – serii macro descărcate cu succes.")
-    return 0
+    log("✅ Update global coeziv – seriile macro descărcate cu succes.")
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    main()
