@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manuscris explicativ: Matei 17:21 — Rugăciune și post</title>
+  <style>
+    :root {
+      --wood: #3b2415;
+      --bg1: #ead9b8;
+      --bg2: #caa874;
+      --paper: #f8ecd0;
+      --paper2: #f3dfb9;
+      --ink: #2b1a0e;
+      --soft-ink: #5b4631;
+      --red: #8b2f22;
+      --gold: #a36a25;
+      --line: rgba(89, 55, 24, 0.26);
+      --shadow: rgba(45, 25, 8, 0.32);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 10% 0%, rgba(255, 244, 210, .38), transparent 34%),
+        radial-gradient(circle at 90% 8%, rgba(94, 52, 20, .26), transparent 40%),
+        linear-gradient(135deg, var(--bg1), var(--bg2));
+      font-family: Georgia, "Times New Roman", serif;
+      line-height: 1.78;
+    }
+    .wrap { max-width: 1060px; margin: 0 auto; padding: 36px 16px 72px; }
+    .manuscript {
+      position: relative;
+      background:
+        linear-gradient(90deg, rgba(117,72,27,.10) 0 1px, transparent 1px calc(100% - 1px), rgba(117,72,27,.10) calc(100% - 1px)),
+        radial-gradient(circle at 22% 14%, rgba(255,255,255,.34), transparent 20%),
+        radial-gradient(circle at 78% 84%, rgba(120,70,24,.10), transparent 28%),
+        linear-gradient(180deg, var(--paper), var(--paper2));
+      border: 1px solid rgba(91, 58, 23, .38);
+      border-radius: 8px;
+      box-shadow: 0 30px 80px var(--shadow);
+      padding: clamp(28px, 5vw, 74px);
+      overflow: hidden;
+    }
+    .manuscript:before,
+    .manuscript:after {
+      content: "";
+      position: absolute;
+      top: 0; bottom: 0;
+      width: 20px;
+      background: linear-gradient(90deg, rgba(92,50,16,.24), rgba(255,255,255,0));
+      opacity: .6;
+      pointer-events: none;
+    }
+    .manuscript:before { left: 0; }
+    .manuscript:after { right: 0; transform: rotate(180deg); }
+    header { text-align: center; margin-bottom: 34px; position: relative; z-index: 1; }
+    .supra {
+      display: inline-block;
+      color: var(--red);
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      font-size: .78rem;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 7px 14px;
+      margin-bottom: 18px;
+      font-family: "Trebuchet MS", Arial, sans-serif;
+    }
+    h1 {
+      font-size: clamp(2.15rem, 6vw, 4.6rem);
+      line-height: 1.02;
+      margin: 0;
+      color: #241407;
+      font-weight: 700;
+      letter-spacing: -0.035em;
+    }
+    .subtitle {
+      max-width: 740px;
+      margin: 18px auto 0;
+      color: var(--soft-ink);
+      font-size: clamp(1rem, 2.3vw, 1.24rem);
+    }
+    .ornament { color: var(--gold); text-align: center; font-size: 1.6rem; letter-spacing: .42em; margin: 24px 0 18px; }
+    article { position: relative; z-index: 1; }
+    section { margin: 34px 0; }
+    h2 {
+      color: #3a2110;
+      font-size: clamp(1.45rem, 3vw, 2.1rem);
+      line-height: 1.2;
+      margin: 0 0 14px;
+      padding-bottom: 9px;
+      border-bottom: 1px solid var(--line);
+    }
+    h3 {
+      color: #4a2a14;
+      margin: 24px 0 8px;
+      font-size: 1.22rem;
+    }
+    p { margin: 0 0 15px; }
+    .drop:first-letter {
+      float: left;
+      font-size: 4.4rem;
+      line-height: .78;
+      padding: 9px 10px 0 0;
+      color: var(--red);
+      font-weight: 700;
+    }
+    .quote {
+      margin: 24px 0;
+      padding: 18px 22px;
+      border-left: 5px solid var(--red);
+      background: rgba(255, 248, 224, .52);
+      box-shadow: inset 0 0 0 1px rgba(122, 75, 26, .12);
+      font-size: 1.08rem;
+    }
+    .greek {
+      direction: ltr;
+      display: block;
+      margin-top: 10px;
+      font-size: clamp(1.13rem, 2.6vw, 1.42rem);
+      color: #1f1209;
+      letter-spacing: .02em;
+    }
+    .literal {
+      background: rgba(131, 78, 26, .09);
+      border: 1px solid rgba(131, 78, 26, .2);
+      padding: 18px 20px;
+      border-radius: 6px;
+      margin: 22px 0;
+      font-weight: 700;
+      text-align: center;
+      color: #321c0d;
+    }
+    .note {
+      margin: 22px 0;
+      padding: 18px 20px;
+      background: rgba(139, 47, 34, .08);
+      border: 1px solid rgba(139, 47, 34, .22);
+      border-radius: 6px;
+      color: #3c2718;
+    }
+    .two {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+      margin: 18px 0;
+    }
+    .card {
+      border: 1px solid var(--line);
+      background: rgba(255, 250, 235, .38);
+      padding: 17px 18px;
+      border-radius: 8px;
+    }
+    .card strong { color: var(--red); }
+    ul { padding-left: 1.25rem; margin: 10px 0 18px; }
+    li { margin: 7px 0; }
+    .formula {
+      font-size: 1.15rem;
+      text-align: center;
+      font-weight: 700;
+      color: #2b180a;
+      background: rgba(255,255,255,.24);
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 20px 12px;
+      margin: 24px 0;
+    }
+    .seal {
+      width: 86px; height: 86px;
+      border: 2px solid rgba(139,47,34,.6);
+      color: var(--red);
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      margin: 30px auto 0;
+      font-size: 2rem;
+      background: rgba(255, 240, 200, .45);
+    }
+    footer { text-align: center; color: var(--soft-ink); font-size: .95rem; margin-top: 24px; }
+    @media (max-width: 760px) {
+      .wrap { padding: 12px 10px 44px; }
+      .manuscript { padding: 28px 18px; }
+      .two { grid-template-columns: 1fr; }
+      .drop:first-letter { font-size: 3.4rem; }
+    }
+    @media print {
+      body { background: #fff; }
+      .wrap { max-width: none; padding: 0; }
+      .manuscript { box-shadow: none; border: 0; border-radius: 0; padding: 18mm; }
+      section { break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <div class="manuscript">
+      <header>
+        <div class="supra">Manuscris explicativ</div>
+        <h1>Matei 17:21<br>Rugăciune și post</h1>
+        <p class="subtitle">O așezare naturală a sensului versetului, a contextului vindecării și a extrapolării asupra bolilor fizice ale omului.</p>
+      </header>
+
+      <div class="ornament">✦ ✧ ✦</div>
+
+      <article>
+        <section>
+          <p class="drop">Matei 17:21 este un verset care apare în unele Biblii tradiționale, dar lipsește din multe ediții moderne, deoarece nu se găsește în unele manuscrise grecești timpurii importante. De aceea, unele traduceri îl trec la notă de subsol sau îl omit din corpul textului. Cu toate acestea, expresia păstrată în tradiție rămâne foarte puternică și trebuie înțeleasă în contextul ei viu.</p>
+
+          <div class="quote">
+            „Dar acest soi de demoni nu iese decât cu rugăciune și cu post.”
+            <span class="greek">τοῦτο δὲ τὸ γένος οὐκ ἐκπορεύεται εἰ μὴ ἐν προσευχῇ καὶ νηστείᾳ</span>
+          </div>
+
+          <p>Transliterat, textul este: <strong>touto de to genos ouk ekporeuetai ei mē en proseuchē kai nēsteia</strong>. Literal, sensul este: <strong>„Dar acest neam, acest fel, acest soi nu iese decât prin rugăciune și post.”</strong></p>
+
+          <p>Contextul este episodul în care ucenicii nu pot vindeca un copil chinuit de un duh. Tatăl vine la Hristos și spune că ucenicii nu au putut să îl vindece. Hristos vindecă băiatul, iar ucenicii întreabă apoi: <strong>„De ce noi n-am putut să-l scoatem?”</strong> Răspunsul principal este legat de puțina lor credință. În tradiția versetului 21, răspunsul se adâncește prin expresia: <strong>rugăciune și post</strong>.</p>
+        </section>
+
+        <section>
+          <h2>Vindecarea: trupească la vedere, mai adâncă la cauză</h2>
+          <p>Întrebarea firească este: vindecarea a fost trupească? Răspunsul este: <strong>da, prin efect; nu numai trupească, prin cauză.</strong></p>
+
+          <p>Copilul avea manifestări fizice clare: cădea în foc, cădea în apă, suferea, avea crize, își pierdea controlul trupului. La suprafață, totul se vedea în corp. Corpul era locul unde apărea dezordinea.</p>
+
+          <p>Dar Hristos nu tratează cazul ca pe o simplă boală a trupului. Textul spune că El ceartă duhul, iar copilul se vindecă. Asta schimbă nivelul interpretării: trupul era locul unde se vedea ruptura, dar nu era neapărat sursa rupturii.</p>
+
+          <div class="literal">Vindecarea a fost trupească prin efect, dar nu trupească prin cauză.</div>
+
+          <p>De aceea putem vorbi despre trei niveluri. Mai întâi este simptomul trupesc: copilul suferă vizibil în corp. Apoi este cauza nevăzută: textul atribuie dezordinea unui duh, unei forțe care acționează mai adânc decât carnea. În final este vindecarea ca reașezare a ordinii: Hristos nu aplică o tehnică materială asupra trupului, ci restabilește autoritatea asupra cauzei invizibile.</p>
+
+          <p>Copilul nu este doar „bolnav”. El este dezordonat între trup, suflet și duh. Vindecarea reală nu este doar oprirea crizei, ci scoaterea cauzei care producea criza.</p>
+        </section>
+
+        <section>
+          <h2>Extrapolarea asupra bolilor fizice ale omului</h2>
+          <p>Din acest punct, extrapolarea asupra bolilor fizice trebuie făcută cu atenție. Nu toate bolile trebuie spiritualizate. Unele au cauze biologice clare: infecții, traumatisme, mutații, carențe, toxine, dezechilibre metabolice, procese autoimune. Dar în multe boli cronice, corpul este locul unde apare semnalul final al unei dezordini mai largi.</p>
+
+          <div class="literal">Boala fizică este adesea locul unde se vede ruptura, nu întotdeauna locul unde începe ruptura.</div>
+
+          <p>Durerea, inflamația, febra, oboseala, tumora, tensiunea, blocajul muscular, constipația, dereglarea hormonală — toate apar în corp. Dar omul nu este doar corp. Trupul este legat de ritm, somn, hrană, stres, frică, gânduri, relații, sens, credință și stare interioară.</p>
+
+          <p>Boala fizică poate fi privită ca o pierdere de coerență între niveluri. Trupul spune: <strong>„nu mai pot ține ordinea în forma actuală.”</strong></p>
+
+          <div class="two">
+            <div class="card"><strong>Simptomul</strong><br>Este forma vizibilă a dezordinii: durere, criză, inflamație, blocaj, oboseală, dezechilibru.</div>
+            <div class="card"><strong>Cauza profundă</strong><br>Poate fi biologică, emoțională, socială, spirituală sau o combinație între toate acestea.</div>
+          </div>
+
+          <p>Stresul prelungit nu rămâne doar în minte. El coboară în corp prin sistemul nervos, hormoni, imunitate, inflamație, somn, digestie și tensiune musculară. Ceea ce omul nu descarcă în mod conștient, corpul ajunge să suporte biologic.</p>
+
+          <p>Inflamația nu este dușmanul. Ea este încercarea corpului de a repara, izola sau apăra ceva. Dar când focul reparator rămâne aprins prea mult, el devine boală cronică. În limbaj coeziv: <strong>inflamația este focul reparator; boala cronică apare când focul nu se mai stinge.</strong></p>
+        </section>
+
+        <section>
+          <h2>De ce Hristos spune exact „rugăciune și post”</h2>
+          <p>Aici este cheia. Hristos nu spune „tratament”, nu spune „tehnică”, nu spune „metodă”, nu spune „intervenție asupra corpului”. Spune: <strong>rugăciune și post</strong>.</p>
+
+          <p>În forma greacă tradițională avem expresia:</p>
+
+          <div class="quote">
+            <span class="greek">ἐν προσευχῇ καὶ νηστείᾳ</span>
+            „în / prin rugăciune și post”
+          </div>
+
+          <p>Rugăciunea este reconectarea omului cu Dumnezeu, cu sursa, cu ordinea vie. Postul este retragerea hrănirii din partea trupească, instinctuală, încărcată, pentru ca omul să nu mai fie condus de corp, poftă, frică, dependență și reacție.</p>
+
+          <p>Împreună, ele spun ceva foarte profund: <strong>nu poți scoate o dezordine profundă din trup dacă omul rămâne prins în același regim de hrănire, dorință, agitație și separare de Dumnezeu.</strong></p>
+
+          <div class="formula">Rugăciunea reface coeziunea cu Dumnezeu.<br>Postul reduce zgomotul biologic și instinctual.</div>
+
+          <p>De aceea nu spune „rugăciune sau post”, ci <strong>rugăciune și post</strong>. Una fără alta poate rămâne incompletă. Rugăciunea fără post poate cere lumină, dar corpul rămâne încărcat. Postul fără rugăciune poate goli omul, dar fără să îl umple cu ordine vie. Rugăciunea împreună cu postul golește omul de dezordine și îl realiniază la sursă.</p>
+
+          <p>Postul nu este pedeapsă asupra corpului. Este oprirea alimentării haosului. Rugăciunea nu este doar cerere. Este revenirea în ordine.</p>
+        </section>
+
+        <section>
+          <h2>Aplicarea asupra bolilor fizice</h2>
+          <p>Aplicat la bolile fizice, sensul devine foarte clar: vindecarea profundă începe când omul încetează să mai hrănească dezordinea și începe să hrănească ordinea.</p>
+
+          <p>Nu este vorba doar despre mâncare. Omul poate hrăni dezordinea și prin gânduri, frică, atașamente, conflicte, pofte, ritm greșit, neiertare, suprasolicitare, izolare sau pierderea sensului.</p>
+
+          <p>Medicamentul poate opri simptomul. Alimentația poate reduce încărcarea. Somnul poate reface sistemul nervos. Mișcarea poate reporni circulația. Rugăciunea, liniștea, iertarea, postul și sensul pot reașeza interiorul. Relațiile bune pot reface siguranța biologică.</p>
+
+          <div class="literal">Simptom fizic = semnal vizibil al unei dezordini biologice, emoționale, energetice, sociale sau spirituale.</div>
+
+          <p>Aceasta nu înseamnă că omul este vinovat de boala lui. Este esențial de spus. Înseamnă doar că trupul este conectat cu întreaga viață a omului.</p>
+
+          <h3>Constipația cronică</h3>
+          <p>Poate fi dietă săracă în fibre, apă puțină, lipsă de mișcare sau efectul unor medicamente. Dar poate fi și un sistem nervos blocat pe stres, un corp care ține, nu elimină, nu relaxează.</p>
+
+          <h3>Durerea de umăr</h3>
+          <p>Poate fi tendon, bursă, capsulă, inflamație. Dar poate fi și corp care a dus ani de efort, presiune, suprasolicitare, frică de mișcare și tensiune acumulată.</p>
+
+          <h3>Oboseala cronică</h3>
+          <p>Poate fi anemie, tiroidă, inflamație, hormoni, somn prost sau medicamente. Dar poate fi și sistemul viu care nu mai are coeziune între voință, energie și recuperare.</p>
+
+          <h3>Cancerul</h3>
+          <p>Nu trebuie simplificat spiritual niciodată. Are mecanisme celulare, genetice, hormonale și imune. Dar terenul biologic — inflamație, imunitate, stres, metabolism, mediu — contează. De aceea abordarea trebuie să fie medicală, dar și profund umană.</p>
+        </section>
+
+        <section>
+          <h2>Concluzia manuscrisului</h2>
+          <p>Boala fizică nu este doar o defecțiune de carne. Este, de multe ori, mesajul final al unui sistem care s-a dezechilibrat pe mai multe niveluri.</p>
+
+          <p>Vindecarea nu este doar repararea piesei, ci refacerea coeziunii: trup, minte, suflet, relații, sens, ritm, hrană, odihnă și credință.</p>
+
+          <p>Exact aici se leagă Matei 17:21. Nu orice „soi” iese prin intervenție exterioară. Unele rupturi ies doar când omul intră într-o stare mai înaltă de ordine: rugăciune, post, liniște, curățare, disciplină și reașezare.</p>
+
+          <div class="formula">Acest soi nu iese decât prin rugăciune și post.</div>
+
+          <p>Adică printr-o transformare completă a stării omului, nu prin simpla combatere a simptomului.</p>
+          <div class="seal">✠</div>
+        </section>
+      </article>
+
+      <footer>Text așezat în formă de manuscris explicativ, cu esența dialogului păstrată.</footer>
+    </div>
+  </main>
+</body>
+</html>
