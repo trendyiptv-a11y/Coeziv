@@ -31,17 +31,6 @@
         "publisher":{"@type":"Organization","name":"Proiect Coeziv","url":"https://coeziv.vercel.app"}
       },
       {
-        "@type":"CreativeWork",
-        "name":"Cohesive Formula",
-        "alternateName":"Cohesive Engine",
-        "author":{"@type":"Person","name":"Sergiu Bulboacă"},
-        "description":"An interdisciplinary model for interpreting cohesion, correlating concepts of energy, information, structure and balance through the 3.14ΔH ratio.",
-        "keywords":["Cohesive Formula","Cohesive Model","3.14","ΔH","Sergiu Bulboacă","factual analysis","logical analysis","semantic analysis","human analysis"],
-        "inLanguage":"en",
-        "license":"https://creativecommons.org/licenses/by-nc-sa/4.0/",
-        "publisher":{"@type":"Organization","name":"Cohesive Project","url":"https://coeziv.vercel.app"}
-      },
-      {
         "@type":"SoftwareApplication",
         "name":"Analizor Coeziv 3.14",
         "alternateName":"Cohesive Analyzer 3.14",
@@ -76,6 +65,8 @@
     .score-bar-inner { height:6px; transition:width 0.4s ease; border-radius:3px; }
     a.source-link { display:block; text-decoration:none; color:#1e90ff; margin-top:6px; overflow-wrap:anywhere; }
     a.source-link:hover { text-decoration:underline; }
+    .note { color:var(--muted); font-size:0.9rem; line-height:1.35; margin-top:0.35rem; }
+    .public-presence { margin-top:1rem; padding-top:0.4rem; border-top:1px solid rgba(255,255,255,0.08); }
     .collections-btn { display:inline-block; margin-left:0.6rem; padding:0.6rem 1.2rem; color:#0d1117; background:var(--human); border:1px solid var(--human); border-radius:8px; text-decoration:none; font-size:0.9rem; font-weight:bold; cursor:pointer; transition:0.2s; }
     .collections-btn:hover { background:#ffe16b; transform:translateY(-1px); box-shadow:0 0 14px rgba(255,218,71,0.22); }
     .about-link { display:inline-block; padding:0.6rem 1.2rem; color:#00ffb7; border:1px solid #00ffb7; border-radius:8px; text-decoration:none; font-size:0.9rem; transition:0.2s; }
@@ -145,21 +136,34 @@
       const summary = data.summary || "Analiza completă conform Formulei 3.14Δ.";
       const barWidth = Math.max(0, Math.min((VNumber / 3.14) * 100, 100));
       const color = humanMode ? "var(--human)" : "var(--true)";
+
       const sourcesHTML = Array.isArray(data.sources) && data.sources.length
-        ? data.sources.map(source => {
-            const title = escapeHTML(source.title || "Sursă");
-            const link = sanitizeURL(source.link || "#");
-            return `<a class="source-link" href="${link}" target="_blank" rel="noopener noreferrer">🌐 ${title}</a>`;
-          }).join("")
-        : `<p style="color: var(--muted)">Nicio sursă relevantă.</p>`;
+        ? data.sources.map(source => sourceLinkHTML(source)).join("")
+        : `<p class="note">${escapeHTML(data.source_note || "Nicio sursă externă independentă suficient de relevantă.")}</p>`;
+
+      const publicPresenceHTML = Array.isArray(data.public_presence) && data.public_presence.length
+        ? `<div class="public-presence">
+             <h4 style="margin-top:1rem;">🌐 Prezență publică proprie:</h4>
+             <p class="note">${escapeHTML(data.public_presence_note || "Aceste linkuri descriu prezența publică a proiectului, dar nu sunt validare independentă.")}</p>
+             ${data.public_presence.map(item => sourceLinkHTML(item)).join("")}
+           </div>`
+        : "";
+
       resultBox.innerHTML = `
         <p><b>Formula ${humanMode ? "3.14ΔH" : "3.14Δ"}:</b> F=${F.toFixed(2)}, L=${L.toFixed(2)}, C=${C.toFixed(2)}${humanMode ? `, H=${H.toFixed(2)}` : ""}</p>
         <p><b>Verdict:</b> ${escapeHTML(verdict)}</p>
         <p><b>Scor total V:</b> ${V} / 3.14</p>
         <div class="score-bar"><div class="score-bar-inner" style="width:${barWidth}%; background-color:${color};"></div></div>
         <p style="margin-top:1rem;">${escapeHTML(summary)}</p>
-        <h4 style="margin-top:1rem;">🔗 Surse:</h4>
-        ${sourcesHTML}`;
+        <h4 style="margin-top:1rem;">🔗 Surse externe independente:</h4>
+        ${sourcesHTML}
+        ${publicPresenceHTML}`;
+    }
+
+    function sourceLinkHTML(source) {
+      const title = escapeHTML(source.title || "Sursă");
+      const link = sanitizeURL(source.link || "#");
+      return `<a class="source-link" href="${link}" target="_blank" rel="noopener noreferrer">🌐 ${title}</a>`;
     }
 
     function calcHumanResonance(text) {
