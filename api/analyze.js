@@ -1,6 +1,9 @@
 // Motor Coeziv 3.14Δ / 3.14ΔH
 // Filtru online semantic: caută larg, clasifică AI și separă sursele independente de prezența publică proprie.
 
+const COEZIV_ANALYSIS_MODEL = process.env.COEZIV_ANALYSIS_MODEL || process.env.COEZIV_MODEL || "gpt-4.1";
+const COEZIV_SOURCE_MODEL = process.env.COEZIV_SOURCE_MODEL || process.env.COEZIV_MODEL || "gpt-4.1-mini";
+
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed. Use POST /api/analyze" });
@@ -60,7 +63,7 @@ Afirmația:
         Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: "gpt-4o-mini",
+        model: COEZIV_ANALYSIS_MODEL,
         temperature: 0.25,
         messages: [
           { role: "system", content: "Ești un evaluator de adevăr conform Formulei Coeziunii 3.14Δ. Răspunde strict cu JSON valid, fără markdown." },
@@ -75,6 +78,7 @@ Afirmația:
         error: "OpenAI request failed",
         status: gptResp.status,
         detail: errText?.slice(0, 500),
+        analysis_model: COEZIV_ANALYSIS_MODEL,
       });
     }
 
@@ -302,7 +306,7 @@ ${JSON.stringify(compactSources)}
           method: "POST",
           headers: { "Content-Type": "application/json", Authorization: `Bearer ${process.env.OPENAI_API_KEY}` },
           body: JSON.stringify({
-            model: "gpt-4o-mini",
+            model: COEZIV_SOURCE_MODEL,
             temperature: 0,
             messages: [
               { role: "system", content: "Ești un filtru semantic de surse online. Răspunde numai cu JSON array valid." },
@@ -382,6 +386,10 @@ ${JSON.stringify(compactSources)}
       source_note: sourceResult.note,
       public_presence: getPublicPresence(),
       public_presence_note: "Prezență publică proprie; descrie existența proiectului, dar nu reprezintă validare independentă.",
+      models: {
+        analysis: COEZIV_ANALYSIS_MODEL,
+        source_filter: COEZIV_SOURCE_MODEL,
+      },
     });
   } catch (err) {
     return res.status(500).json({
