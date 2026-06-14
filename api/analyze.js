@@ -1,8 +1,83 @@
 // Motor Coeziv 3.14Δ / 3.14ΔH
-// Filtru online semantic: caută larg, clasifică AI și separă sursele independente de prezența publică proprie.
+// Suportă automat Chat Completions pentru modelele clasice și Responses API pentru GPT-5.
 
 const COEZIV_ANALYSIS_MODEL = process.env.COEZIV_ANALYSIS_MODEL || process.env.COEZIV_MODEL || "gpt-4.1";
 const COEZIV_SOURCE_MODEL = process.env.COEZIV_SOURCE_MODEL || process.env.COEZIV_MODEL || "gpt-4.1-mini";
+
+function usesResponsesAPI(model) {
+  return String(model || "").toLowerCase().startsWith("gpt-5");
+}
+
+function readResponsesText(data) {
+  if (typeof data?.output_text === "string") return data.output_text;
+  const parts = [];
+  for (const item of data?.output || []) {
+    for (const c of item?.content || []) {
+      if (typeof c?.text === "string") parts.push(c.text);
+      if (typeof c?.value === "string") parts.push(c.value);
+    }
+  }
+  return parts.join("\n");
+}
+
+async function callOpenAIText({ model, system, user, temperature }) {
+  if (usesResponsesAPI(model)) {
+    const resp = await fetch("https://api.openai.com/v1/responses", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model,
+        instructions: system,
+        input: user,
+      }),
+    });
+
+    if (!resp.ok) {
+      const errText = await resp.text();
+      const error = new Error("OpenAI request failed");
+      error.status = resp.status;
+      error.detail = errText?.slice(0, 800);
+      error.model = model;
+      error.endpoint = "responses";
+      throw error;
+    }
+
+    const data = await resp.json();
+    return readResponsesText(data);
+  }
+
+  const resp = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+    },
+    body: JSON.stringify({
+      model,
+      temperature,
+      messages: [
+        { role: "system", content: system },
+        { role: "user", content: user },
+      ],
+    }),
+  });
+
+  if (!resp.ok) {
+    const errText = await resp.text();
+    const error = new Error("OpenAI request failed");
+    error.status = resp.status;
+    error.detail = errText?.slice(0, 800);
+    error.model = model;
+    error.endpoint = "chat/completions";
+    throw error;
+  }
+
+  const data = await resp.json();
+  return data?.choices?.[0]?.message?.content || "";
+}
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -56,34 +131,12 @@ Afirmația:
 "${text}"
 `.trim();
 
-    const gptResp = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-      },
-      body: JSON.stringify({
-        model: COEZIV_ANALYSIS_MODEL,
-        temperature: 0.25,
-        messages: [
-          { role: "system", content: "Ești un evaluator de adevăr conform Formulei Coeziunii 3.14Δ. Răspunde strict cu JSON valid, fără markdown." },
-          { role: "user", content: gptPrompt },
-        ],
-      }),
+    const content = await callOpenAIText({
+      model: COEZIV_ANALYSIS_MODEL,
+      temperature: 0.25,
+      system: "Ești un evaluator de adevăr conform Formulei Coeziunii 3.14Δ. Răspunde strict cu JSON valid, fără markdown.",
+      user: gptPrompt,
     });
-
-    if (!gptResp.ok) {
-      const errText = await gptResp.text();
-      return res.status(502).json({
-        error: "OpenAI request failed",
-        status: gptResp.status,
-        detail: errText?.slice(0, 500),
-        analysis_model: COEZIV_ANALYSIS_MODEL,
-      });
-    }
-
-    const gptData = await gptResp.json();
-    const content = gptData?.choices?.[0]?.message?.content || "";
 
     function extractJson(str) {
       const fenced = str.match(/```json\s*([\s\S]*?)\s*```/) || str.match(/```\s*([\s\S]*?)\s*```/);
@@ -128,15 +181,8 @@ Afirmația:
 
     function calcHumanResonance(txt) {
       const lower = String(txt || "").toLowerCase();
-      const positive = [
-        "viață", "viata", "suflet", "adevăr", "adevar", "iubire", "armonie", "echilibru", "sens",
-        "demnitate", "libertate", "conștiință", "constiinta", "responsabilitate", "claritate",
-        "vindecare", "coerență", "coerenta", "coeziune", "energie"
-      ];
-      const constructive = [
-        "cum putem", "soluție", "solutie", "îmbunătăți", "imbunatati", "înțelege", "intelege",
-        "corecta", "echilibra", "repara", "clarifica", "construi", "dezvolta"
-      ];
+      const positive = ["viață", "viata", "suflet", "adevăr", "adevar", "iubire", "armonie", "echilibru", "sens", "demnitate", "libertate", "conștiință", "constiinta", "responsabilitate", "claritate", "vindecare", "coerență", "coerenta", "coeziune", "energie"];
+      const constructive = ["cum putem", "soluție", "solutie", "îmbunătăți", "imbunatati", "înțelege", "intelege", "corecta", "echilibra", "repara", "clarifica", "construi", "dezvolta"];
       const negative = ["ură", "ura", "minciună", "minciuna", "manipulare", "distrugere", "frică", "frica", "haos", "abuz", "dezbinare"];
       let score = 0.5;
       for (const word of positive) if (lower.includes(word)) score += 0.35;
@@ -221,10 +267,7 @@ Afirmația:
       const input = String(inputText || "").toLowerCase();
       const haystackNoDia = stripDiacritics(haystack).toLowerCase();
       const inputNoDia = stripDiacritics(input).toLowerCase();
-      const goodTerms = [
-        "model coeziv", "modelul coeziv", "formula coeziunii", "3.14", "3.14δh", "3.14Δh",
-        "sergiu bulboacă", "sergiu bulboaca", "analizor coeziv", "exploratorul coeziv", "coeziv"
-      ];
+      const goodTerms = ["model coeziv", "modelul coeziv", "formula coeziunii", "3.14", "3.14δh", "3.14Δh", "sergiu bulboacă", "sergiu bulboaca", "analizor coeziv", "exploratorul coeziv", "coeziv"];
       const badTerms = ["terasament", "terasamente", "pământuri coezive", "pamanturi coezive", "sol coeziv", "soluri coezive", "geotehnic", "geotehnică", "geotehnica", "compactarea", "tapiteria", "tapiserie", "honda"];
       let score = 0;
       for (const term of goodTerms) {
@@ -260,14 +303,7 @@ Afirmația:
             const link = normalizeLink(r.link || "");
             if (!link || seen.has(link)) continue;
             seen.add(link);
-            results.push({
-              index: results.length,
-              title: r.title || "Sursă",
-              link,
-              snippet: r.snippet || "",
-              heuristic_score: sourceRelevanceScore(r, inputText),
-              is_internal: isInternalSource(link),
-            });
+            results.push({ index: results.length, title: r.title || "Sursă", link, snippet: r.snippet || "", heuristic_score: sourceRelevanceScore(r, inputText), is_internal: isInternalSource(link) });
             if (results.length >= 30) return results;
           }
         } catch { /* ignore query failures */ }
@@ -277,12 +313,7 @@ Afirmația:
 
     async function classifyOnlineSourcesWithAI(candidateSources, inputText) {
       if (!candidateSources.length) return [];
-      const compactSources = candidateSources.slice(0, 25).map((s, index) => ({
-        index,
-        title: String(s.title || "").slice(0, 160),
-        snippet: String(s.snippet || "").slice(0, 300),
-        link: String(s.link || "").slice(0, 220),
-      }));
+      const compactSources = candidateSources.slice(0, 25).map((s, index) => ({ index, title: String(s.title || "").slice(0, 160), snippet: String(s.snippet || "").slice(0, 300), link: String(s.link || "").slice(0, 220) }));
       const classifyPrompt = `
 Clasifică rezultatele online pentru afirmația analizată.
 
@@ -302,21 +333,12 @@ Surse:
 ${JSON.stringify(compactSources)}
 `.trim();
       try {
-        const resp = await fetch("https://api.openai.com/v1/chat/completions", {
-          method: "POST",
-          headers: { "Content-Type": "application/json", Authorization: `Bearer ${process.env.OPENAI_API_KEY}` },
-          body: JSON.stringify({
-            model: COEZIV_SOURCE_MODEL,
-            temperature: 0,
-            messages: [
-              { role: "system", content: "Ești un filtru semantic de surse online. Răspunde numai cu JSON array valid." },
-              { role: "user", content: classifyPrompt },
-            ],
-          }),
+        const raw = await callOpenAIText({
+          model: COEZIV_SOURCE_MODEL,
+          temperature: 0,
+          system: "Ești un filtru semantic de surse online. Răspunde numai cu JSON array valid.",
+          user: classifyPrompt,
         });
-        if (!resp.ok) throw new Error("classifier failed");
-        const data = await resp.json();
-        const raw = data?.choices?.[0]?.message?.content || "[]";
         const classifications = JSON.parse(extractJsonArray(raw));
         if (!Array.isArray(classifications)) return [];
         return classifications;
@@ -340,18 +362,9 @@ ${JSON.stringify(compactSources)}
         .slice(0, 5)
         .map((s) => ({ title: s.title, link: s.link }));
       if (!accepted.length && !classifications.length) {
-        accepted = candidates
-          .filter((s) => s.heuristic_score > 1.5 && !s.is_internal)
-          .sort((a, b) => b.heuristic_score - a.heuristic_score)
-          .slice(0, 3)
-          .map((s) => ({ title: s.title, link: s.link }));
+        accepted = candidates.filter((s) => s.heuristic_score > 1.5 && !s.is_internal).sort((a, b) => b.heuristic_score - a.heuristic_score).slice(0, 3).map((s) => ({ title: s.title, link: s.link }));
       }
-      return {
-        sources: accepted,
-        note: accepted.length
-          ? "Sursele au fost filtrate semantic ca surse externe independente relevante."
-          : "Nu am găsit surse externe independente suficient de relevante.",
-      };
+      return { sources: accepted, note: accepted.length ? "Sursele au fost filtrate semantic ca surse externe independente relevante." : "Nu am găsit surse externe independente suficient de relevante." };
     }
 
     function getPublicPresence() {
@@ -361,9 +374,7 @@ ${JSON.stringify(compactSources)}
         { title: "Colecții Coezive", link: "https://coeziv.vercel.app/document/collections.html" },
         { title: "Repository public Coeziv", link: "https://github.com/trendyiptv-a11y/Coeziv" }
       ];
-      if (process.env.COEZIV_GPT_URL) {
-        items.unshift({ title: "Exploratorul Coeziv – GPT public", link: process.env.COEZIV_GPT_URL });
-      }
+      if (process.env.COEZIV_GPT_URL) items.unshift({ title: "Exploratorul Coeziv – GPT public", link: process.env.COEZIV_GPT_URL });
       return items;
     }
 
@@ -386,15 +397,15 @@ ${JSON.stringify(compactSources)}
       source_note: sourceResult.note,
       public_presence: getPublicPresence(),
       public_presence_note: "Prezență publică proprie; descrie existența proiectului, dar nu reprezintă validare independentă.",
-      models: {
-        analysis: COEZIV_ANALYSIS_MODEL,
-        source_filter: COEZIV_SOURCE_MODEL,
-      },
+      models: { analysis: COEZIV_ANALYSIS_MODEL, source_filter: COEZIV_SOURCE_MODEL, analysis_endpoint: usesResponsesAPI(COEZIV_ANALYSIS_MODEL) ? "responses" : "chat/completions", source_endpoint: usesResponsesAPI(COEZIV_SOURCE_MODEL) ? "responses" : "chat/completions" },
     });
   } catch (err) {
     return res.status(500).json({
-      error: "Eroare internă în analiza Coezivă 3.14Δ/ΔH.",
-      detail: String(err?.message || err).slice(0, 500),
+      error: "OpenAI request failed",
+      status: err?.status || 500,
+      detail: String(err?.detail || err?.message || err).slice(0, 800),
+      model: err?.model || COEZIV_ANALYSIS_MODEL,
+      endpoint: err?.endpoint || (usesResponsesAPI(COEZIV_ANALYSIS_MODEL) ? "responses" : "chat/completions"),
     });
   }
 }
