@@ -1,19 +1,14 @@
 // Motor Coeziv 3.14Δ / 3.14ΔH
-// Îmbunătățiri: ΔH extins, verdicturi rafinate, explicații pe axe și filtrare semantică a surselor.
+// Filtru online semantic: caută larg, clasifică AI și afișează doar surse externe relevante.
 
 export default async function handler(req, res) {
-  // Acceptă doar POST și răspunde JSON mereu
   if (req.method !== "POST") {
-    return res
-      .status(405)
-      .json({ error: "Method not allowed. Use POST /api/analyze" });
+    return res.status(405).json({ error: "Method not allowed. Use POST /api/analyze" });
   }
 
-  // Body safe (Vercel poate trimite string; Next API îl parsează deja)
   let body = {};
   try {
-    body =
-      typeof req.body === "string" ? JSON.parse(req.body || "{}") : (req.body || {});
+    body = typeof req.body === "string" ? JSON.parse(req.body || "{}") : (req.body || {});
   } catch {
     return res.status(400).json({ error: "Invalid JSON body." });
   }
@@ -24,9 +19,7 @@ export default async function handler(req, res) {
   }
 
   if (!process.env.OPENAI_API_KEY) {
-    return res.status(500).json({
-      error: "Server misconfigured: OPENAI_API_KEY is missing.",
-    });
+    return res.status(500).json({ error: "Server misconfigured: OPENAI_API_KEY is missing." });
   }
 
   try {
@@ -60,7 +53,6 @@ Afirmația:
 "${text}"
 `.trim();
 
-    // Cerere către OpenAI (fetch global în Node 18/20 pe Vercel)
     const gptResp = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -71,11 +63,7 @@ Afirmația:
         model: "gpt-4o-mini",
         temperature: 0.25,
         messages: [
-          {
-            role: "system",
-            content:
-              "Ești un evaluator de adevăr conform Formulei Coeziunii 3.14Δ. Răspunde strict cu JSON valid, fără markdown.",
-          },
+          { role: "system", content: "Ești un evaluator de adevăr conform Formulei Coeziunii 3.14Δ. Răspunde strict cu JSON valid, fără markdown." },
           { role: "user", content: gptPrompt },
         ],
       }),
@@ -93,16 +81,22 @@ Afirmația:
     const gptData = await gptResp.json();
     const content = gptData?.choices?.[0]?.message?.content || "";
 
-    // Parse robust al JSON-ului (acceptă și varianta cu ```json)
     function extractJson(str) {
-      const fenced =
-        str.match(/```json\s*([\s\S]*?)\s*```/) ||
-        str.match(/```\s*([\s\S]*?)\s*```/);
+      const fenced = str.match(/```json\s*([\s\S]*?)\s*```/) || str.match(/```\s*([\s\S]*?)\s*```/);
       if (fenced) return fenced[1].trim();
       const start = str.indexOf("{");
       const end = str.lastIndexOf("}");
       if (start !== -1 && end !== -1 && end > start) return str.slice(start, end + 1);
       return str.trim();
+    }
+
+    function extractJsonArray(str) {
+      const fenced = str.match(/```json\s*([\s\S]*?)\s*```/) || str.match(/```\s*([\s\S]*?)\s*```/);
+      const raw = fenced ? fenced[1].trim() : str.trim();
+      const start = raw.indexOf("[");
+      const end = raw.lastIndexOf("]");
+      if (start !== -1 && end !== -1 && end > start) return raw.slice(start, end + 1);
+      return raw;
     }
 
     let gptJson;
@@ -130,172 +124,210 @@ Afirmația:
 
     function calcHumanResonance(txt) {
       const lower = String(txt || "").toLowerCase();
-
       const positive = [
-        "viață", "viata", "suflet", "adevăr", "adevar", "iubire",
-        "armonie", "echilibru", "sens", "demnitate", "libertate",
-        "conștiință", "constiinta", "responsabilitate", "claritate",
+        "viață", "viata", "suflet", "adevăr", "adevar", "iubire", "armonie", "echilibru", "sens",
+        "demnitate", "libertate", "conștiință", "constiinta", "responsabilitate", "claritate",
         "vindecare", "coerență", "coerenta", "coeziune", "energie"
       ];
-
       const constructive = [
-        "cum putem", "soluție", "solutie", "îmbunătăți", "imbunatati",
-        "înțelege", "intelege", "corecta", "echilibra", "repara",
-        "clarifica", "construi", "dezvolta"
+        "cum putem", "soluție", "solutie", "îmbunătăți", "imbunatati", "înțelege", "intelege",
+        "corecta", "echilibra", "repara", "clarifica", "construi", "dezvolta"
       ];
-
-      const negative = [
-        "ură", "ura", "minciună", "minciuna", "manipulare", "distrugere",
-        "frică", "frica", "haos", "abuz", "dezbinare"
-      ];
-
+      const negative = ["ură", "ura", "minciună", "minciuna", "manipulare", "distrugere", "frică", "frica", "haos", "abuz", "dezbinare"];
       let score = 0.5;
-
-      for (const word of positive) {
-        if (lower.includes(word)) score += 0.35;
-      }
-
-      for (const phrase of constructive) {
-        if (lower.includes(phrase)) score += 0.45;
-      }
-
-      for (const word of negative) {
-        if (lower.includes(word)) score -= 0.25;
-      }
-
+      for (const word of positive) if (lower.includes(word)) score += 0.35;
+      for (const phrase of constructive) if (lower.includes(phrase)) score += 0.45;
+      for (const word of negative) if (lower.includes(word)) score -= 0.25;
       if (lower.length > 80) score += 0.25;
       if (/[?]/.test(txt)) score += 0.15;
-
       return Math.max(0, Math.min(score, 3.14));
     }
 
     function cohesiveVerdict(V, isHumanMode = false) {
-      if (V >= 2.8) {
-        return isHumanMode ? "🌿 Adevăr coeziv uman puternic" : "✅ Coerență ridicată";
-      }
-      if (V >= 2.2) {
-        return isHumanMode ? "🌱 Coerență umană bună" : "🟢 Probabil adevărat / coerent";
-      }
-      if (V >= 1.5) {
-        return isHumanMode ? "⚖️ Echilibru parțial uman" : "🟡 Parțial adevărat / necesită clarificări";
-      }
-      if (V >= 0.8) {
-        return isHumanMode ? "🌫️ Rezonanță umană slabă" : "🟠 Coerență slabă";
-      }
+      if (V >= 2.8) return isHumanMode ? "🌿 Adevăr coeziv uman puternic" : "✅ Coerență ridicată";
+      if (V >= 2.2) return isHumanMode ? "🌱 Coerență umană bună" : "🟢 Probabil adevărat / coerent";
+      if (V >= 1.5) return isHumanMode ? "⚖️ Echilibru parțial uman" : "🟡 Parțial adevărat / necesită clarificări";
+      if (V >= 0.8) return isHumanMode ? "🌫️ Rezonanță umană slabă" : "🟠 Coerență slabă";
       return isHumanMode ? "⚠️ Dezechilibru ΔH" : "🔴 Probabil fals / incoerent";
     }
 
     function generateCohesiveExplanation(F, L, C, H, isHumanMode = false) {
       const parts = [];
-
-      if (F < 1.5) {
-        parts.push("Nivelul factual este slab: afirmația are puține elemente verificabile direct.");
-      } else {
-        parts.push("Nivelul factual indică existența unor elemente verificabile.");
-      }
-
-      if (L < 1.5) {
-        parts.push("Nivelul logic necesită clarificare: legătura cauză–efect nu este complet consolidată.");
-      } else {
-        parts.push("Nivelul logic este relativ coerent.");
-      }
-
-      if (C < 1.5) {
-        parts.push("Nivelul semantic este fragil: termenii pot avea mai multe sensuri.");
-      } else {
-        parts.push("Nivelul semantic arată o direcție coerentă de interpretare.");
-      }
-
-      if (isHumanMode) {
-        if (H < 1.5) {
-          parts.push("Nivelul ΔH este redus: componenta umană, etică sau integratoare este slab exprimată.");
-        } else {
-          parts.push("Nivelul ΔH indică o rezonanță umană prezentă.");
-        }
-      }
-
+      parts.push(F < 1.5 ? "Nivelul factual este slab: afirmația are puține elemente verificabile direct." : "Nivelul factual indică existența unor elemente verificabile.");
+      parts.push(L < 1.5 ? "Nivelul logic necesită clarificare: legătura cauză–efect nu este complet consolidată." : "Nivelul logic este relativ coerent.");
+      parts.push(C < 1.5 ? "Nivelul semantic este fragil: termenii pot avea mai multe sensuri." : "Nivelul semantic arată o direcție coerentă de interpretare.");
+      if (isHumanMode) parts.push(H < 1.5 ? "Nivelul ΔH este redus: componenta umană, etică sau integratoare este slab exprimată." : "Nivelul ΔH indică o rezonanță umană prezentă.");
       return parts.join(" ");
     }
 
-    function buildSearchQuery(txt) {
-      const clean = String(txt || "").trim().slice(0, 220);
+    function buildSearchQueries(txt) {
+      const clean = String(txt || "").trim().slice(0, 180);
+      const negatives = "-teren -terasament -geotehnic -tapiterie -tapiserie -honda -compactarea -pământuri -pamanturi -soluri";
       return [
-        clean ? `"${clean}"` : "",
-        "\"Model Coeziv\" OR \"Formula Coeziunii\" OR \"3.14ΔH\" OR \"Sergiu Bulboacă\"",
-        "-teren -terasament -geotehnic -tapiterie -tapiserie -honda -compactarea -pământuri -pamanturi -soluri"
-      ].filter(Boolean).join(" ");
+        clean ? `"${clean}" "Model Coeziv" ${negatives}` : null,
+        `"Model Coeziv" "Sergiu Bulboacă" ${negatives}`,
+        `"Formula Coeziunii" "3.14" "Sergiu Bulboacă" ${negatives}`,
+        `"3.14ΔH" OR "3.14 ΔH" "coeziv" ${negatives}`,
+        `"Analizor Coeziv" "Sergiu Bulboacă" ${negatives}`
+      ].filter(Boolean);
+    }
+
+    function normalizeLink(link) {
+      try {
+        const url = new URL(String(link || ""));
+        url.hash = "";
+        return url.href.replace(/\/$/, "");
+      } catch {
+        return String(link || "");
+      }
+    }
+
+    function isInternalSource(link) {
+      const value = String(link || "").toLowerCase();
+      return value.includes("coeziv.vercel.app") || value.includes("github.com/trendyiptv-a11y/coeziv");
     }
 
     function sourceRelevanceScore(source, inputText) {
       const haystack = `${source.title || ""} ${source.snippet || ""} ${source.link || ""}`.toLowerCase();
       const input = String(inputText || "").toLowerCase();
-
-      const goodTerms = [
-        "model coeziv", "formula coeziunii", "3.14", "3.14δh", "3.14Δh",
-        "sergiu bulboacă", "sergiu bulboaca", "coeziv.vercel.app", "coerență",
-        "coerenta", "homeostazie", "semantic", "uman", "viață", "viata",
-        "suflet", "energie", "echilibru"
-      ];
-
-      const badTerms = [
-        "terasament", "terasamente", "pământuri coezive", "pamanturi coezive",
-        "sol coeziv", "soluri coezive", "geotehnic", "geotehnică", "geotehnica",
-        "compactarea", "tapiteria", "tapiserie", "honda", "broșura-model", "brosura-model"
-      ];
-
+      const goodTerms = ["model coeziv", "formula coeziunii", "3.14", "3.14δh", "3.14Δh", "sergiu bulboacă", "sergiu bulboaca", "analizor coeziv"];
+      const badTerms = ["terasament", "terasamente", "pământuri coezive", "pamanturi coezive", "sol coeziv", "soluri coezive", "geotehnic", "geotehnică", "geotehnica", "compactarea", "tapiteria", "tapiserie", "honda"];
       let score = 0;
-
       for (const term of goodTerms) {
-        if (haystack.includes(term.toLowerCase())) score += 1.2;
-        if (input.includes(term.toLowerCase())) score += 0.2;
+        if (haystack.includes(term.toLowerCase())) score += 1.5;
+        if (input.includes(term.toLowerCase())) score += 0.15;
       }
-
-      for (const term of badTerms) {
-        if (haystack.includes(term.toLowerCase())) score -= 3;
-      }
-
-      if (haystack.includes("coeziv")) score += 0.4;
-      if (haystack.includes("pdf")) score -= 0.4;
-
+      for (const term of badTerms) if (haystack.includes(term.toLowerCase())) score -= 4;
+      if (isInternalSource(source.link)) score -= 2;
       return score;
+    }
+
+    async function collectSerperResults(inputText) {
+      if (!process.env.SERPER_API_KEY) return [];
+      const queries = buildSearchQueries(inputText);
+      const seen = new Set();
+      const results = [];
+
+      for (const q of queries) {
+        try {
+          const serp = await fetch("https://google.serper.dev/search", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "X-API-KEY": process.env.SERPER_API_KEY },
+            body: JSON.stringify({ q, gl: "ro", hl: "ro", num: 10 }),
+          });
+          if (!serp.ok) continue;
+          const serpData = await serp.json();
+          for (const r of (serpData?.organic || [])) {
+            const link = normalizeLink(r.link || "");
+            if (!link || seen.has(link)) continue;
+            seen.add(link);
+            results.push({
+              index: results.length,
+              title: r.title || "Sursă",
+              link,
+              snippet: r.snippet || "",
+              heuristic_score: sourceRelevanceScore(r, inputText),
+              is_internal: isInternalSource(link),
+            });
+            if (results.length >= 20) return results;
+          }
+        } catch { /* ignore query failures */ }
+      }
+      return results;
+    }
+
+    async function classifyOnlineSourcesWithAI(candidateSources, inputText) {
+      if (!candidateSources.length) return [];
+
+      const compactSources = candidateSources.slice(0, 20).map((s, index) => ({
+        index,
+        title: String(s.title || "").slice(0, 160),
+        snippet: String(s.snippet || "").slice(0, 300),
+        link: String(s.link || "").slice(0, 220),
+      }));
+
+      const classifyPrompt = `
+Clasifică rezultatele online pentru afirmația analizată.
+
+Afirmație: "${inputText}"
+
+Entitatea urmărită este Modelul Coeziv 3.14 / Formula Coeziunii / 3.14ΔH / Analizor Coeziv / Sergiu Bulboacă.
+O sursă este relevantă doar dacă vorbește despre această entitate ca model, concept, proiect sau aplicație.
+Nu considera relevantă o sursă care folosește doar termenul tehnic „coeziv” în geotehnică, soluri, terasamente, tapiserie, materiale etc.
+Sursele interne/proprii, precum coeziv.vercel.app sau github.com/trendyiptv-a11y/Coeziv, NU sunt surse independente.
+
+Returnează DOAR JSON ARRAY VALID. Pentru fiecare sursă:
+[
+  { "index": number, "relevant": boolean, "source_type": "independent" | "internal" | "keyword_collision" | "irrelevant", "confidence": number, "reason": "scurt" }
+]
+
+Surse:
+${JSON.stringify(compactSources)}
+`.trim();
+
+      try {
+        const resp = await fetch("https://api.openai.com/v1/chat/completions", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${process.env.OPENAI_API_KEY}` },
+          body: JSON.stringify({
+            model: "gpt-4o-mini",
+            temperature: 0,
+            messages: [
+              { role: "system", content: "Ești un filtru semantic de surse online. Răspunde numai cu JSON array valid." },
+              { role: "user", content: classifyPrompt },
+            ],
+          }),
+        });
+        if (!resp.ok) throw new Error("classifier failed");
+        const data = await resp.json();
+        const raw = data?.choices?.[0]?.message?.content || "[]";
+        const classifications = JSON.parse(extractJsonArray(raw));
+        if (!Array.isArray(classifications)) return [];
+        return classifications;
+      } catch {
+        return [];
+      }
+    }
+
+    async function getIndependentOnlineSources(inputText) {
+      const candidates = await collectSerperResults(inputText);
+      if (!candidates.length) return { sources: [], note: "Nu am găsit rezultate online candidate." };
+
+      const classifications = await classifyOnlineSourcesWithAI(candidates, inputText);
+      const byIndex = new Map(classifications.map((c) => [Number(c.index), c]));
+
+      let accepted = candidates
+        .map((s, index) => ({ ...s, classification: byIndex.get(index) }))
+        .filter((s) => {
+          const c = s.classification;
+          return c && c.relevant === true && c.source_type === "independent" && Number(c.confidence || 0) >= 0.55 && !s.is_internal;
+        })
+        .sort((a, b) => Number(b.classification?.confidence || 0) - Number(a.classification?.confidence || 0))
+        .slice(0, 5)
+        .map((s) => ({ title: s.title, link: s.link }));
+
+      if (!accepted.length && !classifications.length) {
+        accepted = candidates
+          .filter((s) => s.heuristic_score > 1.5 && !s.is_internal)
+          .sort((a, b) => b.heuristic_score - a.heuristic_score)
+          .slice(0, 3)
+          .map((s) => ({ title: s.title, link: s.link }));
+      }
+
+      return {
+        sources: accepted,
+        note: accepted.length
+          ? "Sursele au fost filtrate semantic ca surse externe relevante."
+          : "Nu am găsit surse externe independente suficient de relevante.",
+      };
     }
 
     const H = humanMode ? calcHumanResonance(text) : 0;
     const Vnum = humanMode ? (F + L + C + H) / 4 : (F + L + C) / 3;
     const V = Number(Vnum.toFixed(2));
-
-    // Căutare opțională (nu bloca dacă lipsește cheia)
-    let sources = [];
-    if (process.env.SERPER_API_KEY) {
-      try {
-        const query = buildSearchQuery(text);
-        const serp = await fetch("https://google.serper.dev/search", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-API-KEY": process.env.SERPER_API_KEY,
-          },
-          body: JSON.stringify({ q: query, gl: "ro", hl: "ro" }),
-        });
-
-        if (serp.ok) {
-          const serpData = await serp.json();
-          sources = (serpData?.organic || [])
-            .map((r) => ({
-              title: r.title || "Sursă",
-              link: r.link || "#",
-              snippet: r.snippet || "",
-              relevance: sourceRelevanceScore(r, text),
-            }))
-            .filter((source) => source.relevance > 0)
-            .sort((a, b) => b.relevance - a.relevance)
-            .slice(0, 5)
-            .map(({ title, link }) => ({ title, link }));
-        }
-      } catch { /* ignore */ }
-    }
-
     const summary = generateCohesiveExplanation(F, L, C, H, Boolean(humanMode));
+
+    const sourceResult = await getIndependentOnlineSources(text);
 
     return res.status(200).json({
       mode: humanMode ? "ΔH" : "Δ",
@@ -306,7 +338,8 @@ Afirmația:
       V,
       verdict: cohesiveVerdict(V, Boolean(humanMode)),
       summary: summary || gptJson.summary || "—",
-      sources,
+      sources: sourceResult.sources,
+      source_note: sourceResult.note,
     });
   } catch (err) {
     return res.status(500).json({
