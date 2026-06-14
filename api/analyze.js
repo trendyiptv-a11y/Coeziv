@@ -194,6 +194,8 @@ Afirmația:
         `"Model Coeziv" "Sergiu Bulboaca" ${negatives}`,
         `"Modelul Coeziv" "Sergiu Bulboacă" ${negatives}`,
         `"Modelul Coeziv" "Sergiu Bulboaca" ${negatives}`,
+        `"Modelului Coeziv" "Sergiu Bulboacă" ${negatives}`,
+        `"Modelului Coeziv" "Sergiu Bulboaca" ${negatives}`,
         `"Coeziv" "Sergiu Bulboacă" ${negatives}`,
         `"Coeziv" "Sergiu Bulboaca" ${negatives}`,
         `"Formula Coeziunii" "Sergiu Bulboacă" ${negatives}`,
@@ -203,7 +205,7 @@ Afirmația:
         `"Exploratorul Coeziv" ${negatives}`,
         `"Analizor Coeziv" ${negatives}`
       ].filter(Boolean);
-      return [...new Set(rawQueries)].slice(0, 12);
+      return [...new Set(rawQueries)].slice(0, 14);
     }
 
     function normalizeLink(link) {
@@ -221,7 +223,7 @@ Afirmația:
       const input = String(inputText || "").toLowerCase();
       const haystackNoDia = stripDiacritics(haystack).toLowerCase();
       const inputNoDia = stripDiacritics(input).toLowerCase();
-      const goodTerms = ["model coeziv", "modelul coeziv", "formula coeziunii", "3.14", "3.14δh", "3.14Δh", "sergiu bulboacă", "sergiu bulboaca", "analizor coeziv", "exploratorul coeziv", "coeziv"];
+      const goodTerms = ["model coeziv", "modelul coeziv", "modelului coeziv", "formula coeziunii", "3.14", "3.14δh", "3.14Δh", "sergiu bulboacă", "sergiu bulboaca", "analizor coeziv", "exploratorul coeziv", "coeziv"];
       const badTerms = ["terasament", "terasamente", "pământuri coezive", "pamanturi coezive", "sol coeziv", "soluri coezive", "geotehnic", "geotehnică", "geotehnica", "compactarea", "tapiteria", "tapiserie", "honda"];
       let score = 0;
       for (const term of goodTerms) {
@@ -309,10 +311,12 @@ ${JSON.stringify(compactSources)}
 
     function mentionsCohesiveIdentityClaim(inputText) {
       const t = stripDiacritics(String(inputText || "").toLowerCase());
-      const mentionsPerson = t.includes("sergiu bulboaca") || t.includes("bulboaca");
-      const mentionsProject = t.includes("model coeziv") || t.includes("modelul coeziv") || t.includes("formula coeziunii") || t.includes("analizor coeziv") || t.includes("exploratorul coeziv");
-      const mentionsRelation = /\b(autor|creator|initiator|fondator|dezvoltator|proiect|prezent online|prezenta online|apartine|a creat|este creat)\b/.test(t);
-      return mentionsPerson && mentionsProject && mentionsRelation;
+      const mentionsPerson = /\bsergiu\b/.test(t) || /\bbulboaca\b/.test(t);
+      const mentionsProject = /(model\s+coeziv|modelul\s+coeziv|modelului\s+coeziv|formula\s+coeziunii|analizor\s+coeziv|exploratorul\s+coeziv|coeziv\s*3\.?14)/.test(t);
+      const authorRelation = /(autor|autorul|creator|creatorul|initiator|initiatorul|fondator|fondatorul|dezvoltator|dezvoltatorul|a\s+creat|creat\s+de|conceput\s+de|apartine|este\s+creat)/.test(t);
+      const publicPresenceRelation = /(proiect|prezent\s+online|prezenta\s+online|proiecte\s+digitale)/.test(t);
+      const interrogativeIdentity = /\?/.test(String(inputText || "")) && /(este|e|cine)/.test(t) && /(autor|autorul|creator|creatorul|initiator|fondator)/.test(t);
+      return mentionsPerson && mentionsProject && (authorRelation || publicPresenceRelation || interrogativeIdentity);
     }
 
     const publicPresence = getPublicPresence();
