@@ -160,16 +160,41 @@ Afirmația:
       return parts.join(" ");
     }
 
+    function stripDiacritics(value) {
+      return String(value || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/ă|â/g, "a")
+        .replace(/Ă|Â/g, "A")
+        .replace(/î/g, "i")
+        .replace(/Î/g, "I")
+        .replace(/ș|ş/g, "s")
+        .replace(/Ș|Ş/g, "S")
+        .replace(/ț|ţ/g, "t")
+        .replace(/Ț|Ţ/g, "T");
+    }
+
     function buildSearchQueries(txt) {
       const clean = String(txt || "").trim().slice(0, 180);
+      const cleanNoDia = stripDiacritics(clean);
       const negatives = "-teren -terasament -geotehnic -tapiterie -tapiserie -honda -compactarea -pământuri -pamanturi -soluri";
-      return [
-        clean ? `"${clean}" "Model Coeziv" ${negatives}` : null,
+      const rawQueries = [
+        clean ? `"${clean}" ${negatives}` : null,
+        cleanNoDia && cleanNoDia !== clean ? `"${cleanNoDia}" ${negatives}` : null,
         `"Model Coeziv" "Sergiu Bulboacă" ${negatives}`,
-        `"Formula Coeziunii" "3.14" "Sergiu Bulboacă" ${negatives}`,
-        `"3.14ΔH" OR "3.14 ΔH" "coeziv" ${negatives}`,
-        `"Analizor Coeziv" "Sergiu Bulboacă" ${negatives}`
+        `"Model Coeziv" "Sergiu Bulboaca" ${negatives}`,
+        `"Modelul Coeziv" "Sergiu Bulboacă" ${negatives}`,
+        `"Modelul Coeziv" "Sergiu Bulboaca" ${negatives}`,
+        `"Coeziv" "Sergiu Bulboacă" ${negatives}`,
+        `"Coeziv" "Sergiu Bulboaca" ${negatives}`,
+        `"Formula Coeziunii" "Sergiu Bulboacă" ${negatives}`,
+        `"Formula Coeziunii" "Sergiu Bulboaca" ${negatives}`,
+        `"Formula Coeziunii" "3.14" ${negatives}`,
+        `"3.14ΔH" OR "3.14 ΔH" OR "3.14DH" ${negatives}`,
+        `"Exploratorul Coeziv" ${negatives}`,
+        `"Analizor Coeziv" ${negatives}`
       ].filter(Boolean);
+      return [...new Set(rawQueries)].slice(0, 12);
     }
 
     function normalizeLink(link) {
@@ -184,20 +209,31 @@ Afirmația:
 
     function isInternalSource(link) {
       const value = String(link || "").toLowerCase();
-      return value.includes("coeziv.vercel.app") || value.includes("github.com/trendyiptv-a11y/coeziv");
+      return value.includes("coeziv.vercel.app") || value.includes("github.com/trendyiptv-a11y/coeziv") || value.includes("chatgpt.com/g/");
     }
 
     function sourceRelevanceScore(source, inputText) {
       const haystack = `${source.title || ""} ${source.snippet || ""} ${source.link || ""}`.toLowerCase();
       const input = String(inputText || "").toLowerCase();
-      const goodTerms = ["model coeziv", "formula coeziunii", "3.14", "3.14δh", "3.14Δh", "sergiu bulboacă", "sergiu bulboaca", "analizor coeziv"];
+      const haystackNoDia = stripDiacritics(haystack).toLowerCase();
+      const inputNoDia = stripDiacritics(input).toLowerCase();
+      const goodTerms = [
+        "model coeziv", "modelul coeziv", "formula coeziunii", "3.14", "3.14δh", "3.14Δh",
+        "sergiu bulboacă", "sergiu bulboaca", "analizor coeziv", "exploratorul coeziv", "coeziv"
+      ];
       const badTerms = ["terasament", "terasamente", "pământuri coezive", "pamanturi coezive", "sol coeziv", "soluri coezive", "geotehnic", "geotehnică", "geotehnica", "compactarea", "tapiteria", "tapiserie", "honda"];
       let score = 0;
       for (const term of goodTerms) {
-        if (haystack.includes(term.toLowerCase())) score += 1.5;
-        if (input.includes(term.toLowerCase())) score += 0.15;
+        const t = term.toLowerCase();
+        const tNoDia = stripDiacritics(t).toLowerCase();
+        if (haystack.includes(t) || haystackNoDia.includes(tNoDia)) score += t === "coeziv" ? 0.35 : 1.5;
+        if (input.includes(t) || inputNoDia.includes(tNoDia)) score += 0.15;
       }
-      for (const term of badTerms) if (haystack.includes(term.toLowerCase())) score -= 4;
+      for (const term of badTerms) {
+        const t = term.toLowerCase();
+        const tNoDia = stripDiacritics(t).toLowerCase();
+        if (haystack.includes(t) || haystackNoDia.includes(tNoDia)) score -= 4;
+      }
       if (isInternalSource(source.link)) score -= 2;
       return score;
     }
@@ -228,7 +264,7 @@ Afirmația:
               heuristic_score: sourceRelevanceScore(r, inputText),
               is_internal: isInternalSource(link),
             });
-            if (results.length >= 20) return results;
+            if (results.length >= 30) return results;
           }
         } catch { /* ignore query failures */ }
       }
@@ -237,7 +273,7 @@ Afirmația:
 
     async function classifyOnlineSourcesWithAI(candidateSources, inputText) {
       if (!candidateSources.length) return [];
-      const compactSources = candidateSources.slice(0, 20).map((s, index) => ({
+      const compactSources = candidateSources.slice(0, 25).map((s, index) => ({
         index,
         title: String(s.title || "").slice(0, 160),
         snippet: String(s.snippet || "").slice(0, 300),
@@ -248,10 +284,10 @@ Clasifică rezultatele online pentru afirmația analizată.
 
 Afirmație: "${inputText}"
 
-Entitatea urmărită este Modelul Coeziv 3.14 / Formula Coeziunii / 3.14ΔH / Analizor Coeziv / Sergiu Bulboacă.
+Entitatea urmărită este Modelul Coeziv 3.14 / Formula Coeziunii / 3.14ΔH / Analizor Coeziv / Exploratorul Coeziv / Sergiu Bulboacă sau Sergiu Bulboaca.
 O sursă este relevantă doar dacă vorbește despre această entitate ca model, concept, proiect sau aplicație.
 Nu considera relevantă o sursă care folosește doar termenul tehnic „coeziv” în geotehnică, soluri, terasamente, tapiserie, materiale etc.
-Sursele interne/proprii, precum coeziv.vercel.app sau github.com/trendyiptv-a11y/Coeziv, NU sunt surse independente.
+Sursele interne/proprii, precum coeziv.vercel.app, chatgpt.com/g/... sau github.com/trendyiptv-a11y/Coeziv, NU sunt surse independente.
 
 Returnează DOAR JSON ARRAY VALID. Pentru fiecare sursă:
 [
@@ -287,7 +323,7 @@ ${JSON.stringify(compactSources)}
 
     async function getIndependentOnlineSources(inputText) {
       const candidates = await collectSerperResults(inputText);
-      if (!candidates.length) return { sources: [], note: "Nu am găsit rezultate online candidate." };
+      if (!candidates.length) return { sources: [], note: "Nu am găsit surse externe independente suficient de relevante." };
       const classifications = await classifyOnlineSourcesWithAI(candidates, inputText);
       const byIndex = new Map(classifications.map((c) => [Number(c.index), c]));
       let accepted = candidates
