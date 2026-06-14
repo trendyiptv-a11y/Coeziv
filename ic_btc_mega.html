@@ -8,32 +8,25 @@
   <style>
     :root {
       --bg: #020617;
-      --bg-elevated: #020617;
       --card: #020617;
       --border: #1f2937;
       --text: #e5e7eb;
       --muted: #9ca3af;
       --accent: #6366f1;
       --bull: #22c55e;
-      --bull-soft: rgba(34, 197, 94, 0.15);
       --bear: #f97373;
-      --bear-soft: rgba(248, 113, 113, 0.18);
       --neutral: #38bdf8;
-      --neutral-soft: rgba(56, 189, 248, 0.18);
       --radius-xl: 1.5rem;
       --radius-lg: 1.1rem;
       --radius-pill: 999px;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
       min-height: 100vh;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
-        "Segoe UI", sans-serif;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
       background:
         radial-gradient(circle at top, rgba(56, 189, 248, 0.12), transparent 55%),
         radial-gradient(circle at 10% 80%, rgba(168, 85, 247, 0.12), transparent 55%),
@@ -48,9 +41,7 @@
       padding: 1.75rem 1.2rem 2.75rem;
     }
 
-    header.hero {
-      margin-bottom: 1.5rem;
-    }
+    header.hero { margin-bottom: 1.5rem; }
 
     header.hero h1 {
       margin: 0 0 0.4rem;
@@ -63,7 +54,7 @@
       margin: 0;
       font-size: 0.9rem;
       color: var(--muted);
-      max-width: 40rem;
+      max-width: 44rem;
       line-height: 1.6;
     }
 
@@ -92,21 +83,19 @@
       border-radius: 999px;
       background: var(--accent);
     }
-
     .pill-dot.bull { background: var(--bull); }
     .pill-dot.bear { background: var(--bear); }
     .pill-dot.neutral { background: var(--neutral); }
 
     .layout {
       display: grid;
-      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+      grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
       gap: 1.25rem;
+      align-items: start;
     }
 
     @media (max-width: 900px) {
-      .layout {
-        grid-template-columns: minmax(0, 1fr);
-      }
+      .layout { grid-template-columns: minmax(0, 1fr); }
     }
 
     .card {
@@ -119,6 +108,7 @@
         rgba(15, 23, 42, 0.96);
       padding: 1.3rem 1.25rem 1.4rem;
       overflow: hidden;
+      box-shadow: 0 20px 55px rgba(15, 23, 42, 0.55);
     }
 
     .card--secondary {
@@ -131,19 +121,12 @@
       content: "";
       position: absolute;
       inset: -30%;
-      background: radial-gradient(
-        circle at -10% 0%,
-        rgba(148, 163, 184, 0.18),
-        transparent 60%
-      );
+      background: radial-gradient(circle at -10% 0%, rgba(148, 163, 184, 0.18), transparent 60%);
       opacity: 0.4;
       pointer-events: none;
     }
 
-    .card-inner {
-      position: relative;
-      z-index: 1;
-    }
+    .card-inner { position: relative; z-index: 1; }
 
     .card-title {
       font-size: 0.82rem;
@@ -157,9 +140,8 @@
       font-size: 0.8rem;
       color: var(--muted);
       margin-bottom: 0.75rem;
+      line-height: 1.5;
     }
-
-    /* Phase badge + headline */
 
     .phase-chip {
       display: inline-flex;
@@ -180,7 +162,6 @@
       border-radius: 999px;
       background: var(--neutral);
     }
-
     .phase-dot.bull { background: var(--bull); }
     .phase-dot.bear { background: var(--bear); }
     .phase-dot.neutral { background: var(--neutral); }
@@ -195,13 +176,25 @@
       font-size: 0.86rem;
       color: var(--muted);
       margin: 0 0 0.4rem;
+      line-height: 1.6;
+    }
+
+    .practical-meaning {
+      margin-top: 0.75rem;
+      padding: 0.75rem 0.85rem;
+      border-radius: var(--radius-lg);
+      border: 1px solid rgba(56, 189, 248, 0.45);
+      background: rgba(2, 6, 23, 0.5);
+      color: #cbd5e1;
+      font-size: 0.82rem;
+      line-height: 1.55;
     }
 
     .chips-row {
       display: flex;
       flex-wrap: wrap;
       gap: 0.45rem;
-      margin-top: 0.35rem;
+      margin-top: 0.5rem;
     }
 
     .chip {
@@ -223,8 +216,6 @@
       background: rgba(148, 163, 184, 0.8);
     }
 
-    /* Mega score pill */
-
     .mega-score-pill {
       display: inline-flex;
       align-items: baseline;
@@ -238,10 +229,7 @@
       color: var(--muted);
     }
 
-    .mega-score-pill strong {
-      font-size: 1.1rem;
-      color: var(--text);
-    }
+    .mega-score-pill strong { font-size: 1.1rem; color: var(--text); }
 
     .mega-score-pill span.badge {
       font-size: 0.75rem;
@@ -250,8 +238,6 @@
       border: 1px solid rgba(148, 163, 184, 0.5);
       background: rgba(15, 23, 42, 0.9);
     }
-
-    /* Base warning card */
 
     .base-card {
       margin-top: 0.9rem;
@@ -262,6 +248,7 @@
       font-size: 0.8rem;
       color: #fee2e2;
       display: none;
+      line-height: 1.55;
     }
 
     .base-card-title {
@@ -270,8 +257,6 @@
       letter-spacing: 0.13em;
       margin-bottom: 0.25rem;
     }
-
-    /* Right column metrics */
 
     .metrics-grid {
       display: grid;
@@ -305,15 +290,8 @@
       margin-bottom: 0.3rem;
     }
 
-    .metric-value {
-      font-size: 1.4rem;
-      font-weight: 600;
-    }
-
-    .metric-unit {
-      font-size: 0.8rem;
-      color: var(--muted);
-    }
+    .metric-value { font-size: 1.4rem; font-weight: 600; }
+    .metric-unit { font-size: 0.8rem; color: var(--muted); }
 
     .metric-caption {
       font-size: 0.78rem;
@@ -338,24 +316,69 @@
       width: 0%;
       transition: width 0.6s ease;
     }
+    .metric-bar-fill--icc { background: linear-gradient(90deg, rgba(129,140,248,0.08), #6366f1); }
+    .metric-bar-fill--struct { background: linear-gradient(90deg, rgba(56,189,248,0.08), #0ea5e9); }
+    .metric-bar-fill--flux { background: linear-gradient(90deg, rgba(248,113,113,0.15), #f97373); }
+    .metric-bar-fill--mega { background: linear-gradient(90deg, rgba(94,234,212,0.15), #22c55e); }
 
-    .metric-bar-fill--icc {
-      background: linear-gradient(90deg, rgba(129,140,248,0.08), #6366f1);
+    .dictionary-card {
+      grid-column: 1 / -1;
     }
 
-    .metric-bar-fill--struct {
-      background: linear-gradient(90deg, rgba(56,189,248,0.08), #0ea5e9);
+    .dictionary-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.75rem;
+      margin-top: 0.9rem;
     }
 
-    .metric-bar-fill--flux {
-      background: linear-gradient(90deg, rgba(248,113,113,0.15), #f97373);
+    @media (max-width: 780px) {
+      .dictionary-grid { grid-template-columns: minmax(0, 1fr); }
     }
 
-    .metric-bar-fill--mega {
-      background: linear-gradient(90deg, rgba(94,234,212,0.15), #22c55e);
+    .dictionary-item {
+      border-radius: var(--radius-lg);
+      border: 1px solid rgba(30, 64, 175, 0.45);
+      background: rgba(15, 23, 42, 0.78);
+      padding: 0.85rem 0.9rem;
     }
 
-    /* Error */
+    .dictionary-item.active {
+      border-color: rgba(56, 189, 248, 0.85);
+      box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.25) inset;
+    }
+
+    .dictionary-label {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      font-size: 0.88rem;
+      font-weight: 650;
+      margin-bottom: 0.25rem;
+    }
+
+    .dictionary-code {
+      font-size: 0.7rem;
+      color: var(--muted);
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      border-radius: 999px;
+      padding: 0.1rem 0.45rem;
+      font-weight: 500;
+    }
+
+    .dictionary-text {
+      color: #cbd5e1;
+      font-size: 0.8rem;
+      line-height: 1.55;
+      margin: 0.25rem 0 0;
+    }
+
+    .dictionary-meaning {
+      color: var(--muted);
+      font-size: 0.76rem;
+      line-height: 1.5;
+      margin-top: 0.45rem;
+    }
 
     .error-box {
       margin-top: 0.8rem;
@@ -368,13 +391,11 @@
       display: none;
     }
 
-    /* Footer note */
-
     .footnote {
       margin-top: 1.3rem;
       font-size: 0.75rem;
       color: var(--muted);
-      max-width: 40rem;
+      max-width: 48rem;
       line-height: 1.5;
     }
   </style>
@@ -386,32 +407,20 @@
       <p>
         Interpretare macro a pieței Bitcoin în Modelul Coeziv, pe baza indicilor
         <strong>ICC_BTC</strong> (ciclic), <strong>IC_BTC</strong> structural și
-        <strong>IC flux</strong>.
+        <strong>IC flux</strong>. Codurile tehnice rămân interne; interfața afișează sensul lor practic.
       </p>
       <div class="pill-row">
-        <div class="pill">
-          <span class="pill-dot neutral"></span>
-          Mega-ciclu structural BTC (post-2014)
-        </div>
-        <div class="pill">
-          <span class="pill-dot bull"></span>
-          Faza curentă este derivată din ICC_BTC
-        </div>
-        <div class="pill">
-          <span class="pill-dot bear"></span>
-          Structură &amp; flux influențează mega-scorul
-        </div>
+        <div class="pill"><span class="pill-dot neutral"></span>Mega-ciclu structural BTC</div>
+        <div class="pill"><span class="pill-dot bull"></span>Fază explicată prin dicționar</div>
+        <div class="pill"><span class="pill-dot bear"></span>Structură &amp; flux influențează scorul</div>
       </div>
     </header>
 
     <section class="layout">
-      <!-- Col stânga: fază + context -->
       <article class="card">
         <div class="card-inner">
           <div class="card-title">Mega-ciclul Coeziv BTC</div>
-          <div class="card-sub">
-            Data estimării: <span id="megaDate">–</span>
-          </div>
+          <div class="card-sub">Data estimării: <span id="megaDate">–</span></div>
 
           <div class="phase-chip">
             <span id="phaseDot" class="phase-dot neutral"></span>
@@ -422,20 +431,14 @@
           <p id="phaseCaption" class="phase-caption">
             Modelul așteaptă datele din mega-ciclu pentru a descrie faza curentă.
           </p>
+          <div id="phaseMeaning" class="practical-meaning">
+            Sens practic: se încarcă interpretarea fazei.
+          </div>
 
           <div class="chips-row">
-            <div class="chip">
-              <span class="chip-pill"></span>
-              <span id="structureChip">Structură: –</span>
-            </div>
-            <div class="chip">
-              <span class="chip-pill"></span>
-              <span id="directionChip">Direcționalitate: –</span>
-            </div>
-            <div class="chip">
-              <span class="chip-pill"></span>
-              <span id="subcyclesChip">Sub-cicluri: –</span>
-            </div>
+            <div class="chip"><span class="chip-pill"></span><span id="structureChip">Structură: –</span></div>
+            <div class="chip"><span class="chip-pill"></span><span id="directionChip">Direcționalitate: –</span></div>
+            <div class="chip"><span class="chip-pill"></span><span id="subcyclesChip">Sub-cicluri: –</span></div>
           </div>
 
           <div class="mega-score-pill">
@@ -448,9 +451,8 @@
           <div id="baseCard" class="base-card">
             <div class="base-card-title">Bază potențială de mega-ciclu</div>
             <div>
-              ICC_BTC se află într-o zonă foarte joasă. Modelul Coeziv interpretează
-              acest lucru ca o posibilă <strong>bază structurală</strong> a unui nou
-              mega-ciclu, nu ca o garanție de minim absolut.
+              ICC_BTC se află într-o zonă foarte joasă. Modelul Coeziv interpretează acest lucru ca o posibilă
+              <strong>bază structurală</strong> a unui nou mega-ciclu, nu ca o garanție de minim absolut.
             </div>
           </div>
 
@@ -458,336 +460,193 @@
         </div>
       </article>
 
-      <!-- Col dreapta: metrici -->
       <article class="card card--secondary">
         <div class="card-inner">
           <div class="card-title">Structură, ciclu &amp; flux</div>
           <div class="card-sub">
-            Cum sunt agregate indicii IC pentru a poziționa Bitcoin în cadrul
-            mega-ciclului post-2014.
+            Cum sunt agregate indicii IC pentru a poziționa Bitcoin în cadrul mega-ciclului.
           </div>
 
           <div class="metrics-grid">
             <div class="metric-card">
               <div class="metric-title">ICC_BTC (ciclic)</div>
-              <div class="metric-main">
-                <span id="iccVal" class="metric-value">–</span>
-                <span class="metric-unit">/ 100</span>
-              </div>
-              <div class="metric-bar">
-                <div id="iccBar" class="metric-bar-fill metric-bar-fill--icc"></div>
-              </div>
-              <p class="metric-caption">
-                Măsoară poziția în arc de ciclu: valori joase sugerează
-                <em>baze</em> sau acumulare, valori foarte ridicate sugerează
-                <em>extensie / top</em>.
-              </p>
+              <div class="metric-main"><span id="iccVal" class="metric-value">–</span><span class="metric-unit">/ 100</span></div>
+              <div class="metric-bar"><div id="iccBar" class="metric-bar-fill metric-bar-fill--icc"></div></div>
+              <p class="metric-caption">Poziția în arc de ciclu: valori joase sugerează baze/acumulare, valori ridicate sugerează extensie sau top.</p>
             </div>
 
             <div class="metric-card">
               <div class="metric-title">IC_BTC structural</div>
-              <div class="metric-main">
-                <span id="structVal" class="metric-value">–</span>
-                <span class="metric-unit">/ 100</span>
-              </div>
-              <div class="metric-bar">
-                <div id="structBar" class="metric-bar-fill metric-bar-fill--struct"></div>
-              </div>
-              <p class="metric-caption">
-                Coerența structurală a trendului de fond. Valori înalte indică
-                o structură clară, dar pot sugera și <em>tensiune</em> sau
-                supra-extindere.
-              </p>
+              <div class="metric-main"><span id="structVal" class="metric-value">–</span><span class="metric-unit">/ 100</span></div>
+              <div class="metric-bar"><div id="structBar" class="metric-bar-fill metric-bar-fill--struct"></div></div>
+              <p class="metric-caption">Coerența structurală a trendului de fond. Valori înalte pot indica structură clară, dar și tensiune/supra-extindere.</p>
             </div>
 
             <div class="metric-card">
               <div class="metric-title">IC flux</div>
-              <div class="metric-main">
-                <span id="fluxVal" class="metric-value">–</span>
-                <span class="metric-unit">/ 100</span>
-              </div>
-              <div class="metric-bar">
-                <div id="fluxBar" class="metric-bar-fill metric-bar-fill--flux"></div>
-              </div>
-              <p class="metric-caption">
-                Intensitatea fluxului direcțional (presiune bull/bear). Poate
-                accentua sau contrabalansa mesajul structural.
-              </p>
+              <div class="metric-main"><span id="fluxVal" class="metric-value">–</span><span class="metric-unit">/ 100</span></div>
+              <div class="metric-bar"><div id="fluxBar" class="metric-bar-fill metric-bar-fill--flux"></div></div>
+              <p class="metric-caption">Intensitatea fluxului direcțional. Poate accentua sau contrabalansa mesajul structural.</p>
             </div>
 
             <div class="metric-card">
               <div class="metric-title">Mega score Coeziv</div>
-              <div class="metric-main">
-                <span id="megaScoreValSecondary" class="metric-value">–</span>
-                <span class="metric-unit">/ 100</span>
-              </div>
-              <div class="metric-bar">
-                <div id="megaBar" class="metric-bar-fill metric-bar-fill--mega"></div>
-              </div>
-              <p class="metric-caption">
-                Scor agregat derivat în backend din ICC_BTC, structură și flux,
-                folosit pentru a ancora faza de mega-ciclu.
-              </p>
+              <div class="metric-main"><span id="megaScoreValSecondary" class="metric-value">–</span><span class="metric-unit">/ 100</span></div>
+              <div class="metric-bar"><div id="megaBar" class="metric-bar-fill metric-bar-fill--mega"></div></div>
+              <p class="metric-caption">Scor agregat derivat în backend din ICC_BTC, structură și flux, folosit pentru ancorarea fazei de mega-ciclu.</p>
             </div>
           </div>
         </div>
       </article>
-      <article class="card">
-  <div class="card-header">
-    <div>
-      <div class="card-title">BTC – preț vs. cost de producție</div>
-      <div class="card-sub">
-        Ultima actualizare: <span id="btcCostAsOf">–</span>
-      </div>
-    </div>
-    <div class="badge neutral" id="btcCostBadge">
-      <span class="badge-dot"></span>
-      <span class="badge-label" id="btcCostBadgeLabel">se încarcă...</span>
-    </div>
-  </div>
 
-  <div class="card-body">
-    <div class="value-row">
-      <div>
-        <div class="meta-label">Preț BTC (close)</div>
-        <div class="meta-value">
-          <span id="btcCostPrice">–</span> <span class="value-unit">USD</span>
+      <article class="card card--secondary dictionary-card">
+        <div class="card-inner">
+          <div class="card-title">Dicționar faze BTC</div>
+          <div class="card-sub">
+            Termenii tehnici sunt păstrați în model, dar aici sunt traduşi în sens practic. Faza curentă este evidențiată automat.
+          </div>
+          <div id="dictionaryGrid" class="dictionary-grid"></div>
         </div>
-      </div>
-      <div>
-        <div class="meta-label">Cost de producție estimat</div>
-        <div class="meta-value">
-          <span id="btcCostValue">–</span> <span class="value-unit">USD / BTC</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="meta-row" style="margin-top: 0.8rem;">
-      <div>
-        <div class="meta-label">Multiplu vs. cost</div>
-        <div class="meta-value">
-          <span id="btcCostPremium">–</span>
-        </div>
-        <div class="card-sub">
-          <small>
-            ~1× ≈ aproape de cost; 1–2× ≈ acumulare / expansiune timpurie;
-            2–4× ≈ expansiune avansată; &gt; 4× ≈ zonă euforică / risc ridicat.
-          </small>
-        </div>
-      </div>
-      <div>
-        <div class="meta-label">Interpretare coezivă</div>
-        <div class="card-sub" id="btcCostNote">
-          Se încarcă datele de cost...
-        </div>
-      </div>
-    </div>
-
-    <div class="small-muted" style="margin-top: 0.8rem;">
-      <strong>Notă:</strong> costul de producție este o estimare energetică
-      (difficulty, eficiență ASIC, preț energie). Nu este o valoare contabilă
-      exactă, ci o ancoră structurală de ciclu.
-    </div>
-  </div>
-</article>
-      <article class="card card--secondary">
-  <div class="card-inner">
-    <div class="card-header" style="margin-bottom: 0.5rem;">
-      <div>
-        <div class="card-title">Calculează-ți propriul cost de producție BTC</div>
-        <div class="card-sub">
-          Introdu datele cheie (hashrate, eficiență, preț energie) și vezi cum se compară
-          cu modelul Coeziv și cu prețul de piață.
-        </div>
-      </div>
-    </div>
-
-    <div class="metrics-grid" style="margin-top: 0.5rem;">
-      <div class="metric-card">
-        <div class="metric-title">Hashrate rețea (EH/s)</div>
-        <input
-          id="userHashrate"
-          type="number"
-          step="0.01"
-          class="input"
-          placeholder="ex. 1065"
-        />
-        <div class="meta-label small-muted" style="margin-top: 0.25rem;">
-          De unde iei: un agregator on-chain / mining (ex. HashrateIndex, Mempool, BTC.com).
-          Caută „Bitcoin hashrate” și ia valoarea în EH/s.
-        </div>
-      </div>
-
-      <div class="metric-card">
-        <div class="metric-title">Eficiență ASIC (J/TH)</div>
-        <input
-          id="userEfficiency"
-          type="number"
-          step="0.1"
-          class="input"
-          placeholder="ex. 25"
-        />
-        <div class="meta-label small-muted" style="margin-top: 0.25rem;">
-          De unde iei: din fișa tehnică a echipamentului tău (ex. Antminer S19, S21 etc.).
-          Caută „model ASIC + efficiency J/TH”.
-        </div>
-      </div>
-
-      <div class="metric-card">
-        <div class="metric-title">Preț energie (USD/kWh)</div>
-        <input
-          id="userEnergyPrice"
-          type="number"
-          step="0.001"
-          class="input"
-          placeholder="ex. 0.05"
-        />
-        <div class="meta-label small-muted" style="margin-top: 0.25rem;">
-          De unde iei: contractul tău de energie sau un cost mediu estimat (0.03–0.08 USD/kWh
-          pentru locații industriale / energie ieftină).
-        </div>
-      </div>
-
-      <div class="metric-card">
-        <div class="metric-title">Block reward (BTC / block)</div>
-        <input
-          id="userBlockReward"
-          type="number"
-          step="0.00000001"
-          class="input"
-          placeholder="3.125"
-        />
-        <div class="meta-label small-muted" style="margin-top: 0.25rem;">
-          De unde iei: protocolul Bitcoin (după halving 2024 e 3.125 BTC/block).
-          Actualizează doar când are loc un nou halving.
-        </div>
-      </div>
-
-      <div class="metric-card">
-        <div class="metric-title">Blocuri pe zi</div>
-        <input
-          id="userBlocksPerDay"
-          type="number"
-          step="1"
-          class="input"
-          placeholder="144"
-        />
-        <div class="meta-label small-muted" style="margin-top: 0.25rem;">
-          De unde iei: aproximativ 144 blocuri/zi (10 minute/bloc). Nu este critic să fie exact.
-        </div>
-      </div>
-
-      <div class="metric-card">
-        <div class="metric-title">Preț BTC (USD/BTC)</div>
-        <input
-          id="userPrice"
-          type="number"
-          step="0.01"
-          class="input"
-          placeholder="ex. 85000"
-        />
-        <div class="meta-label small-muted" style="margin-top: 0.25rem;">
-          De unde iei: un exchange sau un agregator de preț (ex. CoinGecko, CoinMarketCap).
-          Ia un preț spot sau un preț de închidere zilnic.
-        </div>
-      </div>
-    </div>
-
-    <div style="margin-top: 1rem; display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
-      <button id="userCostCalcBtn" class="btn-primary">
-        Calculează & aplică în cardul principal
-      </button>
-      <div class="small-muted" id="userCostStatus">
-        Introdu parametrii și apasă „Calculează”.
-      </div>
-    </div>
-
-    <div class="metrics-grid" style="margin-top: 1rem;">
-      <div class="metric-card">
-        <div class="metric-title">Costul tău de producție</div>
-        <div class="metric-main">
-          <span id="userCostValue" class="metric-value">–</span>
-          <span class="metric-unit">USD/BTC</span>
-        </div>
-        <div class="metric-sub" id="userCostPremiumLabel">
-          –
-        </div>
-      </div>
-      <div class="metric-card">
-        <div class="metric-title">Interpretare pe baza modelului Coeziv</div>
-        <div class="metric-sub" id="userCostNote">
-          După calcul, verdictul va apărea aici, folosind aceleași praguri ca în cardul principal.
-        </div>
-      </div>
-    </div>
-  </div>
-</article>
+      </article>
     </section>
 
     <p class="footnote">
-  Informațiile de mai sus descriu poziția actuală a Bitcoin în mega-ciclul său de piață,
-  pe baza structurii interne și a fluxului de preț. Nu reprezintă recomandări de cumpărare
-  sau vânzare, ci un cadru de orientare: zonele joase sunt asociate mai des cu faze de
-  acumulare, iar zonele înalte cu faze mature sau de epuizare a trendului. Folosește aceste
-  indicii împreună cu propria analiză și cu orizontul tău de timp.
-</p>
+      Informațiile de mai sus descriu poziția actuală a Bitcoin în mega-ciclul său de piață, pe baza structurii interne și a fluxului de preț. Nu reprezintă recomandări de cumpărare sau vânzare, ci un cadru de orientare.
+    </p>
   </main>
 
   <script>
+    const BTC_PHASE_DICTIONARY = {
+      accumulation: {
+        label: "Acumulare",
+        title: "Piața construiește bază",
+        text: "BTC pare într-o fază de acumulare. Presiunea de vânzare scade, dar trendul bullish nu este încă confirmat.",
+        userMeaning: "Posibilă pregătire pentru un ciclu nou; ai nevoie de confirmări înainte de agresivitate.",
+        mode: "neutral"
+      },
+      early_bull: {
+        label: "Început de bull",
+        title: "Impuls bullish nou",
+        text: "Structura începe să se alinieze pozitiv, iar piața poate intra într-o fază de creștere.",
+        userMeaning: "Bull-ul poate începe, dar încă trebuie confirmat prin flux, structură și MPE.",
+        mode: "bull"
+      },
+      mid_bull: {
+        label: "Bull activ",
+        title: "Trend de creștere sănătos",
+        text: "BTC se află într-o fază bullish activă, cu structură și direcție favorabile.",
+        userMeaning: "Piața este încă în impuls pozitiv; riscul principal este supraîncălzirea treptată.",
+        mode: "bull"
+      },
+      late_bull: {
+        label: "Bull terminat / post-bull",
+        title: "Impulsul principal pare consumat",
+        text: "Nu este început de bull. Modelul indică o fază avansată după impulsul principal, cu risc de distribuție, răcire sau tranziție defensivă.",
+        userMeaning: "Bull-ul mare pare în spate. Prudență ridicată; raliurile pot fi reacții, nu neapărat începuturi de trend nou.",
+        mode: "bear"
+      },
+      distribution: {
+        label: "Distribuție",
+        title: "Piața distribuie lichiditate",
+        text: "BTC pare într-o fază în care raliurile pot fi folosite pentru ieșire. Presiunea de vânzare crește.",
+        userMeaning: "Raliurile pot fi capcane; risc crescut de scădere și de drenaj de lichiditate.",
+        mode: "bear"
+      },
+      bear: {
+        label: "Bear market",
+        title: "Contracție / trend descendent",
+        text: "Modelul indică o fază defensivă, cu structură slabă și direcție negativă.",
+        userMeaning: "Protecție, expunere redusă, risc ridicat. Nu este fază de optimism agresiv.",
+        mode: "bear"
+      },
+      recovery: {
+        label: "Recuperare",
+        title: "Ieșire parțială din bear",
+        text: "BTC încearcă să iasă dintr-o fază defensivă, dar confirmarea completă lipsește.",
+        userMeaning: "Posibilă revenire, dar încă fragilă; așteaptă confirmări de structură și flux.",
+        mode: "neutral"
+      },
+      neutral: {
+        label: "Neutru / tranziție",
+        title: "Fază neclară",
+        text: "Datele nu indică o extremă clară. Piața poate schimba regimul mai ușor.",
+        userMeaning: "Așteaptă confirmări. Nu forța interpretarea într-o direcție unică.",
+        mode: "neutral"
+      }
+    };
+
     function clamp(x, a, b) {
       return Math.min(b, Math.max(a, x));
+    }
+
+    function phaseInfoFor(code, backendLabel, backendText) {
+      const normalized = String(code || "").toLowerCase();
+      const dict = BTC_PHASE_DICTIONARY[normalized] || BTC_PHASE_DICTIONARY.neutral;
+      return {
+        code: normalized || "neutral",
+        label: dict.label || backendLabel || "Fază mega-ciclu",
+        title: dict.title || backendLabel || "Fază mega-ciclu",
+        text: dict.text || backendText || "Modelul nu poate clasifica faza curentă.",
+        userMeaning: dict.userMeaning || "Așteaptă confirmări.",
+        mode: dict.mode || "neutral"
+      };
+    }
+
+    function renderDictionary(activeCode) {
+      const grid = document.getElementById("dictionaryGrid");
+      if (!grid) return;
+      grid.innerHTML = "";
+
+      const order = ["accumulation", "early_bull", "mid_bull", "late_bull", "distribution", "bear", "recovery", "neutral"];
+      for (const code of order) {
+        const item = BTC_PHASE_DICTIONARY[code];
+        const el = document.createElement("div");
+        el.className = "dictionary-item" + (code === activeCode ? " active" : "");
+        el.innerHTML = `
+          <div class="dictionary-label">
+            <span>${item.label}</span>
+            <span class="dictionary-code">${code}</span>
+          </div>
+          <p class="dictionary-text"><strong>${item.title}</strong> — ${item.text}</p>
+          <div class="dictionary-meaning"><strong>Sens practic:</strong> ${item.userMeaning}</div>
+        `;
+        grid.appendChild(el);
+      }
     }
 
     async function loadMegaState() {
       const errorBox = document.getElementById("errorBox");
 
       try {
-        const res = await fetch("data/ic_btc_mega_latest.json?ts=" + Date.now(), {
-          cache: "no-store",
-        });
+        const res = await fetch("data/ic_btc_mega_latest.json?ts=" + Date.now(), { cache: "no-store" });
         if (!res.ok) {
           throw new Error("Nu pot încărca ic_btc_mega_latest.json (" + res.status + ")");
         }
         const data = await res.json();
 
-        // date & fază
-        document.getElementById("megaDate").textContent =
-          data.date || data.as_of || "–";
+        document.getElementById("megaDate").textContent = data.date || data.as_of || "–";
 
-        const phaseLabel = data.mega_phase_label || "Fază mega-ciclu Coeziv";
         const phaseCode = (data.mega_phase_code || "").toString().toLowerCase();
+        const phase = phaseInfoFor(phaseCode, data.mega_phase_label, data.phase_text);
 
-        document.getElementById("phaseHeadline").textContent = phaseLabel;
-        document.getElementById("phaseCodeLabel").textContent =
-          phaseCode ? "Cod fază: " + phaseCode : "Fază mega-ciclu";
+        document.getElementById("phaseHeadline").textContent = phase.label;
+        document.getElementById("phaseCodeLabel").textContent = "Fază: " + phase.label;
+        document.getElementById("phaseCaption").textContent = phase.text;
+        document.getElementById("phaseMeaning").textContent = "Sens practic: " + phase.userMeaning;
 
-        const phaseCaptionEl = document.getElementById("phaseCaption");
-        if (phaseCaptionEl && data.phase_text) {
-          phaseCaptionEl.textContent = data.phase_text;
-        }
+        renderDictionary(phase.code);
 
-        // chips descriptive venite din backend
-        const structLabel = data.structure_label || "Structură: –";
-        const dirLabel = data.direction_label || "Direcționalitate: –";
-        const subLabel = data.subcycles_label || "Sub-cicluri: –";
+        document.getElementById("structureChip").textContent = data.structure_label || "Structură: –";
+        document.getElementById("directionChip").textContent = data.direction_label || "Direcționalitate: –";
+        document.getElementById("subcyclesChip").textContent = data.subcycles_label || "Sub-cicluri: –";
 
-        document.getElementById("structureChip").textContent = structLabel;
-        document.getElementById("directionChip").textContent = dirLabel;
-        document.getElementById("subcyclesChip").textContent = subLabel;
-
-        // mega score
         const megaScore = typeof data.mega_score === "number" ? data.mega_score : null;
         const megaDisplay = megaScore != null ? megaScore.toFixed(1) : "–";
-
-        const megaScoreVal = document.getElementById("megaScoreVal");
-        const megaScoreValSecondary = document.getElementById("megaScoreValSecondary");
-        if (megaScoreVal) megaScoreVal.textContent = megaDisplay;
-        if (megaScoreValSecondary) megaScoreValSecondary.textContent = megaDisplay;
+        document.getElementById("megaScoreVal").textContent = megaDisplay;
+        document.getElementById("megaScoreValSecondary").textContent = megaDisplay;
 
         const megaBar = document.getElementById("megaBar");
-        if (megaBar && megaScore != null) {
-          megaBar.style.width = clamp(megaScore, 0, 100) + "%";
-        }
+        if (megaBar && megaScore != null) megaBar.style.width = clamp(megaScore, 0, 100) + "%";
 
         const megaBadge = document.getElementById("megaScoreBadge");
         if (megaBadge) {
@@ -800,259 +659,41 @@
           megaBadge.textContent = badgeText;
         }
 
-        // ICC, IC_struct, IC_flux
         const icc = typeof data.icc === "number" ? data.icc : null;
         const icStruct = typeof data.ic_struct === "number" ? data.ic_struct : null;
         const icFlux = typeof data.ic_flux === "number" ? data.ic_flux : null;
 
-        const iccValEl = document.getElementById("iccVal");
-        const structValEl = document.getElementById("structVal");
-        const fluxValEl = document.getElementById("fluxVal");
+        document.getElementById("iccVal").textContent = icc != null ? icc.toFixed(1) : "–";
+        document.getElementById("structVal").textContent = icStruct != null ? icStruct.toFixed(1) : "–";
+        document.getElementById("fluxVal").textContent = icFlux != null ? icFlux.toFixed(1) : "–";
+
         const iccBar = document.getElementById("iccBar");
         const structBar = document.getElementById("structBar");
         const fluxBar = document.getElementById("fluxBar");
+        if (iccBar && icc != null) iccBar.style.width = clamp(icc, 0, 100) + "%";
+        if (structBar && icStruct != null) structBar.style.width = clamp(icStruct, 0, 100) + "%";
+        if (fluxBar && icFlux != null) fluxBar.style.width = clamp(icFlux, 0, 100) + "%";
 
-        if (iccValEl) iccValEl.textContent = icc != null ? icc.toFixed(1) : "–";
-        if (structValEl) structValEl.textContent = icStruct != null ? icStruct.toFixed(1) : "–";
-        if (fluxValEl) fluxValEl.textContent = icFlux != null ? icFlux.toFixed(1) : "–";
-
-        if (iccBar && icc != null) {
-          iccBar.style.width = clamp(icc, 0, 100) + "%";
-        }
-        if (structBar && icStruct != null) {
-          structBar.style.width = clamp(icStruct, 0, 100) + "%";
-        }
-        if (fluxBar && icFlux != null) {
-          fluxBar.style.width = clamp(icFlux, 0, 100) + "%";
-        }
-
-        // bază mega-ciclu – flag oficial
         const baseCard = document.getElementById("baseCard");
-        if (baseCard) {
-          baseCard.style.display = data.show_base_card ? "block" : "none";
-        }
+        if (baseCard) baseCard.style.display = data.show_base_card ? "block" : "none";
 
-        // culoare macro fază – doar cosmetic, pe baza codului
         const phaseDot = document.getElementById("phaseDot");
         if (phaseDot) {
           phaseDot.classList.remove("bull", "bear", "neutral");
-          let cls = "neutral";
-          if (phaseCode.includes("bull")) cls = "bull";
-          else if (phaseCode.includes("bear")) cls = "bear";
-          phaseDot.classList.add(cls);
+          phaseDot.classList.add(phase.mode || "neutral");
         }
       } catch (err) {
+        renderDictionary("neutral");
         if (errorBox) {
           errorBox.style.display = "block";
-          errorBox.textContent =
-            "Eroare la încărcarea stării de mega-ciclu Coeziv: " + err.message;
+          errorBox.textContent = "Eroare la încărcarea stării de mega-ciclu Coeziv: " + err.message;
         }
         console.error("[Mega BTC]", err);
       }
     }
 
+    renderDictionary("neutral");
     loadMegaState();
   </script>
-</script>
-<script>
-  function formatUsd(v) {
-    if (v == null || !Number.isFinite(v)) return "–";
-    if (v >= 1000) {
-      return v.toLocaleString("en-US", { maximumFractionDigits: 0 });
-    }
-    return v.toLocaleString("en-US", { maximumFractionDigits: 2 });
-  }
-
-  function interpretPremium(p) {
-    if (p == null || !Number.isFinite(p)) {
-      return "Nu am putut estima raportul preț / cost. Verifică datele sau încearcă mai târziu.";
-    }
-
-    if (p < 0.9) {
-      return "Preț sub costul de producție: zonă de stres pentru mineri, tipică pentru baze mari de ciclu și capitulare.";
-    }
-    if (p < 1.2) {
-      return "Preț aproape de costul de producție: zonă de acumulare structurală și început de nou ciclu.";
-    }
-    if (p < 2.5) {
-      return "BTC se tranzacționează peste cost, dar într-o zonă încă moderată: expansiune sănătoasă, fără euforie extremă.";
-    }
-    if (p < 4.0) {
-      return "BTC este semnificativ peste cost (2–4×): fază avansată de ciclu, cu risc crescut de corecții și redistribuiri.";
-    }
-    return "BTC este mult peste cost (&gt; 4×): zonă euforică / supra-extensie, istoric asociată cu finaluri de mega-ciclu.";
-  }
-
-  function setBadgeForPremium(badge, labelEl, p) {
-    badge.classList.remove("up", "down", "neutral", "macro");
-
-    if (p == null || !Number.isFinite(p)) {
-      badge.classList.add("neutral");
-      labelEl.textContent = "necunoscut";
-      return;
-    }
-
-    if (p < 0.9) {
-      badge.classList.add("down");
-      labelEl.textContent = "sub cost (stress)";
-    } else if (p < 1.2) {
-      badge.classList.add("neutral");
-      labelEl.textContent = "aproape de cost";
-    } else if (p < 2.5) {
-      badge.classList.add("up");
-      labelEl.textContent = "expansiune sănătoasă";
-    } else if (p < 4.0) {
-      badge.classList.add("macro");
-      labelEl.textContent = "expansiune avansată";
-    } else {
-      badge.classList.add("down");
-      labelEl.textContent = "zonă euforică";
-    }
-  }
-
-  function updateBtcCostCardFromValues(asOf, priceUsd, prodCostUsd) {
-    const asOfEl = document.getElementById("btcCostAsOf");
-    const priceEl = document.getElementById("btcCostPrice");
-    const costEl = document.getElementById("btcCostValue");
-    const premEl = document.getElementById("btcCostPremium");
-    const noteEl = document.getElementById("btcCostNote");
-    const badgeEl = document.getElementById("btcCostBadge");
-    const badgeLabelEl = document.getElementById("btcCostBadgeLabel");
-
-    if (!asOfEl || !priceEl || !costEl || !premEl || !noteEl || !badgeEl || !badgeLabelEl) {
-      console.warn("[BTC COST] Elementele cardului nu sunt prezente în DOM.");
-      return;
-    }
-
-    const premium = (Number.isFinite(priceUsd) && Number.isFinite(prodCostUsd) && prodCostUsd > 0)
-      ? priceUsd / prodCostUsd
-      : null;
-
-    if (asOf) {
-      asOfEl.textContent = asOf;
-    }
-
-    priceEl.textContent = Number.isFinite(priceUsd) ? formatUsd(priceUsd) : "–";
-    costEl.textContent = Number.isFinite(prodCostUsd) ? formatUsd(prodCostUsd) : "–";
-    premEl.textContent = premium != null && Number.isFinite(premium)
-      ? premium.toFixed(2) + "×"
-      : "–";
-
-    const note = interpretPremium(premium);
-    noteEl.textContent = note;
-    setBadgeForPremium(badgeEl, badgeLabelEl, premium);
-  }
-
-  async function loadBtcCostCard() {
-    try {
-      const resp = await fetch("data/btc_cost_state.json");
-      if (!resp.ok) {
-        throw new Error("Nu pot încărca data/btc_cost_state.json");
-      }
-
-      const data = await resp.json();
-      const asOf = data.as_of || "–";
-      const close = Number(data.close);
-      const cost = Number(data.prod_cost_usd);
-
-      updateBtcCostCardFromValues(asOf, close, cost);
-    } catch (err) {
-      console.error("[BTC COST] Eroare la încărcarea costului BTC:", err);
-      // fallback: mesaj de eroare în card
-      const noteEl = document.getElementById("btcCostNote");
-      const badgeEl = document.getElementById("btcCostBadge");
-      const badgeLabelEl = document.getElementById("btcCostBadgeLabel");
-      if (noteEl && badgeEl && badgeLabelEl) {
-        noteEl.textContent =
-          "Nu am putut încărca datele de cost. Verifică prezența fișierului data/btc_cost_state.json.";
-        badgeEl.classList.remove("up", "down", "neutral", "macro");
-        badgeEl.classList.add("neutral");
-        badgeLabelEl.textContent = "eroare";
-      }
-    }
-  }
-
-  function initUserBtcCostCalculator() {
-    const hashrateInput = document.getElementById("userHashrate");
-    const effInput = document.getElementById("userEfficiency");
-    const energyInput = document.getElementById("userEnergyPrice");
-    const rewardInput = document.getElementById("userBlockReward");
-    const blocksInput = document.getElementById("userBlocksPerDay");
-    const priceInput = document.getElementById("userPrice");
-    const calcBtn = document.getElementById("userCostCalcBtn");
-
-    const costValueEl = document.getElementById("userCostValue");
-    const premiumLabelEl = document.getElementById("userCostPremiumLabel");
-    const noteEl = document.getElementById("userCostNote");
-    const statusEl = document.getElementById("userCostStatus");
-
-    if (!calcBtn || !hashrateInput || !effInput || !energyInput ||
-        !rewardInput || !blocksInput || !priceInput ||
-        !costValueEl || !premiumLabelEl || !noteEl || !statusEl) {
-      console.warn("[BTC COST USER] Elementele calculatorului nu sunt prezente în DOM.");
-      return;
-    }
-
-    calcBtn.addEventListener("click", (e) => {
-      e.preventDefault();
-
-      const hashrateEh = parseFloat(hashrateInput.value.replace(",", ".")) || NaN;
-      const efficiencyJPerTh = parseFloat(effInput.value.replace(",", ".")) || 25.0;
-      const energyUsdPerKwh = parseFloat(energyInput.value.replace(",", ".")) || 0.05;
-      const blockReward = parseFloat(rewardInput.value.replace(",", ".")) || 3.125;
-      const blocksPerDay = parseFloat(blocksInput.value.replace(",", ".")) || 144.0;
-      const priceUsd = parseFloat(priceInput.value.replace(",", ".")) || NaN;
-
-      if (!Number.isFinite(hashrateEh) || hashrateEh <= 0) {
-        statusEl.textContent = "Introdu un hashrate valid (EH/s).";
-        return;
-      }
-
-      // model energetic: similar cu scriptul .py
-      const hashrateHPerS = hashrateEh * 1e18;
-      const etaJPerHash = efficiencyJPerTh / 1e12;
-      const powerW = hashrateHPerS * etaJPerHash;
-      const energyKwhPerDay = (powerW * 24) / 1000.0;
-      const btcPerDay = blocksPerDay * blockReward;
-      const energyKwhPerBtc = energyKwhPerDay / btcPerDay;
-      const costEnergyUsdPerBtc = energyKwhPerBtc * energyUsdPerKwh;
-      const prodCostUsd = costEnergyUsdPerBtc; // all_in_factor = 1.0 aici
-
-      costValueEl.textContent = formatUsd(prodCostUsd);
-
-      let premium = null;
-      if (Number.isFinite(priceUsd) && prodCostUsd > 0) {
-        premium = priceUsd / prodCostUsd;
-        premiumLabelEl.textContent = premium.toFixed(2) + "× preț / cost";
-      } else {
-        premiumLabelEl.textContent = "Introdu și un preț BTC pentru a vedea premium-ul.";
-      }
-
-      const userNote = interpretPremium(premium);
-      noteEl.textContent = userNote;
-
-      statusEl.textContent =
-        "Am aplicat costul tău de producție în cardul principal. Verdictul se bazează pe aceiași indici coezivi.";
-
-      // actualizează și cardul principal
-      const asOfToday = new Date().toISOString().slice(0, 10);
-      const priceForCard = Number.isFinite(priceUsd)
-        ? priceUsd
-        : (function () {
-            const mainPriceEl = document.getElementById("btcCostPrice");
-            const currentText = mainPriceEl ? mainPriceEl.textContent : "";
-            const numeric = Number(String(currentText || "").replace(/[^0-9.]/g, ""));
-            return Number.isFinite(numeric) ? numeric : NaN;
-          })();
-
-      updateBtcCostCardFromValues(asOfToday, priceForCard, prodCostUsd);
-    });
-  }
-
-  document.addEventListener("DOMContentLoaded", () => {
-    loadBtcCostCard();
-    initUserBtcCostCalculator();
-  });
-</script>
 </body>
 </html>
