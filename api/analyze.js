@@ -1,5 +1,5 @@
 // Motor Coeziv 3.14Δ / 3.14ΔH
-// Filtru online semantic: caută larg, clasifică AI și afișează doar surse externe relevante.
+// Filtru online semantic: caută larg, clasifică AI și separă sursele independente de prezența publică proprie.
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -207,7 +207,6 @@ Afirmația:
       const queries = buildSearchQueries(inputText);
       const seen = new Set();
       const results = [];
-
       for (const q of queries) {
         try {
           const serp = await fetch("https://google.serper.dev/search", {
@@ -238,14 +237,12 @@ Afirmația:
 
     async function classifyOnlineSourcesWithAI(candidateSources, inputText) {
       if (!candidateSources.length) return [];
-
       const compactSources = candidateSources.slice(0, 20).map((s, index) => ({
         index,
         title: String(s.title || "").slice(0, 160),
         snippet: String(s.snippet || "").slice(0, 300),
         link: String(s.link || "").slice(0, 220),
       }));
-
       const classifyPrompt = `
 Clasifică rezultatele online pentru afirmația analizată.
 
@@ -264,7 +261,6 @@ Returnează DOAR JSON ARRAY VALID. Pentru fiecare sursă:
 Surse:
 ${JSON.stringify(compactSources)}
 `.trim();
-
       try {
         const resp = await fetch("https://api.openai.com/v1/chat/completions", {
           method: "POST",
@@ -292,10 +288,8 @@ ${JSON.stringify(compactSources)}
     async function getIndependentOnlineSources(inputText) {
       const candidates = await collectSerperResults(inputText);
       if (!candidates.length) return { sources: [], note: "Nu am găsit rezultate online candidate." };
-
       const classifications = await classifyOnlineSourcesWithAI(candidates, inputText);
       const byIndex = new Map(classifications.map((c) => [Number(c.index), c]));
-
       let accepted = candidates
         .map((s, index) => ({ ...s, classification: byIndex.get(index) }))
         .filter((s) => {
@@ -305,7 +299,6 @@ ${JSON.stringify(compactSources)}
         .sort((a, b) => Number(b.classification?.confidence || 0) - Number(a.classification?.confidence || 0))
         .slice(0, 5)
         .map((s) => ({ title: s.title, link: s.link }));
-
       if (!accepted.length && !classifications.length) {
         accepted = candidates
           .filter((s) => s.heuristic_score > 1.5 && !s.is_internal)
@@ -313,20 +306,31 @@ ${JSON.stringify(compactSources)}
           .slice(0, 3)
           .map((s) => ({ title: s.title, link: s.link }));
       }
-
       return {
         sources: accepted,
         note: accepted.length
-          ? "Sursele au fost filtrate semantic ca surse externe relevante."
+          ? "Sursele au fost filtrate semantic ca surse externe independente relevante."
           : "Nu am găsit surse externe independente suficient de relevante.",
       };
+    }
+
+    function getPublicPresence() {
+      const items = [
+        { title: "Analizor Coeziv 3.14", link: "https://coeziv.vercel.app" },
+        { title: "Documentație publică a Modelului Coeziv", link: "https://coeziv.vercel.app/document/index.html" },
+        { title: "Colecții Coezive", link: "https://coeziv.vercel.app/document/collections.html" },
+        { title: "Repository public Coeziv", link: "https://github.com/trendyiptv-a11y/Coeziv" }
+      ];
+      if (process.env.COEZIV_GPT_URL) {
+        items.unshift({ title: "Exploratorul Coeziv – GPT public", link: process.env.COEZIV_GPT_URL });
+      }
+      return items;
     }
 
     const H = humanMode ? calcHumanResonance(text) : 0;
     const Vnum = humanMode ? (F + L + C + H) / 4 : (F + L + C) / 3;
     const V = Number(Vnum.toFixed(2));
     const summary = generateCohesiveExplanation(F, L, C, H, Boolean(humanMode));
-
     const sourceResult = await getIndependentOnlineSources(text);
 
     return res.status(200).json({
@@ -340,6 +344,8 @@ ${JSON.stringify(compactSources)}
       summary: summary || gptJson.summary || "—",
       sources: sourceResult.sources,
       source_note: sourceResult.note,
+      public_presence: getPublicPresence(),
+      public_presence_note: "Prezență publică proprie; descrie existența proiectului, dar nu reprezintă validare independentă.",
     });
   } catch (err) {
     return res.status(500).json({
