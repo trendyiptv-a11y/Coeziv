@@ -1,5 +1,5 @@
 // Motor Coeziv 3.14Δ / 3.14ΔH
-// Regimuri de adevăr: identitate, validare externă, coliziune semantică, general.
+// Regimuri de adevăr + rafinare obiectivă pe straturi: știință, limbaj, vibrație.
 
 const COEZIV_ANALYSIS_MODEL = process.env.COEZIV_ANALYSIS_MODEL || process.env.COEZIV_MODEL || "gpt-4.1";
 const COEZIV_SOURCE_MODEL = process.env.COEZIV_SOURCE_MODEL || process.env.COEZIV_MODEL || "gpt-4.1-mini";
@@ -142,6 +142,36 @@ Surse: ${JSON.stringify(compactSources)}`;
       if (isHumanMode) parts.push(H < 1.5 ? "Nivelul ΔH este redus: componenta umană, etică sau integratoare este slab exprimată." : "Nivelul ΔH indică o rezonanță umană prezentă.");
       return parts.join(" ");
     }
+    function buildObjectiveRefinement({ intent, text, F, L, C, hasIndependentSources, publicPresenceCount, identityPresenceSupport }) {
+      const hasOwnPresence = publicPresenceCount > 0;
+      const t = normalizedText(text);
+      const parts = [];
+      if (intent === "external_validation") {
+        parts.push("Știință: afirmația cere confirmare externă oficială; în lipsa unei surse independente sau instituționale, componenta factuală domină verdictul și rămâne nesusținută.");
+        parts.push("Limbaj: termenii de tip «validat oficial», «NASA», «certificat» sau «recunoscut oficial» impun un standard de dovadă mai ridicat decât simpla existență publică a proiectului.");
+        parts.push("Vibrație/coerență: prezența proprie poate arăta existență și continuitate, dar nu poate substitui validarea unei autorități externe.");
+        if (/soluri?|pamanturi|pământuri|geotehnic|terasament/.test(t)) parts.push("Observație semantică: afirmația conține și o posibilă coliziune între termenul tehnic «coeziv» din geotehnică și Modelul Coeziv 3.14 ca proiect conceptual.");
+      } else if (intent === "semantic_collision") {
+        parts.push("Știință: termenii tehnici trebuie evaluați în domeniul lor propriu; geotehnica și modelul conceptual Coeziv 3.14 nu pot fi echivalate doar pentru că folosesc același cuvânt.");
+        parts.push("Limbaj: nodul principal este coliziunea semantică a termenului «coeziv», care are sensuri diferite în contexte diferite.");
+        parts.push("Vibrație/coerență: afirmația pierde coerență prin amestecarea planurilor, nu prin inexistența proiectului.");
+      } else if (intent === "identity_presence") {
+        parts.push("Știință: afirmația este susținută la nivel de existență publică proprie, nu la nivel de validare externă independentă.");
+        parts.push("Limbaj: relația autor/proiect este formulată suficient de clar pentru a fi verificată prin prezența publică a proiectului.");
+        parts.push("Vibrație/coerență: informația este coerentă cu continuitatea documentației, GPT-ului public, site-ului și repository-ului.");
+      } else if (intent === "internal_cohesive") {
+        parts.push("Știință: afirmația se referă la cadrul intern al Modelului Coeziv; verificarea ține de documentația proiectului, nu de validare externă automată.");
+        parts.push("Limbaj: termenii trebuie păstrați în interiorul cadrului Coeziv pentru a evita confuzii cu sensuri tehnice din alte domenii.");
+        parts.push("Vibrație/coerență: analiza urmărește dacă afirmația clarifică și ordonează modelul sau dacă amestecă niveluri diferite.");
+      } else {
+        parts.push(F < 1.5 ? "Știință: componenta factuală este slabă sau insuficient verificată prin date directe." : "Știință: există o bază factuală parțială sau moderată, dar rămâne necesară verificarea prin surse relevante.");
+        parts.push(C < 1.5 ? "Limbaj: termenii sunt fragili sau pot produce ambiguități." : "Limbaj: formularea este relativ coerentă semantic.");
+        parts.push(L < 1.5 ? "Vibrație/coerență: legătura internă a afirmației este încă instabilă." : "Vibrație/coerență: afirmația are o structură internă relativ ordonată.");
+      }
+      if (identityPresenceSupport && hasOwnPresence) parts.push("Limită obiectivă: prezența publică proprie susține existența/identitatea proiectului, dar nu trebuie folosită ca probă pentru certificare, autoritate externă sau validare științifică independentă.");
+      if (hasIndependentSources) parts.push("Notă: sursele externe afișate au trecut filtrul semantic de relevanță, dar trebuie citite în contextul afirmației concrete.");
+      return parts.join(" ");
+    }
     function calcHumanResonance(txt) { const lower = String(txt || "").toLowerCase(); const positive = ["viață", "viata", "suflet", "adevăr", "adevar", "iubire", "armonie", "echilibru", "sens", "demnitate", "libertate", "conștiință", "constiinta", "responsabilitate", "claritate", "vindecare", "coerență", "coerenta", "coeziune", "energie"]; const constructive = ["cum putem", "soluție", "solutie", "îmbunătăți", "imbunatati", "înțelege", "intelege", "corecta", "echilibra", "repara", "clarifica", "construi", "dezvolta"]; const negative = ["ură", "ura", "minciună", "minciuna", "manipulare", "distrugere", "frică", "frica", "haos", "abuz", "dezbinare"]; let score = 0.5; for (const word of positive) if (lower.includes(word)) score += 0.35; for (const phrase of constructive) if (lower.includes(phrase)) score += 0.45; for (const word of negative) if (lower.includes(word)) score -= 0.25; if (lower.length > 80) score += 0.25; if (/[?]/.test(txt)) score += 0.15; return Math.max(0, Math.min(score, 3.14)); }
 
     const intent = classifyClaimIntent(text);
@@ -158,6 +188,7 @@ Surse: ${JSON.stringify(compactSources)}`;
     const Vnum = humanMode ? (F + L + C + H) / 4 : (F + L + C) / 3;
     const V = Number(Vnum.toFixed(2));
     const summary = generateCohesiveExplanation(F, L, C, H, intent, Boolean(humanMode), identityPresenceSupport, hasIndependentSources);
+    const objectiveRefinement = buildObjectiveRefinement({ intent, text, F, L, C, hasIndependentSources, publicPresenceCount: fullPublicPresence.length, identityPresenceSupport });
 
     return res.status(200).json({
       mode: humanMode ? "ΔH" : "Δ",
@@ -168,6 +199,7 @@ Surse: ${JSON.stringify(compactSources)}`;
       V,
       verdict: guardedVerdict(V, F, intent, hasIndependentSources, Boolean(humanMode)),
       summary: summary || gptJson.summary || "—",
+      objective_refinement: objectiveRefinement,
       sources: sourceResult.sources,
       source_note: intent === "external_validation" ? "Nu am găsit surse externe oficiale sau independente suficient de relevante." : sourceResult.note,
       public_presence: publicPresenceToShow,
