@@ -255,13 +255,7 @@ Returnează doar array JSON.`
   )].slice(0,USE_DEEP_RESEARCH?24:12);
 }
 
-async function searchCandidates(text){
-  if(!process.env.SERPER_API_KEY)return[];
-
-  const qs=await expandResearchQueries(text);
-  const seen=new Set();
-  const out=[];
-
+async function runSerperQueries(qs,seen,out,limit){
   for(const q of qs){
     try{
       const r=await fetch("https://google.serper.dev/search",{
@@ -299,12 +293,113 @@ async function searchCandidates(text){
           query:q
         });
 
-        if(out.length>=(USE_DEEP_RESEARCH?55:28))return out;
+        if(out.length>=limit)return out;
       }
     }catch{}
   }
 
   return out;
+}
+
+async function inferPrimaryAuthority(text,candidates,intent){
+  if(!USE_DEEP_RESEARCH||!candidates.length){
+    return{
+      needs_primary_source:false,
+      search_queries:[],
+      reason:"primary authority escalation inactive or no candidates"
+    };
+  }
+
+  const mini=candidates.slice(0,14).map(({index,title,snippet,link,authority_hint,query,is_internal})=>({
+    index,
+    title:title.slice(0,140),
+    snippet:snippet.slice(0,260),
+    link:link.slice(0,180),
+    authority_hint,
+    query:String(query||"").slice(0,120),
+    is_internal
+  }));
+
+  try{
+    const raw=await callAI({
+      model:COEZIV_SOURCE_MODEL,
+      temperature:0,
+      system:"Ești modul de raționament epistemic. Nu validezi afirmația. Identifici autoritatea primară care ar avea dreptul să confirme sau să infirme afirmația. Răspunzi strict JSON valid.",
+      user:`Afirmație: "${text}"
+
+Intent factual: ${intent}
+
+Surse candidate găsite deja:
+${JSON.stringify(mini)}
+
+Sarcină:
+1. Verifică dacă sursele găsite sunt în principal secundare: presă, enciclopedii, ghiduri, agregatoare, bloguri sau rezumate.
+2. Identifică tipul autorității primare care ar trebui căutată.
+3. Dedu autoritatea din afirmație, nu dintr-o listă fixă.
+4. Generează maximum 8 căutări scurte pentru a ajunge la sursa primară, pagina oficială, registrul public, actul oficial sau documentul originar.
+5. Dacă sursele candidate includ deja o autoritate primară suficientă, setează needs_primary_source=false.
+6. Căutările trebuie să fie utile pentru un motor web, nu explicații lungi.
+
+Returnează strict JSON:
+{
+  "needs_primary_source": true,
+  "primary_authority_type": "string scurt",
+  "likely_primary_authorities": ["..."],
+  "search_queries": ["..."],
+  "reason": "explicație scurtă"
+}`
+    });
+
+    const j=JSON.parse(pickJSON(raw));
+
+    const queries=Array.isArray(j.search_queries)
+      ? j.search_queries
+          .map(x=>String(x||"").trim())
+          .filter(Boolean)
+          .slice(0,8)
+      : [];
+
+    return{
+      needs_primary_source:j.needs_primary_source===true&&queries.length>0,
+      primary_authority_type:String(j.primary_authority_type||""),
+      likely_primary_authorities:Array.isArray(j.likely_primary_authorities)
+        ?j.likely_primary_authorities.slice(0,5)
+        :[],
+      search_queries:queries,
+      reason:String(j.reason||"")
+    };
+  }catch{
+    return{
+      needs_primary_source:false,
+      search_queries:[],
+      reason:"primary authority inference failed"
+    };
+  }
+}
+
+async function searchCandidates(text){
+  if(!process.env.SERPER_API_KEY)return[];
+
+  const qs=await expandResearchQueries(text);
+  const seen=new Set();
+  const out=[];
+
+  const firstLimit=USE_DEEP_RESEARCH?32:20;
+  const finalLimit=USE_DEEP_RESEARCH?60:30;
+
+  // Prima respirație: mediul informațional general.
+  await runSerperQueries(qs,seen,out,firstLimit);
+
+  // A doua respirație cognitivă:
+  // AI-ul nu se oprește la surse secundare.
+  // El deduce cine are autoritatea primară și generează o nouă direcție de căutare.
+  const primary=await inferPrimaryAuthority(text,out,fallbackIntent(text));
+
+  if(primary.needs_primary_source){
+    await runSerperQueries(primary.search_queries,seen,out,finalLimit);
+  }
+
+  return out.slice(0,finalLimit);
 }
 
 async function inferIntent(text,candidates){
@@ -484,9 +579,6 @@ Surse: ${JSON.stringify(mini)}`
       .sort((a,b)=>b.authority_score-a.authority_score||b.confidence-a.confidence)
       .slice(0,5);
 
-    // FALLBACK COEZIV:
-    // Dacă există surse candidate, dar filtrul AI le-a exclus pe toate,
-    // le afișăm ca surse candidate, nu ca validare.
     if(!support.length&&!contradictions.length&&!context.length){
       context=candidateContext(take);
     }
