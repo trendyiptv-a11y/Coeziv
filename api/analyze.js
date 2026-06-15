@@ -702,6 +702,83 @@ function cohesionCore({intent,F,L,C,hasFullSupport,hasCoreSupport,hasContext,has
   };
 }
 
+function truthConsumptionLevel({intent,hasFullSupport,hasCoreSupport,hasContext,hasContradiction,sources,context_sources,text}){
+  const t=nodia(text);
+
+  const allSources=[
+    ...(sources||[]),
+    ...(context_sources||[])
+  ];
+
+  const hasOfficial=(sources||[]).some(s=>s.role==="official_validation");
+  const hasPrimary=allSources.some(s=>Number(s.authority_score||0)>=5);
+  const hasDocument=/(treaty|agreement|law|lege|regulation|ordin|decret|protocol|document|pdf|official text|monitorul oficial|entered into force|intrat in vigoare|adopted|ratified|signed|semnat|publicat|published)/.test(t);
+  const isFuture=/(scheduled|programat|will|urmeaza|urmează|future|2026|2027|2028|to begin|to conclude|final on|scheduled to|va avea loc|se va desfasura|se va desfășura)/.test(t);
+  const isExecuted=/(entered into force|intrat in vigoare|published|publicat|ratified|adopted|signed|semnat|implemented|took effect|came into force|a intrat in vigoare|a fost adoptat|a fost semnat)/.test(t);
+  const isCompleted=/(concluded|ended|completed|finalized|took place|was held|a avut loc|s-a incheiat|s-a încheiat|s-a finalizat|finalizat)/.test(t);
+
+  if(hasContradiction&&!hasFullSupport){
+    return{
+      level:1,
+      max:5,
+      label:"semnal informațional contradictoriu",
+      explanation:"Există surse relevante, dar nu există convergență factuală suficientă."
+    };
+  }
+
+  if(hasOfficial&&hasPrimary&&(isCompleted||isExecuted)){
+    return{
+      level:5,
+      max:5,
+      label:"adevăr consumat / efect produs",
+      explanation:"Există sursă primară oficială, document public și efect intrat în vigoare sau consumat."
+    };
+  }
+
+  if(hasOfficial&&hasPrimary&&isFuture){
+    return{
+      level:3,
+      max:5,
+      label:"adevăr oficial programat",
+      explanation:"Există sursă primară oficială, dar evenimentul este viitor sau încă neconsumat complet."
+    };
+  }
+
+  if(hasOfficial&&hasPrimary){
+    return{
+      level:3,
+      max:5,
+      label:"adevăr oficial documentat",
+      explanation:"Există sursă primară oficială; consumarea completă depinde de aplicare sau finalizarea evenimentului."
+    };
+  }
+
+  if(hasOfficial||hasPrimary||hasDocument){
+    return{
+      level:2,
+      max:5,
+      label:"adevăr documentat oficial",
+      explanation:"Există sursă oficială, document sau semnal primar, dar efectul complet nu este încă dovedit ca produs."
+    };
+  }
+
+  if(hasCoreSupport||hasContext){
+    return{
+      level:1,
+      max:5,
+      label:"semnal factual / context verificabil",
+      explanation:"Există surse relevante, dar acestea nu ating nivelul de autoritate primară sau consumare factuală."
+    };
+  }
+
+  return{
+    level:0,
+    max:5,
+    label:"afirmație neconsumată",
+    explanation:"Nu există suficiente elemente verificabile pentru consumarea factuală a afirmației."
+  };
+}
+
 function applyScores(F,L,C,core,intent){
   let f=F,l=L,c=C;
 
@@ -749,7 +826,7 @@ function verdict(V,F,intent,hasFullSupport,hasContradiction,core,human=false){
   return human?"⚠️ Dezechilibru ΔH":"🔴 Probabil fals / incoerent";
 }
 
-function summary(F,L,C,H,intent,human,core){
+function summary(F,L,C,H,intent,human,core,truthConsumption){
   let p=[];
 
   if(core.truth_destination==="news_claim_contradicted"){
@@ -777,6 +854,10 @@ function summary(F,L,C,H,intent,human,core){
     :"Nivelul semantic arată o direcție coerentă de interpretare."
   );
 
+  if(truthConsumption){
+    p.push(`Nivel de consumare a adevărului: ${truthConsumption.level}/${truthConsumption.max} — ${truthConsumption.label}.`);
+  }
+
   if(human){
     p.push(H<1.5
       ?"Nivelul ΔH este redus."
@@ -787,7 +868,7 @@ function summary(F,L,C,H,intent,human,core){
   return p.join(" ");
 }
 
-function refine(intent,F,L,C,hasFullSupport,hasCoreSupport,hasContradiction,ctx,core){
+function refine(intent,F,L,C,hasFullSupport,hasCoreSupport,hasContradiction,ctx,core,truthConsumption){
   let p=[];
 
   if(hasContradiction&&!hasFullSupport){
@@ -826,6 +907,10 @@ function refine(intent,F,L,C,hasFullSupport,hasCoreSupport,hasContradiction,ctx,
         ?"Vibrație/coerență: legătura internă este instabilă."
         :"Vibrație/coerență: afirmația are structură internă relativ ordonată."
     );
+  }
+
+  if(truthConsumption){
+    p.push(`Consumarea adevărului: ${truthConsumption.label}. ${truthConsumption.explanation}`);
   }
 
   if(ctx?.reason){
@@ -969,6 +1054,17 @@ export default async function handler(req,res){
       ownSupport
     });
 
+    const truth_consumption=truthConsumptionLevel({
+      intent,
+      hasFullSupport,
+      hasCoreSupport,
+      hasContext,
+      hasContradiction,
+      sources:src.sources,
+      context_sources:src.context_sources,
+      text
+    });
+
     const H=humanMode?Hscore(text):0;
 
     const V=Number((humanMode
@@ -984,9 +1080,10 @@ export default async function handler(req,res){
       human_score:humanMode?H:undefined,
       V,
       verdict:verdict(V,F,intent,hasFullSupport,hasContradiction,core,Boolean(humanMode)),
-      summary:summary(F,L,C,H,intent,Boolean(humanMode),core),
-      objective_refinement:refine(intent,F,L,C,hasFullSupport,hasCoreSupport,hasContradiction,ctx,core),
+      summary:summary(F,L,C,H,intent,Boolean(humanMode),core,truth_consumption),
+      objective_refinement:refine(intent,F,L,C,hasFullSupport,hasCoreSupport,hasContradiction,ctx,core,truth_consumption),
       cohesion_core:core,
+      truth_consumption,
       sources:src.sources,
       contradiction_sources:src.contradiction_sources,
       context_sources:src.context_sources,
