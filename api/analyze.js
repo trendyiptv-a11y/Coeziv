@@ -137,6 +137,8 @@ function hostRank(link){
 
   if(/(reuters|apnews|associatedpress|bbc|politico|theguardian|nytimes|washingtonpost|wsj|ft\.com|bloomberg|aljazeera|cnn|cnbc|axios|npr|whitehouse\.gov|state\.gov|gov|europa\.eu|un\.org|nato\.int)/.test(h))return 4;
 
+  if(/(fifa\.com|uefa\.com|olympics\.com|ioc\.org|worldathletics\.org|fiba\.basketball|fia\.com|formula1\.com|atptour\.com|wtatennis\.com)/.test(h))return 5;
+
   if(/(pubmed|nih\.gov|ncbi|nature\.com|science\.org|sciencedirect|springer|wiley|doi\.org|pnas\.org|cell\.com)/.test(h))return 5;
 
   if(/(edu|ac\.|university|britannica|wikipedia)/.test(h))return 4;
@@ -337,7 +339,7 @@ Sarcină:
 2. Identifică tipul autorității primare care ar trebui căutată.
 3. Dedu autoritatea din afirmație, nu dintr-o listă fixă.
 4. Generează maximum 8 căutări scurte pentru a ajunge la sursa primară, pagina oficială, registrul public, actul oficial sau documentul originar.
-5. Dacă sursele candidate includ deja o autoritate primară suficientă, setează needs_primary_source=false.
+5. Setează needs_primary_source=false doar dacă există deja în sursele candidate un link direct către autoritatea primară sau către documentul/pagina oficială originară. Nu considera suficiente sursele secundare care doar menționează autoritatea primară.
 6. Căutările trebuie să fie utile pentru un motor web, nu explicații lungi.
 
 Returnează strict JSON:
@@ -387,12 +389,8 @@ async function searchCandidates(text){
   const firstLimit=USE_DEEP_RESEARCH?32:20;
   const finalLimit=USE_DEEP_RESEARCH?60:30;
 
-  // Prima respirație: mediul informațional general.
   await runSerperQueries(qs,seen,out,firstLimit);
 
-  // A doua respirație cognitivă:
-  // AI-ul nu se oprește la surse secundare.
-  // El deduce cine are autoritatea primară și generează o nouă direcție de căutare.
   const primary=await inferPrimaryAuthority(text,out,fallbackIntent(text));
 
   if(primary.needs_primary_source){
