@@ -2,28 +2,927 @@ const COEZIV_COST_MODE=process.env.COEZIV_COST_MODE||"eco";
 const COEZIV_ANALYSIS_MODEL=process.env.COEZIV_ANALYSIS_MODEL||process.env.COEZIV_MODEL||(COEZIV_COST_MODE==="premium"?"gpt-5.5":"gpt-4.1-mini");
 const COEZIV_SOURCE_MODEL=process.env.COEZIV_SOURCE_MODEL||process.env.COEZIV_MODEL||(COEZIV_COST_MODE==="premium"?"gpt-4.1-mini":"gpt-4.1-mini");
 const USE_DEEP_RESEARCH=COEZIV_COST_MODE==="premium"||process.env.COEZIV_DEEP_RESEARCH==="1";
-const clamp=n=>{n=Number(n);return Number.isFinite(n)?Math.max(0,Math.min(n,3.14)):1.57};
+
+const clamp=n=>{
+  n=Number(n);
+  return Number.isFinite(n)?Math.max(0,Math.min(n,3.14)):1.57;
+};
+
 const gpt5=m=>String(m||"").toLowerCase().startsWith("gpt-5");
-const nodia=s=>String(s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[ăâ]/g,"a").replace(/î/g,"i").replace(/[șş]/g,"s").replace(/[țţ]/g,"t");
-function pickJSON(s){const f=String(s||"").match(/```json\s*([\s\S]*?)\s*```/)||String(s||"").match(/```\s*([\s\S]*?)\s*```/);if(f)return f[1].trim();const a=String(s||"").indexOf("{"),b=String(s||"").lastIndexOf("}");return a>=0&&b>a?String(s).slice(a,b+1):String(s||"").trim()}
-function pickArray(s){s=String(s||"");const f=s.match(/```json\s*([\s\S]*?)\s*```/)||s.match(/```\s*([\s\S]*?)\s*```/);s=f?f[1].trim():s.trim();const a=s.indexOf("["),b=s.lastIndexOf("]");return a>=0&&b>a?s.slice(a,b+1):s}
-function readText(d){if(typeof d?.output_text==="string")return d.output_text;let out=[];for(const i of d?.output||[])for(const c of i?.content||[]){if(typeof c?.text==="string")out.push(c.text);if(typeof c?.value==="string")out.push(c.value)}return out.join("\n")}
-async function callAI({model,system,user,temperature=0.15}){if(gpt5(model)){const r=await fetch("https://api.openai.com/v1/responses",{method:"POST",headers:{"Content-Type":"application/json",Authorization:`Bearer ${process.env.OPENAI_API_KEY}`},body:JSON.stringify({model,instructions:system,input:user})});if(!r.ok){let e=new Error("OpenAI request failed");e.status=r.status;e.detail=(await r.text()).slice(0,800);e.model=model;e.endpoint="responses";throw e}return readText(await r.json())}const r=await fetch("https://api.openai.com/v1/chat/completions",{method:"POST",headers:{"Content-Type":"application/json",Authorization:`Bearer ${process.env.OPENAI_API_KEY}`},body:JSON.stringify({model,temperature,messages:[{role:"system",content:system},{role:"user",content:user}]})});if(!r.ok){let e=new Error("OpenAI request failed");e.status=r.status;e.detail=(await r.text()).slice(0,800);e.model=model;e.endpoint="chat/completions";throw e}const d=await r.json();return d?.choices?.[0]?.message?.content||""}
-function isOwn(link){link=String(link||"").toLowerCase();return link.includes("coeziv.vercel.app")||link.includes("github.com/trendyiptv-a11y/coeziv")||link.includes("chatgpt.com/g/")}
-function ownLinks(){let a=[{title:"Analizor Coeziv 3.14",link:"https://coeziv.vercel.app"},{title:"Documentație publică a Modelului Coeziv",link:"https://coeziv.vercel.app/document/index.html"},{title:"Colecții Coezive",link:"https://coeziv.vercel.app/document/collections.html"},{title:"Repository public Coeziv",link:"https://github.com/trendyiptv-a11y/Coeziv"}];if(process.env.COEZIV_GPT_URL)a.unshift({title:"Exploratorul Coeziv – GPT public",link:process.env.COEZIV_GPT_URL});return a}
-function hostRank(link){let h="";try{h=new URL(link).hostname.toLowerCase()}catch{return 1}if(/(reuters|apnews|associatedpress|bbc|politico|theguardian|nytimes|washingtonpost|wsj|ft\.com|bloomberg|aljazeera|cnn|cnbc|axios|npr|whitehouse\.gov|state\.gov|gov|europa\.eu|un\.org|nato\.int)/.test(h))return 4;if(/(pubmed|nih\.gov|ncbi|nature\.com|science\.org|sciencedirect|springer|wiley|doi\.org|pnas\.org|cell\.com)/.test(h))return 5;if(/(edu|ac\.|university|britannica|wikipedia)/.test(h))return 4;if(/(coindesk|cointelegraph|cryptoquant|glassnode|theblock|decrypt|coinmarketcap|tradingview)/.test(h))return 3;if(/(blog|wordpress|medium|forum|reddit|facebook|youtube|tiktok|x\.com|twitter)/.test(h))return 1;return 2}
-function fallbackIntent(text){const t=nodia(text),proj=/(model\s+coeziv|formula\s+coeziunii|analizor\s+coeziv|exploratorul\s+coeziv|coeziv\s*3\.?14)/.test(t),person=/\bsergiu\b|\bbulboaca\b/.test(t),official=/(nasa|esa|validat\s+oficial|validare\s+oficiala|aprobat|recunoscut\w*\s+oficial|guvern|minister|certificat|president|trump|iran|israel|peace deal|acord de pace|tratative|diplomatic)/.test(t),news=/(azi|acum|recent|imediat|breaking|president|trump|iran|israel|ucraina|rusia|bitcoin|piața|piata|lichiditate|capital)/.test(t),sci=/(stiintific|verificat|validat|recunoscut|consens|peer|studiu|apa|water|structur)/.test(t),collision=/(reorganizare|coeziv|structura|stare).*(poate|termen|sens)|reorganizare/.test(t)&&!/lichiditate|piata|piața|market|capital/.test(t);if(official)return"external_validation";if(news)return"news_claim";if(collision)return"semantic_collision";if(person&&proj)return"identity_presence";if(proj)return"project_presence";if(sci)return"scientific_validation_claim";return"general_scientific"}
-async function expandResearchQueries(text){const raw=String(text||"").trim().slice(0,240),t=nodia(raw);let qs=[`"${raw}"`,raw];const isNews=/(trump|iran|israel|peace|deal|acord|president|diplomat|bitcoin|lichiditate|market|piata|piața|recent|acum)/i.test(raw);const isSci=/(stiintific|verificat|validat|recunoscut|apa|water|structur|molecular|hydrogen)/.test(t);if(isNews){if(USE_DEEP_RESEARCH){try{const r=await callAI({model:COEZIV_SOURCE_MODEL,temperature:0,system:"Generează căutări de verificare știri. Răspunde strict JSON array.",user:`Afirmație: ${raw}\nGenerează 8 căutări scurte în engleză pentru verificare în surse majore/oficiale. Include Reuters/AP/BBC/Politico/White House/State Dept dacă sunt relevante. Returnează doar array JSON.`});const arr=JSON.parse(pickArray(r));if(Array.isArray(arr))qs.push(...arr.map(x=>String(x).slice(0,140)))}catch{}}qs.push(`${raw} Reuters`,`${raw} Associated Press`,`${raw} BBC`,`${raw} Politico`,`${raw} official statement`,`${raw} White House`,`${raw} State Department`)}
-if(isSci){if(USE_DEEP_RESEARCH){try{const r=await callAI({model:COEZIV_SOURCE_MODEL,temperature:0,system:"Generează interogări academice. Răspunde strict JSON array.",user:`Afirmație: ${raw}\nGenerează 8 căutări academice în engleză: review, evidence, consensus, PubMed, peer reviewed, university. Returnează doar array JSON.`});const arr=JSON.parse(pickArray(r));if(Array.isArray(arr))qs.push(...arr.map(x=>String(x).slice(0,140)))}catch{}}qs.push(`${raw} PubMed`,`${raw} peer reviewed`,`${raw} scientific consensus`,"liquid water molecular structure hydrogen bond review","water structure hydrogen bonding scientific review","water memory scientific evidence review")}
-return[...new Set(qs.filter(Boolean).map(q=>q.trim()).filter(q=>q.length>2))].slice(0,USE_DEEP_RESEARCH?24:12)}
-async function searchCandidates(text){if(!process.env.SERPER_API_KEY)return[];const qs=await expandResearchQueries(text),seen=new Set(),out=[];for(const q of qs){try{const r=await fetch("https://google.serper.dev/search",{method:"POST",headers:{"Content-Type":"application/json","X-API-KEY":process.env.SERPER_API_KEY},body:JSON.stringify({q,gl:"us",hl:"en",num:USE_DEEP_RESEARCH?10:6})});if(!r.ok)continue;const d=await r.json();for(const o of d?.organic||[]){const link=o.link||"";if(!link||seen.has(link))continue;seen.add(link);out.push({index:out.length,title:o.title||"Sursă",link,snippet:o.snippet||"",is_internal:isOwn(link),authority_hint:hostRank(link),query:q});if(out.length>=(USE_DEEP_RESEARCH?55:28))return out}}catch{}}return out}
-async function inferIntent(text,candidates){const fb=fallbackIntent(text);if(!USE_DEEP_RESEARCH)return{intent:fb,confidence:.72,reason:"rutare coezivă economică prin reguli locale",fallback:fb};const mini=candidates.slice(0,16).map(({index,title,snippet,link,authority_hint,query,is_internal})=>({index,title:title.slice(0,120),snippet:snippet.slice(0,260),link:link.slice(0,160),authority_hint,query:String(query||"").slice(0,100),is_internal}));try{const raw=await callAI({model:COEZIV_SOURCE_MODEL,temperature:0,system:"Clasificator factual. Răspunde strict JSON valid.",user:`Afirmație: "${text}"\nRezultate candidate: ${JSON.stringify(mini)}\nAlege intent exact: external_validation, news_claim, market_liquidity_analysis, scientific_validation_claim, scientific_frontier, identity_presence, project_presence, semantic_collision, internal_cohesive, general_scientific.\nEvenimente diplomatice/știri cu persoane/instituții = news_claim sau external_validation dacă cere acord/confirmare oficială. Returnează {"intent":"...","confidence":0..1,"reason":"scurt"}.`});const j=JSON.parse(pickJSON(raw)),ok=["external_validation","news_claim","market_liquidity_analysis","scientific_validation_claim","scientific_frontier","identity_presence","project_presence","semantic_collision","internal_cohesive","general_scientific"];return{intent:ok.includes(j.intent)?j.intent:fb,confidence:Number(j.confidence||0),reason:j.reason||"",fallback:fb}}catch{return{intent:fb,confidence:0,reason:"fallback regex",fallback:fb}}}
-async function classifySources(text,candidates,intent){if(!candidates.length)return{sources:[],context_sources:[],contradiction_sources:[],weak_sources:[],note:"Nu am găsit surse externe independente suficient de relevante."};const take=USE_DEEP_RESEARCH?candidates:candidates.slice(0,24);const mini=take.map(({index,title,snippet,link,is_internal,authority_hint,query})=>({index,title:title.slice(0,150),snippet:snippet.slice(0,240),link:link.slice(0,170),is_internal,authority_hint,query:String(query||"").slice(0,80)}));try{const raw=await callAI({model:COEZIV_SOURCE_MODEL,temperature:0,system:"Evaluator de surse. Răspunde strict JSON array valid.",user:`Afirmația: "${text}". Intent: ${intent}. Clasifică fiecare sursă. source_role exact: supporting_core, supporting_evidence, official_validation, context_only, contradictory, weak_or_popular, irrelevant.\nReguli: contradictory = sursa contrazice, limitează sau nu confirmă formularea completă deși este relevantă. Pentru știri, Reuters/AP/BBC/Politico/Guardian/WhiteHouse/StateDept au autoritate 4-5. supporting_evidence numai dacă susține direct afirmația completă. official_validation numai dacă există confirmare instituțională explicită. supporting_core susține doar nucleul. Returnează JSON array compact. Surse: ${JSON.stringify(mini)}`});const cls=JSON.parse(pickArray(raw)),mp=new Map(cls.map(c=>[Number(c.index),c]));let rows=take.map((s,i)=>{const c=mp.get(i)||{},authority=Math.max(Number(c.authority_score||0),s.authority_hint||1);return{title:s.title,link:s.link,role:c.source_role||"context_only",authority_score:authority,confidence:Number(c.confidence||0),source_type:c.source_type||(s.is_internal?"internal":"independent"),relevant:c.relevant===true&&!s.is_internal,reason:c.reason||""}}).filter(s=>s.relevant&&s.source_type==="independent");const minAuth=intent.startsWith("scientific")?4:3;let support=rows.filter(s=>["supporting_core","supporting_evidence","official_validation"].includes(s.role)&&s.authority_score>=minAuth&&s.confidence>=.52).sort((a,b)=>b.authority_score-a.authority_score||b.confidence-a.confidence).slice(0,5);let contradictions=rows.filter(s=>s.role==="contradictory"&&s.authority_score>=minAuth&&s.confidence>=.5).sort((a,b)=>b.authority_score-a.authority_score||b.confidence-a.confidence).slice(0,5);let context=rows.filter(s=>s.role==="context_only"&&!support.find(x=>x.link===s.link)&&!contradictions.find(x=>x.link===s.link)&&s.authority_score>=2).sort((a,b)=>b.authority_score-a.authority_score||b.confidence-a.confidence).slice(0,5);let weak=rows.filter(s=>!support.find(x=>x.link===s.link)&&!contradictions.find(x=>x.link===s.link)&&!context.find(x=>x.link===s.link)).slice(0,5);let note=support.length?"Sursele susțin rolul indicat; supporting_core susține doar nucleul, nu validarea completă.":contradictions.length?"Am găsit surse puternice care contrazic sau limitează afirmația completă.":context.length?"Afișez surse de context, nu dovezi decisive.":"Nu am găsit surse externe independente suficient de relevante.";return{sources:support,contradiction_sources:contradictions,context_sources:context,weak_sources:weak,note}}catch{return{sources:[],context_sources:[],contradiction_sources:[],weak_sources:[],note:"Nu am găsit surse externe independente suficient de relevante."}}}
-function cohesionCore({intent,F,L,C,hasFullSupport,hasCoreSupport,hasContext,hasContradiction,ownSupport}){let D=F,M=C,E=L,R=1.35,route="general",dest="contextual_truth";if(hasFullSupport){D=Math.max(D,2.35);R-=.25;dest="supported"}if(hasCoreSupport){D=Math.max(D,1.75);M=Math.max(M,1.55);dest="core_supported"}if(hasContext){D=Math.max(D,1.45)}if(hasContradiction&&!hasFullSupport){D=Math.min(D,.85);R=Math.max(R,2.45);dest="contradicted_or_unconfirmed"}if(ownSupport){D=Math.max(D,2.55);M=Math.max(M,2.35);E=Math.max(E,2.25);R=.85;route="public_presence";dest="own_presence_supported"}if(intent==="external_validation"||intent==="news_claim"){route="major_news_official_sources";if(!hasFullSupport&&hasContradiction)dest="news_claim_contradicted";else if(!hasFullSupport)dest="official_or_news_unconfirmed"}if(intent==="market_liquidity_analysis"){route="market_sources";if(hasFullSupport||hasCoreSupport)dest="market_analysis_partially_supported"}if(intent==="scientific_validation_claim"){route="scientific_authority";if(!hasFullSupport&&hasCoreSupport)dest="core_supported_full_validation_unsupported"}if(intent==="semantic_collision"){route="semantic_domains";R=2.75;dest="semantic_split_needed"}const Fc=clamp((D*M*E)/(R*R));return{D:+D.toFixed(2),M:+M.toFixed(2),E:+E.toFixed(2),R:+R.toFixed(2),Fc_info:+Fc.toFixed(2),research_route:route,truth_destination:dest,formula:"Fc_info=(D×M×E)/R²"}}
-function applyScores(F,L,C,core,intent){let f=F,l=L,c=C;if(core.truth_destination==="own_presence_supported"){f=Math.max(f,2.05);l=Math.max(l,2.2);c=Math.max(c,2)}if(core.truth_destination==="news_claim_contradicted"){f=Math.min(f,.55);l=Math.min(l,2.0);c=Math.min(c,2.1)}else if(core.truth_destination==="official_or_news_unconfirmed"){f=Math.min(f,.8)}else if(core.truth_destination==="core_supported_full_validation_unsupported"){f=Math.min(Math.max(f,1.15),1.65);c=Math.max(c,1.3)}else if(core.truth_destination==="market_analysis_partially_supported"){f=Math.min(Math.max(f,1.35),2.0);l=Math.max(l,1.8);c=Math.max(c,1.7)}if(intent==="semantic_collision"){f=Math.min(f,1.2);c=Math.min(c,1.6)}return{F:f,L:l,C:c}}
-function verdict(V,F,intent,hasFullSupport,hasContradiction,core,human=false){if(core?.truth_destination==="news_claim_contradicted")return"🔴 Nesusținut factual / contrazis de surse relevante";if(core?.truth_destination==="official_or_news_unconfirmed")return"🟠 Eveniment neconfirmat complet / necesită sursă oficială";if(core?.truth_destination==="core_supported_full_validation_unsupported")return"🟠 Nucleu factual susținut, validare completă nesusținută";if(core?.truth_destination==="market_analysis_partially_supported")return"🟡 Analiză de piață susținută parțial";if(intent==="semantic_collision")return"🟠 Confuzie semantică / necesită separarea termenilor";if(V>=2.8)return human?"🌿 Adevăr coeziv uman puternic":"✅ Coerență ridicată";if(V>=2.2)return human?"🌱 Coerență umană bună":"🟢 Probabil adevărat / coerent";if(V>=1.5)return human?"⚖️ Echilibru parțial uman":"🟡 Parțial adevărat / necesită clarificări";if(V>=.8)return human?"🌫️ Rezonanță umană slabă":"🟠 Coerență slabă";return human?"⚠️ Dezechilibru ΔH":"🔴 Probabil fals / incoerent"}
-function summary(F,L,C,H,intent,human,core){let p=[];if(core.truth_destination==="news_claim_contradicted")p.push("Sursele relevante găsite contrazic sau limitează formularea completă a afirmației.");else if(core.truth_destination==="official_or_news_unconfirmed")p.push("Afirmația descrie un eveniment oficial sau de știri, dar nu are confirmare suficientă din surse puternice.");else if(core.truth_destination==="core_supported_full_validation_unsupported")p.push("Există surse pentru nucleul factual, dar nu pentru validarea completă a afirmației.");else if(core.truth_destination==="market_analysis_partially_supported")p.push("Afirmația este plauzibilă ca analiză de piață și este susținută parțial de surse relevante.");else p.push(F<1.5?"Nivelul factual este slab: afirmația are puține elemente verificabile direct.":"Nivelul factual indică existența unor elemente verificabile.");p.push(L<1.5?"Nivelul logic necesită clarificare.":"Nivelul logic este relativ coerent.");p.push(C<1.5?"Nivelul semantic este fragil: termenii pot avea mai multe sensuri.":"Nivelul semantic arată o direcție coerentă de interpretare.");if(human)p.push(H<1.5?"Nivelul ΔH este redus.":"Nivelul ΔH indică o rezonanță umană prezentă.");return p.join(" ")}
-function refine(intent,F,L,C,hasFullSupport,hasCoreSupport,hasContradiction,ctx,core){let p=[];if(hasContradiction&&!hasFullSupport)p.push("Știință: sursele relevante nu confirmă formularea completă; unele indică o versiune diferită sau incompletă a evenimentului.","Limbaj: formularea trebuie redusă la ceea ce este efectiv confirmat de surse.","Vibrație/coerență: afirmația are direcție semantică, dar pierde coeziune factuală prin exagerare sau neconfirmare.");else if(core.truth_destination==="market_analysis_partially_supported")p.push("Știință: afirmația este o analiză de piață, nu un fapt punctual.","Limbaj: termenii indică lichiditate, presiune sau capital, nu validare instituțională.","Vibrație/coerență: rezultatele converg pe aceeași direcție de piață, dar rămân interpretative.");else if(hasCoreSupport&&!hasFullSupport)p.push("Știință: sursele susțin nucleul afirmației, dar nu validarea completă.","Limbaj: trebuie separată baza factuală de pretenția mai tare.","Vibrație/coerență: nucleul are tracțiune, dar distanța crește la nivelul concluziei.");else if(intent==="semantic_collision")p.push("Știință: termenii trebuie evaluați în domeniul lor propriu.","Limbaj: nodul principal este coliziunea semantică.","Vibrație/coerență: afirmația pierde coerență prin amestecarea planurilor.");else p.push(F<1.5?"Știință: componenta factuală este slabă sau insuficient verificată.":"Știință: există o bază factuală parțială.",C<1.5?"Limbaj: termenii sunt fragili sau ambigui.":"Limbaj: formularea este relativ coerentă.",L<1.5?"Vibrație/coerență: legătura internă este instabilă.":"Vibrație/coerență: afirmația are structură internă relativ ordonată.");if(ctx?.reason)p.push("Notă: regimul factual a fost inferat cu context online: "+ctx.reason);return p.join(" ")}
-function Hscore(txt){const l=String(txt||"").toLowerCase();let s=.5;for(const w of["viață","viata","suflet","adevăr","adevar","iubire","armonie","echilibru","sens","demnitate","libertate","coerență","coerenta","energie"])if(l.includes(w))s+=.35;for(const w of["soluție","solutie","clarifica","construi","dezvolta"])if(l.includes(w))s+=.45;if(/[?]/.test(txt))s+=.15;return Math.max(0,Math.min(s,3.14))}
-function showOwn(i){return["identity_presence","project_presence","internal_cohesive"].includes(i)}
-export default async function handler(req,res){if(req.method!=="POST")return res.status(405).json({error:"Method not allowed. Use POST /api/analyze"});let body={};try{body=typeof req.body==="string"?JSON.parse(req.body||"{}"):req.body||{}}catch{return res.status(400).json({error:"Invalid JSON body."})}const{text,humanMode}=body;if(!text||typeof text!=="string")return res.status(400).json({error:"Missing text for analysis."});if(!process.env.OPENAI_API_KEY)return res.status(500).json({error:"Server misconfigured: OPENAI_API_KEY is missing."});try{const raw=await callAI({model:COEZIV_ANALYSIS_MODEL,system:"Evaluator Coeziv 3.14Δ. Răspunde strict JSON valid.",user:`Analizează afirmația pe F factual, L logic, C semantic. Scoruri 0..3.14. Returnează DOAR JSON valid cu factual_score, logic_score, semantic_score. Afirmația: "${text}"`});let g;try{g=JSON.parse(pickJSON(raw))}catch{g={factual_score:1.57,logic_score:1.57,semantic_score:1.57}}let F=clamp(g.factual_score),L=clamp(g.logic_score),C=clamp(g.semantic_score);const candidates=await searchCandidates(text),ctx=await inferIntent(text,candidates),intent=ctx.intent,src=await classifySources(text,candidates,intent);const hasFullSupport=src.sources.some(s=>["supporting_evidence","official_validation"].includes(s.role)),hasCoreSupport=src.sources.some(s=>s.role==="supporting_core"),hasContradiction=src.contradiction_sources.length>0,hasContext=src.context_sources.length>0||hasCoreSupport,own=ownLinks(),ownSupport=["identity_presence","project_presence"].includes(intent)&&own.length>0&&!hasFullSupport&&!hasContradiction;let core=cohesionCore({intent,F,L,C,hasFullSupport,hasCoreSupport,hasContext,hasContradiction,ownSupport});const a=applyScores(F,L,C,core,intent);F=a.F;L=a.L;C=a.C;core=cohesionCore({intent,F,L,C,hasFullSupport,hasCoreSupport,hasContext,hasContradiction,ownSupport});const H=humanMode?Hscore(text):0,V=Number((humanMode?(F+L+C+H)/4:(F+L+C)/3).toFixed(2));return res.status(200).json({mode:humanMode?"ΔH":"Δ",factual_score:F,logic_score:L,semantic_score:C,human_score:humanMode?H:undefined,V,verdict:verdict(V,F,intent,hasFullSupport,hasContradiction,core,Boolean(humanMode)),summary:summary(F,L,C,H,intent,Boolean(humanMode),core),objective_refinement:refine(intent,F,L,C,hasFullSupport,hasCoreSupport,hasContradiction,ctx,core),cohesion_core:core,sources:src.sources,contradiction_sources:src.contradiction_sources,context_sources:src.context_sources,weak_sources:src.weak_sources,source_note:src.note,public_presence:showOwn(intent)?own:[],public_presence_note:"Prezență publică proprie; descrie existența proiectului, dar nu reprezintă validare independentă.",claim_intent:intent,claim_context:ctx,models:{analysis:COEZIV_ANALYSIS_MODEL,source_filter:COEZIV_SOURCE_MODEL,cost_mode:COEZIV_COST_MODE,deep_research:USE_DEEP_RESEARCH,analysis_endpoint:gpt5(COEZIV_ANALYSIS_MODEL)?"responses":"chat/completions",source_endpoint:gpt5(COEZIV_SOURCE_MODEL)?"responses":"chat/completions"}})}catch(err){return res.status(500).json({error:"OpenAI request failed",status:err?.status||500,detail:String(err?.detail||err?.message||err).slice(0,800),model:err?.model||COEZIV_ANALYSIS_MODEL,endpoint:err?.endpoint||(gpt5(COEZIV_ANALYSIS_MODEL)?"responses":"chat/completions")})}}
+
+const nodia=s=>String(s||"")
+  .toLowerCase()
+  .normalize("NFD")
+  .replace(/[\u0300-\u036f]/g,"")
+  .replace(/[ăâ]/g,"a")
+  .replace(/î/g,"i")
+  .replace(/[șş]/g,"s")
+  .replace(/[țţ]/g,"t");
+
+function pickJSON(s){
+  const f=String(s||"").match(/```json\s*([\s\S]*?)\s*```/)||String(s||"").match(/```\s*([\s\S]*?)\s*```/);
+  if(f)return f[1].trim();
+  const a=String(s||"").indexOf("{"),b=String(s||"").lastIndexOf("}");
+  return a>=0&&b>a?String(s).slice(a,b+1):String(s||"").trim();
+}
+
+function pickArray(s){
+  s=String(s||"");
+  const f=s.match(/```json\s*([\s\S]*?)\s*```/)||s.match(/```\s*([\s\S]*?)\s*```/);
+  s=f?f[1].trim():s.trim();
+  const a=s.indexOf("["),b=s.lastIndexOf("]");
+  return a>=0&&b>a?s.slice(a,b+1):s;
+}
+
+function readText(d){
+  if(typeof d?.output_text==="string")return d.output_text;
+  let out=[];
+  for(const i of d?.output||[]){
+    for(const c of i?.content||[]){
+      if(typeof c?.text==="string")out.push(c.text);
+      if(typeof c?.value==="string")out.push(c.value);
+    }
+  }
+  return out.join("\n");
+}
+
+async function callAI({model,system,user,temperature=0.15}){
+  if(gpt5(model)){
+    const r=await fetch("https://api.openai.com/v1/responses",{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+        Authorization:`Bearer ${process.env.OPENAI_API_KEY}`
+      },
+      body:JSON.stringify({
+        model,
+        instructions:system,
+        input:user
+      })
+    });
+
+    if(!r.ok){
+      let e=new Error("OpenAI request failed");
+      e.status=r.status;
+      e.detail=(await r.text()).slice(0,800);
+      e.model=model;
+      e.endpoint="responses";
+      throw e;
+    }
+
+    return readText(await r.json());
+  }
+
+  const r=await fetch("https://api.openai.com/v1/chat/completions",{
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json",
+      Authorization:`Bearer ${process.env.OPENAI_API_KEY}`
+    },
+    body:JSON.stringify({
+      model,
+      temperature,
+      messages:[
+        {role:"system",content:system},
+        {role:"user",content:user}
+      ]
+    })
+  });
+
+  if(!r.ok){
+    let e=new Error("OpenAI request failed");
+    e.status=r.status;
+    e.detail=(await r.text()).slice(0,800);
+    e.model=model;
+    e.endpoint="chat/completions";
+    throw e;
+  }
+
+  const d=await r.json();
+  return d?.choices?.[0]?.message?.content||"";
+}
+
+function isOwn(link){
+  link=String(link||"").toLowerCase();
+  return link.includes("coeziv.vercel.app")||
+         link.includes("github.com/trendyiptv-a11y/coeziv")||
+         link.includes("chatgpt.com/g/");
+}
+
+function ownLinks(){
+  let a=[
+    {title:"Analizor Coeziv 3.14",link:"https://coeziv.vercel.app"},
+    {title:"Documentație publică a Modelului Coeziv",link:"https://coeziv.vercel.app/document/index.html"},
+    {title:"Colecții Coezive",link:"https://coeziv.vercel.app/document/collections.html"},
+    {title:"Repository public Coeziv",link:"https://github.com/trendyiptv-a11y/Coeziv"}
+  ];
+
+  if(process.env.COEZIV_GPT_URL){
+    a.unshift({
+      title:"Exploratorul Coeziv – GPT public",
+      link:process.env.COEZIV_GPT_URL
+    });
+  }
+
+  return a;
+}
+
+function hostRank(link){
+  let h="";
+  try{
+    h=new URL(link).hostname.toLowerCase();
+  }catch{
+    return 1;
+  }
+
+  if(/(reuters|apnews|associatedpress|bbc|politico|theguardian|nytimes|washingtonpost|wsj|ft\.com|bloomberg|aljazeera|cnn|cnbc|axios|npr|whitehouse\.gov|state\.gov|gov|europa\.eu|un\.org|nato\.int)/.test(h))return 4;
+
+  if(/(pubmed|nih\.gov|ncbi|nature\.com|science\.org|sciencedirect|springer|wiley|doi\.org|pnas\.org|cell\.com)/.test(h))return 5;
+
+  if(/(edu|ac\.|university|britannica|wikipedia)/.test(h))return 4;
+
+  if(/(coindesk|cointelegraph|cryptoquant|glassnode|theblock|decrypt|coinmarketcap|tradingview)/.test(h))return 3;
+
+  if(/(blog|wordpress|medium|forum|reddit|facebook|youtube|tiktok|x\.com|twitter)/.test(h))return 1;
+
+  return 2;
+}
+
+function fallbackIntent(text){
+  const t=nodia(text);
+
+  const proj=/(model\s+coeziv|formula\s+coeziunii|analizor\s+coeziv|exploratorul\s+coeziv|coeziv\s*3\.?14)/.test(t);
+  const person=/\bsergiu\b|\bbulboaca\b/.test(t);
+
+  const official=/(nasa|esa|validat\s+oficial|validare\s+oficiala|aprobat|recunoscut\w*\s+oficial|guvern|minister|certificat|president|trump|iran|israel|peace deal|acord de pace|tratative|diplomatic)/.test(t);
+
+  const news=/(azi|acum|recent|imediat|breaking|president|trump|iran|israel|ucraina|rusia|bitcoin|piața|piata|lichiditate|capital)/.test(t);
+
+  const sci=/(stiintific|verificat|validat|recunoscut|consens|peer|studiu|apa|water|structur)/.test(t);
+
+  const collision=/(reorganizare|coeziv|structura|stare).*(poate|termen|sens)|reorganizare/.test(t)&&!/lichiditate|piata|piața|market|capital/.test(t);
+
+  if(official)return"external_validation";
+  if(news)return"news_claim";
+  if(collision)return"semantic_collision";
+  if(person&&proj)return"identity_presence";
+  if(proj)return"project_presence";
+  if(sci)return"scientific_validation_claim";
+
+  return"general_scientific";
+}
+
+async function expandResearchQueries(text){
+  const raw=String(text||"").trim().slice(0,240);
+  const t=nodia(raw);
+
+  let qs=[
+    `"${raw}"`,
+    raw
+  ];
+
+  const isNews=/(trump|iran|israel|peace|deal|acord|president|diplomat|bitcoin|lichiditate|market|piata|piața|recent|acum)/i.test(raw);
+
+  const isSci=/(stiintific|verificat|validat|recunoscut|apa|water|structur|molecular|hydrogen)/.test(t);
+
+  if(isNews){
+    if(USE_DEEP_RESEARCH){
+      try{
+        const r=await callAI({
+          model:COEZIV_SOURCE_MODEL,
+          temperature:0,
+          system:"Generează căutări de verificare știri. Răspunde strict JSON array.",
+          user:`Afirmație: ${raw}
+Generează 8 căutări scurte în engleză pentru verificare în surse majore/oficiale.
+Include Reuters/AP/BBC/Politico/White House/State Dept dacă sunt relevante.
+Returnează doar array JSON.`
+        });
+
+        const arr=JSON.parse(pickArray(r));
+
+        if(Array.isArray(arr)){
+          qs.push(...arr.map(x=>String(x).slice(0,140)));
+        }
+      }catch{}
+    }
+
+    qs.push(
+      `${raw} Reuters`,
+      `${raw} Associated Press`,
+      `${raw} BBC`,
+      `${raw} Politico`,
+      `${raw} official statement`,
+      `${raw} White House`,
+      `${raw} State Department`
+    );
+  }
+
+  if(isSci){
+    if(USE_DEEP_RESEARCH){
+      try{
+        const r=await callAI({
+          model:COEZIV_SOURCE_MODEL,
+          temperature:0,
+          system:"Generează interogări academice. Răspunde strict JSON array.",
+          user:`Afirmație: ${raw}
+Generează 8 căutări academice în engleză: review, evidence, consensus, PubMed, peer reviewed, university.
+Returnează doar array JSON.`
+        });
+
+        const arr=JSON.parse(pickArray(r));
+
+        if(Array.isArray(arr)){
+          qs.push(...arr.map(x=>String(x).slice(0,140)));
+        }
+      }catch{}
+    }
+
+    qs.push(
+      `${raw} PubMed`,
+      `${raw} peer reviewed`,
+      `${raw} scientific consensus`,
+      "liquid water molecular structure hydrogen bond review",
+      "water structure hydrogen bonding scientific review",
+      "water memory scientific evidence review"
+    );
+  }
+
+  return [...new Set(
+    qs
+      .filter(Boolean)
+      .map(q=>q.trim())
+      .filter(q=>q.length>2)
+  )].slice(0,USE_DEEP_RESEARCH?24:12);
+}
+
+async function searchCandidates(text){
+  if(!process.env.SERPER_API_KEY)return[];
+
+  const qs=await expandResearchQueries(text);
+  const seen=new Set();
+  const out=[];
+
+  for(const q of qs){
+    try{
+      const r=await fetch("https://google.serper.dev/search",{
+        method:"POST",
+        headers:{
+          "Content-Type":"application/json",
+          "X-API-KEY":process.env.SERPER_API_KEY
+        },
+        body:JSON.stringify({
+          q,
+          gl:"us",
+          hl:"en",
+          num:USE_DEEP_RESEARCH?10:6
+        })
+      });
+
+      if(!r.ok)continue;
+
+      const d=await r.json();
+
+      for(const o of d?.organic||[]){
+        const link=o.link||"";
+
+        if(!link||seen.has(link))continue;
+
+        seen.add(link);
+
+        out.push({
+          index:out.length,
+          title:o.title||"Sursă",
+          link,
+          snippet:o.snippet||"",
+          is_internal:isOwn(link),
+          authority_hint:hostRank(link),
+          query:q
+        });
+
+        if(out.length>=(USE_DEEP_RESEARCH?55:28))return out;
+      }
+    }catch{}
+  }
+
+  return out;
+}
+
+async function inferIntent(text,candidates){
+  const fb=fallbackIntent(text);
+
+  if(!USE_DEEP_RESEARCH){
+    return{
+      intent:fb,
+      confidence:.72,
+      reason:"rutare coezivă economică prin reguli locale",
+      fallback:fb
+    };
+  }
+
+  const mini=candidates.slice(0,16).map(({index,title,snippet,link,authority_hint,query,is_internal})=>({
+    index,
+    title:title.slice(0,120),
+    snippet:snippet.slice(0,260),
+    link:link.slice(0,160),
+    authority_hint,
+    query:String(query||"").slice(0,100),
+    is_internal
+  }));
+
+  try{
+    const raw=await callAI({
+      model:COEZIV_SOURCE_MODEL,
+      temperature:0,
+      system:"Clasificator factual. Răspunde strict JSON valid.",
+      user:`Afirmație: "${text}"
+Rezultate candidate: ${JSON.stringify(mini)}
+Alege intent exact:
+external_validation, news_claim, market_liquidity_analysis, scientific_validation_claim, scientific_frontier, identity_presence, project_presence, semantic_collision, internal_cohesive, general_scientific.
+Evenimente diplomatice/știri cu persoane/instituții = news_claim sau external_validation dacă cere acord/confirmare oficială.
+Returnează {"intent":"...","confidence":0..1,"reason":"scurt"}.`
+    });
+
+    const j=JSON.parse(pickJSON(raw));
+
+    const ok=[
+      "external_validation",
+      "news_claim",
+      "market_liquidity_analysis",
+      "scientific_validation_claim",
+      "scientific_frontier",
+      "identity_presence",
+      "project_presence",
+      "semantic_collision",
+      "internal_cohesive",
+      "general_scientific"
+    ];
+
+    return{
+      intent:ok.includes(j.intent)?j.intent:fb,
+      confidence:Number(j.confidence||0),
+      reason:j.reason||"",
+      fallback:fb
+    };
+  }catch{
+    return{
+      intent:fb,
+      confidence:0,
+      reason:"fallback regex",
+      fallback:fb
+    };
+  }
+}
+
+function candidateContext(take){
+  return take
+    .filter(s=>!s.is_internal&&Number(s.authority_hint||0)>=3)
+    .sort((a,b)=>(b.authority_hint||0)-(a.authority_hint||0))
+    .slice(0,5)
+    .map(s=>({
+      title:s.title,
+      link:s.link,
+      role:"candidate_context",
+      authority_score:s.authority_hint||2,
+      confidence:0.25,
+      source_type:"independent",
+      relevant:true,
+      reason:"sursă candidată online; afișată pentru transparență, fără validare decisivă"
+    }));
+}
+
+async function classifySources(text,candidates,intent){
+  if(!candidates.length){
+    return{
+      sources:[],
+      context_sources:[],
+      contradiction_sources:[],
+      weak_sources:[],
+      note:"Nu am găsit surse externe candidate."
+    };
+  }
+
+  const take=USE_DEEP_RESEARCH?candidates:candidates.slice(0,24);
+
+  const mini=take.map(({index,title,snippet,link,is_internal,authority_hint,query})=>({
+    index,
+    title:title.slice(0,150),
+    snippet:snippet.slice(0,240),
+    link:link.slice(0,170),
+    is_internal,
+    authority_hint,
+    query:String(query||"").slice(0,80)
+  }));
+
+  try{
+    const raw=await callAI({
+      model:COEZIV_SOURCE_MODEL,
+      temperature:0,
+      system:"Evaluator de surse. Răspunde strict JSON array valid.",
+      user:`Afirmația: "${text}". Intent: ${intent}.
+Clasifică fiecare sursă. source_role exact:
+supporting_core, supporting_evidence, official_validation, context_only, contradictory, weak_or_popular, irrelevant.
+
+Reguli:
+- contradictory = sursa contrazice, limitează sau nu confirmă formularea completă deși este relevantă.
+- supporting_evidence = susține direct afirmația completă.
+- official_validation = confirmare instituțională explicită.
+- supporting_core = susține doar nucleul, nu concluzia completă.
+- context_only = fundal util, dar fără confirmare decisivă.
+
+Returnează JSON array compact cu:
+index, relevant, source_role, authority_score, confidence.
+
+Surse: ${JSON.stringify(mini)}`
+    });
+
+    const cls=JSON.parse(pickArray(raw));
+    const mp=new Map(cls.map(c=>[Number(c.index),c]));
+
+    let rows=take.map((s,i)=>{
+      const c=mp.get(i)||{};
+      const authority=Math.max(Number(c.authority_score||0),s.authority_hint||1);
+
+      return{
+        title:s.title,
+        link:s.link,
+        role:c.source_role||"context_only",
+        authority_score:authority,
+        confidence:Number(c.confidence||0),
+        source_type:c.source_type||(s.is_internal?"internal":"independent"),
+        relevant:c.relevant===true&&!s.is_internal,
+        reason:c.reason||""
+      };
+    }).filter(s=>s.relevant&&s.source_type==="independent");
+
+    const minAuth=intent.startsWith("scientific")?4:3;
+
+    let support=rows
+      .filter(s=>
+        ["supporting_core","supporting_evidence","official_validation"].includes(s.role)&&
+        s.authority_score>=minAuth&&
+        s.confidence>=.52
+      )
+      .sort((a,b)=>b.authority_score-a.authority_score||b.confidence-a.confidence)
+      .slice(0,5);
+
+    let contradictions=rows
+      .filter(s=>
+        s.role==="contradictory"&&
+        s.authority_score>=minAuth&&
+        s.confidence>=.5
+      )
+      .sort((a,b)=>b.authority_score-a.authority_score||b.confidence-a.confidence)
+      .slice(0,5);
+
+    let context=rows
+      .filter(s=>
+        s.role==="context_only"&&
+        !support.find(x=>x.link===s.link)&&
+        !contradictions.find(x=>x.link===s.link)&&
+        s.authority_score>=2
+      )
+      .sort((a,b)=>b.authority_score-a.authority_score||b.confidence-a.confidence)
+      .slice(0,5);
+
+    // FALLBACK COEZIV:
+    // Dacă există surse candidate, dar filtrul AI le-a exclus pe toate,
+    // le afișăm ca surse candidate, nu ca validare.
+    if(!support.length&&!contradictions.length&&!context.length){
+      context=candidateContext(take);
+    }
+
+    let weak=rows
+      .filter(s=>
+        !support.find(x=>x.link===s.link)&&
+        !contradictions.find(x=>x.link===s.link)&&
+        !context.find(x=>x.link===s.link)
+      )
+      .slice(0,5);
+
+    let note=support.length
+      ?"Sursele susțin rolul indicat; supporting_core susține doar nucleul, nu validarea completă."
+      :contradictions.length
+        ?"Am găsit surse puternice care contrazic sau limitează afirmația completă."
+        :context.some(s=>s.role==="candidate_context")
+          ?"Am găsit surse candidate online; le afișez pentru transparență, fără validare decisivă."
+          :context.length
+            ?"Afișez surse de context, nu dovezi decisive."
+            :"Nu am găsit surse externe candidate.";
+
+    return{
+      sources:support,
+      contradiction_sources:contradictions,
+      context_sources:context,
+      weak_sources:weak,
+      note
+    };
+
+  }catch{
+    const context=candidateContext(take);
+
+    return{
+      sources:[],
+      context_sources:context,
+      contradiction_sources:[],
+      weak_sources:[],
+      note:context.length
+        ?"Am găsit surse candidate online; le afișez pentru transparență, fără validare decisivă."
+        :"Nu am găsit surse externe candidate."
+    };
+  }
+}
+
+function cohesionCore({intent,F,L,C,hasFullSupport,hasCoreSupport,hasContext,hasContradiction,ownSupport}){
+  let D=F,M=C,E=L,R=1.35,route="general",dest="contextual_truth";
+
+  if(hasFullSupport){
+    D=Math.max(D,2.35);
+    R-=.25;
+    dest="supported";
+  }
+
+  if(hasCoreSupport){
+    D=Math.max(D,1.75);
+    M=Math.max(M,1.55);
+    dest="core_supported";
+  }
+
+  if(hasContext){
+    D=Math.max(D,1.45);
+  }
+
+  if(hasContradiction&&!hasFullSupport){
+    D=Math.min(D,.85);
+    R=Math.max(R,2.45);
+    dest="contradicted_or_unconfirmed";
+  }
+
+  if(ownSupport){
+    D=Math.max(D,2.55);
+    M=Math.max(M,2.35);
+    E=Math.max(E,2.25);
+    R=.85;
+    route="public_presence";
+    dest="own_presence_supported";
+  }
+
+  if(intent==="external_validation"||intent==="news_claim"){
+    route="major_news_official_sources";
+
+    if(!hasFullSupport&&hasContradiction){
+      dest="news_claim_contradicted";
+    }else if(!hasFullSupport){
+      dest="official_or_news_unconfirmed";
+    }
+  }
+
+  if(intent==="market_liquidity_analysis"){
+    route="market_sources";
+
+    if(hasFullSupport||hasCoreSupport){
+      dest="market_analysis_partially_supported";
+    }
+  }
+
+  if(intent==="scientific_validation_claim"){
+    route="scientific_authority";
+
+    if(!hasFullSupport&&hasCoreSupport){
+      dest="core_supported_full_validation_unsupported";
+    }
+  }
+
+  if(intent==="semantic_collision"){
+    route="semantic_domains";
+    R=2.75;
+    dest="semantic_split_needed";
+  }
+
+  const Fc=clamp((D*M*E)/(R*R));
+
+  return{
+    D:+D.toFixed(2),
+    M:+M.toFixed(2),
+    E:+E.toFixed(2),
+    R:+R.toFixed(2),
+    Fc_info:+Fc.toFixed(2),
+    research_route:route,
+    truth_destination:dest,
+    formula:"Fc_info=(D×M×E)/R²"
+  };
+}
+
+function applyScores(F,L,C,core,intent){
+  let f=F,l=L,c=C;
+
+  if(core.truth_destination==="own_presence_supported"){
+    f=Math.max(f,2.05);
+    l=Math.max(l,2.2);
+    c=Math.max(c,2);
+  }
+
+  if(core.truth_destination==="news_claim_contradicted"){
+    f=Math.min(f,.55);
+    l=Math.min(l,2.0);
+    c=Math.min(c,2.1);
+  }else if(core.truth_destination==="official_or_news_unconfirmed"){
+    f=Math.min(f,.8);
+  }else if(core.truth_destination==="core_supported_full_validation_unsupported"){
+    f=Math.min(Math.max(f,1.15),1.65);
+    c=Math.max(c,1.3);
+  }else if(core.truth_destination==="market_analysis_partially_supported"){
+    f=Math.min(Math.max(f,1.35),2.0);
+    l=Math.max(l,1.8);
+    c=Math.max(c,1.7);
+  }
+
+  if(intent==="semantic_collision"){
+    f=Math.min(f,1.2);
+    c=Math.min(c,1.6);
+  }
+
+  return{F:f,L:l,C:c};
+}
+
+function verdict(V,F,intent,hasFullSupport,hasContradiction,core,human=false){
+  if(core?.truth_destination==="news_claim_contradicted")return"🔴 Nesusținut factual / contrazis de surse relevante";
+  if(core?.truth_destination==="official_or_news_unconfirmed")return"🟠 Eveniment neconfirmat complet / necesită sursă oficială";
+  if(core?.truth_destination==="core_supported_full_validation_unsupported")return"🟠 Nucleu factual susținut, validare completă nesusținută";
+  if(core?.truth_destination==="market_analysis_partially_supported")return"🟡 Analiză de piață susținută parțial";
+  if(intent==="semantic_collision")return"🟠 Confuzie semantică / necesită separarea termenilor";
+
+  if(V>=2.8)return human?"🌿 Adevăr coeziv uman puternic":"✅ Coerență ridicată";
+  if(V>=2.2)return human?"🌱 Coerență umană bună":"🟢 Probabil adevărat / coerent";
+  if(V>=1.5)return human?"⚖️ Echilibru parțial uman":"🟡 Parțial adevărat / necesită clarificări";
+  if(V>=.8)return human?"🌫️ Rezonanță umană slabă":"🟠 Coerență slabă";
+
+  return human?"⚠️ Dezechilibru ΔH":"🔴 Probabil fals / incoerent";
+}
+
+function summary(F,L,C,H,intent,human,core){
+  let p=[];
+
+  if(core.truth_destination==="news_claim_contradicted"){
+    p.push("Sursele relevante găsite contrazic sau limitează formularea completă a afirmației.");
+  }else if(core.truth_destination==="official_or_news_unconfirmed"){
+    p.push("Afirmația descrie un eveniment oficial sau de știri, dar nu are confirmare suficientă din surse puternice.");
+  }else if(core.truth_destination==="core_supported_full_validation_unsupported"){
+    p.push("Există surse pentru nucleul factual, dar nu pentru validarea completă a afirmației.");
+  }else if(core.truth_destination==="market_analysis_partially_supported"){
+    p.push("Afirmația este plauzibilă ca analiză de piață și este susținută parțial de surse relevante.");
+  }else{
+    p.push(F<1.5
+      ?"Nivelul factual este slab: afirmația are puține elemente verificabile direct."
+      :"Nivelul factual indică existența unor elemente verificabile."
+    );
+  }
+
+  p.push(L<1.5
+    ?"Nivelul logic necesită clarificare."
+    :"Nivelul logic este relativ coerent."
+  );
+
+  p.push(C<1.5
+    ?"Nivelul semantic este fragil: termenii pot avea mai multe sensuri."
+    :"Nivelul semantic arată o direcție coerentă de interpretare."
+  );
+
+  if(human){
+    p.push(H<1.5
+      ?"Nivelul ΔH este redus."
+      :"Nivelul ΔH indică o rezonanță umană prezentă."
+    );
+  }
+
+  return p.join(" ");
+}
+
+function refine(intent,F,L,C,hasFullSupport,hasCoreSupport,hasContradiction,ctx,core){
+  let p=[];
+
+  if(hasContradiction&&!hasFullSupport){
+    p.push(
+      "Știință: sursele relevante nu confirmă formularea completă; unele indică o versiune diferită sau incompletă a evenimentului.",
+      "Limbaj: formularea trebuie redusă la ceea ce este efectiv confirmat de surse.",
+      "Vibrație/coerență: afirmația are direcție semantică, dar pierde coeziune factuală prin exagerare sau neconfirmare."
+    );
+  }else if(core.truth_destination==="market_analysis_partially_supported"){
+    p.push(
+      "Știință: afirmația este o analiză de piață, nu un fapt punctual.",
+      "Limbaj: termenii indică lichiditate, presiune sau capital, nu validare instituțională.",
+      "Vibrație/coerență: rezultatele converg pe aceeași direcție de piață, dar rămân interpretative."
+    );
+  }else if(hasCoreSupport&&!hasFullSupport){
+    p.push(
+      "Știință: sursele susțin nucleul afirmației, dar nu validarea completă.",
+      "Limbaj: trebuie separată baza factuală de pretenția mai tare.",
+      "Vibrație/coerență: nucleul are tracțiune, dar distanța crește la nivelul concluziei."
+    );
+  }else if(intent==="semantic_collision"){
+    p.push(
+      "Știință: termenii trebuie evaluați în domeniul lor propriu.",
+      "Limbaj: nodul principal este coliziunea semantică.",
+      "Vibrație/coerență: afirmația pierde coerență prin amestecarea planurilor."
+    );
+  }else{
+    p.push(
+      F<1.5
+        ?"Știință: componenta factuală este slabă sau insuficient verificată."
+        :"Știință: există o bază factuală parțială.",
+      C<1.5
+        ?"Limbaj: termenii sunt fragili sau ambigui."
+        :"Limbaj: formularea este relativ coerentă.",
+      L<1.5
+        ?"Vibrație/coerență: legătura internă este instabilă."
+        :"Vibrație/coerență: afirmația are structură internă relativ ordonată."
+    );
+  }
+
+  if(ctx?.reason){
+    p.push("Notă: regimul factual a fost inferat cu context online: "+ctx.reason);
+  }
+
+  return p.join(" ");
+}
+
+function Hscore(txt){
+  const l=String(txt||"").toLowerCase();
+  let s=.5;
+
+  for(const w of[
+    "viață","viata","suflet","adevăr","adevar","iubire","armonie","echilibru",
+    "sens","demnitate","libertate","coerență","coerenta","energie"
+  ]){
+    if(l.includes(w))s+=.35;
+  }
+
+  for(const w of[
+    "soluție","solutie","clarifica","construi","dezvolta"
+  ]){
+    if(l.includes(w))s+=.45;
+  }
+
+  if(/[?]/.test(txt))s+=.15;
+
+  return Math.max(0,Math.min(s,3.14));
+}
+
+function showOwn(i){
+  return["identity_presence","project_presence","internal_cohesive"].includes(i);
+}
+
+export default async function handler(req,res){
+  if(req.method!=="POST"){
+    return res.status(405).json({
+      error:"Method not allowed. Use POST /api/analyze"
+    });
+  }
+
+  let body={};
+
+  try{
+    body=typeof req.body==="string"?JSON.parse(req.body||"{}"):req.body||{};
+  }catch{
+    return res.status(400).json({
+      error:"Invalid JSON body."
+    });
+  }
+
+  const{text,humanMode}=body;
+
+  if(!text||typeof text!=="string"){
+    return res.status(400).json({
+      error:"Missing text for analysis."
+    });
+  }
+
+  if(!process.env.OPENAI_API_KEY){
+    return res.status(500).json({
+      error:"Server misconfigured: OPENAI_API_KEY is missing."
+    });
+  }
+
+  try{
+    const raw=await callAI({
+      model:COEZIV_ANALYSIS_MODEL,
+      system:"Evaluator Coeziv 3.14Δ. Răspunde strict JSON valid.",
+      user:`Analizează afirmația pe F factual, L logic, C semantic. Scoruri 0..3.14. Returnează DOAR JSON valid cu factual_score, logic_score, semantic_score. Afirmația: "${text}"`
+    });
+
+    let g;
+
+    try{
+      g=JSON.parse(pickJSON(raw));
+    }catch{
+      g={
+        factual_score:1.57,
+        logic_score:1.57,
+        semantic_score:1.57
+      };
+    }
+
+    let F=clamp(g.factual_score);
+    let L=clamp(g.logic_score);
+    let C=clamp(g.semantic_score);
+
+    const candidates=await searchCandidates(text);
+    const ctx=await inferIntent(text,candidates);
+    const intent=ctx.intent;
+
+    const src=await classifySources(text,candidates,intent);
+
+    const hasFullSupport=src.sources.some(s=>
+      ["supporting_evidence","official_validation"].includes(s.role)
+    );
+
+    const hasCoreSupport=src.sources.some(s=>
+      s.role==="supporting_core"
+    );
+
+    const hasContradiction=src.contradiction_sources.length>0;
+    const hasContext=src.context_sources.length>0||hasCoreSupport;
+
+    const own=ownLinks();
+
+    const ownSupport=[
+      "identity_presence",
+      "project_presence"
+    ].includes(intent)&&own.length>0&&!hasFullSupport&&!hasContradiction;
+
+    let core=cohesionCore({
+      intent,
+      F,
+      L,
+      C,
+      hasFullSupport,
+      hasCoreSupport,
+      hasContext,
+      hasContradiction,
+      ownSupport
+    });
+
+    const adjusted=applyScores(F,L,C,core,intent);
+
+    F=adjusted.F;
+    L=adjusted.L;
+    C=adjusted.C;
+
+    core=cohesionCore({
+      intent,
+      F,
+      L,
+      C,
+      hasFullSupport,
+      hasCoreSupport,
+      hasContext,
+      hasContradiction,
+      ownSupport
+    });
+
+    const H=humanMode?Hscore(text):0;
+
+    const V=Number((humanMode
+      ?(F+L+C+H)/4
+      :(F+L+C)/3
+    ).toFixed(2));
+
+    return res.status(200).json({
+      mode:humanMode?"ΔH":"Δ",
+      factual_score:F,
+      logic_score:L,
+      semantic_score:C,
+      human_score:humanMode?H:undefined,
+      V,
+      verdict:verdict(V,F,intent,hasFullSupport,hasContradiction,core,Boolean(humanMode)),
+      summary:summary(F,L,C,H,intent,Boolean(humanMode),core),
+      objective_refinement:refine(intent,F,L,C,hasFullSupport,hasCoreSupport,hasContradiction,ctx,core),
+      cohesion_core:core,
+      sources:src.sources,
+      contradiction_sources:src.contradiction_sources,
+      context_sources:src.context_sources,
+      weak_sources:src.weak_sources,
+      source_note:src.note,
+      public_presence:showOwn(intent)?own:[],
+      public_presence_note:"Prezență publică proprie; descrie existența proiectului, dar nu reprezintă validare independentă.",
+      claim_intent:intent,
+      claim_context:ctx,
+      models:{
+        analysis:COEZIV_ANALYSIS_MODEL,
+        source_filter:COEZIV_SOURCE_MODEL,
+        cost_mode:COEZIV_COST_MODE,
+        deep_research:USE_DEEP_RESEARCH,
+        analysis_endpoint:gpt5(COEZIV_ANALYSIS_MODEL)?"responses":"chat/completions",
+        source_endpoint:gpt5(COEZIV_SOURCE_MODEL)?"responses":"chat/completions"
+      }
+    });
+
+  }catch(err){
+    return res.status(500).json({
+      error:"OpenAI request failed",
+      status:err?.status||500,
+      detail:String(err?.detail||err?.message||err).slice(0,800),
+      model:err?.model||COEZIV_ANALYSIS_MODEL,
+      endpoint:err?.endpoint||(gpt5(COEZIV_ANALYSIS_MODEL)?"responses":"chat/completions")
+    });
+  }
+}
