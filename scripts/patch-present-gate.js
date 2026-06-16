@@ -1,4 +1,4 @@
-const fs = require('fs');
+import fs from 'fs';
 
 const file = 'api/analyze.js';
 let code = fs.readFileSync(file, 'utf8');
