@@ -1,12 +1,12 @@
 {
-  "as_of": "2026-06-15",
-  "close": 65671.0,
+  "as_of": "2026-06-16",
+  "close": 66575.0,
   "difficulty": 124932866006548.0,
   "block_subsidy_btc": 3.125,
   "fees_btc_per_block": 0.0,
   "prod_cost_electric_usd": 62005.1,
   "prod_cost_total_usd": 77506.37,
-  "prod_margin": 0.85,
+  "prod_margin": 0.86,
   "method": "difficulty_energy_model_v2",
   "params": {
     "electricity_usd_per_kwh_base": 0.05,
