@@ -17,7 +17,9 @@ jobs:
         with:
           node-version: '20'
       - name: Run present gate patch
-        run: node scripts/patch-present-gate.cjs
+        run: node scripts/patch-present-gate.js
+      - name: Run present value rectification
+        run: node scripts/rectify-present-value.js
       - name: Show diff
         run: git diff -- api/analyze.js
       - name: Commit and push if changed
