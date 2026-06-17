@@ -1,63 +1,480 @@
-const COEZIV_COST_MODE=process.env.COEZIV_COST_MODE||"eco";
-const COEZIV_ANALYSIS_MODEL=process.env.COEZIV_ANALYSIS_MODEL||process.env.COEZIV_MODEL||(COEZIV_COST_MODE==="premium"?"gpt-5.5":"gpt-4.1-mini");
-const COEZIV_SOURCE_MODEL=process.env.COEZIV_SOURCE_MODEL||process.env.COEZIV_MODEL||"gpt-4.1-mini";
-const USE_DEEP_RESEARCH=COEZIV_COST_MODE==="premium"||process.env.COEZIV_DEEP_RESEARCH==="1";
-const clamp=n=>{n=Number(n);return Number.isFinite(n)?Math.max(0,Math.min(n,3.14)):1.57};
-const nodia=s=>String(s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[ăâ]/g,"a").replace(/î/g,"i").replace(/[șş]/g,"s").replace(/[țţ]/g,"t");
-const gpt5=m=>String(m||"").toLowerCase().startsWith("gpt-5");
-const pickJSON=s=>{s=String(s||"");const f=s.match(/```json\s*([\s\S]*?)\s*```/)||s.match(/```\s*([\s\S]*?)\s*```/);if(f)s=f[1];const a=s.indexOf("{"),b=s.lastIndexOf("}");return a>=0&&b>a?s.slice(a,b+1):s.trim()};
-function readText(d){if(typeof d?.output_text==="string")return d.output_text;let o=[];for(const i of d?.output||[])for(const c of i?.content||[]){if(typeof c?.text==="string")o.push(c.text);if(typeof c?.value==="string")o.push(c.value)}return o.join("\n")}
-async function callAI({model,system,user,temperature=.15}){const r=await fetch(gpt5(model)?"https://api.openai.com/v1/responses":"https://api.openai.com/v1/chat/completions",{method:"POST",headers:{"Content-Type":"application/json",Authorization:`Bearer ${process.env.OPENAI_API_KEY}`},body:JSON.stringify(gpt5(model)?{model,instructions:system,input:user}:{model,temperature,messages:[{role:"system",content:system},{role:"user",content:user}]})});if(!r.ok){let e=new Error("OpenAI request failed");e.status=r.status;e.detail=(await r.text()).slice(0,800);e.model=model;e.endpoint=gpt5(model)?"responses":"chat/completions";throw e}const d=await r.json();return gpt5(model)?readText(d):(d?.choices?.[0]?.message?.content||"")}
-function isOwn(link){link=String(link||"").toLowerCase();return link.includes("coeziv.vercel.app")||link.includes("github.com/trendyiptv-a11y/coeziv")||link.includes("chatgpt.com/g/")}
-function host(link){try{return new URL(link).hostname.toLowerCase()}catch{return""}}
-function hostRank(link){let h=host(link);if(!h)return 1;if(/(wolframalpha|wolfram\.com|nist\.gov|codata|iupac|pubchem|chemistry\.nist|who\.int|cdc\.gov|ema\.europa\.eu|fda\.gov|un\.org|data\.un\.org|unstats\.un\.org|eurostat|europa\.eu|cia\.gov|archives\.gov|catalog\.archives|loc\.gov|texashistory\.unt\.edu|officialgazette|monitoruloficial|legislation\.gov|eur-lex\.europa\.eu|fifa\.com|uefa\.com|olympics\.com|ioc\.org|pubmed|nih\.gov|ncbi|nature\.com|science\.org|doi\.org|varde\.dk|lex\.dk|denmark\.dk|dst\.dk|danmarksstatistik|geonames|kommune|presidency\.ro|president\.ro|gov\.ro|government\.ro|president\.gov|whitehouse\.gov|state\.gov|ftc\.gov|sec\.gov|company-register|companieshouse|virk\.dk)/.test(h))return 5;if(/(reuters|apnews|associatedpress|bbc|politico|theguardian|nytimes|washingtonpost|wsj|ft\.com|bloomberg|whitehouse\.gov|state\.gov|gov|nato\.int|edu|ac\.|university|britannica|wikipedia|visitdenmark)/.test(h))return 4;if(/(blog|wordpress|medium|forum|reddit|facebook|youtube|tiktok|x\.com|twitter|pinterest)/.test(h))return 1;return 2}
-function domainRole(link){let h=host(link);if(/(wolframalpha|nist\.gov|codata|iupac|pubchem|chemistry\.nist|who\.int|cdc\.gov|ema\.europa\.eu|fda\.gov|un\.org|data\.un\.org|unstats\.un\.org|eurostat|cia\.gov|archives\.gov|catalog\.archives|loc\.gov|monitoruloficial|officialgazette|legislation\.gov|eur-lex\.europa\.eu|github\.com|varde\.dk|lex\.dk|denmark\.dk|dst\.dk|geonames|presidency\.ro|president\.ro|gov\.ro|government\.ro|president\.gov|whitehouse\.gov|state\.gov|sec\.gov|companieshouse|virk\.dk)/.test(h))return"primary_or_specialized";if(/(britannica|wikipedia|edu|ac\.|university|reuters|apnews|bbc|nytimes|washingtonpost|bloomberg|ft\.com|wsj|visitdenmark)/.test(h))return"support_reference";if(/(blog|wordpress|medium|forum|reddit|facebook|youtube|tiktok|x\.com|twitter|pinterest)/.test(h))return"weak_popular";return"context"}
-function presentRealityGate(text=""){const t=nodia(text),raw=String(text||"");const signals=[];const add=x=>{if(!signals.includes(x))signals.push(x)};if(/\b(actual|curent|prezent|azi|acum|recent|ultim|latest|current|incumbent|today|now|in force|în vigoare|in vigoare)\b/.test(t))add("explicit_present");if(/\b(presedinte|președinte|president|prim[- ]?ministru|premier|minister|ministru|guvernator|governor|primar|mayor|ceo|director|chairman|chairwoman|titular|lider|leader|sef|șef)\b/.test(t))add("current_office_or_role");if(/\b(pret|preț|price|cotatie|cotație|exchange rate|rata de schimb|dobanda|dobândă|inflatie|inflație|market cap|capitalizare)\b/.test(t))add("current_market_value");if(/\b(alegeri|election|war|razboi|război|conflict|armistitiu|armistițiu|pace|deal|acord|negociere|breaking|news|stire|știre)\b/.test(t))add("current_event");if(/\b(lege|law|regulation|standard|norma|normă|ordin)\b/.test(t)&&/\b(vigoare|actual|curent|aplica|aplică|valid|valabil)\b/.test(t))add("current_law_or_standard");const active=signals.length>0;const relation_type=signals.includes("current_office_or_role")?"current_office_holder":signals.includes("current_market_value")?"current_market_value":signals.includes("current_law_or_standard")?"current_normative_status":signals.includes("current_event")?"current_event_status":"present_dependent_relation";let q=[];if(active){q.push(`${raw} current official source`,`${raw} latest official`,`${raw} Reuters OR AP current`,`${raw} today current`,`${raw} official statement`);if(relation_type==="current_office_holder")q.push(`${raw} incumbent official`,`${raw} current office holder`,`${raw} official biography current`,`${raw} government official current`);if(relation_type==="current_market_value")q.push(`${raw} live price official`,`${raw} current price market data`);if(relation_type==="current_normative_status")q.push(`${raw} in force official`,`${raw} consolidated law current official`)}return{active,stability:active?"unstable_present":"stable_or_slow",relation_type,signals,require_current_source:active,require_official_or_recent:active,memory_allowed:!active,queries:q,reason:active?"Afirmația depinde de prezent; memoria modelului nu este suficientă, se cer surse actuale/oficiale.":"Afirmația nu pare dependentă critic de prezent."}}
-function safeCalc(expr){let e=String(expr||"").trim().replace(/,/g,".").replace(/[×xX·]/g,"*").replace(/÷/g,"/").replace(/\^/g,"**");if(!/^[0-9+\-*/().\s*]+$/.test(e))return null;if((e.match(/\*\*/g)||[]).length>2)return null;try{let v=Function(`"use strict";return (${e})`)();return Number.isFinite(v)?v:null}catch{return null}}
-function scientificTruth(text=""){const raw=String(text||"").trim(),t=nodia(raw);const parts=raw.split("=");if(parts.length===2){const a=safeCalc(parts[0]),b=safeCalc(parts[1]);if(a!==null&&b!==null){const ok=Math.abs(a-b)<=1e-9*Math.max(1,Math.abs(a),Math.abs(b));return{type:"math",label:"adevăr matematic",kind:"arithmetic_equality",is_true:ok,left:parts[0].trim(),right:parts[1].trim(),left_value:a,right_value:b,correct_statement:`${parts[0].trim()} = ${a}`,explanation:ok?"Egalitatea este confirmată prin calcul direct.":`Calculul direct dă ${parts[0].trim()} = ${a}, nu ${b}.`}}}if(/\b(v\s*=|f\s*=|m\s*=|e\s*=|p\s*=|ohm|newton|joule|volt|ampere|watt|pascal|kelvin|m\/s|kg|n\b|j\b)\b/.test(t))return{type:"physics",label:"adevăr fizic",kind:"formula_or_unit",is_true:null,explanation:"Afirmația pare fizică; produsul primar este formula, unitatea, măsurarea sau constanta verificabilă."};if(/\b(h2o|nacl|co2|mol|molar|atom|molecula|molecule|chemical|reactie|equation|ph|acid|base|iupac|pubchem)\b/.test(t))return{type:"chemistry",label:"adevăr chimic",kind:"chemical_formula_or_reaction",is_true:null,explanation:"Afirmația pare chimică; produsul primar este formula, reacția, masa molară sau baza chimică verificabilă."};return null}
-const TRUTH_CATEGORY_REGISTRY=[
- {type:"math",label:"adevăr matematic",rx:/\b(calculator|wolfram|wolframalpha|teorema|theorem|equation|ecuatie|ecuație|aritmetic|algebra|geometrie|geometry)\b|\d+\s*[+\-*/×xX÷]\s*\d+|=/,products:["calculation","direct calculation","calculator","wolframalpha","wolfram alpha"],verifiers:["WolframAlpha","calculator","manual matematic"],max_if_primary:5},
- {type:"physics",label:"adevăr fizic",rx:/\b(v\s*=|f\s*=|m\s*=|e\s*=|p\s*=|ohm|newton|joule|volt|ampere|watt|pascal|kelvin|m\/s|kg|nist|codata|fierbe|fierbere|boiling|presiune|pressure|temperatura|temperature)\b/,products:["formula","measurement","si unit","nist","codata","wolframalpha","normal boiling point","boiling point","standard atmosphere"],verifiers:["NIST","CODATA","WolframAlpha","steam tables"],max_if_primary:5},
- {type:"chemistry",label:"adevăr chimic",rx:/\b(apa|water|h2o|nacl|co2|mol|molar|atom|molecula|molecule|chemical|reactie|equation|ph|acid|base|iupac|pubchem)\b/,products:["chemical formula","chemical equation","iupac","pubchem","nist chemistry webbook","molar mass","normal boiling point"],verifiers:["IUPAC","PubChem","NIST Chemistry WebBook"],max_if_primary:5},
- {type:"geography",label:"adevăr geografic / geopolitic",rx:/\b(tara|țara|country|continent|europa|europe|asia|africa|america|romania|românia|brazilia|brasil|brazil|varde|danemarca|denmark|danmark|oras|oraș|town|city|by|kommune|municipality|franta|franța|germany|italy|capitala|capital|border|map|harta|hartă)\b/,products:["country in europe","city in denmark","town in denmark","municipality in denmark","varde kommune","denmark","danmark","europe","eu member state","un member state","cia world factbook","eurostat","united nations","south america","america de sud","map","atlas","geography"],verifiers:["ONU","Eurostat","CIA World Factbook","atlas/hartă oficială","Varde Kommune","lex.dk","Denmark.dk","Britannica"],max_if_primary:5},
- {type:"medical",label:"adevăr medical / biologic",rx:/\b(diagnostic|boala|boală|virus|bacterie|tratament|simptom|clinical|medical|who|cdc|pubmed|studiu clinic|laborator|dna|adn)\b/,products:["clinical guideline","laboratory report","medical record","who","cdc","pubmed","nih","clinical trial"],verifiers:["WHO","CDC","PubMed/NIH","ghid clinic","raport laborator"],max_if_primary:5},
- {type:"technical",label:"adevăr tehnic / ingineresc",rx:/\b(standard|datasheet|manual tehnic|normativ|iso|iec|en |ansi|schematic|specificatie|specificație|voltage|current|wifi|antenna)\b/,products:["standard","datasheet","technical manual","test report","specification","normative"],verifiers:["ISO/IEC/EN","datasheet","manual tehnic","raport test"],max_if_primary:5},
- {type:"digital",label:"adevăr digital / software",rx:/\b(commit|hash|github|release|version|log|cod sursa|cod sursă|api|software|deploy|vercel)\b/,products:["commit","hash","release","log","source code","documentation"],verifiers:["GitHub","hash","release log","documentație oficială"],max_if_primary:5},
- {type:"religious",label:"adevăr religios / teologic",rx:/\b(iisus|isus|hristos|jesus|christ|inviat|înviat|dumnezeu|biserica|biserică|evanghelie|biblie|apostol|canon|liturgic)\b/,products:["scripture","gospel","canon","apostolic tradition","church tradition","liturgy"],verifiers:["text sacru","canon","tradiție apostolică","continuitate liturgică"],max_if_primary:3},
- {type:"cultural",label:"adevăr cultural / lingvistic",rx:/\b(cuvant|cuvânt|limba|limbă|dictionar|dicționar|etimologie|sens|definitie|definiție|academy|academia|corpus)\b/,products:["dictionary","corpus","academy","etymology","definition"],verifiers:["dicționar","academie","corpus lingvistic"],max_if_primary:5}
+// api/analyze.js
+// Analizor Coeziv 3.14 — nucleu curat, fără hardcodări factuale.
+// Model:
+// Fc = (N × e × E) / r²
+//
+// N = densitatea ideilor
+// e = conexiuni logice
+// E = energie informațională
+// r = distanță semantică / ruptură
+//
+// Acest motor NU decide adevăruri actuale precum titulari politici, prețuri,
+// legi în vigoare sau scoruri live. Le marchează ca "requires_external_verification".
+
+const PI_C = 3.14;
+
+const clamp = (n, min = 0, max = PI_C) => {
+  n = Number(n);
+  if (!Number.isFinite(n)) return 0;
+  return Math.max(min, Math.min(max, n));
+};
+
+const round = (n, d = 2) => Number(Number(n || 0).toFixed(d));
+
+const normalize = (s = "") =>
+  String(s || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[ăâ]/g, "a")
+    .replace(/î/g, "i")
+    .replace(/[șş]/g, "s")
+    .replace(/[țţ]/g, "t")
+    .replace(/\s+/g, " ")
+    .trim();
+
+const STOPWORDS = new Set(`
+a ai al ale am ar are as asa ati au avea avem aveti
+ca care ce cel cea cei cele cu cum dar de deja din dintre dupa
+e este eu fi fie fost fara in intr intre iar il imi la le lui
+mai ma mi ne nu o pe pentru prin sa se si sau sunt ta te tu un una
+unde va voi vor
+the a an and or but if then else of to in on at by for with from as is are was were be been being
+who what where when why how current actual present today now
+jeg du han hun vi de det der som og eller men ikke med til fra pa
+`.split(/\s+/).filter(Boolean));
+
+function words(text = "") {
+  return normalize(text)
+    .replace(/[^a-z0-9ăâîșț\- ]/gi, " ")
+    .split(/\s+/)
+    .filter(w => w.length >= 3 && !STOPWORDS.has(w));
+}
+
+function sentences(text = "") {
+  const raw = String(text || "").trim();
+  if (!raw) return [];
+  const parts = raw
+    .split(/(?<=[.!?])\s+|\n+/)
+    .map(s => s.trim())
+    .filter(Boolean);
+  return parts.length ? parts : [raw];
+}
+
+function unique(arr) {
+  return [...new Set(arr)];
+}
+
+function frequencyMap(arr) {
+  const m = {};
+  for (const x of arr) m[x] = (m[x] || 0) + 1;
+  return m;
+}
+
+function topConcepts(text, limit = 12) {
+  const ws = words(text);
+  const freq = frequencyMap(ws);
+  return Object.entries(freq)
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .slice(0, limit)
+    .map(([term, count]) => ({ term, count }));
+}
+
+function sentenceConceptSets(text) {
+  return sentences(text).map(s => new Set(words(s)));
+}
+
+function jaccardDistance(a, b) {
+  if (!a.size && !b.size) return 0;
+  let inter = 0;
+  for (const x of a) if (b.has(x)) inter++;
+  const union = new Set([...a, ...b]).size;
+  return union ? 1 - inter / union : 0;
+}
+
+function meanSemanticDistance(text) {
+  const sets = sentenceConceptSets(text);
+  if (sets.length <= 1) return 0.35;
+
+  let sum = 0;
+  let count = 0;
+
+  for (let i = 0; i < sets.length - 1; i++) {
+    sum += jaccardDistance(sets[i], sets[i + 1]);
+    count++;
+  }
+
+  return count ? sum / count : 0.35;
+}
+
+const LOGIC_CONNECTORS = [
+  "pentru ca", "deoarece", "fiindca", "deci", "prin urmare", "rezulta",
+  "daca", "atunci", "insa", "totusi", "dar", "sau", "si", "iar",
+  "because", "therefore", "thus", "hence", "if", "then", "but", "however",
+  "therefore", "so", "and", "or",
+  "fordi", "derfor", "hvis", "sa", "men", "og", "eller"
 ];
-function registryCategory(text=""){const pg=presentRealityGate(text);if(pg.active&&pg.relation_type==="current_office_holder")return{type:"present",label:"adevăr dependent de prezent / titular actual",products:["current official source","incumbent","official biography","government official","current office holder","Reuters","AP News","official statement"],verifiers:["sursă oficială actuală","Reuters/AP recent","site instituțional"],max_if_primary:5,present_gate:pg};if(pg.active&&pg.relation_type==="current_market_value")return{type:"present",label:"valoare curentă / piață",products:["live price","current price","market data","official rate","exchange rate"],verifiers:["date de piață actuale","sursă oficială financiară"],max_if_primary:5,present_gate:pg};if(pg.active&&pg.relation_type==="current_normative_status")return{type:"present",label:"normă / lege în vigoare",products:["in force","consolidated law","official gazette","current regulation"],verifiers:["text oficial actual","Monitor Oficial / gazeta oficială"],max_if_primary:5,present_gate:pg};const st=scientificTruth(text);if(st?.type){const r=TRUTH_CATEGORY_REGISTRY.find(x=>x.type===st.type);return{...r,scientific:st}}const t=nodia(text);if(/\b(a murit|este mort|e mort|decedat|deces|moartea lui|died|is dead|death of|passed away)\b/.test(t))return{type:"death",label:"deces",products:["death certificate","certificate of death","certificat de deces","act de deces","death record","registration of death"],verifiers:["certificat de deces","registru de deces"],max_if_primary:5};if(/\b(s-a nascut|s-a născut|nascut|născut|born|birth of|date of birth)\b/.test(t))return{type:"birth",label:"naștere",products:["birth certificate","certificate of birth","certificat de nastere","certificat de naștere","act de nastere","act de naștere","birth record"],verifiers:["certificat de naștere","registru civil"],max_if_primary:5};if(/\b(casatorit|căsătorit|married|marriage)\b/.test(t))return{type:"marriage",label:"căsătorie",products:["marriage certificate","certificat de casatorie","certificat de căsătorie","marriage record","marriage license"],verifiers:["certificat de căsătorie","registru civil"],max_if_primary:5};if(/\b(lege|law|regulation|ordin|decret|monitorul oficial|official gazette|entered into force|intrat in vigoare|intrat în vigoare)\b/.test(t))return{type:"law",label:"act normativ",products:["official gazette","monitorul oficial","law text","regulation","entered into force"],verifiers:["Monitorul Oficial","Official Gazette","text legal"],max_if_primary:5};if(/\b(treaty|tratat|agreement|acord|ratified|ratificat|depositary|depository|entered into force|intrat in vigoare|intrat în vigoare)\b/.test(t))return{type:"treaty",label:"tratat / acord",products:["treaty text","ratification","instrument of ratification","entered into force","depositary","un treaty collection"],verifiers:["UN Treaty Collection","depozitar tratat","ratificare"],max_if_primary:5};if(/\b(instanta|instanță|court|judgment|hotarare|hotărâre|sentinta|sentință|decision|ruling|verdict)\b/.test(t))return{type:"court_decision",label:"hotărâre judecătorească",products:["court judgment","judgment","ruling","court decision","hotarare","hotărâre","sentinta","sentință","verdict"],verifiers:["hotărâre judecătorească","portal instanță"],max_if_primary:5};return TRUTH_CATEGORY_REGISTRY.find(r=>r.rx.test(t))||{type:"general",label:"adevăr general",products:[],verifiers:[],max_if_primary:3}}
-function truthType(text=""){const c=registryCategory(text);return{type:c.type,label:c.label,products:c.products||[],verifiers:c.verifiers||[],max_if_primary:c.max_if_primary||3,scientific:c.scientific,present_gate:c.present_gate||presentRealityGate(text)}}
-function entityTerms(text=""){let raw=nodia(text);let t=raw.replace(/\b(a murit|este mort|e mort|decedat|deces|moartea lui|died|is dead|death of|passed away|s-a nascut|nascut|born|birth of|date of birth|guvernatorul|governor|imparatul|emperor|presedintele|president|domnul|doamna|sfantul|saint|tara|țara|country|continent|oras|oraș|town|city|municipality|kommune|este|in|în|la|aproximativ|presiunea|presiune|standard|atmosferica|atmosferică|actual|curent|current|incumbent)\b/g," ").replace(/[.,;:!?()\[\]{}"']/g," ");let w=[...new Set(t.split(/\s+/).filter(x=>x.length>=3&&!/^(din|von|the|and|for|with|lui|era|are|was|were|has|have|prin|pont)$/.test(x)))];if(/pilat|pont/.test(raw))w.push("pilate","pontius","pilat");if(/kennedy/.test(raw))w.push("john","kennedy");if(/napoleon|bonaparte/.test(raw))w.push("napoleon","bonaparte");if(/michael|jackson/.test(raw))w.push("michael","jackson");if(/romania|românia/.test(raw))w.push("romania","românia");if(/brazilia|brasil|brazil/.test(raw))w.push("brazil","brazilia","brasil");if(/varde/.test(raw))w.push("varde");if(/danemarca|denmark|danmark/.test(raw))w.push("denmark","danmark","danemarca");if(/elba/.test(raw))w.push("elba");if(/europa|europe|european|europeana/.test(raw))w.push("europe","europa");if(/apa|water|h2o/.test(raw))w.push("water","h2o");if(/presedinte|președinte|president/.test(raw))w.push("president","presedinte");return[...new Set(w)].slice(0,16)}
-function technicalNormalize(text="",tt=truthType(text)){const raw=String(text||""),t=nodia(raw),pg=presentRealityGate(raw);let entities=[],conditions=[],relations=[],values=[],resolved=raw,queries=[...(pg.queries||[])];const add=(arr,x)=>{if(x&&!arr.includes(x))arr.push(x)};if(pg.active){conditions.push({raw:"prezent / actual",normalized:"current reality required"});relations.push({raw:"relație dependentă de prezent",normalized:pg.relation_type});add(queries,`${raw} current official source`);add(queries,`${raw} latest Reuters AP official`)}if(tt.type==="present"&&pg.relation_type==="current_office_holder"){if(/romania|românia/.test(t))entities.push({raw:"România",normalized:"Romania",role:"institution/country"});if(/calin georgescu|călin georgescu/.test(t))values.push({raw:"Călin Georgescu",normalized:"Calin Georgescu",role:"claimed_holder"});if(/presedinte|președinte|president/.test(t)){relations.push({raw:"președinte actual",normalized:"current_office_holder"});add(queries,"current president of Romania official presidency.ro");add(queries,"Romania president incumbent official");add(queries,"Romanian president Reuters current");add(queries,"Nicusor Dan president Romania official");resolved="Romania -> current_office_holder president -> claimed person"}}
-if(tt.type==="chemistry"||tt.type==="physics"){if(/\b(apa|water|h2o)\b/.test(t)){entities.push({raw:"apă",normalized:"H2O / water",role:"substance"});resolved=resolved.replace(/apa|apă/ig,"H2O / water");add(queries,"H2O normal boiling point 373.15 K 1 atm NIST Chemistry WebBook");add(queries,"water normal boiling point 373.15 K 1 atm NIST");add(queries,"H2O vapor pressure 1 atm boiling point");add(queries,"water boiling point 100 C standard atmospheric pressure IUPAC")}if(/100\s*°?c|100\s*celsius/i.test(raw)){values.push({raw:"100°C",normalized:"373.15 K"});add(queries,"normal boiling point water 373.15 K 1 atm")}if(/presiune|atmospheric|atm/.test(t)){conditions.push({raw:"presiune atmosferică standard",normalized:"1 atm / 101.325 kPa"});add(queries,"water boiling point at 1 atm 101.325 kPa NIST")}if(/fierb|boil/.test(t)){relations.push({raw:"fierbe",normalized:"normal boiling point"})}}
-if(tt.type==="geography"){let subj=null,claimed=null;if(/romania|românia/.test(t)){subj="Romania";entities.push({raw:"România",normalized:"Romania",role:"country"});add(queries,"Romania country in Europe CIA World Factbook");add(queries,"Romania Europe Eurostat");add(queries,"Romania country Europe United Nations");add(queries,"Romania Europe Britannica")}if(/brazilia|brasil|brazil/.test(t)){subj="Brazil";entities.push({raw:"Brazilia",normalized:"Brazil",role:"country"});add(queries,"Brazil continent South America CIA World Factbook");add(queries,"Brazil country South America Britannica");add(queries,"Brazil South America United Nations");add(queries,"Brazil Europe country fact check")}if(/varde/.test(t)){subj="Varde";entities.push({raw:"Varde",normalized:"Varde",role:"city/town"});add(queries,"Varde town Denmark official Varde Kommune");add(queries,"Varde Denmark town lex.dk");add(queries,"Varde city Denmark Britannica");add(queries,"Varde Kommune Denmark official");add(queries,"Varde Denmark Geonames")}if(/europe|europa|europeana|european/.test(t)){claimed="Europe";relations.push({raw:"este țară europeană / în Europa",normalized:"continent_membership"});values.push({raw:"Europa",normalized:"Europe",role:"claimed_object"})}if(/danemarca|denmark|danmark/.test(t)){claimed="Denmark";relations.push({raw:"este oraș/localitate în Danemarca",normalized:"locality_country_membership"});values.push({raw:"Danemarca",normalized:"Denmark",role:"claimed_country"})}if(subj&&claimed)resolved=`${subj} -> ${relations[0]?.normalized||"located_in"} -> ${claimed}`}
-if(tt.type==="death"){const ents=entityTerms(raw).join(" ");add(queries,`death place ${ents}`);add(queries,`where did ${ents} die`);add(queries,`death certificate ${ents}`);add(queries,`death record ${ents}`);if(/napoleon|bonaparte/.test(t)){entities.push({raw:"Napoleon Bonaparte",normalized:"Napoleon Bonaparte",role:"person"});relations.push({raw:"a murit pe",normalized:"death_place"});values.push({raw:/elba/.test(t)?"Elba":"",normalized:/elba/.test(t)?"Elba":"",role:"claimed_place"});add(queries,"Napoleon Bonaparte death place Saint Helena Britannica");add(queries,"Napoleon died Saint Helena Elba")}}
-if(tt.type==="digital"){const sha=(raw.match(/[a-f0-9]{7,40}/i)||[])[0];if(sha)add(queries,`${sha} GitHub commit trendyiptv-a11y Coeziv`)}
-if(tt.type==="math"&&tt.scientific){entities.push({raw:tt.scientific.left,normalized:String(tt.scientific.left_value),role:"left_calculation"});values.push({raw:tt.scientific.right,normalized:String(tt.scientific.right_value)});add(queries,`${raw} WolframAlpha`);add(queries,`${raw} calculator`)}
-return{claim:raw,resolved_claim:resolved,primary_category:tt.type,category_label:tt.label,present_reality_gate:pg,entities,relation:relations[0]||null,conditions,values,expected_primary_product:{type:tt.type==="math"?"direct_calculation":"category_specific_product",names:tt.products||[],verifiers:tt.verifiers||[]},search_queries:queries,disallowed_shortcuts:["generic article only","blog","popular forum","unbound generic product","term-only match without relation",pg.active?"model memory for current facts":null,"historical holder used as current holder"].filter(Boolean),minimum_for_5_of_5:tt.type==="math"?"calcul direct corect":pg.active?"sursă actuală/oficială care închide relația prezentă":"produs primar/verificator specializat care închide relația completă"}}
-function autonomousTruthResolver(text){const tt=truthType(text),norm=technicalNormalize(text,tt),pg=presentRealityGate(text);let truth_type=pg.active?pg.relation_type:tt.type;if(tt.type==="chemistry"&&/fierb|boil|presiune|pressure|temperature|temperatura/.test(nodia(text)))truth_type="material_property";if(tt.type==="geography"&&/europe|europa|europeana|european|continent/.test(nodia(text)))truth_type="continent_membership";if(tt.type==="geography"&&/varde|oras|oraș|town|city|danemarca|denmark|danmark|kommune|municipality/.test(nodia(text)))truth_type="locality_country_membership";if(tt.type==="death"&&/(pe|in|în|insula|island|loc)/.test(nodia(text)))truth_type="death_place";return{claim:text,category:tt.type,category_label:tt.label,truth_type,present_reality_gate:pg,normalized:norm,query_strategy:norm.search_queries.length?"technical_normalized_queries":"raw_claim_plus_category_products",axiom:"Sursa susține. Produsul consumă. Categoria decide produsul. Termenul nu consumă; relația consumă. Pentru prezent, memoria nu decide; sursa actuală decide."}}
-function sourceText(source){return nodia(`${source?.title||""} ${source?.snippet||source?.reason||""} ${source?.link||source?.url||""}`)}
-function entityBound(source,text){const tt=truthType(text),c=sourceText(source),ents=entityTerms(text);if(["math","religious","cultural"].includes(tt.type))return true;if(tt.type==="present")return ents.some(e=>c.includes(e))||/(current|incumbent|official|today|latest|president|presedinte|președinte|government|reuters|ap news)/.test(c);if(["physics","chemistry"].includes(tt.type)&&/\b(apa|water|h2o)\b/.test(nodia(text)))return /\b(water|h2o|7732-18-5)\b/.test(c)&&!/\b(ethanol|methane|benzene|ammonia)\b/.test(c);if(tt.type==="geography")return ents.filter(e=>!["europe","europa","denmark","danmark","danemarca"].includes(e)).some(e=>c.includes(e))||ents.some(e=>c.includes(e));return !ents.length||ents.some(e=>c.includes(e))}
-function hasProduct(source,products=[]){const c=sourceText(source);return products.map(nodia).some(p=>c.includes(p))}
-function productBoundToEntity(source,text,products=[]){return hasProduct(source,products)&&entityBound(source,text)}
-function isRecentOrCurrentSource(s,text){const c=sourceText(s),pg=presentRealityGate(text),rank=Number(s?.authority_score||s?.authority_hint||0),dr=s?.domain_role||domainRole(s?.link);if(!pg.active)return true;if(dr==="primary_or_specialized"&&rank>=5)return true;if(/\b(current|incumbent|today|latest|present|official|2025|2026|actual|curent|prezent|in office|sworn in|took office|as president|as prime minister)\b/.test(c)&&rank>=4)return true;return false}
-async function relationClosure2Pi(text,sources=[],ctx=[],atr=autonomousTruthResolver(text),F=null){const tt=truthType(text),t=nodia(text),all=[...(sources||[]),...(ctx||[])],pg=presentRealityGate(text);let out={pi_state:"coherent_structure",two_pi_state:"incomplete",truth_consumption_mode:"incomplete",relation_subject:null,relation_type:pg.active?pg.relation_type:(atr.truth_type||tt.type),relation_object_claimed:null,relation_object_found:null,evidence_title:null,evidence_url:null,present_reality_gate:pg};if(tt.scientific?.type==="math"){out.two_pi_state=tt.scientific.is_true?"confirmed":"contradicted";out.truth_consumption_mode=tt.scientific.is_true?"true_consumed":"false_consumed";out.relation_subject=tt.scientific.left;out.relation_object_claimed=String(tt.scientific.right_value);out.relation_object_found=String(tt.scientific.left_value);return out}
-if(pg.active&&pg.relation_type==="current_office_holder"){out.relation_type="current_office_holder";out.relation_subject=/romania|românia/.test(t)?"Romania":null;out.relation_object_claimed=(text.match(/este\s+(.+?)\.?$/i)||[])[1]||null;for(const s of all){const c=sourceText(s);if(!isRecentOrCurrentSource(s,text))continue;if(/romania|românia|romanian/.test(c)&&/president|președinte|presedinte/.test(c)){if(/nicusor|nicușor|dan/.test(c)){out.two_pi_state=/calin georgescu|călin georgescu/.test(t)?"contradicted":"confirmed";out.truth_consumption_mode=out.two_pi_state==="contradicted"?"false_consumed":"true_consumed";out.relation_object_found="Nicușor Dan";out.evidence_title=s.title;out.evidence_url=s.link;return out}if(/klaus iohannis/.test(c)&&!/2025|2026|current|incumbent|latest|today/.test(c)){continue}}}}
-if(tt.type==="geography"){let subj=/brazilia|brasil|brazil/.test(t)?"Brazil":/romania|românia/.test(t)?"Romania":/varde/.test(t)?"Varde":null;let claimed=/europe|europa|europeana|european/.test(t)?"Europe":/danemarca|denmark|danmark/.test(t)?"Denmark":null;out.relation_subject=subj;out.relation_object_claimed=claimed;if(subj&&claimed){for(const s of all){const c=sourceText(s);if(subj==="Brazil"&&/\b(brazil|brazilia|brasil)\b/.test(c)&&/\b(south america|america de sud|américa do sul|latin america)\b/.test(c)){out.two_pi_state="contradicted";out.truth_consumption_mode="false_consumed";out.relation_object_found="South America";out.evidence_title=s.title;out.evidence_url=s.link;return out}if(subj==="Romania"&&/\b(romania|românia)\b/.test(c)&&/\b(europe|europa|european union|eu member)\b/.test(c)){out.two_pi_state="confirmed";out.truth_consumption_mode="true_consumed";out.relation_object_found="Europe";out.evidence_title=s.title;out.evidence_url=s.link;return out}if(subj==="Varde"&&/\bvarde\b/.test(c)&&/\b(denmark|danmark|danemarca|syddanmark|jylland|jütland|kommune|municipality|town|city|by)\b/.test(c)){out.two_pi_state="confirmed";out.truth_consumption_mode="true_consumed";out.relation_type="locality_country_membership";out.relation_object_found="Denmark";out.evidence_title=s.title;out.evidence_url=s.link;return out}}}}
-if(["chemistry","physics"].includes(tt.type)&&/\b(apa|water|h2o)\b/.test(t)){out.relation_subject="H2O / water";out.relation_object_claimed=/100/.test(text)?"normal boiling point ≈ 373.15 K at 1 atm":"material property";for(const s of all){const c=sourceText(s),dr=s.domain_role||domainRole(s.link);if(/\b(water|h2o|7732-18-5)\b/.test(c)&&/(nist|iupac|pubchem|boiling point|normal boiling)/.test(c)&&dr!=="weak_popular"){out.two_pi_state="confirmed";out.truth_consumption_mode="true_consumed";out.relation_object_found="H2O thermodynamic property";out.evidence_title=s.title;out.evidence_url=s.link;return out}}}
-if(process.env.OPENAI_API_KEY&&all.length){try{const pack=all.slice(0,8).map((s,i)=>({i,title:s.title,link:s.link,snippet:s.snippet||s.reason||"",role:s.role,authority:s.authority_score,current_source:isRecentOrCurrentSource(s,text)}));const sys=pg.active?"Ești Universal Present Reality Gate + Relational Resolver. Răspunde strict JSON valid. Afirmația depinde de prezent: nu folosi memoria modelului sau titulari istorici ca obiect real. Verifică relația actuală folosind numai surse marcate current_source=true sau oficiale/recente. Dacă sursele sunt insuficiente, two_pi_state=incomplete.":"Ești Universal Coeziv Relational Resolver. Răspunde strict JSON valid. Nu verifica doar termenii; verifică relația completă subiect-relație-obiect. Dacă sursele arată obiect real diferit de obiectul afirmat, status=contradicted și truth_consumption_mode=false_consumed.";const raw=await callAI({model:COEZIV_ANALYSIS_MODEL,temperature:.05,system:sys,user:`Afirmație: ${text}\nPresentGate: ${JSON.stringify(pg)}\nATR: ${JSON.stringify(atr)}\nSurse: ${JSON.stringify(pack).slice(0,4500)}\nReturnează JSON cu: pi_state, two_pi_state confirmed|contradicted|incomplete, truth_consumption_mode true_consumed|false_consumed|incomplete, relation_subject, relation_type, relation_object_claimed, relation_object_found, evidence_index, evidence_title, evidence_url, explanation.`});let j=JSON.parse(pickJSON(raw));if(["confirmed","contradicted","incomplete"].includes(j.two_pi_state)){let ev=pack[Number(j.evidence_index)];return{...out,...j,evidence_title:j.evidence_title||ev?.title||out.evidence_title,evidence_url:j.evidence_url||ev?.link||out.evidence_url}}}catch{}}
-return out}
-function ownLinks(){let a=[{title:"Analizor Coeziv 3.14",link:"https://coeziv.vercel.app"},{title:"Documentație publică a Modelului Coeziv",link:"https://coeziv.vercel.app/document/index.html"},{title:"Colecții Coezive",link:"https://coeziv.vercel.app/document/collections.html"},{title:"Repository public Coeziv",link:"https://github.com/trendyiptv-a11y/Coeziv"}];if(process.env.COEZIV_GPT_URL)a.unshift({title:"Exploratorul Coeziv – GPT public",link:process.env.COEZIV_GPT_URL});return a}
-function intentOf(text){const pg=presentRealityGate(text);if(pg.active)return"present_truth";const tt=truthType(text);if(tt.type!=="general")return tt.type+"_truth";const t=nodia(text);if(/(certificat|registru|document|official|president|trump|iran|israel|nasa|guvern|minister)/.test(t))return"external_validation";if(/(azi|acum|recent|breaking|bitcoin|piata|piața|lichiditate|capital)/.test(t))return"news_claim";if(/(model\s+coeziv|analizor\s+coeziv|coeziv\s*3\.?14)/.test(t))return"project_presence";if(/(reorganizare|structura|termen|sens)/.test(t))return"semantic_collision";return"general_scientific"}
-async function searchCandidates(text,atr=autonomousTruthResolver(text)){if(!process.env.SERPER_API_KEY)return[];const raw=String(text||"").slice(0,240),tt=truthType(raw),pg=presentRealityGate(raw),ents=entityTerms(raw).join(" ");let qs=[...(pg.queries||[]),...(atr?.normalized?.search_queries||[]),`"${raw}"`,raw];for(const v of (tt.verifiers||[]).slice(0,5))qs.push(`${raw} ${v}`);for(const p of (tt.products||[]).slice(0,6)){qs.push(`${raw} ${p}`,`${p} ${raw}`);if(ents)qs.push(`${p} ${ents}`)}if(pg.active)qs.push(`${raw} current official`,`${raw} incumbent`,`${raw} latest Reuters`,`${raw} AP News`,`${raw} official today`);if(tt.type==="geography")qs.push(`${raw} CIA World Factbook`,`${raw} Eurostat`,`${raw} United Nations`,`${raw} Britannica`,`${raw} map`,`${raw} official municipality`,`${raw} lex.dk`);if(/(trump|iran|israel|peace|deal|bitcoin|recent|acum)/i.test(raw))qs.push(`${raw} Reuters`,`${raw} Associated Press`,`${raw} official statement`,`${raw} White House`);let out=[],seen=new Set();for(const q of [...new Set(qs)].slice(0,USE_DEEP_RESEARCH?36:22)){try{const r=await fetch("https://google.serper.dev/search",{method:"POST",headers:{"Content-Type":"application/json","X-API-KEY":process.env.SERPER_API_KEY},body:JSON.stringify({q,gl:"dk",hl:"en",num:USE_DEEP_RESEARCH?10:6})});if(!r.ok)continue;const d=await r.json();for(const o of d?.organic||[]){if(!o.link||seen.has(o.link))continue;seen.add(o.link);out.push({title:o.title||"Sursă",link:o.link,snippet:o.snippet||"",authority_hint:hostRank(o.link),domain_role:domainRole(o.link),is_internal:isOwn(o.link),query:q,current_source:pg.active?(/current|latest|today|official|incumbent|2025|2026/i.test(`${o.title} ${o.snippet} ${o.link}`)||domainRole(o.link)==="primary_or_specialized"):undefined});if(out.length>=(USE_DEEP_RESEARCH?80:48))return out}}catch{}}return out}
-function dedupeRows(rows=[]){const seen=new Set(),out=[];for(const r of rows){const sig=(host(r.link)||"")+":"+nodia(r.title||"").replace(/[^a-z0-9]+/g," ").trim().slice(0,80);if(seen.has(sig))continue;seen.add(sig);out.push(r)}return out}
-function classify(text,candidates,intent,atr=autonomousTruthResolver(text)){const tt=truthType(text),pg=presentRealityGate(text);let rows=candidates.filter(s=>!s.is_internal).map(s=>{const primary=productBoundToEntity(s,text,tt.products),genericProduct=hasProduct(s,tt.products)&&!entityBound(s,text),entity=entityBound(s,text),authority=s.authority_hint||2,dr=s.domain_role||domainRole(s.link),currentOK=isRecentOrCurrentSource(s,text);let role="context_only",confidence=.28,reason="sursă de context";if(pg.active&&!currentOK){role="context_only";confidence=.18;reason="sursă insuficient actuală pentru relație dependentă de prezent"}else if(primary&&dr==="primary_or_specialized"){role="official_validation";confidence=.94;reason=pg.active?"sursă actuală/oficială pentru relație dependentă de prezent":`produs/verificator specializat pentru ${tt.label}`}else if(primary){role="supporting_evidence";confidence=.72;reason=`verificator/descriere relevantă pentru ${tt.label}`}else if(genericProduct){role="context_only";confidence=.22;reason="produs primar generic, nelegat de entitatea afirmației"}else if(entity&&authority>=4){role="supporting_evidence";confidence=pg.active&&currentOK?.62:.58;reason=pg.active?"sursă relevantă și suficient actuală":"sursă relevantă legată de afirmație"}if(dr==="weak_popular"){role="weak_or_popular";confidence=.18;reason="sursă populară/slabă"}return{title:s.title,link:s.link,role,authority_score:authority,confidence,source_type:"independent",domain_role:dr,relevant:true,reason,query:s.query,snippet:s.snippet||"",current_source:pg.active?currentOK:undefined}});rows=dedupeRows(rows);const support=rows.filter(s=>["official_validation","supporting_evidence","supporting_core"].includes(s.role)&&s.authority_score>=3&&s.confidence>=.52).sort((a,b)=>b.authority_score-a.authority_score||b.confidence-a.confidence).slice(0,5);const weak=rows.filter(s=>s.role==="weak_or_popular").slice(0,4);const context=rows.filter(s=>!support.find(x=>x.link===s.link)&&s.role!=="weak_or_popular").sort((a,b)=>b.authority_score-a.authority_score).slice(0,5);return{sources:support,contradiction_sources:[],context_sources:context,weak_sources:weak,note:support.length?"Sursele susțin rolul indicat; ATR a generat query-uri tehnice și categoria decide produsul primar.":context.length?"Afișez surse de context, nu dovezi decisive.":"Nu am găsit surse externe candidate.",atr}}
-function primaryHit(text,sources=[],ctx=[]){const tt=truthType(text);if(tt.scientific?.type==="math")return{found:true,truth_type:tt,matched_source:{title:"Calcul direct intern",link:"",authority_score:5,role:"direct_calculation"},matched_product:"direct calculation",scientific:tt.scientific};if(!tt.products.length)return{found:false,truth_type:tt};for(const s of [...sources,...ctx])if(productBoundToEntity(s,text,tt.products)){const c=sourceText(s),prod=tt.products.find(p=>c.includes(nodia(p)))||tt.products[0];return{found:true,truth_type:tt,matched_source:s,matched_product:prod}}return{found:false,truth_type:tt}}
-function coreCalc({intent,F,L,C,hasFullSupport,hasCoreSupport,hasContext,hasContradiction,ownSupport,closure}){let D=F,M=C,E=L,R=1.35,route="general",dest="contextual_truth";if(hasFullSupport){D=Math.max(D,2.35);R-=.25;dest="supported"}if(hasCoreSupport){D=Math.max(D,1.75);M=Math.max(M,1.55);dest="core_supported"}if(hasContext)D=Math.max(D,1.45);if(hasContradiction&&!hasFullSupport){D=Math.min(D,.85);R=Math.max(R,2.45);dest="contradicted_or_unconfirmed"}if(ownSupport){D=Math.max(D,2.55);M=Math.max(M,2.35);E=Math.max(E,2.25);R=.85;route="public_presence";dest="own_presence_supported"}if(intent==="math_truth"){route="mathematical_direct_calculation";dest="direct_calculation_truth";R=.45}if(intent==="present_truth"){route="present_reality_gate";dest="present_relation_requires_current_source";R=1.05}if(/^(physics|chemistry|geography|medical|technical|digital|religious|cultural|death)_truth$/.test(intent)){route=intent.replace("_truth","")+"_truth_registry_atr_2pi";dest="category_registry_truth"}if(closure?.two_pi_state==="contradicted"){dest="relational_false_consumed";R=.45;D=Math.min(D,.4)}if(closure?.two_pi_state==="confirmed"){dest="relational_true_consumed";R=Math.min(R,.85)}if(intent==="external_validation"||intent==="news_claim"){route="major_news_official_sources";if(!hasFullSupport&&hasContradiction)dest="news_claim_contradicted";else if(!hasFullSupport)dest="official_or_news_unconfirmed"}if(intent==="semantic_collision"){route="semantic_domains";R=2.75;dest="semantic_split_needed"}let Fc=clamp((D*M*E)/(R*R));return{D:+D.toFixed(2),M:+M.toFixed(2),E:+E.toFixed(2),R:+R.toFixed(2),Fc_info:+Fc.toFixed(2),research_route:route,truth_destination:dest,formula:"Fc_info=(D×M×E)/R²"}}
-function consumption({intent,hasFullSupport,hasCoreSupport,hasContext,hasContradiction,sources,context_sources,text,closure}){const ph=primaryHit(text,sources,context_sources),all=[...(sources||[]),...(context_sources||[])];const tt=truthType(text),pg=presentRealityGate(text);if(closure?.two_pi_state==="contradicted")return{level:5,max:5,label:"fals consumat prin verificarea relației",explanation:`Verificarea relațională arată: ${closure.relation_subject||"subiect"} → ${closure.relation_type} → ${closure.relation_object_found||"obiect diferit"}, nu ${closure.relation_object_claimed||"obiectul afirmat"}.`,primary_truth_product:{found:true,type:tt.type,label:tt.label,product:pg.active?"present reality relational closure":"relational closure",source_title:closure.evidence_title||"",source_url:closure.evidence_url||"",authority_score:5,role:"relational_false_consumed",present_reality_gate:pg,closure}};if(pg.active&&!hasFullSupport&&!closure?.two_pi_state)return{level:1,max:5,label:"prezent neverificat complet",explanation:"Afirmația depinde de prezent. Motorul nu acceptă memoria modelului ca dovadă; este necesară sursă actuală/oficială pentru închiderea relației.",primary_truth_product:{found:false,type:tt.type,label:tt.label,product:"present reality source",present_reality_gate:pg}};if(hasContradiction&&!hasFullSupport)return{level:1,max:5,label:"semnal informațional contradictoriu",explanation:"Există surse relevante, dar nu există convergență factuală suficientă pentru afirmația completă."};if(closure?.two_pi_state==="confirmed")return{level:5,max:5,label:"adevăr consumat prin verificarea relației",explanation:`Verificarea relațională confirmă: ${closure.relation_subject||"subiect"} → ${closure.relation_type} → ${closure.relation_object_found||closure.relation_object_claimed||"obiect"}.`,primary_truth_product:{found:true,type:tt.type,label:tt.label,product:pg.active?"present reality relational closure":"relational closure",source_title:closure.evidence_title||"",source_url:closure.evidence_url||"",authority_score:5,role:"relational_true_consumed",present_reality_gate:pg,closure}};if(ph.found){let lvl=ph.truth_type.max_if_primary||5;if(["geography","religious","cultural"].includes(ph.truth_type.type)&&Number(ph.matched_source?.authority_score||0)<5)lvl=Math.min(lvl,4);if(ph.matched_source?.role==="supporting_evidence"&&Number(ph.matched_source?.authority_score||0)<5)lvl=Math.min(lvl,3);return{level:lvl,max:5,label:ph.scientific?.is_true===false?"fals consumat prin calcul direct":"adevăr consumat prin produsul categoriei",explanation:ph.scientific?ph.scientific.explanation:`Categoria este "${ph.truth_type.label}"; produs/verificator identificat: ${ph.matched_product}.`,primary_truth_product:{found:true,type:ph.truth_type.type,label:ph.truth_type.label,product:ph.matched_product,source_title:ph.matched_source?.title||"",source_url:ph.matched_source?.link||"",authority_score:ph.matched_source?.authority_score||0,role:ph.matched_source?.role||"",verifiers:ph.truth_type.verifiers||[],scientific_result:ph.scientific||undefined,closure:closure||undefined}}}const hasOfficial=(sources||[]).some(s=>s.role==="official_validation"),hasPrimary=all.some(s=>Number(s.authority_score||0)>=5),expected={found:false,expected_type:ph.truth_type.type,expected_label:ph.truth_type.label,expected_products:ph.truth_type.products||[],verifiers:ph.truth_type.verifiers||[],binding_rule:pg.active?"sursă actuală/oficială + relația prezentă completă":"produs primar specific categoriei + entitatea afirmației + închidere relațională"};if(hasOfficial&&hasPrimary)return{level:3,max:5,label:"adevăr oficial documentat",explanation:"Există sursă primară oficială; consumarea completă depinde de produsul primar specific categoriei.",primary_truth_product:expected};if(hasOfficial||hasPrimary)return{level:2,max:5,label:"adevăr documentat oficial",explanation:"Există sursă oficială, document sau semnal primar, dar produsul categoriei nu a fost identificat clar.",primary_truth_product:expected};if(hasCoreSupport||hasContext)return{level:1,max:5,label:"semnal factual / context verificabil",explanation:"Există surse relevante, dar acestea nu ating nivelul de produs primar sau consumare factuală.",primary_truth_product:expected};return{level:0,max:5,label:"afirmație neconsumată",explanation:"Nu există suficiente elemente verificabile pentru consumarea factuală a afirmației.",primary_truth_product:expected}}
-function applyScores(F,L,C,core,intent,closure){if(closure?.two_pi_state==="contradicted")F=0;if(core.truth_destination==="official_or_news_unconfirmed")F=Math.min(F,.8);if(intent==="semantic_collision"){F=Math.min(F,1.2);C=Math.min(C,1.6)}return{F,L,C}}
-function verdict(V,F,intent,hasFullSupport,hasContradiction,core,human=false,closure=null){if(closure?.truth_consumption_mode==="false_consumed")return"🔴 Fals consumat prin verificarea relației";if(intent==="math_truth"&&F===0)return"🔴 Fals matematic / calculul direct infirmă egalitatea";if(intent==="present_truth"&&core?.truth_destination==="present_relation_requires_current_source")return"🟠 Afirmație dependentă de prezent / necesită sursă actuală";if(core?.truth_destination==="news_claim_contradicted")return"🔴 Nesusținut factual / contrazis de surse relevante";if(core?.truth_destination==="official_or_news_unconfirmed")return"🟠 Eveniment neconfirmat complet / necesită sursă oficială";if(intent==="semantic_collision")return"🟠 Confuzie semantică / necesită separarea termenilor";if(V>=2.8)return human?"🌿 Adevăr coeziv uman puternic":"✅ Coerență ridicată";if(V>=2.2)return human?"🌱 Coerență umană bună":"🟢 Probabil adevărat / coerent";if(V>=1.5)return human?"⚖️ Echilibru parțial uman":"🟡 Parțial adevărat / necesită clarificări";if(V>=.8)return human?"🌫️ Rezonanță umană slabă":"🟠 Coerență slabă";return human?"⚠️ Dezechilibru ΔH":"🔴 Probabil fals / incoerent"}
-function Hscore(txt){let l=String(txt||"").toLowerCase(),s=.5;for(const w of["viață","viata","suflet","adevăr","adevar","iubire","armonie","echilibru","sens","demnitate","libertate","coerență","energie"])if(l.includes(w))s+=.35;if(/[?]/.test(txt))s+=.15;return clamp(s)}
-const showOwn=i=>["identity_presence","project_presence","internal_cohesive"].includes(i);
-export default async function handler(req,res){if(req.method!=="POST")return res.status(405).json({error:"Method not allowed. Use POST /api/analyze"});let body={};try{body=typeof req.body==="string"?JSON.parse(req.body||"{}"):req.body||{}}catch{return res.status(400).json({error:"Invalid JSON body."})}const{text,humanMode}=body;if(!text||typeof text!=="string")return res.status(400).json({error:"Missing text for analysis."});if(!process.env.OPENAI_API_KEY)return res.status(500).json({error:"Server misconfigured: OPENAI_API_KEY is missing."});try{const pg=presentRealityGate(text),atr=autonomousTruthResolver(text),st=scientificTruth(text);let g;if(st?.type==="math"){g={factual_score:st.is_true?3.14:0,logic_score:st.is_true?3.14:.2,semantic_score:3.14}}else{let sys=pg.active?"Evaluator Coeziv 3.14Δ cu Present Reality Gate. Răspunde strict JSON valid. Dacă afirmația depinde de prezent, nu evalua factual din memoria modelului; marchează factual prudent până la verificarea surselor actuale.":"Evaluator Coeziv 3.14Δ. Răspunde strict JSON valid.";let raw=await callAI({model:COEZIV_ANALYSIS_MODEL,system:sys,user:`Analizează afirmația pe F factual, L logic, C semantic. Scoruri 0..3.14. Returnează DOAR JSON valid cu factual_score, logic_score, semantic_score. Afirmația: "${text}"\nPresentRealityGate: ${JSON.stringify(pg)}\nATR: ${JSON.stringify(atr).slice(0,1800)}`});try{g=JSON.parse(pickJSON(raw))}catch{g={factual_score:pg.active?1.1:1.57,logic_score:1.57,semantic_score:1.57}}}let F=clamp(g.factual_score),L=clamp(g.logic_score),C=clamp(g.semantic_score),intent=intentOf(text),candidates=await searchCandidates(text,atr),src=classify(text,candidates,intent,atr);let closure=await relationClosure2Pi(text,src.sources,src.context_sources,atr,F);let hasFullSupport=src.sources.some(s=>["supporting_evidence","official_validation"].includes(s.role)),hasCoreSupport=src.sources.some(s=>s.role==="supporting_core"),hasContradiction=src.contradiction_sources.length>0,hasContext=src.context_sources.length>0||hasCoreSupport,own=ownLinks(),ownSupport=["identity_presence","project_presence"].includes(intent)&&own.length>0&&!hasFullSupport&&!hasContradiction;if(pg.active&&!closure?.two_pi_state)F=Math.min(F,1.1);let core=coreCalc({intent,F,L,C,hasFullSupport,hasCoreSupport,hasContext,hasContradiction,ownSupport,closure});let adj=applyScores(F,L,C,core,intent,closure);F=adj.F;L=adj.L;C=adj.C;core=coreCalc({intent,F,L,C,hasFullSupport,hasCoreSupport,hasContext,hasContradiction,ownSupport,closure});let truth_consumption=consumption({intent,hasFullSupport,hasCoreSupport,hasContext,hasContradiction,sources:src.sources,context_sources:src.context_sources,text,closure});let H=humanMode?Hscore(text):0,V=Number((humanMode?(F+L+C+H)/4:(F+L+C)/3).toFixed(2));let summary=`${F<1.5?"Nivelul factual este slab":"Nivelul factual indică existența unor elemente verificabile"}. ${L<1.5?"Nivelul logic necesită clarificare":"Nivelul logic este relativ coerent"}. ${C<1.5?"Nivelul semantic este fragil":"Nivelul semantic arată o direcție coerentă"}. Nivel de consumare a adevărului: ${truth_consumption.level}/${truth_consumption.max} — ${truth_consumption.label}.`;if(pg.active)summary=`Afirmație dependentă de prezent: memoria modelului nu este folosită ca dovadă decisivă. `+summary;let objective_refinement=`Consumarea adevărului: ${truth_consumption.label}. ${truth_consumption.explanation}`;return res.status(200).json({mode:humanMode?"ΔH":"Δ",factual_score:F,logic_score:L,semantic_score:C,human_score:humanMode?H:undefined,V,verdict:verdict(V,F,intent,hasFullSupport,hasContradiction,core,Boolean(humanMode),closure),summary,objective_refinement,cohesion_core:core,truth_consumption,sources:src.sources,contradiction_sources:src.contradiction_sources,context_sources:src.context_sources,weak_sources:src.weak_sources,source_note:src.note,public_presence:showOwn(intent)?own:[],public_presence_note:"Prezență publică proprie; descrie existența proiectului, dar nu reprezintă validare independentă.",claim_intent:intent,claim_context:{intent,confidence:.94,reason:pg.active?"Present Reality Gate activ: afirmația depinde de prezent; relația se verifică prin surse actuale/oficiale, nu din memoria modelului.":"Verificare relațională internă: termenii sunt identificați în fundal, iar relația completă este verificată prin produsul categoriei.",truth_category:truthType(text),present_reality_gate:pg,autonomous_truth_resolver:atr,relational_closure_2pi:closure},models:{analysis:COEZIV_ANALYSIS_MODEL,source_filter:COEZIV_SOURCE_MODEL,cost_mode:COEZIV_COST_MODE,deep_research:USE_DEEP_RESEARCH,analysis_endpoint:gpt5(COEZIV_ANALYSIS_MODEL)?"responses":"chat/completions",source_endpoint:gpt5(COEZIV_SOURCE_MODEL)?"responses":"chat/completions"}})}catch(err){return res.status(500).json({error:"OpenAI request failed",status:err?.status||500,detail:String(err?.detail||err?.message||err).slice(0,800),model:err?.model||COEZIV_ANALYSIS_MODEL,endpoint:err?.endpoint||(gpt5(COEZIV_ANALYSIS_MODEL)?"responses":"chat/completions")})}}
+
+const CONTRADICTION_MARKERS = [
+  "dar totusi", "dar nu", "insa nu", "desi", "contrar", "imposibil",
+  "fara legatura", "nu rezulta", "se contrazice",
+  "however not", "although", "contradicts", "inconsistent"
+];
+
+const PRESENT_MARKERS = [
+  "actual", "actualul", "actuala", "curent", "curenta", "prezent",
+  "azi", "acum", "today", "now", "current", "latest", "incumbent",
+  "in vigoare", "în vigoare"
+];
+
+const PRESENT_DOMAINS = [
+  "presedinte", "presedintele", "president", "prim ministru", "premier",
+  "ministru", "ceo", "director", "pret", "preț", "price", "bitcoin",
+  "btc", "eur", "usd", "dkk", "lege", "law", "regulation", "scor",
+  "score", "clasament", "weather", "vreme", "stoc", "available"
+];
+
+function countPhraseHits(text, list) {
+  const t = normalize(text);
+  let c = 0;
+  for (const p of list) {
+    const q = normalize(p);
+    if (q && t.includes(q)) c++;
+  }
+  return c;
+}
+
+function detectsPresentDependency(text) {
+  const t = normalize(text);
+  const hasPresent = PRESENT_MARKERS.some(m => t.includes(normalize(m)));
+  const hasDomain = PRESENT_DOMAINS.some(m => t.includes(normalize(m)));
+
+  // Titlurile de funcții sunt prezente prin natură chiar fără "actual".
+  const officeLike = /\b(presedinte|presedintele|president|premier|ministru|ceo|director|primar)\b/.test(t);
+
+  return {
+    active: Boolean((hasPresent && hasDomain) || officeLike),
+    has_present_marker: hasPresent,
+    has_present_domain: hasDomain || officeLike,
+    reason: ((hasPresent && hasDomain) || officeLike)
+      ? "Afirmația pare dependentă de prezent; motorul coeziv nu decide factual fără sursă externă actuală."
+      : "Afirmația nu pare dependentă critic de prezent."
+  };
+}
+
+function extractRelations(text) {
+  const raw = String(text || "");
+  const t = normalize(raw);
+  const out = [];
+
+  const patterns = [
+    /(.+?)\s+este\s+(.+?)[.!?]?$/i,
+    /(.+?)\s+e\s+(.+?)[.!?]?$/i,
+    /(.+?)\s+is\s+(.+?)[.!?]?$/i,
+    /(.+?)\s+are\s+(.+?)[.!?]?$/i,
+    /(.+?)\s+->\s+(.+?)(?:->\s+(.+?))?$/i
+  ];
+
+  for (const rx of patterns) {
+    const m = raw.match(rx);
+    if (m) {
+      out.push({
+        subject: (m[1] || "").trim(),
+        relation: m[3] ? "linked_to" : "is",
+        object: (m[3] || m[2] || "").trim()
+      });
+      break;
+    }
+  }
+
+  if (!out.length && t.includes("?")) {
+    out.push({
+      subject: null,
+      relation: "question",
+      object: raw.trim()
+    });
+  }
+
+  return out;
+}
+
+function scoreDensity(text) {
+  const s = sentences(text);
+  const ws = words(text);
+  const concepts = unique(ws);
+
+  if (!ws.length) return 0;
+
+  const conceptPerSentence = concepts.length / Math.max(1, s.length);
+  const lexicalDiversity = concepts.length / Math.max(1, ws.length);
+
+  // Ideal: suficient de dens, dar nu supraîncărcat.
+  const densityRaw =
+    1.4 * Math.min(1, conceptPerSentence / 7) +
+    1.2 * Math.min(1, lexicalDiversity / 0.72) +
+    0.54 * Math.min(1, ws.length / 80);
+
+  return clamp(densityRaw);
+}
+
+function scoreConnections(text) {
+  const s = sentences(text);
+  const sets = sentenceConceptSets(text);
+  const connectorHits = countPhraseHits(text, LOGIC_CONNECTORS);
+
+  let repeatedLinks = 0;
+  for (let i = 0; i < sets.length - 1; i++) {
+    for (const x of sets[i]) {
+      if (sets[i + 1].has(x)) repeatedLinks++;
+    }
+  }
+
+  const relationCount = extractRelations(text).length;
+
+  const raw =
+    0.95 * Math.min(1, connectorHits / 5) +
+    1.15 * Math.min(1, repeatedLinks / Math.max(1, s.length * 2)) +
+    1.04 * Math.min(1, relationCount / 2);
+
+  return clamp(raw);
+}
+
+function scoreEnergy(text) {
+  const raw = String(text || "");
+  const t = normalize(raw);
+  const ws = words(raw);
+
+  const strongWords = [
+    "adevar", "fals", "demonstreaza", "dovada", "important", "critic",
+    "urgent", "risc", "pericol", "echilibru", "viata", "suflet",
+    "energie", "coerenta", "ruptura", "fragil", "confirmat",
+    "contrazis", "real", "actual"
+  ];
+
+  const strongHits = strongWords.filter(w => t.includes(w)).length;
+  const punctuationEnergy =
+    (raw.match(/[!?]/g) || []).length +
+    Math.min(3, (raw.match(/[A-ZĂÂÎȘȚ]{2,}/g) || []).length);
+
+  const lengthEnergy = Math.min(1, ws.length / 55);
+
+  const rawScore =
+    1.25 * Math.min(1, strongHits / 5) +
+    0.75 * Math.min(1, punctuationEnergy / 4) +
+    1.14 * lengthEnergy;
+
+  return clamp(rawScore);
+}
+
+function scoreDistance(text) {
+  const semantic = meanSemanticDistance(text);
+  const contradictions = countPhraseHits(text, CONTRADICTION_MARKERS);
+  const connectors = countPhraseHits(text, LOGIC_CONNECTORS);
+
+  // r trebuie să fie mic când textul e coerent și legat.
+  let r =
+    0.55 +
+    semantic * 1.75 +
+    Math.min(1.1, contradictions * 0.35) -
+    Math.min(0.45, connectors * 0.06);
+
+  return clamp(r, 0.35, PI_C);
+}
+
+function scoreHumanDelta(text) {
+  const t = normalize(text);
+  const humanTerms = [
+    "viata", "suflet", "demnitate", "libertate", "iubire",
+    "sens", "om", "uman", "adevar", "constiinta", "echilibru",
+    "armonie", "suferinta", "vindecare", "responsabilitate"
+  ];
+
+  let hits = 0;
+  for (const w of humanTerms) if (t.includes(w)) hits++;
+
+  return clamp(0.45 + hits * 0.32);
+}
+
+function coezivCore(text, humanMode = false) {
+  const N = scoreDensity(text);
+  const e = scoreConnections(text);
+  const E = scoreEnergy(text);
+  const r = scoreDistance(text);
+  const H = humanMode ? scoreHumanDelta(text) : undefined;
+
+  const FcRaw = (N * e * E) / Math.max(0.01, r * r);
+  const Fc = clamp(FcRaw);
+
+  // Componenta finală V nu trebuie să fie doar Fc.
+  // Dacă N/e/E sunt dezechilibrate, scorul final scade.
+  const balancePenalty =
+    (Math.abs(N - e) + Math.abs(e - E) + Math.abs(N - E)) / 3;
+
+  const V = clamp(Fc - balancePenalty * 0.35 + (humanMode ? H * 0.08 : 0));
+
+  return {
+    N: round(N),
+    e: round(e),
+    E: round(E),
+    r: round(r),
+    H: humanMode ? round(H) : undefined,
+    Fc_raw: round(FcRaw),
+    Fc: round(Fc),
+    V: round(V),
+    balance_penalty: round(balancePenalty),
+    formula: "Fc = (N × e × E) / r²"
+  };
+}
+
+function verdictFromCore(core, present) {
+  if (present.active && core.V >= 2.2) {
+    return "🟠 Coerent structural, dar dependent de verificare factuală actuală";
+  }
+
+  if (core.V >= 2.85) return "✅ Coeziv puternic / aproape de 3.14";
+  if (core.V >= 2.25) return "🟢 Coeziv stabil";
+  if (core.V >= 1.55) return "🟡 Parțial coeziv / necesită clarificare";
+  if (core.V >= 0.85) return "🟠 Fragil / rupturi semantice";
+  return "🔴 Incoerent / structură slabă";
+}
+
+function recommendations(text, core, present) {
+  const rec = [];
+
+  if (core.N < 1.2) rec.push("Adaugă mai multe idei concrete sau termeni centrali.");
+  if (core.N > 2.8 && core.e < 1.6) rec.push("Densitatea este mare, dar ideile nu sunt suficient legate logic.");
+  if (core.e < 1.4) rec.push("Adaugă legături logice: deoarece, deci, prin urmare, dacă-atunci.");
+  if (core.E < 1.2) rec.push("Crește energia mesajului: scop, miză, impact, direcție.");
+  if (core.r > 2.1) rec.push("Redu distanța semantică: separă afirmațiile sau explică trecerea dintre idei.");
+  if (present.active) rec.push("Afirmația depinde de prezent: adaugă o sursă actuală/oficială pentru verificare factuală.");
+
+  if (!rec.length) rec.push("Structura este echilibrată; poți rafina stilistic, nu structural.");
+
+  return rec;
+}
+
+function buildSummary(text, core, present, relations) {
+  const parts = [];
+
+  parts.push(`Densitatea ideilor N=${core.N}/3.14.`);
+  parts.push(`Conexiunile logice e=${core.e}/3.14.`);
+  parts.push(`Energia informațională E=${core.E}/3.14.`);
+  parts.push(`Distanța semantică r=${core.r}; cu cât r este mai mică, cu atât coeziunea este mai bună.`);
+  parts.push(`Rezultatul coeziv Fc=${core.Fc}/3.14.`);
+
+  if (present.active) {
+    parts.push("Afirmația are dependență de prezent; motorul nu decide adevărul factual fără sursă actuală.");
+  }
+
+  if (relations.length) {
+    parts.push(`Au fost detectate ${relations.length} relații explicite în text.`);
+  }
+
+  return parts.join(" ");
+}
+
+export default async function handler(req, res) {
+  if (req.method !== "POST") {
+    return res.status(405).json({
+      error: "Method not allowed. Use POST /api/analyze"
+    });
+  }
+
+  let body = {};
+  try {
+    body = typeof req.body === "string" ? JSON.parse(req.body || "{}") : req.body || {};
+  } catch {
+    return res.status(400).json({ error: "Invalid JSON body." });
+  }
+
+  const text = String(body.text || "").trim();
+  const humanMode = Boolean(body.humanMode);
+
+  if (!text) {
+    return res.status(400).json({ error: "Missing text for analysis." });
+  }
+
+  const present = detectsPresentDependency(text);
+  const core = coezivCore(text, humanMode);
+  const concepts = topConcepts(text);
+  const relations = extractRelations(text);
+  const verdict = verdictFromCore(core, present);
+  const recs = recommendations(text, core, present);
+
+  const factualStatus = present.active
+    ? "requires_external_verification"
+    : "not_current_dependent";
+
+  const truthConsumption = present.active
+    ? {
+        level: 1,
+        max: 5,
+        label: "prezent neconsumat factual",
+        explanation:
+          "Afirmația poate fi coerentă structural, dar adevărul factual depinde de o sursă actuală/oficială."
+      }
+    : {
+        level: round(core.V),
+        max: 3.14,
+        label: "coerență structurală consumată",
+        explanation:
+          "Motorul a consumat doar structura coezivă a afirmației, nu adevărul factual extern."
+      };
+
+  return res.status(200).json({
+    engine: "coeziv-3.14-pure-core",
+    version: "1.0.0-clean",
+    mode: humanMode ? "ΔH" : "Δ",
+
+    factual_status: factualStatus,
+
+    factual_score: present.active ? 0 : core.V,
+    logic_score: core.e,
+    semantic_score: clamp(PI_C - core.r + 0.35),
+    human_score: humanMode ? core.H : undefined,
+
+    V: core.V,
+    verdict,
+
+    summary: buildSummary(text, core, present, relations),
+
+    objective_refinement: recs.join(" "),
+
+    cohesion_core: {
+      N: core.N,
+      e: core.e,
+      E: core.E,
+      r: core.r,
+      H: core.H,
+      Fc: core.Fc,
+      V: core.V,
+      formula: core.formula,
+      interpretation:
+        "Fc măsoară coeziunea structurală a textului, nu adevărul factual extern."
+    },
+
+    truth_consumption: truthConsumption,
+
+    present_reality_gate: present,
+
+    concepts,
+    relations,
+
+    diagnostics: {
+      sentence_count: sentences(text).length,
+      word_count: words(text).length,
+      unique_concept_count: unique(words(text)).length,
+      logic_connector_hits: countPhraseHits(text, LOGIC_CONNECTORS),
+      contradiction_marker_hits: countPhraseHits(text, CONTRADICTION_MARKERS),
+      semantic_distance_mean: round(meanSemanticDistance(text))
+    },
+
+    sources: [],
+    contradiction_sources: [],
+    context_sources: [],
+    weak_sources: [],
+
+    source_note:
+      "Acest nucleu este strict coeziv și nu face căutare externă. Fact-checking-ul trebuie adăugat ca modul separat."
+  });
+}
