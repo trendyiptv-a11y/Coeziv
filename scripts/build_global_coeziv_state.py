@@ -319,8 +319,8 @@ def compute_icd_global_directional(df: pd.DataFrame) -> pd.Series:
     """
     ICD_GLOBAL: direcţionalitatea globală (bias de risc) definită ca
     randament cumulativ pe 60 de zile al unui coş:
-      + SPX, GOLD, OIL  (risk-on / active ciclice)
-      - VIX, DXY        (refugii / risk-off)
+      + SPX, GOLD, OIL  (active ciclice / pro-creștere)
+      - VIX, DXY        (tensiune / presiune defensivă)
     Normalizăm apoi în percentilă 0–100.
     """
     if len(df) < WINDOW_DIR + 1:
@@ -422,18 +422,18 @@ def classify_global_regime_coeziv(ic_val: float, icd_val: float) -> GlobalRegime
     if energy > 0.35:
         return GlobalRegime(
             regime="bull",
-            description="Fază globală de expansiune coezivă: structură ridicată + fluxuri pro-risc."
+            description="Fază globală de expansiune coezivă: structură ridicată + impuls direcțional constructiv."
         )
 
     if energy < -0.35:
         return GlobalRegime(
             regime="bear",
-            description="Fază globală de contracție coezivă: tendință defensivă / orientare spre refugii."
+            description="Fază globală de contracție coezivă: structură solidă, dar semnal final defensiv; accent pe protecție și controlul expunerii."
         )
 
     return GlobalRegime(
         regime="neutral",
-        description="Zonă de echilibru fazal / tranziție: structură & direcționalitate amestecate."
+        description="Zonă de echilibru fazal / tranziție: structură și direcționalitate mixte, fără semnal final dominant."
     )
 
 
@@ -553,7 +553,7 @@ def main() -> None:
 
     state: Dict[str, object] = {
         "model": "global_coeziv_state",
-        "version": "1.3",
+        "version": "1.4",
         "updated_at": datetime.now(timezone.utc).isoformat(),
         "source": {
             "folder": "data_global",
