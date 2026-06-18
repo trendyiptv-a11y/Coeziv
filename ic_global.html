@@ -384,6 +384,8 @@
     function cleanBackendDescription(text) {
       let t = String(text || "").trim();
       if (!t) return "";
+      t = t.replace(/orientare spre refugii/gi, "orientare spre protecție și controlul expunerii");
+      t = t.replace(/active defensive și conservarea capitalului/gi, "protecție, prudență și controlul expunerii");
       t = t.replace(/^Fază globală de/i, "Modelul indică o fază globală de");
       t = t.replace(/^Zonă de/i, "Modelul indică o zonă de");
       return t;
@@ -575,22 +577,8 @@
             type: "line",
             data: {
               datasets: [
-                {
-                  label: "IC Global",
-                  data: cleanSeries.map(d => ({ x: d.t, y: d.ic })),
-                  borderColor: "rgba(129,140,248,1)",
-                  borderWidth: 1.6,
-                  pointRadius: 0,
-                  tension: 0.08
-                },
-                {
-                  label: "ICD Global",
-                  data: cleanSeries.map(d => ({ x: d.t, y: d.icd })),
-                  borderColor: "rgba(45,212,191,1)",
-                  borderWidth: 1.4,
-                  pointRadius: 0,
-                  tension: 0.08
-                }
+                { label: "IC Global", data: cleanSeries.map(d => ({ x: d.t, y: d.ic })), borderColor: "rgba(129,140,248,1)", borderWidth: 1.6, pointRadius: 0, tension: 0.08 },
+                { label: "ICD Global", data: cleanSeries.map(d => ({ x: d.t, y: d.icd })), borderColor: "rgba(45,212,191,1)", borderWidth: 1.4, pointRadius: 0, tension: 0.08 }
               ]
             },
             options: {
@@ -615,18 +603,8 @@
                 }
               },
               scales: {
-                x: {
-                  type: "time",
-                  time: { unit: "month" },
-                  ticks: { color: "rgba(148,163,184,0.8)", maxTicksLimit: 7 },
-                  grid: { color: "rgba(15,23,42,0.5)" }
-                },
-                y: {
-                  min: 0,
-                  max: 100,
-                  ticks: { color: "rgba(148,163,184,0.8)", stepSize: 20 },
-                  grid: { color: "rgba(30,64,175,0.35)" }
-                }
+                x: { type: "time", time: { unit: "month" }, ticks: { color: "rgba(148,163,184,0.8)", maxTicksLimit: 7 }, grid: { color: "rgba(15,23,42,0.5)" } },
+                y: { min: 0, max: 100, ticks: { color: "rgba(148,163,184,0.8)", stepSize: 20 }, grid: { color: "rgba(30,64,175,0.35)" } }
               }
             }
           });
