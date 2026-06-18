@@ -19,6 +19,12 @@ Rezultatul este serializat în data/global_coeziv_state.json
 şi este folosit de:
 - ic_global.html
 - update_btc_state_latest_from_daily.py
+
+Patch 2026:
+- nu mai blochează latest.date la ultima zi comună perfectă a tuturor seriilor;
+- folosește concat outer + forward-fill limitat pentru diferențe de calendar;
+- refuză să publice JSON gol sau fără latest/series;
+- scrie atomic, ca un build eșuat să nu suprascrie ultimul JSON valid.
 """
 
 from __future__ import annotations
@@ -47,6 +53,11 @@ SERIES = ["spx", "vix", "dxy", "gold", "oil"]
 WINDOW_STRUCT = 120  # structură / corelaţii
 WINDOW_DIR = 60      # direcţionalitate / fluxuri de risc
 
+# toleranță pentru piețe cu calendar diferit / sărbători / weekend
+MAX_FORWARD_FILL_ROWS = 7
+MAX_LATEST_STALENESS_DAYS = 10
+MIN_SERIES_COUNT = 260
+
 
 # ---- utilitare --------------------------------------------------------------
 
@@ -68,6 +79,13 @@ def percentile_from_sorted(sorted_vals: List[float], value: float) -> float:
 
 def clamp(x: float, lo: float, hi: float) -> float:
     return max(lo, min(hi, x))
+
+
+def json_safe_float(value: float) -> float:
+    v = float(value)
+    if not np.isfinite(v):
+        raise ValueError(f"Valoare numerică nevalidă pentru JSON: {value!r}")
+    return v
 
 
 @dataclass
@@ -168,22 +186,16 @@ def load_single_series(name: str) -> pd.Series:
     if clean.empty:
         raise RuntimeError(f"{path}: nu au rămas date valide după curățare.")
 
-    before = len(clean)
     clean = clean.sort_values("timestamp").drop_duplicates(subset=["timestamp"], keep="last")
-    duplicates_removed = before - len(clean)
-
-    if duplicates_removed:
-        log(f"  • {name}: eliminate {duplicates_removed} timestamp-uri duplicate înainte de concat.")
 
     s = pd.Series(
         clean["close"].to_numpy(dtype=float),
-        index=clean["timestamp"]
+        index=clean["timestamp"],
+        name=name,
     ).dropna().sort_index()
 
     if s.index.has_duplicates:
-        before_s = len(s)
         s = s[~s.index.duplicated(keep="last")]
-        log(f"  • {name}: eliminate {before_s - len(s)} duplicate de index după conversia timpului.")
 
     log(f"  • {name}: încărcat {len(s)} puncte | {s.index[0].date()} – {s.index[-1].date()}")
 
@@ -194,7 +206,9 @@ def load_all_series() -> pd.DataFrame:
     """
     Concatenează seriile într-un singur DataFrame:
        index = dată, coloane = ['spx', 'vix', 'dxy', 'gold', 'oil']
-    doar pe intervalul comun tuturor seriilor.
+
+    Folosește OUTER JOIN + forward-fill limitat. Astfel, latest nu rămâne blocat
+    la ultima zi perfect comună dacă o singură piață are calendar diferit.
     """
     log("Încarc seriile globale din data_global/ ...")
 
@@ -203,15 +217,47 @@ def load_all_series() -> pd.DataFrame:
     for name in SERIES:
         data[name] = load_single_series(name)
 
-    df = pd.concat(data, axis=1, join="inner").dropna()
+    raw = pd.concat(data, axis=1, join="outer").sort_index()
+    raw = raw[~raw.index.duplicated(keep="last")]
 
-    if len(df) < 260:
+    if raw.empty:
+        raise RuntimeError("Nu există date globale brute în data_global/*.csv.")
+
+    latest_available = {name: data[name].index[-1] for name in SERIES}
+    max_raw_date = max(latest_available.values())
+
+    for name, ts in latest_available.items():
+        age_days = (max_raw_date - ts).days
+        if age_days > MAX_LATEST_STALENESS_DAYS:
+            raise RuntimeError(
+                f"Seria {name} este prea veche față de ultima piață disponibilă: "
+                f"{ts.date()} vs {max_raw_date.date()} ({age_days} zile)."
+            )
+
+    # Completează golurile scurte de calendar, dar nu inventează luni de date.
+    df = raw.ffill(limit=MAX_FORWARD_FILL_ROWS).dropna(subset=SERIES)
+
+    if len(df) < MIN_SERIES_COUNT:
         raise RuntimeError(
-            f"Prea puține date comune pentru seriile globale: {len(df)} zile. "
-            "Minim recomandat: ~260 zile."
+            f"Prea puține date globale după aliniere: {len(df)} zile. "
+            f"Minim recomandat: {MIN_SERIES_COUNT} zile."
         )
 
-    log(f"Interval comun: {df.index[0].date()} – {df.index[-1].date()} ({len(df)} zile)")
+    latest_row = df.index[-1]
+    staleness = (max_raw_date - latest_row).days
+    if staleness > MAX_LATEST_STALENESS_DAYS:
+        raise RuntimeError(
+            f"Ultimul rând calculabil este prea vechi: {latest_row.date()} "
+            f"față de ultima dată brută {max_raw_date.date()} ({staleness} zile)."
+        )
+
+    log(
+        f"Interval calculabil: {df.index[0].date()} – {df.index[-1].date()} "
+        f"({len(df)} zile, outer+ffill limit={MAX_FORWARD_FILL_ROWS})"
+    )
+
+    source_dates = ", ".join(f"{k}={v.date()}" for k, v in latest_available.items())
+    log(f"Ultimele date brute: {source_dates}")
 
     return df
 
@@ -333,10 +379,10 @@ def dynamic_thresholds(ic_series: pd.Series, icd_series: pd.Series) -> Dict[str,
     icd_vals = np.array(icd_series.values, dtype=float)
 
     return {
-        "ic_low": float(np.percentile(ic_vals, 30)),
-        "ic_high": float(np.percentile(ic_vals, 70)),
-        "icd_low": float(np.percentile(icd_vals, 30)),
-        "icd_high": float(np.percentile(icd_vals, 70)),
+        "ic_low": json_safe_float(np.percentile(ic_vals, 30)),
+        "ic_high": json_safe_float(np.percentile(ic_vals, 70)),
+        "icd_low": json_safe_float(np.percentile(icd_vals, 30)),
+        "icd_high": json_safe_float(np.percentile(icd_vals, 70)),
     }
 
 
@@ -409,6 +455,48 @@ def compute_risk_score_and_macro(ic_val: float, icd_val: float) -> Tuple[float, 
     return risk_score, macro_signal
 
 
+def validate_state(state: Dict[str, object]) -> None:
+    """Nu permite publicarea unui JSON gol sau structural invalid."""
+    if not isinstance(state, dict):
+        raise RuntimeError("State invalid: nu este obiect JSON.")
+
+    latest = state.get("latest")
+    series = state.get("series")
+
+    if not isinstance(latest, dict) or not latest.get("date"):
+        raise RuntimeError("State invalid: lipsește latest/date.")
+
+    if not isinstance(series, list) or len(series) < MIN_SERIES_COUNT:
+        raise RuntimeError(
+            f"State invalid: series are {len(series) if isinstance(series, list) else 'N/A'} puncte."
+        )
+
+    for key in ["ic_global", "icd_global", "risk_score"]:
+        value = latest.get(key)
+        if value is None or not np.isfinite(float(value)):
+            raise RuntimeError(f"State invalid: latest.{key} este nevalid ({value!r}).")
+
+
+def write_state_atomically(state: Dict[str, object]) -> None:
+    validate_state(state)
+
+    DATA_OUT.mkdir(parents=True, exist_ok=True)
+
+    text = json.dumps(state, ensure_ascii=False, indent=2)
+    parsed = json.loads(text)
+    validate_state(parsed)
+
+    if len(text.strip()) < 200:
+        raise RuntimeError("Refuz să scriu global_coeziv_state.json: conținut prea scurt.")
+
+    tmp_path = OUTPUT_JSON.with_suffix(".json.tmp")
+    with open(tmp_path, "w", encoding="utf-8") as f:
+        f.write(text)
+        f.write("\n")
+
+    tmp_path.replace(OUTPUT_JSON)
+
+
 # ---- orchestrare ------------------------------------------------------------
 
 def main() -> None:
@@ -433,13 +521,13 @@ def main() -> None:
 
     for ts in common_index:
         t_ms = int(ts.timestamp() * 1000)
-        ic_val = float(ic_series.loc[ts])
-        icd_val = float(icd_series.loc[ts])
+        ic_val = json_safe_float(ic_series.loc[ts])
+        icd_val = json_safe_float(icd_series.loc[ts])
 
         regime = classify_global_regime_coeziv(ic_val, icd_val)
         risk_score, macro_signal = compute_risk_score_and_macro(ic_val, icd_val)
-        energy = coeziv_energy(ic_val, icd_val)
-        phase = coeziv_phase(ic_val, icd_val)
+        energy = json_safe_float(coeziv_energy(ic_val, icd_val))
+        phase = json_safe_float(coeziv_phase(ic_val, icd_val))
 
         records.append({
             "t": t_ms,
@@ -448,30 +536,33 @@ def main() -> None:
             "icd_global": icd_val,
             "coeziv_phase": phase,
             "coeziv_energy": energy,
-            "risk_score": risk_score,
+            "risk_score": json_safe_float(risk_score),
             "macro_signal": macro_signal,
             "global_regime": regime.regime,
         })
 
     latest_ts = common_index[-1]
-    latest_ic = float(ic_series.loc[latest_ts])
-    latest_icd = float(icd_series.loc[latest_ts])
+    latest_ic = json_safe_float(ic_series.loc[latest_ts])
+    latest_icd = json_safe_float(icd_series.loc[latest_ts])
     latest_regime = classify_global_regime_coeziv(latest_ic, latest_icd)
     latest_risk_score, latest_macro_signal = compute_risk_score_and_macro(latest_ic, latest_icd)
-    latest_energy = coeziv_energy(latest_ic, latest_icd)
-    latest_phase = coeziv_phase(latest_ic, latest_icd)
+    latest_energy = json_safe_float(coeziv_energy(latest_ic, latest_icd))
+    latest_phase = json_safe_float(coeziv_phase(latest_ic, latest_icd))
 
     thresholds = dynamic_thresholds(ic_series, icd_series)
 
-    state = {
+    state: Dict[str, object] = {
         "model": "global_coeziv_state",
-        "version": "1.2",
+        "version": "1.3",
         "updated_at": datetime.now(timezone.utc).isoformat(),
         "source": {
             "folder": "data_global",
             "series": SERIES,
             "window_struct": WINDOW_STRUCT,
             "window_dir": WINDOW_DIR,
+            "alignment": "outer_join_forward_fill_limited",
+            "max_forward_fill_rows": MAX_FORWARD_FILL_ROWS,
+            "max_latest_staleness_days": MAX_LATEST_STALENESS_DAYS,
             "output": "data/global_coeziv_state.json",
         },
         "latest": {
@@ -481,7 +572,7 @@ def main() -> None:
             "icd_global": latest_icd,
             "coeziv_phase": latest_phase,
             "coeziv_energy": latest_energy,
-            "risk_score": latest_risk_score,
+            "risk_score": json_safe_float(latest_risk_score),
             "macro_signal": latest_macro_signal,
             "global_regime": latest_regime.regime,
             "description": latest_regime.description,
@@ -491,10 +582,7 @@ def main() -> None:
         "series": records,
     }
 
-    DATA_OUT.mkdir(parents=True, exist_ok=True)
-
-    with open(OUTPUT_JSON, "w", encoding="utf-8") as f:
-        json.dump(state, f, ensure_ascii=False, indent=2)
+    write_state_atomically(state)
 
     log(f"✅ Salvat {OUTPUT_JSON}")
     log(
