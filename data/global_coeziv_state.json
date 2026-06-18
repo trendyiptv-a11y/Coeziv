@@ -1,7 +1,7 @@
 {
   "model": "global_coeziv_state",
-  "version": "1.3",
-  "updated_at": "2026-06-18T08:07:49.340221+00:00",
+  "version": "1.4",
+  "updated_at": "2026-06-18T08:33:10.346861+00:00",
   "source": {
     "folder": "data_global",
     "series": [
@@ -21,14 +21,14 @@
   "latest": {
     "t": 1781740800000,
     "date": "2026-06-18",
-    "ic_global": 81.30118289353958,
-    "icd_global": 72.23887479824764,
-    "coeziv_phase": 3.690181315075293,
-    "coeziv_energy": -0.5214835080734662,
-    "risk_score": -0.5214835080734662,
+    "ic_global": 81.27843494085532,
+    "icd_global": 72.30804703712244,
+    "coeziv_phase": 3.692681347266519,
+    "coeziv_energy": -0.523615057045219,
+    "risk_score": -0.523615057045219,
     "macro_signal": "risk-off",
     "global_regime": "bear",
-    "description": "Fază globală de contracție coezivă: tendință defensivă / orientare spre refugii."
+    "description": "Fază globală de contracție coezivă: structură solidă, dar semnal final defensiv; accent pe protecție și controlul expunerii."
   },
   "thresholds": {
     "ic_low": 30.955414012738853,
@@ -1714,10 +1714,10 @@
       "t": 1257292800000,
       "date": "2009-11-04",
       "ic_global": 93.26660600545951,
-      "icd_global": 72.28498962416417,
-      "coeziv_phase": 4.235982569195464,
-      "coeziv_energy": -0.8886486364188431,
-      "risk_score": -0.8886486364188431,
+      "icd_global": 72.2619322112059,
+      "coeziv_phase": 4.2346313785832805,
+      "coeziv_energy": -0.888028184643478,
+      "risk_score": -0.888028184643478,
       "macro_signal": "risk-off",
       "global_regime": "bear"
     },
@@ -10591,10 +10591,10 @@
       "t": 1358812800000,
       "date": "2013-01-22",
       "ic_global": 85.91901728844404,
-      "icd_global": 72.2619322112059,
-      "coeziv_phase": 3.901025052904647,
-      "coeziv_energy": -0.6885099167412341,
-      "risk_score": -0.6885099167412341,
+      "icd_global": 72.23887479824764,
+      "coeziv_phase": 3.899780309748009,
+      "coeziv_energy": -0.6876066623373119,
+      "risk_score": -0.6876066623373119,
       "macro_signal": "risk-off",
       "global_regime": "bear"
     },
@@ -11723,11 +11723,11 @@
     {
       "t": 1371600000000,
       "date": "2013-06-19",
-      "ic_global": 81.27843494085532,
+      "ic_global": 81.30118289353958,
       "icd_global": 24.440857735762048,
-      "coeziv_phase": 1.248163975797994,
-      "coeziv_energy": 0.9484040806861131,
-      "risk_score": 0.9484040806861131,
+      "coeziv_phase": 1.2485133080050466,
+      "coeziv_energy": 0.9485147835483736,
+      "risk_score": 0.9485147835483736,
       "macro_signal": "risk-on",
       "global_regime": "bull"
     },
@@ -34043,10 +34043,10 @@
       "t": 1625788800000,
       "date": "2021-07-09",
       "ic_global": 50.659690627843496,
-      "icd_global": 72.30804703712244,
-      "coeziv_phase": 2.3015956788028378,
-      "coeziv_energy": 0.7446411007502044,
-      "risk_score": 0.7446411007502044,
+      "icd_global": 72.28498962416417,
+      "coeziv_phase": 2.3008617516093417,
+      "coeziv_energy": 0.7451307709279478,
+      "risk_score": 0.7451307709279478,
       "macro_signal": "risk-on",
       "global_regime": "bull"
     },
@@ -47737,11 +47737,11 @@
     {
       "t": 1781740800000,
       "date": "2026-06-18",
-      "ic_global": 81.30118289353958,
-      "icd_global": 72.23887479824764,
-      "coeziv_phase": 3.690181315075293,
-      "coeziv_energy": -0.5214835080734662,
-      "risk_score": -0.5214835080734662,
+      "ic_global": 81.27843494085532,
+      "icd_global": 72.30804703712244,
+      "coeziv_phase": 3.692681347266519,
+      "coeziv_energy": -0.523615057045219,
+      "risk_score": -0.523615057045219,
       "macro_signal": "risk-off",
       "global_regime": "bear"
     }
