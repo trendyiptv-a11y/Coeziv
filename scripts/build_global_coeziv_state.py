@@ -422,18 +422,18 @@ def classify_global_regime_coeziv(ic_val: float, icd_val: float) -> GlobalRegime
     if energy > 0.35:
         return GlobalRegime(
             regime="bull",
-            description="Fază globală de expansiune coezivă: structură ridicată + impuls direcțional constructiv."
+            description="Piața globală are structură coerentă și fază de expansiune: modelul indică un mediu constructiv, favorabil asumării de risc."
         )
 
     if energy < -0.35:
         return GlobalRegime(
             regime="bear",
-            description="Fază globală de contracție coezivă: structură solidă, dar semnal final defensiv; accent pe protecție și controlul expunerii."
+            description="Piața globală pare sus și bine aliniată, dar faza coezivă indică maturitate și tensiune: riscul principal este răcirea sau reducerea expunerii, nu accelerarea creșterii."
         )
 
     return GlobalRegime(
         regime="neutral",
-        description="Zonă de echilibru fazal / tranziție: structură și direcționalitate mixte, fără semnal final dominant."
+        description="Piața globală este într-o zonă de tranziție: structura și impulsul există, dar modelul nu indică încă o direcție finală dominantă."
     )
 
 
@@ -553,7 +553,7 @@ def main() -> None:
 
     state: Dict[str, object] = {
         "model": "global_coeziv_state",
-        "version": "1.4",
+        "version": "1.5",
         "updated_at": datetime.now(timezone.utc).isoformat(),
         "source": {
             "folder": "data_global",
