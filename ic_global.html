@@ -105,6 +105,27 @@
     .bear { background: var(--bear) !important; }
     .neutral { background: var(--neutral) !important; }
 
+    .regime-chip.bull {
+      background: rgba(20,83,45,0.58) !important;
+      border-color: rgba(74,222,128,0.9);
+      color: #f0fdf4;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.45);
+    }
+
+    .regime-chip.bear {
+      background: rgba(127,29,29,0.62) !important;
+      border-color: rgba(248,113,113,0.95);
+      color: #fff7f7;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.55);
+    }
+
+    .regime-chip.neutral {
+      background: rgba(8,47,73,0.58) !important;
+      border-color: rgba(56,189,248,0.85);
+      color: #f0f9ff;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.45);
+    }
+
     .layout {
       display: grid;
       grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
@@ -360,6 +381,14 @@
       return "Regim neutru / de tranziție";
     }
 
+    function cleanBackendDescription(text) {
+      let t = String(text || "").trim();
+      if (!t) return "";
+      t = t.replace(/^Fază globală de/i, "Modelul indică o fază globală de");
+      t = t.replace(/^Zonă de/i, "Modelul indică o zonă de");
+      return t;
+    }
+
     function describeIC(level, icVal, macroSignal, regimeCode) {
       const signal = signalLabel(macroSignal);
       const regime = regimeLabel(regimeCode).toLowerCase();
@@ -378,7 +407,6 @@
 
     function describeICD(level, icdVal, macroSignal, regimeCode, riskScore) {
       const signal = signalLabel(macroSignal);
-      const r = normalizeRegime(regimeCode);
       const rs = Number.isFinite(riskScore) ? riskScore : 0;
       const strength = Math.abs(rs) >= 0.35 ? "puternic" : Math.abs(rs) >= 0.15 ? "moderat" : "slab";
 
@@ -423,9 +451,8 @@
         directionText = `Risk score este negativ (${rs.toFixed(3)}), deci modelul indică un mediu ${strength} orientat spre protecție și reducerea riscului.`;
       }
 
-      const sourceText = backendDescription
-        ? ` Interpretarea tehnică din backend: ${backendDescription}`
-        : "";
+      const cleaned = cleanBackendDescription(backendDescription);
+      const sourceText = cleaned ? ` ${cleaned}` : "";
 
       return { title, text: `${directionText}${sourceText}` };
     }
