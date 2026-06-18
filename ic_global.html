@@ -5,7 +5,6 @@
   <title>Modelul Coeziv – Piața globală de active</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- Luxon + Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/luxon@3/build/global/luxon.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.3.1/dist/chartjs-adapter-luxon.umd.min.js"></script>
@@ -14,30 +13,29 @@
     :root {
       color-scheme: dark;
       --bg: #020617;
-      --card: #020617;
-      --border: #1f2937;
+      --panel: rgba(15,23,42,0.96);
+      --panel2: rgba(10,16,32,0.98);
+      --border: rgba(30,64,175,0.62);
       --text: #e5e7eb;
       --muted: #9ca3af;
-      --accent: #6366f1;
+      --soft: #cbd5e1;
       --bull: #22c55e;
       --bear: #ef4444;
       --neutral: #38bdf8;
+      --accent: #6366f1;
       --radius-xl: 1.5rem;
-      --radius-lg: 1.1rem;
+      --radius-lg: 1.05rem;
       --radius-pill: 999px;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
       min-height: 100vh;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
-        "Segoe UI", sans-serif;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
       background:
-        radial-gradient(circle at top, rgba(56,189,248,0.12), transparent 55%),
+        radial-gradient(circle at top, rgba(56,189,248,0.13), transparent 55%),
         radial-gradient(circle at 12% 82%, rgba(168,85,247,0.13), transparent 55%),
         #020617;
       color: var(--text);
@@ -50,360 +48,161 @@
       padding: 1.75rem 1.2rem 2.75rem;
     }
 
-    header.hero {
-      margin-bottom: 1.5rem;
-    }
+    header.hero { margin-bottom: 1.5rem; }
 
     header.hero h1 {
-      margin: 0 0 0.4rem;
-      font-size: 1.9rem;
+      margin: 0 0 0.45rem;
+      font-size: clamp(1.45rem, 3vw, 1.95rem);
       letter-spacing: 0.06em;
       text-transform: uppercase;
     }
 
     header.hero p {
       margin: 0;
-      font-size: 0.9rem;
+      max-width: 46rem;
       color: var(--muted);
-      max-width: 42rem;
-      line-height: 1.6;
+      font-size: 0.92rem;
+      line-height: 1.65;
     }
 
     .macro-headline {
-      margin-top: 0.4rem;
-      margin-bottom: 0.6rem;
-      font-size: 1.02rem;
-      font-weight: 600;
+      margin: 0.55rem 0 0.7rem;
       color: #e5e7eb;
+      font-weight: 650;
+      font-size: 1.05rem;
     }
 
     .pill-row {
       display: flex;
       flex-wrap: wrap;
-      gap: 0.45rem;
-      margin: 0.4rem 0 0.4rem;
+      gap: 0.5rem;
+      margin-top: 0.45rem;
     }
 
-    .pill {
+    .pill, .pill-small, .regime-chip {
       display: inline-flex;
       align-items: center;
-      gap: 0.4rem;
-      padding: 0.32rem 0.85rem;
+      gap: 0.45rem;
       border-radius: var(--radius-pill);
-      font-size: 0.76rem;
-      border: 1px solid rgba(148,163,184,0.55);
-      color: var(--muted);
+      border: 1px solid rgba(148,163,184,0.52);
       background: rgba(15,23,42,0.9);
+      color: var(--muted);
     }
 
-    .pill-dot {
-      width: 0.48rem;
-      height: 0.48rem;
+    .pill { padding: 0.34rem 0.85rem; font-size: 0.78rem; }
+    .pill-small { padding: 0.28rem 0.72rem; font-size: 0.78rem; margin: 0 0.35rem 0.35rem 0; }
+    .regime-chip { padding: 0.38rem 0.9rem; font-size: 0.82rem; margin-bottom: 0.75rem; }
+
+    .dot, .pill-dot, .regime-dot {
+      width: 0.52rem;
+      height: 0.52rem;
       border-radius: 999px;
-      background: var(--accent);
+      background: var(--neutral);
+      flex: 0 0 auto;
     }
 
-    .pill-dot.bull { background: var(--bull); }
-    .pill-dot.bear { background: var(--bear); }
-    .pill-dot.neutral { background: var(--neutral); }
+    .bull { background: var(--bull) !important; }
+    .bear { background: var(--bear) !important; }
+    .neutral { background: var(--neutral) !important; }
 
     .layout {
       display: grid;
-      grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
-      gap: 1.25rem;
+      grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+      gap: 1.15rem;
     }
 
     @media (max-width: 900px) {
-      .layout {
-        grid-template-columns: minmax(0, 1fr);
-      }
+      .layout { grid-template-columns: minmax(0, 1fr); }
     }
 
-    .card {
+    .card, .metric-card, .summary-card {
       position: relative;
+      overflow: hidden;
       border-radius: var(--radius-xl);
       border: 1px solid rgba(15,23,42,0.9);
       background:
         radial-gradient(circle at top left, rgba(56,189,248,0.18), transparent 55%),
         radial-gradient(circle at 120% 0%, rgba(168,85,247,0.22), transparent 50%),
-        rgba(15,23,42,0.96);
-      padding: 1.3rem 1.25rem 1.4rem;
-      overflow: hidden;
+        var(--panel);
+      box-shadow: 0 18px 48px rgba(15, 23, 42, 0.72);
     }
 
-    .card--secondary {
-      background:
-        radial-gradient(circle at top left, rgba(56,189,248,0.07), transparent 55%),
-        rgba(10,16,32,0.98);
-    }
+    .card { padding: 1.3rem 1.25rem 1.4rem; }
+    .card--secondary { background: radial-gradient(circle at top left, rgba(56,189,248,0.08), transparent 55%), var(--panel2); }
 
-    .card::before {
-      content: "";
-      position: absolute;
-      inset: -30%;
-      background: radial-gradient(
-        circle at -10% 0%,
-        rgba(148,163,184,0.18),
-        transparent 60%
-      );
-      opacity: 0.4;
-      pointer-events: none;
-    }
-
-    .card-inner {
-      position: relative;
-      z-index: 1;
-    }
-
-    .card-title {
+    .card-title, .metric-title, .summary-title {
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
       font-size: 0.82rem;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 0.25rem;
-    }
-
-    .card-sub {
-      font-size: 0.8rem;
-      color: var(--muted);
-      margin-bottom: 0.8rem;
-    }
-
-    .regime-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.45rem;
-      border-radius: var(--radius-pill);
-      padding: 0.38rem 0.9rem;
-      border: 1px solid rgba(148,163,184,0.4);
-      background: rgba(15,23,42,0.9);
-      color: var(--muted);
-      font-size: 0.8rem;
-      margin-bottom: 0.65rem;
-    }
-
-    .regime-dot {
-      width: 0.55rem;
-      height: 0.55rem;
-      border-radius: 999px;
-      background: var(--neutral);
-    }
-
-    .regime-dot.bull { background: var(--bull); }
-    .regime-dot.bear { background: var(--bear); }
-    .regime-dot.neutral { background: var(--neutral); }
-
-    .regime-headline {
-      font-size: 1.45rem;
-      font-weight: 650;
-      margin: 0 0 0.35rem;
-    }
-
-    .regime-caption {
-      font-size: 0.86rem;
-      color: var(--muted);
-      margin: 0 0 0.6rem;
-    }
-
-    .pill-small {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.35rem;
-      padding: 0.28rem 0.7rem;
-      font-size: 0.78rem;
-      border-radius: var(--radius-pill);
-      border: 1px solid rgba(148,163,184,0.55);
-      background: rgba(15,23,42,0.95);
-      color: var(--muted);
-      margin-bottom: 0.35rem;
-    }
-
-    .pill-small span.dot {
-      width: 0.46rem;
-      height: 0.46rem;
-      border-radius: 999px;
-      background: rgba(148,163,184,0.85);
-    }
-
-    .metrics-grid {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr);
-      gap: 0.75rem;
-    }
-
-    .metric-card {
-      border-radius: var(--radius-lg);
-      border: 1px solid rgba(30,64,175,0.55);
-      background:
-        radial-gradient(circle at top left, rgba(56,189,248,0.18), transparent 60%),
-        rgba(15,23,42,0.96);
-      padding: 0.85rem 0.9rem 0.95rem;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .metric-title {
-      font-size: 0.79rem;
-      text-transform: uppercase;
-      letter-spacing: 0.13em;
-      color: var(--muted);
-      margin-bottom: 0.25rem;
-    }
-
-    .metric-main {
-      display: flex;
-      align-items: baseline;
-      gap: 0.3rem;
-      margin-bottom: 0.35rem;
-    }
-
-    .metric-value {
-      font-size: 1.4rem;
-      font-weight: 600;
-    }
-
-    .metric-unit {
-      font-size: 0.8rem;
-      color: var(--muted);
-    }
-
-    .metric-caption {
-      font-size: 0.78rem;
-      color: var(--muted);
-      line-height: 1.5;
-    }
-
-    .metric-bar {
-      margin-top: 0.35rem;
-      position: relative;
-      width: 100%;
-      height: 0.45rem;
-      border-radius: 999px;
-      background: #020617;
-      overflow: hidden;
-      border: 1px solid rgba(15,23,42,0.9);
-    }
-
-    .metric-bar-fill {
-      position: absolute;
-      inset: 0;
-      width: 0%;
-      transition: width 0.6s ease;
-    }
-
-    .metric-bar-fill--ic {
-      background: linear-gradient(90deg, rgba(129,140,248,0.08), #6366f1);
-    }
-
-    .metric-bar-fill--icd {
-      background: linear-gradient(90deg, rgba(56,189,248,0.08), #0ea5e9);
-    }
-
-    .metric-bar-fill--risk {
-      background: linear-gradient(90deg, rgba(248,250,252,0.1), #facc15);
-    }
-
-    .chart-card {
-      margin-top: 1.1rem;
-    }
-
-    .chart-wrapper {
-      position: relative;
-      width: 100%;
-      aspect-ratio: 16 / 9;
-      border-radius: var(--radius-xl);
-      border: 1px solid rgba(30,64,175,0.7);
-      background:
-        radial-gradient(circle at top left, rgba(56,189,248,0.15), transparent 60%),
-        rgba(15,23,42,0.96);
-      padding: 0.7rem 0.8rem 0.8rem;
-      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.9);
-      overflow: hidden;
-    }
-
-    .chart-wrapper canvas {
-      position: absolute;
-      inset: 0;
-      width: 100% !important;
-      height: 100% !important;
-    }
-
-    .chart-legend {
-      position: relative;
-      z-index: 2;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.6rem;
-      font-size: 0.8rem;
-      color: var(--muted);
       margin-bottom: 0.3rem;
     }
 
-    .legend-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.35rem;
+    .card-sub { color: var(--muted); font-size: 0.84rem; margin-bottom: 0.8rem; }
+    .regime-headline { margin: 0 0 0.4rem; font-size: clamp(1.55rem, 4vw, 2.2rem); line-height: 1.14; }
+    .regime-caption { margin: 0 0 0.75rem; color: var(--soft); line-height: 1.5; }
+
+    .metrics-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.85rem; }
+
+    .metric-card {
+      border-color: var(--border);
+      border-radius: var(--radius-lg);
+      padding: 0.95rem 0.95rem 1.05rem;
+      box-shadow: none;
     }
 
-    .legend-dot {
-      width: 0.75rem;
-      height: 0.4rem;
+    .metric-main { display: flex; align-items: baseline; gap: 0.35rem; margin-bottom: 0.35rem; }
+    .metric-value { font-size: clamp(1.8rem, 5vw, 2.45rem); font-weight: 700; }
+    .metric-unit { color: var(--muted); font-size: 0.95rem; }
+    .metric-caption { color: var(--soft); line-height: 1.55; font-size: 0.9rem; }
+
+    .metric-bar {
+      margin-top: 0.5rem;
+      height: 0.48rem;
       border-radius: 999px;
+      background: #020617;
+      border: 1px solid rgba(15,23,42,0.9);
+      overflow: hidden;
     }
 
-    .legend-dot.ic  { background: rgba(129,140,248,0.95); }
+    .metric-bar-fill { height: 100%; width: 0%; transition: width 0.6s ease; }
+    .metric-bar-fill--ic { background: linear-gradient(90deg, rgba(129,140,248,0.08), #6366f1); }
+    .metric-bar-fill--icd { background: linear-gradient(90deg, rgba(56,189,248,0.08), #0ea5e9); }
+    .metric-bar-fill--risk { background: linear-gradient(90deg, rgba(248,250,252,0.1), #facc15); }
+
+    .chart-card { margin-top: 1.1rem; }
+    .chart-wrapper {
+      position: relative;
+      width: 100%;
+      min-height: 320px;
+      border-radius: var(--radius-xl);
+      border: 1px solid var(--border);
+      background: radial-gradient(circle at top left, rgba(56,189,248,0.15), transparent 60%), var(--panel);
+      padding: 0.8rem;
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.9);
+    }
+
+    .chart-wrapper canvas { width: 100% !important; height: 300px !important; }
+    .chart-legend { display: flex; gap: 0.8rem; flex-wrap: wrap; color: var(--muted); font-size: 0.82rem; margin-bottom: 0.45rem; }
+    .legend-chip { display: inline-flex; align-items: center; gap: 0.35rem; }
+    .legend-dot { width: 0.75rem; height: 0.42rem; border-radius: 999px; }
+    .legend-dot.ic { background: rgba(129,140,248,0.95); }
     .legend-dot.icd { background: rgba(45,212,191,0.95); }
 
-    .summary-card {
-      margin-top: 1.1rem;
-      border-radius: var(--radius-xl);
-      border: 1px solid rgba(30,64,175,0.7);
-      background:
-        radial-gradient(circle at top left, rgba(56,189,248,0.15), transparent 60%),
-        rgba(15,23,42,0.96);
-      padding: 1.1rem 1.1rem 1.2rem;
-    }
-
-    .summary-title {
-      font-size: 0.82rem;
-      text-transform: uppercase;
-      letter-spacing: 0.13em;
-      color: var(--muted);
-      margin-bottom: 0.35rem;
-    }
-
-    .summary-main {
-      font-size: 0.88rem;
-      margin-bottom: 0.35rem;
-    }
-
-    .summary-main strong {
-      font-weight: 600;
-    }
-
-    .summary-list {
-      color: #cbd5e1;
-      padding-left: 1.2rem;
-      line-height: 1.6;
-      font-size: 0.82rem;
-      margin: 0 0 0.4rem;
-    }
-
-    .summary-note {
-      font-size: 0.76rem;
-      color: var(--muted);
-      margin-top: 0.3rem;
-    }
+    .summary-card { margin-top: 1.1rem; border-color: var(--border); padding: 1.1rem; }
+    .summary-main { color: var(--soft); line-height: 1.55; margin-bottom: 0.55rem; }
+    .summary-list { margin: 0 0 0.55rem; padding-left: 1.15rem; color: var(--soft); line-height: 1.6; font-size: 0.88rem; }
+    .summary-note { color: var(--muted); font-size: 0.8rem; line-height: 1.55; margin: 0.35rem 0 0; }
 
     .error-box {
-      margin-top: 0.8rem;
-      font-size: 0.78rem;
-      padding: 0.6rem 0.8rem;
+      margin-top: 0.9rem;
+      display: none;
+      padding: 0.7rem 0.85rem;
       border-radius: 0.9rem;
       border: 1px solid rgba(248,113,113,0.7);
       background: rgba(127,29,29,0.22);
       color: #fecaca;
-      display: none;
+      font-size: 0.82rem;
     }
   </style>
 </head>
@@ -413,169 +212,94 @@
     <header class="hero">
       <h1>Modelul Coeziv – Piața globală de active</h1>
       <p>
-        IC Global și ICD Global măsoară structura și direcționalitatea mediului global de risc
-        (SPX, VIX, DXY, aur, petrol). Valorile și regimul sunt calculate în backend, iar
-        această pagină doar le vizualizează.
+        IC Global și ICD Global descriu structura și direcționalitatea mediului global de risc
+        pe mai multe clase de active: SPX, VIX, DXY, aur și petrol. Pagina nu decide manual
+        regimul; ea citește rezultatul calculat în backend și îl explică în limbaj simplu.
       </p>
       <p id="macroHeadline" class="macro-headline">Se calculează contextul global…</p>
 
       <div class="pill-row">
-        <div class="pill">
-          <span class="pill-dot neutral"></span>
-          IC Global – structură coezivă multi-asset
-        </div>
-        <div class="pill">
-          <span class="pill-dot bull"></span>
-          ICD Global – bias pro-risc / defensiv
-        </div>
-        <div class="pill">
-          <span class="pill-dot"></span>
-          Macro-signal – risk-on / risk-off agregat
-        </div>
+        <div class="pill"><span class="pill-dot neutral"></span>IC Global – cât de aliniate sunt piețele</div>
+        <div class="pill"><span class="pill-dot neutral"></span>ICD Global – cât de puternic este impulsul direcțional</div>
+        <div class="pill"><span class="pill-dot"></span>Risk score – semnalul final al modelului</div>
       </div>
     </header>
 
     <section class="layout">
       <article class="card">
-        <div class="card-inner">
-          <div class="card-title">Regim global coeziv</div>
-          <div class="card-sub">
-            Ultima dată de actualizare: <span id="asOf">–</span>
-          </div>
+        <div class="card-title">Regim global coeziv</div>
+        <div class="card-sub">Ultima dată de actualizare: <span id="asOf">–</span></div>
 
-          <div class="regime-chip" id="regimeChip">
-            <span id="regimeDot" class="regime-dot neutral"></span>
-            <span>Regim global</span>
-            <span id="regimePillText">–</span>
-          </div>
-
-          <h2 id="regimeHeadline" class="regime-headline">–</h2>
-          <p id="regimeCaption" class="regime-caption">
-            Modelul așteaptă datele pentru a descrie regimul global.
-          </p>
-
-          <div style="margin-top:0.4rem;">
-            <span class="pill-small">
-              <span class="dot"></span>
-              <span id="icLevelBadge">IC Global: –</span>
-            </span>
-            <span class="pill-small" style="margin-left:0.4rem;">
-              <span class="dot"></span>
-              <span id="icdLevelBadge">ICD Global: –</span>
-            </span>
-          </div>
-
-          <div id="errorBox" class="error-box"></div>
+        <div class="regime-chip" id="regimeChip">
+          <span id="regimeDot" class="regime-dot neutral"></span>
+          <span>Regim global</span>
+          <span id="regimePillText">–</span>
         </div>
+
+        <h2 id="regimeHeadline" class="regime-headline">Se încarcă regimul…</h2>
+        <p id="regimeCaption" class="regime-caption">Aștept datele calculate de model.</p>
+
+        <div>
+          <span class="pill-small"><span class="dot"></span><span id="icLevelBadge">IC Global: –</span></span>
+          <span class="pill-small"><span class="dot"></span><span id="icdLevelBadge">ICD Global: –</span></span>
+        </div>
+
+        <div id="errorBox" class="error-box"></div>
       </article>
 
       <article class="card card--secondary">
-        <div class="card-inner">
-          <div class="card-title">Structură, direcționalitate și risc global</div>
-          <div class="card-sub">
-            Indici coezivi calculați din corelații multi-asset și randamente cumulative
-            risk-on / risk-off.
+        <div class="card-title">Structură, direcționalitate și risc global</div>
+        <p class="card-sub">
+          Textele de mai jos sunt generate din valorile curente ale modelului: IC, ICD,
+          risk score, macro-signal și regim global.
+        </p>
+
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-title">IC Global (structură)</div>
+            <div class="metric-main"><span id="icValue" class="metric-value">–</span><span class="metric-unit">/ 100</span></div>
+            <div id="icMeta" class="metric-caption">Se încarcă explicația structurală.</div>
+            <div class="metric-bar"><div id="icBar" class="metric-bar-fill metric-bar-fill--ic"></div></div>
           </div>
 
-          <div class="metrics-grid">
-            <div class="metric-card">
-              <div class="metric-title">IC Global (structură)</div>
-              <div class="metric-main">
-                <span id="icValue" class="metric-value">–</span>
-                <span class="metric-unit">/ 100</span>
-              </div>
-              <div class="metric-bar">
-                <div id="icBar" class="metric-bar-fill metric-bar-fill--ic"></div>
-              </div>
-              <p id="icMeta" class="metric-caption">
-                Indice structural global (IC Global). Valori ridicate indică o coerență
-                ridicată între principalele piețe de active.
-              </p>
-            </div>
+          <div class="metric-card">
+            <div class="metric-title">ICD Global (direcțional)</div>
+            <div class="metric-main"><span id="icdValue" class="metric-value">–</span><span class="metric-unit">/ 100</span></div>
+            <div id="icdMeta" class="metric-caption">Se încarcă explicația direcțională.</div>
+            <div class="metric-bar"><div id="icdBar" class="metric-bar-fill metric-bar-fill--icd"></div></div>
+          </div>
 
-            <div class="metric-card">
-              <div class="metric-title">ICD Global (direcțional)</div>
-              <div class="metric-main">
-                <span id="icdValue" class="metric-value">–</span>
-                <span class="metric-unit">/ 100</span>
-              </div>
-              <div class="metric-bar">
-                <div id="icdBar" class="metric-bar-fill metric-bar-fill--icd"></div>
-              </div>
-              <p id="icdMeta" class="metric-caption">
-                Indice direcțional global (ICD Global). Valori ridicate indică bias
-                pro-risc (risk-on), valori joase bias defensiv.
-              </p>
-            </div>
-
-            <div class="metric-card">
-              <div class="metric-title">Scor Coeziv de risc global</div>
-              <div class="metric-main">
-                <span id="riskScoreValue" class="metric-value">–</span>
-                <span class="metric-unit">(-1 … +1)</span>
-              </div>
-              <div class="metric-bar">
-                <div id="riskBar" class="metric-bar-fill metric-bar-fill--risk"></div>
-              </div>
-              <p id="riskMeta" class="metric-caption">
-                Scor derivat din structură și direcționalitate. Semnal macro:
-                <strong id="macroSignal">–</strong>.
-              </p>
-            </div>
+          <div class="metric-card">
+            <div class="metric-title">Scor coeziv de risc global</div>
+            <div class="metric-main"><span id="riskScoreValue" class="metric-value">–</span><span class="metric-unit">(-1 … +1)</span></div>
+            <div id="riskMeta" class="metric-caption">Se încarcă semnalul final.</div>
+            <div class="metric-bar"><div id="riskBar" class="metric-bar-fill metric-bar-fill--risk"></div></div>
           </div>
         </div>
       </article>
     </section>
 
     <section class="chart-card">
-      <div class="card card--secondary">
-        <div class="card-inner">
-          <div class="card-title">Istoric IC Global &amp; ICD Global</div>
-          <div class="card-sub">
-            Evoluția indicilor coezivi globali pe perioada disponibilă în date.
-          </div>
-
-          <div class="chart-wrapper">
-            <div class="chart-legend">
-              <div class="legend-chip">
-                <span class="legend-dot ic"></span>
-                <span>IC Global</span>
-              </div>
-              <div class="legend-chip">
-                <span class="legend-dot icd"></span>
-                <span>ICD Global</span>
-              </div>
-            </div>
-            <canvas id="globalChart"></canvas>
-          </div>
+      <div class="card-title">Istoric IC Global & ICD Global</div>
+      <p class="card-sub">Evoluția indicilor coezivi globali pe perioada disponibilă în date.</p>
+      <div class="chart-wrapper">
+        <div class="chart-legend">
+          <span class="legend-chip"><span class="legend-dot ic"></span>IC Global</span>
+          <span class="legend-chip"><span class="legend-dot icd"></span>ICD Global</span>
         </div>
+        <canvas id="globalChart"></canvas>
       </div>
     </section>
 
     <section class="summary-card">
-      <div class="summary-title">Rezumat simplificat al contextului global</div>
-      <p class="summary-main">
-        Interpretare practică:
-        <strong id="summaryHeadline">–</strong>
-      </p>
-
+      <div class="summary-title">Citire simplă a modelului</div>
+      <p id="summaryHeadline" class="summary-main">Se construiește interpretarea.</p>
       <ul class="summary-list">
-        <li>
-          <strong>IC Global ≈ <span id="summaryIcVal">–</span></strong>
-          <span id="summaryIcText"></span>
-        </li>
-        <li>
-          <strong>ICD Global ≈ <span id="summaryIcdVal">–</span></strong>
-          <span id="summaryIcdText"></span>
-        </li>
+        <li><strong>IC Global ≈ <span id="summaryIcVal">–</span></strong><span id="summaryIcText"></span></li>
+        <li><strong>ICD Global ≈ <span id="summaryIcdVal">–</span></strong><span id="summaryIcdText"></span></li>
       </ul>
-
-      <p class="summary-note">
-        Aceste informații descriu contextul global al riscului. Nu sunt recomandări
-        de cumpărare sau vânzare, ci un cadru de orientare: zonele ridicate sunt
-        asociate mai des cu faze mature pro-risc, iar zonele joase cu faze defensive
-        sau de acumulare. Folosește-le împreună cu propria analiză și cu orizontul tău
-        de timp.
+      <p id="summaryNote" class="summary-note">
+        Aceste informații descriu contextul global al riscului. Nu sunt recomandări de cumpărare sau vânzare.
       </p>
     </section>
   </main>
@@ -583,9 +307,7 @@
   <script>
     const DateTime = luxon.DateTime;
 
-    function clamp(x, lo, hi) {
-      return Math.min(hi, Math.max(lo, x));
-    }
+    function clamp(x, lo, hi) { return Math.min(hi, Math.max(lo, x)); }
 
     function toNumber(value, fallback = null) {
       const n = Number(value);
@@ -599,153 +321,160 @@
       return null;
     }
 
+    function normalizeSignal(signal) {
+      const s = String(signal || "echilibrat").toLowerCase();
+      if (s === "risk-on" || s === "risk-off") return s;
+      return "echilibrat";
+    }
+
+    function normalizeRegime(regime) {
+      const r = String(regime || "neutral").toLowerCase();
+      if (r === "bull" || r === "bear") return r;
+      return "neutral";
+    }
+
     function setModeClass(el, mode) {
       if (!el) return;
       el.classList.remove("bull", "bear", "neutral");
-      if (mode === "bull") el.classList.add("bull");
-      else if (mode === "bear") el.classList.add("bear");
-      else el.classList.add("neutral");
+      el.classList.add(mode === "bull" ? "bull" : mode === "bear" ? "bear" : "neutral");
     }
 
     function classifyLevel(value, low, high) {
-      if (value == null || !Number.isFinite(value)) {
-        return { level: "necunoscut", mode: "neutral" };
-      }
-      if (value >= high) return { level: "ridicat", mode: "bull" };
-      if (value <= low) return { level: "scăzut", mode: "bear" };
+      if (value == null || !Number.isFinite(value)) return { level: "necunoscut", mode: "neutral" };
+      if (value >= high) return { level: "ridicat", mode: "neutral" };
+      if (value <= low) return { level: "scăzut", mode: "neutral" };
       return { level: "mediu", mode: "neutral" };
     }
 
-    function describeIC(level) {
-      if (level === "ridicat") {
-        return "Structură globală coerentă: principalele piețe de active sunt aliniate.";
-      }
-      if (level === "scăzut") {
-        return "Structură globală fragmentată: mesaje divergente între clasele de active.";
-      }
-      if (level === "mediu") {
-        return "Structură globală moderată: coerență prezentă, dar fără extremă clară.";
-      }
-      return "Indice structural global (IC Global).";
+    function signalLabel(macroSignal) {
+      const s = normalizeSignal(macroSignal);
+      if (s === "risk-on") return "pro-risc";
+      if (s === "risk-off") return "defensiv";
+      return "echilibrat";
     }
 
-    function describeICD(level) {
+    function regimeLabel(regimeCode) {
+      const r = normalizeRegime(regimeCode);
+      if (r === "bull") return "Regim constructiv / risk-on";
+      if (r === "bear") return "Regim defensiv / risk-off";
+      return "Regim neutru / de tranziție";
+    }
+
+    function describeIC(level, icVal, macroSignal, regimeCode) {
+      const signal = signalLabel(macroSignal);
+      const regime = regimeLabel(regimeCode).toLowerCase();
+
       if (level === "ridicat") {
-        return "Bias pro-risc: mediul favorizează expunerea pe active ciclice.";
+        return `Structura este ridicată: piețele urmărite sunt bine aliniate. Aceasta arată coerență, nu direcția finală. În modelul curent, semnalul final este ${signal}, iar regimul este ${regime}.`;
       }
       if (level === "scăzut") {
-        return "Bias defensiv: fluxuri orientate spre refugii și protecție.";
+        return `Structura este scăzută: piețele transmit mesaje diferite. Modelul citește un mediu mai fragmentat, cu semnal final ${signal}.`;
       }
       if (level === "mediu") {
-        return "Bias direcțional mixt: nici clar pro-risc, nici clar defensiv.";
+        return `Structura este medie: există aliniere parțială între piețe, dar fără o extremă clară. Semnalul final al modelului este ${signal}.`;
       }
-      return "Indice direcțional global (ICD Global).";
+      return "IC Global arată cât de coerent se mișcă împreună piețele urmărite.";
+    }
+
+    function describeICD(level, icdVal, macroSignal, regimeCode, riskScore) {
+      const signal = signalLabel(macroSignal);
+      const r = normalizeRegime(regimeCode);
+      const rs = Number.isFinite(riskScore) ? riskScore : 0;
+      const strength = Math.abs(rs) >= 0.35 ? "puternic" : Math.abs(rs) >= 0.15 ? "moderat" : "slab";
+
+      if (level === "ridicat") {
+        return `Direcționalitatea este ridicată: mișcarea dintre active are impuls clar. ICD ridicat nu înseamnă automat risk-on; direcția finală este dată de faza coezivă și de risk score. Acum semnalul final este ${signal}, cu intensitate ${strength}.`;
+      }
+      if (level === "scăzut") {
+        return `Direcționalitatea este scăzută: impulsul comun al activelor este redus sau defensiv. Semnalul final calculat de model este ${signal}.`;
+      }
+      if (level === "mediu") {
+        return `Direcționalitatea este medie: impulsul există, dar nu este dominant. Modelul îl combină cu structura și rezultă un semnal final ${signal}.`;
+      }
+      return "ICD Global arată cât de puternică este direcția comună a piețelor urmărite.";
     }
 
     function getHeadline(riskScore, macroSignal) {
-      const rs = typeof riskScore === "number" ? riskScore : 0;
+      const s = normalizeSignal(macroSignal);
+      const rs = Number.isFinite(riskScore) ? riskScore : 0;
       const absScore = Math.abs(rs);
 
-      if (absScore < 0.15) {
-        return "Zonă de echilibru / tranziție";
-      }
-
-      if (macroSignal === "risk-on") {
-        return absScore > 0.35
-          ? "Context global pro-risc"
-          : "Tranziție spre risk-on";
-      }
-
-      if (macroSignal === "risk-off") {
-        return absScore > 0.35
-          ? "Context global defensiv"
-          : "Tranziție spre risk-off";
-      }
-
+      if (absScore < 0.15 || s === "echilibrat") return "Zonă de echilibru / tranziție";
+      if (s === "risk-on") return absScore > 0.35 ? "Context global pro-risc" : "Tranziție spre pro-risc";
+      if (s === "risk-off") return absScore > 0.35 ? "Context global defensiv" : "Tranziție spre defensiv";
       return "Zonă de echilibru / tranziție";
     }
 
-    function describeRegime(regime, riskScore) {
-      const r = (regime || "neutral").toLowerCase();
-      const rs = typeof riskScore === "number" ? riskScore : 0;
+    function describeRegime(regimeCode, riskScore, macroSignal, backendDescription) {
+      const r = normalizeRegime(regimeCode);
+      const s = normalizeSignal(macroSignal);
+      const rs = Number.isFinite(riskScore) ? riskScore : 0;
+      const absScore = Math.abs(rs);
+      const strength = absScore >= 0.55 ? "puternic" : absScore >= 0.35 ? "clar" : absScore >= 0.15 ? "moderat" : "slab";
 
-      if (r === "bull") {
-        return {
-          title: "Regim coeziv bullish global",
-          text: "Structură solidă și fluxuri pro-risc în principalele piețe. Mediul încurajează asumarea de risc, cu accent pe active ciclice."
-        };
+      let title = "Regim neutru / de tranziție";
+      if (r === "bull") title = "Regim coeziv constructiv / risk-on";
+      if (r === "bear") title = "Regim coeziv defensiv / risk-off";
+
+      let directionText = "Modelul nu indică o extremă clară; contextul este de tranziție.";
+      if (s === "risk-on") {
+        directionText = `Risk score este pozitiv (${rs.toFixed(3)}), deci modelul indică un mediu ${strength} orientat spre asumarea de risc.`;
+      } else if (s === "risk-off") {
+        directionText = `Risk score este negativ (${rs.toFixed(3)}), deci modelul indică un mediu ${strength} orientat spre protecție și reducerea riscului.`;
       }
 
-      if (r === "bear") {
-        return {
-          title: "Regim coeziv bearish / defensiv",
-          text: "Structură relativ ridicată, dar cu fluxuri orientate spre protecție. Mediul favorizează active defensive și conservarea capitalului."
-        };
-      }
+      const sourceText = backendDescription
+        ? ` Interpretarea tehnică din backend: ${backendDescription}`
+        : "";
 
-      if (rs > 0.15) {
-        return {
-          title: "Tranziție spre risk-on",
-          text: "Context global aflat între defensiv și pro-risc, cu o ușoară înclinare spre asumarea de risc."
-        };
-      }
-
-      if (rs < -0.15) {
-        return {
-          title: "Tranziție spre defensiv",
-          text: "Context global aflat într-o fază de răcire, cu bias ușor spre protecție și reducerea riscului."
-        };
-      }
-
-      return {
-        title: "Regim neutru / de tranziție",
-        text: "Structură și direcționalitate mixte. Piața nu se află într-o extremă clară, iar schimbările de regim pot apărea mai ușor."
-      };
+      return { title, text: `${directionText}${sourceText}` };
     }
 
     function pointTime(d) {
       if (Number.isFinite(Number(d.t))) return Number(d.t);
-
       if (d.date) {
         const ms = Date.parse(String(d.date) + "T00:00:00Z");
         return Number.isFinite(ms) ? ms : null;
       }
-
       return null;
+    }
+
+    function riskExplanation(riskScore, macroSignal) {
+      const s = normalizeSignal(macroSignal);
+      const rs = Number.isFinite(riskScore) ? riskScore : 0;
+      const absScore = Math.abs(rs);
+      const strength = absScore >= 0.55 ? "puternic" : absScore >= 0.35 ? "clar" : absScore >= 0.15 ? "moderat" : "slab";
+
+      if (s === "risk-on") {
+        return `Risk score este pozitiv. Semnal macro: risk-on. Modelul indică un mediu ${strength} favorabil asumării de risc.`;
+      }
+      if (s === "risk-off") {
+        return `Risk score este negativ. Semnal macro: risk-off. Modelul indică un mediu ${strength} defensiv, în care protecția riscului devine mai importantă.`;
+      }
+      return "Risk score este aproape de zero. Semnal macro: echilibrat. Modelul nu indică o direcție dominantă.";
+    }
+
+    function buildSummary(icClass, icdClass, riskScore, macroSignal, regimeCode) {
+      const signal = signalLabel(macroSignal);
+      const regime = regimeLabel(regimeCode).toLowerCase();
+      const rs = Number.isFinite(riskScore) ? riskScore.toFixed(3) : "–";
+
+      return `Modelul citește o structură ${icClass.level} și o direcționalitate ${icdClass.level}. Combinarea lor prin faza coezivă dă risk score ${rs}, deci semnalul final este ${signal}, cu ${regime}.`;
     }
 
     async function initGlobal() {
       const errorBox = document.getElementById("errorBox");
 
       try {
-        const res = await fetch("data/global_coeziv_state.json?ts=" + Date.now(), {
-          cache: "no-store",
-        });
-
-        if (!res.ok) {
-          throw new Error("Nu pot încărca global_coeziv_state.json (" + res.status + ")");
-        }
+        const res = await fetch("data/global_coeziv_state.json?ts=" + Date.now(), { cache: "no-store" });
+        if (!res.ok) throw new Error("Nu pot încărca global_coeziv_state.json (" + res.status + ")");
 
         const data = await res.json();
-
         const series = Array.isArray(data.series) ? data.series : [];
-
-        /*
-          Compatibilitate cu ambele structuri:
-          veche: data.current, data.as_of, data.risk_score
-          nouă:  data.latest, data.updated_at, data.latest.risk_score
-        */
-        const latest =
-          data.latest ||
-          data.current ||
-          (series.length ? series[series.length - 1] : null);
-
-        if (!latest) {
-          throw new Error("Nu există date curente în global_coeziv_state.json");
-        }
+        const latest = data.latest || data.current || (series.length ? series[series.length - 1] : null);
+        if (!latest) throw new Error("Nu există date curente în global_coeziv_state.json");
 
         const thresholds = data.thresholds || {};
-
         const asOf = firstDefined(
           latest.date,
           data.as_of,
@@ -754,196 +483,58 @@
           data.updatedAt ? String(data.updatedAt).slice(0, 10) : null
         ) || "–";
 
-        const icVal = toNumber(firstDefined(
-          latest.ic_global,
-          latest.icGlobal
-        ));
-
-        const icdVal = toNumber(firstDefined(
-          latest.icd_global,
-          latest.icdGlobal
-        ));
-
-        const riskScore = toNumber(firstDefined(
-          latest.risk_score,
-          latest.riskScore,
-          data.risk_score,
-          data.riskScore
-        ));
-
-        const macroSignal = firstDefined(
-          latest.macro_signal,
-          latest.macroSignal,
-          data.macro_signal,
-          data.macroSignal
-        ) || "echilibrat";
-
-        const regimeCode = String(firstDefined(
-          latest.global_regime,
-          latest.globalRegime,
-          latest.regime,
-          data.global_regime,
-          data.globalRegime,
-          data.regime
-        ) || "neutral").toLowerCase();
+        const icVal = toNumber(firstDefined(latest.ic_global, latest.icGlobal));
+        const icdVal = toNumber(firstDefined(latest.icd_global, latest.icdGlobal));
+        const riskScore = toNumber(firstDefined(latest.risk_score, latest.riskScore, data.risk_score, data.riskScore));
+        const macroSignal = normalizeSignal(firstDefined(latest.macro_signal, latest.macroSignal, data.macro_signal, data.macroSignal));
+        const regimeCode = normalizeRegime(firstDefined(latest.global_regime, latest.globalRegime, latest.regime, data.global_regime, data.globalRegime, data.regime));
+        const backendDescription = firstDefined(latest.description, data.description, "");
 
         const icLow = toNumber(thresholds.ic_low, 40);
         const icHigh = toNumber(thresholds.ic_high, 65);
         const icdLow = toNumber(thresholds.icd_low, 40);
         const icdHigh = toNumber(thresholds.icd_high, 60);
 
-        const asOfEl = document.getElementById("asOf");
-        const icValueEl = document.getElementById("icValue");
-        const icdValueEl = document.getElementById("icdValue");
-        const icBar = document.getElementById("icBar");
-        const icdBar = document.getElementById("icdBar");
-        const icMetaEl = document.getElementById("icMeta");
-        const icdMetaEl = document.getElementById("icdMeta");
-        const icLevelBadge = document.getElementById("icLevelBadge");
-        const icdLevelBadge = document.getElementById("icdLevelBadge");
-
-        const riskScoreEl = document.getElementById("riskScoreValue");
-        const riskBar = document.getElementById("riskBar");
-        const riskMetaEl = document.getElementById("riskMeta");
-        const macroSignalEl = document.getElementById("macroSignal");
-
-        const regimeChip = document.getElementById("regimeChip");
-        const regimeDot = document.getElementById("regimeDot");
-        const regimePillText = document.getElementById("regimePillText");
-        const regimeHeadline = document.getElementById("regimeHeadline");
-        const regimeCaption = document.getElementById("regimeCaption");
-
-        const summaryHeadline = document.getElementById("summaryHeadline");
-        const summaryIcVal = document.getElementById("summaryIcVal");
-        const summaryIcdVal = document.getElementById("summaryIcdVal");
-        const summaryIcText = document.getElementById("summaryIcText");
-        const summaryIcdText = document.getElementById("summaryIcdText");
-        const macroHeadlineEl = document.getElementById("macroHeadline");
-
-        if (asOfEl) asOfEl.textContent = asOf;
-
-        if (macroHeadlineEl) {
-          macroHeadlineEl.textContent = getHeadline(riskScore ?? 0, macroSignal);
-        }
-
-        if (Number.isFinite(icVal)) {
-          icValueEl.textContent = icVal.toFixed(2);
-          icBar.style.width = clamp(icVal, 0, 100) + "%";
-        } else {
-          icValueEl.textContent = "–";
-          icBar.style.width = "0%";
-        }
-
-        if (Number.isFinite(icdVal)) {
-          icdValueEl.textContent = icdVal.toFixed(2);
-          icdBar.style.width = clamp(icdVal, 0, 100) + "%";
-        } else {
-          icdValueEl.textContent = "–";
-          icdBar.style.width = "0%";
-        }
-
         const icClass = classifyLevel(icVal, icLow, icHigh);
         const icdClass = classifyLevel(icdVal, icdLow, icdHigh);
+        const regimeDesc = describeRegime(regimeCode, riskScore ?? 0, macroSignal, backendDescription);
 
-        if (icMetaEl) icMetaEl.textContent = describeIC(icClass.level);
-        if (icdMetaEl) icdMetaEl.textContent = describeICD(icdClass.level);
+        document.getElementById("asOf").textContent = asOf;
+        document.getElementById("macroHeadline").textContent = getHeadline(riskScore ?? 0, macroSignal);
 
-        if (icLevelBadge) icLevelBadge.textContent = `IC Global: ${icClass.level}`;
-        if (icdLevelBadge) icdLevelBadge.textContent = `ICD Global: ${icdClass.level}`;
+        document.getElementById("icValue").textContent = Number.isFinite(icVal) ? icVal.toFixed(2) : "–";
+        document.getElementById("icBar").style.width = Number.isFinite(icVal) ? clamp(icVal, 0, 100) + "%" : "0%";
 
-        const regimeDesc = describeRegime(regimeCode, riskScore ?? 0);
+        document.getElementById("icdValue").textContent = Number.isFinite(icdVal) ? icdVal.toFixed(2) : "–";
+        document.getElementById("icdBar").style.width = Number.isFinite(icdVal) ? clamp(icdVal, 0, 100) + "%" : "0%";
 
-        if (regimeHeadline) regimeHeadline.textContent = regimeDesc.title;
-        if (regimeCaption) regimeCaption.textContent = regimeDesc.text;
+        document.getElementById("icMeta").textContent = describeIC(icClass.level, icVal, macroSignal, regimeCode);
+        document.getElementById("icdMeta").textContent = describeICD(icdClass.level, icdVal, macroSignal, regimeCode, riskScore ?? 0);
 
-        if (regimePillText) {
-          if (regimeCode === "bull") {
-            regimePillText.textContent = "Regim bullish global";
-          } else if (regimeCode === "bear") {
-            regimePillText.textContent = "Regim bearish global";
-          } else {
-            regimePillText.textContent = "Regim neutru / de tranziție";
-          }
-        }
+        document.getElementById("icLevelBadge").textContent = `IC Global: ${icClass.level}`;
+        document.getElementById("icdLevelBadge").textContent = `ICD Global: ${icdClass.level}`;
 
-        if (regimeChip) {
-          let mode = "neutral";
-          if (regimeCode === "bull") mode = "bull";
-          else if (regimeCode === "bear") mode = "bear";
-          setModeClass(regimeChip, mode);
-        }
+        document.getElementById("regimeHeadline").textContent = regimeDesc.title;
+        document.getElementById("regimeCaption").textContent = regimeDesc.text;
+        document.getElementById("regimePillText").textContent = regimeLabel(regimeCode);
 
-        if (regimeDot) {
-          regimeDot.classList.remove("bull", "bear", "neutral");
-          if (regimeCode === "bull") regimeDot.classList.add("bull");
-          else if (regimeCode === "bear") regimeDot.classList.add("bear");
-          else regimeDot.classList.add("neutral");
-        }
+        setModeClass(document.getElementById("regimeChip"), regimeCode === "bull" ? "bull" : regimeCode === "bear" ? "bear" : "neutral");
+        const regimeDot = document.getElementById("regimeDot");
+        regimeDot.classList.remove("bull", "bear", "neutral");
+        regimeDot.classList.add(regimeCode === "bull" ? "bull" : regimeCode === "bear" ? "bear" : "neutral");
 
-        if (riskScoreEl) {
-          riskScoreEl.textContent =
-            riskScore !== null && Number.isFinite(riskScore)
-              ? riskScore.toFixed(3)
-              : "–";
-        }
+        document.getElementById("riskScoreValue").textContent = riskScore !== null && Number.isFinite(riskScore) ? riskScore.toFixed(3) : "–";
+        document.getElementById("riskBar").style.width = riskScore !== null && Number.isFinite(riskScore) ? clamp((riskScore + 1) * 50, 0, 100) + "%" : "0%";
+        document.getElementById("riskMeta").textContent = riskExplanation(riskScore ?? 0, macroSignal);
 
-        if (riskBar) {
-          if (riskScore !== null && Number.isFinite(riskScore)) {
-            const pct = clamp((riskScore + 1) * 50, 0, 100);
-            riskBar.style.width = pct + "%";
-          } else {
-            riskBar.style.width = "0%";
-          }
-        }
-
-        if (macroSignalEl) macroSignalEl.textContent = macroSignal;
-
-        if (riskMetaEl) {
-          let extra = "";
-
-          if (riskScore !== null && Number.isFinite(riskScore)) {
-            if (riskScore > 0.3) {
-              extra = " Mediul este clar pro-risc.";
-            } else if (riskScore < -0.3) {
-              extra = " Mediul este clar defensiv.";
-            } else if (Math.abs(riskScore) < 0.1) {
-              extra = " Mediul este relativ echilibrat.";
-            }
-          }
-
-          riskMetaEl.innerHTML =
-            `Scor derivat din structură și direcționalitate. Semnal macro: ` +
-            `<strong>${macroSignal}</strong>.${extra}`;
-        }
-
-        if (summaryHeadline) {
-          if (regimeCode === "bull") {
-            summaryHeadline.textContent = "Context global pozitiv, cu bias pro-risc.";
-          } else if (regimeCode === "bear") {
-            summaryHeadline.textContent = "Context global defensiv / fragil.";
-          } else {
-            summaryHeadline.textContent = "Context global de tranziție, fără extremă clară.";
-          }
-        }
-
-        if (summaryIcVal) {
-          summaryIcVal.textContent = Number.isFinite(icVal) ? icVal.toFixed(0) : "–";
-        }
-
-        if (summaryIcdVal) {
-          summaryIcdVal.textContent = Number.isFinite(icdVal) ? icdVal.toFixed(0) : "–";
-        }
-
-        if (summaryIcText) {
-          summaryIcText.textContent = " – " + describeIC(icClass.level);
-        }
-
-        if (summaryIcdText) {
-          summaryIcdText.textContent = " – " + describeICD(icdClass.level);
-        }
+        document.getElementById("summaryHeadline").textContent = buildSummary(icClass, icdClass, riskScore ?? 0, macroSignal, regimeCode);
+        document.getElementById("summaryIcVal").textContent = Number.isFinite(icVal) ? icVal.toFixed(0) : "–";
+        document.getElementById("summaryIcdVal").textContent = Number.isFinite(icdVal) ? icdVal.toFixed(0) : "–";
+        document.getElementById("summaryIcText").textContent = " – " + describeIC(icClass.level, icVal, macroSignal, regimeCode);
+        document.getElementById("summaryIcdText").textContent = " – " + describeICD(icdClass.level, icdVal, macroSignal, regimeCode, riskScore ?? 0);
+        document.getElementById("summaryNote").textContent = "Citirea finală vine din combinația modelului, nu dintr-un singur indicator. IC arată structura, ICD arată impulsul direcțional, iar risk score stabilește semnalul final. Nu este recomandare financiară.";
 
         const ctx = document.getElementById("globalChart");
-
         if (ctx && series.length) {
           const cleanSeries = series
             .map(d => ({
@@ -978,10 +569,7 @@
             options: {
               responsive: true,
               maintainAspectRatio: false,
-              interaction: {
-                mode: "index",
-                intersect: false
-              },
+              interaction: { mode: "index", intersect: false },
               plugins: {
                 legend: { display: false },
                 tooltip: {
@@ -1003,42 +591,25 @@
                 x: {
                   type: "time",
                   time: { unit: "month" },
-                  ticks: {
-                    maxRotation: 0,
-                    autoSkipPadding: 24,
-                    color: "rgba(148,163,184,0.9)",
-                    font: { size: 11 }
-                  },
-                  grid: {
-                    color: "rgba(30,64,175,0.18)"
-                  }
+                  ticks: { color: "rgba(148,163,184,0.8)", maxTicksLimit: 7 },
+                  grid: { color: "rgba(15,23,42,0.5)" }
                 },
                 y: {
                   min: 0,
                   max: 100,
-                  ticks: {
-                    color: "rgba(148,163,184,0.9)",
-                    callback(value) {
-                      if (!Number.isFinite(value)) return "";
-                      return value.toFixed(0);
-                    }
-                  },
-                  grid: {
-                    color: "rgba(30,64,175,0.16)"
-                  }
+                  ticks: { color: "rgba(148,163,184,0.8)", stepSize: 20 },
+                  grid: { color: "rgba(30,64,175,0.35)" }
                 }
               }
             }
           });
         }
-
       } catch (err) {
+        console.error(err);
         if (errorBox) {
           errorBox.style.display = "block";
-          errorBox.textContent =
-            "Eroare la încărcarea stării globale coezive: " + err.message;
+          errorBox.textContent = err && err.message ? err.message : "Eroare necunoscută la încărcarea datelor.";
         }
-        console.error("[IC Global]", err);
       }
     }
 
