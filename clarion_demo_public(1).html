@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Clarion — Informații utile, explicate simplu</title>
+  <meta name="description" content="Clarion este o platformă demo de informații publice utile: ghiduri, explicații, actualizări și resurse practice pentru oameni ocupați." />
+  <style>
+    :root{
+      --ink:#121827;
+      --muted:#657085;
+      --soft:#f5f7fb;
+      --paper:#ffffff;
+      --line:#e6eaf2;
+      --brand:#0b63f6;
+      --brand-dark:#0747ad;
+      --accent:#12b981;
+      --gold:#f2b84b;
+      --red:#ef4444;
+      --radius:22px;
+      --shadow:0 18px 55px rgba(18,24,39,.10);
+      --max:1200px;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      color:var(--ink);
+      font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+      background:
+        radial-gradient(circle at 8% 0%, rgba(11,99,246,.14), transparent 30%),
+        radial-gradient(circle at 92% 10%, rgba(18,185,129,.16), transparent 28%),
+        linear-gradient(180deg,#fbfdff 0%,#f4f7fb 42%,#eef3f9 100%);
+      line-height:1.55;
+    }
+    a{text-decoration:none;color:inherit}
+    .wrap{width:min(var(--max),calc(100% - 34px));margin:auto}
+    .topline{background:#09111f;color:#eaf1ff;font-size:13px}
+    .topline .wrap{display:flex;justify-content:space-between;gap:16px;padding:9px 0;align-items:center;flex-wrap:wrap}
+    .live{display:flex;gap:8px;align-items:center;font-weight:800}
+    .dot{width:8px;height:8px;background:var(--accent);border-radius:50%;box-shadow:0 0 0 6px rgba(18,185,129,.16)}
+    header{position:sticky;top:0;background:rgba(255,255,255,.84);backdrop-filter:blur(18px);border-bottom:1px solid rgba(230,234,242,.75);z-index:30}
+    nav{display:flex;align-items:center;justify-content:space-between;padding:17px 0;gap:18px}
+    .brand{display:flex;align-items:center;gap:12px;font-weight:950;letter-spacing:.06em}
+    .mark{width:43px;height:43px;border-radius:14px;background:linear-gradient(135deg,var(--brand),#65a8ff);display:grid;place-items:center;color:white;font-weight:950;box-shadow:0 13px 26px rgba(11,99,246,.25)}
+    .navlinks{display:flex;gap:22px;color:#3c4658;font-weight:750;font-size:14px;align-items:center}
+    .navlinks a:hover{color:var(--brand)}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;border-radius:999px;padding:12px 18px;font-weight:900;border:1px solid transparent;transition:.2s ease;cursor:pointer;white-space:nowrap}
+    .btn.primary{background:var(--brand);color:white;box-shadow:0 14px 30px rgba(11,99,246,.24)}
+    .btn.primary:hover{transform:translateY(-1px);background:var(--brand-dark)}
+    .btn.ghost{border-color:var(--line);background:white;color:var(--ink)}
+    .btn.ghost:hover{border-color:#c7d0df;transform:translateY(-1px)}
+    .hero{padding:58px 0 30px}
+    .hero-grid{display:grid;grid-template-columns:1.12fr .88fr;gap:28px;align-items:stretch}
+    .hero-card{background:rgba(255,255,255,.78);border:1px solid rgba(230,234,242,.95);box-shadow:var(--shadow);border-radius:34px;padding:34px;overflow:hidden;position:relative}
+    .hero-card:after{content:"";position:absolute;right:-90px;top:-90px;width:240px;height:240px;border-radius:50%;background:rgba(11,99,246,.10)}
+    .kicker{display:inline-flex;align-items:center;gap:8px;border:1px solid #cfe0ff;background:#eef5ff;color:#0849ad;border-radius:999px;font-weight:900;font-size:13px;padding:8px 12px;margin-bottom:20px}
+    h1{font-size:clamp(39px,6vw,72px);line-height:.97;margin:0 0 20px;letter-spacing:-.055em}
+    .lead{font-size:clamp(17px,2vw,21px);color:#536078;margin:0 0 26px;max-width:720px}
+    .searchbar{display:flex;gap:10px;background:#f0f4fa;border:1px solid #dce4ef;border-radius:19px;padding:8px;max-width:640px;margin:24px 0 22px}
+    .searchbar input{flex:1;border:0;background:transparent;padding:12px 12px;font-size:16px;outline:0;color:var(--ink)}
+    .chips{display:flex;gap:9px;flex-wrap:wrap;margin-top:18px}
+    .chip{padding:8px 12px;border-radius:999px;border:1px solid var(--line);background:white;color:#4b5568;font-size:13px;font-weight:800}
+    .side-feature{display:flex;flex-direction:column;gap:16px}
+    .today{background:#09111f;color:white;border-radius:34px;padding:27px;box-shadow:var(--shadow);min-height:280px;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden}
+    .today:before{content:"";position:absolute;inset:auto -80px -90px auto;width:220px;height:220px;background:rgba(18,185,129,.22);border-radius:50%}
+    .today small{color:#aab6ca;font-weight:850;text-transform:uppercase;letter-spacing:.08em}
+    .today h2{font-size:31px;line-height:1.05;margin:12px 0 13px;letter-spacing:-.03em}
+    .today p{color:#d6deed;margin:0;position:relative}
+    .brief{background:white;border:1px solid var(--line);border-radius:28px;padding:22px;box-shadow:0 10px 35px rgba(18,24,39,.06)}
+    .brief h3{margin:0 0 12px;font-size:18px}
+    .brief-row{display:flex;justify-content:space-between;gap:14px;border-top:1px solid var(--line);padding:13px 0;color:#465368;font-weight:750}
+    .brief-row:first-of-type{border-top:0}
+    .tag{font-size:12px;border-radius:999px;padding:5px 9px;font-weight:950;color:white;background:var(--brand);align-self:center}
+    .section{padding:44px 0}
+    .section-head{display:flex;justify-content:space-between;align-items:end;gap:22px;margin-bottom:22px}
+    .section h2{font-size:34px;line-height:1.05;margin:0;letter-spacing:-.035em}
+    .section p.sub{margin:8px 0 0;color:var(--muted);font-size:17px;max-width:700px}
+    .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+    .grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+    .article{background:white;border:1px solid var(--line);border-radius:26px;overflow:hidden;box-shadow:0 12px 36px rgba(18,24,39,.06);transition:.2s ease;display:flex;flex-direction:column;min-height:100%}
+    .article:hover{transform:translateY(-3px);box-shadow:var(--shadow)}
+    .thumb{height:158px;background:linear-gradient(135deg,#dce8ff,#f1f7ff);display:flex;align-items:end;padding:16px;position:relative;overflow:hidden}
+    .thumb:before{content:"";position:absolute;right:-30px;top:-30px;width:120px;height:120px;border-radius:34px;background:rgba(11,99,246,.18);transform:rotate(18deg)}
+    .thumb.green{background:linear-gradient(135deg,#dff8ed,#f6fffb)}
+    .thumb.gold{background:linear-gradient(135deg,#fff1cf,#fffaf0)}
+    .thumb.dark{background:linear-gradient(135deg,#111827,#34405a);color:white}
+    .label{position:relative;background:rgba(255,255,255,.88);border:1px solid rgba(255,255,255,.8);border-radius:999px;padding:7px 10px;font-size:12px;font-weight:950;color:#263246}
+    .thumb.dark .label{background:rgba(255,255,255,.14);color:white;border-color:rgba(255,255,255,.22)}
+    .article-body{padding:20px;display:flex;flex-direction:column;gap:12px;flex:1}
+    .meta{font-size:13px;color:#7a8496;font-weight:800}
+    .article h3{font-size:21px;line-height:1.15;margin:0;letter-spacing:-.02em}
+    .article p{margin:0;color:#5b667a}
+    .read{margin-top:auto;color:var(--brand);font-weight:950}
+    .category{background:white;border:1px solid var(--line);border-radius:23px;padding:22px;box-shadow:0 10px 30px rgba(18,24,39,.05)}
+    .icon{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;background:#eef5ff;color:var(--brand);font-weight:950;margin-bottom:16px}
+    .category h3{margin:0 0 7px;font-size:19px}
+    .category p{margin:0;color:var(--muted);font-size:14px}
+    .feature-band{background:#09111f;color:white;border-radius:36px;padding:34px;display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:center;box-shadow:var(--shadow);position:relative;overflow:hidden}
+    .feature-band:before{content:"";position:absolute;left:-100px;bottom:-110px;width:300px;height:300px;border-radius:50%;background:rgba(11,99,246,.25)}
+    .feature-band > *{position:relative}
+    .feature-band h2{font-size:42px;margin:0 0 14px;letter-spacing:-.04em;line-height:1.02}
+    .feature-band p{color:#cfd8e8;font-size:18px;margin:0 0 20px}
+    .steps{display:grid;gap:12px}
+    .step{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:16px;display:flex;gap:14px;align-items:flex-start}
+    .num{min-width:32px;height:32px;border-radius:50%;background:white;color:#09111f;display:grid;place-items:center;font-weight:950}
+    .step strong{display:block;margin-bottom:3px}
+    .step span{color:#bec8da;font-size:14px}
+    .premium{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px}
+    .price{background:white;border:1px solid var(--line);border-radius:28px;padding:24px;box-shadow:0 12px 36px rgba(18,24,39,.06)}
+    .price.featured{border:2px solid var(--brand);transform:scale(1.015)}
+    .price h3{font-size:22px;margin:0 0 8px}
+    .money{font-size:36px;font-weight:950;letter-spacing:-.04em;margin:10px 0}
+    .price p{color:var(--muted);margin:0 0 16px}
+    .price ul{padding-left:18px;margin:0;color:#465368}
+    .price li{margin:8px 0}
+    .newsletter{background:linear-gradient(135deg,#0b63f6,#0a3d91);border-radius:36px;color:white;padding:36px;display:grid;grid-template-columns:1.1fr .9fr;gap:28px;align-items:center;box-shadow:var(--shadow)}
+    .newsletter h2{font-size:40px;margin:0 0 12px;line-height:1.02;letter-spacing:-.04em}
+    .newsletter p{color:#dce8ff;font-size:17px;margin:0}
+    .form{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:24px;padding:14px;display:flex;gap:10px}
+    .form input{flex:1;border:0;border-radius:15px;padding:14px;font-size:15px;outline:0}
+    footer{padding:38px 0 48px;color:#606b7e}
+    .footgrid{border-top:1px solid var(--line);padding-top:26px;display:flex;justify-content:space-between;gap:22px;flex-wrap:wrap}
+    .mini-links{display:flex;gap:16px;flex-wrap:wrap;font-weight:800;color:#3e4859}
+    .notice{background:#fff8e6;border:1px solid #ffe1a3;color:#6b4c12;border-radius:20px;padding:16px;margin-top:18px;font-size:14px}
+    .source{display:flex;align-items:center;gap:8px;font-size:12px;color:#7a8496;font-weight:750;border-top:1px solid var(--line);padding-top:10px;margin-top:2px}
+    .source .check{display:inline-flex;align-items:center;gap:5px;color:#0a8a5c;font-weight:900}
+    .editorial{background:white;border:1px solid var(--line);border-radius:26px;padding:26px;box-shadow:0 10px 30px rgba(18,24,39,.05)}
+    .editorial ol{margin:14px 0 0;padding-left:20px;color:#465368}
+    .editorial li{margin:8px 0}
+    @media(max-width:900px){.hero-grid,.feature-band,.newsletter{grid-template-columns:1fr}.grid3,.premium{grid-template-columns:1fr}.grid4{grid-template-columns:repeat(2,1fr)}.navlinks{display:none}.searchbar,.form{flex-direction:column}.price.featured{transform:none}}
+    @media(max-width:560px){.grid4{grid-template-columns:1fr}.hero-card,.today,.feature-band,.newsletter{border-radius:26px;padding:24px}.section h2{font-size:29px}.today h2,.newsletter h2,.feature-band h2{font-size:31px}}
+  </style>
+</head>
+<body>
+  <div class="topline">
+    <div class="wrap">
+      <div class="live"><span class="dot"></span> Demo public — platformă informațională pregătită pentru lansare</div>
+      <div>Actualizări zilnice · Ghiduri practice · Resurse verificate</div>
+    </div>
+  </div>
+
+  <header>
+    <nav class="wrap">
+      <a class="brand" href="#"><span class="mark">C</span><span>CLARION</span></a>
+      <div class="navlinks">
+        <a href="#ghiduri">Ghiduri</a>
+        <a href="#actualizari">Actualizări</a>
+        <a href="#resurse">Resurse</a>
+        <a href="#premium">Premium</a>
+        <a href="#politica">Politică editorială</a>
+      </div>
+      <a class="btn primary" href="#newsletter">Primește brief-ul</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="wrap hero-grid">
+        <div class="hero-card">
+          <span class="kicker">Informația importantă, filtrată pentru oameni reali</span>
+          <h1>Înțelegi rapid ce contează. Fără zgomot. Fără pierdere de timp.</h1>
+          <p class="lead">Clarion transformă informațiile publice, actualizările legislative, schimbările administrative și temele de interes în ghiduri clare, verificabile și ușor de folosit.</p>
+          <div class="searchbar">
+            <input placeholder="Caută: taxe, muncă, sănătate, acte, drepturi..." aria-label="Caută informații" />
+            <a class="btn primary" href="#actualizari">Caută</a>
+          </div>
+          <div class="chips">
+            <span class="chip">Acte & instituții</span>
+            <span class="chip">Muncă & venituri</span>
+            <span class="chip">Sănătate practică</span>
+            <span class="chip">Finanțe personale</span>
+            <span class="chip">Ghiduri pas cu pas</span>
+          </div>
+        </div>
+
+        <div class="side-feature">
+          <article class="today">
+            <div>
+              <small>Brief-ul zilei</small>
+              <h2>5 schimbări pe care merită să le verifici săptămâna aceasta</h2>
+              <p>Un rezumat scurt cu impact practic: ce s-a modificat, cine este afectat și ce pași trebuie făcuți.</p>
+            </div>
+            <a class="btn ghost" href="#actualizari">Vezi brief-ul complet</a>
+          </article>
+          <div class="brief">
+            <h3>Urmărite acum</h3>
+            <div class="brief-row"><span>Termene administrative</span><span class="tag">Nou</span></div>
+            <div class="brief-row"><span>Documente pentru muncă</span><span class="tag" style="background:#12b981">Util</span></div>
+            <div class="brief-row"><span>Buget personal lunar</span><span class="tag" style="background:#f2b84b;color:#2a210c">Ghid</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="actualizari" class="section">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <h2>Actualizări importante</h2>
+            <p class="sub">Conținut demonstrativ: felul în care platforma ar arăta pentru public, cu articole clare și utile.</p>
+          </div>
+          <a class="btn ghost" href="#">Toate articolele</a>
+        </div>
+        <div class="grid3">
+          <article class="article">
+            <div class="thumb"><span class="label">Administrație</span></div>
+            <div class="article-body">
+              <div class="meta">2 iulie 2026 · 4 min citire</div>
+              <h3>Cum verifici rapid dacă o cerere a fost înregistrată corect</h3>
+              <p>Pașii esențiali: număr de înregistrare, dovadă de primire, termen legal și urmărire scrisă.</p>
+              <a class="read" href="#">Citește ghidul →</a>
+              <div class="source"><span class="check">✓ Verificat</span> · Sursă: portal instituțional · verificat 1 iul. 2026</div>
+            </div>
+          </article>
+          <article class="article">
+            <div class="thumb green"><span class="label">Muncă</span></div>
+            <div class="article-body">
+              <div class="meta">Actualizat 28 iun. 2026 · 6 min citire</div>
+              <h3>Ce documente păstrezi când lucrezi temporar sau independent</h3>
+              <p>Contracte, facturi, ore lucrate, mesaje relevante și dovezi de plată: de ce contează fiecare.</p>
+              <a class="read" href="#">Vezi lista →</a>
+              <div class="source"><span class="check">✓ Verificat</span> · Sursă: legislație muncă + interviu specialist · verificat 28 iun. 2026</div>
+            </div>
+          </article>
+          <article class="article">
+            <div class="thumb gold"><span class="label">Bani</span></div>
+            <div class="article-body">
+              <div class="meta">Popular · actualizat 15 iun. 2026 · 5 min citire</div>
+              <h3>Buget minim lunar: cum calculezi realist cât trebuie să-ți rămână</h3>
+              <p>O metodă simplă pentru chirie, hrană, transport, datorii, rezerve și cheltuieli neprevăzute.</p>
+              <a class="read" href="#">Deschide calculatorul →</a>
+              <div class="source"><span class="check">✓ Verificat</span> · Metodologie proprie · verificat 15 iun. 2026</div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="ghiduri" class="section">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <h2>Categorii clare</h2>
+            <p class="sub">Platforma nu publică „de toate”, ci organizează informația în trasee practice.</p>
+          </div>
+        </div>
+        <div class="grid4">
+          <div class="category"><div class="icon">01</div><h3>Acte & instituții</h3><p>Cereri, termene, răspunsuri, contestații, pași administrativi.</p></div>
+          <div class="category"><div class="icon">02</div><h3>Muncă & venituri</h3><p>Contracte, activitate independentă, taxe, documente și drepturi.</p></div>
+          <div class="category"><div class="icon">03</div><h3>Sănătate practică</h3><p>Informații explicate simplu, cu prudență și trimitere către specialist.</p></div>
+          <div class="category"><div class="icon">04</div><h3>Finanțe personale</h3><p>Bugete, datorii, rate, economii, decizii și riscuri explicate clar.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap feature-band">
+        <div>
+          <h2>Din informație brută în conținut publicabil.</h2>
+          <p>Modelul editorial Clarion primește materiale, le verifică, le structurează și le transformă în articole, fișe, checklist-uri și brief-uri.</p>
+          <a class="btn primary" href="#resurse">Vezi formatul editorial</a>
+        </div>
+        <div class="steps">
+          <div class="step"><span class="num">1</span><div><strong>Primim informația</strong><span>Texte, documente, observații, linkuri, cazuri sau note scurte.</span></div></div>
+          <div class="step"><span class="num">2</span><div><strong>O filtrăm și o clarificăm</strong><span>Separăm faptele de opinii, identificăm sursele și stabilim utilitatea.</span></div></div>
+          <div class="step"><span class="num">3</span><div><strong>Publicăm util</strong><span>Articol, ghid, checklist, newsletter sau material premium.</span></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="resurse" class="section">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <h2>Resurse rapide</h2>
+            <p class="sub">Zona care ar face platforma utilă imediat: modele, fișe, instrumente și explicații scurte.</p>
+          </div>
+        </div>
+        <div class="grid3">
+          <article class="article">
+            <div class="thumb dark"><span class="label">Checklist</span></div>
+            <div class="article-body"><h3>Înainte să trimiți o cerere oficială</h3><p>Verifică destinatarul, temeiul, probele, termenul și dovada de transmitere.</p><a class="read" href="#">Descarcă demo →</a></div>
+          </article>
+          <article class="article">
+            <div class="thumb"><span class="label">Model</span></div>
+            <div class="article-body"><h3>Structură simplă pentru o sesizare</h3><p>Un format curat: context, solicitare, documente anexate, termen de răspuns.</p><a class="read" href="#">Vezi modelul →</a></div>
+          </article>
+          <article class="article">
+            <div class="thumb green"><span class="label">Calculator</span></div>
+            <div class="article-body"><h3>Estimare buget personal</h3><p>Instrument demonstrativ pentru cheltuieli fixe, variabile și marjă de siguranță.</p><a class="read" href="#">Testează →</a></div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="premium" class="section">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <h2>Model financiar vizibil</h2>
+            <p class="sub">Demo de monetizare: gratuit pentru public, premium pentru materiale aprofundate și instrumente.</p>
+          </div>
+        </div>
+        <div class="premium">
+          <div class="price">
+            <h3>Gratuit</h3>
+            <p>Pentru cititori ocazionali.</p>
+            <div class="money">0 €</div>
+            <ul><li>Articole publice</li><li>Brief săptămânal</li><li>Ghiduri de bază</li></ul>
+          </div>
+          <div class="price featured">
+            <h3>Clarion Plus</h3>
+            <p>Pentru oameni care vor pași concreți.</p>
+            <div class="money">7 €<small>/lună</small></div>
+            <ul><li>Checklist-uri premium</li><li>Modele PDF</li><li>Arhivă de ghiduri</li><li>Actualizări prioritare</li></ul>
+          </div>
+          <div class="price">
+            <h3>Partener</h3>
+            <p>Pentru specialiști și servicii locale.</p>
+            <div class="money">Custom</div>
+            <ul><li>Lead-uri calificate</li><li>Articole sponsorizate marcate</li><li>Pagini de servicii</li></ul>
+          </div>
+        </div>
+        <div class="notice">Notă demo: prețurile și materialele sunt exemple pentru prezentare. În versiunea reală se pot adapta în funcție de nișă, țară, public și reglementări.</div>
+      </div>
+    </section>
+
+    <section id="politica" class="section">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <h2>Politica editorială, pe scurt</h2>
+            <p class="sub">Ce înseamnă concret „verificat" pentru Clarion — nu doar o etichetă, ci un proces.</p>
+          </div>
+        </div>
+        <div class="editorial">
+          <ol>
+            <li><strong>Sursă identificată.</strong> Fiecare articol indică de unde vine informația: text de lege, document instituțional, interviu cu specialist sau metodologie proprie explicată.</li>
+            <li><strong>Dată de verificare vizibilă.</strong> Nu folosim etichete vagi ca „Astăzi" sau „Actualizat" — fiecare piesă de conținut are o dată exactă a ultimei verificări.</li>
+            <li><strong>Separare fapt / opinie.</strong> Recomandările editoriale sunt marcate distinct de informația factuală (ex. termene legale, praguri, formulare).</li>
+            <li><strong>Corecții publice.</strong> Dacă un articol e corectat după publicare, păstrăm un istoric vizibil al modificării, nu o rescriem tăcut.</li>
+            <li><strong>Limite declarate.</strong> Acolo unde o temă necesită un specialist autorizat (fiscal, juridic, medical), articolul recomandă explicit consultarea unuia, în loc să pretindă că înlocuiește sfatul acestuia.</li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <section id="newsletter" class="section">
+      <div class="wrap newsletter">
+        <div>
+          <h2>Primește brief-ul care economisește timp.</h2>
+          <p>O dată pe săptămână: cele mai utile actualizări, explicate fără limbaj complicat.</p>
+        </div>
+        <form class="form">
+          <input type="email" placeholder="adresa@email.com" />
+          <button class="btn primary" type="button" style="background:#09111f">Abonează-mă</button>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap footgrid">
+      <div><strong>CLARION</strong><br/>Informații utile, explicate simplu.</div>
+      <div class="mini-links"><a href="#">Despre</a><a href="#">Contact</a><a href="#politica">Politică editorială</a><a href="#">Termeni</a></div>
+    </div>
+  </footer>
+</body>
+</html>
