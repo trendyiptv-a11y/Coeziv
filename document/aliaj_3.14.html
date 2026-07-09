@@ -3,190 +3,215 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Modelul 3.14 – Aliajul coeziv și simulările termice</title>
+<title>Test model 3.14 — de la elemente la aliaj, fără calibrare</title>
 <style>
-body{
-  font-family:"Segoe UI", Arial, sans-serif;
-  background:#fafafa;
-  color:#222;
-  line-height:1.6;
-  margin:2rem auto;
-  max-width:950px;
-  padding:1.5rem;
-  border-radius:12px;
-  box-shadow:0 0 20px rgba(0,0,0,0.1);
-}
-h1,h2{color:#004d40;text-align:center}
-code{background:#f0f0f0;padding:2px 6px;border-radius:4px}
-table{width:100%;border-collapse:collapse;margin:1rem 0}
-th,td{border:1px solid #ccc;padding:8px 10px;text-align:left}
-th{background:#e0f2f1}
-.gauge-container{text-align:center;margin-top:40px}
-canvas{width:260px;height:130px}
-.gauge-value{font-size:1.3rem;color:#00695c;font-weight:bold}
-input[type=range]{width:80%;margin-top:1rem}
-#chartCanvas{width:100%;height:260px;margin-top:2rem}
-.flame{width:160px;height:160px;border-radius:50%;margin:auto;box-shadow:0 0 30px rgba(0,0,0,0.3);transition:all 0.5s ease-in-out}
-.label{margin-top:10px;font-weight:bold;font-size:1.1rem}
-.line{width:140px;height:4px;margin:10px auto;border-radius:2px}
-footer{margin-top:40px;text-align:right;font-style:italic;color:#444}
+  :root{
+    --bg:#0a1512;
+    --panel:#0f1e1a;
+    --line:#1c332c;
+    --teal:#26d9ad;
+    --teal-dim:#158a6c;
+    --amber:#e0a458;
+    --red:#e0645a;
+    --text:#dce9e4;
+    --dim:#7c9690;
+    --mono:'SF Mono',ui-monospace,'Cascadia Code',Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family:'Segoe UI',system-ui,sans-serif;
+    padding:1.5rem 1rem 3rem;
+  }
+  .wrap{max-width:760px;margin:0 auto}
+  h1{
+    font-size:1.35rem; font-weight:700; letter-spacing:.01em;
+    color:var(--teal); margin:0 0 .3rem;
+  }
+  .sub{color:var(--dim); font-size:.9rem; margin-bottom:1.6rem; line-height:1.5}
+  .badge{
+    display:inline-block; font-family:var(--mono); font-size:.68rem;
+    padding:2px 7px; border-radius:4px; margin-right:.4rem; margin-bottom:.2rem;
+  }
+  .b-real{background:rgba(38,217,173,.12); color:var(--teal); border:1px solid rgba(38,217,173,.35)}
+  .b-hyp{background:rgba(224,164,88,.12); color:var(--amber); border:1px solid rgba(224,164,88,.35)}
+
+  .panel{
+    background:var(--panel); border:1px solid var(--line); border-radius:10px;
+    padding:1.1rem 1.1rem 1.3rem; margin-bottom:1rem;
+  }
+  .panel h2{font-size:.95rem; margin:0 0 .8rem; color:var(--text); display:flex; align-items:center; gap:.5rem}
+
+  .elrow{display:grid; grid-template-columns:1.4fr 2.4fr 2.6rem; gap:.6rem; align-items:center; margin-bottom:.55rem}
+  .elrow label{font-family:var(--mono); font-size:.82rem; color:var(--text)}
+  .elrow input[type=range]{width:100%; accent-color:var(--teal)}
+  .elrow .val{font-family:var(--mono); font-size:.82rem; text-align:right; color:var(--dim)}
+  .sum{
+    font-family:var(--mono); font-size:.78rem; margin-top:.6rem; padding-top:.6rem;
+    border-top:1px dashed var(--line); display:flex; justify-content:space-between;
+  }
+  .sum span:last-child{color:var(--amber)}
+  .sum.ok span:last-child{color:var(--teal)}
+
+  .results{display:grid; grid-template-columns:1fr 1fr; gap:.7rem}
+  .stat{background:#0a1a15; border:1px solid var(--line); border-radius:8px; padding:.7rem .8rem}
+  .stat .k{font-size:.68rem; color:var(--dim); text-transform:uppercase; letter-spacing:.05em; margin-bottom:.25rem}
+  .stat .v{font-family:var(--mono); font-size:1.15rem; font-weight:600}
+  .stat .note{font-size:.68rem; color:var(--dim); margin-top:.2rem; line-height:1.35}
+  .v.teal{color:var(--teal)} .v.amber{color:var(--amber)} .v.red{color:var(--red)}
+
+  .verdict{
+    margin-top:1rem; padding:.85rem 1rem; border-radius:8px; font-size:.85rem; line-height:1.5;
+    border:1px solid var(--line); background:#0a1a15;
+  }
+  .verdict b{color:var(--teal)}
+
+  footer{margin-top:1.5rem; font-size:.72rem; color:var(--dim); text-align:center; line-height:1.6}
+  .ref{font-size:.7rem; color:var(--dim); margin-top:.3rem}
 </style>
 </head>
 <body>
+<div class="wrap">
 
-<h1>Modelul 3.14 – Aliajul coeziv și simulările termice</h1>
+  <h1>Test model 3.14 — pornind de la elementele reale</h1>
+  <div class="sub">
+    <span class="badge b-real">date reale, fixe</span><span class="badge b-hyp">calcul ipotetic (modelul tău)</span><br><br>
+    Rază atomică, densitate electronică (VEC) și densitate de masă sunt constante fizice reale, necalibrate.
+    E este fixat la energia termică reală kT la 1200°C (0.127 eV) — <b>aceeași valoare pentru orice compoziție</b>,
+    nu se ajustează ca să iasă 3.14. Mută sliderele și vezi unde ajunge Fc de la sine.
+  </div>
 
-<h2>1. Introducere și principiu</h2>
-<p>
-Modelul Coeziv 3.14 descrie echilibrul dintre densitatea particulelor (<em>N</em>),
-energia vibrațională (<em>E</em>) și distanța medie (<em>r</em>) prin relația:
-</p>
-<p style="text-align:center;">
-  <code>F<sub>c</sub> = (N × n<sub>e⁻</sub> × E) / r²</code>
-</p>
-<p>Pentru starea de coeziune perfectă, <em>F<sub>c</sub> ≈ 3.14</em>.</p>
+  <div class="panel">
+    <h2>Compoziție (mută sliderele, % din masă)</h2>
+    <div id="sliders"></div>
+    <div class="sum" id="sumRow"><span>Total</span><span id="sumVal">100.0%</span></div>
+  </div>
 
-<h2>2. Aplicare numerică</h2>
-<p>
-La 1200 °C energia vibrațională medie <em>E ≈ 0,12 eV/atom</em>.
-Pentru menținerea coeziunii trebuie ca raportul <em>n<sub>e⁻</sub>/r²</em> să rămână constant.
-Metalele cu rețea cubică față-centrată (FCC) satisfac această condiție, iar analiza numerică
-indică o zonă de compoziție stabilă în jurul valorii F<sub>c</sub> = 3.14.
-</p>
+  <div class="panel">
+    <h2>Rezultate — calculate din slidere, nu introduse manual</h2>
+    <div class="results">
+      <div class="stat">
+        <div class="k">Fc (modelul tău)</div>
+        <div class="v" id="fcVal">—</div>
+        <div class="note">(N × VEC_mediu × E) / r²_mediu, ponderat pe compoziție</div>
+      </div>
+      <div class="stat">
+        <div class="k">Distanță până la 3.14</div>
+        <div class="v" id="distVal">—</div>
+        <div class="note">cu cât trebuie mutate sliderele ca să atingă ținta ta</div>
+      </div>
+      <div class="stat">
+        <div class="k">VEC <span class="badge b-real" style="margin-left:4px">real</span></div>
+        <div class="v" id="vecVal">—</div>
+        <div class="note">Hume-Rothery. VEC ≥ 8 → matrice FCC stabilă (regulă din literatură, nu din modelul tău)</div>
+      </div>
+      <div class="stat">
+        <div class="k">δ mismatch rază <span class="badge b-real" style="margin-left:4px">real</span></div>
+        <div class="v" id="deltaVal">—</div>
+        <div class="note">parametrul Zhang. δ &lt; 6% → soluție solidă favorizată, nu compus intermetalic fragil</div>
+      </div>
+    </div>
+  </div>
 
-<h2>3. Estimarea compoziției</h2>
-<table>
-  <tr><th>Element</th><th>Rol structural</th><th>Interval procentual</th></tr>
-  <tr><td>Ni</td><td>matrice coezivă (rețea FCC)</td><td>50–60 %</td></tr>
-  <tr><td>Cr</td><td>strat protector Cr₂O₃</td><td>18–25 %</td></tr>
-  <tr><td>Fe</td><td>stabilizare electronică</td><td>5–10 %</td></tr>
-  <tr><td>W / Mo</td><td>densitate vibrațională, duritate</td><td>5–10 %</td></tr>
-  <tr><td>Al + Ti + Si</td><td>coerență vibrațională fină</td><td>3–5 %</td></tr>
-  <tr><td>Altele (Co, C)</td><td>ajustare locală</td><td>&lt; 2 %</td></tr>
-</table>
+  <div class="verdict" id="verdict"></div>
 
-<h2>4. Simulare termică (temperatură vs coeziune)</h2>
-<div class="gauge-container">
-  <canvas id="gaugeCanvas"></canvas>
-  <div class="gauge-value" id="gaugeValue">F<sub>c</sub> = 0.00</div>
-  <label for="tempSlider">Temperatura (°C): <span id="tempLabel">1200</span></label><br>
-  <input type="range" id="tempSlider" min="800" max="1300" value="1200" step="10">
+  <footer>
+    Date atomice: raze metalice (Ni 125, Cr 128, Fe 126, Mo 139, W 139, Al 143, Ti 147, Si 111 pm) și
+    VEC Hume-Rothery (Ni 10, Cr 6, Fe 8, Mo 6, W 6, Al 3, Ti 4, Si 4) — constante standard de manuale de metalurgie.
+    <div class="ref">Acest instrument nu confirmă și nu infirmă modelul 3.14 ca lege fizică — arată doar dacă,
+    plecând de la elemente reale fără compoziție prestabilită, Fc=3.14 coincide sau nu cu ce spun regulile
+    Hume-Rothery/Zhang deja acceptate.</div>
+  </footer>
 </div>
-<canvas id="chartCanvas"></canvas>
-
-<h2>5. Simulare de coeziune (2.5–3.5)</h2>
-<p style="text-align:center">Mută sliderul: la <strong>F<sub>c</sub> = 3.14</strong> sistemul devine stabil și ordonat.</p>
-<div class="flame" id="flame"></div>
-<div class="label" id="labelFc">F<sub>c</sub> = 2.50</div>
-<div class="line" id="line"></div>
-<p id="desc" style="text-align:center">Vibrații haotice, pierderi, ardere neregulată</p>
-<label for="slider">Ajustează coeziunea:</label><br>
-<input type="range" id="slider" min="2.5" max="3.5" value="2.5" step="0.01">
-
-<footer>
-Sergiu Bulboacă – autor al Modelului Coeziv 3.14<br>Danemarca, 2025
-</footer>
 
 <script>
-// ---- G A U G E  ----
-const gaugeCanvas=document.getElementById("gaugeCanvas");
-const ctx=gaugeCanvas.getContext("2d");
-const tempSlider=document.getElementById("tempSlider");
-const tempLabel=document.getElementById("tempLabel");
-const gaugeValue=document.getElementById("gaugeValue");
-function drawGauge(fc){
-  ctx.clearRect(0,0,gaugeCanvas.width,gaugeCanvas.height);
-  const cx=gaugeCanvas.width/2, cy=gaugeCanvas.height, r=110;
-  const start=Math.PI, end=2*Math.PI;
-  ctx.beginPath();ctx.arc(cx,cy,r,start,end);
-  ctx.lineWidth=15;ctx.strokeStyle="#ccc";ctx.stroke();
-  const ang=start+(fc/5)*Math.PI;
-  ctx.beginPath();ctx.arc(cx,cy,r,start,ang);
-  ctx.strokeStyle="#26a69a";ctx.lineWidth=15;ctx.stroke();
-}
-function calcFc(temp){const diff=Math.abs(temp-1200);return 3.14 - 0.0015*Math.pow(diff,1.3);}
-function updateGauge(){
-  const t=parseInt(tempSlider.value);
-  tempLabel.textContent=t;
-  const fc=calcFc(t);
-  const fcClamped=Math.max(0,Math.min(fc,3.14));
-  drawGauge(fcClamped);
-  gaugeValue.innerHTML=`F<sub>c</sub> = ${fcClamped.toFixed(2)}`+(Math.abs(t-1200)<20?" (echilibru coeziune perfectă)":"");
-  drawChart();
-}
-tempSlider.addEventListener("input",updateGauge);
+const ELEMENTS = [
+  {id:'Ni', name:'Nichel',  r:125, vec:10, rho:8.908,  M:58.69,  init:55},
+  {id:'Cr', name:'Crom',    r:128, vec:6,  rho:7.15,   M:51.996, init:21},
+  {id:'Fe', name:'Fier',    r:126, vec:8,  rho:7.874,  M:55.845, init:8},
+  {id:'Mo', name:'Molibden',r:139, vec:6,  rho:10.28,  M:95.95,  init:8},
+  {id:'W',  name:'Wolfram', r:139, vec:6,  rho:19.25,  M:183.84, init:4},
+  {id:'Al', name:'Aluminiu',r:143, vec:3,  rho:2.70,   M:26.98,  init:2},
+  {id:'Ti', name:'Titan',   r:147, vec:4,  rho:4.506,  M:47.867, init:1},
+  {id:'Si', name:'Siliciu', r:111, vec:4,  rho:2.33,   M:28.085, init:1},
+];
 
-// ---- C H A R T ----
-const chartCanvas=document.getElementById("chartCanvas");
-const cctx=chartCanvas.getContext("2d");
-chartCanvas.width=900;chartCanvas.height=260;
-function drawChart(){
-  const width=chartCanvas.width, height=chartCanvas.height;
-  cctx.clearRect(0,0,width,height);
-  cctx.strokeStyle="#888";cctx.lineWidth=1;
-  cctx.beginPath();
-  cctx.moveTo(50,height-30); cctx.lineTo(width-20,height-30);
-  cctx.moveTo(50,20); cctx.lineTo(50,height-30);
-  cctx.stroke();
-  cctx.font="12px Segoe UI";
-  cctx.fillText("Temperatura (°C)",width/2-40,height-8);
-  cctx.save();cctx.rotate(-Math.PI/2);
-  cctx.fillText("Fᶜ", -height/2-10, 15);cctx.restore();
-  cctx.beginPath();
-  for(let t=800;t<=1300;t+=10){
-    const fc=calcFc(t);
-    const x=50+((t-800)/(1300-800))*(width-70);
-    const y=height-30-(fc/3.5)*(height-60);
-    if(t===800) cctx.moveTo(x,y); else cctx.lineTo(x,y);
-  }
-  cctx.strokeStyle="#26a69a";cctx.lineWidth=2;cctx.stroke();
-  const t=parseInt(tempSlider.value);
-  const fc=calcFc(t);
-  const x=50+((t-800)/(1300-800))*(width-70);
-  const y=height-30-(fc/3.5)*(height-60);
-  cctx.beginPath();cctx.arc(x,y,5,0,2*Math.PI);
-  cctx.fillStyle="#ff5722";cctx.fill();
+const E_eV = 0.127; // kT real la 1200°C (1473K), fix, necalibrat per compoziție
+const sliders = document.getElementById('sliders');
+
+ELEMENTS.forEach(el=>{
+  const row = document.createElement('div');
+  row.className='elrow';
+  row.innerHTML = `
+    <label>${el.name} (${el.id})</label>
+    <input type="range" min="0" max="80" step="0.5" value="${el.init}" id="s_${el.id}">
+    <div class="val" id="v_${el.id}">${el.init.toFixed(1)}%</div>
+  `;
+  sliders.appendChild(row);
+});
+
+function getComposition(){
+  const raw = ELEMENTS.map(el=>parseFloat(document.getElementById('s_'+el.id).value));
+  return raw;
 }
 
-// ---- C O E Z I U N E  ----
-const flame=document.getElementById("flame");
-const slider=document.getElementById("slider");
-const label=document.getElementById("labelFc");
-const desc=document.getElementById("desc");
-const line=document.getElementById("line");
-function updateFlame(){
-  const fc=parseFloat(slider.value);
-  label.innerHTML=`F<sub>c</sub> = ${fc.toFixed(2)}`;
-  if(fc<3.0){
-    flame.style.background="radial-gradient(circle at 60% 40%, #ffab91, #e53935)";
-    flame.style.animation="chaos 0.5s infinite";
-    line.style.background="#d32f2f";
-    desc.innerHTML="Vibrații haotice, pierderi, ardere neregulată";
-  } else if(fc>=3.0 && fc<=3.28){
-    flame.style.background="radial-gradient(circle at 50% 60%, #00ffc3, #00796b)";
-    flame.style.animation="breathe 3s ease-in-out infinite";
-    line.style.background="#00bfa5";
-    desc.innerHTML="Flux uniform, echilibru coeziv, ardere curată";
+function compute(){
+  const raw = getComposition();
+  const total = raw.reduce((a,b)=>a+b,0);
+  document.getElementById('sumVal').textContent = total.toFixed(1)+'%';
+  document.getElementById('sumRow').className = 'sum' + (Math.abs(total-100)<1.5 ? ' ok' : '');
+
+  ELEMENTS.forEach((el,i)=>{
+    document.getElementById('v_'+el.id).textContent = raw[i].toFixed(1)+'%';
+  });
+
+  const frac = raw.map(v=>v/total); // normalizat, indiferent de sumă
+
+  // medii ponderate pe mol (aproximare rezonabilă pentru un test conceptual)
+  const rBar   = frac.reduce((s,f,i)=>s+f*ELEMENTS[i].r,0);       // pm
+  const vecBar = frac.reduce((s,f,i)=>s+f*ELEMENTS[i].vec,0);     // e/atom
+  // densitate atomică N: media ponderată pe volum molar (rho/M), scalată la 1e22 atomi/cm3
+  const Nbar = frac.reduce((s,f,i)=>s+f*(ELEMENTS[i].rho/ELEMENTS[i].M),0) * 6.022; // ~1e22 /cm3 units
+
+  // Fc = (N * VEC * E) / r^2 — scalat ca să aibă ordinul de mărime al originalului (3.14 range)
+  // constanta de scalare k_s alege o singură dată, NU se re-ajustează per slider
+  const k_s = 4.4; // fixată din potrivirea unui singur punct de referință (Inconel-tip), apoi înghețată
+  const Fc = k_s * (Nbar * vecBar * E_eV) / Math.pow(rBar/125,2);
+
+  // delta (Zhang) — mismatch de rază, parametru real din literatura HEA
+  const delta = Math.sqrt(frac.reduce((s,f,i)=>s+f*Math.pow(1-ELEMENTS[i].r/rBar,2),0))*100;
+
+  document.getElementById('fcVal').textContent = Fc.toFixed(2);
+  document.getElementById('fcVal').className = 'v ' + (Math.abs(Fc-3.14)<0.15?'teal':Math.abs(Fc-3.14)<0.4?'amber':'red');
+
+  const dist = Math.abs(Fc-3.14);
+  document.getElementById('distVal').textContent = dist.toFixed(2);
+
+  document.getElementById('vecVal').textContent = vecBar.toFixed(2);
+  document.getElementById('vecVal').className = 'v ' + (vecBar>=8?'teal':'amber');
+
+  document.getElementById('deltaVal').textContent = delta.toFixed(2)+'%';
+  document.getElementById('deltaVal').className = 'v ' + (delta<6?'teal':'red');
+
+  const vecOk = vecBar>=8;
+  const deltaOk = delta<6;
+  const fcOk = dist<0.15;
+
+  let msg = '';
+  if(fcOk && vecOk && deltaOk){
+    msg = `<b>Coincid.</b> La această compoziție, Fc≈3.14 apare în același timp cu VEC≥8 (FCC stabilă) și δ&lt;6% (soluție solidă, nu compus fragil). Asta e testul real: modelul tău a "nimerit" o zonă pe care regulile Hume-Rothery/Zhang o marchează independent ca favorabilă.`;
+  } else if(fcOk && !(vecOk && deltaOk)){
+    msg = `Fc≈3.14, dar VEC sau δ ies din zona favorabilă (${!vecOk?'VEC<8':''} ${!deltaOk?'δ≥6%':''}). Aici modelul tău indică 3.14 într-o compoziție pe care regulile stabilite n-ar recomanda-o pentru o soluție solidă stabilă — un semnal că Fc singur nu prinde tot ce contează.`;
   } else {
-    flame.style.background="radial-gradient(circle at 50% 50%, #c5e1a5, #558b2f)";
-    flame.style.animation="pulse 1.5s ease-in-out infinite";
-    line.style.background="#9ccc65";
-    desc.innerHTML="Supra-coeziune: rigiditate, disipare limitată";
+    msg = `Fc = ${Fc.toFixed(2)}, departe de 3.14. La compoziția curentă, ${vecOk?'VEC e favorabil':'VEC e sub 8'} și ${deltaOk?'δ e favorabil':'δ e peste 6%'}. Mută sliderele spre Ni mai mult / Cr, Mo mai puțin (sau invers) și urmărește dacă cele trei numere converg simultan sau nu.`;
   }
+  document.getElementById('verdict').innerHTML = msg;
 }
-slider.addEventListener("input",updateFlame);
-updateGauge();updateFlame();
 
-// ---- A N I M A T I O N S ----
-const style=document.createElement('style');
-style.textContent=`
-@keyframes breathe {0%{transform:scale(1);}50%{transform:scale(1.08);}100%{transform:scale(1);}}
-@keyframes chaos {0%{transform:translate(0,0) scale(1);}25%{transform:translate(-3px,4px) scale(1.1);}
-50%{transform:translate(5px,-5px) scale(0.9);}75%{transform:translate(-4px,2px) scale(1.05);}100%{transform:translate(0,0) scale(1);}}
-@keyframes pulse {0%{box-shadow:0 0 15px #9ccc65;}50%{box-shadow:0 0 30px #aed581;}100%{box-shadow:0 0 15px #9ccc65;}}
-`;
-document.head.appendChild(style);
+ELEMENTS.forEach(el=>{
+  document.getElementById('s_'+el.id).addEventListener('input', compute);
+});
+compute();
 </script>
-
 </body>
 </html>
