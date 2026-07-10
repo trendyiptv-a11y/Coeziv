@@ -1,7 +1,7 @@
 {
   "model": "global_coeziv_state",
   "version": "1.5",
-  "updated_at": "2026-07-10T06:46:04.058729+00:00",
+  "updated_at": "2026-07-10T11:28:57.650488+00:00",
   "source": {
     "folder": "data_global",
     "series": [
@@ -22,10 +22,10 @@
     "t": 1783641600000,
     "date": "2026-07-10",
     "ic_global": 80.68027210884354,
-    "icd_global": 29.947138588830153,
-    "coeziv_phase": 1.5181076021201525,
-    "coeziv_energy": 0.9986122702305567,
-    "risk_score": 0.9986122702305567,
+    "icd_global": 29.924155366582394,
+    "coeziv_phase": 1.5169425157025622,
+    "coeziv_energy": 0.9985502339545054,
+    "risk_score": 0.9985502339545054,
     "macro_signal": "risk-on",
     "global_regime": "bull",
     "description": "Piața globală are structură coerentă și fază de expansiune: modelul indică un mediu constructiv, favorabil asumării de risc."
@@ -30116,10 +30116,10 @@
       "t": 1581033600000,
       "date": "2020-02-07",
       "ic_global": 48.07256235827664,
-      "icd_global": 29.924155366582394,
-      "coeziv_phase": 0.9038555742803349,
-      "coeziv_energy": 0.7857177448481584,
-      "risk_score": 0.7857177448481584,
+      "icd_global": 29.947138588830153,
+      "coeziv_phase": 0.9045497797905347,
+      "coeziv_energy": 0.7861469807273928,
+      "risk_score": 0.7861469807273928,
       "macro_signal": "risk-on",
       "global_regime": "bull"
     },
@@ -47892,10 +47892,10 @@
       "t": 1783641600000,
       "date": "2026-07-10",
       "ic_global": 80.68027210884354,
-      "icd_global": 29.947138588830153,
-      "coeziv_phase": 1.5181076021201525,
-      "coeziv_energy": 0.9986122702305567,
-      "risk_score": 0.9986122702305567,
+      "icd_global": 29.924155366582394,
+      "coeziv_phase": 1.5169425157025622,
+      "coeziv_energy": 0.9985502339545054,
+      "risk_score": 0.9985502339545054,
       "macro_signal": "risk-on",
       "global_regime": "bull"
     }
