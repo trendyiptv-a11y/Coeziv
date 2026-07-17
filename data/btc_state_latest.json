@@ -1,17 +1,17 @@
 {
-  "as_of": "2026-07-16",
-  "close": 64850.7,
-  "ic_struct": 69.18,
-  "ic_dir": 21.2,
-  "vol30_ann_pct": 33.79,
-  "vol30_index": 12.87,
+  "as_of": "2026-07-17",
+  "close": 62983.3,
+  "ic_struct": 69.36,
+  "ic_dir": 18.76,
+  "vol30_ann_pct": 33.85,
+  "vol30_index": 12.93,
   "regime_code": "bear_late",
   "regime_label": "Bear târziu / capitulare",
   "regime_short": "Structură descendentă avansată, cu risc de mișcări extreme.",
   "regime_color": "orange",
   "context_short": {
     "trend": {
-      "text": "Trend: structură ridicată (IC 69), bias bear (ICD 21).",
+      "text": "Trend: structură ridicată (IC 69), bias bear (ICD 19).",
       "color": "red"
     },
     "volatility": {
